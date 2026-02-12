@@ -23,7 +23,7 @@ import pandas as pd
 import numpy as np
 
 from sqlalchemy import create_engine, text, QueuePool
-from fastapi import FastAPI, HTTPException, Query, Depends
+from fastapi import FastAPI, APIRouter, HTTPException, Query, Depends
 from fastapi.security import APIKeyHeader
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
