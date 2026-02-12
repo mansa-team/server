@@ -1,18 +1,18 @@
 # GLOBAL
-pandas==2.3.2
-numpy==2.3.2
-sqlalchemy==2.0.43
-pymysql==1.1.2
-dotenv==1.1.1
+pandas
+numpy
+sqlalchemy
+pymysql
+dotenv=
 
 # SCRAPER-B3
-selenium==4.35.0
-tenacity==9.1.2
-apscheduler==3.11.1
+selenium
+tenacity
+apscheduler
 
 # STOCKS-API
-fastapi==0.121.3
-uvicorn==0.38.0
-requests==2.32.5
+fastapi
+uvicorn
+requests
 
 # PROMETHEUS
