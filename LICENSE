@@ -1,0 +1,248 @@
+                    GNU GENERAL PUBLIC LICENSE MODIFIED
+                       Version 1.0, 6 August 2025
+
+ Copyright (C) 2025 Mansa
+ Everyone is permitted to view and study the source code,
+ but commercial use and modifications are strictly prohibited without authorization.
+
+                            Preamble
+
+  This license imposes significant restrictions on the use and modification of the software.
+  By contrast with free software licenses, this license:
+  - Prohibits all commercial use without explicit written permission
+  - Forbids any modification of the source code
+  - Allows only non-commercial, personal inspection of the code
+
+                       TERMS AND CONDITIONS 
+
+  0. Definitions
+
+  "Commercial Use" means any utilization of the Program that is intended for or directed toward commercial advantage or monetary compensation.
+  
+  "Authorization" means explicit written permission granted by the copyright holder.
+
+  1. Source Code 
+
+  The "source code" for a work means the preferred form of the work
+for making modifications to it.  "Object code" means any non-source
+form of a work.
+
+  A "Standard Interface" means an interface that either is an official
+standard defined by a recognized standards body, or, in the case of
+interfaces specified for a particular programming language, one that
+is widely used among developers working in that language.
+
+  The "System Libraries" of an executable work include anything, other
+than the work as a whole, that (a) is included in the normal form of
+packaging a Major Component, but which is not part of that Major
+Component, and (b) serves only to enable use of the work with that
+Major Component, or to implement a Standard Interface for which an
+implementation is available to the public in source code form.  A
+"Major Component", in this context, means a major essential component
+(kernel, window system, and so on) of the specific operating system
+(if any) on which the executable work runs, or a compiler used to
+produce the work, or an object code interpreter used to run it.
+
+  The "Corresponding Source" for a work in object code form means all
+the source code needed to generate, install, and (for an executable
+work) run the object code and to modify the work, including scripts to
+control those activities.  However, it does not include the work's
+System Libraries, or general-purpose tools or generally available free
+programs which are used unmodified in performing those activities but
+which are not part of the work.  For example, Corresponding Source
+includes interface definition files associated with source files for
+the work, and the source code for shared libraries and dynamically
+linked subprograms that the work is specifically designed to require,
+such as by intimate data communication or control flow between those
+subprograms and other parts of the work.
+
+  The Corresponding Source need not include anything that users
+can regenerate automatically from other parts of the Corresponding
+Source.
+
+  The Corresponding Source for a work in source code form is that
+same work.
+
+  2. Basic Permissions
+
+  All rights granted under this License are limited to NON-COMMERCIAL USE ONLY. You are permitted to:
+  a) View and study the source code for personal, non-commercial purposes
+  b) Run the Program for personal, non-commercial testing
+
+  EXPRESSLY PROHIBITED WITHOUT AUTHORIZATION:
+  a) Any Commercial Use of the Program or its output
+  b) Any modification, adaptation, or creation of derivative works
+  c) Any distribution of original or modified versions
+
+  3. Protecting Users' Legal Rights From Anti-Circumvention Law.
+
+  No covered work shall be deemed part of an effective technological
+measure under any applicable law fulfilling obligations under article
+11 of the WIPO copyright treaty adopted on 20 December 1996, or
+similar laws prohibiting or restricting circumvention of such
+measures.
+
+  When you convey a covered work, you waive any legal power to forbid
+circumvention of technological measures to the extent such circumvention
+is effected by exercising rights under this License with respect to
+the covered work, and you disclaim any intention to limit operation or
+modification of the work as a means of enforcing, against the work's
+users, your or third parties' legal rights to forbid circumvention of
+technological measures.
+
+  4. Conveying Verbatim Copies
+
+  You may NOT convey any copies of this software in any form (source or binary) without explicit authorization from the copyright holder.
+
+  5. Conveying Modified Source Versions
+
+  You are expressly forbidden from modifying, adapting, translating, reverse-engineering, or creating derivative works based on this Program. Any attempt to modify the Program voids this license.
+
+  6. Conveying Non-Source Forms
+
+  Distribution of binary forms is strictly prohibited without authorization. Should authorization be granted, Corresponding Source must be provided per original GPLv3 section 6 requirements.
+
+  7. Additional Terms
+
+  You may not add terms that permit commercial use or modification. Any additional terms must reinforce the core restrictions of this license.
+
+  8. Termination
+
+  Your rights under this license automatically terminate if you:
+  a) Use the Program for Commercial Purposes without authorization
+  b) Modify the Program in any way
+  c) Distribute the Program or derivative works
+
+  9. Acceptance Not Required
+
+  You are not required to accept this License in order to receive or
+run a copy of the Program.  Ancillary propagation of a covered work
+occurring solely as a consequence of using peer-to-peer transmission
+to receive a copy likewise does not require acceptance.  However,
+nothing other than this License grants you permission to propagate or
+modify any covered work.  These actions infringe copyright if you do
+not accept this License.  Therefore, by modifying or propagating a
+covered work, you indicate your acceptance of this License to do so.
+
+  10. Automatic Licensing
+
+  There is no automatic licensing of downstream recipients. All rights are reserved by the copyright holder.
+
+  11. Patents
+
+  A "contributor" is a copyright holder who authorizes use under this
+License of the Program or a work on which the Program is based.  The
+work thus licensed is called the contributor's "contributor version".
+
+  A contributor's "essential patent claims" are all patent claims
+owned or controlled by the contributor, whether already acquired or
+hereafter acquired, that would be infringed by some manner, permitted
+by this License, of making, using, or selling its contributor version,
+but do not include claims that would be infringed only as a
+consequence of further modification of the contributor version.  For
+purposes of this definition, "control" includes the right to grant
+patent sublicenses in a manner consistent with the requirements of
+this License.
+
+  Each contributor grants you a non-exclusive, worldwide, royalty-free
+patent license under the contributor's essential patent claims, to
+make, use, sell, offer for sale, import and otherwise run, modify and
+propagate the contents of its contributor version.
+
+  In the following three paragraphs, a "patent license" is any express
+agreement or commitment, however denominated, not to enforce a patent
+(such as an express permission to practice a patent or covenant not to
+sue for patent infringement).  To "grant" such a patent license to a
+party means to make such an agreement or commitment not to enforce a
+patent against the party.
+
+  If you convey a covered work, knowingly relying on a patent license,
+and the Corresponding Source of the work is not available for anyone
+to copy, free of charge and under the terms of this License, through a
+publicly available network server or other readily accessible means,
+then you must either (1) cause the Corresponding Source to be so
+available, or (2) arrange to deprive yourself of the benefit of the
+patent license for this particular work, or (3) arrange, in a manner
+consistent with the requirements of this License, to extend the patent
+license to downstream recipients.  "Knowingly relying" means you have
+actual knowledge that, but for the patent license, your conveying the
+covered work in a country, or your recipient's use of the covered work
+in a country, would infringe one or more identifiable patents in that
+country that you have reason to believe are valid.
+
+  If, pursuant to or in connection with a single transaction or
+arrangement, you convey, or propagate by procuring conveyance of, a
+covered work, and grant a patent license to some of the parties
+receiving the covered work authorizing them to use, propagate, modify
+or convey a specific copy of the covered work, then the patent license
+you grant is automatically extended to all recipients of the covered
+work and works based on it.
+
+  A patent license is "discriminatory" if it does not include within
+the scope of its coverage, prohibits the exercise of, or is
+conditioned on the non-exercise of one or more of the rights that are
+specifically granted under this License.  You may not convey a covered
+work if you are a party to an arrangement with a third party that is
+in the business of distributing software, under which you make payment
+to the third party based on the extent of your activity of conveying
+the work, and under which the third party grants, to any of the
+parties who would receive the covered work from you, a discriminatory
+patent license (a) in connection with copies of the covered work
+conveyed by you (or copies made from those copies), or (b) primarily
+for and in connection with specific products or compilations that
+contain the covered work, unless you entered into that arrangement,
+or that patent license was granted, prior to 28 March 2007.
+
+  Nothing in this License shall be construed as excluding or limiting
+any implied license or other defenses to infringement that may
+otherwise be available to you under applicable patent law.
+
+  12. Revised Versions
+
+  The copyright holder may publish revised versions of this proprietary license. You may not apply any future versions without explicit authorization.
+
+  13. Disclaimer of Warranty
+
+    THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY
+APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT
+HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY
+OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM
+IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF
+ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
+
+  14. Limitation of Liability
+
+  IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS
+THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY
+GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE
+USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF
+DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD
+PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
+EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGES.
+
+  15. Interpretation
+
+  If any provision conflicts with the restrictions on commercial use or modification, the restrictions shall prevail.
+
+                     END OF TERMS AND CONDITIONS
+
+            How to Apply This License to Your Program
+
+  Attach the following notices to your program:
+
+    Mansa Team - Copyright (C) 2025 Mansa
+    Licensed under PROPRIETARY LICENSE WITH COMMERCIAL AND MODIFICATION RESTRICTIONS v1.0
+    - Commercial use STRICTLY PROHIBITED without authorization
+    - Modifications STRICTLY PROHIBITED without authorization
+    - Source code provided for INSPECTION ONLY
+
+  Include in each source file:
+
+    // Mansa Team - Copyright (C) 2025 Mansa
+    // Licensed under PROPRIETARY LICENSE WITH COMMERCIAL AND MODIFICATION RESTRICTIONS v1.0
+    // Commercial use and modifications PROHIBITED without authorization
+    // Contact: mansafin.team@gmail.com
