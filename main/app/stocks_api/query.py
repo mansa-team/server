@@ -1,5 +1,3 @@
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from imports import *
 
 from main.app.stocks_api.util import *

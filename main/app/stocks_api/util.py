@@ -1,5 +1,3 @@
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from imports import *
 
 APIKey_Header = APIKeyHeader(name="X-API-Key", auto_error=False)

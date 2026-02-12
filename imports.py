@@ -15,9 +15,6 @@ import threading
 from queue import Queue
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.cron import CronTrigger
-
 import requests
 import pandas as pd
 import numpy as np

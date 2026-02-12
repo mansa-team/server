@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Query, Depends
+from fastapi import APIRouter, Depends, Query
 from main.app.stocks_api.query import queryFundamental, queryHistorical
 from main.app.stocks_api.util import verifyAPIKey
 

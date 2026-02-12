@@ -1,12 +1,10 @@
 from imports import *
 
-from main.utils.connectivity import *
-from main.service.stocksapi_service import *
-
 from main.utils.connectivity import checkMYSQLConnection, checkServiceConnection
 from main.utils.service_manager import ServiceManager
 from main.service.stocksapi_service import StocksAPIService
 from main.service.prometheus_service import PrometheusService
+from main.service.scraperb3_service import ScraperService
 
 def orchestrator():
     # MYSQL Connection Test
@@ -19,6 +17,9 @@ def orchestrator():
     if Config.PROMETHEUS['ENABLED'] == "TRUE":
         PrometheusService.initialize(int(Config.PROMETHEUS['PORT']))
 
+    if Config.SCRAPER['ENABLED'] == "TRUE":
+        ScraperService.initialize()
+        
     ServiceManager.runAll()
 
     if not checkServiceConnection("STOCKS_API") and Config.PROMETHEUS['ENABLED'] == "TRUE":
