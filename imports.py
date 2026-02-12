@@ -39,6 +39,8 @@ load_dotenv()
 
 LOCALHOST_ADDRESSES = ['localhost', '127.0.0.1', '0.0.0.0', 'None', None]
 class Config:
+    DEBUG_MODE = os.getenv('DEBUG_MODE')
+
     MYSQL = {
         'USER': os.getenv('MYSQL_USER'),
         'PASSWORD': os.getenv('MYSQL_PASSWORD'),
