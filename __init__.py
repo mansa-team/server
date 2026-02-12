@@ -4,7 +4,7 @@ from main.utils.connectivity import checkMYSQLConnection, checkServiceConnection
 from main.utils.service_manager import ServiceManager
 from main.service.stocksapi_service import StocksAPIService
 from main.service.prometheus_service import PrometheusService
-from main.service.scraperb3_service import ScraperService
+from main.service.scraper_service import ScraperService, runScraper
 
 def orchestrator():
     # MYSQL Connection Test
@@ -23,8 +23,7 @@ def orchestrator():
     ServiceManager.runAll()
 
     if not checkServiceConnection("STOCKS_API") and Config.PROMETHEUS['ENABLED'] == "TRUE":
-        if Config.DEBUG_MODE == "TRUE":
-            print("Server initialization failed: Couldn't connect to the STOCKS_API in which Prometheus depends on.")
+        if Config.DEBUG_MODE == "TRUE": print("Server initialization failed: Couldn't connect to the STOCKS_API in which Prometheus depends on.")
         return
     
     while True: time.sleep(1)

@@ -47,6 +47,5 @@ class GeminiClient:
                 wait_time = 2 ** i
                 time.sleep(wait_time)
 
-        if Config.DEBUG_MODE=="TRUE":       
-            print("Maximum retries reached. Could not complete the request.")
+        if Config.DEBUG_MODE=="TRUE": print("Maximum retries reached. Could not complete the request.")
         return None

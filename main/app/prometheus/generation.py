@@ -92,7 +92,7 @@ def executeWorkflow(userQuery):
     APIResponse = {}
     for idx, i in enumerate(responseData.itertuples()):
         APIResponse[idx] = requests.get(
-            f'http://{Config.STOCKS_API["HOST"]}:{Config.STOCKS_API["PORT"]}/api/{i.type}',
+            f'http://{Config.STOCKS_API["HOST"]}:{Config.STOCKS_API["PORT"]}/stocks/{i.type}',
             params={
                 'search': i.search,
                 'fields': i.fields,
