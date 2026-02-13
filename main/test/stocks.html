@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mansa Finance | Terminal de Análise</title>
+    <title>Mansa</title>
     
     <link rel="icon" type="image/x-icon" href="https://mansa-team.github.io/icons/icons/MANSA.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,290 +16,50 @@
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
     
     <style>
-        :root {
-            --bg-deep: #000000;
-            --bg-surface: #050505;
-            --bg-card: #0a0a0a;
-            --bg-muted: #111111;
-            --accent: #BDF96F;
-            --accent-soft: rgba(189, 249, 111, 0.1);
-            --border: #0a0a0a;
-            --text-primary: #ffffff;
-            --text-secondary: #aaaaaa;
-            --text-tertiary: #666666;
-            --danger: #ff4444;
-            --warning: #ffbb33;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            scrollbar-width: none;
-        }
-
-        *::-webkit-scrollbar { display: none; }
-
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            background: var(--bg-deep);
-            color: var(--text-primary);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
+            font-family: sans-serif;
+            background: #fff;
+            color: #000;
+            padding: 20px;
         }
 
-        /* Top Navigation Header */
         .app-header {
-            height: 72px;
-            background: var(--bg-surface);
-            border-bottom: 1px solid grey;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 40px;
-            z-index: 100;
-            flex-shrink: 0;
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
         }
-
-        .brand-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .brand-header img { width: 32px; height: 32px; filter: drop-shadow(0 0 8px var(--accent-soft)); }
-        .brand-header h1 { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; color: var(--accent); }
 
         .search-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: var(--bg-deep);
-            border: 1.5px solid #000000;
-            border-radius: 24px;
-            padding: 4px 8px 4px 16px;
-            width: 450px;
-            transition: all 0.2s;
+            margin: 20px 0;
         }
-
-        .search-container:focus-within {
-            border-color: var(--accent);
-            background: #080808;
-            box-shadow: 0 0 0 1px var(--accent), 0 0 20px var(--accent-soft);
-        }
-
-        .search-container i { color: var(--accent); font-size: 20px; }
 
         .search-input {
-            background: transparent;
-            border: none;
-            color: white;
-            font-family: inherit;
-            font-size: 14px;
-            outline: none;
-            flex: 1;
-            padding: 8px 0;
+            padding: 8px;
+            width: 300px;
         }
 
-        .btn-search {
-            background: var(--accent);
-            color: black;
-            border: none;
-            border-radius: 20px;
-            padding: 8px 18px;
-            font-weight: 700;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
+        .metric-card, .perf-card, .chart-box {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
         }
 
-        .btn-search:hover { transform: scale(1.05); }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .config-input {
-            background: var(--bg-muted);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 6px 12px;
-            color: var(--text-secondary);
-            font-size: 11px;
-            outline: none;
-            width: 120px;
-        }
-
-        /* Content Area */
-        .app-main {
-            flex: 1;
-            overflow-y: auto;
-            position: relative;
-            padding: 40px;
-        }
-
-        /* Dashboard Skeleton */
-        #dashboardContent { opacity: 0; transform: translateY(10px); transition: all 0.4s ease; }
-        #dashboardContent.active { opacity: 1; transform: translateY(0); }
-
-        /* Ticker Profile */
-        .profile-hero {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            margin-bottom: 48px;
-        }
-
-        .profile-main { display: flex; align-items: center; gap: 24px; }
-
-        .profile-icon {
-            width: 96px; height: 96px;
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 16px;
-            object-fit: contain;
-        }
-
-        .profile-title h2 { font-size: 44px; font-weight: 900; line-height: 1; margin-bottom: 8px; color: var(--accent); }
-        .profile-title p { font-size: 18px; color: var(--text-secondary); font-weight: 500; }
-
-        .profile-tags { display: flex; gap: 8px; margin-top: 12px; }
-        .tag {
-            background: var(--bg-muted);
-            color: var(--text-secondary);
-            font-size: 10px;
-            font-weight: 700;
-            padding: 4px 10px;
-            border-radius: 4px;
-            border: 1px solid var(--border);
-            text-transform: uppercase;
-        }
-
-        .price-display { text-align: right; }
-        .price-display .price-value { font-size: 44px; font-weight: 900; color: var(--accent); letter-spacing: -1px; }
-        .price-display .price-label { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-tertiary); margin-bottom: 4px; }
-
-        /* Grid Layouts */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 16px;
-            margin-bottom: 40px;
-        }
-
-        .metric-card {
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .metric-label { font-size: 10px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; }
-        .metric-value { font-size: 20px; font-weight: 800; color: var(--text-primary); }
-
-        /* Sections */
-        .content-section { margin-bottom: 48px; }
-        .section-header { 
-            display: flex; align-items: center; gap: 12px; margin-bottom: 24px; 
-            font-size: 16px; font-weight: 700; color: var(--accent);
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-
-        /* Detailed Indicator Tables */
-        .indicators-container {
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 0 24px;
+        .metrics-grid, .performance-grid, .charts-container {
+            display: block;
         }
 
         .indicator-row {
             display: flex;
             justify-content: space-between;
-            padding: 16px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .indicator-row:last-child { border-bottom: none; }
-
-        .indicator-name { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
-        .indicator-value { font-size: 13px; font-weight: 700; color: white; }
-
-        /* Charts */
-        .charts-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-            gap: 24px;
+            max-width: 500px;
+            border-bottom: 1px solid #eee;
+            padding: 5px 0;
         }
 
-        .chart-box {
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
-            min-height: 400px;
-            display: flex;
-            flex-direction: column;
-        }
+        #dashboardContent { display: none; }
+        #dashboardContent.active { display: block; }
 
-        .chart-box h4 {
-            font-size: 12px;
-            font-weight: 800;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-transform: uppercase;
-            color: var(--accent);
-        }
-
-        .chart-inner { flex: 1; min-height: 0; }
-
-        /* Special Grid for Performance */
-        .performance-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 12px;
-        }
-        .perf-card {
-            background: var(--bg-surface);
-            border: 1px solid var(--border);
-            border-radius: 100px;
-            padding: 8px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.2s;
-        }
-        .perf-card:hover { border-color: var(--text-tertiary); }
-        .perf-card.up { border-color: var(--accent-soft); background: rgba(52, 211, 153, 0.03); }
-        .perf-card.down { border-color: rgba(255, 68, 68, 0.1); background: rgba(255, 68, 68, 0.03); }
-        .perf-card span { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; }
-        .perf-card p { font-size: 12px; font-weight: 800; margin-top: 0; }
-
-        /* Loader */
-        .loading-view {
-            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: #000;
-            display: none; align-items: center; justify-content: center;
-            z-index: 1000;
-        }
-        .orbit {
-            width: 40px; height: 40px;
-            border: 3px solid #111;
-            border-top: 3px solid var(--accent);
-            border-radius: 50%;
-            animation: rotate 0.8s linear infinite;
-        }
-        @keyframes rotate { 100% { transform: rotate(360deg); } }
-
-        #errorDisplay { color: var(--danger); font-size: 12px; margin-top: 12px; display: none; text-align: center; font-weight: 600; }
+        .loading-view { display: none; font-weight: bold; }
     </style>
 
 </head>
@@ -310,7 +70,6 @@
 
     <header class="app-header">
         <div class="brand-header">
-            <img src="https://mansa-team.github.io/icons/icons/MANSA.svg" alt="Mansa">
             <h1>Mansa</h1>
         </div>
 
@@ -531,16 +290,9 @@
             ];
             document.getElementById('performanceGrid').innerHTML = perfs.map(p => {
                 const val = f[p.k];
-                const cls = val >= 0 ? 'up' : 'down';
-                const color = val >= 0 ? 'var(--accent)' : 'var(--danger)';
-                const icon = val >= 0 ? 'trending_up' : 'trending_down';
                 return `
-                    <div class="perf-card ${cls}">
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <i class="material-icons" style="font-size:14px; color:${color}">${icon}</i>
-                            <span>${p.l}</span>
-                        </div>
-                        <p style="color: ${color}">${fmtPctRaw(val)}</p>
+                    <div class="perf-card">
+                        <span>${p.l}</span>: <strong>${fmtPctRaw(val)}</strong>
                     </div>
                 `;
             }).join('');
