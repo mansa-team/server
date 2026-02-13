@@ -2,10 +2,10 @@ from imports import *
 
 APIKey_Header = APIKeyHeader(name="X-API-Key", auto_error=False)
 async def verifyAPIKey(APIKey: str = Depends(APIKey_Header)):
-    if Config.STOCKS_API['KEY.SYSTEM'] == 'FALSE':
+    if Config.PROMETHEUS['KEY.SYSTEM'] == 'FALSE':
         return None
     
-    validKey = Config.STOCKS_API['KEY']
+    validKey = Config.PROMETHEUS['KEY']
     if not validKey:
         raise HTTPException(status_code=500, detail="API key not configured")
     

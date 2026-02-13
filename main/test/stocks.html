@@ -1,0 +1,674 @@
+<!-- Ciolfi vai fazer bonitinho depois, isso é só um teste de consumo de API, queria ver como tava, vida longa ao Gemini 3 -->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mansa Finance | Terminal de Análise</title>
+    
+    <link rel="icon" type="image/x-icon" href="https://mansa-team.github.io/icons/icons/MANSA.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-deep: #000000;
+            --bg-surface: #050505;
+            --bg-card: #0a0a0a;
+            --bg-muted: #111111;
+            --accent: #BDF96F;
+            --accent-soft: rgba(189, 249, 111, 0.1);
+            --border: #0a0a0a;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --text-tertiary: #666666;
+            --danger: #ff4444;
+            --warning: #ffbb33;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scrollbar-width: none;
+        }
+
+        *::-webkit-scrollbar { display: none; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Top Navigation Header */
+        .app-header {
+            height: 72px;
+            background: var(--bg-surface);
+            border-bottom: 1px solid grey;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-header img { width: 32px; height: 32px; filter: drop-shadow(0 0 8px var(--accent-soft)); }
+        .brand-header h1 { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; color: var(--accent); }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-deep);
+            border: 1.5px solid #000000;
+            border-radius: 24px;
+            padding: 4px 8px 4px 16px;
+            width: 450px;
+            transition: all 0.2s;
+        }
+
+        .search-container:focus-within {
+            border-color: var(--accent);
+            background: #080808;
+            box-shadow: 0 0 0 1px var(--accent), 0 0 20px var(--accent-soft);
+        }
+
+        .search-container i { color: var(--accent); font-size: 20px; }
+
+        .search-input {
+            background: transparent;
+            border: none;
+            color: white;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            flex: 1;
+            padding: 8px 0;
+        }
+
+        .btn-search {
+            background: var(--accent);
+            color: black;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 18px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-search:hover { transform: scale(1.05); }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .config-input {
+            background: var(--bg-muted);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: var(--text-secondary);
+            font-size: 11px;
+            outline: none;
+            width: 120px;
+        }
+
+        /* Content Area */
+        .app-main {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+            padding: 40px;
+        }
+
+        /* Dashboard Skeleton */
+        #dashboardContent { opacity: 0; transform: translateY(10px); transition: all 0.4s ease; }
+        #dashboardContent.active { opacity: 1; transform: translateY(0); }
+
+        /* Ticker Profile */
+        .profile-hero {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 48px;
+        }
+
+        .profile-main { display: flex; align-items: center; gap: 24px; }
+
+        .profile-icon {
+            width: 96px; height: 96px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 16px;
+            object-fit: contain;
+        }
+
+        .profile-title h2 { font-size: 44px; font-weight: 900; line-height: 1; margin-bottom: 8px; color: var(--accent); }
+        .profile-title p { font-size: 18px; color: var(--text-secondary); font-weight: 500; }
+
+        .profile-tags { display: flex; gap: 8px; margin-top: 12px; }
+        .tag {
+            background: var(--bg-muted);
+            color: var(--text-secondary);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            text-transform: uppercase;
+        }
+
+        .price-display { text-align: right; }
+        .price-display .price-value { font-size: 44px; font-weight: 900; color: var(--accent); letter-spacing: -1px; }
+        .price-display .price-label { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-tertiary); margin-bottom: 4px; }
+
+        /* Grid Layouts */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .metric-label { font-size: 10px; font-weight: 700; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-value { font-size: 20px; font-weight: 800; color: var(--text-primary); }
+
+        /* Sections */
+        .content-section { margin-bottom: 48px; }
+        .section-header { 
+            display: flex; align-items: center; gap: 12px; margin-bottom: 24px; 
+            font-size: 16px; font-weight: 700; color: var(--accent);
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        /* Detailed Indicator Tables */
+        .indicators-container {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0 24px;
+        }
+
+        .indicator-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .indicator-row:last-child { border-bottom: none; }
+
+        .indicator-name { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+        .indicator-value { font-size: 13px; font-weight: 700; color: white; }
+
+        /* Charts */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+            gap: 24px;
+        }
+
+        .chart-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-box h4 {
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .chart-inner { flex: 1; min-height: 0; }
+
+        /* Special Grid for Performance */
+        .performance-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .perf-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+        .perf-card:hover { border-color: var(--text-tertiary); }
+        .perf-card.up { border-color: var(--accent-soft); background: rgba(52, 211, 153, 0.03); }
+        .perf-card.down { border-color: rgba(255, 68, 68, 0.1); background: rgba(255, 68, 68, 0.03); }
+        .perf-card span { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; }
+        .perf-card p { font-size: 12px; font-weight: 800; margin-top: 0; }
+
+        /* Loader */
+        .loading-view {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: #000;
+            display: none; align-items: center; justify-content: center;
+            z-index: 1000;
+        }
+        .orbit {
+            width: 40px; height: 40px;
+            border: 3px solid #111;
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            animation: rotate 0.8s linear infinite;
+        }
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
+
+        #errorDisplay { color: var(--danger); font-size: 12px; margin-top: 12px; display: none; text-align: center; font-weight: 600; }
+    </style>
+
+</head>
+<body>
+    <div class="loading-view" id="appLoader">
+        <div class="orbit"></div>
+    </div>
+
+    <header class="app-header">
+        <div class="brand-header">
+            <img src="https://mansa-team.github.io/icons/icons/MANSA.svg" alt="Mansa">
+            <h1>Mansa</h1>
+        </div>
+
+        <div class="search-c1ontainer">
+            <i class="material-icons">search</i>
+            <input type="text" id="tickerInput" class="search-input" placeholder="Buscar ticker (ex: WEGE3, PETR4)..." value="WEGE3" onkeyup="if(event.key==='Enter') loadTickerData()">
+            <button class="btn-search" onclick="loadTickerData()">ANALISAR</button>
+        </div>
+
+        <div class="header-actions">
+            <input type="password" id="apiKey" class="config-input" placeholder="X-API-Key">
+            <input type="text" id="apiHost" class="config-input" value="http://localhost:3200">
+            <p id="errorDisplay" style="position: absolute; top: 72px; right: 40px; background: var(--danger); padding: 4px 12px; border-radius: 0 0 8px 8px; font-size: 11px; font-weight: 700; display: none;"></p>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div id="dashboardContent">
+            <!-- PROFILE HERO -->
+            <header class="profile-hero">
+                <div class="profile-main">
+                    <img id="h-icon" class="profile-icon" src="" alt="" onerror="this.src='https://mansa-team.github.io/icons/icons/MANSA.svg'">
+                    <div class="profile-title">
+                        <h2 id="h-ticker">---</h2>
+                        <p id="h-name">--- ---</p>
+                        <div class="profile-tags">
+                            <span class="tag" id="h-sector">---</span>
+                            <span class="tag" id="h-subsetor">---</span>
+                            <span class="tag" id="h-segmento">---</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="price-display">
+                    <p class="price-label">Valor de Mercado</p>
+                    <p class="price-value" id="h-mktcap">R$ 0,00</p>
+                </div>
+            </header>
+
+            <!-- SNAPSHOTS -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <span class="metric-label">Cotação Atual</span>
+                    <span class="metric-value" id="m-price">---</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">P/L</span>
+                    <span class="metric-value" id="m-pl">---</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">P/VP</span>
+                    <span class="metric-value" id="m-pvp">---</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">Div. Yield</span>
+                    <span class="metric-value" id="m-dy">---</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">ROE</span>
+                    <span class="metric-value" id="m-roe">---</span>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-label">LPA</span>
+                    <span class="metric-value" id="m-lpa">---</span>
+                </div>
+            </div>
+
+            <!-- PERFORMANCE GRID -->
+            <section class="content-section">
+                <div class="section-header">
+                    <i class="material-icons">query_stats</i>
+                    Variação e Performance
+                </div>
+                <div class="performance-grid" id="performanceGrid">
+                    <!-- Dynamic -->
+                </div>
+            </section>
+
+            <!-- INDICATORS LIST -->
+            <section class="content-section">
+                <div class="section-header">
+                    <i class="material-icons">reorder</i>
+                    Indicadores Completos
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px;">
+                    <div>
+                        <h5 style="font-size: 11px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px;">Avaliação & Preço Justo</h5>
+                        <div class="indicators-container" id="valuationTable"></div>
+                    </div>
+                    <div>
+                        <h5 style="font-size: 11px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px;">Eficiência & Crescimento</h5>
+                        <div class="indicators-container" id="efficiencyTable"></div>
+                    </div>
+                    <div>
+                        <h5 style="font-size: 11px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px;">Endividamento & Saúde</h5>
+                        <div class="indicators-container" id="healthTable"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HISTORICAL CHARTS -->
+            <section class="content-section">
+                <div class="section-header">
+                    <i class="material-icons">history</i>
+                    Análise Histórica e Séries Temporais
+                </div>
+                <div class="charts-container" id="chartsGrid">
+                    <!-- Charts -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // --- HELPERS ---
+        const fmtBRL = v => v != null ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v) : '---';
+        const fmtPct = v => v != null ? (v * 100).toFixed(2) + '%' : '---';
+        const fmtPctRaw = v => v != null ? parseFloat(v).toFixed(2) + '%' : '---';
+        const fmtNum = v => v != null ? parseFloat(v).toLocaleString('pt-BR') : '---';
+        const fmtMoney = v => {
+            if (v == null) return '---';
+            const abs = Math.abs(v);
+            if (abs >= 1e9) return `R$ ${(v / 1e9).toFixed(2)} Bi`;
+            if (abs >= 1e6) return `R$ ${(v / 1e6).toFixed(2)} Mi`;
+            return fmtBRL(v);
+        };
+
+        // --- API ---
+        async function fetchMansa(endpoint, ticker) {
+            const host = document.getElementById('apiHost').value;
+            const key = document.getElementById('apiKey').value;
+            const url = `${host}${endpoint}?search=${ticker}`;
+            const headers = key ? { 'X-API-Key': key } : {};
+            
+            const res = await fetch(url, { headers });
+            if (!res.ok) throw new Error(`API: ${res.status}`);
+            return await res.json();
+        }
+
+        async function fetchB3Price(ticker) {
+            try {
+                // Note: Direct fetch might face CORS issues if run from a browser pointing to B3's API.
+                // It is usually better to proxy this through your own backend.
+                const res = await fetch(`https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/${ticker.toLowerCase()}`);
+                const data = await res.json();
+                return data.Trad?.[0]?.scty?.SctyQtn?.curPrc || null;
+            } catch (e) {
+                console.warn("B3 Price fetch failed:", e);
+                return null;
+            }
+        }
+
+        // --- DASHBOARD LOGIC ---
+        async function loadTickerData() {
+            const input = document.getElementById('tickerInput').value.toUpperCase().trim();
+            const loader = document.getElementById('appLoader');
+            const content = document.getElementById('dashboardContent');
+            const errorBox = document.getElementById('errorDisplay');
+
+            if (!input) return;
+
+            loader.style.display = 'flex';
+            errorBox.style.display = 'none';
+            content.classList.remove('active');
+
+            try {
+                const [fData, hData, b3Price] = await Promise.all([
+                    fetchMansa('/stocks/fundamental', input),
+                    fetchMansa('/stocks/historical', input),
+                    fetchB3Price(input)
+                ]);
+
+                if (!fData.data?.length) throw new Error("Ativo não localizado.");
+
+                const finalData = { ...fData.data[0] };
+                if (b3Price) finalData.PRECO = b3Price; // Override with live B3 price
+
+                renderPage(input, finalData, hData.data[0]);
+                content.classList.add('active');
+                content.style.display = 'block';
+
+            } catch (err) {
+                console.error(err);
+                errorBox.textContent = err.message;
+                errorBox.style.display = 'block';
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        function renderPage(ticker, f, h) {
+            // Header
+            document.getElementById('h-ticker').textContent = ticker;
+            document.getElementById('h-name').textContent = f.NOME;
+            document.getElementById('h-sector').textContent = f.SETOR;
+            document.getElementById('h-subsetor').textContent = f.SUBSETOR;
+            document.getElementById('h-segmento').textContent = f.SEGMENTO;
+            document.getElementById('h-icon').src = `https://mansa-team.github.io/icons/icons/${ticker}.svg`;
+            document.getElementById('h-mktcap').textContent = fmtMoney(f['VALOR DE MERCADO']);
+
+            // Snapshot
+            document.getElementById('m-price').textContent = fmtBRL(f.PRECO);
+            document.getElementById('m-pl').textContent = f['P/L'] || '---';
+            document.getElementById('m-pvp').textContent = f['P/VP'] || '---';
+            document.getElementById('m-dy').textContent = fmtPctRaw(f.DY);
+            document.getElementById('m-roe').textContent = fmtPctRaw(f.ROE);
+            document.getElementById('m-lpa').textContent = fmtBRL(f.LPA);
+
+            // Performance
+            const perfs = [
+                { k: 'RENT 1 DIA', l: '1 Dia' },
+                { k: 'RENT 5 DIAS', l: '5 Dias' },
+                { k: 'RENT 1 MES', l: '1 Mês' },
+                { k: 'RENT 6 MESES', l: '6 Meses' },
+                { k: 'RENT 1 ANO', l: '1 Ano' },
+                { k: 'RENT 5 ANOS', l: '5 Anos' },
+                { k: 'RENT MEDIA 5 ANOS', l: 'Média 5A' },
+                { k: 'RENT TOTAL', l: 'Total' },
+            ];
+            document.getElementById('performanceGrid').innerHTML = perfs.map(p => {
+                const val = f[p.k];
+                const cls = val >= 0 ? 'up' : 'down';
+                const color = val >= 0 ? 'var(--accent)' : 'var(--danger)';
+                const icon = val >= 0 ? 'trending_up' : 'trending_down';
+                return `
+                    <div class="perf-card ${cls}">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <i class="material-icons" style="font-size:14px; color:${color}">${icon}</i>
+                            <span>${p.l}</span>
+                        </div>
+                        <p style="color: ${color}">${fmtPctRaw(val)}</p>
+                    </div>
+                `;
+            }).join('');
+
+            // Indicator Tables
+            const renderRows = (containerId, items) => {
+                document.getElementById(containerId).innerHTML = items.map(i => `
+                    <div class="indicator-row">
+                        <span class="indicator-name">${i.l}</span>
+                        <span class="indicator-value">${i.format ? i.format(f[i.k]) : (f[i.k] || '---')}</span>
+                    </div>
+                `).join('');
+            };
+
+            renderRows('valuationTable', [
+                { k: 'P/L', l: 'P/L (Preço s/ Lucro)' },
+                { k: 'P/VP', l: 'P/VP (Valor Patrimonial)' },
+                { k: 'P/ATIVOS', l: 'P/Ativos' },
+                { k: 'P/EBIT', l: 'P/EBIT' },
+                { k: 'P/CAP. GIRO', l: 'P/Cap. Giro' },
+                { k: 'P. AT CIR. LIQ.', l: 'P/At. Cir. Líq.' },
+                { k: 'PSR', l: 'PSR (Sales Ratio)' },
+                { k: 'EV/EBIT', l: 'EV/EBIT' },
+                { k: 'PEG Ratio', l: 'PEG Ratio' },
+                { k: 'PRECO DE GRAHAM', l: 'Preço Justo Graham', format: fmtBRL },
+                { k: 'PRECO DE BAZIN', l: 'Teto Bazin', format: fmtBRL },
+                { k: 'VPA', l: 'VPA (Vlr Patrimonial/Ação)', format: fmtBRL },
+                { k: 'LPA', l: 'LPA (Lucro por Ação)', format: fmtBRL }
+            ]);
+
+            renderRows('efficiencyTable', [
+                { k: 'MARGEM BRUTA', l: 'Margem Bruta', format: fmtPctRaw },
+                { k: 'MARGEM EBIT', l: 'Margem EBIT', format: fmtPctRaw },
+                { k: 'MARG. LIQUIDA', l: 'Margem Líquida', format: fmtPctRaw },
+                { k: 'ROE', l: 'ROE (Retorno s/ PL)', format: fmtPctRaw },
+                { k: 'ROIC', l: 'ROIC (Retorno s/ Cap)', format: fmtPctRaw },
+                { k: 'ROA', l: 'ROA (Retorno s/ Ativo)', format: fmtPctRaw },
+                { k: 'DY MEDIO 5 ANOS', l: 'DY Médio 5 anos', format: fmtPctRaw },
+                { k: 'CAGR RECEITAS 5 ANOS', l: 'Cresc. Receita (5A)', format: fmtPctRaw },
+                { k: 'CAGR LUCROS 5 ANOS', l: 'Cresc. Lucro (5A)', format: fmtPctRaw },
+                { k: 'CAGR DIVIDENDOS 5 ANOS', l: 'Cresc. Div. (5A)', format: fmtPctRaw }
+            ]);
+
+            renderRows('healthTable', [
+                { k: 'DIV. LIQ. / PATRI.', l: 'Dív. Líquida / PL' },
+                { k: 'DIVIDA LIQUIDA / EBIT', l: 'Dív. Líquida / EBIT' },
+                { k: 'LIQ. CORRENTE', l: 'Liquidez Corrente' },
+                { k: 'PATRIMONIO / ATIVOS', l: 'Patrimônio / Ativos' },
+                { k: 'PASSIVOS / ATIVOS', l: 'Passivos / Ativos' },
+                { k: 'GIRO ATIVOS', l: 'Giro de Ativos' },
+                { k: 'SGR', l: 'SGR (Cresc. Sustentável)' },
+                { k: 'TAG ALONG', l: 'Tag Along', format: fmtPctRaw },
+                { k: 'LIQUIDEZ MEDIA DIARIA', l: 'Liq. Média Diária', format: fmtMoney }
+            ]);
+
+            // Historical Charts
+            renderHistoricalCharts(h);
+        }
+
+        function renderHistoricalCharts(h) {
+            const grid = document.getElementById('chartsGrid');
+            grid.innerHTML = '';
+
+            // Group data by year
+            const metrics = [
+                'RECEITA LIQUIDA', 'LUCRO LIQUIDO', 'DIVIDENDOS', 'DY', 
+                'DESPESAS', 'MARGEM BRUTA', 'MARGEM EBIT', 'MARGEM EBITDA', 'MARGEM LIQUIDA'
+            ];
+
+            metrics.forEach(m => {
+                const years = [];
+                const values = [];
+
+                Object.keys(h).forEach(key => {
+                    if (key.startsWith(m + ' ')) {
+                        const yr = parseInt(key.replace(m + ' ', ''));
+                        if (yr > 2000 && h[key] != null && h[key] !== 0) {
+                            years.push(yr);
+                        }
+                    }
+                });
+
+                years.sort((a,b) => a-b);
+                years.forEach(y => values.push(h[`${m} ${y}`]));
+
+                if (years.length < 2) return;
+
+                const div = document.createElement('div');
+                div.className = 'chart-box';
+                const chartId = `chart_${m.replace(/\s/g, '_')}`;
+                div.innerHTML = `<h4><i class="material-icons">bar_chart</i> ${m}</h4><div id="${chartId}" class="chart-inner"></div>`;
+                grid.appendChild(div);
+
+                const isPct = m.includes('MARGEM') || m.includes('DY');
+                const isNegative = values.some(v => v < 0);
+                const color = isNegative ? '#ef4444' : '#BDF96F';
+
+                const trace = {
+                    x: years,
+                    y: values,
+                    type: isPct ? 'scatter' : 'bar',
+                    mode: 'lines+markers',
+                    name: m,
+                    marker: { color, size: 6 },
+                    line: { color, width: 2.5, shape: 'spline' },
+                    fill: isPct ? 'tozeroy' : undefined,
+                    fillcolor: isPct ? (isNegative ? 'rgba(239, 68, 68, 0.05)' : 'rgba(189, 249, 111, 0.05)') : undefined,
+                    hovertemplate: isPct ? '%{y:.2f}%<extra></extra>' : 'R$ %{y:.2s}<extra></extra>'
+                };
+
+                const layout = {
+                    paper_bgcolor: 'transparent',
+                    plot_bgcolor: 'transparent',
+                    font: { family: 'Inter', color: '#64748b', size: 10 },
+                    margin: { t: 10, b: 30, l: 40, r: 10 },
+                    xaxis: { gridcolor: 'rgba(255,255,255,0.03)', tickmode: 'linear', dtick: years.length > 20 ? 5 : 2 },
+                    yaxis: { gridcolor: 'rgba(255,255,255,0.03)', zeroline: true, zerolinecolor: 'rgba(255,255,255,0.1)' },
+                    showlegend: false,
+                    hovermode: 'x unified'
+                };
+
+                Plotly.newPlot(chartId, [trace], layout, { responsive: true, displayModeBar: false });
+            });
+        }
+
+        // Init
+        loadTickerData();
+
+    </script>
+</body>
+</html>

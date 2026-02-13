@@ -10,7 +10,7 @@ class ServiceManager:
             app.add_middleware(
                 CORSMiddleware,
                 allow_origins=["*"],
-                allow_credentials=True,
+                allow_credentials=False,
                 allow_methods=["*"],
                 allow_headers=["*"],
             )
@@ -22,7 +22,7 @@ class ServiceManager:
     def runAll(cls):
         for port, app in cls._instances.items():
             thread = threading.Thread(
-                target=lambda: uvicorn.run(app, host="0.0.0.0", port=port, log_level="error"),
+                target=lambda p=port, a=app: uvicorn.run(a, host="0.0.0.0", port=p, log_level="error"),
                 daemon=True
             )
             thread.start()

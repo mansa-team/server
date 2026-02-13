@@ -38,7 +38,7 @@ With a full-on Chat History that can be integrated with the in-construction Mans
 
 4. Run the server:
     ```bash
-    python src/__init__.py
+    python __init__.py
     ```
 
 ## Workflow

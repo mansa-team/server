@@ -2,7 +2,7 @@ from imports import *
 
 from main.app.stocks_api.util import *
 
-async def queryHistorical(search: str = None, fields: str = None, dates: str = None):
+def queryHistorical(search: str = None, fields: str = None, dates: str = None):
     from main.app.stocks_api.cache import STOCKS_CACHE
     if STOCKS_CACHE is None:
         raise HTTPException(status_code=503, detail="Cache not initialized")
@@ -45,7 +45,7 @@ async def queryHistorical(search: str = None, fields: str = None, dates: str = N
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Cached historical error: {str(e)}")
 
-async def queryFundamental(search: str = None, fields: str = None, dates: str = None):
+def queryFundamental(search: str = None, fields: str = None, dates: str = None):
     from main.app.stocks_api.cache import STOCKS_CACHE
     if STOCKS_CACHE is None:
         raise HTTPException(status_code=503, detail="Cache not initialized")
@@ -64,14 +64,31 @@ async def queryFundamental(search: str = None, fields: str = None, dates: str = 
             df = df[df['TICKER'].str.upper().isin(search_terms)]
             
         if 'TIME' in df.columns:
-            df['TIME'] = pd.to_datetime(df['TIME']).astype(str)
+            df['TIME_DT'] = pd.to_datetime(df['TIME'])
+            
+            if dates:
+                try:
+                    date_range = [d.strip() for d in dates.split(",")]
+                    if len(date_range) == 2:
+                        start_date = pd.to_datetime(date_range[0])
+                        end_date = pd.to_datetime(date_range[1])
+                        df = df[(df['TIME_DT'] >= start_date) & (df['TIME_DT'] <= end_date)]
+                    elif len(date_range) == 1:
+                        target_date = pd.to_datetime(date_range[0]).date()
+                        df = df[df['TIME_DT'].dt.date == target_date]
+                except Exception as e:
+                    raise HTTPException(status_code=400, detail=f"Data format error (YYYY-MM-DD): {str(e)}")
+
+            df['TIME'] = df['TIME_DT'].astype(str)
             df = df.sort_values(by='TIME', ascending=False)
+            df = df.drop(columns=['TIME_DT'])
             
         df = df[[c for c in cols if c in df.columns]]
 
         return {
             "search": search or "all",
             "fields": field_list,
+            "dates": dates,
             "type": "fundamental",
             "count": len(df),
             "data": json.loads(df.to_json(orient="records"))

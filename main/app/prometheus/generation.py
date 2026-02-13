@@ -91,6 +91,9 @@ def executeWorkflow(userQuery):
 
     APIResponse = {}
     for idx, i in enumerate(responseData.itertuples()):
+
+        headers = {"X-API-Key": Config.STOCKS_API["KEY"]} if Config.STOCKS_API["KEY.SYSTEM"] == "TRUE" else {}
+        
         APIResponse[idx] = requests.get(
             f'http://{Config.STOCKS_API["HOST"]}:{Config.STOCKS_API["PORT"]}/stocks/{i.type}',
             params={
@@ -98,7 +101,8 @@ def executeWorkflow(userQuery):
                 'fields': i.fields,
                 'dates': f"{i.date_start},{i.date_end}"
             },
-            timeout=10
+            headers=headers,
+            timeout=20
         )
 
 

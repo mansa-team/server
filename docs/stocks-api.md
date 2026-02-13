@@ -30,24 +30,24 @@ Built for the [Mansa](https://github.com/mansa-team) project and designed for in
 
 ### Health Check
 ```bash
-curl http://localhost:3200/health
+curl http://localhost:3200/stocks/health
 ```
 Returns service status and timestamp.
 
 ### API Key Verification
 ```bash
-curl -H "X-API-Key: YOUR_KEY" http://localhost:3200/api/key
+curl -H "X-API-Key: YOUR_KEY" http://localhost:3200/stocks/key
 ```
 
 ### Historical Data
 Query financial metrics across multiple years:
 ```bash
-curl -H "X-API-Key: YOUR_KEY" "http://localhost:3200/api/historical?search=PETR4&fields=DY,LUCRO%20LIQUIDO&years=2020,2024"
+curl -H "X-API-Key: YOUR_KEY" "http://localhost:3200/stocks/historical?search=PETR4&fields=DY,LUCRO%20LIQUIDO&dates=2020,2024"
 ```
 **Parameters:**
 - `search`: Ticker symbol or company name
 - `fields`: Comma-separated field names
-- `years`: Single year or range (e.g., `2020` or `2020,2024`)
+- `dates`: Single year or range (e.g., `2020` or `2020,2024`)
 
 ```
 DESPESAS, DIVIDENDOS, DY, LUCRO LIQUIDO, MARGEM BRUTA, MARGEM EBIT, MARGEM EBITDA, MARGEM LIQUIDA, RECEITA LIQUIDA
@@ -56,7 +56,7 @@ DESPESAS, DIVIDENDOS, DY, LUCRO LIQUIDO, MARGEM BRUTA, MARGEM EBIT, MARGEM EBITD
 ### Fundamental Data
 Query current valuations and metrics by date range:
 ```bash
-curl -H "X-API-Key: YOUR_KEY" "http://localhost:3200/api/fundamental?search=VALE3&fields=ROE,P/L,PRECO&dates=2024-01-01,2024-12-31"
+curl -H "X-API-Key: YOUR_KEY" "http://localhost:3200/stocks/fundamental?search=VALE3&fields=ROE,P/L,PRECO&dates=2024-01-01,2024-12-31"
 ```
 **Parameters:**
 - `search`: Ticker symbol or company name

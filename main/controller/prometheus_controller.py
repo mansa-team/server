@@ -9,15 +9,15 @@ router = APIRouter(
 )
 
 @router.get("/health")
-async def health():
+def health():
     return {"status": "ok", "service": "prometheus"}
 
 @router.get("/key")
-async def apiKeyTest(api_key: str = Depends(verifyAPIKey)):
+def apiKeyTest(api_key: str = Depends(verifyAPIKey)):
     return {"message": "API", "secured": True}
 
 @router.get("/")
-async def rag(text: str, api_key: str = Depends(verifyAPIKey)):
+def rag(text: str, api_key: str = Depends(verifyAPIKey)):
     try:
         response = executeWorkflow(text)
         return {"success": True, "response": response, "timestamp": str(time.time())}
