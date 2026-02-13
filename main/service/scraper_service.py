@@ -4,7 +4,6 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 def runScraper():
-    # Go up two levels from main\service to reach project root
     projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     scraperPath = os.path.join(projectRoot, "main", "app", "scraper_b3", "scraper.py")
     
