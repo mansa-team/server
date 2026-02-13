@@ -212,7 +212,7 @@
             try {
                 // Note: Direct fetch might face CORS issues if run from a browser pointing to B3's API.
                 // It is usually better to proxy this through your own backend.
-                const res = await fetch(`https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/${ticker.toLowerCase()}`);
+                const res = await fetch(`https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/${ticker}`);
                 const data = await res.json();
                 return data.Trad?.[0]?.scty?.SctyQtn?.curPrc || null;
             } catch (e) {

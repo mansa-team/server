@@ -1,1 +1,2 @@
- 
+[] - Wallet Management System for the users to be able to add and remove stocks from their wallet and add things such as goals, history of the wallet and others
+[] - Algo Trading System for the users included through the Wallet Management System with similar structure to how the ScraperService is executed

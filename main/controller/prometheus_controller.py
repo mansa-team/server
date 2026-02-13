@@ -4,7 +4,7 @@ from main.app.prometheus.util import verifyAPIKey
 import time
 
 router = APIRouter(
-    prefix="/rag",
+    prefix="/prometheus",
     tags=["Prometheus"]
 )
 
