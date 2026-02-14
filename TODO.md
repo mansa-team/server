@@ -1,6 +1,8 @@
 [ ] - Create an user authentication system
 [ ] - Create an account preferences system
+[ ] - Move the STOCKS API /key/generate out of the stocks_api service and integrate it a proper  own user management service
 [ ] - Make an Password Recovery Recovery system and 2FA using the Email Protocol
+
 [ ] - Create a chatbot history for Prometheus
 [ ] - Wallet Management System for the users to be able to add and remove stocks from their wallet and add things such as goals, history of the wallet and others
 [ ] - Algo Trading System for the users included through the Wallet Management System with similar structure to how the ScraperService is executed
