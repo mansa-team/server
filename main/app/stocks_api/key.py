@@ -68,5 +68,5 @@ def createKey(userId: int):
                 """),
                 {"key": newKey, "uid": userId, "lim": quota}
             )
-    
+
     return newKey
