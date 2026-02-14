@@ -20,9 +20,11 @@ class ServiceManager:
 
     @classmethod
     def runAll(cls):
+        logLevel = "error" if Config.DEBUG_MODE == "TRUE" else "critical"
+
         for port, app in cls._instances.items():
             thread = threading.Thread(
-                target=lambda p=port, a=app: uvicorn.run(a, host="0.0.0.0", port=p, log_level="error"),
+                target=lambda p=port, a=app: uvicorn.run(a, host="0.0.0.0", port=p, log_level=logLevel),
                 daemon=True
             )
             thread.start()

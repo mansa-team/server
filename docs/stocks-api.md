@@ -91,8 +91,7 @@ All successful responses follow this structure:
 ```
 
 ## TODO
-- [ ] Dedicated key system linked to the main Mansa's structure
-- [ ] Quota System
+- [ ] Dedicated key system linked to the main Mansa's structure (verify the userId before being able to create a key)
 
 ## License
 Mansa Team's MODIFIED GPL 3.0 License. See LICENSE for details.

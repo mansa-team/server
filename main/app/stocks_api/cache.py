@@ -21,9 +21,6 @@ def getCachedStocks(engine):
             df = pd.read_sql("SELECT * FROM b3_stocks", conn)
             df = df.replace({np.nan: None, np.inf: None, -np.inf: None})
 
-            with CACHE_LOCK:
-                STOCKS_CACHE = df
+            with CACHE_LOCK: STOCKS_CACHE = df
 
-    except Exception as e:
-        pass
-            
+    except Exception as e: pass

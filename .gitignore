@@ -1,6 +1,7 @@
 *.env
 
 *cache/
+*sqltamplate.txt
 
 __pycache__/
 *.py[cod]

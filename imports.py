@@ -51,6 +51,8 @@ class Config:
         'PORT': os.getenv('STOCKSAPI_PORT'),
         'KEY.SYSTEM': os.getenv('STOCKSAPI_KEY.SYSTEM'),
         'KEY': os.getenv('STOCKSAPI_PRIVATE.KEY'),
+        'DEFAULT.QUOTA': int(os.getenv('STOCKSAPI_DEFAULT.QUOTA', 10)),
+        'QUOTA.RESETDAYS': int(os.getenv('STOCKSAPI_QUOTA.RESETDAYS', 30)),
     }
 
     PROMETHEUS = {

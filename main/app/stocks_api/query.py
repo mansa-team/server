@@ -1,6 +1,7 @@
 from imports import *
 
 from main.app.stocks_api.util import *
+from main.app.stocks_api.key import *
 
 def queryHistorical(search: str = None, fields: str = None, dates: str = None):
     from main.app.stocks_api.cache import STOCKS_CACHE
