@@ -1,4 +1,5 @@
 from imports import *
+from fastapi import HTTPException
 
 from main.app.stocks_api.util import *
 from main.app.stocks_api.key import *

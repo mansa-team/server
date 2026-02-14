@@ -3,34 +3,17 @@ import sys
 import json
 import time
 import math
-import subprocess
-import gc
 from typing import Optional, Dict, Any
 
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from time import sleep
 
-import threading
-from queue import Queue
-from concurrent.futures import ThreadPoolExecutor, as_completed
-
 import requests
 import pandas as pd
 import numpy as np
 
 from sqlalchemy import create_engine, text, QueuePool
-from fastapi import FastAPI, APIRouter, HTTPException, Query, Depends
-from fastapi.security import APIKeyHeader
-from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
-
-import selenium
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 load_dotenv()
 
@@ -51,8 +34,8 @@ class Config:
         'PORT': os.getenv('STOCKSAPI_PORT'),
         'KEY.SYSTEM': os.getenv('STOCKSAPI_KEY.SYSTEM'),
         'KEY': os.getenv('STOCKSAPI_PRIVATE.KEY'),
-        'DEFAULT.QUOTA': int(os.getenv('STOCKSAPI_DEFAULT.QUOTA', 10)),
-        'QUOTA.RESETDAYS': int(os.getenv('STOCKSAPI_QUOTA.RESETDAYS', 30)),
+        'DEFAULT.QUOTA': int(os.getenv('STOCKSAPI_DEFAULT.QUOTA')),
+        'QUOTA.RESETDAYS': int(os.getenv('STOCKSAPI_QUOTA.RESETDAYS')),
     }
 
     PROMETHEUS = {

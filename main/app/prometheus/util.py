@@ -1,4 +1,6 @@
 from imports import *
+from fastapi import HTTPException, Depends
+from fastapi.security import APIKeyHeader
 
 APIKey_Header = APIKeyHeader(name="X-API-Key", auto_error=False)
 async def verifyAPIKey(APIKey: str = Depends(APIKey_Header)):

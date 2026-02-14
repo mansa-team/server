@@ -1,5 +1,16 @@
 from imports import *
 
+import gc
+import subprocess
+from queue import Queue
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
 from tenacity import retry, stop_after_attempt, wait_exponential
 from normalize import *
 

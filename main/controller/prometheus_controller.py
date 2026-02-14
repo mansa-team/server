@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
+import time
+
 from main.app.prometheus.generation import executeWorkflow
 from main.app.prometheus.util import verifyAPIKey
-import time
 
 router = APIRouter(
     prefix="/prometheus",

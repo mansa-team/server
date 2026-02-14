@@ -1,4 +1,7 @@
 from imports import *
+from fastapi import HTTPException, Depends
+from fastapi.security import APIKeyHeader
+from sqlalchemy import text
 
 import secrets
 import string

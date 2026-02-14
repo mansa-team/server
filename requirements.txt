@@ -3,7 +3,7 @@ pandas
 numpy
 sqlalchemy
 pymysql
-dotenv=
+dotenv
 
 # SCRAPER-B3
 selenium

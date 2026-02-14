@@ -1,4 +1,5 @@
 from imports import *
+from fastapi import HTTPException
  
 def categorizeColumns(columns: list) -> tuple:
     historical_fields = {}
