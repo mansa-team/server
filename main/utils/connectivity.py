@@ -24,7 +24,7 @@ def checkServiceConnection(service: str):
         port = serviceConfig['PORT']
     
         if service == "STOCKS_API": prefix = "stocks"
-        if service == "Prometheus": prefix = "rag"
+        if service == "Prometheus": prefix = "prometheus"
 
         startTime = time.time()
         response = requests.get(f"http://{host}:{port}/{prefix}/health", timeout=5)

@@ -24,6 +24,9 @@ Built for the [Mansa](https://github.com/mansa-team) project and designed for in
     
     STOCKSAPI_KEY.SYSTEM=TRUE
     STOCKSAPI_PRIVATE.KEY=your_api_key_here
+    
+    STOCKSAPI_DEFAULT.QUOTA=5000
+    STOCKSAPI_QUOTA.RESETDAYS=30
    ```
 
 ## API Endpoints
@@ -38,6 +41,14 @@ Returns service status and timestamp.
 ```bash
 curl -H "X-API-Key: YOUR_KEY" http://localhost:3200/stocks/key
 ```
+
+### Key Management
+Users can generate or refresh their API Key. Each user is limited to one active key at a time. Generating a new key will automatically deactivate the previous one but maintain the current usage statistics.
+```bash
+curl "http://localhost:3200/stocks/key/generate?userId=1"
+```
+**Parameters:**
+- `userId`: The unique identifier for the user.
 
 ### Historical Data
 Query financial metrics across multiple years:
