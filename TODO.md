@@ -4,23 +4,25 @@
 [ ] - Make an Password Recovery Recovery system and 2FA using the Email Protocol
 
 [ ] - Create a chatbot history for Prometheus
-[ ] - Wallet Management System for the users to be able to add and remove stocks from their wallet and add things such as goals, history of the wallet and others
-[ ] - Algo Trading System for the users included through the Wallet Management System with similar structure to how the ScraperService is executed
+
+[ ] - Ma'at: Stock Picking algorithm designed to help build wallets for the users based on their profile and provide insights in the stocks page, such as its grade and recommended signal (Buy, Hold or Sell) based on Value Investing fundamentals
+[ ] - Thoth: Wallet Management System for the users to be able to add and remove stocks from their wallet and add things such as goals, history of the wallet
+[ ] - Ogum: Algo Trading System for the users with similar structure to how the ScraperService is executed, with scheduled tasks that will generate signals and then, calculate the specific needs for each user with Ogum enabled
+
+[ ] - Fix all the security issues known to man already present in this repo
 
 - User structure defined by access levels:
-    00: Free (No access to Prometheus and the Algo Trader)
-    10: Premium (Access to Prometheus and the Algo Trader)
-    01: Developer (Access to the API Key generating system for the StocksAPI and has the same features as the Free User)
-    11: Premium and Developer (Access to the Premium User features and the Developer features)
-    67: Admin (TODO)
+    00: Free
+    10: Premium
+    01: Developer
+    11: Premium and Developer
+    67: Admin
 
 Free User:
-    - Access to the Wallet System and the Stock Info
+    - Access to Thoth and Ma'at
 
 Premium User:
-    - Access to the Stock Overview system with signal recommendations based on the Intrinsic Value
-    - Access to the Prometheus chatbot system
-    - Access to the Algo Trader
+    - Access to all MUSA's models and algorithms
 
 Developer:
     - Access to the API Key generation, being able to create an API key for his use
