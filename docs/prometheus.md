@@ -58,8 +58,5 @@ graph TD
     K --> L["Frontend Rendering<br/>Interactive Chat"]
 ```
 
-## TODO
-- [ ] CORS environment validation to prevent API requests outside the website
-
 ## License
 Mansa Team's MODIFIED GPL 3.0 License. See LICENSE for details.

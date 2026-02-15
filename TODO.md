@@ -1,15 +1,20 @@
-[ ] - Create an user authentication system
-[ ] - Create an account preferences system
-[ ] - Move the STOCKS API /key/generate out of the stocks_api service and integrate it a proper  own user management service
-[ ] - Make an Password Recovery Recovery system and 2FA using the Email Protocol
+- [ ] Create an user authentication system
+- [ ] Create an account preferences system
+- [ ] Move the STOCKS API /key/generate out of the stocks_api service and integrate it a proper  own user management service
+- [ ] Make an Password Recovery Recovery system and 2FA using the Email Protocol
 
-[ ] - Create a chatbot history for Prometheus
+#
 
-[ ] - Ma'at: Stock Picking algorithm designed to help build wallets for the users based on their profile and provide insights in the stocks page, such as its grade and recommended signal (Buy, Hold or Sell) based on Value Investing fundamentals
-[ ] - Thoth: Wallet Management System for the users to be able to add and remove stocks from their wallet and add things such as goals, history of the wallet
-[ ] - Ogum: Algo Trading System for the users with similar structure to how the ScraperService is executed, with scheduled tasks that will generate signals and then, calculate the specific needs for each user with Ogum enabled
+- [ ] Ma'at: Stock Picking algorithm designed to help build wallets for the users based on their profile and provide insights in the stocks page, such as its grade and recommended signal (Buy, Hold or Sell) based on Value Investing fundamentals
+- [ ] Thoth: Wallet Management System for the users to be able to add and remove stocks from their wallet and add things such as goals, history of the wallet
+- [ ] Ogum: Algo Trading System for the users with similar structure to how the ScraperService is executed, with scheduled tasks that will generate signals and then, calculate the specific needs for each user with Ogum enabled
 
-[ ] - Fix all the security issues known to man already present in this repo
+#
+
+- [ ] Fix all the security issues known to man already present in this repo
+- [ ] Make all the users love Israel and the IDF
+
+#
 
 - User structure defined by access levels:
     00: Free
@@ -29,3 +34,13 @@ Developer:
 
 Premium and Developer:
     - Access to both Premium and Developer features
+
+#
+
+### STOCKS_API
+- [ ] Dedicated key system linked to the main Mansa's structure (verify the userId before being able to create a key)
+- [ ] Rate Limiting
+
+### Prometheus
+- [ ] Create a chatbot history for Prometheus
+- [ ] CORS environment validation to prevent API requests outside the website
