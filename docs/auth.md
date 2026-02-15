@@ -72,13 +72,6 @@ curl -X GET "http://localhost:3200/auth/me" \
 ```
 *Note: Also works automatically via cookies in the browser.*
 
-### Admin Access Test
-Special route to verify Level 67 permissions.
-```bash
-curl -X GET "http://localhost:3200/auth/admin-only-test" \
-     -H "Authorization: Bearer ADMIN_TOKEN"
-```
-
 ## Security Features
 
 - **Bcrypt Hashing**: All passwords are salted and hashed using the Blowfish algorithm (bcrypt) before storage.
