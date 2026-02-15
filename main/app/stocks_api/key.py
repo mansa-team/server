@@ -29,7 +29,7 @@ async def verifyAPIKey(APIKey: str = Depends(APIKey_Header)):
         limit, usage, lastReset = row
         daysSinceReset = (datetime.now() - lastReset).days
 
-        if daysSinceReset >= Config.STOCKS_API['QUOTA.RESETDAYS']:
+        if daysSinceReset >= int(Config.STOCKS_API['QUOTA.RESETDAYS']):
             usage = 0
             conn.execute(text("UPDATE stocksapi_keys SET currentUsage = 0, lastReset = CURRENT_TIMESTAMP WHERE apiKey = :key"), {"key": APIKey})
         
@@ -45,7 +45,7 @@ def generateSecureKey(length=32):
 
 def createKey(userId: int):
     newKey = generateSecureKey(32)
-    quota = Config.STOCKS_API['DEFAULT.QUOTA']
+    quota = int(Config.STOCKS_API['DEFAULT.QUOTA'])
     
     with dbEngine.begin() as conn:
         existing = conn.execute(

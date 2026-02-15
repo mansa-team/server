@@ -1,7 +1,10 @@
-- [ ] Create an user authentication system
-- [ ] Create an account preferences system
-- [ ] Move the STOCKS API /key/generate out of the stocks_api service and integrate it a proper  own user management service
+- [x] Create an auth system to create, delete and log into accounts
+- [ ] Create a user management system
+- [ ] Move the STOCKS API /key/generate out of the stocks_api service and integrate it the proper auth service
+- [ ] Implement an account preference system so the user can customize its name, change password, profile picture and settings (soon)
 - [ ] Make an Password Recovery Recovery system and 2FA using the Email Protocol
+
+- [ ] Redis or some similar caching solution for the whole system
 
 #
 

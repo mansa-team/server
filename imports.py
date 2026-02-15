@@ -34,8 +34,8 @@ class Config:
         'PORT': os.getenv('STOCKSAPI_PORT'),
         'KEY.SYSTEM': os.getenv('STOCKSAPI_KEY.SYSTEM'),
         'KEY': os.getenv('STOCKSAPI_PRIVATE.KEY'),
-        'DEFAULT.QUOTA': int(os.getenv('STOCKSAPI_DEFAULT.QUOTA')),
-        'QUOTA.RESETDAYS': int(os.getenv('STOCKSAPI_QUOTA.RESETDAYS')),
+        'DEFAULT.QUOTA': os.getenv('STOCKSAPI_DEFAULT.QUOTA'),
+        'QUOTA.RESETDAYS': os.getenv('STOCKSAPI_QUOTA.RESETDAYS'),
     }
 
     PROMETHEUS = {
@@ -52,9 +52,15 @@ class Config:
         'SCHEDULER': os.getenv('SCRAPER_SCHEDULER'),
         'JSON': os.getenv('JSON_EXPORT'),
         'MYSQL': os.getenv('MYSQL_EXPORT'),
-        'MAX_WORKERS': os.getenv('MAX_WORKERS')
+        'MAX_WORKERS': os.getenv('MAX_WORKERS'),
     }
 
+    AUTH = {
+        'ENABLED': os.getenv('AUTH_ENABLED'),
+        'HOST': os.getenv('AUTH_HOST'),
+        'PORT': os.getenv('AUTH_PORT'),
+        'JEW_TOKEN': os.getenv('JEW_TOKEN'),
+    }
 dbEngine = create_engine(
     f"mysql+pymysql://{Config.MYSQL['USER']}:{Config.MYSQL['PASSWORD']}@{Config.MYSQL['HOST']}/{Config.MYSQL['DATABASE']}",
     poolclass=QueuePool,

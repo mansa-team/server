@@ -1,9 +1,19 @@
 curl -X GET "http://localhost:3200/stocks/fundamental?search=PETR4&fields=LPA,PRECO" -H "X-API-Key: key"
 
+CREATE TABLE IF NOT EXISTS users (
+    userId INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    passwordHash TEXT NOT NULL,
+    accessLevel INTEGER DEFAULT 00,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS stocksapi_keys (
     apiKey VARCHAR(255) PRIMARY KEY,
     userId INT NOT NULL UNIQUE,
     requestLimit INT NOT NULL,
     currentUsage INT DEFAULT 0,
-    lastReset TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    lastReset TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
 );

@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
+
 from main.app.stocks_api.query import queryFundamental, queryHistorical
 from main.app.stocks_api.key import verifyAPIKey, createKey
 
@@ -24,6 +25,9 @@ def getFundamental(search: str = Query(None), fields: str = Query(None), dates: 
     return queryFundamental(search, fields, dates)
 
 @router.get("/key/generate")
-def getNewKey(userId: int = Query(None)):
-    newKey = createKey(userId)
-    return {"message": "Key successfully generated", "apiKey": newKey}
+def generateKey(userId: int = Query(None)):
+    try: 
+        newKey = createKey(userId)
+        return {"message": "Key successfully generated", "apiKey": newKey}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

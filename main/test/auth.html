@@ -1,0 +1,324 @@
+<!-- Ciolfi vai fazer bonitinho depois, isso é só um teste de consumo de API, queria ver como tava, vida longa ao Gemini 3 -->
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mansa</title>
+    
+    <link rel="icon" type="image/x-icon" href="https://mansa-team.github.io/icons/icons/MANSA.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #fff;
+            color: #000;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .app-header {
+            border-bottom: 2px solid #000;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .auth-card {
+            border: 1px solid #ccc;
+            padding: 20px;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .search-input, .config-input {
+            padding: 8px;
+            width: 100%;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        button.outline {
+            background: #fff;
+            color: #000;
+            border: 1px solid #000;
+        }
+
+        .status-header {
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .debug-panel {
+            border: 1px solid #000;
+            padding: 10px;
+            margin-top: 40px;
+            background: #f9f9f9;
+        }
+
+        #logs {
+            height: 150px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            background: #fff;
+            border: 1px solid #eee;
+            padding: 5px;
+        }
+
+        .hidden { display: none; }
+        
+        .success { color: #2ecc71; font-weight: bold; font-size: 12px; }
+        .error { color: #e74c3c; font-weight: bold; font-size: 12px; }
+        
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            font-size: 11px;
+            border-left: 3px solid #000;
+        }
+
+        .tag {
+            padding: 4px 8px;
+            font-size: 10px;
+            font-weight: bold;
+            border: 1px solid #000;
+        }
+    </style>
+</head>
+<body class="app-main">
+
+    <header class="app-header">
+        <div class="brand-header">
+            <h1>Mansa</h1>
+        </div>
+        <div class="header-actions">
+            <span id="apiStatus" class="tag">Offline</span>
+        </div>
+    </header>
+
+    <main>
+        <!-- LOGIN / REGISTER TOGGLE -->
+        <div id="loginView" class="auth-card">
+            <h2 id="viewTitle" style="margin-top: 0;">Entrar</h2>
+            
+            <div class="input-group">
+                <label>Usuário</label>
+                <input type="text" id="username" class="search-input" placeholder="Seu usuário">
+            </div>
+
+            <div id="emailGroup" class="input-group hidden">
+                <label>Email</label>
+                <input type="email" id="email" class="search-input" placeholder="email@exemplo.com">
+            </div>
+
+            <div class="input-group">
+                <label>Senha</label>
+                <input type="password" id="password" class="search-input" placeholder="••••••••">
+            </div>
+
+            <div class="input-group" style="display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" id="stayLogged" style="width: auto;">
+                <label for="stayLogged" style="margin: 0;">Manter conectado</label>
+            </div>
+
+            <button id="primaryBtn" onclick="handleAuth()">ENTRAR</button>
+            <button class="outline" id="toggleBtn" onclick="toggleView()">CRIAR CONTA</button>
+            
+            <div id="msgDisplay"></div>
+        </div>
+
+        <!-- LOGGED IN VIEW -->
+        <div id="profileView" class="auth-card hidden">
+            <h2 style="margin-top: 0;">Sessão Ativa</h2>
+            <div class="user-info">
+                <p class="success">Conectado</p>
+                <div id="userData"></div>
+            </div>
+
+            <button onclick="testAdmin()">TESTAR ADMIN (LEVEL 67)</button>
+            <button class="outline" onclick="logout()">SAIR</button>
+            <div id="adminMsg"></div>
+        </div>
+
+        <section class="debug-panel">
+            <div class="status-header">
+                <i class="material-icons" style="font-size: 14px; vertical-align: middle;">bug_report</i>
+                LOGS DE DEPURAÇÃO
+            </div>
+            <div id="logs"></div>
+        </section>
+    </main>
+
+    <script>
+        const API_BASE = "http://localhost:3200/auth";
+        let isRegisterView = false;
+
+        // Init Check
+        window.onload = async () => {
+            log("Iniciando verificação de sessão...");
+            const token = localStorage.getItem('mansa_token');
+            if (token) {
+                log("Token encontrado no localStorage.");
+                await fetchProfile(token);
+            } else {
+                log("Nenhuma sessão encontrada.");
+            }
+            checkHealth();
+        };
+
+        async function checkHealth() {
+            try {
+                const res = await fetch(`${API_BASE}/health`);
+                const data = await res.json();
+                document.getElementById('apiStatus').innerText = "Online";
+                document.getElementById('apiStatus').style.color = "#00ff88";
+            } catch (e) {
+                document.getElementById('apiStatus').innerText = "Erro Conexão";
+                document.getElementById('apiStatus').style.color = "#ff4444";
+            }
+        }
+
+        function toggleView() {
+            isRegisterView = !isRegisterView;
+            document.getElementById('viewTitle').innerText = isRegisterView ? "Criar Conta" : "Entrar";
+            document.getElementById('primaryBtn').innerText = isRegisterView ? "REGISTRAR" : "ENTRAR";
+            document.getElementById('toggleBtn').innerText = isRegisterView ? "TENHO CONTA" : "CRIAR CONTA";
+            document.getElementById('emailGroup').classList.toggle('hidden', !isRegisterView);
+            document.getElementById('msgDisplay').innerHTML = "";
+        }
+
+        function log(msg) {
+            const div = document.getElementById('logs');
+            const entry = document.createElement('div');
+            entry.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            div.prepend(entry);
+        }
+
+        async function handleAuth() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value;
+            const stayLogged = document.getElementById('stayLogged').checked;
+            
+            const endpoint = isRegisterView ? "/register" : "/login";
+            const payload = isRegisterView ? { username, email, password } : { username, password };
+
+            try {
+                log(`Tentando ${endpoint}...`);
+                const res = await fetch(API_BASE + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.detail || "Erro desconhecido");
+
+                if (isRegisterView) {
+                    setMessage("Conta criada! Agora faça login.", "success");
+                    toggleView();
+                } else {
+                    log("Login efetuado com sucesso.");
+                    if (stayLogged) {
+                        localStorage.setItem('mansa_token', data.accessToken);
+                    }
+                    sessionStorage.setItem('mansa_token', data.accessToken);
+                    await fetchProfile(data.accessToken);
+                }
+            } catch (e) {
+                log(`Erro: ${e.message}`);
+                setMessage(e.message, "error");
+            }
+        }
+
+        async function fetchProfile(token) {
+            try {
+                const res = await fetch(`${API_BASE}/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    localStorage.removeItem('mansa_token');
+                    throw new Error("Sessão expirada");
+                }
+
+                document.getElementById('loginView').classList.add('hidden');
+                document.getElementById('profileView').classList.remove('hidden');
+                document.getElementById('userData').innerHTML = `<pre>${JSON.stringify(data.user, null, 2)}</pre>`;
+                log(`Perfil carregado: ${data.user.sub}`);
+            } catch (e) {
+                log(`Erro ao carregar perfil: ${e.message}`);
+                logout();
+            }
+        }
+
+        async function testAdmin() {
+            const token = sessionStorage.getItem('mansa_token') || localStorage.getItem('mansa_token');
+            try {
+                const res = await fetch(`${API_BASE}/admin-only-test`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                const display = document.getElementById('adminMsg');
+                if (res.ok) {
+                    display.innerHTML = `<p class="success">Acesso Garantido! Bem-vindo Admin.</p>`;
+                } else {
+                    display.innerHTML = `<p class="error">Acesso Negado: ${data.detail}</p>`;
+                }
+            } catch (e) {
+                log(`Erro no teste admin: ${e.message}`);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('mansa_token');
+            sessionStorage.removeItem('mansa_token');
+            document.getElementById('loginView').classList.remove('hidden');
+            document.getElementById('profileView').classList.add('hidden');
+            document.getElementById('userData').innerHTML = "";
+            document.getElementById('adminMsg').innerHTML = "";
+            log("Sessão encerrada.");
+        }
+
+        function setMessage(msg, type) {
+            const div = document.getElementById('msgDisplay');
+            div.innerHTML = `<p class="${type}">${msg}</p>`;
+        }
+    </script>
+</body>
+</html>

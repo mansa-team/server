@@ -16,3 +16,7 @@ uvicorn
 requests
 
 # PROMETHEUS
+
+# AUTH
+bcrypt
+jwt
