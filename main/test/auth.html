@@ -155,6 +155,17 @@
 
             <button id="primaryBtn" onclick="handleAuth()">ENTRAR</button>
             <button class="outline" id="toggleBtn" onclick="toggleView()">CRIAR CONTA</button>
+
+            <div style="display: flex; align-items: center; margin: 15px 0; gap: 10px;">
+                <div style="flex: 1; height: 1px; background: #ccc;"></div>
+                <span style="font-size: 11px; font-weight: bold; color: #666;">OU</span>
+                <div style="flex: 1; height: 1px; background: #ccc;"></div>
+            </div>
+
+            <button class="outline" onclick="window.location.href=API_BASE + '/google'" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <img src="https://mansa-team.github.io/icons/icons/MANSA.svg" style="width: 16px; filter: grayscale(1);">
+                ENTRAR COM GOOGLE
+            </button>
             
             <div id="msgDisplay"></div>
         </div>
@@ -182,18 +193,32 @@
     </main>
 
     <script>
-        const API_BASE = "http://localhost:3200/auth";
+        const API_BASE = "http://127.0.0.1:3200/auth";
         let isRegisterView = false;
 
         // Init Check
         window.onload = async () => {
             log("Iniciando verificação de sessão...");
+            
+            // Check for token in URL (Google Fallback)
+            const urlParams = new URLSearchParams(window.location.hash.substring(1));
+            const urlToken = urlParams.get('token');
+            if (urlToken) {
+                log("Token recebido via URL. Autenticando...");
+                localStorage.setItem('mansa_token', urlToken);
+                window.location.hash = ""; // Clean URL
+                await fetchProfile(urlToken);
+                return;
+            }
+
             const token = localStorage.getItem('mansa_token');
+
             if (token) {
                 log("Token encontrado no localStorage.");
                 await fetchProfile(token);
             } else {
-                log("Nenhuma sessão encontrada.");
+                log("Tentando sessão via Cookies...");
+                await fetchProfile(); // No token passed, rely on Cookies
             }
             checkHealth();
         };
@@ -247,32 +272,34 @@
 
                 if (!res.ok) throw new Error(data.detail || "Erro desconhecido");
 
-                if (isRegisterView) {
-                    setMessage("Conta criada! Agora faça login.", "success");
-                    toggleView();
-                } else {
-                    log("Login efetuado com sucesso.");
-                    if (stayLogged) {
-                        localStorage.setItem('mansa_token', data.accessToken);
-                    }
-                    sessionStorage.setItem('mansa_token', data.accessToken);
-                    await fetchProfile(data.accessToken);
+                log(`${isRegisterView ? "Registro" : "Login"} efetuado com sucesso.`);
+                
+                if (stayLogged) {
+                    localStorage.setItem('mansa_token', data.accessToken);
                 }
+                sessionStorage.setItem('mansa_token', data.accessToken);
+                await fetchProfile(data.accessToken);
             } catch (e) {
                 log(`Erro: ${e.message}`);
                 setMessage(e.message, "error");
             }
         }
 
-        async function fetchProfile(token) {
+        async function fetchProfile(token = null) {
             try {
-                const res = await fetch(`${API_BASE}/me`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                const headers = {};
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const res = await fetch(`${API_BASE}/me`, { 
+                    headers,
+                    credentials: 'include' 
                 });
                 const data = await res.json();
 
                 if (!res.ok) {
-                    localStorage.removeItem('mansa_token');
+                    if (token) localStorage.removeItem('mansa_token');
                     throw new Error("Sessão expirada");
                 }
 
@@ -289,7 +316,7 @@
         async function testAdmin() {
             const token = sessionStorage.getItem('mansa_token') || localStorage.getItem('mansa_token');
             try {
-                const res = await fetch(`${API_BASE}/admin-only-test`, {
+                const res = await fetch(`${API_BASE}/admin`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();

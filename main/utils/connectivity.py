@@ -1,4 +1,5 @@
 from imports import *
+from main.utils.util import log
 
 def checkMYSQLConnection():
     try:
@@ -9,11 +10,11 @@ def checkMYSQLConnection():
         
         latency = (time.time() - startTime) * 1000
 
-        if Config.DEBUG_MODE == "TRUE": print(f"MYSQL connected ({latency:.2f}ms)")
+        log("db", f"MYSQL connected ({latency:.2f}ms)")
 
         return True
     except Exception as e:
-        if Config.DEBUG_MODE == "TRUE": print(f"MYSQL connection failed: {e}")
+        log("db", f"MYSQL connection failed: {e}")
 
         return False
     
@@ -31,10 +32,10 @@ def checkServiceConnection(service: str):
         latency = (time.time() - startTime) * 1000
 
         if response.status_code == 200:
-            if Config.DEBUG_MODE == "TRUE": print(f"{service} connected ({latency:.2f}ms)")
+            log("service", f"{service} connected ({latency:.2f}ms)")
                 
             return True
     except Exception as e:
-        if Config.DEBUG_MODE == "TRUE": print(f"{service} connection failed: {e}" + "\nDue to this issue the server couldn't start.")
+        log("service", f"{service} connection failed: {e}\nDue to this issue the server couldn't start.")
 
         return False

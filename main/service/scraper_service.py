@@ -1,4 +1,5 @@
 from imports import *
+from main.utils.util import log
 
 import subprocess
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -24,8 +25,7 @@ class ScraperService:
         scheduler = BackgroundScheduler()
 
         if not schedules:
-            if Config.DEBUG_MODE == "TRUE":
-                print("No schedules configured in SCRAPER_SCHEDULER")
+            log("scraper", "No schedules configured in SCRAPER_SCHEDULER")
             return
         
         for idx, schedule in enumerate(schedules):
@@ -38,10 +38,8 @@ class ScraperService:
                     name=f'Scraper ({schedule})'
                 )
 
-                if Config.DEBUG_MODE == "TRUE":
-                    print(f"Scheduled Hours: {schedule}")
+                log("scraper", f"Scheduled Hours: {schedule}")
             except ValueError:
-                if Config.DEBUG_MODE == "TRUE":
-                    print(f"Invalid format: {schedule} (use HH:MM)")
+                log("scraper", f"Invalid format: {schedule} (use HH:MM)")
         
         scheduler.start()

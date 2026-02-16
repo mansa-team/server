@@ -1,4 +1,5 @@
 from imports import *
+from main.utils.util import log
 
 import threading
 import uvicorn
@@ -14,8 +15,8 @@ class ServiceManager:
             app = FastAPI(title=f"Mansa Service {port}")
             app.add_middleware(
                 CORSMiddleware,
-                allow_origins=["*"],
-                allow_credentials=False,
+                allow_origin_regex="https?://.*",
+                allow_credentials=True,
                 allow_methods=["*"],
                 allow_headers=["*"],
             )

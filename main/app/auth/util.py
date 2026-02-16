@@ -46,7 +46,7 @@ def getCurrentUser(request: Request):
     token = request.cookies.get("mansa_token")
     
     if not token:
-        authHeader = request.headers["Authorization"]
+        authHeader = request.headers.get("authorization") or request.headers.get("Authorization")
         if authHeader and authHeader.startswith("Bearer "):
             token = authHeader.split(" ")[1]
 
@@ -59,6 +59,19 @@ def getCurrentUser(request: Request):
 
         if userId is None:
             raise HTTPException(status_code=401, detail="Invalid Token")
-        return payload
+            
+        with dbEngine.connect() as conn:
+            query = text("SELECT userId, username, email, accessLevel FROM users WHERE userId = :id")
+            user = conn.execute(query, {"id": userId}).fetchone()
+            
+            if not user:
+                raise HTTPException(status_code=401, detail="User no longer exists")
+            
+            return {
+                "userId": user.userId,
+                "username": user.username,
+                "email": user.email,
+                "level": user.accessLevel
+            }
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Could not validate credentials")

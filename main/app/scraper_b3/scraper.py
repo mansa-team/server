@@ -1,4 +1,5 @@
 from imports import *
+from main.utils.util import log
 
 import gc
 import subprocess
@@ -332,12 +333,12 @@ def process_stock(ticker, stocksData):
                     result = function(ticker, driver)
                     stockData.update(result)
             except Exception as e:
-                if Config.DEBUG_MODE == "TRUE": print(f'{ticker} failed {funcName}: {e}')
+                log("scraper", f'{ticker} failed {funcName}: {e}')
         
         stockData = calcFundamentalistIndicators(ticker, stockData)
                 
     except Exception as e:
-        if Config.DEBUG_MODE == "TRUE": print(f'{ticker} general error: {e}')
+        log("scraper", f'{ticker} general error: {e}')
     finally:
         return_driver(driver)
     
@@ -375,7 +376,7 @@ if __name__ == "__main__":
                     processedTicker, stockData = future.result()
                     results[processedTicker] = stockData
                 except Exception as e:
-                    if Config.DEBUG_MODE == "TRUE": print(f'{ticker} failed: {e}')
+                    log("scraper", f'{ticker} failed: {e}')
 
         if results:
             resultsDF = pd.DataFrame.from_dict(results, orient='index')

@@ -3,6 +3,7 @@ import sys
 import json
 import time
 import math
+import socket
 from typing import Optional, Dict, Any
 
 from datetime import datetime, timedelta
@@ -15,6 +16,14 @@ import numpy as np
 
 from sqlalchemy import create_engine, text, QueuePool
 
+def applyIPv4Force():
+    _old_getaddrinfo = socket.getaddrinfo
+    def _new_getaddrinfo(*args, **kwargs):
+        res = _old_getaddrinfo(*args, **kwargs)
+        return [r for r in res if r[0] == socket.AF_INET]
+    socket.getaddrinfo = _new_getaddrinfo
+
+applyIPv4Force()
 load_dotenv()
 
 LOCALHOST_ADDRESSES = ['localhost', '127.0.0.1', '0.0.0.0', 'None', None]
@@ -60,7 +69,11 @@ class Config:
         'HOST': os.getenv('AUTH_HOST'),
         'PORT': os.getenv('AUTH_PORT'),
         'JEW_TOKEN': os.getenv('JEW_TOKEN'),
+        'GOOGLE_CLIENT.ID': os.getenv('GOOGLE_CLIENT.ID'),
+        'GOOGLE_CLIENT.SECRET': os.getenv('GOOGLE_CLIENT.SECRET'),
+        'GOOGLE_REDIRECT.URI': os.getenv('GOOGLE_REDIRECT.URI'),
     }
+
 dbEngine = create_engine(
     f"mysql+pymysql://{Config.MYSQL['USER']}:{Config.MYSQL['PASSWORD']}@{Config.MYSQL['HOST']}/{Config.MYSQL['DATABASE']}",
     poolclass=QueuePool,

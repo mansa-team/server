@@ -1,5 +1,5 @@
 from imports import *
-
+from main.utils.util import log
 from main.utils.connectivity import checkMYSQLConnection, checkServiceConnection
 from main.utils.service_manager import ServiceManager
 
@@ -28,7 +28,7 @@ def orchestrator():
     ServiceManager.runAll()
 
     if not checkServiceConnection("STOCKS_API") and Config.PROMETHEUS['ENABLED'] == "TRUE":
-        if Config.DEBUG_MODE == "TRUE": print("Server initialization failed: Couldn't connect to the STOCKS_API in which Prometheus depends on.")
+        log("system", "Server initialization failed: Couldn't connect to the STOCKS_API in which Prometheus depends on.")
         return
     
     print("\nServer initialized!")
