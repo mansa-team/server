@@ -24,6 +24,11 @@ Built to integrate seamlessly with the main database and provide granular permis
     
     # Secret key for JWT signing
     JEW_TOKEN=your_super_secret_jwt_key
+
+    # Google OAuth2
+    GOOGLE_CLIENT.ID=your_id
+    GOOGLE_CLIENT.SECRET=your_secret
+    GOOGLE_REDIRECT.URI=http://localhost:3200/auth/callback
    ```
 
 ## Access Levels
@@ -65,34 +70,58 @@ curl -X POST "http://localhost:3200/auth/login" \
 - Returns a JSON object with `accessToken` (for manual header use) and user metadata.
 
 ### Profile (Me)
-Retrieves the logged-in user's information.
+Retrieves the logged-in user's information. Requires a valid session cookie or Authorization header.
 ```bash
 curl -X GET "http://localhost:3200/auth/me" \
      -H "Authorization: Bearer YOUR_TOKEN"
 ```
-*Note: Also works automatically via cookies in the browser.*
+
+### Google OAuth2 Login
+Initiates the Google authentication flow.
+```bash
+# Redirect your browser to:
+GET http://localhost:3200/auth/google
+```
+
+### Google Callback
+Internal endpoint handled by the server. After successful Google login, it:
+1. Verifies the user with Google.
+2. Synchronizes the user with the local MySQL database.
+3. Redirects to the frontend with the token in the URL fragment:
+   `http://127.0.0.1:5500/main/test/auth.html#token=ACCESS_TOKEN`
 
 ## Security Features
 
-- **Bcrypt Hashing**: All passwords are salted and hashed using the Blowfish algorithm (bcrypt) before storage.
-- **Stateless Authentication**: JWT allows the server to verify users without storing session IDs in the database.
-- **HttpOnly Cookies**: Prevents Cross-Site Scripting (XSS) from stealing session tokens via `document.cookie`.
-- **Granular Permissions**: Level-based access control protecting critical routes like API Key generation.
+- **Bcrypt Hashing**: All passwords are salted and hashed using the Blowfish algorithm (bcrypt).
+- **Auto-increment Gap Prevention**: The registration flow performs pre-insertion checks for existing usernames/emails to prevent database ID gaps on failed attempts.
+- **Stateless Authentication**: JWT allows the server to verify users without session storage.
+- **CORS Protection**: Configured with dynamic origin matching to allow authenticated requests from trusted frontends while maintaining security.
 
 ## Workflow
 
 ```mermaid
 graph TD
-    A["User Input (Login/Register)"] --> B["Auth Controller"]
-    B --> C{Action?}
-    C -- Register --> D["Hash Password (Bcrypt)"]
-    D --> E["Store in MySQL (users table)"]
-    C -- Login --> F["Verify Hash"]
-    F --> G{Match?}
-    G -- Yes --> H["Generate JWT Token"]
-    H --> I["Set HttpOnly Cookie"]
-    I --> J["Return SUCCESS"]
-    G -- No --> K["Return 401 Unauthorized"]
+    User["User Interface"] --> Start{Login Method?}
+    
+    Start -- Standard --> Login["POST /auth/login"]
+    Login --> Verify["Verify Bcrypt Hash"]
+    Verify -- Success --> JWT["Generate JWT"]
+    
+    Start -- Google --> GLogin["GET /auth/google"]
+    GLogin --> GRedirect["Redirect to Google"]
+    GRedirect --> GCallback["GET /auth/callback"]
+    GCallback --> GVerify["Verify Google Token"]
+    GVerify --> GSync["Sync User in MySQL"]
+    GSync --> JWT
+    
+    Start -- Register --> Reg["POST /auth/register"]
+    Reg --> Valid["Check Duplicate User"]
+    Valid -- OK --> Hash["Hash Password"]
+    Hash --> Save["Save to MySQL"]
+    Save --> JWT
+    
+    JWT --> Cookie["Set Cookie & Redirect"]
+    Cookie --> Home["Access Granted"]
 ```
 
 ## License
