@@ -35,4 +35,4 @@ class ServiceManager:
             )
             thread.start()
 
-            if Config.DEBUG_MODE == "TRUE": print(f"Service running on port {port}")
+            log("manager", f"Service running on port {port}")

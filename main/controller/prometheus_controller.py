@@ -14,11 +14,11 @@ def health():
     return {"status": "ok", "service": "prometheus"}
 
 @router.get("/key")
-def apiKeyTest(api_key: str = Depends(verifyAPIKey)):
+def apiKeyTest(apiKey: str = Depends(verifyAPIKey)):
     return {"message": "API", "secured": True}
 
 @router.get("/")
-def rag(text: str, api_key: str = Depends(verifyAPIKey)):
+def generation(text: str, apiKey: str = Depends(verifyAPIKey)):
     try:
         response = executeWorkflow(text)
         return {"success": True, "response": response, "timestamp": str(time.time())}

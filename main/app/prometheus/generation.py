@@ -1,12 +1,14 @@
 from imports import *
+from main.utils.util import log
 
 from main.app.prometheus.gemini import GeminiClient
 
-current_date = (datetime.now() - timedelta(days=1)).strftime("%d/%m/%Y")
-current_year = datetime.now().year
-last_year = current_year - 1
+currentDate = (datetime.now() - timedelta(days=1)).strftime("%d/%m/%Y")
+currentYear = datetime.now().year
+lastYear = currentYear - 1
 
 def executeWorkflow(userQuery):
+    log("prometheus", f"Workflow started for: {userQuery[:50]}...")
     client = GeminiClient(apiKey=Config.PROMETHEUS['GEMINI_API.KEY']) 
     sysPrompt = {}
     modelResponse = {}
@@ -74,8 +76,8 @@ def executeWorkflow(userQuery):
         * Input: "Histórico de dividendos de VALE3 de 2020 até 2025" -> [{"search":"VALE3","fields":"DIVIDENDOS","type":"historical","date_start":"2020","date_end":"2024"}]
         * Input: "Como eu posso calcular o valor intrinseco de uma acao" -> Output: []
         * Input: "Oi, pode me ajudar?" -> Output: []
-        """.replace("{CURRENT_DATE}", current_date).replace("{CURRENT_YEAR}", str(current_year)).replace("{LAST_YEAR}", str(last_year))
-    modelResponse['STAGE 1'] = client.generateContent(userQuery, system_instruction=sysPrompt['STAGE 1'], model="gemini-2.5-flash-lite")
+        """.replace("{CURRENT_DATE}", currentDate).replace("{CURRENT_YEAR}", str(currentYear)).replace("{LAST_YEAR}", str(lastYear))
+    modelResponse['STAGE 1'] = client.generateContent(userQuery, systemInstruction=sysPrompt['STAGE 1'], model="gemini-2.5-flash-lite")
     #print(modelResponse['STAGE 1'])
 
     #
@@ -109,7 +111,7 @@ def executeWorkflow(userQuery):
     for idx, response in APIResponse.items():
         json.dumps(response.json().get('data', []), ensure_ascii=False, indent=2)
 
-    APIResponse = [item for api_response in APIResponse.values() for item in api_response.json().get('data', [])]
+    APIResponse = [item for apiResponse in APIResponse.values() for item in apiResponse.json().get('data', [])]
     APIResponse = json.dumps(APIResponse, ensure_ascii=False, indent=2)
     #print(APIResponse)
 
@@ -148,7 +150,7 @@ def executeWorkflow(userQuery):
     - Introdução: Contextualize o setor da empresa e o momento do mercado.
     - Bloco Fundamentalista: Análise minuciosa de Valuation (P/L, P/VP, EV/EBITDA).
     - Bloco de Eficiência: Análise de Margens e Retornos (ROE, ROIC).
-    - Bloco de Proventos: Avaliação da sustentabilidade dos dividendos (Dividend Yield e Payout se disponíveis).
+    - Bloco de Proventos: Evaluation da sustentabilidade dos dividendos (Dividend Yield e Payout se disponíveis).
     - Riscos: Liste pelo menos dois fatores de risco baseados no setor do ativo.
 
     4. ESTILO DE ESCRITA:
@@ -171,9 +173,11 @@ def executeWorkflow(userQuery):
 
     ### Tese de Dividendos e Riscos
     O **Dividend Yield de 12.5%** projeta um carrego de posição altamente atraente. No entanto, o investidor deve monitorar os riscos de intervenção na política de preços e a volatilidade do Brent no mercado externo.
-    """.replace("{CURRENT_DATE}", current_date)
+    """.replace("{CURRENT_DATE}", currentDate)
     sysPrompt['STAGE 3'] = sysPrompt['STAGE 3'].replace("{API_RESPONSE}", APIResponse)
-    modelResponse['STAGE 3'] = client.generateContent(userQuery, system_instruction=sysPrompt['STAGE 3'], model="gemini-2.5-flash-lite")
+    modelResponse['STAGE 3'] = client.generateContent(userQuery, systemInstruction=sysPrompt['STAGE 3'], model="gemini-2.5-flash-lite")
     #print(modelResponse['STAGE 3'])
+
+    return modelResponse['STAGE 3']
 
     return modelResponse['STAGE 3']

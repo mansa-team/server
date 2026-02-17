@@ -2,31 +2,31 @@ from imports import *
 from fastapi import HTTPException
  
 def categorizeColumns(columns: list) -> tuple:
-    historical_fields = {}
-    fundamental_cols = []
+    historicalFields = {}
+    fundamentalCols = []
     
     for col in columns:
         parts = col.split(' ')
         if len(parts) >= 2 and parts[-1].isdigit():
             year = int(parts[-1])
             field = " ".join(parts[:-1])
-            if field not in historical_fields:
-                historical_fields[field] = []
-            historical_fields[field].append(year)
+            if field not in historicalFields:
+                historicalFields[field] = []
+            historicalFields[field].append(year)
         else:
             if col not in ["TICKER", "NOME", "TIME"]:
-                fundamental_cols.append(col)
+                fundamentalCols.append(col)
                 
-    return historical_fields, fundamental_cols
+    return historicalFields, fundamentalCols
 
 def parseYearInput(years: str) -> tuple:
     if not years:
         return None, None
-    year_list = [int(y.strip()) for y in years.split(",")]
-    if len(year_list) == 1:
-        return year_list[0], year_list[0]
-    elif len(year_list) == 2:
-        return year_list[0], year_list[1]
+    yearList = [int(y.strip()) for y in years.split(",")]
+    if len(yearList) == 1:
+        return yearList[0], yearList[0]
+    elif len(yearList) == 2:
+        return yearList[0], yearList[1]
     raise HTTPException(status_code=400, detail="Years format: YEAR or START_YEAR,END_YEAR")
 
 def normalizeColumns(data: pd.DataFrame, order: list) -> pd.DataFrame:

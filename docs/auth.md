@@ -89,7 +89,7 @@ Internal endpoint handled by the server. After successful Google login, it:
 2. Synchronizes the user with the local MySQL database.
 3. Redirects to the frontend with the token in the URL fragment:
    `http://127.0.0.1:5500/main/test/auth.html#token=ACCESS_TOKEN`
-
+ 
 ## Security Features
 
 - **Bcrypt Hashing**: All passwords are salted and hashed using the Blowfish algorithm (bcrypt).

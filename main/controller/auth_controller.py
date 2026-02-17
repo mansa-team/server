@@ -76,23 +76,6 @@ def logout(response: Response):
     )
     return {"message": "Successfully logged out"}
 
-@router.get("/me")
-async def getMe(user: dict = Depends(getCurrentUser)):
-    return {
-        "status": "success",
-        "user": user
-    }
-
-@router.get("/admin")
-async def adminTest(user: dict = Depends(getCurrentUser)):
-    if not checkAccessLevel(user["level"], levels["Admin"]):
-        raise HTTPException(status_code=403, detail="Insufficient access level")
-    return {
-        "status": "success",
-        "message": "Admin area access granted",
-        "user": user
-    }
-
 @router.get("/google")
 def googleLogin():
     clientId = Config.AUTH['GOOGLE_CLIENT.ID']
@@ -194,3 +177,20 @@ def googleCallback(response: Response, code: str):
     except Exception as e:
         log("auth", f"CRITICAL ERROR in callback: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error during Google login")
+
+@router.get("/me")
+async def getMe(user: dict = Depends(getCurrentUser)):
+    return {
+        "status": "success",
+        "user": user
+    }
+
+@router.get("/admin")
+async def adminTest(user: dict = Depends(getCurrentUser)):
+    if not checkAccessLevel(user["level"], levels["Admin"]):
+        raise HTTPException(status_code=403, detail="Insufficient access level")
+    return {
+        "status": "success",
+        "message": "Admin area access granted",
+        "user": user
+    }

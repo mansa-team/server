@@ -13,7 +13,7 @@ def runScraper():
     env["PYTHONPATH"] = projectRoot
 
     if not os.path.exists(scraperPath):
-        print(f"Error: Scraper file not found at {scraperPath}")
+        log("scraper", f"Error: Scraper file not found at {scraperPath}")
         return
 
     subprocess.run([sys.executable, scraperPath], env=env, check=True)

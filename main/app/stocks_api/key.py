@@ -6,12 +6,12 @@ from sqlalchemy import text
 import secrets
 import string
 
-APIKey_Header = APIKeyHeader(name="X-API-Key", auto_error=False)
-async def verifyAPIKey(APIKey: str = Depends(APIKey_Header)):
+apiKeyHeader = APIKeyHeader(name="X-API-Key", auto_error=False)
+async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader)):
     if Config.STOCKS_API['KEY.SYSTEM'] == 'FALSE':
         return None
     
-    if not APIKey:
+    if not apiKey:
         raise HTTPException(status_code=401, detail="Missing API key")
 
     with dbEngine.begin() as conn:
@@ -19,11 +19,11 @@ async def verifyAPIKey(APIKey: str = Depends(APIKey_Header)):
             SELECT requestLimit, currentUsage, lastReset 
             FROM stocksapi_keys WHERE apiKey = :key
         """)
-        row = conn.execute(query, {"key": APIKey}).fetchone()
+        row = conn.execute(query, {"key": apiKey}).fetchone()
         
         if not row:
-            if APIKey == Config.STOCKS_API['KEY']:
-                return APIKey
+            if apiKey == Config.STOCKS_API['KEY']:
+                return apiKey
             raise HTTPException(status_code=401, detail="Invalid API key")
 
         limit, usage, lastReset = row
@@ -31,13 +31,13 @@ async def verifyAPIKey(APIKey: str = Depends(APIKey_Header)):
 
         if daysSinceReset >= int(Config.STOCKS_API['QUOTA.RESETDAYS']):
             usage = 0
-            conn.execute(text("UPDATE stocksapi_keys SET currentUsage = 0, lastReset = CURRENT_TIMESTAMP WHERE apiKey = :key"), {"key": APIKey})
+            conn.execute(text("UPDATE stocksapi_keys SET currentUsage = 0, lastReset = CURRENT_TIMESTAMP WHERE apiKey = :key"), {"key": apiKey})
         
         if usage >= limit:
             raise HTTPException(status_code=429, detail="quota exceeded")
 
-        conn.execute(text("UPDATE stocksapi_keys SET currentUsage = currentUsage + 1 WHERE apiKey = :key"), {"key": APIKey})
-    return APIKey
+        conn.execute(text("UPDATE stocksapi_keys SET currentUsage = currentUsage + 1 WHERE apiKey = :key"), {"key": apiKey})
+    return apiKey
 
 def generateSecureKey(length=32):
     alphabet = string.ascii_letters + string.digits

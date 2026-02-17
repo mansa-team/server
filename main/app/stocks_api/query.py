@@ -11,24 +11,24 @@ def queryHistorical(search: str = None, fields: str = None, dates: str = None):
     
     try:
         df = STOCKS_CACHE.copy()
-        available_columns = df.columns.tolist()
-        available_columns_set = set(available_columns)
-        historical_fields, _ = categorizeColumns(available_columns)
+        availableColumns = df.columns.tolist()
+        availableColumnsSet = set(availableColumns)
+        historicalFields, _ = categorizeColumns(availableColumns)
         
-        if not historical_fields:
+        if not historicalFields:
             raise HTTPException(status_code=400, detail="No historical data available in cache")
         
-        field_list_available = sorted(historical_fields.keys())
-        field_list = field_list_available if not fields else [f.strip() for f in fields.split(",") if f.strip() in field_list_available]
+        fieldListAvailable = sorted(historicalFields.keys())
+        fieldList = fieldListAvailable if not fields else [f.strip() for f in fields.split(",") if f.strip() in fieldListAvailable]
         
-        available_years = sorted(set(year for field in field_list for year in historical_fields[field]))
-        year_start, year_end = parseYearInput(dates) if dates else (available_years[0], available_years[-1])
+        availableYears = sorted(set(year for field in fieldList for year in historicalFields[field]))
+        yearStart, yearEnd = parseYearInput(dates) if dates else (availableYears[0], availableYears[-1])
 
-        cols = ["TICKER", "NOME"] + [f"{field} {year}" for field in field_list for year in range(year_end, year_start - 1, -1) if f"{field} {year}" in available_columns_set]
+        cols = ["TICKER", "NOME"] + [f"{field} {year}" for field in fieldList for year in range(yearEnd, yearStart - 1, -1) if f"{field} {year}" in availableColumnsSet]
         
         if search:
-            search_terms = [s.strip().upper() for s in search.split(",")]
-            df = df[df['TICKER'].str.upper().isin(search_terms)]
+            searchTerms = [s.strip().upper() for s in search.split(",")]
+            df = df[df['TICKER'].str.upper().isin(searchTerms)]
 
         if 'TIME' in df.columns:
             df = df.sort_values(by='TIME', ascending=False)
@@ -38,8 +38,8 @@ def queryHistorical(search: str = None, fields: str = None, dates: str = None):
 
         return {
             "search": search or "all",
-            "fields": sorted(field_list),
-            "dates": [year_start, year_end],
+            "fields": sorted(fieldList),
+            "dates": [yearStart, yearEnd],
             "type": "historical",
             "count": len(df),
             "data": json.loads(df.to_json(orient="records"))
@@ -54,30 +54,30 @@ def queryFundamental(search: str = None, fields: str = None, dates: str = None):
     
     try:
         df = STOCKS_CACHE.copy()
-        available_columns = df.columns.tolist()
-        available_columns_set = set(available_columns)
-        _, fundamental_cols = categorizeColumns(available_columns)
+        availableColumns = df.columns.tolist()
+        availableColumnsSet = set(availableColumns)
+        _, fundamentalCols = categorizeColumns(availableColumns)
         
-        field_list = fundamental_cols if not fields else [f.strip() for f in fields.split(",") if f.strip() in fundamental_cols]
-        cols = ["TICKER", "NOME", "TIME"] + [field for field in field_list if field in available_columns_set]
+        fieldList = fundamentalCols if not fields else [f.strip() for f in fields.split(",") if f.strip() in fundamentalCols]
+        cols = ["TICKER", "NOME", "TIME"] + [field for field in fieldList if field in availableColumnsSet]
         
         if search:
-            search_terms = [s.strip().upper() for s in search.split(",")]
-            df = df[df['TICKER'].str.upper().isin(search_terms)]
+            searchTerms = [s.strip().upper() for s in search.split(",")]
+            df = df[df['TICKER'].str.upper().isin(searchTerms)]
             
         if 'TIME' in df.columns:
             df['TIME_DT'] = pd.to_datetime(df['TIME'])
             
             if dates:
                 try:
-                    date_range = [d.strip() for d in dates.split(",")]
-                    if len(date_range) == 2:
-                        start_date = pd.to_datetime(date_range[0])
-                        end_date = pd.to_datetime(date_range[1])
-                        df = df[(df['TIME_DT'] >= start_date) & (df['TIME_DT'] <= end_date)]
-                    elif len(date_range) == 1:
-                        target_date = pd.to_datetime(date_range[0]).date()
-                        df = df[df['TIME_DT'].dt.date == target_date]
+                    dateRange = [d.strip() for d in dates.split(",")]
+                    if len(dateRange) == 2:
+                        startDate = pd.to_datetime(dateRange[0])
+                        endDate = pd.to_datetime(dateRange[1])
+                        df = df[(df['TIME_DT'] >= startDate) & (df['TIME_DT'] <= endDate)]
+                    elif len(dateRange) == 1:
+                        targetDate = pd.to_datetime(dateRange[0]).date()
+                        df = df[df['TIME_DT'].dt.date == targetDate]
                 except Exception as e:
                     raise HTTPException(status_code=400, detail=f"Data format error (YYYY-MM-DD): {str(e)}")
 
@@ -89,7 +89,7 @@ def queryFundamental(search: str = None, fields: str = None, dates: str = None):
 
         return {
             "search": search or "all",
-            "fields": field_list,
+            "fields": fieldList,
             "dates": dates,
             "type": "fundamental",
             "count": len(df),

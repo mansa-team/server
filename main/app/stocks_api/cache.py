@@ -1,4 +1,5 @@
 from imports import *
+from main.utils.util import log
 import threading
 
 STOCKS_CACHE = None
@@ -22,6 +23,10 @@ def getCachedStocks(engine):
             df = pd.read_sql("SELECT * FROM b3_stocks", conn)
             df = df.replace({np.nan: None, np.inf: None, -np.inf: None})
 
-            with CACHE_LOCK: STOCKS_CACHE = df
+            with CACHE_LOCK: 
+                STOCKS_CACHE = df
+            
+            log("cache", f"Stocks cache updated ({len(df)} records)")
 
-    except Exception as e: pass
+    except Exception as e:
+        log("cache", f"Error updating stocks cache: {str(e)}")

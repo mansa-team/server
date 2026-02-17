@@ -1,4 +1,5 @@
 from imports import *
+from main.utils.util import log
 
 from fastapi import Depends, HTTPException, status
 from main.app.auth.util import *
@@ -7,7 +8,7 @@ def createUserAccount(username, email, password=None, googleId=None):
     if not password and not googleId:
         raise HTTPException(
             status_code=400, 
-            detail="Account must have either a password or a Google ID."
+            detail="Account must have either a password."
         )
     
     with dbEngine.connect() as conn:
@@ -33,6 +34,7 @@ def createUserAccount(username, email, password=None, googleId=None):
             """),
             {"u": username, "e": email, "p": hashedPassword, "g": googleId}
         )
+        log("auth", f"User created: {username} ({email})")
         return True
     
 def authenticateGoogleUser(googleId: str):
@@ -41,6 +43,7 @@ def authenticateGoogleUser(googleId: str):
         user = conn.execute(query, {"g": googleId}).fetchone()
         
         if user:
+            log("auth", f"Google Login: {user.username}")
             return {
                 "userId": user.userId,
                 "username": user.username,
@@ -54,6 +57,7 @@ def authenticateUser(username, password):
         user = conn.execute(query, {"u": username}).fetchone()
         
         if user and user.passwordHash and verifyPassword(password, user.passwordHash):
+            log("auth", f"Password Login: {user.username}")
             return {
                 "userId": user.userId,
                 "username": user.username,
