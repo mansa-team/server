@@ -1,7 +1,7 @@
 from imports import *
 
-from fastapi import HTTPException, Security, status, Request
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import HTTPException, Request
+from fastapi.security import HTTPBearer
 import jwt
 import bcrypt
 

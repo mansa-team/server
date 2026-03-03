@@ -2,7 +2,7 @@ from fastapi import APIRouter, Response, Depends, Body, HTTPException, Request
 from fastapi.responses import RedirectResponse
 import urllib.parse
 
-from main.app.auth.auth import *
+from main.app.authentication.auth import *
 from main.utils.util import log, limiter
 
 router = APIRouter(

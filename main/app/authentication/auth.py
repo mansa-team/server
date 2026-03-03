@@ -2,7 +2,7 @@ from imports import *
 from main.utils.util import log
 
 from fastapi import HTTPException
-from main.app.auth.util import *
+from main.app.authentication.util import *
 
 def createUserAccount(username, email, password=None, googleId=None):
     if not password and not googleId:
