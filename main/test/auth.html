@@ -252,11 +252,21 @@
         }
 
         async function handleAuth() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const email = document.getElementById('email').value;
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const email = document.getElementById('email').value.trim();
             const stayLogged = document.getElementById('stayLogged').checked;
-            
+
+            if (!username || !password) {
+                setMessage("Usuário e senha são obrigatórios", "error");
+                return;
+            }
+
+            if (isRegisterView && !email) {
+                setMessage("Email é obrigatório para registro", "error");
+                return;
+            }
+
             const endpoint = isRegisterView ? "/register" : "/login";
             const payload = isRegisterView ? { username, email, password } : { username, password };
 

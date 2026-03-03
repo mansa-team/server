@@ -1,10 +1,13 @@
 from imports import *
-from main.utils.util import log
+from main.utils.util import log, limiter
 
 import threading
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 class ServiceManager:
     _instances = {}
@@ -13,6 +16,15 @@ class ServiceManager:
     def getApp(cls, port: int) -> FastAPI:
         if port not in cls._instances:
             app = FastAPI(title=f"Mansa Service {port}")
+            app.state.limiter = limiter
+
+            @app.exception_handler(RateLimitExceeded)
+            async def _rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+                return JSONResponse(
+                    status_code=429,
+                    content={"detail": "Too many requests", "error": str(exc.detail)}
+                )
+
             app.add_middleware(
                 CORSMiddleware,
                 allow_origin_regex="https?://.*",

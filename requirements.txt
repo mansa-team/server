@@ -18,5 +18,6 @@ requests
 # PROMETHEUS
 
 # AUTH
+slowapi
 bcrypt
 jwt

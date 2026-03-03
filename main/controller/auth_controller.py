@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Response, Depends, Body, HTTPException
+from fastapi import APIRouter, Response, Depends, Body, HTTPException, Request
 from fastapi.responses import RedirectResponse
 import urllib.parse
 
 from main.app.auth.auth import *
-from main.utils.util import log
+from main.utils.util import log, limiter
 
 router = APIRouter(
     prefix="/auth",
@@ -11,11 +11,13 @@ router = APIRouter(
 )
 
 @router.get("/health")
-def health():
+@limiter.limit("5/minute")
+def health(request: Request):
     return {"status": "ok", "service": "auth"}
 
 @router.post("/register")
-def register(response: Response, username: str = Body(...), email: str = Body(...), password: str = Body(...)):
+@limiter.limit("5/minute")
+def register(request: Request, response: Response, username: str = Body(...), email: str = Body(...), password: str = Body(...)):
     try:
         createUserAccount(username, email, password)
 
@@ -45,7 +47,8 @@ def register(response: Response, username: str = Body(...), email: str = Body(..
         raise HTTPException(status_code=400, detail="Registration failed. Internal error or credentials already in use.")
 
 @router.post("/login")
-def login(response: Response, username: str = Body(...), password: str = Body(...)):
+@limiter.limit("5/minute")
+def login(request: Request, response: Response, username: str = Body(...), password: str = Body(...)):
     user = authenticateUser(username, password)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")

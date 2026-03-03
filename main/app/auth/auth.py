@@ -1,7 +1,7 @@
 from imports import *
 from main.utils.util import log
 
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException
 from main.app.auth.util import *
 
 def createUserAccount(username, email, password=None, googleId=None):
