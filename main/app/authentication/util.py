@@ -6,15 +6,14 @@ import jwt
 import bcrypt
 
 security = HTTPBearer()
-SECRET_KEY = Config.AUTH['JEW_TOKEN']
+SECRET_KEY = Config.AUTH['JEWISH_TOKEN']
 ALGORITHM = "HS256"
 
-levels = {
-    "Free": 00,
-    "Premium": 10,
-    "Developer": 1,
-    "Premium Developer": 11,
-    "Admin": 67
+ROLES = {
+    "USER": "USER",
+    "PREMIUM": "PREMIUM",
+    "DEVELOPER": "DEVELOPER",
+    "ADMIN": "ADMIN"
 }
 
 def hashPassword(password: str):
@@ -38,9 +37,9 @@ def createAccessToken(data: dict, expiresDelta: timedelta = timedelta(hours=24))
 
     return jwt.encode(toEncode, SECRET_KEY, algorithm=ALGORITHM)
 
-def checkAccessLevel(currentLevel: int, requiredLevel: int) -> bool:
-    if currentLevel == levels['Admin']: return True
-    return currentLevel >= requiredLevel
+def checkAccessLevel(userRoles: list, requiredRole: str) -> bool:
+    if ROLES['ADMIN'] in userRoles: return True
+    return requiredRole in userRoles
 
 def getCurrentUser(request: Request):
     token = request.cookies.get("mansa_token")
@@ -61,17 +60,20 @@ def getCurrentUser(request: Request):
             raise HTTPException(status_code=401, detail="Invalid Token")
             
         with dbEngine.connect() as conn:
-            query = text("SELECT userId, username, email, accessLevel FROM users WHERE userId = :id")
+            query = text("SELECT userId, username, email, roles FROM users WHERE userId = :id")
             user = conn.execute(query, {"id": userId}).fetchone()
             
             if not user:
                 raise HTTPException(status_code=401, detail="User no longer exists")
+
+            rawRoles = getattr(user, 'roles', '')
+            userRoles = [r.strip() for r in rawRoles.split(',')] if rawRoles else ['USER']
             
             return {
                 "userId": user.userId,
                 "username": user.username,
                 "email": user.email,
-                "level": user.accessLevel
+                "roles": userRoles
             }
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Could not validate credentials")

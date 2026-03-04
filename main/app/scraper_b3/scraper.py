@@ -412,6 +412,49 @@ if __name__ == "__main__":
 
             stocksData.to_sql('b3_stocks', con=ENGINE, if_exists='append', index=False)
 
+            with ENGINE.connect() as conn:
+                cleanup_sql = """
+                SET SQL_SAFE_UPDATES = 0;
+                DROP TABLE IF EXISTS ticker_lookup;
+
+                CREATE TABLE ticker_lookup (
+                    TICKER VARCHAR(20),
+                    NOME VARCHAR(255),
+                    SETOR VARCHAR(255),
+                    SUBSETOR VARCHAR(255),
+                    SEGMENTO VARCHAR(255),
+                    PRIMARY KEY (TICKER)
+                ) AS 
+                SELECT 
+                    CAST(TICKER AS CHAR(20)) AS TICKER, 
+                    MAX(NOME) as NOME, 
+                    MAX(SETOR) as SETOR, 
+                    MAX(SUBSETOR) as SUBSETOR, 
+                    MAX(SEGMENTO) as SEGMENTO
+                FROM b3_stocks 
+                WHERE NOME IS NOT NULL
+                GROUP BY TICKER;
+
+                UPDATE b3_stocks s
+                INNER JOIN ticker_lookup l ON s.TICKER = l.TICKER
+                SET 
+                    s.NOME = COALESCE(s.NOME, l.NOME),
+                    s.SETOR = COALESCE(s.SETOR, l.SETOR),
+                    s.SUBSETOR = COALESCE(s.SUBSETOR, l.SUBSETOR),
+                    s.SEGMENTO = COALESCE(s.SEGMENTO, l.SEGMENTO)
+                WHERE s.NOME IS NULL 
+                   OR s.SETOR IS NULL 
+                   OR s.SUBSETOR IS NULL 
+                   OR s.SEGMENTO IS NULL;
+
+                SET SQL_SAFE_UPDATES = 1;
+                DROP TABLE IF EXISTS ticker_lookup;
+                """
+                for statement in cleanup_sql.split(';'):
+                    if statement.strip():
+                        conn.execute(text(statement))
+                conn.commit()
+
     finally:
         returnDriver(mainDriver)
         shutdownDrivers()

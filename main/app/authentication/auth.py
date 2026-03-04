@@ -29,8 +29,8 @@ def createUserAccount(username, email, password=None, googleId=None):
     with dbEngine.begin() as conn:
         conn.execute(
             text("""
-                INSERT INTO users (username, email, passwordHash, googleId, accessLevel) 
-                VALUES (:u, :e, :p, :g, 0)
+                INSERT INTO users (username, email, passwordHash, googleId, roles) 
+                VALUES (:u, :e, :p, :g, 'USER')
             """),
             {"u": username, "e": email, "p": hashedPassword, "g": googleId}
         )
@@ -39,28 +39,53 @@ def createUserAccount(username, email, password=None, googleId=None):
     
 def authenticateGoogleUser(googleId: str):
     with dbEngine.connect() as conn:
-        query = text("SELECT userId, username, email, accessLevel FROM users WHERE googleId = :g")
+        query = text("SELECT userId, username, email, roles FROM users WHERE googleId = :g")
         user = conn.execute(query, {"g": googleId}).fetchone()
         
         if user:
             log("auth", f"Google Login: {user.username}")
+            roles_list = [r.strip() for r in user.roles.split(',')] if user.roles else ['USER']
             return {
                 "userId": user.userId,
                 "username": user.username,
-                "accessLevel": user.accessLevel
+                "roles": roles_list
             }
     return None
 
 def authenticateUser(username, password):
     with dbEngine.connect() as conn:
-        query = text("SELECT userId, username, passwordHash, accessLevel FROM users WHERE username = :u")
+        query = text("SELECT userId, username, passwordHash, roles FROM users WHERE username = :u")
         user = conn.execute(query, {"u": username}).fetchone()
         
         if user and user.passwordHash and verifyPassword(password, user.passwordHash):
             log("auth", f"Password Login: {user.username}")
+            roles_list = [r.strip() for r in user.roles.split(',')] if user.roles else ['USER']
             return {
                 "userId": user.userId,
                 "username": user.username,
-                "accessLevel": user.accessLevel
+                "roles": roles_list
             }
     return None
+
+def addRoleToUser(userId: int, role: str):
+    with dbEngine.connect() as conn:
+        query = text("SELECT roles FROM users WHERE userId = :id")
+        user = conn.execute(query, {"id": userId}).fetchone()
+        
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        roles_raw = getattr(user, 'roles', '')
+        currentRoles = [r.strip() for r in roles_raw.split(',')] if roles_raw else []
+        if role not in currentRoles:
+            currentRoles.append(role)
+            newRoles = ",".join(currentRoles)
+            
+            with dbEngine.begin() as upd:
+                upd.execute(
+                    text("UPDATE users SET roles = :r WHERE userId = :id"),
+                    {"r": newRoles, "id": userId}
+                )
+            log("auth", f"Added role {role} to user ID {userId}")
+            return True
+    return False

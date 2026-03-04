@@ -1,4 +1,4 @@
-# Auth & Session Management
+# Authentication Management
 
 A secure authentication system for the Mansa ecosystem, utilizing **JSON Web Tokens (JWT)** and **HttpOnly Cookies** to manage user sessions and access levels. This module ensures that user data is protected against common attacks like XSS by restricting token access to the server-side.
 
@@ -18,12 +18,12 @@ Built to integrate seamlessly with the main database and provide granular permis
     #
     #$ AUTH SYSTEM
     #
-    AUTH_ENABLED=TRUE
-    AUTH_HOST=localhost
-    AUTH_PORT=3200
+    USER_ENABLED=TRUE
+    USER_HOST=localhost
+    USER_PORT=3200
     
     # Secret key for JWT signing
-    JEW_TOKEN=your_super_secret_jwt_key
+    JEWISH_TOKEN=your_super_secret_jwt_key
 
     # Google OAuth2
     GOOGLE_CLIENT.ID=your_id
@@ -31,16 +31,15 @@ Built to integrate seamlessly with the main database and provide granular permis
     GOOGLE_REDIRECT.URI=http://localhost:3200/auth/callback
    ```
 
-## Access Levels
-The system uses a bit-flag style (or specific integer) level system to control permissions:
+## Roles and Permissions
+The system uses a string-based multi-role system to control access. Users can have one or more roles simultaneously, separated by commas in the database.
 
-| Level | Name | Description |
+| Role | Name | Description |
 | :--- | :--- | :--- |
-| **00** | Free | Standard access to public data. |
-| **01** | Developer | Access to generate and use API Keys. |
-| **10** | Premium | Enhanced quotas and exclusive features. |
-| **11** | Premium Developer | Combined benefits of both levels. |
-| **67** | Admin | Full control over the system and user management. |
+| **USER** | Standard | Default access to basic features (Thoth and Ma'at). |
+| **DEVELOPER** | Developer | Access to the developer tab and API Key generation. |
+| **PREMIUM** | Premium | Access to all MUSA models and advanced algorithms. |
+| **ADMIN** | Admin | Full control over the system (includes all roles). |
 
 ## API Endpoints
 
@@ -51,7 +50,7 @@ curl http://localhost:3200/auth/health
 Returns service status.
 
 ### User Registration
-Creates a new account with default access level `00`.
+Creates a new account with the default role `USER`.
 ```bash
 curl -X POST "http://localhost:3200/auth/register" \
      -H "Content-Type: application/json" \
@@ -67,12 +66,19 @@ curl -X POST "http://localhost:3200/auth/login" \
 ```
 **Response Behavior:**
 - Sets a `mansa_token` cookie (HttpOnly, Secure, SameSite=Lax).
-- Returns a JSON object with `accessToken` (for manual header use) and user metadata.
+- Returns a JSON object with `accessToken`, user metadata, and a list of `roles`.
 
 ### Profile (Me)
-Retrieves the logged-in user's information. Requires a valid session cookie or Authorization header.
+Retrieves the logged-in user's information and current roles.
 ```bash
 curl -X GET "http://localhost:3200/auth/me" \
+     -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+### Upgrade to Developer
+Adds the `DEVELOPER` role to the current authenticated user.
+```bash
+curl -X POST "http://localhost:3200/auth/upgrade/developer" \
      -H "Authorization: Bearer YOUR_TOKEN"
 ```
 

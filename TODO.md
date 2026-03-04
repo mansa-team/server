@@ -19,24 +19,23 @@
 
 #
 
-### User structure defined by access levels:
-- **00:** Free
-- **10:** Premium
-- **01:** Developer
-- **11:** Premium and Developer
-- **67:** Admin
+# User structure defined by string roles:
+- **USER:** Standard access (Free)
+- **PREMIUM:** Access to MUSA models and advanced algorithms
+- **DEVELOPER:** Access to API Key generation and developer tab
+- **ADMIN:** Full system access (All roles included)
 
-#### Free User:
+*Note: Users can hold multiple roles simultaneously (e.g., "PREMIUM, DEVELOPER").*
+
+#### USER:
 - Access to Thoth and Ma'at
 
-#### Premium User:
+#### PREMIUM:
 - Access to all MUSA's models and algorithms
 
-#### Developer:
+#### DEVELOPER:
 - Access to the API Key generation, being able to create an API key for his use
 
-#### Premium and Developer:
-- Access to both Premium and Developer features
 
 #
 

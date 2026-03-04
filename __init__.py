@@ -4,9 +4,9 @@ from main.utils.connectivity import checkMYSQLConnection, checkServiceConnection
 from main.utils.service_manager import ServiceManager
 
 from main.service.authentication_service import AuthenticationService
-from main.service.stocksapi_service import StocksAPIService
 from main.service.prometheus_service import PrometheusService
 from main.service.scraper_service import ScraperService
+from main.service.stocksapi_service import StocksAPIService
 
 def orchestrator():
     if not checkMYSQLConnection(): return

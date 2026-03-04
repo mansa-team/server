@@ -65,10 +65,10 @@ class Config:
     }
 
     AUTH = {
-        'ENABLED': os.getenv('AUTH_ENABLED'),
-        'HOST': os.getenv('AUTH_HOST'),
-        'PORT': os.getenv('AUTH_PORT'),
-        'JEW_TOKEN': os.getenv('JEW_TOKEN'),
+        'ENABLED': os.getenv('USER_ENABLED'),
+        'HOST': os.getenv('USER_HOST'),
+        'PORT': os.getenv('USER_PORT'),
+        'JEWISH_TOKEN': os.getenv('JEWISH_TOKEN'),
         'GOOGLE_CLIENT.ID': os.getenv('GOOGLE_CLIENT.ID'),
         'GOOGLE_CLIENT.SECRET': os.getenv('GOOGLE_CLIENT.SECRET'),
         'GOOGLE_REDIRECT.URI': os.getenv('GOOGLE_REDIRECT.URI'),

@@ -75,9 +75,30 @@
             border: 1px solid #000;
         }
 
+        button.developer {
+            background: #2196F3;
+            color: #fff;
+            border: none;
+            margin-top: 10px;
+        }
+
         .status-header {
             font-size: 12px;
             font-weight: bold;
+        }
+
+        .dev-panel {
+            border: 1px dashed #2196F3;
+            padding: 15px;
+            margin-top: 20px;
+            background: #f0f7ff;
+        }
+
+        .dev-panel h3 {
+            margin-top: 0;
+            color: #2196F3;
+            font-size: 14px;
+            text-transform: uppercase;
         }
 
         .debug-panel {
@@ -148,6 +169,11 @@
                 <input type="password" id="password" class="search-input" placeholder="••••••••">
             </div>
 
+            <div id="confirmPasswordGroup" class="input-group hidden">
+                <label>Confirmar Senha</label>
+                <input type="password" id="confirmPassword" class="search-input" placeholder="••••••••">
+            </div>
+
             <div class="input-group" style="display: flex; align-items: center; gap: 8px;">
                 <input type="checkbox" id="stayLogged" style="width: auto;">
                 <label for="stayLogged" style="margin: 0;">Manter conectado</label>
@@ -178,7 +204,20 @@
                 <div id="userData"></div>
             </div>
 
-            <button onclick="testAdmin()">TESTAR ADMIN (LEVEL 67)</button>
+            <!-- Developer Dashboard -->
+            <div id="devDashboard" class="dev-panel hidden">
+                <h3>Developer Panel</h3>
+                <p style="font-size: 11px; color: #555;">Bem-vindo à área de desenvolvedor. Aqui você pode gerenciar suas chaves de API.</p>
+                <button class="developer" onclick="generateApiKey()">GERAR NOVA API KEY</button>
+                <div id="apiKeyResult" style="margin-top: 10px; word-break: break-all;"></div>
+            </div>
+
+            <div id="upgradeToDev" class="hidden" style="margin-bottom: 15px; border: 1px dashed #ccc; padding: 10px;">
+                <p style="font-size: 11px; margin: 0 0 10px 0;">Deseja acessar as funcionalidades de desenvolvedor?</p>
+                <button class="outline" style="margin: 0;" onclick="upgradeDeveloper()">Habilitar Developer Account</button>
+            </div>
+
+            <button onclick="testAdmin()">TESTAR ADMIN (ROLE: ADMIN)</button>
             <button class="outline" onclick="logout()">SAIR</button>
             <div id="adminMsg"></div>
         </div>
@@ -241,6 +280,7 @@
             document.getElementById('primaryBtn').innerText = isRegisterView ? "REGISTRAR" : "ENTRAR";
             document.getElementById('toggleBtn').innerText = isRegisterView ? "TENHO CONTA" : "CRIAR CONTA";
             document.getElementById('emailGroup').classList.toggle('hidden', !isRegisterView);
+            document.getElementById('confirmPasswordGroup').classList.toggle('hidden', !isRegisterView);
             document.getElementById('msgDisplay').innerHTML = "";
         }
 
@@ -254,6 +294,7 @@
         async function handleAuth() {
             const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value.trim();
+            const confirmPassword = document.getElementById('confirmPassword').value.trim();
             const email = document.getElementById('email').value.trim();
             const stayLogged = document.getElementById('stayLogged').checked;
 
@@ -262,9 +303,15 @@
                 return;
             }
 
-            if (isRegisterView && !email) {
-                setMessage("Email é obrigatório para registro", "error");
-                return;
+            if (isRegisterView) {
+                if (!email) {
+                    setMessage("Email é obrigatório para registro", "error");
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    setMessage("As senhas não coincidem", "error");
+                    return;
+                }
             }
 
             const endpoint = isRegisterView ? "/register" : "/login";
@@ -315,12 +362,62 @@
 
                 document.getElementById('loginView').classList.add('hidden');
                 document.getElementById('profileView').classList.remove('hidden');
-                document.getElementById('userData').innerHTML = `<pre>${JSON.stringify(data.user, null, 2)}</pre>`;
-                log(`Perfil carregado: ${data.user.sub}`);
+                
+                const user = data.user || data; // Handle different return structures
+                const roles = user.roles || [];
+                const roleTags = roles.map(r => `<span class="tag" style="margin-right: 5px;">${r}</span>`).join('');
+                
+                document.getElementById('userData').innerHTML = `
+                    <p style="margin: 0; font-weight: bold;">Usuário: ${user.username}</p>
+                    <p style="margin: 5px 0;">Roles: ${roleTags}</p>
+                    <pre style="margin-top: 10px;">${JSON.stringify(user, null, 2)}</pre>
+                `;
+
+                // Developer View Logic
+                const isDeveloper = roles.includes('DEVELOPER') || roles.includes('ADMIN');
+                if (isDeveloper) {
+                    document.getElementById('devDashboard').classList.remove('hidden');
+                    document.getElementById('upgradeToDev').classList.add('hidden');
+                } else {
+                    document.getElementById('devDashboard').classList.add('hidden');
+                    document.getElementById('upgradeToDev').classList.remove('hidden');
+                }
+
+                log(`Perfil carregado: ${user.username}`);
             } catch (e) {
                 log(`Erro ao carregar perfil: ${e.message}`);
                 logout();
             }
+        }
+
+        async function upgradeDeveloper() {
+            const token = sessionStorage.getItem('mansa_token') || localStorage.getItem('mansa_token');
+            try {
+                log("Enviando solicitação de upgrade...");
+                const res = await fetch(`${API_BASE}/upgrade/developer`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    log("Upgrade bem-sucedido! Recarregando perfil...");
+                    await fetchProfile(token);
+                } else {
+                    log(`Erro no upgrade: ${data.detail || "Erro desconhecido"}`);
+                }
+            } catch (e) {
+                log(`Erro na conexão: ${e.message}`);
+            }
+        }
+
+        async function generateApiKey() {
+            log("Gerando chave API simulada...");
+            document.getElementById('apiKeyResult').innerHTML = `
+                <div style="background: #2196F3; color: #fff; padding: 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px;">
+                    MS_KEY_${Math.random().toString(36).substring(2, 15).toUpperCase()}
+                </div>
+            `;
         }
 
         async function testAdmin() {

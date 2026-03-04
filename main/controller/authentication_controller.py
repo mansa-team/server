@@ -11,7 +11,6 @@ router = APIRouter(
 )
 
 @router.get("/health")
-@limiter.limit("5/minute")
 def health(request: Request):
     return {"status": "ok", "service": "auth"}
 
@@ -30,8 +29,8 @@ def register(request: Request, response: Response, username: str = Body(...), em
         response.set_cookie(
             key="mansa_token",
             value=accessToken,
-            httponly=True,
-            secure=True,
+            httponly=False,
+            secure=False,
             samesite="lax"
         )
         
@@ -58,8 +57,8 @@ def login(request: Request, response: Response, username: str = Body(...), passw
     response.set_cookie(
         key="mansa_token",
         value=accessToken,
-        httponly=True,
-        secure=True,
+        httponly=False,
+        secure=False,
         samesite="lax"
     )
 
@@ -73,14 +72,15 @@ def login(request: Request, response: Response, username: str = Body(...), passw
 def logout(response: Response):
     response.delete_cookie(
         key="mansa_token",
-        httponly=True,
-        secure=True,
+        httponly=False,
+        secure=False,
         samesite="lax"
     )
     return {"message": "Successfully logged out"}
 
 @router.get("/google")
-def googleLogin():
+@limiter.limit("5/minute")
+def googleLogin(request: Request):
     clientId = Config.AUTH['GOOGLE_CLIENT.ID']
     redirectUri = Config.AUTH['GOOGLE_REDIRECT.URI']
     
@@ -99,7 +99,8 @@ def googleLogin():
     return RedirectResponse(googleUrl)
 
 @router.get("/callback")
-def googleCallback(response: Response, code: str):
+@limiter.limit("5/minute")
+def googleCallback(request: Request, response: Response, code: str):
     log("auth", "--- Google Callback Start ---")
     log("auth", f"Code received: {code[:10]}...")
     
@@ -181,16 +182,23 @@ def googleCallback(response: Response, code: str):
         log("auth", f"CRITICAL ERROR in callback: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error during Google login")
 
+#
+# move to authorization and user management later
+#
+
+@router.post("/upgrade/developer")
+def upgradeToDeveloper(currentUser: dict = Depends(getCurrentUser)):
+    if addRoleToUser(currentUser['userId'], ROLES['DEVELOPER']):
+        return {"message": "Successfully upgraded to Developer account", "roles": currentUser.get('roles', []) + [ROLES['DEVELOPER']]}
+    return {"message": "You are already a developer or upgrade failed"}
+
 @router.get("/me")
-async def getMe(user: dict = Depends(getCurrentUser)):
-    return {
-        "status": "success",
-        "user": user
-    }
+def getMe(currentUser: dict = Depends(getCurrentUser)):
+    return currentUser
 
 @router.get("/admin")
 async def adminTest(user: dict = Depends(getCurrentUser)):
-    if not checkAccessLevel(user["level"], levels["Admin"]):
+    if not checkAccessLevel(user["roles"], ROLES["ADMIN"]):
         raise HTTPException(status_code=403, detail="Insufficient access level")
     return {
         "status": "success",

@@ -9,7 +9,7 @@ def cacheScheduler(engine):
     def scheduler():
         getCachedStocks(engine)
         while True:
-            time.sleep(10*60) # 10 Minutes
+            time.sleep(360*60) # 360 Minutes
             getCachedStocks(engine)
 
     thread = threading.Thread(target=scheduler, daemon=True)
