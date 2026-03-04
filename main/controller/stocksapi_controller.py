@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
 
-from main.app.stocks_api.query import queryFundamental, queryHistorical
+from main.app.stocks_api.query import stocksQuery
 from main.app.stocks_api.key import verifyAPIKey, createKey
 
 router = APIRouter(
@@ -18,11 +18,11 @@ def apiKeyTest(api_key: str = Depends(verifyAPIKey)):
 
 @router.get("/historical")
 def getHistorical(search: str = Query(None), fields: str = Query(None), dates: str = Query(None), api_key: str = Depends(verifyAPIKey)):
-    return queryHistorical(search, fields, dates)
+    return stocksQuery.queryHistorical(search, fields, dates)
 
 @router.get("/fundamental")
 def getFundamental(search: str = Query(None), fields: str = Query(None), dates: str = Query(None), api_key: str = Depends(verifyAPIKey)):
-    return queryFundamental(search, fields, dates)
+    return stocksQuery.queryFundamental(search, fields, dates)
 
 @router.get("/key/generate")
 def generateKey(userId: int = Query(None)):

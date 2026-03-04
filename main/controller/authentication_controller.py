@@ -1,8 +1,12 @@
+from imports import *
+
 from fastapi import APIRouter, Response, Depends, Body, HTTPException, Request
 from fastapi.responses import RedirectResponse
 import urllib.parse
 
-from main.app.authentication.auth import *
+from main.app.authentication.auth import authManager
+from main.app.authentication.util import *
+
 from main.utils.util import log, limiter
 
 router = APIRouter(
@@ -18,9 +22,9 @@ def health(request: Request):
 @limiter.limit("5/minute")
 def register(request: Request, response: Response, username: str = Body(...), email: str = Body(...), password: str = Body(...)):
     try:
-        createUserAccount(username, email, password)
+        authManager.createUserAccount(username, email, password)
 
-        user = authenticateUser(username, password)
+        user = authManager.authenticateUser(username, password)
         if not user:
             raise HTTPException(status_code=401, detail="Auto-login failed after registration")
             
@@ -48,7 +52,7 @@ def register(request: Request, response: Response, username: str = Body(...), em
 @router.post("/login")
 @limiter.limit("5/minute")
 def login(request: Request, response: Response, username: str = Body(...), password: str = Body(...)):
-    user = authenticateUser(username, password)
+    user = authManager.authenticateUser(username, password)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
@@ -148,13 +152,13 @@ def googleCallback(request: Request, response: Response, code: str):
         log("auth", f"User identified: {email}")
 
         log("auth", "Verifying database records...")
-        user = authenticateGoogleUser(googleId)
+        user = authManager.authenticateGoogleUser(googleId)
         
         if not user:
             log("auth", "New user detected, creating account...")
             username = email.split('@')[0]
-            createUserAccount(username=username, email=email, googleId=googleId)
-            user = authenticateGoogleUser(googleId)
+            authManager.createUserAccount(username=username, email=email, googleId=googleId)
+            user = authManager.authenticateGoogleUser(googleId)
             log("auth", "Account created successfully.")
 
         log("auth", "Generating local JWT session...")
@@ -188,8 +192,8 @@ def googleCallback(request: Request, response: Response, code: str):
 
 @router.post("/upgrade/developer")
 def upgradeToDeveloper(currentUser: dict = Depends(getCurrentUser)):
-    if addRoleToUser(currentUser['userId'], ROLES['DEVELOPER']):
-        return {"message": "Successfully upgraded to Developer account", "roles": currentUser.get('roles', []) + [ROLES['DEVELOPER']]}
+    if authManager.addRoleToUser(currentUser['userId'], Roles.DEVELOPER):
+        return {"message": "Successfully upgraded to Developer account", "roles": currentUser.get('roles', []) + [Roles.DEVELOPER]}
     return {"message": "You are already a developer or upgrade failed"}
 
 @router.get("/me")
@@ -198,7 +202,7 @@ def getMe(currentUser: dict = Depends(getCurrentUser)):
 
 @router.get("/admin")
 async def adminTest(user: dict = Depends(getCurrentUser)):
-    if not checkAccessLevel(user["roles"], ROLES["ADMIN"]):
+    if not checkAccessLevel(user["roles"], Roles.ADMIN):
         raise HTTPException(status_code=403, detail="Insufficient access level")
     return {
         "status": "success",

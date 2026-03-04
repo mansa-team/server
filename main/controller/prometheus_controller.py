@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 import time
 
-from main.app.prometheus.generation import executeWorkflow
+from main.app.prometheus.generation import PrometheusGenerator
 from main.app.prometheus.util import verifyAPIKey
 
 router = APIRouter(
@@ -20,7 +20,7 @@ def apiKeyTest(apiKey: str = Depends(verifyAPIKey)):
 @router.get("/")
 def generation(text: str, apiKey: str = Depends(verifyAPIKey)):
     try:
-        response = executeWorkflow(text)
+        response = PrometheusGenerator.executeWorkflow(text)
         return {"success": True, "response": response, "timestamp": str(time.time())}
     except Exception as e:
         return {"success": False, "error": str(e), "timestamp": str(time.time())}

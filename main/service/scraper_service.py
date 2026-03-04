@@ -4,19 +4,15 @@ from main.utils.util import log
 import subprocess
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
+ 
+from main.app.scraper_b3.scraper import b3_scraper
 
 def runScraper():
-    projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    scraperPath = os.path.join(projectRoot, "main", "app", "scraper_b3", "scraper.py")
-    
-    env = os.environ.copy()
-    env["PYTHONPATH"] = projectRoot
-
-    if not os.path.exists(scraperPath):
-        log("scraper", f"Error: Scraper file not found at {scraperPath}")
-        return
-
-    subprocess.run([sys.executable, scraperPath], env=env, check=True)
+    try:
+        b3_scraper.scrapeData()
+        log("scraper", f"Scraper execution completed. Time: {time.time() - b3_scraper.start_time:.0f}s")
+    except Exception as e:
+        log("scraper", f"Scraper Exception: {e}")
     
 class ScraperService:
     @staticmethod

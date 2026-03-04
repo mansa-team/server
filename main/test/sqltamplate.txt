@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS stocksapi_keys (
 );
 
 // Fix NOME, SETOR, SUBSETOR and SEGMENTO
+
 SET SQL_SAFE_UPDATES = 0;
 DROP TABLE IF EXISTS ticker_lookup;
 

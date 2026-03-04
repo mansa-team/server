@@ -1,3 +1,4 @@
+@staticmethod
 def normalize(data, order):
     columns = list(data.columns)
     orderedColumns = [col for col in order if col in columns]

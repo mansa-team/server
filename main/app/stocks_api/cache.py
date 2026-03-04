@@ -1,32 +1,36 @@
 from imports import *
 from main.utils.util import log
 import threading
+from sqlalchemy.engine import Engine
 
-STOCKS_CACHE = None
-CACHE_LOCK = threading.Lock()
+class StocksCacheManager:
+    def __init__(self, db: Engine, cache_lock: threading.Lock):
+        self.db = db
+        self.cache_lock = cache_lock
+        self.STOCKS_CACHE = None
 
-def cacheScheduler(engine):
-    def scheduler():
-        getCachedStocks(engine)
-        while True:
-            time.sleep(360*60) # 360 Minutes
-            getCachedStocks(engine)
+    def cacheScheduler(self):
+        def scheduler():
+            self.getCachedStocks()
+            while True:
+                time.sleep(360*60) # 360 Minutes
+                self.getCachedStocks()
 
-    thread = threading.Thread(target=scheduler, daemon=True)
-    thread.start()
+        thread = threading.Thread(target=scheduler, daemon=True)
+        thread.start()
 
-def getCachedStocks(engine):
-    global STOCKS_CACHE
+    def getCachedStocks(self):
+        try:
+            with self.db.connect() as conn:
+                df = pd.read_sql("SELECT * FROM b3_stocks", conn)
+                df = df.replace({np.nan: None, np.inf: None, -np.inf: None})
 
-    try:
-        with engine.connect() as conn:
-            df = pd.read_sql("SELECT * FROM b3_stocks", conn)
-            df = df.replace({np.nan: None, np.inf: None, -np.inf: None})
+                with self.cache_lock: 
+                    self.STOCKS_CACHE = df
+                
+                log("cache", f"Stocks cache updated ({len(df)} records)")
 
-            with CACHE_LOCK: 
-                STOCKS_CACHE = df
-            
-            log("cache", f"Stocks cache updated ({len(df)} records)")
+        except Exception as e:
+            log("cache", f"Error updating stocks cache: {str(e)}")
 
-    except Exception as e:
-        log("cache", f"Error updating stocks cache: {str(e)}")
+stocksCache = StocksCacheManager(dbEngine, threading.Lock())

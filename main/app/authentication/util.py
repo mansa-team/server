@@ -9,12 +9,15 @@ security = HTTPBearer()
 SECRET_KEY = Config.AUTH['JEWISH_TOKEN']
 ALGORITHM = "HS256"
 
-ROLES = {
-    "USER": "USER",
-    "PREMIUM": "PREMIUM",
-    "DEVELOPER": "DEVELOPER",
-    "ADMIN": "ADMIN"
-}
+class Roles:
+    USER = "USER"
+    PREMIUM = "PREMIUM"
+    DEVELOPER = "DEVELOPER"
+    ADMIN = "ADMIN"
+
+    @classmethod
+    def get_all(cls):
+        return [cls.USER, cls.PREMIUM, cls.DEVELOPER, cls.ADMIN]
 
 def hashPassword(password: str):
     pwdBytes = password.encode('utf-8')
@@ -38,7 +41,7 @@ def createAccessToken(data: dict, expiresDelta: timedelta = timedelta(hours=24))
     return jwt.encode(toEncode, SECRET_KEY, algorithm=ALGORITHM)
 
 def checkAccessLevel(userRoles: list, requiredRole: str) -> bool:
-    if ROLES['ADMIN'] in userRoles: return True
+    if Roles.ADMIN in userRoles: return True
     return requiredRole in userRoles
 
 def getCurrentUser(request: Request):
@@ -67,7 +70,7 @@ def getCurrentUser(request: Request):
                 raise HTTPException(status_code=401, detail="User no longer exists")
 
             rawRoles = getattr(user, 'roles', '')
-            userRoles = [r.strip() for r in rawRoles.split(',')] if rawRoles else ['USER']
+            userRoles = [r.strip() for r in rawRoles.split(',')] if rawRoles else [Roles.USER]
             
             return {
                 "userId": user.userId,
