@@ -1,4 +1,4 @@
-from config import dbEngine
+from config import engine
 from main.utils.util import log
 
 import threading
@@ -37,4 +37,4 @@ class StocksCacheManager:
         except Exception as e:
             log("cache", f"Error updating stocks cache: {str(e)}")
 
-stocksCache = StocksCacheManager(dbEngine, threading.Lock())
+stocksCache = StocksCacheManager(engine, threading.Lock())

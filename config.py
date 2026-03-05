@@ -52,7 +52,7 @@ class Config:
         'MAX_WORKERS': os.getenv('MAX_WORKERS'),
     }
 
-    AUTH = {
+    USER = {
         'ENABLED': os.getenv('USER_ENABLED'),
         'HOST': os.getenv('USER_HOST'),
         'PORT': os.getenv('USER_PORT'),
@@ -62,7 +62,7 @@ class Config:
         'GOOGLE_REDIRECT.URI': os.getenv('GOOGLE_REDIRECT.URI'),
     }
 
-dbEngine = create_engine(
+engine = create_engine(
     f"mysql+pymysql://{Config.MYSQL['USER']}:{Config.MYSQL['PASSWORD']}@{Config.MYSQL['HOST']}/{Config.MYSQL['DATABASE']}",
     poolclass=QueuePool,
     pool_size=20,
@@ -72,24 +72,10 @@ dbEngine = create_engine(
     connect_args={'charset': 'utf8mb4'}
 )
 
-# ORM Session Management
-# Thread-safe session factory for ORM operations
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=dbEngine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 ScopedSession = scoped_session(SessionLocal)
 
 def getSession():
-    """
-    Dependency function to get a database session.
-    
-    Usage in FastAPI:
-        @router.get("/endpoint")
-        def endpoint(db: Session = Depends(getSession)):
-            # Use db session here
-            pass
-    
-    Returns:
-        Session: SQLAlchemy session that auto-closes after use
-    """
     db = SessionLocal()
     try:
         yield db

@@ -2,7 +2,6 @@ from config import Config, SessionLocal
 
 from fastapi import HTTPException, Depends
 from fastapi.security import APIKeyHeader
-from datetime import datetime
 
 import secrets
 import string

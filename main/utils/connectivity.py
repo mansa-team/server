@@ -1,4 +1,4 @@
-from config import Config, dbEngine
+from config import Config, engine
 from main.utils.util import log
 
 import time
@@ -9,7 +9,7 @@ def checkMYSQLConnection():
     try:
         startTime = time.time()
 
-        with dbEngine.connect() as connection:
+        with engine.connect() as connection:
            connection.execute(text("SELECT 1"))
         
         latency = (time.time() - startTime) * 1000

@@ -1,23 +1,22 @@
 from config import Config
-import requests
+from main.utils.util import log, limiter
 
 from fastapi import APIRouter, Response, Depends, Body, HTTPException, Request
 from fastapi.responses import RedirectResponse
 import urllib.parse
+import requests
 
-from main.app.authentication.auth import authManager
+from main.app.authentication.authentication import authManager
 from main.app.authentication.util import *
-
-from main.utils.util import log, limiter
 
 router = APIRouter(
     prefix="/auth",
-    tags=["Auth"]
+    tags=["Authentication"]
 )
 
 @router.get("/health")
 def health(request: Request):
-    return {"status": "ok", "service": "auth"}
+    return {"status": "ok", "service": "authenticaton"}
 
 @router.post("/register")
 @limiter.limit("5/minute")
@@ -86,8 +85,8 @@ def logout(response: Response):
 @router.get("/google")
 @limiter.limit("5/minute")
 def googleLogin(request: Request):
-    clientId = Config.AUTH['GOOGLE_CLIENT.ID']
-    redirectUri = Config.AUTH['GOOGLE_REDIRECT.URI']
+    clientId = Config.USER['GOOGLE_CLIENT.ID']
+    redirectUri = Config.USER['GOOGLE_REDIRECT.URI']
     
     params = {
         "client_id": clientId,
@@ -109,9 +108,9 @@ def googleCallback(request: Request, response: Response, code: str):
     log("auth", "--- Google Callback Start ---")
     log("auth", f"Code received: {code[:10]}...")
     
-    clientId = Config.AUTH['GOOGLE_CLIENT.ID']
-    clientSecret = Config.AUTH['GOOGLE_CLIENT.SECRET']
-    redirectUri = Config.AUTH['GOOGLE_REDIRECT.URI']
+    clientId = Config.USER['GOOGLE_CLIENT.ID']
+    clientSecret = Config.USER['GOOGLE_CLIENT.SECRET']
+    redirectUri = Config.USER['GOOGLE_REDIRECT.URI']
 
     try:
         log("auth", "Exchanging code for token...")
@@ -199,13 +198,3 @@ def upgradeToDeveloper(currentUser: dict = Depends(getCurrentUser)):
 @router.get("/me")
 def getMe(currentUser: dict = Depends(getCurrentUser)):
     return currentUser
-
-@router.get("/admin")
-async def adminTest(user: dict = Depends(getCurrentUser)):
-    if not checkAccessLevel(user["roles"], Roles.ADMIN):
-        raise HTTPException(status_code=403, detail="Insufficient access level")
-    return {
-        "status": "success",
-        "message": "Admin area access granted",
-        "user": user
-    }

@@ -1,24 +1,18 @@
 from sqlalchemy import Column, Integer, String, TIMESTAMP, ForeignKey, func
 from sqlalchemy.orm import relationship
-from main.models import Base
+from main.models.base import Base
 from datetime import datetime
 
 
 class StocksAPIKey(Base): 
     __tablename__ = 'stocksapi_keys'
-    
-    # Primary Key
+
     apiKey = Column(String(255), primary_key=True)
-    
-    # Foreign Key (One-to-one with User)
     userId = Column(Integer, ForeignKey('users.userId', ondelete='CASCADE'), unique=True, nullable=False, index=True)
-    
-    # Quota Management
     requestLimit = Column(Integer, nullable=False, default=100)
     currentUsage = Column(Integer, nullable=False, default=0)
     lastReset = Column(TIMESTAMP, server_default=func.current_timestamp(), nullable=False)
     
-    # Relationships
     user = relationship("User", back_populates="stocksapi_keys")
     
     def __repr__(self):

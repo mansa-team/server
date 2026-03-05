@@ -1,6 +1,6 @@
 import os
 
-from config import dbEngine, Config
+from config import engine, Config
 from main.utils.util import log
 
 import time
@@ -411,9 +411,9 @@ class B3Scraper:
                     pass
             gc.collect()
 
-dbEngine = create_engine(f"mysql+pymysql://{Config.MYSQL['USER']}:{Config.MYSQL['PASSWORD']}@{Config.MYSQL['HOST']}/{Config.MYSQL['DATABASE']}")
+engine = create_engine(f"mysql+pymysql://{Config.MYSQL['USER']}:{Config.MYSQL['PASSWORD']}@{Config.MYSQL['HOST']}/{Config.MYSQL['DATABASE']}")
 from sqlalchemy.engine import Engine
-b3_scraper = B3Scraper(dbEngine)
+b3_scraper = B3Scraper(engine)
 
 if __name__ == "__main__":
     b3_scraper.scrapeData()

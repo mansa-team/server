@@ -1,4 +1,5 @@
 from config import Config, SessionLocal
+from main.utils.roles import Roles
 
 from fastapi import HTTPException, Request
 from fastapi.security import HTTPBearer
@@ -9,18 +10,8 @@ import bcrypt
 from main.models import User
 
 security = HTTPBearer()
-SECRET_KEY = Config.AUTH['JEWISH_TOKEN']
+SECRET_KEY = Config.USER['JEWISH_TOKEN']
 ALGORITHM = "HS256"
-
-class Roles:
-    USER = "USER"
-    PREMIUM = "PREMIUM"
-    DEVELOPER = "DEVELOPER"
-    ADMIN = "ADMIN"
-
-    @classmethod
-    def get_all(cls):
-        return [cls.USER, cls.PREMIUM, cls.DEVELOPER, cls.ADMIN]
 
 def hashPassword(password: str):
     pwdBytes = password.encode('utf-8')
@@ -42,10 +33,6 @@ def createAccessToken(data: dict, expiresDelta: timedelta = timedelta(hours=24))
     toEncode.update({"exp": int(expire.timestamp())})
 
     return jwt.encode(toEncode, SECRET_KEY, algorithm=ALGORITHM)
-
-def checkAccessLevel(userRoles: list, requiredRole: str) -> bool:
-    if Roles.ADMIN in userRoles: return True
-    return requiredRole in userRoles
 
 def getCurrentUser(request: Request):
     token = request.cookies.get("mansa_token")

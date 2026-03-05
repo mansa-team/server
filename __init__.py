@@ -7,6 +7,7 @@ from main.utils.connectivity import checkMYSQLConnection, checkServiceConnection
 from main.utils.service_manager import ServiceManager
 
 from main.service.authentication_service import AuthenticationService
+from main.service.user_service import UserService
 from main.service.prometheus_service import PrometheusService
 from main.service.scraper_service import ScraperService
 from main.service.stocksapi_service import StocksAPIService
@@ -14,8 +15,9 @@ from main.service.stocksapi_service import StocksAPIService
 def orchestrator():
     if not checkMYSQLConnection(): return
 
-    if Config.AUTH['ENABLED'] == "TRUE" and Config.AUTH['HOST'] in LOCALHOST_ADDRESSES:
-        AuthenticationService.initialize(int(Config.AUTH['PORT']))
+    if Config.USER['ENABLED'] == "TRUE" and Config.USER['HOST'] in LOCALHOST_ADDRESSES:
+        AuthenticationService.initialize(int(Config.USER['PORT']))
+        UserService.initialize(int(Config.USER['PORT']))
 
     if Config.STOCKS_API['ENABLED'] == "TRUE" and Config.STOCKS_API['HOST'] in LOCALHOST_ADDRESSES:
         StocksAPIService.initialize(int(Config.STOCKS_API['PORT']))
