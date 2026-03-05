@@ -1,5 +1,8 @@
-from imports import *
 from main.utils.util import log
+
+from typing import Optional
+import requests
+import time
 
 class GeminiClient:
     def __init__(self, apiKey: str):

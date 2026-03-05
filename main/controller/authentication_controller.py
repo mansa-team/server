@@ -1,4 +1,5 @@
-from imports import *
+from config import Config
+import requests
 
 from fastapi import APIRouter, Response, Depends, Body, HTTPException, Request
 from fastapi.responses import RedirectResponse
@@ -189,7 +190,6 @@ def googleCallback(request: Request, response: Response, code: str):
 #
 # move to authorization and user management later
 #
-
 @router.post("/upgrade/developer")
 def upgradeToDeveloper(currentUser: dict = Depends(getCurrentUser)):
     if authManager.addRoleToUser(currentUser['userId'], Roles.DEVELOPER):

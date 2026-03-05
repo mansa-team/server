@@ -1,8 +1,10 @@
-from sqlalchemy.engine import Engine
-from imports import *
+from config import dbEngine
 from main.utils.util import log
 
+from sqlalchemy import text
+from sqlalchemy.engine import Engine
 from fastapi import HTTPException
+
 from main.app.authentication.util import *
 
 class AuthenticationManager:
@@ -28,7 +30,6 @@ class AuthenticationManager:
                 else:
                     detail = "Email already registered."
                 raise HTTPException(status_code=400, detail=detail)
-
         hashedPassword = hashPassword(password) if password else None
 
         with self.db.begin() as conn:

@@ -1,4 +1,4 @@
-from imports import *
+from config import Config
 from main.utils.util import log, limiter
 
 import threading

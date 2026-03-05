@@ -1,4 +1,5 @@
-from imports import *
+from config import Config
+
 from fastapi import HTTPException, Depends
 from fastapi.security import APIKeyHeader
 

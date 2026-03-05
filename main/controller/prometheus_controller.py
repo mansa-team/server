@@ -20,7 +20,7 @@ def apiKeyTest(apiKey: str = Depends(verifyAPIKey)):
 @router.get("/")
 def generation(text: str, apiKey: str = Depends(verifyAPIKey)):
     try:
-        response = PrometheusGenerator.executeWorkflow(text)
+        response = PrometheusGenerator().executeWorkflow(text)
         return {"success": True, "response": response, "timestamp": str(time.time())}
     except Exception as e:
         return {"success": False, "error": str(e), "timestamp": str(time.time())}

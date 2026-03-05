@@ -1,5 +1,10 @@
-from imports import *
+from config import Config
 from main.utils.util import log
+
+import pandas as pd
+import json
+import requests
+from datetime import datetime, timedelta
 
 from main.app.prometheus.gemini import GeminiClient
 
@@ -14,6 +19,7 @@ class PrometheusGenerator:
 
     def executeWorkflow(self, userQuery):
         log("prometheus", f"Workflow started for: {userQuery[:50]}...")
+        client = GeminiClient(apiKey=Config.PROMETHEUS['GEMINI_API.KEY']) 
         sysPrompt = {}
         modelResponse = {}
 
@@ -21,10 +27,10 @@ class PrometheusGenerator:
         #$ Stage 1
         #$ Filtering out the user's request prompt to get the API data
         #
-        sysPrompt['STAGE 1'] = f"""
-            Data atual: {self.currentDate}
-            Ano atual: {self.currentYear}
-            Ano anterior (usar para dados históricos incompletos): {self.lastYear}
+        sysPrompt['STAGE 1'] = """
+            Data atual: {CURRENT_DATE}
+            Ano atual: {CURRENT_YEAR}
+            Ano anterior (usar para dados históricos incompletos): {LAST_YEAR}
 
             Função: Você é um analisador de texto financeiro e conversor para JSON. Sua tarefa é extrair entidades de uma consulta e formatá-las em objetos JSON de busca para uma API de ações.
 
@@ -41,19 +47,19 @@ class PrometheusGenerator:
 
             Esqueleto do Objeto:
             [
-                {{
+                {
                     "search": "Ticker (formato B3)",
                     "fields": "CAMPOS,SEM,ESPAÇOS",
                     "type": "historical ou fundamental",
                     "date_start": "YYYY-MM-DD ou YYYY",
                     "date_end": "YYYY-MM-DD ou YYYY"
-                }}
+                }
             ]
 
             REGRA IMPORTANTE PARA DADOS HISTÓRICOS:
-            - Se o usuário pedir dados do ano atual ({self.currentYear}), SEMPRE substitua por {self.lastYear} porque os dados de {self.currentYear} ainda não estão completos.
+            - Se o usuário pedir dados do ano atual ({CURRENT_YEAR}), SEMPRE substitua por {LAST_YEAR} porque os dados de {CURRENT_YEAR} ainda não estão completos.
             - Exemplo: Se o usuário pedir "desde 2025", use "desde 2024" em vez disso.
-            - Se o usuário pedir um intervalo que inclui {self.currentYear}, altere o ano final para {self.lastYear}.
+            - Se o usuário pedir um intervalo que inclui {CURRENT_YEAR}, altere o ano final para {LAST_YEAR}.
             - Exemplos:
                 * Input: "gráfico de lucros de 2014 até 2025" → use "2014 até 2024"
                 * Input: "lucros de 2025" → use "lucros de 2024"
@@ -70,7 +76,7 @@ class PrometheusGenerator:
             4. "fields" deve ser separado por vírgula sem espaços.
             5. NUNCA adicione backticks (```) ou o nome da linguagem na resposta.
             6. Para datas, use SEMPRE o formato YYYY-MM-DD (ex: 2025-12-27) ou YYYY (ex: 2024).
-            7. SEMPRE substitua {self.currentYear} por {self.lastYear} em dados históricos.
+            7. SEMPRE substitua {CURRENT_YEAR} por {LAST_YEAR} em dados históricos.
             8. NÃO INCLUA NENHUM "fields" que não esteja EXPLICIAMENTE incluso na Lista de Campos Válidos
 
             Exemplos de Comportamento:
@@ -80,8 +86,8 @@ class PrometheusGenerator:
             * Input: "Histórico de dividendos de VALE3 de 2020 até 2025" -> [{"search":"VALE3","fields":"DIVIDENDOS","type":"historical","date_start":"2020","date_end":"2024"}]
             * Input: "Como eu posso calcular o valor intrinseco de uma acao" -> Output: []
             * Input: "Oi, pode me ajudar?" -> Output: []
-        """
-        modelResponse['STAGE 1'] = self.client.generateContent(userQuery, systemInstruction=sysPrompt['STAGE 1'], model="gemini-2.5-flash-lite")
+            """.replace("{CURRENT_DATE}", self.currentDate).replace("{CURRENT_YEAR}", str(self.currentYear)).replace("{LAST_YEAR}", str(self.lastYear))
+        modelResponse['STAGE 1'] = client.generateContent(userQuery, systemInstruction=sysPrompt['STAGE 1'], model="gemini-2.5-flash-lite")
         #print(modelResponse['STAGE 1'])
 
         #
@@ -123,11 +129,11 @@ class PrometheusGenerator:
         #$ Stage 3
         #$ Give the final prompt to the model that will generate a markdown/chart response for the user
         #
-        sysPrompt['STAGE 3'] = f"""
-        Data atual: {self.currentDate}
+        sysPrompt['STAGE 3'] = """
+        Data atual: {CURRENT_DATE}
 
         STOCKS API Data:
-        {{API_RESPONSE}}
+        {API_RESPONSE}
 
         Função: Você é o Prometheus, a inteligência financeira de elite da Mansa. Sua missão é converter os dados brutos da STOCKS API em uma narrativa estratégica, profunda, detalhada e visual, digna de um relatório de Equity Research.
 
@@ -144,7 +150,7 @@ class PrometheusGenerator:
         - Você DEVE obrigatoriamente gerar um gráfico se houver:
                 a) Séries temporais (ex: Evolução de Lucro, Receita ou Dividendos).
                 b) Comparação de múltiplos (ex: Margem Bruta vs Margem Líquida).
-        - A tag deve seguir exatamente este formato: <chart config='{{JSON_STRICT}}' />
+        - A tag deve seguir exatamente este formato: <chart config='{JSON_STRICT}' />
         - REGRAS DO JSON DO GRÁFICO:
                 - "type": "line" para tendências, "bar" para comparativos.
                 - Cores: "borderColor" e "backgroundColor" SEMPRE em Verde Mansa ("#0d0").
@@ -165,7 +171,7 @@ class PrometheusGenerator:
         ---
         EXEMPLO DE RESPOSTA ESPERADA (FLUXO LONGO):
 
-        A **PETR4** apresenta um quadro de robustez operacional acentuada em {self.currentDate}. Com a cotação atual, a companhia negocia a múltiplos que sugerem um desconto estrutural relevante frente aos seus pares internacionais (Majors).
+        A **PETR4** apresenta um quadro de robustez operacional acentuada em {CURRENT_DATE}. Com a cotação atual, a companhia negocia a múltiplos que sugerem um desconto estrutural relevante frente aos seus pares internacionais (Majors).
 
         ### Valuation e Múltiplos de Mercado
         O **P/L atual de 3.5x** indica que o mercado está precificando um cenário de estresse ou queda nas commodities que não se reflete no fluxo de caixa presente. Somado a isso, o **P/VP de 1.1x** mostra que a empresa está sendo negociada próxima ao seu valor contábil, uma raridade para uma geradora de caixa deste porte.
@@ -173,15 +179,14 @@ class PrometheusGenerator:
         ### Eficiência e Rentabilidade
         A eficiência da **PETR4** é evidenciada por sua **Margem EBITDA de 45%**. Este nível de rentabilidade permite que a companhia mantenha um **ROE de 35%**, o que é considerado excelência absoluta no setor de Óleo e Gás. 
 
-        <chart config='{{"type":"bar","data":{{"labels":["2022","2023","2024"],"datasets":[{{"label":"Margem EBITDA %","data":[48,42,45],"backgroundColor":"#0d0"}}]}},"options":{{"scales":{{"y":{{"beginAtZero":true}}}}}}}}' />
+        <chart config='{"type":"bar","data":{"labels":["2022","2023","2024"],"datasets":[{"label":"Margem EBITDA %","data":[48,42,45],"backgroundColor":"#0d0"}]},"options":{"scales":{"y":{"beginAtZero":true}}}}' />
 
         ### Tese de Dividendos e Riscos
         O **Dividend Yield de 12.5%** projeta um carrego de posição altamente atraente. No entanto, o investidor deve monitorar os riscos de intervenção na política de preços e a volatilidade do Brent no mercado externo.
-        """
+        """.replace("{CURRENT_DATE}", self.currentDate)
         sysPrompt['STAGE 3'] = sysPrompt['STAGE 3'].replace("{API_RESPONSE}", APIResponse)
-        modelResponse['STAGE 3'] = self.client.generateContent(userQuery, systemInstruction=sysPrompt['STAGE 3'], model="gemini-2.5-flash-lite")
+        modelResponse['STAGE 3'] = client.generateContent(userQuery, systemInstruction=sysPrompt['STAGE 3'], model="gemini-2.5-flash-lite")
         #print(modelResponse['STAGE 3'])
 
         return modelResponse['STAGE 3']
-
 prometheus_generator = PrometheusGenerator(Config.PROMETHEUS)
