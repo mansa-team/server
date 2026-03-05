@@ -22,11 +22,16 @@ class PrometheusGenerator:
         self.currentYear = now.year
         self.lastYear = self.currentYear - 1
 
-    def executeWorkflow(self, userQuery):
+    def executeWorkflow(self, userQuery, history: list = None):
         self.updateDates()
         log("prometheus", f"Workflow started for: {userQuery}")
         sysPrompt = {}
         modelResponse = {}
+        requestContext = []
+
+        formattedHistory = []
+        if history:
+            formattedHistory = history[-10:] # Last 10 messages for memory
 
         #
         #$ Stage 1
@@ -41,7 +46,9 @@ class PrometheusGenerator:
 
             REGRA DE VALIDAÇÃO OBRIGATÓRIA (CRITICAL):
 
-            Você SÓ deve gerar um objeto JSON se o usuário mencionar EXPLICITAMENTE o nome de uma empresa ou um ticker da B3 e em UPPERCASE (ex: PETR4, VALE, ITAÚ, BCO).
+            1. Ticker Explícito: Se o usuário mencionar um ticker ou nome de empresa (ex: PETR4, VALE, WEG), use-o.
+            2. Ticker Implícito (HERANÇA): Se o usuário NÃO mencionar uma empresa nova, mas a consulta exigir dados (ex: "mostre o lucro", "qual o P/L dela?"), você DEVE olhar o histórico e usar o ÚLTIMO ticker mencionado na conversa.
+            3. Se não houver menção explícita E nada no histórico sobre uma empresa, retorne EXCLUSIVAMENTE um array vazio: []
 
             Se o usuário fizer perguntas genéricas, teóricas, saudações ou não mencionar uma ação específica (ex: "como calcular valor intrínseco", "o que é P/L", "olá", "ajuda"), você deve retornar EXCLUSIVAMENTE um array vazio: []
 
@@ -92,10 +99,16 @@ class PrometheusGenerator:
             * Input: "Como eu posso calcular o valor intrinseco de uma acao" -> Output: []
             * Input: "Oi, pode me ajudar?" -> Output: []
             """.replace("{CURRENT_DATE}", self.currentDate).replace("{CURRENT_YEAR}", str(self.currentYear)).replace("{LAST_YEAR}", str(self.lastYear)).replace("{Y-M-D}", self.currentISODate).replace("{L_Y}", str(self.lastYear))
+        # Prepare history for Stage 1 if available
+        requestContext = []
+        if formattedHistory:
+            requestContext.extend(formattedHistory)
         
+        requestContext.append(userQuery)
+
         response = self.client.models.generate_content(
             model='gemini-3.1-flash-lite-preview',
-            contents=userQuery,
+            contents=requestContext,
             config=types.GenerateContentConfig(
                 system_instruction=sysPrompt['STAGE 1'],
             )
@@ -169,7 +182,14 @@ class PrometheusGenerator:
         - REGRAS: Aspas duplas, sem espaços desnecessários, SEM blocos de código (```) e SEM especificação de cores.
 
         ---
-        ESTRUTURA DA RESPOSTA:
+        ESTRUTURA DA RESPOSTA E REGRAS DE ECONOMIA (OIGATÓRIAS):
+        1. RESPOSTAS CURTAS/GENÉRICAS: Se a pergunta do usuário for curta, uma saudação, ou uma dúvida de contexto (ex: "oi", "quem é você?", "de que empresa falamos?"), responda de forma BREVE (máx 2 parágrafos), natural e direta. NUNCA gere a estrutura completa de 3 seções ("### Análise de Tese...") nesses casos.
+        2. FOCO NO CONTEXTO: Se o usuário perguntar qual empresa está sendo analisada, diga o nome/ticker baseado no histórico e convide-o a fazer uma pergunta específica sobre os fundamentos dela.
+        3. TESES COMPLETAS: Use a estrutura de 3 seções (Análise, Performance, Valuation) APENAS quando houver dados da STOCKS API ({API_RESPONSE}) presentes e o usuário solicitar uma análise profunda.
+        4. ANTI-LEAKAGE: Se não houver dados de ticker na conversa atual nem no histórico recente, informe que você é o Prometheus e está pronto para analisar qualquer ativo da B3 assim que ele fornecer o ticker.
+
+        ---
+        DESIGN DAS SEÇÕES (Apenas para Teses Completas):
         ### Análise de Tese e Posicionamento de Mercado
         (Inicie com uma visão macro do ativo e sua importância estrutural. Use parágrafos densos.)
 
@@ -185,10 +205,12 @@ class PrometheusGenerator:
         Lembre-se: o tempo é o melhor amigo do investidor de valor. Esta análise utiliza dados históricos para apoiar sua jornada educacional e não constitui uma recomendação de compra ou venda. O mercado oscila, mas os fundamentos são sua bússola para o acúmulo de patrimônio.
         """.replace("{CURRENT_DATE}", self.currentDate)
         sysPrompt['STAGE 3'] = sysPrompt['STAGE 3'].replace("{API_RESPONSE}", APIResponse)
-        
+
+        promptContents = formattedHistory + [userQuery]
+
         response = self.client.models.generate_content(
             model='gemini-3.1-flash-lite-preview',
-            contents=userQuery,
+            contents=promptContents,
             config=types.GenerateContentConfig(
                 system_instruction=sysPrompt['STAGE 3'],
                 #tools=[types.Tool(google_search=types.GoogleSearch())] # requires the paid plan, fuck joos

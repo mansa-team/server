@@ -1,10 +1,13 @@
-from main.utils.util import limiter
+from main.utils.util import limiter, log
+from config import SessionLocal
+from main.models.prometheus import PrometheusSession
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, Body, HTTPException
 import time
 
 from main.app.prometheus.generation import PrometheusGenerator
-from main.app.prometheus.util import verifyAPIKey
+from main.app.prometheus.chat import prometheusChatManager
+from main.app.user.user import userManager
 
 router = APIRouter(
     prefix="/prometheus",
@@ -15,15 +18,69 @@ router = APIRouter(
 def health():
     return {"status": "ok", "service": "prometheus"}
 
-@router.get("/key")
-def apiKeyTest(apiKey: str = Depends(verifyAPIKey)):
-    return {"message": "API", "secured": True}
+@router.get("/sessions")
+def getSessions(user: dict = Depends(userManager.getCurrentUser)):
+    sessions = prometheusChatManager.getUserSessions(user['userId'])
+    return {"success": True, "sessions": sessions}
 
-@router.get("/")
-@limiter.limit("5/minute")
-def generation(request: Request, text: str, apiKey: str = Depends(verifyAPIKey)):
+@router.post("/sessions")
+def createSession(
+    title: str = Body(..., embed=True), 
+    user: dict = Depends(userManager.getCurrentUser)
+):
+    sessionId = prometheusChatManager.createSession(user['userId'], title)
+    return {"success": True, "sessionId": sessionId}
+
+@router.get("/history/{sessionId}")
+def getHistory(sessionId: str, user: dict = Depends(userManager.getCurrentUser)):
+    db = SessionLocal()
     try:
-        response = PrometheusGenerator().executeWorkflow(text)
-        return {"success": True, "response": response, "timestamp": str(time.time())}
+        session = db.query(PrometheusSession).filter(
+            PrometheusSession.sessionId == sessionId,
+            PrometheusSession.userId == user['userId']
+        ).first()
+
+        if not session:
+            raise HTTPException(status_code=403, detail="Forbidden: You do not own this session")
+            
+        return {"success": True, "history": session.history or []}
+    finally:
+        db.close()
+
+@router.delete("/sessions/{sessionId}")
+def deleteSession(sessionId: str, user: dict = Depends(userManager.getCurrentUser)):
+    success = prometheusChatManager.deleteSession(sessionId, user['userId'])
+    if not success:
+        raise HTTPException(status_code=404, detail="Session not found or forbidden")
+    return {"success": True, "message": "Session deleted"}
+
+@router.post("/chat")
+@limiter.limit("5/minute")
+def chat(
+    request: Request,
+    text: str = Body(..., embed=True),
+    sessionId: str = Body(None, embed=True),
+    user: dict = Depends(userManager.getCurrentUser)
+):
+    try:
+        if not sessionId:
+            sessionId = prometheusChatManager.createSession(user['userId'], text[:30] + "...")
+        else:
+            if not prometheusChatManager.verifySessionOwnership(sessionId, user['userId']):
+                raise HTTPException(status_code=403, detail="Forbidden or invalid session")
+
+        history = prometheusChatManager.getHistory(sessionId, limit=20)
+        prometheusChatManager.saveMessage(sessionId, "user", text)
+        aiResponse = PrometheusGenerator().executeWorkflow(text, history=history)
+        prometheusChatManager.saveMessage(sessionId, "assistant", aiResponse)
+        
+        return {
+            "success": True, 
+            "response": aiResponse, 
+            "sessionId": sessionId,
+            "timestamp": str(time.time())
+        }
+    
     except Exception as e:
+        log("error", f"Chat execution error: {str(e)}")
         return {"success": False, "error": str(e), "timestamp": str(time.time())}

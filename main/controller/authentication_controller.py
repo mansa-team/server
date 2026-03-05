@@ -1,14 +1,13 @@
 from config import Config
 from main.utils.util import log, limiter
 
-from fastapi import APIRouter, Response, Depends, Body, HTTPException, Request
+from fastapi import APIRouter, Response, Body, HTTPException, Request
 from fastapi.responses import RedirectResponse
 import urllib.parse
 import requests
 
 from main.app.authentication.authentication import authManager
 from main.app.authentication.util import *
-from main.app.user.user import userManager
 
 router = APIRouter(
     prefix="/auth",
@@ -186,16 +185,3 @@ def googleCallback(request: Request, response: Response, code: str):
     except Exception as e:
         log("auth", f"CRITICAL ERROR in callback: {str(e)}")
         raise HTTPException(status_code=500, detail="Internal server error during Google login")
-
-#
-# move to authorization and user management later
-#
-@router.post("/upgrade/developer")
-def upgradeToDeveloper(currentUser: dict = Depends(userManager.getCurrentUser)):
-    if userManager.addRoleToUser(currentUser['userId'], Roles.DEVELOPER):
-        return {"message": "Successfully upgraded to Developer account", "roles": currentUser.get('roles', []) + [Roles.DEVELOPER]}
-    return {"message": "You are already a developer or upgrade failed"}
-
-@router.get("/me")
-def getMe(currentUser: dict = Depends(userManager.getCurrentUser)):
-    return currentUser

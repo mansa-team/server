@@ -21,7 +21,7 @@
 
     <style>
         body {
-            font-family: sans-serif;
+            font-family: 'Inter', sans-serif;
             background: #fff;
             color: #000;
             padding: 20px;
@@ -33,37 +33,160 @@
 
         .sidebar {
             border-bottom: 2px solid #000;
-            padding-bottom: 20px;
+            padding: 10px 0 20px 0;
             margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
         .chat-container {
             flex: 1;
             overflow-y: auto;
-            border: 1px solid #ccc;
-            padding: 10px;
+            border: 1px solid #eee;
+            padding: 20px;
             margin-bottom: 20px;
+            background: #fafafa;
+            border-radius: 12px;
+        }
+
+        .main-layout {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            gap: 20px;
+        }
+
+        .sessions-sidebar {
+            width: 260px;
+            background: #fdfdfd;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        .sessions-header {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sessions-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .session-item {
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .session-item .delete-btn {
+            opacity: 0;
+            transition: opacity 0.2s;
+            color: #999;
+            padding: 4px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            margin-left: 8px;
+        }
+
+        .session-item:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .delete-btn:hover {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .session-item:hover {
+            background: #f0f0f0;
+        }
+
+        .session-item.active {
+            background: #fff;
+            border-color: #000;
+            font-weight: 600;
+        }
+
+        .new-chat-btn {
+            width: 100%;
+            padding: 10px;
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .message {
-            margin-bottom: 15px;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+            margin-bottom: 24px;
+            padding: 15px;
+            border-radius: 12px;
+            max-width: 85%;
+            line-height: 1.6;
         }
 
-        .message.user { background: #f0f0f0; }
-        .message.assistant { background: #fff; }
+        .message.user { 
+            background: #000; 
+            color: #fff;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        
+        .message.assistant { 
+            background: #fff; 
+            border: 1px solid #eee;
+            align-self: flex-start;
+        }
 
-        .avatar { font-weight: bold; margin-bottom: 5px; display: block; }
+        .avatar { font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .avatar span { font-size: 18px; }
+
+        .input-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
 
         .input-box {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: flex-end;
             background: #fff;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+            padding: 12px 16px;
+            border: 2px solid #000;
+            border-radius: 16px;
+            box-shadow: 4px 4px 0px #000;
         }
 
         .input-box textarea {
@@ -86,45 +209,66 @@
 <body>
     <aside class="sidebar">
         <div class="settings-group">
-            <label>API</label>
+            <label>API Prometheus</label>
             <input type="text" id="apiEndpoint" value="http://localhost:3200/prometheus">
         </div>
         <div class="settings-group">
-            <label>Key</label>
-            <input type="password" id="apiKey" value="">
+            <label>Sessão Atual</label>
+            <input type="text" id="sessionId" placeholder="Auto-gerado" readonly style="background: #f0f0f0; border-color: #ccc;">
         </div>
-        <button onclick="clearChat()">Limpar</button>
+        <div class="settings-group" id="userDisplay" style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+            <span class="material-icons" style="font-size: 20px;">account_circle</span>
+            <span id="usernameLabel" style="font-weight: 600; font-size: 14px;">Visitante</span>
+        </div>
+        <button onclick="clearChat()">Limpar Tela</button>
     </aside>
 
-    <main class="main-content">
-        <div class="chat-container" id="chatContainer">
-            <!-- Messages go here -->
-            <div class="message assistant">
-                <div class="avatar assistant">
-                    <span class="material-icons">smart_toy</span>
-                </div>
-                <div class="message-body">
-                    Ola! Sou o <strong>Prometheus</strong>, sua inteligência financeira da Mansa. Como posso ajudar com suas análises hoje?
-                </div>
+    <div class="main-layout">
+        <!-- Sessions Sidebar (ChatGPT Style) -->
+        <aside class="sessions-sidebar">
+            <button class="new-chat-btn" onclick="startNewChat()">
+                <span class="material-icons">add</span>
+                Nova Conversa
+            </button>
+            <div class="sessions-header">Sessões Recentes</div>
+            <div class="sessions-list" id="sessionsList">
+                <!-- Session items will be injected here -->
+                <div style="font-size: 11px; color: #999; text-align: center; padding: 20px;">Carregando sessões...</div>
             </div>
-        </div>
+        </aside>
 
-        <div class="input-wrapper">
-            <div class="input-box">
-                <textarea id="userInput" placeholder="Faça uma pergunta sobre o mercado financeiro..." rows="1" autocomplete="off"></textarea>
-                <button id="sendBtn" class="icon-btn send" title="Enviar Mensagem">
-                    <span class="material-icons">send</span>
-                </button>
+        <main class="main-content" style="flex: 1; display: flex; flex-direction: column;">
+            <div class="chat-container" id="chatContainer">
+                <!-- Messages go here -->
+                <div class="message assistant">
+                    <div class="avatar assistant">
+                        <span class="material-icons">smart_toy</span>
+                        Prometheus
+                    </div>
+                    <div class="message-body">
+                        Ola! Sou o <strong>Prometheus</strong>, sua inteligência financeira da Mansa. Selecione uma sessão ao lado ou inicie uma nova análise!
+                    </div>
+                </div>
             </div>
-        </div>
-    </main>
+
+            <div class="input-wrapper">
+                <div class="input-box">
+                    <textarea id="userInput" placeholder="Faça uma pergunta sobre o mercado financeiro..." rows="1" autocomplete="off"></textarea>
+                    <button id="sendBtn" class="icon-btn send" title="Enviar Mensagem">
+                        <span class="material-icons">send</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <script>
         const chatContainer = document.getElementById('chatContainer');
         const userInput = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
         const apiEndpointInput = document.getElementById('apiEndpoint');
-        const apiKeyInput = document.getElementById('apiKey');
+        const sessionIdInput = document.getElementById('sessionId');
+        const sessionsList = document.getElementById('sessionsList');
 
         // Configure Marked
         marked.setOptions({
@@ -138,20 +282,149 @@
             gfm: true
         });
 
+        // Initialize session browsing
+        window.addEventListener('load', () => {
+            fetchUserInfo();
+            fetchSessions();
+        });
+
+        async function fetchUserInfo() {
+            try {
+                const token = localStorage.getItem('mansa_token');
+                if (!token) {
+                    console.warn("Nenhum token encontrado no localStorage.");
+                    return;
+                }
+                const baseUrl = apiEndpointInput.value.replace(/\/prometheus$/, "");
+                const response = await fetch(`${baseUrl}/auth/me`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                if (data.username) {
+                    document.getElementById('usernameLabel').textContent = data.username;
+                }
+            } catch (err) {
+                console.error("Erro ao buscar usuário:", err);
+            }
+        }
+
+        async function fetchSessions() {
+            try {
+                const token = localStorage.getItem('mansa_token');
+                if (!token) {
+                    sessionsList.innerHTML = `<div style="color:orange; font-size:10px; cursor:pointer;" onclick="window.location.href='auth.html'">Login Necessário</div>`;
+                    return;
+                }
+                const baseUrl = apiEndpointInput.value.replace(/\/$/, "");
+                const response = await fetch(`${baseUrl}/sessions`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderSessions(data.sessions);
+                } else if (response.status === 401) {
+                    sessionsList.innerHTML = `<div style="color:orange; font-size:10px; cursor:pointer;" onclick="window.location.href='auth.html'">Login Necessário</div>`;
+                }
+            } catch (err) {
+                sessionsList.innerHTML = `<div style="color:red; font-size:10px;">Erro ao carregar: ${err.message}</div>`;
+            }
+        }
+
+        function renderSessions(sessions) {
+            sessionsList.innerHTML = '';
+            if (sessions.length === 0) {
+                sessionsList.innerHTML = '<div style="font-size: 11px; color: #999; text-align: center; padding: 10px;">Sem sessões</div>';
+                return;
+            }
+
+            sessions.forEach(session => {
+                const div = document.createElement('div');
+                div.className = `session-item ${session.sessionId === sessionIdInput.value ? 'active' : ''}`;
+                div.title = session.title || 'Sem título';
+                
+                const titleSpan = document.createElement('span');
+                titleSpan.textContent = session.title || 'Conversa Antiga';
+                titleSpan.style.flex = "1";
+                titleSpan.style.overflow = "hidden";
+                titleSpan.style.textOverflow = "ellipsis";
+                titleSpan.style.pointerEvents = "none"; // Let the click bubble up to the parent div
+                
+                const deleteBtn = document.createElement('span');
+                deleteBtn.className = "material-icons delete-btn";
+                deleteBtn.innerHTML = "delete_outline";
+                deleteBtn.title = "Excluir Chat";
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation(); // Keep this propagation stopped to avoid selecting the chat when deleting
+                    if(confirm("Deseja realmente excluir esta conversa?")) {
+                        deleteChatSession(session.sessionId);
+                    }
+                };
+                
+                div.onclick = () => selectSession(session.sessionId); // Click anywhere on the div
+
+                div.appendChild(titleSpan);
+                div.appendChild(deleteBtn);
+                sessionsList.appendChild(div);
+            });
+        }
+
+        async function deleteChatSession(sessionId) {
+            try {
+                const token = localStorage.getItem('mansa_token');
+                const baseUrl = apiEndpointInput.value.replace(/\/$/, "");
+                const response = await fetch(`${baseUrl}/sessions/${sessionId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    if (sessionIdInput.value === sessionId) {
+                        startNewChat();
+                    }
+                    fetchSessions();
+                } else {
+                    alert("Erro ao excluir: " + (data.error || "Desconhecido"));
+                }
+            } catch (err) {
+                alert("Erro de conexão: " + err.message);
+            }
+        }
+
+        async function selectSession(sessionId) {
+            sessionIdInput.value = sessionId;
+            document.querySelectorAll('.session-item').forEach(el => el.classList.remove('active'));
+            // Refetch messages for this session
+            await fetchHistory(sessionId);
+            fetchSessions(); // Refresh list to update active state
+        }
+
+        function startNewChat() {
+            sessionIdInput.value = '';
+            chatContainer.innerHTML = '';
+            addMessage('Iniciando uma nova conversa do zero. Como posso ajudar com sua tese de investimentos?', 'assistant');
+            document.querySelectorAll('.session-item').forEach(el => el.classList.remove('active'));
+        }
+
         function addMessage(content, role) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}`;
             
             const avatar = document.createElement('div');
             avatar.className = `avatar ${role}`;
-            avatar.innerHTML = `<span class="material-icons">${role === 'user' ? 'person' : 'smart_toy'}</span>`;
+            avatar.innerHTML = `<span class="material-icons">${role === 'user' ? 'person' : 'smart_toy'}</span> ${role === 'user' ? 'Você' : 'Prometheus'}`;
             
             const messageBody = document.createElement('div');
             messageBody.className = 'message-body';
             
             if (role === 'assistant') {
-                // Process Charts first
-                // Robust regex for <chart config="..." /> or <chart config='...' />
+                // Process Charts
                 let processedContent = content.replace(/<chart\s+config=(['"])(.*?)\1\s*\/?>/g, (match, quote, configStr) => {
                     const id = 'chart-' + Math.random().toString(36).substr(2, 9);
                     setTimeout(() => renderChart(id, configStr), 100);
@@ -168,9 +441,7 @@
             messageDiv.appendChild(messageBody);
             chatContainer.appendChild(messageDiv);
             
-            // Syntax highlighting for new code blocks
             messageBody.querySelectorAll('pre code').forEach(hljs.highlightElement);
-            
             scrollToBottom();
         }
 
@@ -210,7 +481,7 @@
             loadingDiv.className = 'message assistant';
             loadingDiv.id = loadingId;
             loadingDiv.innerHTML = `
-                <div class="avatar assistant"><span class="material-icons">smart_toy</span></div>
+                <div class="avatar assistant"><span class="material-icons">smart_toy</span> Prometheus</div>
                 <div class="message-body">
                     <div class="typing-indicator">
                         <div class="dot"></div><div class="dot"></div><div class="dot"></div>
@@ -221,13 +492,17 @@
             scrollToBottom();
 
             try {
-                const url = new URL(apiEndpointInput.value);
-                url.searchParams.append('text', text);
-
-                const response = await fetch(url, {
-                    headers: {
-                        'X-API-Key': apiKeyInput.value
-                    }
+                const baseUrl = apiEndpointInput.value.replace(/\/$/, "");
+                const response = await fetch(`${baseUrl}/chat`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('mansa_token')}`
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        sessionId: sessionIdInput.value || null
+                    })
                 });
 
                 const data = await response.json();
@@ -235,6 +510,10 @@
 
                 if (data.success) {
                     addMessage(data.response, 'assistant');
+                    if (data.sessionId && !sessionIdInput.value) {
+                        sessionIdInput.value = data.sessionId;
+                        fetchSessions(); // Refresh list to show the new session
+                    }
                 } else {
                     addMessage(`**Erro:** ${data.error || 'Falha na requisição'}`, 'assistant');
                 }
@@ -242,6 +521,32 @@
                 const loader = document.getElementById(loadingId);
                 if (loader) loader.remove();
                 addMessage(`**Erro de Conexão:** ${err.message}`, 'assistant');
+            }
+        }
+
+        async function fetchHistory(sessionId) {
+            if (!sessionId) return;
+            try {
+                const baseUrl = apiEndpointInput.value.replace(/\/$/, "");
+                const response = await fetch(`${baseUrl}/history/${sessionId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('mansa_token')}`
+                    }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    chatContainer.innerHTML = '';
+                    data.history.forEach(msg => {
+                        // The backend returns the raw JSON database structure: {role, content, timestamp, metadata}
+                        const content = msg.content || (msg.parts && msg.parts[0].text);
+                        if (content) {
+                            addMessage(content, msg.role === 'user' ? 'user' : 'assistant');
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Erro ao buscar histórico:", e);
             }
         }
 

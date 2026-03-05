@@ -13,11 +13,12 @@ class User(Base):
     googleId = Column(String(255), unique=True, nullable=True, index=True)
     roles = Column(Text, nullable=True, default='USER')
     createdAt = Column(TIMESTAMP, server_default=func.current_timestamp(), nullable=False)
+    
     stocksapi_keys = relationship(
         "StocksAPIKey",
         back_populates="user",
         cascade="all, delete-orphan",
-        uselist=False  # one2one relationship
+        uselist=False
     )
     
     def __repr__(self):

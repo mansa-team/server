@@ -19,6 +19,18 @@ CREATE TABLE IF NOT EXISTS stocksapi_keys (
     FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS prometheus (
+    sessionId VARCHAR(255) PRIMARY KEY,
+    userId INT NOT NULL,
+    title VARCHAR(255) DEFAULT 'New Conversation',
+    history JSON,
+    summary TEXT,
+    lastActivity TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (userId) REFERENCES users(userId) ON DELETE CASCADE,
+    INDEX idx_prometheus_user (userId, lastActivity DESC)
+);
+
 // Fix NOME, SETOR, SUBSETOR and SEGMENTO
 
 SET SQL_SAFE_UPDATES = 0;
