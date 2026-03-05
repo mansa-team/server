@@ -5,21 +5,26 @@ import pandas as pd
 import json
 import requests
 from datetime import datetime, timedelta
-
-from main.app.prometheus.gemini import GeminiClient
+from google import genai
+from google.genai import types
 
 class PrometheusGenerator:
     def __init__(self, config: dict = None, api_key: str = None):
         self.config = config or Config.PROMETHEUS
         self.api_key = api_key or self.config.get('GEMINI_API.KEY')
-        self.client = GeminiClient(apiKey=self.api_key)
-        self.currentDate = (datetime.now() - timedelta(days=1)).strftime("%d/%m/%Y")
-        self.currentYear = datetime.now().year
+        self.client = genai.Client(api_key=self.api_key)
+        self.updateDates()
+
+    def updateDates(self):
+        now = datetime.now()
+        self.currentDate = (now - timedelta(days=1)).strftime("%d/%m/%Y")
+        self.currentISODate = (now - timedelta(days=1)).strftime("%Y-%m-%d")
+        self.currentYear = now.year
         self.lastYear = self.currentYear - 1
 
     def executeWorkflow(self, userQuery):
-        log("prometheus", f"Workflow started for: {userQuery[:50]}...")
-        client = GeminiClient(apiKey=Config.PROMETHEUS['GEMINI_API.KEY']) 
+        self.updateDates()
+        log("prometheus", f"Workflow started for: {userQuery}")
         sysPrompt = {}
         modelResponse = {}
 
@@ -80,14 +85,22 @@ class PrometheusGenerator:
             8. NÃO INCLUA NENHUM "fields" que não esteja EXPLICIAMENTE incluso na Lista de Campos Válidos
 
             Exemplos de Comportamento:
-            * Input: "Qual foi o preço das ações da WEG ontem?" -> [{"search":"WEGE3","fields":"PRECO","type":"fundamental","date_start":"2025-12-27","date_end":"2025-12-27"}]
-            * Input: "Qual o P/L de PETR4?" -> Output: [{"search":"PETR4","fields":"P/L","type":"fundamental","date_start":"2025-12-28","date_end":"2025-12-28"}]
-            * Input: "Faca um grafico de lucros da wege desde 2014" -> [{"search":"WEGE3","fields":"LUCRO LIQUIDO","type":"historical","date_start":"2014","date_end":"2024"}]
-            * Input: "Histórico de dividendos de VALE3 de 2020 até 2025" -> [{"search":"VALE3","fields":"DIVIDENDOS","type":"historical","date_start":"2020","date_end":"2024"}]
+            * Input: "Qual foi o preço das ações da WEG ontem?" -> [{"search":"WEGE3","fields":"PRECO","type":"fundamental","date_start":"{Y-M-D}","date_end":"{Y-M-D}"}]
+            * Input: "Qual o P/L de PETR4?" -> Output: [{"search":"PETR4","fields":"P/L","type":"fundamental","date_start":"{Y-M-D}","date_end":"{Y-M-D}"}]
+            * Input: "Faca um grafico de lucros da wege desde 2014" -> [{"search":"WEGE3","fields":"LUCRO LIQUIDO","type":"historical","date_start":"2014","date_end":"{L_Y}"}]
+            * Input: "Histórico de dividendos de VALE3 de 2020 até 2025" -> [{"search":"VALE3","fields":"DIVIDENDOS","type":"historical","date_start":"2020","date_end":"{L_Y}"}]
             * Input: "Como eu posso calcular o valor intrinseco de uma acao" -> Output: []
             * Input: "Oi, pode me ajudar?" -> Output: []
-            """.replace("{CURRENT_DATE}", self.currentDate).replace("{CURRENT_YEAR}", str(self.currentYear)).replace("{LAST_YEAR}", str(self.lastYear))
-        modelResponse['STAGE 1'] = client.generateContent(userQuery, systemInstruction=sysPrompt['STAGE 1'], model="gemini-2.5-flash-lite")
+            """.replace("{CURRENT_DATE}", self.currentDate).replace("{CURRENT_YEAR}", str(self.currentYear)).replace("{LAST_YEAR}", str(self.lastYear)).replace("{Y-M-D}", self.currentISODate).replace("{L_Y}", str(self.lastYear))
+        
+        response = self.client.models.generate_content(
+            model='gemini-3.1-flash-lite-preview',
+            contents=userQuery,
+            config=types.GenerateContentConfig(
+                system_instruction=sysPrompt['STAGE 1'],
+            )
+        )
+        modelResponse['STAGE 1'] = response.text
         #print(modelResponse['STAGE 1'])
 
         #
@@ -131,62 +144,59 @@ class PrometheusGenerator:
         #
         sysPrompt['STAGE 3'] = """
         Data atual: {CURRENT_DATE}
-
         STOCKS API Data:
         {API_RESPONSE}
 
-        Função: Você é o Prometheus, a inteligência financeira de elite da Mansa. Sua missão é converter os dados brutos da STOCKS API em uma narrativa estratégica, profunda, detalhada e visual, digna de um relatório de Equity Research.
+        Função: Você é o Prometheus, a inteligência financeira da Mansa. Sua missão é atuar como um Analista de Equity Research sênior, entregando uma tese de investimento densa, tecnicamente impecável e visualmente organizada, unindo a filosofia de Value Investing à estratégia de Buy and Hold.
 
         ---
-        INSTRUÇÕES OBRIGATÓRIAS DE RACIOCÍNIO E FORMATO (PARA RESPOSTAS LONGAS):
-
-        1. ANÁLISE TÉCNICA EXTENSA (STRICT):
-        - Não se limite a listar dados. Discorra sobre cada métrica importante fornecida em "STOCKS API Data" mas nunca mencione a existencia da STOCKS API, considere como se fosse uma informação que você  já possui.
-        - CONTEXTUALIZAÇÃO: Se o P/L está em 5x, explique o que isso significa para o setor específico da empresa. Compare o P/VP com o valor patrimonial real.
-        - CORRELAÇÃO DE MÉTRICAS: Relacione a lucratividade (ROE) com o endividamento. Um ROE alto com dívida alta tem um peso diferente de um ROE alto com caixa líquido.
-        - Use **negrito** para todos os tickers (ex: **VALE3**, **PETR4**) e valores numéricos significativos.
-
-        2. PROTOCOLO DE VISUALIZAÇÃO (TAG <chart>):
-        - Você DEVE obrigatoriamente gerar um gráfico se houver:
-                a) Séries temporais (ex: Evolução de Lucro, Receita ou Dividendos).
-                b) Comparação de múltiplos (ex: Margem Bruta vs Margem Líquida).
-        - A tag deve seguir exatamente este formato: <chart config='{JSON_STRICT}' />
-        - REGRAS DO JSON DO GRÁFICO:
-                - "type": "line" para tendências, "bar" para comparativos.
-                - Cores: "borderColor" e "backgroundColor" SEMPRE em Verde Mansa ("#0d0").
-                - NUNCA use quebras de linha ou blocos de código markdown (```) para a tag.
-
-        3. ESTRUTURAÇÃO DA RESPOSTA (EXTENSÃO):
-        - Introdução: Contextualize o setor da empresa e o momento do mercado.
-        - Bloco Fundamentalista: Análise minuciosa de Valuation (P/L, P/VP, EV/EBITDA).
-        - Bloco de Eficiência: Análise de Margens e Retornos (ROE, ROIC).
-        - Bloco de Proventos: Evaluation da sustentabilidade dos dividendos (Dividend Yield e Payout se disponíveis).
-        - Riscos: Liste pelo menos dois fatores de risco baseados no setor do ativo.
-
-        4. ESTILO DE ESCRITA:
-        - Markdown limpo e profissional. Comece direto no conteúdo analítico.
-        - Use subtítulos (###) para organizar as seções da análise longa.
-        - Termine sempre com o disclaimer: "Esta análise é baseada em dados históricos e não constitui recomendação de compra ou venda."
+        DIRETRIZES DE ESCRITA E FORMATAÇÃO (ESTILO PREMIUM):
+        1. NARRATIVA COESA: Escreva parágrafos longos e profundos. A transição entre a análise do negócio e o valuation deve ser textual e lógica. Evite listas de tópicos (bullets).
+        2. MARKDOWN ESTRUTURANTE: Use subtítulos (###) para marcar as grandes transições da tese. Use **negrito** para enfatizar tickers, indicadores financeiros (ex: **ROE**, **P/L**) e valores monetários. Isso aumenta a escaneabilidade sem quebrar a robustez.
+        3. TOM DE MENTORIA TÉCNICA: O vocabulário deve ser sofisticado (ex: "composição de juros", "vieses de mercado", "alocação discricionária"). Seu objetivo é elevar o nível de consciência do investidor, trocando o medo pela análise de fundamentos.
+        4. INTEGRAÇÃO DA PERSONA: Não se apresente. Demonstre sua autoridade através da correlação de dados e da profundidade da tese.
 
         ---
-        EXEMPLO DE RESPOSTA ESPERADA (FLUXO LONGO):
+        INSTRUÇÕES DE CONTEÚDO TÉCNICO:
+        - LUCROS E GESTÃO: Use a série histórica de lucros como o validador supremo da gestão. Se os lucros crescem, disserte sobre o "Moat" (vantagem competitiva) e a barreira de entrada do setor.
+        - EFICIÊNCIA OPERACIONAL: Relacione obrigatoriamente **ROIC** e **Margens** com a decisão de reinvestimento. Explique por que a retenção de lucros em empresas de alta performance é um acelerador de riqueza.
+        - VALUATION E SEGURANÇA: Discuta o preço não como um número isolado, mas como uma função da qualidade e previsibilidade do negócio.
 
-        A **PETR4** apresenta um quadro de robustez operacional acentuada em {CURRENT_DATE}. Com a cotação atual, a companhia negocia a múltiplos que sugerem um desconto estrutural relevante frente aos seus pares internacionais (Majors).
+        ---
+        PROTOCOLO DE VISUALIZAÇÃO (TAG <chart>):
+        - Gere o gráfico para ilustrar a evolução dos fundamentos (ex: Lucro Líquido ou Receita).
+        - Formato restrito: <chart config='{{"type":"line","data":{{"labels":["..."],"datasets":[{{"label":"...","data":[...]}}]}}}}' />
+        - REGRAS: Aspas duplas, sem espaços desnecessários, SEM blocos de código (```) e SEM especificação de cores.
 
-        ### Valuation e Múltiplos de Mercado
-        O **P/L atual de 3.5x** indica que o mercado está precificando um cenário de estresse ou queda nas commodities que não se reflete no fluxo de caixa presente. Somado a isso, o **P/VP de 1.1x** mostra que a empresa está sendo negociada próxima ao seu valor contábil, uma raridade para uma geradora de caixa deste porte.
+        ---
+        ESTRUTURA DA RESPOSTA:
+        ### Análise de Tese e Posicionamento de Mercado
+        (Inicie com uma visão macro do ativo e sua importância estrutural. Use parágrafos densos.)
 
-        ### Eficiência e Rentabilidade
-        A eficiência da **PETR4** é evidenciada por sua **Margem EBITDA de 45%**. Este nível de rentabilidade permite que a companhia mantenha um **ROE de 35%**, o que é considerado excelência absoluta no setor de Óleo e Gás. 
+        ### Performance Operacional e Alocação de Capital
+        (Conecte os dados de lucro, margens e ROE. Explique a inteligência por trás da gestão de forma textual e profunda.)
 
-        <chart config='{"type":"bar","data":{"labels":["2022","2023","2024"],"datasets":[{"label":"Margem EBITDA %","data":[48,42,45],"backgroundColor":"#0d0"}]},"options":{"scales":{"y":{"beginAtZero":true}}}}' />
+        ### Valuation, Margem de Segurança e Perenidade
+        (Discuta o preço atual frente aos fundamentos e os riscos de longo prazo de forma equilibrada.)
 
-        ### Tese de Dividendos e Riscos
-        O **Dividend Yield de 12.5%** projeta um carrego de posição altamente atraente. No entanto, o investidor deve monitorar os riscos de intervenção na política de preços e a volatilidade do Brent no mercado externo.
+        FECHAMENTO (APENAS PARA TESES LONGAS):
+        Ao finalizar uma análise extensa, encerre com o parágrafo abaixo ou um similar (sem títulos ou rótulos):
+
+        Lembre-se: o tempo é o melhor amigo do investidor de valor. Esta análise utiliza dados históricos para apoiar sua jornada educacional e não constitui uma recomendação de compra ou venda. O mercado oscila, mas os fundamentos são sua bússola para o acúmulo de patrimônio.
         """.replace("{CURRENT_DATE}", self.currentDate)
         sysPrompt['STAGE 3'] = sysPrompt['STAGE 3'].replace("{API_RESPONSE}", APIResponse)
-        modelResponse['STAGE 3'] = client.generateContent(userQuery, systemInstruction=sysPrompt['STAGE 3'], model="gemini-2.5-flash-lite")
+        
+        response = self.client.models.generate_content(
+            model='gemini-3.1-flash-lite-preview',
+            contents=userQuery,
+            config=types.GenerateContentConfig(
+                system_instruction=sysPrompt['STAGE 3'],
+                #tools=[types.Tool(google_search=types.GoogleSearch())] # requires the paid plan, fuck joos
+            )
+        )
+        modelResponse['STAGE 3'] = response.text
         #print(modelResponse['STAGE 3'])
 
         return modelResponse['STAGE 3']
-prometheus_generator = PrometheusGenerator(Config.PROMETHEUS)
+    
+prometheusGenerator = PrometheusGenerator(Config.PROMETHEUS)

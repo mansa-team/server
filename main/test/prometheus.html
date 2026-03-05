@@ -59,18 +59,24 @@
         .input-box {
             display: flex;
             gap: 10px;
+            align-items: flex-end;
+            background: #fff;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
         }
 
-        .input-box input {
+        .input-box textarea {
             flex: 1;
             padding: 8px;
-        }
-
-        .chart-wrapper {
-            border: 1px solid #000;
-            margin: 10px 0;
-            padding: 10px;
-            height: 300px;
+            border: none;
+            outline: none;
+            resize: none;
+            max-height: 200px;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-y: auto;
         }
 
         .settings-group { display: inline-block; margin-right: 20px; }
@@ -105,7 +111,7 @@
 
         <div class="input-wrapper">
             <div class="input-box">
-                <input type="text" id="userInput" placeholder="Faça uma pergunta sobre o mercado financeiro..." autocomplete="off">
+                <textarea id="userInput" placeholder="Faça uma pergunta sobre o mercado financeiro..." rows="1" autocomplete="off"></textarea>
                 <button id="sendBtn" class="icon-btn send" title="Enviar Mensagem">
                     <span class="material-icons">send</span>
                 </button>
@@ -251,11 +257,25 @@
             addMessage('Chat limpo. Como posso ajudar agora?', 'assistant');
         }
 
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleSend();
+        function adjustTextareaHeight() {
+            userInput.style.height = 'auto';
+            userInput.style.height = (userInput.scrollHeight) + 'px';
+        }
+
+        userInput.addEventListener('input', adjustTextareaHeight);
+
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+                userInput.style.height = 'auto';
+            }
         });
 
-        sendBtn.addEventListener('click', handleSend);
+        sendBtn.addEventListener('click', () => {
+            handleSend();
+            userInput.style.height = 'auto';
+        });
     </script>
 </body>
 </html>

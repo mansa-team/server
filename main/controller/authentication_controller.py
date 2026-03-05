@@ -8,6 +8,7 @@ import requests
 
 from main.app.authentication.authentication import authManager
 from main.app.authentication.util import *
+from main.app.user.user import userManager
 
 router = APIRouter(
     prefix="/auth",
@@ -190,11 +191,11 @@ def googleCallback(request: Request, response: Response, code: str):
 # move to authorization and user management later
 #
 @router.post("/upgrade/developer")
-def upgradeToDeveloper(currentUser: dict = Depends(getCurrentUser)):
-    if authManager.addRoleToUser(currentUser['userId'], Roles.DEVELOPER):
+def upgradeToDeveloper(currentUser: dict = Depends(userManager.getCurrentUser)):
+    if userManager.addRoleToUser(currentUser['userId'], Roles.DEVELOPER):
         return {"message": "Successfully upgraded to Developer account", "roles": currentUser.get('roles', []) + [Roles.DEVELOPER]}
     return {"message": "You are already a developer or upgrade failed"}
 
 @router.get("/me")
-def getMe(currentUser: dict = Depends(getCurrentUser)):
+def getMe(currentUser: dict = Depends(userManager.getCurrentUser)):
     return currentUser

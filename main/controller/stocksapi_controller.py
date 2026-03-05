@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 
 from main.app.stocks_api.query import stocksQuery
 from main.app.stocks_api.key import verifyAPIKey, createKey
-from main.app.authentication.util import getCurrentUser
+from main.app.user.user import userManager
 from main.utils.roles import Permission, Roles
 
 router = APIRouter(
@@ -27,7 +27,7 @@ def getFundamental(search: str = Query(None), fields: str = Query(None), dates: 
     return stocksQuery.queryFundamental(search, fields, dates)
 
 @router.get("/key/generate")
-def generateKey(currentUser: dict = Depends(getCurrentUser)):
+def generateKey(currentUser: dict = Depends(userManager.getCurrentUser)):
     if not Roles.checkAccess(currentUser.get("roles", []), Permission.GENERATE_API_KEYS):
         raise HTTPException(
             status_code=403, 

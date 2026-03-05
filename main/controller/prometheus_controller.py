@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from main.utils.util import limiter
+
+from fastapi import APIRouter, Depends, Request
 import time
 
 from main.app.prometheus.generation import PrometheusGenerator
@@ -18,7 +20,8 @@ def apiKeyTest(apiKey: str = Depends(verifyAPIKey)):
     return {"message": "API", "secured": True}
 
 @router.get("/")
-def generation(text: str, apiKey: str = Depends(verifyAPIKey)):
+@limiter.limit("5/minute")
+def generation(request: Request, text: str, apiKey: str = Depends(verifyAPIKey)):
     try:
         response = PrometheusGenerator().executeWorkflow(text)
         return {"success": True, "response": response, "timestamp": str(time.time())}
