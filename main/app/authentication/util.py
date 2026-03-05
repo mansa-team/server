@@ -1,11 +1,12 @@
-from config import Config, dbEngine
+from config import Config, SessionLocal
 
-from sqlalchemy import text
 from fastapi import HTTPException, Request
 from fastapi.security import HTTPBearer
 from datetime import datetime, timedelta
 import jwt
 import bcrypt
+
+from main.models import User
 
 security = HTTPBearer()
 SECRET_KEY = Config.AUTH['JEWISH_TOKEN']
@@ -63,22 +64,23 @@ def getCurrentUser(request: Request):
 
         if userId is None:
             raise HTTPException(status_code=401, detail="Invalid Token")
-            
-        with dbEngine.connect() as conn:
-            query = text("SELECT userId, username, email, roles FROM users WHERE userId = :id")
-            user = conn.execute(query, {"id": userId}).fetchone()
+
+        db = SessionLocal()
+        try:
+            user = db.query(User).filter(User.userId == userId).first()
             
             if not user:
                 raise HTTPException(status_code=401, detail="User no longer exists")
-
-            rawRoles = getattr(user, 'roles', '')
-            userRoles = [r.strip() for r in rawRoles.split(',')] if rawRoles else [Roles.USER]
             
             return {
                 "userId": user.userId,
                 "username": user.username,
                 "email": user.email,
-                "roles": userRoles
+                "roles": user.getRolesList()
             }
+        
+        finally:
+            db.close()
+            
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Could not validate credentials")

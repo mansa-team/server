@@ -1,15 +1,15 @@
-from config import dbEngine
+from config import SessionLocal
 from main.utils.util import log
 
-from sqlalchemy import text
-from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
 from main.app.authentication.util import *
+from main.models import User
 
 class AuthenticationManager:
-    def __init__(self, db: Engine):
-        self.db = db
+    def __init__(self):
+        pass
 
     def createUserAccount(self, username, email, password=None, googleId=None):
         if not password and not googleId:
@@ -18,11 +18,11 @@ class AuthenticationManager:
                 detail="Account must have either a password."
             )
         
-        with self.db.connect() as conn:
-            existingUser = conn.execute(
-                text("SELECT username, email FROM users WHERE username = :u OR email = :e LIMIT 1"),
-                {"u": username, "e": email}
-            ).fetchone()
+        db = SessionLocal()
+        try:
+            existingUser = db.query(User).filter(
+                (User.username == username) | (User.email == email)
+            ).first()
             
             if existingUser:
                 if existingUser.username == username:
@@ -30,70 +30,90 @@ class AuthenticationManager:
                 else:
                     detail = "Email already registered."
                 raise HTTPException(status_code=400, detail=detail)
-        hashedPassword = hashPassword(password) if password else None
-
-        with self.db.begin() as conn:
-            conn.execute(
-                text(f"""
-                    INSERT INTO users (username, email, passwordHash, googleId, roles) 
-                    VALUES (:u, :e, :p, :g, '{Roles.USER}')
-                """),
-                {"u": username, "e": email, "p": hashedPassword, "g": googleId}
+            
+            hashedPassword = hashPassword(password) if password else None
+            
+            newUser = User(
+                username=username,
+                email=email,
+                passwordHash=hashedPassword,
+                googleId=googleId,
+                roles=Roles.USER
             )
+            
+            db.add(newUser)
+            db.commit()
+            
             log("auth", f"User created: {username} ({email})")
             return True
+            
+        except HTTPException:
+            db.rollback()
+            raise
+        except Exception as e:
+            db.rollback()
+            log("error", f"Error creating user: {str(e)}")
+            raise HTTPException(status_code=500, detail="Failed to create user")
+        finally:
+            db.close()
         
     def authenticateGoogleUser(self, googleId: str):
-        with self.db.connect() as conn:
-            query = text("SELECT userId, username, email, roles FROM users WHERE googleId = :g")
-            user = conn.execute(query, {"g": googleId}).fetchone()
+        db = SessionLocal()
+        try:
+            user = db.query(User).filter(User.googleId == googleId).first()
             
             if user:
                 log("auth", f"Google Login: {user.username}")
-                roles_list = [r.strip() for r in user.roles.split(',')] if user.roles else [Roles.USER]
                 return {
                     "userId": user.userId,
                     "username": user.username,
-                    "roles": roles_list
+                    "roles": user.getRolesList()
                 }
-        return None
+            return None
+            
+        finally:
+            db.close()
 
     def authenticateUser(self, username, password):
-        with self.db.connect() as conn:
-            query = text("SELECT userId, username, passwordHash, roles FROM users WHERE username = :u")
-            user = conn.execute(query, {"u": username}).fetchone()
+        db = SessionLocal()
+        try:
+            user = db.query(User).filter(User.username == username).first()
             
             if user and user.passwordHash and verifyPassword(password, user.passwordHash):
                 log("auth", f"Password Login: {user.username}")
-                roles_list = [r.strip() for r in user.roles.split(',')] if user.roles else [Roles.USER]
                 return {
                     "userId": user.userId,
                     "username": user.username,
-                    "roles": roles_list
+                    "roles": user.getRolesList()
                 }
-        return None
+            return None
+            
+        finally:
+            db.close()
 
     def addRoleToUser(self, userId: int, role: str):
-        with self.db.connect() as conn:
-            query = text("SELECT roles FROM users WHERE userId = :id")
-            user = conn.execute(query, {"id": userId}).fetchone()
+        db = SessionLocal()
+        try:
+            user = db.query(User).filter(User.userId == userId).first()
             
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
             
-            roles_raw = getattr(user, 'roles', '')
-            currentRoles = [r.strip() for r in roles_raw.split(',')] if roles_raw else []
-            if role not in currentRoles:
-                currentRoles.append(role)
-                newRoles = ",".join(currentRoles)
-                
-                with self.db.begin() as upd:
-                    upd.execute(
-                        text("UPDATE users SET roles = :r WHERE userId = :id"),
-                        {"r": newRoles, "id": userId}
-                    )
+            if not user.hasRole(role):
+                user.addRole(role)
+                db.commit()
                 log("auth", f"Added role {role} to user ID {userId}")
                 return True
-        return False
+            return False
+            
+        except HTTPException:
+            db.rollback()
+            raise
+        except Exception as e:
+            db.rollback()
+            log("error", f"Error adding role: {str(e)}")
+            raise HTTPException(status_code=500, detail="Failed to add role")
+        finally:
+            db.close()
 
-authManager = AuthenticationManager(dbEngine)
+authManager = AuthenticationManager()

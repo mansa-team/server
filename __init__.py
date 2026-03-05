@@ -31,7 +31,6 @@ def orchestrator():
     if not checkServiceConnection("STOCKS_API") and Config.PROMETHEUS['ENABLED'] == "TRUE":
         log("system", "Server initialization failed: Couldn't connect to the STOCKS_API in which Prometheus depends on.")
         return
-    
     log("system", "Server initialized!")
 
     while True: time.sleep(1)

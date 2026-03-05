@@ -2,6 +2,7 @@ import os
 import socket
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, QueuePool
+from sqlalchemy.orm import sessionmaker, scoped_session
 
 def applyIPv4Force():
     _old_getaddrinfo = socket.getaddrinfo
@@ -70,3 +71,27 @@ dbEngine = create_engine(
     echo=False,
     connect_args={'charset': 'utf8mb4'}
 )
+
+# ORM Session Management
+# Thread-safe session factory for ORM operations
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=dbEngine)
+ScopedSession = scoped_session(SessionLocal)
+
+def getSession():
+    """
+    Dependency function to get a database session.
+    
+    Usage in FastAPI:
+        @router.get("/endpoint")
+        def endpoint(db: Session = Depends(getSession)):
+            # Use db session here
+            pass
+    
+    Returns:
+        Session: SQLAlchemy session that auto-closes after use
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

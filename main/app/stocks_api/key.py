@@ -1,14 +1,16 @@
-from config import Config, dbEngine
+from config import Config, SessionLocal
 
 from fastapi import HTTPException, Depends
 from fastapi.security import APIKeyHeader
-from sqlalchemy import text
 from datetime import datetime
 
 import secrets
 import string
 
+from main.models import StocksAPIKey
+
 apiKeyHeader = APIKeyHeader(name="X-API-Key", auto_error=False)
+
 async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader)):
     if Config.STOCKS_API['KEY.SYSTEM'] == 'FALSE':
         return None
@@ -16,30 +18,36 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader)):
     if not apiKey:
         raise HTTPException(status_code=401, detail="Missing API key")
 
-    with dbEngine.begin() as conn:
-        query = text("""
-            SELECT requestLimit, currentUsage, lastReset 
-            FROM stocksapi_keys WHERE apiKey = :key
-        """)
-        row = conn.execute(query, {"key": apiKey}).fetchone()
+    db = SessionLocal()
+    try:
+        stocksKey = db.query(StocksAPIKey).filter(StocksAPIKey.apiKey == apiKey).first()
         
-        if not row:
+        if not stocksKey:
             if apiKey == Config.STOCKS_API['KEY']:
                 return apiKey
             raise HTTPException(status_code=401, detail="Invalid API key")
 
-        limit, usage, lastReset = row
-        daysSinceReset = (datetime.now() - lastReset).days
+        resetDays = int(Config.STOCKS_API['QUOTA.RESETDAYS'])
+        if stocksKey.needsReset(resetDays):
+            stocksKey.resetQuota()
+            db.commit()
 
-        if daysSinceReset >= int(Config.STOCKS_API['QUOTA.RESETDAYS']):
-            usage = 0
-            conn.execute(text("UPDATE stocksapi_keys SET currentUsage = 0, lastReset = CURRENT_TIMESTAMP WHERE apiKey = :key"), {"key": apiKey})
-        
-        if usage >= limit:
+        if stocksKey.isQuotaExceeded():
             raise HTTPException(status_code=429, detail="quota exceeded")
 
-        conn.execute(text("UPDATE stocksapi_keys SET currentUsage = currentUsage + 1 WHERE apiKey = :key"), {"key": apiKey})
-    return apiKey
+        stocksKey.incrementUsage()
+        db.commit()
+        
+        return apiKey
+        
+    except HTTPException:
+        db.rollback()
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="API key verification failed")
+    finally:
+        db.close()
 
 def generateSecureKey(length=32):
     alphabet = string.ascii_letters + string.digits
@@ -49,29 +57,27 @@ def createKey(userId: int):
     newKey = generateSecureKey(32)
     quota = int(Config.STOCKS_API['DEFAULT.QUOTA'])
     
-    with dbEngine.begin() as conn:
-        existing = conn.execute(
-            text("SELECT currentUsage FROM stocksapi_keys WHERE userId = :uid"),
-            {"uid": userId}
-        ).fetchone()
+    db = SessionLocal()
+    try:
+        existingKey = db.query(StocksAPIKey).filter(StocksAPIKey.userId == userId).first()
         
-        if existing:
-            conn.execute(
-                text("""
-                    UPDATE stocksapi_keys 
-                    SET apiKey = :key, requestLimit = :lim 
-                    WHERE userId = :uid
-                """),
-                {"key": newKey, "lim": quota, "uid": userId}
-            )
-            usage = existing[0]
+        if existingKey:
+            existingKey.apiKey = newKey
+            existingKey.requestLimit = quota
         else:
-            conn.execute(
-                text("""
-                    INSERT INTO stocksapi_keys (apiKey, userId, requestLimit, currentUsage) 
-                    VALUES (:key, :uid, :lim, 0)
-                """),
-                {"key": newKey, "uid": userId, "lim": quota}
+            newKeyObj = StocksAPIKey(
+                apiKey=newKey,
+                userId=userId,
+                requestLimit=quota,
+                currentUsage=0
             )
-
-    return newKey
+            db.add(newKeyObj)
+        
+        db.commit()
+        return newKey
+        
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Failed to create API key")
+    finally:
+        db.close()
