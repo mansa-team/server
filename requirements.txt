@@ -16,6 +16,7 @@ uvicorn
 requests
 
 # PROMETHEUS
+google-genai
 
 # USER
 slowapi

@@ -296,7 +296,7 @@
                     return;
                 }
                 const baseUrl = apiEndpointInput.value.replace(/\/prometheus$/, "");
-                const response = await fetch(`${baseUrl}/auth/me`, {
+                const response = await fetch(`${baseUrl}/user/me`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

@@ -15,7 +15,6 @@
 #
 
 - [ ] Fix all the security issues known to man already present in this repo in authentication and authorization
-- [ ] Make all the users love Israel and the IDF
 
 #
 

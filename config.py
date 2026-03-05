@@ -56,7 +56,7 @@ class Config:
         'ENABLED': os.getenv('USER_ENABLED'),
         'HOST': os.getenv('USER_HOST'),
         'PORT': os.getenv('USER_PORT'),
-        'JEWISH_TOKEN': os.getenv('JEWISH_TOKEN'),
+        'JWT_SECRET_KEY': os.getenv('JWT_SECRET_KEY'),
         'GOOGLE_CLIENT.ID': os.getenv('GOOGLE_CLIENT.ID'),
         'GOOGLE_CLIENT.SECRET': os.getenv('GOOGLE_CLIENT.SECRET'),
         'GOOGLE_REDIRECT.URI': os.getenv('GOOGLE_REDIRECT.URI'),

@@ -29,12 +29,12 @@ def register(request: Request, response: Response, username: str = Body(...), em
             raise HTTPException(status_code=401, detail="Auto-login failed after registration")
             
         accessToken = createAccessToken(data={"userId": str(user["userId"])})
-        
+           
         response.set_cookie(
             key="mansa_token",
             value=accessToken,
-            httponly=False,
-            secure=False,
+            httponly=True,
+            secure=True,
             samesite="lax"
         )
         
@@ -61,8 +61,8 @@ def login(request: Request, response: Response, username: str = Body(...), passw
     response.set_cookie(
         key="mansa_token",
         value=accessToken,
-        httponly=False,
-        secure=False,
+        httponly=True,
+        secure=True,
         samesite="lax"
     )
 
@@ -76,9 +76,10 @@ def login(request: Request, response: Response, username: str = Body(...), passw
 def logout(response: Response):
     response.delete_cookie(
         key="mansa_token",
-        httponly=False,
-        secure=False,
-        samesite="lax"
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        path="/"
     )
     return {"message": "Successfully logged out"}
 
@@ -169,8 +170,8 @@ def googleCallback(request: Request, response: Response, code: str):
         response.set_cookie(
             key="mansa_token",
             value=accessToken,
-            httponly=False,
-            secure=False, 
+            httponly=True,
+            secure=True, 
             samesite="lax",
             path="/" 
         )

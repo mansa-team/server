@@ -23,7 +23,7 @@ Built to integrate seamlessly with the main database and provide granular permis
     USER_PORT=3200
     
     # Secret key for JWT signing
-    JEWISH_TOKEN=your_super_secret_jwt_key
+    JWT_SECRET_KEY=your_super_secret_jwt_key
 
     # Google OAuth2
     GOOGLE_CLIENT.ID=your_id

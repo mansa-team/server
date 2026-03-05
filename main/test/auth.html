@@ -233,6 +233,7 @@
 
     <script>
         const API_BASE = "http://127.0.0.1:3200/auth";
+        const USER_BASE = "http://127.0.0.1:3200/user"; // Base para endpoints de usuário
         let isRegisterView = false;
 
         // Init Check
@@ -322,19 +323,23 @@
                 const res = await fetch(API_BASE + endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    credentials: 'include' // <--- NECESSÁRIO para receber e salvar o Cookie
                 });
 
                 const data = await res.json();
 
                 if (!res.ok) throw new Error(data.detail || "Erro desconhecido");
 
-                log(`${isRegisterView ? "Registro" : "Login"} efetuado com sucesso.`);
+                log(`${isRegisterView ? "Registro" : "Login"} efetuado com sucesso (Cookie HttpOnly configurado).`);
                 
+                // Opcional: Ainda salvamos no storage para compatibilidade,
+                // mas agora o backend/navegador prioriza o Cookie.
                 if (stayLogged) {
                     localStorage.setItem('mansa_token', data.accessToken);
                 }
                 sessionStorage.setItem('mansa_token', data.accessToken);
+                
                 await fetchProfile(data.accessToken);
             } catch (e) {
                 log(`Erro: ${e.message}`);
@@ -344,20 +349,34 @@
 
         async function fetchProfile(token = null) {
             try {
+                // Se um token foi passado ou está no storage, usamos no Header (Legacy/Manual)
+                // Caso contrário, o navegador enviará o Cookie HttpOnly automaticamente via credentials: 'include'
+                if (!token) {
+                    token = sessionStorage.getItem('mansa_token') || localStorage.getItem('mansa_token');
+                }
+
                 const headers = {};
                 if (token) {
                     headers['Authorization'] = `Bearer ${token}`;
+                    log("Usando Bearer Token (Header).");
+                } else {
+                    log("Tentando autenticação via Cookie HttpOnly...");
                 }
 
-                const res = await fetch(`${API_BASE}/me`, { 
+                const res = await fetch(`${USER_BASE}/me`, { 
                     headers,
-                    credentials: 'include' 
+                    credentials: 'include' // <--- ESSENCIAL para HttpOnly Cookies
                 });
                 const data = await res.json();
 
                 if (!res.ok) {
-                    if (token) localStorage.removeItem('mansa_token');
-                    throw new Error("Sessão expirada");
+                    // Se falhou e tínhamos um token manual, limpamos ele
+                    if (token) {
+                        localStorage.removeItem('mansa_token');
+                        sessionStorage.removeItem('mansa_token');
+                        throw new Error("Sessão expirada ou inválida");
+                    }
+                    return; // Se era só cookie e falhou, apenas não loga
                 }
 
                 document.getElementById('loginView').classList.add('hidden');
@@ -394,9 +413,10 @@
             const token = sessionStorage.getItem('mansa_token') || localStorage.getItem('mansa_token');
             try {
                 log("Enviando solicitação de upgrade...");
-                const res = await fetch(`${API_BASE}/upgrade/developer`, {
+                const res = await fetch(`${USER_BASE}/upgrade/developer`, {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    credentials: 'include'
                 });
                 const data = await res.json();
                 
@@ -423,8 +443,9 @@
         async function testAdmin() {
             const token = sessionStorage.getItem('mansa_token') || localStorage.getItem('mansa_token');
             try {
-                const res = await fetch(`${API_BASE}/admin`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                const res = await fetch(`${USER_BASE}/admin`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    credentials: 'include'
                 });
                 const data = await res.json();
                 
@@ -439,14 +460,27 @@
             }
         }
 
-        function logout() {
+        async function logout() {
+            try {
+                // Notificar o backend para deletar o Cookie HttpOnly
+                log("Encerrando sessão no servidor...");
+                await fetch(`${API_BASE}/logout`, { 
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (e) {
+                log("Aviso: Falha ao comunicar logout com o servidor.");
+            }
+
+            // Limpeza local
             localStorage.removeItem('mansa_token');
             sessionStorage.removeItem('mansa_token');
+            
             document.getElementById('loginView').classList.remove('hidden');
             document.getElementById('profileView').classList.add('hidden');
             document.getElementById('userData').innerHTML = "";
             document.getElementById('adminMsg').innerHTML = "";
-            log("Sessão encerrada.");
+            log("Sessão encerrada localmente.");
         }
 
         function setMessage(msg, type) {

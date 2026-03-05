@@ -6,7 +6,7 @@ from fastapi import HTTPException, Request
 
 import jwt
 
-SECRET_KEY = Config.USER['JEWISH_TOKEN']
+SECRET_KEY = Config.USER['JWT_SECRET_KEY']
 ALGORITHM = "HS256"
 
 class UserManager:

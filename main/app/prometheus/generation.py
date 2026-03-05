@@ -213,7 +213,7 @@ class PrometheusGenerator:
             contents=promptContents,
             config=types.GenerateContentConfig(
                 system_instruction=sysPrompt['STAGE 3'],
-                #tools=[types.Tool(google_search=types.GoogleSearch())] # requires the paid plan, fuck joos
+                #tools=[types.Tool(google_search=types.GoogleSearch())]
             )
         )
         modelResponse['STAGE 3'] = response.text

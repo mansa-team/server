@@ -10,7 +10,7 @@ import bcrypt
 from main.models import User
 
 security = HTTPBearer()
-SECRET_KEY = Config.USER['JEWISH_TOKEN']
+SECRET_KEY = Config.USER['JWT_SECRET_KEY']
 ALGORITHM = "HS256"
 
 def hashPassword(password: str):
