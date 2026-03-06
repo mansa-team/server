@@ -14,7 +14,7 @@ class StocksQueryManager:
     def __init__(self, cache_manager: "StocksCacheManager"):
         self.cache_manager = cache_manager
 
-    def queryHistorical(self, search: str = None, fields: str = None, dates: str = None):
+    def queryHistorical(self, search: str = None, fields: str = None, dates: str = None, orderBy: str = None, limit: int = None):
         if self.cache_manager.STOCKS_CACHE is None:
             raise HTTPException(status_code=503, detail="Cache not initialized")
         
@@ -41,7 +41,13 @@ class StocksQueryManager:
 
             if 'TIME' in df.columns:
                 df = df.sort_values(by='TIME', ascending=False)
+
+            if orderBy and orderBy in df.columns:
+                df = df.sort_values(by=orderBy, ascending=False)
             
+            if limit:
+                df = df.head(limit)
+
             df = df[[c for c in cols if c in df.columns]]
             df = df.drop_duplicates(subset=['TICKER'], keep='first')
 
@@ -56,7 +62,7 @@ class StocksQueryManager:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Cached historical error: {str(e)}")
 
-    def queryFundamental(self, search: str = None, fields: str = None, dates: str = None):
+    def queryFundamental(self, search: str = None, fields: str = None, dates: str = None, orderBy: str = None, limit: int = None):
         if self.cache_manager.STOCKS_CACHE is None:
             raise HTTPException(status_code=503, detail="Cache not initialized")
         
@@ -92,6 +98,15 @@ class StocksQueryManager:
                 df['TIME'] = df['TIME_DT'].astype(str)
                 df = df.sort_values(by='TIME', ascending=False)
                 df = df.drop(columns=['TIME_DT'])
+
+            if not search or search.strip() == "":
+                df = df.drop_duplicates(subset=['TICKER'], keep='first')
+
+            if orderBy and orderBy in df.columns:
+                df = df.sort_values(by=orderBy, ascending=False)
+            
+            if limit:
+                df = df.head(limit)
                 
             df = df[[c for c in cols if c in df.columns]]
 

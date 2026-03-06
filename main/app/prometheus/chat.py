@@ -51,6 +51,26 @@ class PrometheusChatManager:
         finally:
             db.close()
 
+    def updateSessionTitle(self, sessionId: str, title: str):
+        db = SessionLocal()
+        try:
+            session = db.query(PrometheusSession).filter(
+                PrometheusSession.sessionId == sessionId
+            ).first()
+            
+            if not session:
+                return False
+                
+            session.title = title
+            db.commit()
+            return True
+        except Exception as e:
+            db.rollback()
+            log("error", f"Error updating session title: {str(e)}")
+            return False
+        finally:
+            db.close()
+
     def saveMessage(self, sessionId: str, role: str, content: str, metadata: dict = None):
         db = SessionLocal()
         try:

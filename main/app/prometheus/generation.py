@@ -1,4 +1,4 @@
-from config import Config
+from config import Config, SessionLocal
 from main.utils.util import log
 
 import pandas as pd
@@ -7,6 +7,9 @@ import requests
 from datetime import datetime, timedelta
 from google import genai
 from google.genai import types
+
+from main.models.prometheus import PrometheusSession
+from main.app.prometheus.chat import prometheusChatManager
 
 class PrometheusGenerator:
     def __init__(self, config: dict = None, api_key: str = None):
@@ -22,16 +25,32 @@ class PrometheusGenerator:
         self.currentYear = now.year
         self.lastYear = self.currentYear - 1
 
-    def executeWorkflow(self, userQuery, history: list = None):
+    def executeWorkflow(self, userQuery, history: list = None, sessionId: str = None):
         self.updateDates()
         log("prometheus", f"Workflow started for: {userQuery}")
         sysPrompt = {}
+        promptContents = {}
         modelResponse = {}
         requestContext = []
-
         formattedHistory = []
+
         if history:
-            formattedHistory = history[-10:] # Last 10 messages for memory
+            formattedHistory = history[-20:]
+
+        #
+        #$ Stage 0 (Memory Optimization)
+        #$ Determine if we should include the session summary for context
+        #
+        summaryContext = ""
+        if sessionId:
+            try:
+                db = SessionLocal()
+                session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
+                if session and session.summary:
+                    summaryContext = f"\n[MEMÓRIA DA CONVERSA]: {session.summary}\n"
+                db.close()
+            except:
+                pass
 
         #
         #$ Stage 1
@@ -42,13 +61,17 @@ class PrometheusGenerator:
             Ano atual: {CURRENT_YEAR}
             Ano anterior (usar para dados históricos incompletos): {LAST_YEAR}
 
+            [MEMÓRIA DA CONVERSA]:
+            {SUMMARY_CONTEXT}
+
             Função: Você é um analisador de texto financeiro e conversor para JSON. Sua tarefa é extrair entidades de uma consulta e formatá-las em objetos JSON de busca para uma API de ações.
 
             REGRA DE VALIDAÇÃO OBRIGATÓRIA (CRITICAL):
 
             1. Ticker Explícito: Se o usuário mencionar um ticker ou nome de empresa (ex: PETR4, VALE, WEG), use-o.
             2. Ticker Implícito (HERANÇA): Se o usuário NÃO mencionar uma empresa nova, mas a consulta exigir dados (ex: "mostre o lucro", "qual o P/L dela?"), você DEVE olhar o histórico e usar o ÚLTIMO ticker mencionado na conversa.
-            3. Se não houver menção explícita E nada no histórico sobre uma empresa, retorne EXCLUSIVAMENTE um array vazio: []
+            3. Busca Global (Ranking): Se o usuário solicitar um ranking, comparação de mercado ou "as melhores/piores" do mercado (ex: "as 10 ações que mais renderam", "maiores dividendos da bolsa"), você DEVE definir "search": "".
+            4. Se não houver menção explícita, implicitamente nem um pedido de ranking, retorne EXCLUSIVAMENTE um array vazio: []
 
             Se o usuário fizer perguntas genéricas, teóricas, saudações ou não mencionar uma ação específica (ex: "como calcular valor intrínseco", "o que é P/L", "olá", "ajuda"), você deve retornar EXCLUSIVAMENTE um array vazio: []
 
@@ -60,13 +83,22 @@ class PrometheusGenerator:
             Esqueleto do Objeto:
             [
                 {
-                    "search": "Ticker (formato B3)",
+                    "search": "Ticker (FORMATO B3) ou vazio para busca global",
                     "fields": "CAMPOS,SEM,ESPAÇOS",
                     "type": "historical ou fundamental",
                     "date_start": "YYYY-MM-DD ou YYYY",
-                    "date_end": "YYYY-MM-DD ou YYYY"
+                    "date_end": "YYYY-MM-DD ou YYYY",
+                    "order_by": "Campo para ordenação (opcional)",
+                    "limit": 10 (número de resultados, opcional)
                 }
             ]
+
+            REGRA IMPORTANTE PARA RANKINGS (CRITICAL):
+            - Se o usuário pedir "as 10 melhores", "maiores dividendos", "top ações", etc:
+                1. Defina "search" como "" (string vazia).
+                2. Defina "limit" como o número solicitado (ex: 10 ou 20).
+                3. Se o critério for rentabilidade, use "order_by" com um campo da Lista de Campos Válidos (ex: "RENT TOTAL" ou "RENT 5 ANOS").
+                4. Se o critério for dividendos, use "order_by" com um campo da Lista de Campos Válidos (ex: "DY").
 
             REGRA IMPORTANTE PARA DADOS HISTÓRICOS:
             - Se o usuário pedir dados do ano atual ({CURRENT_YEAR}), SEMPRE substitua por {LAST_YEAR} porque os dados de {CURRENT_YEAR} ainda não estão completos.
@@ -82,7 +114,7 @@ class PrometheusGenerator:
             * fundamental (Anos e Datas - YYYY-MM-DD): PRECO, VALOR DE MERCADO, LIQUIDEZ MEDIA DIARIA, P/L, P/VP, P/ATIVOS, P/EBIT, P/CAP. GIRO, P. AT CIR. LIQ., PSR, EV/EBIT, PEG Ratio, PRECO DE GRAHAM, PRECO DE BAZIN, MARG. LIQUIDA, MARGEM BRUTA, MARGEM EBIT, ROE, ROA, ROIC, VPA, LPA, DY, DY MEDIO 5 ANOS, CAGR DIVIDENDOS 5 ANOS, CAGR RECEITAS 5 ANOS, CAGR LUCROS 5 ANOS, RENT 1 DIA, RENT 5 DIAS, RENT 1 MES, RENT 6 MESES, RENT 1 ANO, RENT 5 ANOS, RENT MEDIA 5 ANOS, RENT TOTAL, PATRIMONIO / ATIVOS, PASSIVOS / ATIVOS, LIQ. CORRENTE, DIVIDA LIQUIDA / EBIT, DIV. LIQ. / PATRI., GIRO ATIVOS, NOME, TICKER, SETOR, SUBSETOR, SEGMENTO, SGR, TAG ALONG.
 
             Instruções Detalhadas:
-            1. Identifique a empresa/ticker. Se ausente, retorne [].
+            1. Identifique a empresa/ticker ou pedido de ranking. Se ausente, retorne [].
             2. Se a busca envolve campos historical e fundamental, crie DOIS objetos JSON distintos.
             3. Se um campo é historical, a data DEVE ser YYYY. Fundamental aceita YYYY-MM-DD.
             4. "fields" deve ser separado por vírgula sem espaços.
@@ -92,14 +124,20 @@ class PrometheusGenerator:
             8. NÃO INCLUA NENHUM "fields" que não esteja EXPLICIAMENTE incluso na Lista de Campos Válidos
 
             Exemplos de Comportamento:
+            * Input: "As 10 ações que mais rentabilizaram nos últimos 10 anos com dividendos" -> [{"search":"","fields":"RENT TOTAL,DY,CAGR DIVIDENDOS 5 ANOS","type":"fundamental","date_start":"{TEN_YEARS_AGO}","date_end":"{Y-M-D}"}]
             * Input: "Qual foi o preço das ações da WEG ontem?" -> [{"search":"WEGE3","fields":"PRECO","type":"fundamental","date_start":"{Y-M-D}","date_end":"{Y-M-D}"}]
             * Input: "Qual o P/L de PETR4?" -> Output: [{"search":"PETR4","fields":"P/L","type":"fundamental","date_start":"{Y-M-D}","date_end":"{Y-M-D}"}]
             * Input: "Faca um grafico de lucros da wege desde 2014" -> [{"search":"WEGE3","fields":"LUCRO LIQUIDO","type":"historical","date_start":"2014","date_end":"{L_Y}"}]
             * Input: "Histórico de dividendos de VALE3 de 2020 até 2025" -> [{"search":"VALE3","fields":"DIVIDENDOS","type":"historical","date_start":"2020","date_end":"{L_Y}"}]
             * Input: "Como eu posso calcular o valor intrinseco de uma acao" -> Output: []
             * Input: "Oi, pode me ajudar?" -> Output: []
-            """.replace("{CURRENT_DATE}", self.currentDate).replace("{CURRENT_YEAR}", str(self.currentYear)).replace("{LAST_YEAR}", str(self.lastYear)).replace("{Y-M-D}", self.currentISODate).replace("{L_Y}", str(self.lastYear))
-        # Prepare history for Stage 1 if available
+            """.replace("{CURRENT_DATE}", self.currentDate)
+        sysPrompt['STAGE 1'] = sysPrompt['STAGE 1'].replace("{CURRENT_YEAR}", str(self.currentYear))
+        sysPrompt['STAGE 1'] = sysPrompt['STAGE 1'].replace("{LAST_YEAR}", str(self.lastYear))
+        sysPrompt['STAGE 1'] = sysPrompt['STAGE 1'].replace("{Y-M-D}", self.currentISODate)
+        sysPrompt['STAGE 1'] = sysPrompt['STAGE 1'].replace("{L_Y}", str(self.lastYear))
+        sysPrompt['STAGE 1'] = sysPrompt['STAGE 1'].replace("{SUMMARY_CONTEXT}", summaryContext)
+
         requestContext = []
         if formattedHistory:
             requestContext.extend(formattedHistory)
@@ -111,6 +149,7 @@ class PrometheusGenerator:
             contents=requestContext,
             config=types.GenerateContentConfig(
                 system_instruction=sysPrompt['STAGE 1'],
+                max_output_tokens=900
             )
         )
         modelResponse['STAGE 1'] = response.text
@@ -132,13 +171,20 @@ class PrometheusGenerator:
 
             headers = {"X-API-Key": Config.STOCKS_API["KEY"]} if Config.STOCKS_API["KEY.SYSTEM"] == "TRUE" else {}
             
+            params = {
+                'search': i.search,
+                'fields': i.fields,
+                'dates': f"{i.date_start},{i.date_end}"
+            }
+            
+            if hasattr(i, 'order_by') and i.order_by:
+                params['orderBy'] = i.order_by
+            if hasattr(i, 'limit') and i.limit:
+                params['limit'] = i.limit
+
             APIResponse[idx] = requests.get(
                 f'http://{Config.STOCKS_API["HOST"]}:{Config.STOCKS_API["PORT"]}/stocks/{i.type}',
-                params={
-                    'search': i.search,
-                    'fields': i.fields,
-                    'dates': f"{i.date_start},{i.date_end}"
-                },
+                params=params,
                 headers=headers,
                 timeout=20
             )
@@ -149,7 +195,7 @@ class PrometheusGenerator:
 
         APIResponse = [item for apiResponse in APIResponse.values() for item in apiResponse.json().get('data', [])]
         APIResponse = json.dumps(APIResponse, ensure_ascii=False, indent=2)
-        #print(APIResponse)
+        print(APIResponse)
 
         #
         #$ Stage 3
@@ -157,6 +203,10 @@ class PrometheusGenerator:
         #
         sysPrompt['STAGE 3'] = """
         Data atual: {CURRENT_DATE}
+        
+        [MEMÓRIA DA CONVERSA]:
+        {SUMMARY_CONTEXT}
+
         STOCKS API Data:
         {API_RESPONSE}
 
@@ -170,15 +220,19 @@ class PrometheusGenerator:
         4. INTEGRAÇÃO DA PERSONA: Não se apresente. Demonstre sua autoridade através da correlação de dados e da profundidade da tese.
 
         ---
-        INSTRUÇÕES DE CONTEÚDO TÉCNICO:
+        INSTRUÇÕES DE CONTEÚDO TÉCNICO E SIGILO (CRITICAL):
+        - SIGILO DA FONTE: É TERMINANTEMENTE PROIBIDO mencionar a "STOCKS API", "API", "JSON" ou qualquer termo técnico sobre a origem dos dados. Trate as informações do campo "STOCKS API Data:" como seu conhecimento prévio e absoluto sobre o mercado.
         - LUCROS E GESTÃO: Use a série histórica de lucros como o validador supremo da gestão. Se os lucros crescem, disserte sobre o "Moat" (vantagem competitiva) e a barreira de entrada do setor.
         - EFICIÊNCIA OPERACIONAL: Relacione obrigatoriamente **ROIC** e **Margens** com a decisão de reinvestimento. Explique por que a retenção de lucros em empresas de alta performance é um acelerador de riqueza.
         - VALUATION E SEGURANÇA: Discuta o preço não como um número isolado, mas como uma função da qualidade e previsibilidade do negócio.
 
         ---
         PROTOCOLO DE VISUALIZAÇÃO (TAG <chart>):
-        - Gere o gráfico para ilustrar a evolução dos fundamentos (ex: Lucro Líquido ou Receita).
-        - Formato restrito: <chart config='{{"type":"line","data":{{"labels":["..."],"datasets":[{{"label":"...","data":[...]}}]}}}}' />
+        - Use diferentes tipos de gráficos para enriquecer a análise:
+            1. Evolution (Line): Use "type":"line" para séries temporais (ex: Lucro Líquido, Receita, Cotação).
+            2. Comparison (Bar): Use "type":"bar" para comparar indicadores entre empresas ou anos específicos.
+            3. Composition/Distribution (Pie/Doughnut): Use "type":"pie" ou "type":"doughnut" para mostrar representatividade (ex: Proporção de Dividendos vs Lucro ou Composição de Receita por segmento).
+        - Formato restrito: <chart config='{{"type":"TIPO","data":{{"labels":["..."],"datasets":[{{"label":"...","data":[...]}}]}}}}' />
         - REGRAS: Aspas duplas, sem espaços desnecessários, SEM blocos de código (```) e SEM especificação de cores.
 
         ---
@@ -204,9 +258,10 @@ class PrometheusGenerator:
 
         Lembre-se: o tempo é o melhor amigo do investidor de valor. Esta análise utiliza dados históricos para apoiar sua jornada educacional e não constitui uma recomendação de compra ou venda. O mercado oscila, mas os fundamentos são sua bússola para o acúmulo de patrimônio.
         """.replace("{CURRENT_DATE}", self.currentDate)
+        sysPrompt['STAGE 3'] = sysPrompt['STAGE 3'].replace("{SUMMARY_CONTEXT}", summaryContext)
         sysPrompt['STAGE 3'] = sysPrompt['STAGE 3'].replace("{API_RESPONSE}", APIResponse)
 
-        promptContents = formattedHistory + [userQuery]
+        promptContents = formattedHistory[-2:] + [userQuery]
 
         response = self.client.models.generate_content(
             model='gemini-3.1-flash-lite-preview',
@@ -216,8 +271,43 @@ class PrometheusGenerator:
                 #tools=[types.Tool(google_search=types.GoogleSearch())]
             )
         )
+
         modelResponse['STAGE 3'] = response.text
-        #print(modelResponse['STAGE 3'])
+
+        #
+        #$ Stage 4 (Background Summary)
+        #$ Update the summary and title if the history is long enough
+        #
+        if sessionId and history and len(history) >= 4:
+            sysPrompt['STAGE 4'] = """
+            Função: Você é um sumarizador de contexto financeiro.
+            Tarefa: Resuma o contexto técnico desta conversa em UMA frase curta e objetiva.
+            
+            Diretrizes:
+            - Foque nos ativos mencionados (tickers).
+            - Identifique o objetivo do usuário (dividendos, valuation, histórico, ranking, etc).
+            - Seja puramente técnico e descritivo.
+            - IMPORTANTE: Este resumo servirá tanto como contexto quanto como TÍTULO da conversa.
+            
+            Exemplo: "Análise de dividendos de BBAS3 vs valorização de PETR4"
+            """
+
+            promptContents = formattedHistory + [userQuery] + [modelResponse['STAGE 3']]
+
+            response = self.client.models.generate_content(
+                model='gemini-3.1-flash-lite-preview',
+                contents=promptContents,
+                config=types.GenerateContentConfig(
+                    system_instruction=sysPrompt['STAGE 4'],
+                    max_output_tokens=67
+                )
+            )
+            
+            if response.text:
+                modelResponse['STAGE 4'] = response.text.strip()
+
+                prometheusChatManager.updateSummary(sessionId, modelResponse['STAGE 4'])
+                prometheusChatManager.updateSessionTitle(sessionId, modelResponse['STAGE 4'])
 
         return modelResponse['STAGE 3']
     

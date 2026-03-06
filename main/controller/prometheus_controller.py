@@ -1,5 +1,7 @@
-from main.utils.util import limiter, log
 from config import SessionLocal
+from main.utils.util import limiter, log
+from main.utils.roles import Roles, Permission
+
 from main.models.prometheus import PrometheusSession
 
 from fastapi import APIRouter, Depends, Request, Body, HTTPException
@@ -19,20 +21,34 @@ def health():
     return {"status": "ok", "service": "prometheus"}
 
 @router.get("/sessions")
-def getSessions(user: dict = Depends(userManager.getCurrentUser)):
+def getSessions(user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS))):
     sessions = prometheusChatManager.getUserSessions(user['userId'])
     return {"success": True, "sessions": sessions}
 
 @router.post("/sessions")
 def createSession(
     title: str = Body(..., embed=True), 
-    user: dict = Depends(userManager.getCurrentUser)
+    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS))
 ):
     sessionId = prometheusChatManager.createSession(user['userId'], title)
     return {"success": True, "sessionId": sessionId}
 
+@router.put("/sessions/{sessionId}")
+def updateSessionTitle(
+    sessionId: str,
+    title: str = Body(..., embed=True),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS))
+):
+    if not prometheusChatManager.verifySessionOwnership(sessionId, user['userId']):
+        raise HTTPException(status_code=403, detail="Forbidden: You do not own this session")
+        
+    success = prometheusChatManager.updateSessionTitle(sessionId, title)
+    if not success:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return {"success": True, "message": "Session title updated"}
+
 @router.get("/history/{sessionId}")
-def getHistory(sessionId: str, user: dict = Depends(userManager.getCurrentUser)):
+def getHistory(sessionId: str, user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS))):
     db = SessionLocal()
     try:
         session = db.query(PrometheusSession).filter(
@@ -48,7 +64,7 @@ def getHistory(sessionId: str, user: dict = Depends(userManager.getCurrentUser))
         db.close()
 
 @router.delete("/sessions/{sessionId}")
-def deleteSession(sessionId: str, user: dict = Depends(userManager.getCurrentUser)):
+def deleteSession(sessionId: str, user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS))):
     success = prometheusChatManager.deleteSession(sessionId, user['userId'])
     if not success:
         raise HTTPException(status_code=404, detail="Session not found or forbidden")
@@ -60,7 +76,7 @@ def chat(
     request: Request,
     text: str = Body(..., embed=True),
     sessionId: str = Body(None, embed=True),
-    user: dict = Depends(userManager.getCurrentUser)
+    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS))
 ):
     try:
         if not sessionId:
@@ -71,7 +87,7 @@ def chat(
 
         history = prometheusChatManager.getHistory(sessionId, limit=20)
         prometheusChatManager.saveMessage(sessionId, "user", text)
-        aiResponse = PrometheusGenerator().executeWorkflow(text, history=history)
+        aiResponse = PrometheusGenerator().executeWorkflow(text, history=history, sessionId=sessionId)
         prometheusChatManager.saveMessage(sessionId, "assistant", aiResponse)
         
         return {

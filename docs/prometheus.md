@@ -2,12 +2,17 @@
 
 A immersive chatbot using augmented generation techniques linked to the [Mansa's Stocks API](https://github.com/mansa-team/stocks-api) that generates in-depth, updated and trust-worthy data to help users manage their assets and investments, using an extensive workflow to generate responses using graphs, charts and etc.
 
-### Optimized Persistence Model
-The system uses a high-performance **Single-Table JSONB** architecture for chat history. Conversations are stored in the `prometheus` table, where the entire history is maintained in a single `JSON` column to minimize database joins and I/O latency.
+### Memory & Persistence Architecture
+The system utilizes a 4-Stage workflow powered by **Gemini 1.5 Flash** with long-term memory capabilities:
+
+1.  **Stage 0 (Context Injection)**: Injects a persistent `summary` of the session's technical conclusions into the AI prompt to maintain continuity.
+2.  **Stage 1 (Intent Analysis)**: Parses user natural language into structured API calls. Supports **Deduplicated Rankings** and automatic temporal adjustment (shifting current year to the last completed year).
+3.  **Stage 4 (Session Management)**: Automatically updates the session `title` (max 50 tokens) and the session `summary` (technical memory) after each interaction to ensure the next prompt starts with full context.
 
 ### Security
-*   **JWT Protected**: All endpoints require a valid JWT Bearer Token.
-*   **Session Ownership**: Strict validation ensures users can only access their own `sessionId` via a verified `userId` lookup.
+*   **RBAC Protected**: Access to sessions is strictly limited to owners.
+*   **JSONB History**: Conversations are stored in a single `history` column for high performance.
+*   **Automatic Summarization**: Memory is compressed to preserve context within model token limits.
 
 ## Usage
 1. Environment configuration (`.env`):
@@ -45,8 +50,8 @@ The system uses a high-performance **Single-Table JSONB** architecture for chat 
     The `prometheus` table should have the following structure:
     *   `sessionId`: String (PK)
     *   `userId`: Integer (FK to users)
-    *   `title`: String
-    *   `summary`: Text
+    *   `title`: String (Max 255 chars)
+    *   `summary`: Text (Technical Memory)
     *   `history`: JSON (Array of `{role, content, timestamp, metadata}`)
     *   `lastActivity`: Timestamp
 
@@ -59,26 +64,20 @@ The system uses a high-performance **Single-Table JSONB** architecture for chat 
 
 ```mermaid
 graph TD
-    A["User Input"] --> B["Stage 1: Query Parser & Context Inheritance"]
-    B --> B1["Extract Tickers + Inherit from History"]
-    B1 --> C["Parse Parameters"]
-    C --> E["Stage 2: Data Retrieval<br/>Mansa Stocks API"]
-    E --> G["Stage 3: Hybrid Report Generation"]
-    G --> H["Analyze Data"]
-    G --> I["Generate Insights"]
-    G --> J["Plotly Chart Injection"]
-    H --> K["Final Output<br/>Markdown + Charts"]
-    I --> K
-    J --> K
-    K --> L["Browser Rendering<br/>Sanitized HTML + Plotly"]
+    A["User Input"] --> S0["Stage 0: Memory Retrieval<br/>(Load Summary)"]
+    S0 --> B["Stage 1: Intent & Ranking Parser"]
+    B --> C["Stage 2: Manson Stocks API<br/>(Deduplicated Ranked Data)"]
+    C --> G["Stage 3: Advanced Business Analysis<br/>(Moat, Valuation, Multi-Charts)"]
+    G --> S4["Stage 4: Memory Compression<br/>(Update Summary & Title)"]
+    S4 --> K["Final UI/UX Response"]
 ```
 
 ## API Endpoints
-*   `GET /prometheus/sessions`: List last 30 active sessions for current user.
-*   `POST /prometheus/sessions`: Create a new session.
-*   `GET /prometheus/history/{sessionId}`: Retrieve full JSON history (Ownership protected).
-*   `DELETE /prometheus/sessions/{sessionId}`: Remove a session.
-*   `POST /prometheus/chat`: Send message and receive AI response with context persistence.
+*   `GET /prometheus/sessions`: List last 30 active sessions.
+*   `POST /prometheus/sessions`: Create session.
+*   `PUT /prometheus/sessions/{sessionId}`: Update session title (Rename).
+*   `GET /prometheus/history/{sessionId}`: Retrieve ownership-protected history.
+*   `POST /prometheus/chat`: Orchestrated workflow with memory persistence.
 
 ## License
 Mansa Team's MODIFIED GPL 3.0 License. See LICENSE for details.

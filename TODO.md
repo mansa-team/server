@@ -1,7 +1,4 @@
-- [x] Create an auth system to create, delete and log into accounts
-- [x] Implement OAuth2
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings
-- [ ] Move the STOCKS API /key/generate out of the stocks_api service and integrate it the proper auth service
 - [ ] Make an Password Recovery Recovery system and 2FA using the Email Protocol
 
 - [ ] Redis or some similar caching solution for the whole system
@@ -35,13 +32,10 @@
 #### DEVELOPER:
 - Access to the API Key generation, being able to create an API key for his use
 
-
 #
 
 ### STOCKS_API
 - [ ] Dedicated key system linked to the main Mansa's structure (verify the userId before being able to create a key)
-- [ ] Rate Limiting
 
 ### Prometheus
-- [ ] Create a chatbot history for Prometheus
 - [ ] CORS environment validation to prevent API requests outside the website

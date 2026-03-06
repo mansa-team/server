@@ -1,4 +1,5 @@
 from enum import IntFlag, auto
+from fastapi import HTTPException, Depends
 
 class Permission(IntFlag):
     NONE = 0
@@ -41,8 +42,20 @@ class Roles(IntFlag):
         userPerms = Permission.NONE
         for roleName in userRoles:
             try:
+                if roleName.upper() == "ADMIN":
+                    return True
                 userPerms |= cls[roleName.upper()].value
             except KeyError:
                 continue
         return (userPerms & required_perm) == required_perm
 
+    def requirePermission(perm: Permission):
+        from main.app.user.user import userManager
+        def check(user: dict = Depends(userManager.getCurrentUser)):
+            if not Roles.checkAccess(user.get('roles', []), perm):
+                raise HTTPException(
+                    status_code=403, 
+                    detail=f"Missing required permission: {perm.name}"
+                )
+            return user
+        return check

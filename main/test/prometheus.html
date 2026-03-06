@@ -20,6 +20,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
 
     <style>
+        * { box-sizing: border-box; }
+        
         body {
             font-family: 'Inter', sans-serif;
             background: #fff;
@@ -29,9 +31,11 @@
             flex-direction: column;
             height: 100vh;
             margin: 0;
+            overflow: hidden;
         }
 
         .sidebar {
+            flex-shrink: 0;
             border-bottom: 2px solid #000;
             padding: 10px 0 20px 0;
             margin-bottom: 20px;
@@ -41,24 +45,16 @@
             flex-wrap: wrap;
         }
 
-        .chat-container {
-            flex: 1;
-            overflow-y: auto;
-            border: 1px solid #eee;
-            padding: 20px;
-            margin-bottom: 20px;
-            background: #fafafa;
-            border-radius: 12px;
-        }
-
         .main-layout {
             display: flex;
             flex: 1;
             overflow: hidden;
             gap: 20px;
+            min-height: 0; /* Permite que os filhos respeitem o overflow: hidden */
         }
 
         .sessions-sidebar {
+            flex-shrink: 0;
             width: 260px;
             background: #fdfdfd;
             border: 1px solid #eee;
@@ -66,17 +62,7 @@
             display: flex;
             flex-direction: column;
             padding: 15px;
-        }
-
-        .sessions-header {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: #666;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            overflow: hidden;
         }
 
         .sessions-list {
@@ -85,6 +71,30 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            gap: 20px;
+        }
+
+        .input-wrapper {
+            flex-shrink: 0;
+            width: 100%;
         }
 
         .session-item {
@@ -102,7 +112,7 @@
             justify-content: space-between;
         }
 
-        .session-item .delete-btn {
+        .session-item .delete-btn, .session-item .edit-btn {
             opacity: 0;
             transition: opacity 0.2s;
             color: #999;
@@ -110,16 +120,21 @@
             border-radius: 4px;
             display: flex;
             align-items: center;
-            margin-left: 8px;
+            margin-left: 4px;
         }
 
-        .session-item:hover .delete-btn {
+        .session-item:hover .delete-btn, .session-item:hover .edit-btn {
             opacity: 1;
         }
 
         .delete-btn:hover {
             background: #ffebee;
             color: #d32f2f;
+        }
+
+        .edit-btn:hover {
+            background: #e8f5e9;
+            color: #2e7d32;
         }
 
         .session-item:hover {
@@ -352,25 +367,66 @@
                 titleSpan.style.flex = "1";
                 titleSpan.style.overflow = "hidden";
                 titleSpan.style.textOverflow = "ellipsis";
-                titleSpan.style.pointerEvents = "none"; // Let the click bubble up to the parent div
+                titleSpan.style.pointerEvents = "none";
+
+                // Edit Button
+                const editBtn = document.createElement('span');
+                editBtn.className = "material-icons edit-btn";
+                editBtn.innerHTML = "edit";
+                editBtn.title = "Renomear Chat";
+                editBtn.style.fontSize = "18px";
+                editBtn.style.cursor = "pointer";
+                editBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    const newTitle = prompt("Novo título para esta sessão:", session.title);
+                    if (newTitle && newTitle !== session.title) {
+                        renameChatSession(session.sessionId, newTitle);
+                    }
+                };
                 
                 const deleteBtn = document.createElement('span');
                 deleteBtn.className = "material-icons delete-btn";
                 deleteBtn.innerHTML = "delete_outline";
                 deleteBtn.title = "Excluir Chat";
+                deleteBtn.style.fontSize = "18px";
+                deleteBtn.style.cursor = "pointer";
                 deleteBtn.onclick = (e) => {
-                    e.stopPropagation(); // Keep this propagation stopped to avoid selecting the chat when deleting
+                    e.stopPropagation();
                     if(confirm("Deseja realmente excluir esta conversa?")) {
                         deleteChatSession(session.sessionId);
                     }
                 };
                 
-                div.onclick = () => selectSession(session.sessionId); // Click anywhere on the div
+                div.onclick = () => selectSession(session.sessionId);
 
                 div.appendChild(titleSpan);
+                div.appendChild(editBtn);
                 div.appendChild(deleteBtn);
                 sessionsList.appendChild(div);
             });
+        }
+
+        async function renameChatSession(sessionId, newTitle) {
+            try {
+                const token = localStorage.getItem('mansa_token');
+                const baseUrl = apiEndpointInput.value.replace(/\/$/, "");
+                const response = await fetch(`${baseUrl}/sessions/${sessionId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title: newTitle })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    fetchSessions(); // Soft-reload: refresh list
+                } else {
+                    alert("Erro ao renomear: " + (data.error || "Desconhecido"));
+                }
+            } catch (err) {
+                alert("Erro de conexão: " + err.message);
+            }
         }
 
         async function deleteChatSession(sessionId) {

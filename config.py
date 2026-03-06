@@ -39,8 +39,6 @@ class Config:
         'ENABLED': os.getenv('PROMETHEUS_ENABLED'),
         'HOST': os.getenv('PROMETHEUS_HOST'),
         'PORT': os.getenv('PROMETHEUS_PORT'),
-        'KEY.SYSTEM': os.getenv('PROMETHEUS_KEY.SYSTEM'),
-        'KEY': os.getenv('PROMETHEUS_PRIVATE.KEY'),
         'GEMINI_API.KEY': os.getenv('GEMINI_API.KEY'),
     }
     

@@ -19,12 +19,26 @@ def apiKeyTest(api_key: str = Depends(verifyAPIKey)):
     return {"message": "API", "secured": True}
 
 @router.get("/historical")
-def getHistorical(search: str = Query(None), fields: str = Query(None), dates: str = Query(None), api_key: str = Depends(verifyAPIKey)):
-    return stocksQuery.queryHistorical(search, fields, dates)
+def getHistorical(
+    search: str = Query(None), 
+    fields: str = Query(None), 
+    dates: str = Query(None), 
+    orderBy: str = Query(None),
+    limit: int = Query(None),
+    api_key: str = Depends(verifyAPIKey)
+):
+    return stocksQuery.queryHistorical(search, fields, dates, orderBy, limit)
 
 @router.get("/fundamental")
-def getFundamental(search: str = Query(None), fields: str = Query(None), dates: str = Query(None), api_key: str = Depends(verifyAPIKey)):
-    return stocksQuery.queryFundamental(search, fields, dates)
+def getFundamental(
+    search: str = Query(None), 
+    fields: str = Query(None), 
+    dates: str = Query(None), 
+    orderBy: str = Query(None),
+    limit: int = Query(None),
+    api_key: str = Depends(verifyAPIKey)
+):
+    return stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
 
 @router.get("/key/generate")
 def generateKey(currentUser: dict = Depends(userManager.getCurrentUser)):

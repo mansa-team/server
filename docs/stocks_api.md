@@ -53,12 +53,17 @@ curl "http://localhost:3200/stocks/key/generate?userId=1"
 ### Historical Data
 Query financial metrics across multiple years:
 ```bash
-curl -H "X-API-Key: YOUR_KEY" "http://localhost:3200/stocks/historical?search=PETR4&fields=DY,LUCRO%20LIQUIDO&dates=2020,2024"
+curl -H "X-API-Key: YOUR_KEY" "http://localhost:3200/stocks/historical?search=PETR4&fields=DY,LUCRO%20LIQUIDO&dates=2020,2024&orderBy=LUCRO%20LIQUIDO&limit=5"
 ```
 **Parameters:**
-- `search`: Ticker symbol or company name
-- `fields`: Comma-separated field names
-- `dates`: Single year or range (e.g., `2020` or `2020,2024`)
+- `search`: Ticker symbol or company name.
+- `fields`: Comma-separated field names.
+- `dates`: Single year or range (e.g., `2020` or `2020,2024`).
+- `orderBy`: Field to sort the results by (Descending).
+- `limit`: Maximum number of records to return.
+
+**Deduplication:**
+Both `fundamental` and `historical` endpoints now support `orderBy` and `limit`. Specifically for `historical`, if multiple records exist for the same ticker within the date range, the system will prioritize the first one after sorting.
 
 ```
 DESPESAS, DIVIDENDOS, DY, LUCRO LIQUIDO, MARGEM BRUTA, MARGEM EBIT, MARGEM EBITDA, MARGEM LIQUIDA, RECEITA LIQUIDA
@@ -67,12 +72,17 @@ DESPESAS, DIVIDENDOS, DY, LUCRO LIQUIDO, MARGEM BRUTA, MARGEM EBIT, MARGEM EBITD
 ### Fundamental Data
 Query current valuations and metrics by date range:
 ```bash
-curl -H "X-API-Key: YOUR_KEY" "http://localhost:3200/stocks/fundamental?search=VALE3&fields=ROE,P/L,PRECO&dates=2024-01-01,2024-12-31"
+curl -H "X-API-Key: YOUR_KEY" "http://localhost:3200/stocks/fundamental?search=VALE3&fields=ROE,P/L,PRECO&dates=2024-01-01,2024-12-31&orderBy=ROE&limit=10"
 ```
 **Parameters:**
-- `search`: Ticker symbol or company name
-- `fields`: Comma-separated field names
-- `dates`: Single date or range (supports YYYY, YYYY-MM, or YYYY-MM-DD formats)
+- `search`: Ticker symbol or company name (Empty for global search/ranking).
+- `fields`: Comma-separated field names.
+- `dates`: Single date or range (supports YYYY, YYYY-MM, or YYYY-MM-DD formats).
+- `orderBy`: Field to sort the results by (Descending).
+- `limit`: Maximum number of records to return.
+
+**Intelligence Note:**
+When `search` is empty, the API automatically removes duplicate tickers, returning only the most recent entry for each stock based on the `orderBy` criteria. This is ideal for market rankings.
 
 ```
 PRECO, VALOR DE MERCADO, LIQUIDEZ MEDIA DIARIA, P/L, P/VP, P/ATIVOS, P/EBIT, P/CAP. GIRO, P. AT CIR. LIQ., PSR, EV/EBIT, PEG Ratio, PRECO DE GRAHAM, PRECO DE BAZIN, MARG. LIQUIDA, MARGEM BRUTA, MARGEM EBIT, ROE, ROA, ROIC, VPA, LPA, DY, DY MEDIO 5 ANOS, CAGR DIVIDENDOS 5 ANOS, CAGR RECEITAS 5 ANOS, CAGR LUCROS 5 ANOS, RENT 1 DIA, RENT 5 DIAS, RENT 1 MES, RENT 6 MESES, RENT 1 ANO, RENT 5 ANOS, RENT MEDIA 5 ANOS, RENT TOTAL, PATRIMONIO / ATIVOS, PASSIVOS / ATIVOS, LIQ. CORRENTE, DIVIDA LIQUIDA / EBIT, DIV. LIQ. / PATRI., GIRO ATIVOS, NOME, TICKER, SETOR, SUBSETOR, SEGMENTO, SGR, TAG ALONG
