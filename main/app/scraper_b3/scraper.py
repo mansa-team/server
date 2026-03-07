@@ -178,6 +178,7 @@ class B3Scraper:
         revenueJson = json.loads(driver.find_element('xpath', '/html/body/pre').text)
         revenueJson = pd.json_normalize(revenueJson, sep=',')
         result = {}
+
         for row in revenueJson.itertuples():
             result[f'RECEITA LIQUIDA {row.year}'] = row.receitaLiquida
             result[f'DESPESAS {row.year}'] = row.despesas
@@ -189,6 +190,15 @@ class B3Scraper:
         return result
 
     def calcFundamentalistIndicators(self, TICKER, stockData):
+        # CAGR Profits over 10 years
+        try:
+            lucroInicial = stockData.get(f'LUCRO LIQUIDO {self.current_year - 11}')
+            lucroFinal = stockData.get(f'LUCRO LIQUIDO {self.current_year - 1}')
+
+            stockData['CAGR LUCROS 10 ANOS'] = ((lucroFinal / lucroInicial) ** (1/10) - 1) * 100
+        except (KeyError, ZeroDivisionError, TypeError):
+            stockData['CAGR LUCROS 10 ANOS'] = np.nan
+
         # EBIT
         try:
             ebit = stockData.get(f'MARGEM EBIT {self.current_year - 1}', 0) * stockData.get(f'RECEITA LIQUIDA {self.current_year - 1}', 0) / 100
@@ -271,6 +281,51 @@ class B3Scraper:
         except (KeyError, ZeroDivisionError, TypeError):
             stockData['PRECO DE BAZIN'] = np.nan
 
+        # Performance Analysis
+        try:
+            cagr = stockData.get('CAGR LUCROS 10 ANOS')
+            roe = stockData.get('ROE')
+            divida_ebit = stockData.get('DIVIDA LIQUIDA / EBIT')
+
+            if cagr is None or roe is None or divida_ebit is None or np.isnan(cagr) or np.isnan(roe) or np.isnan(divida_ebit):
+                stockData['VALUE INVESTING SCORE'] = np.nan
+            else:
+                score = 0
+                
+                # 10-Year CAGR Growth (w 4.0)
+                if cagr >= 20: score += 4.0
+                elif cagr >= 15: score += 3.5
+                elif cagr >= 10: score += 2.5
+                elif cagr >= 5: score += 1.5
+                elif cagr > 0: score += 0.5
+                
+                # No losses in 10 years (w 2.0)
+                losses = 0
+                for year in range(self.current_year - 11, self.current_year):
+                    lucro = stockData.get(f'LUCRO LIQUIDO {year}')
+                    if lucro is not None and lucro < 0:
+                        losses += 1
+                
+                has_survival = (losses == 0)
+                if has_survival:
+                    score += 2.0
+                
+                # ROE (w 2.0)
+                if roe >= 20: score += 2.0
+                elif roe >= 15: score += 1.5
+                elif roe >= 10: score += 1.0
+                
+                # Debt (Dívida Líquida/EBIT) (w 2.0)
+                if divida_ebit <= 1: score += 2.0
+                elif divida_ebit <= 2: score += 1.5
+                elif divida_ebit <= 3: score += 1.0
+                elif divida_ebit > 5: score -= 1.0
+                
+                stockData['VALUE INVESTING SCORE'] = min(max(score, 0), 10)
+                
+        except Exception as e:
+            stockData['VALUE INVESTING SCORE'] = np.nan
+
         return stockData
 
     def processStock(self, ticker, stocksData):
@@ -335,7 +390,17 @@ class B3Scraper:
                 stocksData = stocksData.combine_first(resultsDF)
 
             stocksData = stocksData.round(2)
-            normalizedColumns = ['TIME', 'NOME', 'TICKER', 'SETOR', 'SUBSETOR', 'SEGMENTO', 'ALTMAN Z-SCORE', 'SGR', 'LIQUIDEZ MEDIA DIARIA', 'PRECO', 'PRECO DE BAZIN', 'PRECO DE GRAHAM', 'TAG ALONG', 'RENT 12 MESES', 'RENT MEDIA 5 ANOS', 'DY', 'DY MEDIO 5 ANOS', 'P/L', 'P/VP', 'P/ATIVOS', 'MARGEM BRUTA', 'MARGEM EBIT', 'MARG. LIQUIDA', 'EBIT', 'P/EBIT', 'EV/EBIT', 'DIVIDA LIQUIDA / EBIT', 'DIV. LIQ. / PATRI.', 'PSR', 'P/CAP. GIRO', 'P. AT CIR. LIQ.', 'LIQ. CORRENTE', 'LUCRO LIQUIDO MEDIO 5 ANOS', 'ROE', 'ROA', 'ROIC', 'PATRIMONIO / ATIVOS', 'PASSIVOS / ATIVOS', 'GIRO ATIVOS', 'CAGR DIVIDENDOS 5 ANOS', 'CAGR RECEITAS 5 ANOS', 'CAGR LUCROS 5 ANOS', 'VPA', 'LPA', 'PEG Ratio', 'VALOR DE MERCADO']
+            normalizedColumns = [
+                'TIME', 'NOME', 'TICKER', 'SETOR', 'SUBSETOR', 'SEGMENTO', 
+                'VALUE INVESTING SCORE', 'SGR', 'LIQUIDEZ MEDIA DIARIA', 'PRECO', 'PRECO DE BAZIN', 
+                'PRECO DE GRAHAM', 'TAG ALONG', 'RENT 12 MESES', 'RENT MEDIA 5 ANOS', 'DY', 
+                'DY MEDIO 5 ANOS', 'P/L', 'P/VP', 'P/ATIVOS', 'MARGEM BRUTA', 'MARGEM EBIT', 
+                'MARG. LIQUIDA', 'EBIT', 'P/EBIT', 'EV/EBIT', 'DIVIDA LIQUIDA / EBIT', 
+                'DIV. LIQ. / PATRI.', 'PSR', 'P/CAP. GIRO', 'P. AT CIR. LIQ.', 'LIQ. CORRENTE', 
+                'LUCRO LIQUIDO MEDIO 5 ANOS', 'ROE', 'ROA', 'ROIC', 'PATRIMONIO / ATIVOS', 
+                'PASSIVOS / ATIVOS', 'GIRO ATIVOS', 'CAGR DIVIDENDOS 5 ANOS', 'CAGR RECEITAS 5 ANOS', 
+                'CAGR LUCROS 5 ANOS', 'CAGR LUCROS 10 ANOS', 'VPA', 'LPA', 'PEG Ratio', 'VALOR DE MERCADO'
+            ]
             stocksData.index.name = 'TICKER'
             stocksData = stocksData.reset_index()
             stocksData = normalize(stocksData, normalizedColumns)

@@ -1,8 +1,9 @@
-from config import SessionLocal, Config
+from config import Config, getSession
 from main.utils.util import log
 from main.utils.roles import Roles
 from main.models import User
-from fastapi import HTTPException, Request
+from fastapi import HTTPException, Request, Depends
+from sqlalchemy.orm import Session
 
 import jwt
 
@@ -13,8 +14,7 @@ class UserManager:
     def __init__(self):
         pass
 
-    def addRoleToUser(self, userId: int, role: str):
-        db = SessionLocal()
+    def addRoleToUser(self, db: Session, userId: int, role: str):
         try:
             user = db.query(User).filter(User.userId == userId).first()
             
@@ -35,10 +35,8 @@ class UserManager:
             db.rollback()
             log("error", f"Error adding role: {str(e)}")
             raise HTTPException(status_code=500, detail="Failed to add role")
-        finally:
-            db.close()
 
-    def getCurrentUser(self, request: Request):
+    def getCurrentUser(self, request: Request, db: Session = Depends(getSession)):
         token = request.cookies.get("mansa_token")
         
         if not token:
@@ -56,7 +54,6 @@ class UserManager:
             if userId is None:
                 raise HTTPException(status_code=401, detail="Invalid Token")
 
-            db = SessionLocal()
             try:
                 user = db.query(User).filter(User.userId == userId).first()
                 
@@ -70,8 +67,9 @@ class UserManager:
                     "roles": user.getRolesList()
                 }
             
-            finally:
-                db.close()
+            except Exception as e:
+                log("error", f"Database error in getCurrentUser: {str(e)}")
+                raise HTTPException(status_code=500, detail="Internal server error")
                 
         except jwt.PyJWTError:
             raise HTTPException(status_code=401, detail="Could not validate credentials")

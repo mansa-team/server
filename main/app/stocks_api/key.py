@@ -1,7 +1,8 @@
-from config import Config, SessionLocal
+from config import Config, getSession
 
 from fastapi import HTTPException, Depends
 from fastapi.security import APIKeyHeader
+from sqlalchemy.orm import Session
 
 import secrets
 import string
@@ -10,14 +11,13 @@ from main.models import StocksAPIKey
 
 apiKeyHeader = APIKeyHeader(name="X-API-Key", auto_error=False)
 
-async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader)):
+async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depends(getSession)):
     if Config.STOCKS_API['KEY.SYSTEM'] == 'FALSE':
         return None
     
     if not apiKey:
         raise HTTPException(status_code=401, detail="Missing API key")
 
-    db = SessionLocal()
     try:
         stocksKey = db.query(StocksAPIKey).filter(StocksAPIKey.apiKey == apiKey).first()
         
@@ -45,18 +45,15 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader)):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail="API key verification failed")
-    finally:
-        db.close()
 
 def generateSecureKey(length=32):
     alphabet = string.ascii_letters + string.digits
     return ''.join(secrets.choice(alphabet) for _ in range(length))
 
-def createKey(userId: int):
+def createKey(db: Session, userId: int):
     newKey = generateSecureKey(32)
     quota = int(Config.STOCKS_API['DEFAULT.QUOTA'])
     
-    db = SessionLocal()
     try:
         existingKey = db.query(StocksAPIKey).filter(StocksAPIKey.userId == userId).first()
         
@@ -78,5 +75,3 @@ def createKey(userId: int):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail="Failed to create API key")
-    finally:
-        db.close()

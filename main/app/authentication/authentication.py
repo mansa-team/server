@@ -1,4 +1,3 @@
-from config import SessionLocal
 from main.utils.util import log
 
 from sqlalchemy.orm import Session
@@ -11,14 +10,13 @@ class AuthenticationManager:
     def __init__(self):
         pass
 
-    def createUserAccount(self, username, email, password=None, googleId=None):
+    def createUserAccount(self, db: Session, username, email, password=None, googleId=None):
         if not password and not googleId:
             raise HTTPException(
                 status_code=400, 
                 detail="Account must have either a password."
             )
         
-        db = SessionLocal()
         try:
             existingUser = db.query(User).filter(
                 (User.username == username) | (User.email == email)
@@ -38,7 +36,7 @@ class AuthenticationManager:
                 email=email,
                 passwordHash=hashedPassword,
                 googleId=googleId,
-                roles=Roles.USER
+                roles=Roles.USER.name
             )
             
             db.add(newUser)
@@ -54,11 +52,8 @@ class AuthenticationManager:
             db.rollback()
             log("error", f"Error creating user: {str(e)}")
             raise HTTPException(status_code=500, detail="Failed to create user")
-        finally:
-            db.close()
         
-    def authenticateGoogleUser(self, googleId: str):
-        db = SessionLocal()
+    def authenticateGoogleUser(self, db: Session, googleId: str):
         try:
             user = db.query(User).filter(User.googleId == googleId).first()
             
@@ -71,11 +66,11 @@ class AuthenticationManager:
                 }
             return None
             
-        finally:
-            db.close()
+        except Exception as e:
+            log("error", f"Error authenticating Google user: {str(e)}")
+            return None
 
-    def authenticateUser(self, username, password):
-        db = SessionLocal()
+    def authenticateUser(self, db: Session, username, password):
         try:
             user = db.query(User).filter(User.username == username).first()
             
@@ -88,7 +83,8 @@ class AuthenticationManager:
                 }
             return None
             
-        finally:
-            db.close()
+        except Exception as e:
+            log("error", f"Error authenticating user: {str(e)}")
+            return None
 
 authManager = AuthenticationManager()

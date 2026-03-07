@@ -86,9 +86,9 @@ class StocksQueryManager:
                     try:
                         dateRange = [d.strip() for d in dates.split(",")]
                         if len(dateRange) == 2:
-                            startDate = pd.to_datetime(dateRange[0])
-                            endDate = pd.to_datetime(dateRange[1])
-                            df = df[(df['TIME_DT'] >= startDate) & (df['TIME_DT'] <= endDate)]
+                            startDate = pd.to_datetime(dateRange[0]).date()
+                            endDate = pd.to_datetime(dateRange[1]).date()
+                            df = df[(df['TIME_DT'].dt.date >= startDate) & (df['TIME_DT'].dt.date <= endDate)]
                         elif len(dateRange) == 1:
                             targetDate = pd.to_datetime(dateRange[0]).date()
                             df = df[df['TIME_DT'].dt.date == targetDate]

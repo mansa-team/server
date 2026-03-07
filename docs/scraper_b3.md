@@ -51,6 +51,7 @@ A high-performance Python scraper to collect, process, and store Brazilian stock
   "DY_2022": 6.45,
   "RECEITA_LIQUIDA_2023": 987654321.0,
   "LUCRO_LIQUIDO_2023": 123456789.0,
+  "VALUE INVESTING SCORE": 8.5,
   "TIME": "2024-12-09 14:30:00"
 }
 ```

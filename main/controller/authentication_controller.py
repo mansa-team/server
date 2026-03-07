@@ -1,10 +1,11 @@
-from config import Config
+from config import Config, getSession
 from main.utils.util import log, limiter
 
-from fastapi import APIRouter, Response, Body, HTTPException, Request
+from fastapi import APIRouter, Response, Body, HTTPException, Request, Depends
 from fastapi.responses import RedirectResponse
 import urllib.parse
 import requests
+from sqlalchemy.orm import Session
 
 from main.app.authentication.authentication import authManager
 from main.app.authentication.util import *
@@ -20,11 +21,11 @@ def health(request: Request):
 
 @router.post("/register")
 @limiter.limit("5/minute")
-def register(request: Request, response: Response, username: str = Body(...), email: str = Body(...), password: str = Body(...)):
+def register(request: Request, response: Response, username: str = Body(...), email: str = Body(...), password: str = Body(...), db: Session = Depends(getSession)):
     try:
-        authManager.createUserAccount(username, email, password)
+        authManager.createUserAccount(db, username, email, password)
 
-        user = authManager.authenticateUser(username, password)
+        user = authManager.authenticateUser(db, username, password)
         if not user:
             raise HTTPException(status_code=401, detail="Auto-login failed after registration")
             
@@ -51,8 +52,8 @@ def register(request: Request, response: Response, username: str = Body(...), em
 
 @router.post("/login")
 @limiter.limit("5/minute")
-def login(request: Request, response: Response, username: str = Body(...), password: str = Body(...)):
-    user = authManager.authenticateUser(username, password)
+def login(request: Request, response: Response, username: str = Body(...), password: str = Body(...), db: Session = Depends(getSession)):
+    user = authManager.authenticateUser(db, username, password)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
@@ -105,7 +106,7 @@ def googleLogin(request: Request):
 
 @router.get("/callback")
 @limiter.limit("5/minute")
-def googleCallback(request: Request, response: Response, code: str):
+def googleCallback(request: Request, response: Response, code: str, db: Session = Depends(getSession)):
     log("auth", "--- Google Callback Start ---")
     log("auth", f"Code received: {code[:10]}...")
     
@@ -153,13 +154,13 @@ def googleCallback(request: Request, response: Response, code: str):
         log("auth", f"User identified: {email}")
 
         log("auth", "Verifying database records...")
-        user = authManager.authenticateGoogleUser(googleId)
+        user = authManager.authenticateGoogleUser(db, googleId)
         
         if not user:
             log("auth", "New user detected, creating account...")
             username = email.split('@')[0]
-            authManager.createUserAccount(username=username, email=email, googleId=googleId)
-            user = authManager.authenticateGoogleUser(googleId)
+            authManager.createUserAccount(db, username=username, email=email, googleId=googleId)
+            user = authManager.authenticateGoogleUser(db, googleId)
             log("auth", "Account created successfully.")
 
         log("auth", "Generating local JWT session...")

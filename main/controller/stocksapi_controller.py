@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, Query, HTTPException
+from sqlalchemy.orm import Session
+from config import getSession
 
 from main.app.stocks_api.query import stocksQuery
 from main.app.stocks_api.key import verifyAPIKey, createKey
@@ -41,7 +43,7 @@ def getFundamental(
     return stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
 
 @router.get("/key/generate")
-def generateKey(currentUser: dict = Depends(userManager.getCurrentUser)):
+def generateKey(currentUser: dict = Depends(userManager.getCurrentUser), db: Session = Depends(getSession)):
     if not Roles.checkAccess(currentUser.get("roles", []), Permission.GENERATE_API_KEYS):
         raise HTTPException(
             status_code=403, 
@@ -50,7 +52,7 @@ def generateKey(currentUser: dict = Depends(userManager.getCurrentUser)):
 
     try: 
         userId = currentUser.get("userId")
-        newKey = createKey(userId)
+        newKey = createKey(db, userId)
         return {
             "message": "Key successfully generated", 
             "apiKey": newKey,

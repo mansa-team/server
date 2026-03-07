@@ -30,18 +30,24 @@ class User(Base):
         return [role.strip() for role in self.roles.split(',')]
     
     def addRole(self, role: str):
+        if hasattr(role, 'name'):
+            role = str(role.name)
         currentRoles = self.getRolesList()
         if role not in currentRoles:
             currentRoles.append(role)
             self.roles = ','.join(currentRoles)
     
     def removeRole(self, role: str):
+        if hasattr(role, 'name'):
+            role = str(role.name)
         currentRoles = self.getRolesList()
         if role in currentRoles:
             currentRoles.remove(role)
             self.roles = ','.join(currentRoles) if currentRoles else 'USER'
     
     def hasRole(self, role: str) -> bool:
+        if hasattr(role, 'name'):
+            role = str(role.name)
         return role in self.getRolesList()
     
     def toDict(self):

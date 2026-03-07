@@ -507,31 +507,63 @@
                 let cleanStr = configStr.trim().replace(/&quot;/g, '"');
                 const config = JSON.parse(cleanStr);
                 
+                // Suporte a múltiplos datasets se necessário, mas foca no principal
                 const trace = {
                     x: config.data.labels,
                     y: config.data.datasets[0].data,
-                    type: config.type || 'bar',
-                    marker: { color: '#000' }
+                    name: config.data.datasets[0].label || '',
+                    type: (config.type === 'line' ? 'scatter' : 
+                           config.type === 'bar' ? 'bar' : 
+                           (config.type === 'pie' || config.type === 'doughnut') ? 'pie' : 'bar'),
+                    mode: config.type === 'line' ? 'lines+markers' : undefined,
+                    marker: { color: '#3b82f6' } // Azul padrão tailwind
                 };
 
+                const titleText = config.options?.plugins?.title?.text || "";
+
                 const layout = {
-                    height: 280,
-                    margin: { t: 10, b: 30, l: 30, r: 10 }
+                    title: {
+                        text: titleText,
+                        font: { size: 16, color: '#e2e8f0' },
+                        pad: { b: 10 }
+                    },
+                    height: 320, // Altura maior para acomodar o título
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    margin: { t: titleText ? 60 : 20, b: 40, l: 50, r: 20 },
+                    font: { color: '#94a3b8' },
+                    xaxis: { gridcolor: '#334155' },
+                    yaxis: { gridcolor: '#334155' }
                 };
+
+                // Ajuste específico para PIE charts que não usam eixos
+                if (trace.type === 'pie') {
+                    delete layout.xaxis;
+                    delete layout.yaxis;
+                    trace.labels = config.data.labels;
+                    trace.values = config.data.datasets[0].data;
+                }
 
                 Plotly.newPlot(container, [trace], layout, { responsive: true, displayModeBar: false });
             } catch (e) {
-                container.innerHTML = 'Erro gráfico';
+                console.error('Erro renderChart:', e);
+                container.innerHTML = 'Erro ao carregar gráfico';
             }
         }
 
         async function handleSend() {
             const text = userInput.value.trim();
-            if (!text) return;
+            if (!text || sendBtn.disabled) return;
 
             addMessage(text, 'user');
             userInput.value = '';
             
+            // Disable input and button while processing
+            sendBtn.disabled = true;
+            userInput.disabled = true;
+            sendBtn.style.opacity = "0.5";
+            sendBtn.style.cursor = "not-allowed";
+
             const loadingId = 'loading-' + Date.now();
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'message assistant';
@@ -546,6 +578,25 @@
             `;
             chatContainer.appendChild(loadingDiv);
             scrollToBottom();
+
+            // Set a 1 minute timeout to unlock the UI if the request hangs
+            const unlockTimeout = setTimeout(() => {
+                if (sendBtn.disabled) {
+                    const loader = document.getElementById(loadingId);
+                    if (loader) loader.remove();
+                    addMessage(`**Erro:** A requisição demorou muito para responder (Timeout de 1 minuto).`, 'assistant');
+                    unlockUI();
+                }
+            }, 60000);
+
+            function unlockUI() {
+                sendBtn.disabled = false;
+                userInput.disabled = false;
+                sendBtn.style.opacity = "1";
+                sendBtn.style.cursor = "pointer";
+                clearTimeout(unlockTimeout);
+                userInput.focus();
+            }
 
             try {
                 const baseUrl = apiEndpointInput.value.replace(/\/$/, "");
@@ -577,6 +628,8 @@
                 const loader = document.getElementById(loadingId);
                 if (loader) loader.remove();
                 addMessage(`**Erro de Conexão:** ${err.message}`, 'assistant');
+            } finally {
+                unlockUI();
             }
         }
 
