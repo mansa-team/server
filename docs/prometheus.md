@@ -1,18 +1,10 @@
 # Prometheus
 
-A immersive chatbot using augmented generation techniques linked to the [Mansa's Stocks API](https://github.com/mansa-team/stocks-api) that generates in-depth, updated and trust-worthy data to help users manage their assets and investments, using an extensive workflow to generate responses using graphs, charts and etc.
+O Prometheus é um ecossistema de conversação imersivo, projetado para atuar como um analista de investimentos inteligente e confiável. Ele utiliza técnicas avançadas de Geração Aumentada por Recuperação (RAG), conectando-se diretamente à Mansa's Stocks API para extrair dados fundamentalistas atualizados. Diferente de um chatbot comum, o Prometheus segue um fluxo de trabalho rigoroso de quatro estágios para garantir que as respostas não sejam apenas precisas, mas também baseadas em conclusões técnicas e persistentes.
 
-### Memory & Persistence Architecture
-The system utilizes a 4-Stage workflow powered by **Gemini 1.5 Flash** with long-term memory capabilities:
+A inteligência do sistema é movida pelo modelo Gemini 3.1 Flash Lite, mas o seu grande diferencial reside na nossa Arquitetura de Memória e Persistência. O ciclo de interação começa no Stage 0, onde o sistema injeta um resumo técnico das conclusões de sessões anteriores diretamente no prompt. Isso garante que a IA nunca "esqueça" o raciocínio financeiro desenvolvido com o usuário ao longo do tempo. No Stage 1, a linguagem natural do usuário é convertida em chamadas de API estruturadas, capazes de lidar com rankings deduplicados e ajustes temporais automáticos, garantindo que a análise reflita sempre o último ano fiscal completo.
 
-1.  **Stage 0 (Context Injection)**: Injects a persistent `summary` of the session's technical conclusions into the AI prompt to maintain continuity.
-2.  **Stage 1 (Intent Analysis)**: Parses user natural language into structured API calls. Supports **Deduplicated Rankings** and automatic temporal adjustment (shifting current year to the last completed year).
-3.  **Stage 4 (Session Management)**: Automatically updates the session `title` (max 50 tokens) and the session `summary` (technical memory) after each interaction to ensure the next prompt starts with full context.
-
-### Security
-*   **RBAC Protected**: Access to sessions is strictly limited to owners.
-*   **JSONB History**: Conversations are stored in a single `history` column for high performance.
-*   **Automatic Summarization**: Memory is compressed to preserve context within model token limits.
+Após o processamento dos dados e a análise de negócios (que inclui a avaliação de Moats e Valuation), o sistema encerra a interação no Stage 4. Nesta fase, o Prometheus realiza uma auto-manutenção da sessão: ele atualiza o título da conversa para algo conciso e gera um novo resumo técnico comprimido. Esse processo de sumarização automática é vital para preservar o contexto dentro dos limites de tokens do modelo, mantendo a alta performance e a continuidade do suporte decisório para o investidor. Tudo isso opera sob uma camada de segurança robusta, onde o acesso é protegido por regras de controle de acesso baseadas em funções (RBAC) e o histórico é armazenado em formato JSONB para máxima eficiência.
 
 ## Usage
 1. Environment configuration (`.env`):

@@ -4,6 +4,7 @@ from main.utils.util import log
 import pandas as pd
 import json
 import requests
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 from google import genai
 from google.genai import types
@@ -24,7 +25,7 @@ class PrometheusGenerator:
         self.currentISODate = (now - timedelta(days=1)).strftime("%Y-%m-%d")
         self.currentYear = now.year
         self.lastYear = self.currentYear - 1
-
+        
     def executeWorkflow(self, userQuery, history: list = None, sessionId: str = None):
         self.updateDates()
         log("prometheus", f"Query: {userQuery}")
@@ -97,13 +98,19 @@ class PrometheusGenerator:
             - Se o usuário pedir "as 10 melhores", "maiores dividendos", "top ações", etc:
                 1. Defina "search" como "" (string vazia).
                 2. Defina "limit" como o número solicitado (ex: 10 ou 20).
-                3. Se o critério for rentabilidade, use "order_by" com um campo da Lista de Campos Válidos (ex: "RENT TOTAL" ou "RENT 5 ANOS").
-                4. Se o critério for dividendos, use "order_by" com um campo da Lista de Campos Válidos (ex: "DY").
-                5. Use SEMPRE a data atual {Y-M-D} para date_start e date_end para obter os rankings mais recentes.
+                3. COMPATIBILIDADE DE CAMPOS (CRITICAL): O "order_by" DEVE ser compatível com o "type" do objeto:
+                   - Se type: fundamental, use: "VALUE INVESTING SCORE" (preferencial), "CAGR LUCROS 10 ANOS", "ROE", "DY", etc.
+                   - Se type: historical, use: "LUCRO LIQUIDO", "RECEITA LIQUIDA", "DIVIDENDOS", etc.
+                4. Se o critério for rentabilidade, use "order_by" compatível (ex: "RENT TOTAL" para fundamental).
+                5. Use SEMPRE a data atual {Y-M-D} para date_start e date_end para obter os rankings mais recentes em fundamental.
 
             Lista de Campos Válidos (Strict):
             * historical (Apenas ANOS - Ex: {CURRENT_YEAR}): DESPESAS, DIVIDENDOS, DY, LUCRO LIQUIDO, MARGEM BRUTA, MARGEM EBIT, MARGEM EBITDA, MARGEM LIQUIDA, RECEITA LIQUIDA.
-            * fundamental (DATAS COMPLETAS - Ex: {CURRENT_DATE}): PRECO, VALOR DE MERCADO, LIQUIDEZ MEDIA DIARIA, P/L, P/VP, P/ATIVOS, P/EBIT, P/CAP. GIRO, P. AT CIR. LIQ., PSR, EV/EBIT, PEG Ratio, PRECO DE GRAHAM, PRECO DE BAZIN, MARG. LIQUIDA, MARGEM BRUTA, MARGEM EBIT, ROE, ROA, ROIC, VPA, LPA, DY, DY MEDIO 5 ANOS, CAGR DIVIDENDOS 5 ANOS, CAGR RECEITAS 5 ANOS, CAGR LUCROS 5 ANOS, CAGR LUCROS 10 ANOS, RENT 1 DIA, RENT 5 DIAS, RENT 1 MES, RENT 6 MESES, RENT 1 ANO, RENT 5 ANOS, RENT MEDIA 5 ANOS, RENT TOTAL, PATRIMONIO / ATIVOS, PASSIVOS / ATIVOS, LIQ. CORRENTE, DIVIDA LIQUIDA / EBIT, DIV. LIQ. / PATRI., GIRO ATIVOS, NOME, TICKER, SETOR, SUBSETOR, SEGMENTO, SGR, TAG ALONG, VALUE INVESTING SCORE.
+            * fundamental (DATAS COMPLETAS - Ex: {CURRENT_DATE}): PRECO, VALOR DE MERCADO, LIQUIDEZ MEDIA DIARIA, P/L, P/VP, P/ATIVOS, P/EBIT, P/CAP. GIRO, P. AT CIR. LIQ., PSR, EV/EBIT, PEG Ratio, PRECO DE GRAHAM, PRECO DE BAZIN, MARG. LIQUIDA, MARGEM BRUTA, MARGEM EBIT, ROE, ROA, ROIC, VPA, LPA, DY, DY MEDIO 5 ANOS, CAGR DIVIDENDOS 5 ANOS, CAGR RECEITAS 5 ANOS, CAGR LUCROS 5 ANOS, CAGR LUCROS 10 ANOS, CRESCIMENTO MEDIO LUCROS 10 ANOS, RENT 1 DIA, RENT 5 DIAS, RENT 1 MES, RENT 6 MESES, RENT 1 ANO, RENT 5 ANOS, RENT MEDIA 5 ANOS, RENT TOTAL, PATRIMONIO / ATIVOS, PASSIVOS / ATIVOS, LIQ. CORRENTE, DIVIDA LIQUIDA / EBIT, DIV. LIQ. / PATRI., GIRO ATIVOS, NOME, TICKER, SETOR, SUBSETOR, SEGMENTO, SGR, TAG ALONG, VALUE INVESTING SCORE.
+
+            REGRAS DE FORMATAÇÃO DE CAMPOS (CRITICAL):
+            1. SEM UNDERSCORES: Todos os nomes de campos devem ser escritos EXATAMENTE como estão na Lista de Campos Válidos, usando espaços quando houver, e NUNCA underscores (ex: use "VALUE INVESTING SCORE" e não "VALUE_INVESTING_SCORE").
+            2. CAIXA ALTA: Os campos em "fields" e "order_by" devem estar sempre em CAIXA ALTA.
 
             REGRA DE SEPARAÇÃO POR CATEGORIA (CRITICAL):
             - SE UM CAMPO É HISTORICAL (ex: LUCRO LIQUIDO), você DEVE criar um objeto com type: historical.
@@ -114,7 +121,7 @@ class PrometheusGenerator:
             - PRIORIDADE MÁXIMA DE ORDENAÇÃO: Para rankings, use SEMPRE "order_by": "VALUE INVESTING SCORE" (no objeto fundamental) ou "CAGR LUCROS 10 ANOS" (no objeto fundamental).
             - FILTRO DE QUALIDADE SUPREMO: Use o campo **VALUE INVESTING SCORE** para validar a tese. Se for baixo (ex: < 5.0), a empresa deve ser analisada com cautela ou criticada. Se for alto (ex: >= 8.5), ela é o alvo principal.
             - REJEIÇÃO TÉCNICA: O crescimento dos LUCROS LÍQUIDOS de 10 anos ("Lucros Escadinha") é o único validador real.
-            - Se o usuário pedir análise de qualidade, traga os três: o histórico de LUCRO LIQUIDO (historical), o CAGR LUCROS 10 ANOS (fundamental) e o VALUE INVESTING SCORE (fundamental).
+            - Se o usuário pedir análise de qualidade, traga os quatro: o histórico de LUCRO LIQUIDO (historical), o CAGR LUCROS 10 ANOS (fundamental), o CRESCIMENTO MEDIO LUCROS 10 ANOS (fundamental) e o VALUE INVESTING SCORE (fundamental).
 
             Instruções Detalhadas:
             1. Identifique a empresa/ticker ou pedido de ranking. Se ausente, retorne [].
@@ -161,36 +168,55 @@ class PrometheusGenerator:
         #$ Getting the Stage 1 response data the STOCKS API request that will be used to give further information for the final response
         #
         responseData = json.loads(modelResponse['STAGE 1'])
-        responseData = pd.DataFrame(responseData)
 
-        APIResponse = {}
-        for idx, i in enumerate(responseData.itertuples()):
+        APIResponse = []
+        headers = {"X-API-Key": Config.STOCKS_API["KEY"]} if Config.STOCKS_API["KEY.SYSTEM"] == "TRUE" else {}
 
-            headers = {"X-API-Key": Config.STOCKS_API["KEY"]} if Config.STOCKS_API["KEY.SYSTEM"] == "TRUE" else {}
+        topTickers = ""
+        globalReq = next((r for r in responseData if not r.get('search') and r.get('type') == "fundamental"), None)
+        
+        if globalReq:
+            try:
+                params = {
+                    'search': "", 
+                    'fields': "TICKER", 
+                    'dates': f"{globalReq['date_start']},{globalReq['date_end']}",
+                    'orderBy': globalReq.get('order_by'),
+                    'limit': globalReq.get('limit')
+                }
+                syncRes = requests.get(f'http://{Config.STOCKS_API["HOST"]}:{Config.STOCKS_API["PORT"]}/stocks/fundamental', params=params, headers=headers, timeout=20)
+                
+                if syncRes.status_code == 200:
+                    tickers = [s['TICKER'] for s in syncRes.json().get('data', []) if 'TICKER' in s]
+                    topTickers = ",".join(tickers)
 
+                    for req in responseData:
+                        if not req.get('search'):
+                            req['search'] = topTickers
+            except Exception as e:
+                log("prometheus", f"Error resolving global tickers: {e}")
+
+        def fetchStockData(req):
             params = {
-                'search': i.search,
-                'fields': i.fields,
-                'dates': f"{i.date_start},{i.date_end}"
+                'search': req['search'], 
+                'fields': req['fields'], 
+                'dates': f"{req['date_start']},{req['date_end']}",
+                'orderBy': req.get('order_by'),
+                'limit': req.get('limit')
             }
-            
-            if hasattr(i, 'order_by') and i.order_by:
-                params['orderBy'] = i.order_by
-            if hasattr(i, 'limit') and i.limit:
-                params['limit'] = i.limit
+            try:
+                url = f'http://{Config.STOCKS_API["HOST"]}:{Config.STOCKS_API["PORT"]}/stocks/{req["type"]}'
+                res = requests.get(url, params=params, headers=headers, timeout=20)
+                return res.json().get('data', []) if res.status_code == 200 else []
+            except Exception as e:
+                log("prometheus", f"API error ({req['type']}): {e}")
+                return []
 
-            APIResponse[idx] = requests.get(
-                f'http://{Config.STOCKS_API["HOST"]}:{Config.STOCKS_API["PORT"]}/stocks/{i.type}',
-                params=params,
-                headers=headers,
-                timeout=20
-            )
+        with ThreadPoolExecutor(max_workers=6) as executor:
+            futures = [executor.submit(fetchStockData, r) for r in responseData]
+            for f in as_completed(futures):
+                APIResponse.extend(f.result())
 
-
-        for idx, response in APIResponse.items():
-            json.dumps(response.json().get('data', []), ensure_ascii=False, indent=2)
-
-        APIResponse = [item for apiResponse in APIResponse.values() for item in apiResponse.json().get('data', [])]
         APIResponse = json.dumps(APIResponse, ensure_ascii=False, indent=2)
         print(APIResponse)
 
@@ -240,11 +266,12 @@ class PrometheusGenerator:
         - REGRAS: Aspas duplas, sem espaços desnecessários, SEM blocos de código (```), SEM cores. O título deve ser curto, técnico e posicionado dentro de options.plugins.title.text.
 
         ---
-        ESTRUTURA DA RESPOSTA E REGRAS DE ECONOMIA (OIGATÓRIAS):
+        ESTRUTURA DA RESPOSTA E REGRAS DE ECONOMIA (OBRIGATÓRIAS):
         1. RESPOSTAS CURTAS/GENÉRICAS: Se a pergunta do usuário for curta, uma saudação, ou uma dúvida de contexto (ex: "oi", "quem é você?", "de que empresa falamos?"), responda de forma BREVE (máx 2 parágrafos), natural e direta. NUNCA gere a estrutura completa de 3 seções ("### Análise de Tese...") nesses casos.
         2. FOCO NO CONTEXTO: Se o usuário perguntar qual empresa está sendo analisada, diga o nome/ticker baseado no histórico e convide-o a fazer uma pergunta específica sobre os fundamentos dela.
-        3. TESES COMPLETAS: Use a estrutura de 3 seções (Análise, Performance, Valuation) APENAS quando houver dados da STOCKS API (STOCKS API Data) presentes e o usuário solicitar uma análise profunda.
-        4. ANTI-LEAKAGE: Se não houver dados de ticker na conversa atual nem no histórico recente, informe que você é o Prometheus e está pronto para analisar qualquer ativo da B3 assim que ele fornecer o ticker.
+        3. ENTREGA DE DADOS (CRITICAL): Se o usuário solicitar uma lista, ranking ou comparação (ex: "quais as 10 melhores", "mostre o top de dividendos"), você DEVE obrigatoriamente apresentar os dados recebidos da STOCKS API de forma clara em uma tabela ou lista, citando os tickers e seus respectivos indicadores (ex: Value Investing Score, CAGR). Não se limite a filosofar sobre investimentos; entregue os números solicitados.
+        4. TESES COMPLETAS: Use a estrutura de 3 seções (Análise, Performance, Valuation) apenas quando houver dados de um ticker específico na STOCKS API e o usuário solicitar uma análise profunda.
+        5. ANTI-LEAKAGE: Se não houver dados de ticker na conversa atual nem no histórico recente, informe que você é o Prometheus e está pronto para analisar qualquer ativo da B3 assim que ele fornecer o ticker.
 
         ---
         DESIGN DAS SEÇÕES (Apenas para Teses Completas):
@@ -277,7 +304,7 @@ class PrometheusGenerator:
         modelResponse['STAGE 3'] = response.text
 
         #
-        #$ Stage 4 (Background Summary)
+        #$ Stage 4
         #$ Update the summary and title if the history is long enough
         #
         if sessionId and history and len(history) % 10 == 0:

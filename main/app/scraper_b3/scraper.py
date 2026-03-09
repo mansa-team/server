@@ -190,15 +190,6 @@ class B3Scraper:
         return result
 
     def calcFundamentalistIndicators(self, TICKER, stockData):
-        # CAGR Profits over 10 years
-        try:
-            lucroInicial = stockData.get(f'LUCRO LIQUIDO {self.current_year - 11}')
-            lucroFinal = stockData.get(f'LUCRO LIQUIDO {self.current_year - 1}')
-
-            stockData['CAGR LUCROS 10 ANOS'] = ((lucroFinal / lucroInicial) ** (1/10) - 1) * 100
-        except (KeyError, ZeroDivisionError, TypeError):
-            stockData['CAGR LUCROS 10 ANOS'] = np.nan
-
         # EBIT
         try:
             ebit = stockData.get(f'MARGEM EBIT {self.current_year - 1}', 0) * stockData.get(f'RECEITA LIQUIDA {self.current_year - 1}', 0) / 100
@@ -246,6 +237,28 @@ class B3Scraper:
         except (KeyError, ZeroDivisionError, TypeError):
             stockData['CAGR DIVIDENDOS 5 ANOS'] = np.nan
 
+        # CAGR Profits over 10 years
+        try:
+            lucroInicial = stockData.get(f'LUCRO LIQUIDO {self.current_year - 11}')
+            lucroFinal = stockData.get(f'LUCRO LIQUIDO {self.current_year - 1}')
+
+            stockData['CAGR LUCROS 10 ANOS'] = ((lucroFinal / lucroInicial) ** (1/10) - 1) * 100
+        except (KeyError, ZeroDivisionError, TypeError):
+            stockData['CAGR LUCROS 10 ANOS'] = np.nan
+
+        # Average Periodic Growth 10Y
+        try:
+            recent_p5 = [stockData.get(f'LUCRO LIQUIDO {y}') for y in range(self.current_year-5, self.current_year)]
+            recent_avg5 = np.mean([p for p in recent_p5 if p is not None])
+            past_p5 = [stockData.get(f'LUCRO LIQUIDO {y}') for y in range(self.current_year-10, self.current_year-5)]
+            past_avg5 = np.mean([p for p in past_p5 if p is not None])
+            if past_avg5 > 0 and not np.isnan(recent_avg5):
+                stockData['CRESCIMENTO MEDIO LUCROS 10 ANOS'] = ((recent_avg5 / past_avg5) - 1) * 100
+            else:
+                stockData['CRESCIMENTO MEDIO LUCROS 10 ANOS'] = np.nan
+        except:
+            stockData['CRESCIMENTO MEDIO LUCROS 10 ANOS'] = np.nan
+
         # Sustainable Growth Rate (SGR)
         try:
             roe = stockData.get('ROE')
@@ -286,41 +299,80 @@ class B3Scraper:
             cagr = stockData.get('CAGR LUCROS 10 ANOS')
             roe = stockData.get('ROE')
             divida_ebit = stockData.get('DIVIDA LIQUIDA / EBIT')
+            liquidez = stockData.get('LIQUIDEZ MEDIA DIARIA', 0)
+            ticker_str = str(TICKER)
 
-            if cagr is None or roe is None or divida_ebit is None or np.isnan(cagr) or np.isnan(roe) or np.isnan(divida_ebit):
+            if cagr is None or roe is None or divida_ebit is None or np.isnan(roe) or np.isnan(divida_ebit):
                 stockData['VALUE INVESTING SCORE'] = np.nan
             else:
                 score = 0
+
+                cagr = cagr if not np.isnan(cagr) else 0
+                avg_10y = stockData.get('CRESCIMENTO MEDIO LUCROS 10 ANOS', 0)
+                if np.isnan(avg_10y): avg_10y = 0
                 
-                # 10-Year CAGR Growth (w 4.0)
-                if cagr >= 20: score += 4.0
-                elif cagr >= 15: score += 3.5
-                elif cagr >= 10: score += 2.5
-                elif cagr >= 5: score += 1.5
-                elif cagr > 0: score += 0.5
+                # Composite Growth Metric (w 3.0)
+                avg_10y_capped = min(avg_10y, cagr * 2.5) if avg_10y > 0 else avg_10y
+                growth = (cagr * 0.8) + (avg_10y_capped * 0.2)
+
+                growth_diff = cagr - avg_10y
+                if growth_diff > 30: 
+                    score -= 2.0
+                elif growth_diff > 15:
+                    score -= 0.5
                 
-                # No losses in 10 years (w 2.0)
+                if growth >= 15: score += 3.0
+                elif growth >= 10: score += 2.25
+                elif growth >= 5: score += 1.5
+                elif growth > 0: score += 0.75
+                
+                # Liquidez Média Diária (w 2.0)
+                if liquidez >= 5000000: score += 2.0
+                elif liquidez >= 2000000: score += 1.0
+                elif liquidez >= 1000000: score += 0.5
+                elif liquidez < 500000: score -= 3.0
+                
+                # Governance
+                if not ticker_str.endswith('3'):
+                    score -= 2.0
+                
+                # ROE (w 1.0)
+                if roe >= 20: score += 1.0
+                elif roe >= 15: score += 0.75
+                elif roe >= 10: score += 0.5
+                
+                # Debt (Dívida Líquida/EBIT) (w 1.0)
+                if divida_ebit <= 2: score += 1.0
+                elif divida_ebit <= 3: score += 0.75
+                elif divida_ebit <= 5: score += 0.5
+                elif divida_ebit > 5: score -= 2.0
+
+                # No losses in 10 years (w 3.0)
                 losses = 0
+                staircase_violations = 0
+                prev_lucro = None
+                
                 for year in range(self.current_year - 11, self.current_year):
                     lucro = stockData.get(f'LUCRO LIQUIDO {year}')
-                    if lucro is not None and lucro < 0:
-                        losses += 1
+                    if lucro is not None:
+                        if lucro < 0:
+                            losses += 1
+                        if prev_lucro is not None and lucro < prev_lucro:
+                            if (prev_lucro - lucro) / abs(prev_lucro) > 0.10:
+                                staircase_violations += 1
+                        prev_lucro = lucro
                 
+                # Survival Score (Max 3.0)
                 has_survival = (losses == 0)
-                if has_survival:
-                    score += 2.0
+                survival_points = 3.0 if has_survival else 0
                 
-                # ROE (w 2.0)
-                if roe >= 20: score += 2.0
-                elif roe >= 15: score += 1.5
-                elif roe >= 10: score += 1.0
-                
-                # Debt (Dívida Líquida/EBIT) (w 2.0)
-                if divida_ebit <= 1: score += 2.0
-                elif divida_ebit <= 2: score += 1.5
-                elif divida_ebit <= 3: score += 1.0
-                elif divida_ebit > 5: score -= 1.0
-                
+                if staircase_violations >= 4:
+                    survival_points -= 2.0
+                elif staircase_violations >= 2:
+                    survival_points -= 1.0
+
+                score += max(0, survival_points)
+
                 stockData['VALUE INVESTING SCORE'] = min(max(score, 0), 10)
                 
         except Exception as e:
@@ -392,7 +444,7 @@ class B3Scraper:
             stocksData = stocksData.round(2)
             normalizedColumns = [
                 'TIME', 'NOME', 'TICKER', 'SETOR', 'SUBSETOR', 'SEGMENTO', 
-                'VALUE INVESTING SCORE', 'SGR', 'LIQUIDEZ MEDIA DIARIA', 'PRECO', 'PRECO DE BAZIN', 
+                'VALUE INVESTING SCORE', 'SGR', 'CRESCIMENTO MEDIO LUCROS 10 ANOS', 'LIQUIDEZ MEDIA DIARIA', 'PRECO', 'PRECO DE BAZIN', 
                 'PRECO DE GRAHAM', 'TAG ALONG', 'RENT 12 MESES', 'RENT MEDIA 5 ANOS', 'DY', 
                 'DY MEDIO 5 ANOS', 'P/L', 'P/VP', 'P/ATIVOS', 'MARGEM BRUTA', 'MARGEM EBIT', 
                 'MARG. LIQUIDA', 'EBIT', 'P/EBIT', 'EV/EBIT', 'DIVIDA LIQUIDA / EBIT', 

@@ -6,8 +6,13 @@
 #
 
 - [ ] Ma'at: Stock Picking algorithm designed to help build wallets for the users based on their profile and provide insights in the stocks page, such as its grade and recommended signal (Buy, Hold or Sell) based on Value Investing fundamentals
-- [ ] Thoth: Wallet Management System for the users to be able to add and remove stocks from their wallet and add things such as goals, history of the wallet
-- [ ] Ogum: Algo Trading System for the users with similar structure to how the ScraperService is executed, with scheduled tasks that will generate signals and then, calculate the specific needs for each user with Ogum enabled
+- [ ] Thoth: Wallet Management System for the users. 
+    - [ ] Import/Export via .xlsx (B3 Portal) or use get_positions() from MT5
+    - [ ] Integration with Open Finance (Iniciador Data Connect) for automatic custody tracking
+- [ ] Ogum: Algo Trading System for the users.
+    - [ ] Execution engine via MetaTrader 5 (MT5) for XP/BTG/Genial accounts
+    - [ ] Notification/Deep Link system for manual execution in non-MT5 brokers (Inter, Nubank, Itaú)
+    - [ ] Integration with Iniciador (Iniciação de Pagamentos) when support for B3 operations come through
 
 #
 

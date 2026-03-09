@@ -17,7 +17,7 @@
     
     <style>
         body {
-            font-family: sans-serif;
+            font-family: 'Inter', sans-serif;
             background: #fff;
             color: #000;
             padding: 20px;
@@ -31,228 +31,391 @@
 
         .search-container {
             margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .search-input {
             padding: 8px;
             width: 300px;
+            border: 1px solid #000;
+        }
+
+        .btn-search {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: bold;
         }
 
         .metric-card, .perf-card, .chart-box {
             border: 1px solid #ccc;
-            padding: 10px;
+            padding: 15px;
             margin: 10px 0;
         }
 
-        .metrics-grid, .performance-grid, .charts-container {
-            display: block;
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .metric-label { display: block; font-size: 12px; color: #666; margin-bottom: 5px; }
+        .metric-value { font-size: 18px; font-weight: bold; }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
         }
 
         .indicator-row {
             display: flex;
             justify-content: space-between;
-            max-width: 500px;
             border-bottom: 1px solid #eee;
-            padding: 5px 0;
+            padding: 8px 0;
+            font-size: 14px;
         }
 
-        #dashboardContent { display: none; }
-        #dashboardContent.active { display: block; }
+        /* Value Investing Checklist */
+        .checklist-container {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .checklist-item .material-icons { font-size: 20px; }
+        .checklist-item.met { color: #16a34a; font-weight: 600; }
+        .checklist-item.not-met { color: #94a3b8; }
+        .checklist-item.penalty { color: #dc2626; font-weight: 600; }
 
-        .loading-view { display: none; font-weight: bold; }
+        #dashboardContent { display: none; }
+        .active { display: block !important; }
+
+        .loading-view { display: none; padding: 40px; text-align: center; font-weight: bold; }
+
+        .chart-box h4 { margin-top: 0; display: flex; align-items: center; gap: 8px; }
+        .chart-inner { height: 350px; }
+
+        /* Carousel Styles */
+        .chart-selector {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            scrollbar-width: thin;
+        }
+        .chart-tab {
+            padding: 8px 16px;
+            background: #f1f5f9;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+        .chart-tab:hover { background: #e2e8f0; }
+        .chart-tab.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+        .chart-container-wrapper {
+            position: relative;
+        }
+        .chart-view {
+            display: none;
+        }
+        .chart-view.active {
+            display: block;
+        }
     </style>
 
 </head>
 <body>
     <div class="loading-view" id="appLoader">
-        <div class="orbit"></div>
+        Carregando dados...
     </div>
 
     <header class="app-header">
-        <div class="brand-header">
-            <h1>Mansa</h1>
-        </div>
-
-        <div class="search-c1ontainer">
+        <h1>Mansa</h1>
+        <div class="search-container">
             <i class="material-icons">search</i>
-            <input type="text" id="tickerInput" class="search-input" placeholder="Buscar ticker (ex: WEGE3, PETR4)..." value="WEGE3" onkeyup="if(event.key==='Enter') loadTickerData()">
+            <input type="text" id="tickerInput" class="search-input" placeholder="Buscar ticker (ex: WEGE3)..." value="WEGE3">
             <button class="btn-search" onclick="loadTickerData()">ANALISAR</button>
+            <button class="btn-search" style="background: #444;" onclick="toggleListing()">VER LISTAGEM COMPLETA</button>
         </div>
-
-        <div class="header-actions">
-            <input type="password" id="apiKey" class="config-input" placeholder="X-API-Key">
-            <input type="text" id="apiHost" class="config-input" value="http://localhost:3200">
-            <p id="errorDisplay" style="position: absolute; top: 72px; right: 40px; background: var(--danger); padding: 4px 12px; border-radius: 0 0 8px 8px; font-size: 11px; font-weight: 700; display: none;"></p>
+        <div style="font-size: 12px; color: #666;">
+            Host: <input type="text" id="apiHost" value="http://localhost:3200" style="border:none; border-bottom:1px solid #ccc;">
+            Key: <input type="password" id="apiKey" placeholder="Opcional" style="border:none; border-bottom:1px solid #ccc;">
+            <p id="errorDisplay" style="color: red; display: none; margin-top: 5px;"></p>
         </div>
     </header>
 
-    <main class="app-main">
-        <div id="dashboardContent">
-            <!-- PROFILE HERO -->
-            <header class="profile-hero">
-                <div class="profile-main">
-                    <img id="h-icon" class="profile-icon" src="" alt="" onerror="this.src='https://mansa-team.github.io/icons/icons/MANSA.svg'">
-                    <div class="profile-title">
-                        <h2 id="h-ticker">---</h2>
-                        <p id="h-name">--- ---</p>
-                        <div class="profile-tags">
-                            <span class="tag" id="h-sector">---</span>
-                            <span class="tag" id="h-subsetor">---</span>
-                            <span class="tag" id="h-segmento">---</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="price-display">
-                    <p class="price-label">Valor de Mercado</p>
-                    <p class="price-value" id="h-mktcap">R$ 0,00</p>
-                </div>
-            </header>
-
-            <!-- SNAPSHOTS -->
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <span class="metric-label">Cotação Atual</span>
-                    <span class="metric-value" id="m-price">---</span>
-                </div>
-                <div class="metric-card">
-                    <span class="metric-label">P/L</span>
-                    <span class="metric-value" id="m-pl">---</span>
-                </div>
-                <div class="metric-card">
-                    <span class="metric-label">P/VP</span>
-                    <span class="metric-value" id="m-pvp">---</span>
-                </div>
-                <div class="metric-card">
-                    <span class="metric-label">Div. Yield</span>
-                    <span class="metric-value" id="m-dy">---</span>
-                </div>
-                <div class="metric-card">
-                    <span class="metric-label">ROE</span>
-                    <span class="metric-value" id="m-roe">---</span>
-                </div>
-                <div class="metric-card">
-                    <span class="metric-label">LPA</span>
-                    <span class="metric-value" id="m-lpa">---</span>
-                </div>
+    <main id="listingContent" style="display: none; padding: 20px;">
+        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>Explorador de Serependidade</h2>
+            <div style="display:flex; gap: 10px;">
+                <input type="text" id="tableSearch" class="search-input" placeholder="Filtrar na tabela..." oninput="filterTable()">
+                <button class="btn-search" onclick="exportCSV()">EXPORTAR CSV</button>
             </div>
-
-            <!-- PERFORMANCE GRID -->
-            <section class="content-section">
-                <div class="section-header">
-                    <i class="material-icons">query_stats</i>
-                    Variação e Performance
-                </div>
-                <div class="performance-grid" id="performanceGrid">
-                    <!-- Dynamic -->
-                </div>
-            </section>
-
-            <!-- INDICATORS LIST -->
-            <section class="content-section">
-                <div class="section-header">
-                    <i class="material-icons">reorder</i>
-                    Indicadores Completos
-                </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px;">
-                    <div>
-                        <h5 style="font-size: 11px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px;">Avaliação & Preço Justo</h5>
-                        <div class="indicators-container" id="valuationTable"></div>
-                    </div>
-                    <div>
-                        <h5 style="font-size: 11px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px;">Eficiência & Crescimento</h5>
-                        <div class="indicators-container" id="efficiencyTable"></div>
-                    </div>
-                    <div>
-                        <h5 style="font-size: 11px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px;">Endividamento & Saúde</h5>
-                        <div class="indicators-container" id="healthTable"></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- HISTORICAL CHARTS -->
-            <section class="content-section">
-                <div class="section-header">
-                    <i class="material-icons">history</i>
-                    Análise Histórica e Séries Temporais
-                </div>
-                <div class="charts-container" id="chartsGrid">
-                    <!-- Charts -->
-                </div>
-            </section>
+        </div>
+        <div style="overflow-x: auto; border: 1px solid #000;">
+            <table id="stocksTable" style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead style="background: #000; color: #fff; position: sticky; top: 0;">
+                    <tr id="tableHeader"></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
         </div>
     </main>
 
+    <main id="dashboardContent">
+        <section>
+            <h2 id="h-ticker">---</h2>
+            <p id="h-name">---</p>
+            <div id="h-tags" style="margin-bottom: 20px; font-size: 13px; color: #444;"></div>
+        </section>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <span class="metric-label">Cotação</span>
+                <span class="metric-value" id="m-price">---</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Score</span>
+                <span class="metric-value" id="m-score">---</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">P/L</span>
+                <span class="metric-value" id="m-pl">---</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">P/VP</span>
+                <span class="metric-value" id="m-pvp">---</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">DY</span>
+                <span class="metric-value" id="m-dy">---</span>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">ROE</span>
+                <span class="metric-value" id="m-roe">---</span>
+            </div>
+        </div>
+
+        <section class="checklist-container">
+            <h3>Checklist de Valor</h3>
+            <div id="scoreChecklist"></div>
+        </section>
+
+        <section style="margin-top: 30px;">
+            <h3>Histórico Financeiro</h3>
+            <div class="chart-box">
+                <div class="chart-selector" id="chartSelector"></div>
+                <div id="chartViews" class="chart-container-wrapper"></div>
+            </div>
+        </section>
+
+        <section style="margin-top: 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px;">
+            <div>
+                <h4>Valuation</h4>
+                <div id="valuationTable"></div>
+            </div>
+            <div>
+                <h4>Eficiência</h4>
+                <div id="efficiencyTable"></div>
+            </div>
+            <div>
+                <h4>Saúde Financeira</h4>
+                <div id="healthTable"></div>
+            </div>
+        </section>
+    </main>
+
     <script>
-        // --- HELPERS ---
-        const fmtBRL = v => v != null ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v) : '---';
-        const fmtPct = v => v != null ? (v * 100).toFixed(2) + '%' : '---';
-        const fmtPctRaw = v => v != null ? parseFloat(v).toFixed(2) + '%' : '---';
-        const fmtNum = v => v != null ? parseFloat(v).toLocaleString('pt-BR') : '---';
-        const fmtMoney = v => {
-            if (v == null) return '---';
-            const abs = Math.abs(v);
-            if (abs >= 1e9) return `R$ ${(v / 1e9).toFixed(2)} Bi`;
-            if (abs >= 1e6) return `R$ ${(v / 1e6).toFixed(2)} Mi`;
-            return fmtBRL(v);
-        };
+        let allStocksData = [];
+        let sortConfig = { key: 'VALUE INVESTING SCORE', direction: 'desc' };
 
-        // --- API ---
-        async function fetchMansa(endpoint, ticker) {
-            const host = document.getElementById('apiHost').value;
-            const key = document.getElementById('apiKey').value;
-            const url = `${host}${endpoint}?search=${ticker}`;
-            const headers = key ? { 'X-API-Key': key } : {};
+        function toggleListing() {
+            const dash = document.getElementById('dashboardContent');
+            const list = document.getElementById('listingContent');
             
-            const res = await fetch(url, { headers });
-            if (!res.ok) throw new Error(`API: ${res.status}`);
-            return await res.json();
-        }
-
-        async function fetchB3Price(ticker) {
-            try {
-                // Note: Direct fetch might face CORS issues if run from a browser pointing to B3's API.
-                // It is usually better to proxy this through your own backend.
-                const res = await fetch(`https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/${ticker}`);
-                const data = await res.json();
-                return data.Trad?.[0]?.scty?.SctyQtn?.curPrc || null;
-            } catch (e) {
-                console.warn("B3 Price fetch failed:", e);
-                return null;
+            if (list.style.display === 'none') {
+                list.style.display = 'block';
+                dash.style.display = 'none';
+                if (allStocksData.length === 0) fetchAllStocks();
+            } else {
+                list.style.display = 'none';
+                dash.style.display = 'block';
             }
         }
 
-        // --- DASHBOARD LOGIC ---
+        async function fetchAllStocks() {
+            const host = document.getElementById('apiHost').value;
+            const key = document.getElementById('apiKey').value;
+            const headers = key ? { 'X-API-Key': key } : {};
+            
+            try {
+                const res = await fetch(`${host}/stocks/fundamental?limit=1000`, { headers });
+                const json = await res.json();
+                allStocksData = json.data;
+                renderTable();
+            } catch (e) {
+                alert("Erro ao carregar listagem: " + e.message);
+            }
+        }
+
+        function renderTable() {
+            if (!allStocksData.length) return;
+            
+            const keys = ['TICKER', 'NOME', 'VALUE INVESTING SCORE', 'PRECO', 'DY', 'P/L', 'P/VP', 'P/ATIVOS', 'ROE', 'DIVIDA LIQUIDA / EBIT', 'LIQUIDEZ MEDIA DIARIA'];
+            const header = document.getElementById('tableHeader');
+            const body = document.getElementById('tableBody');
+            
+            header.innerHTML = keys.map(k => `
+                <th onclick="handleSort('${k}')" style="padding: 12px; cursor: pointer; text-align: left; border: 1px solid #333;">
+                    ${k} ${sortConfig.key === k ? (sortConfig.direction === 'asc' ? '▲' : '▼') : ''}
+                </th>
+            `).join('');
+
+            const filtered = allStocksData.sort((a, b) => {
+                let vA = a[sortConfig.key];
+                let vB = b[sortConfig.key];
+                if (typeof vA === 'string') vA = vA.toLowerCase();
+                if (typeof vB === 'string') vB = vB.toLowerCase();
+                if (vA < vB) return sortConfig.direction === 'asc' ? -1 : 1;
+                if (vA > vB) return sortConfig.direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            body.innerHTML = filtered.map(s => `
+                <tr style="border-bottom: 1px solid #eee; cursor: pointer;" onclick="quickAnalyze('${s.TICKER}')">
+                    ${keys.map(k => {
+                        let val = s[k];
+                        if (k === 'PRECO') val = fmtBRL(val);
+                        if (['DY', 'ROE'].includes(k)) val = fmtPctRaw(val);
+                        if (k === 'LIQUIDEZ MEDIA DIARIA') val = fmtMoney(val);
+                        return `<td style="padding: 10px; border: 1px solid #eee;">${val || '---'}</td>`;
+                    }).join('')}
+                </tr>
+            `).join('');
+        }
+
+        function handleSort(key) {
+            if (sortConfig.key === key) {
+                sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortConfig.key = key;
+                sortConfig.direction = 'desc';
+            }
+            renderTable();
+        }
+
+        function filterTable() {
+            const query = document.getElementById('tableSearch').value.toUpperCase();
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach(row => {
+                row.style.display = row.innerText.toUpperCase().includes(query) ? '' : 'none';
+            });
+        }
+
+        function quickAnalyze(ticker) {
+            document.getElementById('tickerInput').value = ticker;
+            toggleListing();
+            loadTickerData();
+        }
+
+        function exportCSV() {
+            const keys = Object.keys(allStocksData[0]);
+            const csv = [
+                keys.join(';'),
+                ...allStocksData.map(row => keys.map(k => String(row[k] || '').replace(/;/g, ',')).join(';'))
+            ].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `mansa_export_${new Date().toISOString().split('T')[0]}.csv`);
+            a.click();
+        }
+
+        const fmtBRL = v => v != null ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v) : '---';
+        const fmtPctRaw = v => v != null ? (parseFloat(v)).toFixed(2) + '%' : '---';
+        const fmtMoney = v => {
+            if (v == null || isNaN(v)) return '---';
+            const val = parseFloat(v);
+            if (Math.abs(val) >= 1.0e+9) return (val / 1.0e+9).toFixed(2) + " Bi";
+            if (Math.abs(val) >= 1.0e+6) return (val / 1.0e+6).toFixed(2) + " Mi";
+            if (Math.abs(val) >= 1.0e+3) return (val / 1.0e+3).toFixed(2) + " K";
+            return val.toFixed(2);
+        };
+        
         async function loadTickerData() {
-            const input = document.getElementById('tickerInput').value.toUpperCase().trim();
+            const ticker = document.getElementById('tickerInput').value.toUpperCase().trim();
+            if(!ticker) return;
+
             const loader = document.getElementById('appLoader');
             const content = document.getElementById('dashboardContent');
             const errorBox = document.getElementById('errorDisplay');
 
-            if (!input) return;
-
-            loader.style.display = 'flex';
-            errorBox.style.display = 'none';
+            loader.style.display = 'block';
             content.classList.remove('active');
+            errorBox.style.display = 'none';
 
             try {
-                const [fData, hData, b3Price] = await Promise.all([
-                    fetchMansa('/stocks/fundamental', input),
-                    fetchMansa('/stocks/historical', input),
-                    fetchB3Price(input)
+                const host = document.getElementById('apiHost').value;
+                const key = document.getElementById('apiKey').value;
+                const headers = key ? { 'X-API-Key': key } : {};
+
+                // Fetch fundamental, historical AND real-time B3 price concurrently
+                const [fRes, hRes, b3Res] = await Promise.all([
+                    fetch(`${host}/stocks/fundamental?search=${ticker}`, { headers }),
+                    fetch(`${host}/stocks/historical?search=${ticker}`, { headers }),
+                    fetch(`https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/${ticker}`).catch(() => null)
                 ]);
 
-                if (!fData.data?.length) throw new Error("Ativo não localizado.");
+                if(!fRes.ok) throw new Error("Erro API Fundamental");
+                if(!hRes.ok) throw new Error("Erro API Histórica");
 
-                const finalData = { ...fData.data[0] };
-                if (b3Price) finalData.PRECO = b3Price; // Override with live B3 price
+                const fData = await fRes.json();
+                const hData = await hRes.json();
+                let b3Price = null;
 
-                renderPage(input, finalData, hData.data[0]);
+                if (b3Res && b3Res.ok) {
+                    const b3Data = await b3Res.json();
+                    if (b3Data && b3Data.TradgFloor && b3Data.TradgFloor.Trads && b3Data.TradgFloor.Trads[0]) {
+                        b3Price = b3Data.TradgFloor.Trads[0].curPrc;
+                    }
+                }
+
+                if(!fData.data || fData.data.length === 0) throw new Error("Ticker não encontrado");
+
+                const stockData = fData.data[0];
+                // Update price with real-time data if available, otherwise fallback to DB price
+                if (b3Price) stockData.PRECO = b3Price;
+
+                renderPage(ticker, stockData, hData.data[0]);
                 content.classList.add('active');
-                content.style.display = 'block';
-
-            } catch (err) {
-                console.error(err);
-                errorBox.textContent = err.message;
+            } catch(e) {
+                errorBox.textContent = e.message;
                 errorBox.style.display = 'block';
             } finally {
                 loader.style.display = 'none';
@@ -260,167 +423,281 @@
         }
 
         function renderPage(ticker, f, h) {
-            // Header
             document.getElementById('h-ticker').textContent = ticker;
-            document.getElementById('h-name').textContent = f.NOME;
-            document.getElementById('h-sector').textContent = f.SETOR;
-            document.getElementById('h-subsetor').textContent = f.SUBSETOR;
-            document.getElementById('h-segmento').textContent = f.SEGMENTO;
-            document.getElementById('h-icon').src = `https://mansa-team.github.io/icons/icons/${ticker}.svg`;
-            document.getElementById('h-mktcap').textContent = fmtMoney(f['VALOR DE MERCADO']);
+            document.getElementById('h-name').textContent = f.NOME || '---';
+            document.getElementById('h-tags').textContent = (f.SETOR || '') + ' > ' + (f.SUBSETOR || '') + ' > ' + (f.SEGMENTO || '');
 
-            // Snapshot
             document.getElementById('m-price').textContent = fmtBRL(f.PRECO);
+            document.getElementById('m-score').textContent = (f['VALUE INVESTING SCORE'] != null ? f['VALUE INVESTING SCORE'].toFixed(2) : '---');
             document.getElementById('m-pl').textContent = f['P/L'] || '---';
             document.getElementById('m-pvp').textContent = f['P/VP'] || '---';
             document.getElementById('m-dy').textContent = fmtPctRaw(f.DY);
             document.getElementById('m-roe').textContent = fmtPctRaw(f.ROE);
-            document.getElementById('m-lpa').textContent = fmtBRL(f.LPA);
 
-            // Performance
-            const perfs = [
-                { k: 'RENT 1 DIA', l: '1 Dia' },
-                { k: 'RENT 5 DIAS', l: '5 Dias' },
-                { k: 'RENT 1 MES', l: '1 Mês' },
-                { k: 'RENT 6 MESES', l: '6 Meses' },
-                { k: 'RENT 1 ANO', l: '1 Ano' },
-                { k: 'RENT 5 ANOS', l: '5 Anos' },
-                { k: 'RENT MEDIA 5 ANOS', l: 'Média 5A' },
-                { k: 'RENT TOTAL', l: 'Total' },
-            ];
-            document.getElementById('performanceGrid').innerHTML = perfs.map(p => {
-                const val = f[p.k];
-                return `
-                    <div class="perf-card">
-                        <span>${p.l}</span>: <strong>${fmtPctRaw(val)}</strong>
-                    </div>
-                `;
-            }).join('');
+            // Seletor de Valor (P/Ativos)
+            const mPassivoAtivo = f['PASSIVOS / ATIVOS'] || 0;
+            const mPatrimonioAtivo = f['PATRIMONIO / ATIVOS'] || 0;
+            const pAtivos = f['P/ATIVOS'] || '---';
 
-            // Indicator Tables
-            const renderRows = (containerId, items) => {
-                document.getElementById(containerId).innerHTML = items.map(i => `
-                    <div class="indicator-row">
-                        <span class="indicator-name">${i.l}</span>
-                        <span class="indicator-value">${i.format ? i.format(f[i.k]) : (f[i.k] || '---')}</span>
-                    </div>
-                `).join('');
+            renderChecklist(f, h);
+            
+            const createRows = (id, items) => {
+                const el = document.getElementById(id);
+                el.innerHTML = items.map(i => {
+                    const val = i.fmt ? i.fmt(f[i.k]) : (f[i.k] || '---');
+                    return '<div class="indicator-row"><span>' + i.l + '</span><strong>' + val + '</strong></div>';
+                }).join('');
             };
 
-            renderRows('valuationTable', [
-                { k: 'P/L', l: 'P/L (Preço s/ Lucro)' },
-                { k: 'P/VP', l: 'P/VP (Valor Patrimonial)' },
+            createRows('valuationTable', [
+                { k: 'P/L', l: 'P/L' },
+                { k: 'P/VP', l: 'P/VP' },
                 { k: 'P/ATIVOS', l: 'P/Ativos' },
                 { k: 'P/EBIT', l: 'P/EBIT' },
+                { k: 'EV/EBIT', l: 'EV/EBIT' },
+                { k: 'PSR', l: 'PSR' },
                 { k: 'P/CAP. GIRO', l: 'P/Cap. Giro' },
                 { k: 'P. AT CIR. LIQ.', l: 'P/At. Cir. Líq.' },
-                { k: 'PSR', l: 'PSR (Sales Ratio)' },
-                { k: 'EV/EBIT', l: 'EV/EBIT' },
                 { k: 'PEG Ratio', l: 'PEG Ratio' },
-                { k: 'PRECO DE GRAHAM', l: 'Preço Justo Graham', format: fmtBRL },
-                { k: 'PRECO DE BAZIN', l: 'Teto Bazin', format: fmtBRL },
-                { k: 'VPA', l: 'VPA (Vlr Patrimonial/Ação)', format: fmtBRL },
-                { k: 'LPA', l: 'LPA (Lucro por Ação)', format: fmtBRL }
+                { k: 'LPA', l: 'LPA', fmt: fmtBRL },
+                { k: 'VPA', l: 'VPA', fmt: fmtBRL },
+                { k: 'PRECO DE GRAHAM', l: 'Preço Graham', fmt: fmtBRL },
+                { k: 'PRECO DE BAZIN', l: 'Preço Bazin', fmt: fmtBRL }
             ]);
 
-            renderRows('efficiencyTable', [
-                { k: 'MARGEM BRUTA', l: 'Margem Bruta', format: fmtPctRaw },
-                { k: 'MARGEM EBIT', l: 'Margem EBIT', format: fmtPctRaw },
-                { k: 'MARG. LIQUIDA', l: 'Margem Líquida', format: fmtPctRaw },
-                { k: 'ROE', l: 'ROE (Retorno s/ PL)', format: fmtPctRaw },
-                { k: 'ROIC', l: 'ROIC (Retorno s/ Cap)', format: fmtPctRaw },
-                { k: 'ROA', l: 'ROA (Retorno s/ Ativo)', format: fmtPctRaw },
-                { k: 'DY MEDIO 5 ANOS', l: 'DY Médio 5 anos', format: fmtPctRaw },
-                { k: 'CAGR RECEITAS 5 ANOS', l: 'Cresc. Receita (5A)', format: fmtPctRaw },
-                { k: 'CAGR LUCROS 5 ANOS', l: 'Cresc. Lucro (5A)', format: fmtPctRaw },
-                { k: 'CAGR DIVIDENDOS 5 ANOS', l: 'Cresc. Div. (5A)', format: fmtPctRaw }
+            createRows('efficiencyTable', [
+                { k: 'ROE', l: 'ROE', fmt: fmtPctRaw },
+                { k: 'ROA', l: 'ROA', fmt: fmtPctRaw },
+                { k: 'ROIC', l: 'ROIC', fmt: fmtPctRaw },
+                { k: 'MARGEM BRUTA', l: 'Margem Bruta', fmt: fmtPctRaw },
+                { k: 'MARGEM EBIT', l: 'Margem EBIT', fmt: fmtPctRaw },
+                { k: 'MARG. LIQUIDA', l: 'Margem Líquida', fmt: fmtPctRaw },
+                { k: 'DY', l: 'Yield Atual (12M)', fmt: fmtPctRaw },
+                { k: 'DY MEDIO 5 ANOS', l: 'Yield Médio (5A)', fmt: fmtPctRaw },
+                { k: 'SGR', l: 'Cresc. Sustentável (SGR)', fmt: fmtPctRaw },
+                { k: 'CAGR RECEITAS 5 ANOS', l: 'Cresc. Receita (5A)', fmt: fmtPctRaw },
+                { k: 'CAGR LUCROS 5 ANOS', l: 'Cresc. Lucro (5A)', fmt: fmtPctRaw },
+                { k: 'CRESCIMENTO MEDIO LUCROS 10 ANOS', l: 'Cresc. Médio (5A vs 5A)', fmt: fmtPctRaw },
+                { k: 'CAGR LUCROS 10 ANOS', l: 'Cresc. Lucro (10A)', fmt: fmtPctRaw },
+                { k: 'CAGR DIVIDENDOS 5 ANOS', l: 'Cresc. Proventos (5A)', fmt: fmtPctRaw }
             ]);
 
-            renderRows('healthTable', [
-                { k: 'DIV. LIQ. / PATRI.', l: 'Dív. Líquida / PL' },
-                { k: 'DIVIDA LIQUIDA / EBIT', l: 'Dív. Líquida / EBIT' },
+            createRows('healthTable', [
+                { k: 'DIVIDA LIQUIDA / EBIT', l: 'Dívida Líquida / EBIT' },
+                { k: 'DIV. LIQ. / PATRI.', l: 'Dívida Líquida / PL' },
                 { k: 'LIQ. CORRENTE', l: 'Liquidez Corrente' },
                 { k: 'PATRIMONIO / ATIVOS', l: 'Patrimônio / Ativos' },
                 { k: 'PASSIVOS / ATIVOS', l: 'Passivos / Ativos' },
                 { k: 'GIRO ATIVOS', l: 'Giro de Ativos' },
-                { k: 'SGR', l: 'SGR (Cresc. Sustentável)' },
-                { k: 'TAG ALONG', l: 'Tag Along', format: fmtPctRaw },
-                { k: 'LIQUIDEZ MEDIA DIARIA', l: 'Liq. Média Diária', format: fmtMoney }
+                { k: 'TAG ALONG', l: 'Tag Along', fmt: fmtPctRaw },
+                { k: 'LIQUIDEZ MEDIA DIARIA', l: 'Liquidez Diária', fmt: fmtMoney },
+                { k: 'VALOR DE MERCADO', l: 'Valor de Mercado', fmt: fmtMoney },
+                { k: 'EBIT', l: 'EBIT', fmt: fmtMoney },
+                { k: 'LUCRO LIQUIDO MEDIO 5 ANOS', l: 'Lucro Líq. Médio (5A)', fmt: fmtMoney }
             ]);
 
-            // Historical Charts
-            renderHistoricalCharts(h);
+            renderCharts(h);
         }
 
-        function renderHistoricalCharts(h) {
-            const grid = document.getElementById('chartsGrid');
-            grid.innerHTML = '';
+        function renderChecklist(f, h) {
+            const container = document.getElementById('scoreChecklist');
+            const cagr = parseFloat(f['CAGR LUCROS 10 ANOS'] || 0);
+            const avgGrowth = parseFloat(f['CRESCIMENTO MEDIO LUCROS 10 ANOS'] || 0);
+            const blendedGrowth = (cagr + avgGrowth) / 2.0;
 
-            // Group data by year
+            const roe = parseFloat(f['ROE'] || 0);
+            const debt = parseFloat(f['DIVIDA LIQUIDA / EBIT'] || 0);
+            
+            let losses = 0;
+            const currentYear = new Date().getFullYear();
+            if(h) {
+                for (let i = 1; i <= 11; i++) {
+                    const val = h[`LUCRO LIQUIDO ${currentYear - i}`];
+                    if (val !== undefined && val < 0) losses++;
+                }
+            }
+
+            const check = (val, thresholds, label, desc, unit = "", inverted = false) => {
+                let status = "not-met";
+                let icon = "cancel";
+                let stage = "Não Atendido";
+                let points = 0;
+
+                for (const t of thresholds) {
+                    const isMet = !inverted ? val >= t.val : val <= t.val;
+                    if (isMet) {
+                        status = "met";
+                        icon = "check_circle";
+                        stage = t.label;
+                        points = t.points;
+                        break;
+                    }
+                }
+
+                if (label.includes("Dívida") && val > 5) {
+                    status = "penalty";
+                    icon = "warning";
+                    stage = "Penalidade (-2.0)";
+                }
+
+                return `
+                    <div class="checklist-item ${status}">
+                        <i class="material-icons">${icon}</i>
+                        <div>
+                            <strong>${label}: ${stage} (+${points.toFixed(2)})</strong>
+                            <br><small>${desc} (Atual: <strong>${val != null ? val.toFixed(2) + unit : '---'}</strong>)</small>
+                        </div>
+                    </div>
+                `;
+            };
+
+            container.innerHTML = `
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                    ${check(blendedGrowth, [
+                        { val: 15, label: "Excelente", points: 3.0 },
+                        { val: 10, label: "Ótimo", points: 2.25 },
+                        { val: 5, label: "Bom", points: 1.5 },
+                        { val: 0.01, label: "Mínimo", points: 0.75 }
+                    ], "Crescimento Misto (10A)", "Média de CAGR 10A e Cresc. Periódico", "%")}
+
+                    ${check(roe, [
+                        { val: 20, label: "Excelente", points: 1.0 },
+                        { val: 15, label: "Ótimo", points: 0.75 },
+                        { val: 10, label: "Bom", points: 0.5 }
+                    ], "Rentabilidade (ROE)", "Retorno sobre o PL", "%")}
+
+                    ${check(losses === 0 ? 1 : 0, [
+                        { val: 1, label: "10 Anos Sem Prejuízo", points: 3.0 }
+                    ], "Sobrevivência", "Histórico de lucros constantes")}
+
+                    ${check(debt, [
+                        { val: 2.0, label: "Excelente", points: 1.0 },
+                        { val: 3.0, label: "Ótimo", points: 0.75 },
+                        { val: 5.0, label: "Equilibrado", points: 0.5 }
+                    ], "Endividamento (Dívida/EBIT)", "Saúde financeira", "", true)}
+                </div>
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ccc; font-size: 13px; color: #444;">
+                    <strong>Nota Máxima Possível: 10.0</strong> | Pesos: Crescimento (3.0), Sobrevivência (3.0), Liquidez (2.0), ROE (1.0), Dívida (1.0). 
+                    <br><em>*Penalidades: Cresc. Instável (-1.5), Não-ON (-2.0), Dívida/EBIT > 5 (-2.0), Liquidez < 500k (-4.0).</em>
+                </div>
+            `;
+        }
+
+        function renderCharts(h) {
+            const selector = document.getElementById('chartSelector');
+            const container = document.getElementById('chartViews');
+            selector.innerHTML = '';
+            container.innerHTML = '';
+
+            if (!h) return;
+
+            // Extract unique years and filter out junk (like 999 or future years with no data)
+            const yearSet = new Set();
+            Object.keys(h).forEach(k => {
+                const match = k.match(/\d{4}$/);
+                if (match) {
+                    const year = parseInt(match[0]);
+                    if (year > 1900 && year < 2100) yearSet.add(year);
+                }
+            });
+            const years = Array.from(yearSet).sort((a,b) => a-b);
+
             const metrics = [
-                'RECEITA LIQUIDA', 'LUCRO LIQUIDO', 'DIVIDENDOS', 'DY', 
-                'DESPESAS', 'MARGEM BRUTA', 'MARGEM EBIT', 'MARGEM EBITDA', 'MARGEM LIQUIDA'
+                { label: 'Lucro Líquido', key: 'LUCRO LIQUIDO', color: '#16a34a', type: 'scatter' },
+                { label: 'Receita Líquida', key: 'RECEITA LIQUIDA', color: '#2563eb', type: 'scatter' },
+                { label: 'Margens Líq (%)', key: 'MARGEM LIQUIDA', color: '#9333ea', suffix: '%', type: 'bar' },
+                { label: 'Margem Bruta (%)', key: 'MARGEM BRUTA', color: '#db2777', suffix: '%', type: 'bar' },
+                { label: 'Margem EBIT (%)', key: 'MARGEM EBIT', color: '#7c3aed', suffix: '%', type: 'bar' },
+                { label: 'Margem EBITDA (%)', key: 'MARGEM EBITDA', color: '#4f46e5', suffix: '%', type: 'bar' },
+                { label: 'Despesas', key: 'DESPESAS', color: '#dc2626', type: 'bar' },
+                { label: 'Dividendos (R$)', key: 'DIVIDENDOS', color: '#ea580c', type: 'bar' },
+                { label: 'DY Histórico (%)', key: 'DY', color: '#0891b2', suffix: '%', type: 'scatter' }
             ];
 
-            metrics.forEach(m => {
-                const years = [];
-                const values = [];
+            metrics.forEach((m, idx) => {
+                // Get all available year-value pairs for this specific metric
+                const dataPoints = years
+                    .map(y => ({ year: y, value: h[`${m.key} ${y}`] }))
+                    .filter(pt => pt.value != null && pt.value !== 0 && !isNaN(pt.value));
+                
+                // Skip if no valid data for this metric
+                if (dataPoints.length === 0) return;
 
-                Object.keys(h).forEach(key => {
-                    if (key.startsWith(m + ' ')) {
-                        const yr = parseInt(key.replace(m + ' ', ''));
-                        if (yr > 2000 && h[key] != null && h[key] !== 0) {
-                            years.push(yr);
-                        }
-                    }
-                });
+                const plotYears = dataPoints.map(pt => pt.year);
+                const plotValues = dataPoints.map(pt => pt.value);
 
-                years.sort((a,b) => a-b);
-                years.forEach(y => values.push(h[`${m} ${y}`]));
+                // Create Tab
+                const tab = document.createElement('div');
+                tab.className = `chart-tab ${idx === 0 ? 'active' : ''}`;
+                tab.textContent = m.label;
+                tab.onclick = () => {
+                    document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.chart-view').forEach(v => v.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(`view-${m.key.replace(/ \/ /g, '-').replace(/ /g, '-')}`).classList.add('active');
+                    window.dispatchEvent(new Event('resize')); // Force Plotly resize
+                };
+                selector.appendChild(tab);
 
-                if (years.length < 2) return;
-
-                const div = document.createElement('div');
-                div.className = 'chart-box';
-                const chartId = `chart_${m.replace(/\s/g, '_')}`;
-                div.innerHTML = `<h4><i class="material-icons">bar_chart</i> ${m}</h4><div id="${chartId}" class="chart-inner"></div>`;
-                grid.appendChild(div);
-
-                const isPct = m.includes('MARGEM') || m.includes('DY');
-                const isNegative = values.some(v => v < 0);
-                const color = isNegative ? '#ef4444' : '#BDF96F';
+                // Create View
+                const view = document.createElement('div');
+                const viewId = `view-${m.key.replace(/ \/ /g, '-').replace(/ /g, '-')}`;
+                view.id = viewId;
+                view.className = `chart-view ${idx === 0 ? 'active' : ''}`;
+                
+                const inner = document.createElement('div');
+                inner.className = 'chart-inner';
+                view.appendChild(inner);
+                container.appendChild(view);
 
                 const trace = {
-                    x: years,
-                    y: values,
-                    type: isPct ? 'scatter' : 'bar',
-                    mode: 'lines+markers',
-                    name: m,
-                    marker: { color, size: 6 },
-                    line: { color, width: 2.5, shape: 'spline' },
-                    fill: isPct ? 'tozeroy' : undefined,
-                    fillcolor: isPct ? (isNegative ? 'rgba(239, 68, 68, 0.05)' : 'rgba(189, 249, 111, 0.05)') : undefined,
-                    hovertemplate: isPct ? '%{y:.2f}%<extra></extra>' : 'R$ %{y:.2s}<extra></extra>'
+                    x: plotYears,
+                    y: plotValues,
+                    type: m.type,
+                    marker: { color: m.color }
                 };
 
-                const layout = {
-                    paper_bgcolor: 'transparent',
-                    plot_bgcolor: 'transparent',
-                    font: { family: 'Inter', color: '#64748b', size: 10 },
-                    margin: { t: 10, b: 30, l: 40, r: 10 },
-                    xaxis: { gridcolor: 'rgba(255,255,255,0.03)', tickmode: 'linear', dtick: years.length > 20 ? 5 : 2 },
-                    yaxis: { gridcolor: 'rgba(255,255,255,0.03)', zeroline: true, zerolinecolor: 'rgba(255,255,255,0.1)' },
-                    showlegend: false,
+                if (m.type === 'scatter') {
+                    trace.mode = 'lines+markers';
+                    trace.line = { color: m.color, width: 3, shape: 'spline' };
+                    trace.marker = { size: 8, borderwidth: 2, bordercolor: '#fff' };
+                    trace.fill = 'tozeroy';
+                    trace.fillcolor = m.color + '15';
+                } else {
+                    // Bar specific styling
+                    trace.marker = {
+                        color: m.color,
+                        line: { color: m.color, width: 1 }
+                    };
+                    trace.opacity = 0.8;
+                }
+
+                Plotly.newPlot(inner, [trace], {
+                    margin: { t: 20, r: 20, b: 40, l: 60 },
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    xaxis: { 
+                        gridcolor: '#f1f5f9', 
+                        tickmode: 'array',
+                        tickvals: plotYears,
+                        ticktext: plotYears,
+                        tickangle: -45,
+                        automargin: true,
+                        range: [plotYears[0], plotYears[plotYears.length - 1]] // Force crop to data start/end
+                    },
+                    yaxis: { 
+                        gridcolor: '#f1f5f9', 
+                        ticksuffix: m.suffix || '',
+                        zeroline: true,
+                        zerolinecolor: '#cbd5e1',
+                        autorange: true
+                    },
                     hovermode: 'x unified'
-                };
-
-                Plotly.newPlot(chartId, [trace], layout, { responsive: true, displayModeBar: false });
+                }, { responsive: true, displayModeBar: false });
             });
         }
 
-        // Init
         loadTickerData();
-
     </script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-from config import *
+from config import Config, LOCALHOST_ADDRESSES
 from main.utils.util import log
 
 import time

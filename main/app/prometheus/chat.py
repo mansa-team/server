@@ -18,7 +18,7 @@ class PrometheusChatManager:
                 PrometheusSession.lastActivity
             ).filter(
                 PrometheusSession.userId == userId
-            ).order_by(PrometheusSession.lastActivity.desc()).limit(30).all()
+            ).order_by(PrometheusSession.lastActivity.desc()).all()
             
             return [
                 {
