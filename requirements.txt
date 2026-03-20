@@ -6,7 +6,7 @@ pymysql
 dotenv
 
 # SCRAPER-B3
-selenium
+cloudscraper
 tenacity
 apscheduler
 

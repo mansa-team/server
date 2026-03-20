@@ -54,9 +54,7 @@ class PrometheusChatManager:
     def updateSessionTitle(self, sessionId: str, title: str):
         db = SessionLocal()
         try:
-            session = db.query(PrometheusSession).filter(
-                PrometheusSession.sessionId == sessionId
-            ).first()
+            session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
             
             if not session:
                 return False
@@ -75,6 +73,7 @@ class PrometheusChatManager:
         db = SessionLocal()
         try:
             session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
+            
             if session:
                 if session.history is None:
                     session.history = []
@@ -111,13 +110,13 @@ class PrometheusChatManager:
 
             activeHistory = session.history[-limit:]
             
-            formatted_history = []
+            formattedHistory = []
             for msg in activeHistory:
-                formatted_history.append({
+                formattedHistory.append({
                     "role": "user" if msg['role'] == "user" else "model",
                     "parts": [{"text": msg['content']}]
                 })
-            return formatted_history
+            return formattedHistory
         finally:
             db.close()
 
@@ -138,6 +137,7 @@ class PrometheusChatManager:
                 PrometheusSession.sessionId == sessionId,
                 PrometheusSession.userId == userId
             ).first()
+            
             if session:
                 db.delete(session)
                 db.commit()

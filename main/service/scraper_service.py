@@ -5,12 +5,12 @@ import time
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
  
-from main.app.scraper_b3.scraper import b3_scraper
+from main.app.scraper_b3.scraper import B3Scraper
 
 def runScraper():
     try:
-        b3_scraper.scrapeData()
-        log("scraper", f"Scraper execution completed. Time: {time.time() - b3_scraper.start_time:.0f}s")
+        B3Scraper().scrapeStocks(maxWorkers=Config.SCRAPER['MAX_WORKERS'])
+        log("scraper", f"Scraper execution completed. Time: {time.time() - B3Scraper.start_time:.0f}s")
     except Exception as e:
         log("scraper", f"Scraper Exception: {e}")
     

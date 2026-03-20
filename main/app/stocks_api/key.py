@@ -26,10 +26,12 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depend
                 return apiKey
             raise HTTPException(status_code=401, detail="Invalid API key")
 
+        """
         resetDays = int(Config.STOCKS_API['QUOTA.RESETDAYS'])
         if stocksKey.needsReset(resetDays):
             stocksKey.resetQuota()
             db.commit()
+        """
 
         if stocksKey.isQuotaExceeded():
             raise HTTPException(status_code=429, detail="quota exceeded")

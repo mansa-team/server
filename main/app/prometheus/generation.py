@@ -6,6 +6,7 @@ import json
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
+
 from google import genai
 from google.genai import types
 
@@ -48,7 +49,7 @@ class PrometheusGenerator:
                 db = SessionLocal()
                 session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
                 if session and session.summary:
-                    summaryContext = f"\n[MEMÓRIA DA CONVERSA]: {session.summary}\n"
+                    summaryContext = f"{session.summary}"
                 db.close()
             except:
                 pass
@@ -105,8 +106,8 @@ class PrometheusGenerator:
                 5. Use SEMPRE a data atual {Y-M-D} para date_start e date_end para obter os rankings mais recentes em fundamental.
 
             Lista de Campos Válidos (Strict):
-            * historical (Apenas ANOS - Ex: {CURRENT_YEAR}): DESPESAS, DIVIDENDOS, DY, LUCRO LIQUIDO, MARGEM BRUTA, MARGEM EBIT, MARGEM EBITDA, MARGEM LIQUIDA, RECEITA LIQUIDA.
-            * fundamental (DATAS COMPLETAS - Ex: {CURRENT_DATE}): PRECO, VALOR DE MERCADO, LIQUIDEZ MEDIA DIARIA, P/L, P/VP, P/ATIVOS, P/EBIT, P/CAP. GIRO, P. AT CIR. LIQ., PSR, EV/EBIT, PEG Ratio, PRECO DE GRAHAM, PRECO DE BAZIN, MARG. LIQUIDA, MARGEM BRUTA, MARGEM EBIT, ROE, ROA, ROIC, VPA, LPA, DY, DY MEDIO 5 ANOS, CAGR DIVIDENDOS 5 ANOS, CAGR RECEITAS 5 ANOS, CAGR LUCROS 5 ANOS, CAGR LUCROS 10 ANOS, CRESCIMENTO MEDIO LUCROS 10 ANOS, RENT 1 DIA, RENT 5 DIAS, RENT 1 MES, RENT 6 MESES, RENT 1 ANO, RENT 5 ANOS, RENT MEDIA 5 ANOS, RENT TOTAL, PATRIMONIO / ATIVOS, PASSIVOS / ATIVOS, LIQ. CORRENTE, DIVIDA LIQUIDA / EBIT, DIV. LIQ. / PATRI., GIRO ATIVOS, NOME, TICKER, SETOR, SUBSETOR, SEGMENTO, SGR, TAG ALONG, VALUE INVESTING SCORE.
+            * historical (Apenas ANOS - Ex: {CURRENT_YEAR}): DESPESAS, DIVIDENDOS, DY, LUCRO LIQUIDO, MARGEM BRUTA, MARGEM EBIT, MARGEM EBITDA, MARGEM LIQUIDA, RECEITA LIQUIDA, COTACAO
+            * fundamental (DATAS COMPLETAS - Ex: {CURRENT_DATE}): PRECO, VALOR DE MERCADO, LIQUIDEZ MEDIA DIARIA, P/L, P/VP, P/ATIVOS, P/EBIT, P/CAP. GIRO, P. AT CIR. LIQ., PSR, EV/EBIT, PEG Ratio, PRECO DE GRAHAM, PRECO DE BAZIN, MARG. LIQUIDA, MARGEM BRUTA, MARGEM EBIT, ROE, ROA, ROIC, VPA, LPA, DY, DY MEDIO 5 ANOS, CAGR DIVIDENDOS 5 ANOS, CAGR RECEITAS 5 ANOS, CAGR LUCROS 5 ANOS, CAGR LUCROS 10 ANOS, LUCRO LIQUIDO MEDIO 5 ANOS, RENT 1 DIA, RENT 5 DIAS, RENT 1 MES, RENT 6 MESES, RENT 1 ANO, RENT 12 MESES, RENT 5 ANOS, RENT MEDIA 5 ANOS, RENT TOTAL, PATRIMONIO / ATIVOS, PASSIVOS / ATIVOS, LIQ. CORRENTE, DIVIDA LIQUIDA / EBIT, DIV. LIQ. / PATRI., GIRO ATIVOS, NOME, TICKER, SETOR, SUBSETOR, SEGMENTO, SGR, TAG ALONG, VALUE INVESTING SCORE
 
             REGRAS DE FORMATAÇÃO DE CAMPOS (CRITICAL):
             1. SEM UNDERSCORES: Todos os nomes de campos devem ser escritos EXATAMENTE como estão na Lista de Campos Válidos, usando espaços quando houver, e NUNCA underscores (ex: use "VALUE INVESTING SCORE" e não "VALUE_INVESTING_SCORE").
@@ -161,7 +162,8 @@ class PrometheusGenerator:
             )
         )
         modelResponse['STAGE 1'] = response.text
-        print(modelResponse['STAGE 1'])
+        print(f"""[PROMETHEUS STAGE 1] \n
+              {modelResponse['STAGE 1']}""")
 
         #
         #$ Stage 2
@@ -218,7 +220,8 @@ class PrometheusGenerator:
                 APIResponse.extend(f.result())
 
         APIResponse = json.dumps(APIResponse, ensure_ascii=False, indent=2)
-        print(APIResponse)
+        print(f"""[PROMETHEUS STAGE 2] \n
+              {APIResponse}""")
 
         #
         #$ Stage 3
@@ -302,7 +305,9 @@ class PrometheusGenerator:
         )
 
         modelResponse['STAGE 3'] = response.text
-
+        print(f"""[PROMETHEUS STAGE 3] \n
+              {modelResponse['STAGE 3']}""")
+        
         #
         #$ Stage 4
         #$ Update the summary and title if the history is long enough
@@ -340,12 +345,14 @@ class PrometheusGenerator:
                 )
             )
             
-            if response.text:
-                modelResponse['STAGE 4'] = response.text.strip()
+            modelResponse['STAGE 4'] = response.text
 
-                prometheusChatManager.updateSummary(sessionId, modelResponse['STAGE 4'])
-                prometheusChatManager.updateSessionTitle(sessionId, modelResponse['STAGE 4'])
+            prometheusChatManager.updateSummary(sessionId, modelResponse['STAGE 4'])
+            prometheusChatManager.updateSessionTitle(sessionId, modelResponse['STAGE 4'])
 
+            print(f"""[PROMETHEUS STAGE 4] \n
+                {modelResponse['STAGE 4']}""")
+        
         return modelResponse['STAGE 3']
     
 prometheusGenerator = PrometheusGenerator(Config.PROMETHEUS)
