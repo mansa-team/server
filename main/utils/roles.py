@@ -13,9 +13,19 @@ class Permission(IntFlag):
     USE_PROMETHEUS = auto()
     USE_OGUM = auto()
 
-    # Developer
+    # Developer - Startup
     GENERATE_API_KEYS = auto()
     VIEW_DEVELOPER_TAB = auto()
+    API_STARTER_ACCESS = auto()
+    EXPORT_BASIC_DATA = auto()
+    USE_REALTIME_B3 = auto()
+    
+    # Developer - Enterprise
+    API_ENTERPRISE_ACCESS = auto()
+    EXPORT_BULK_DATA = auto()
+    REQUEST_CUSTOM_FIELDS = auto()
+    SUPPORT_CHAT_ACCESS = auto()
+    VIEW_USAGE_ANALYTICS = auto()
     
     # Admin
     VIEW_STATS = auto()
@@ -31,9 +41,35 @@ class Permission(IntFlag):
         return mask
 
 class Roles(IntFlag):
-    USER = Permission.VIEW_PROFILE | Permission.USE_THOTH | Permission.USE_MAAT
-    PREMIUM = USER | Permission.USE_PROMETHEUS | Permission.USE_OGUM
-    DEVELOPER = USER | Permission.GENERATE_API_KEYS | Permission.VIEW_DEVELOPER_TAB
+    USER = (
+        Permission.VIEW_PROFILE | 
+        Permission.USE_THOTH | 
+        Permission.USE_MAAT
+    )
+
+    PREMIUM = (
+        USER | 
+        Permission.USE_PROMETHEUS | 
+        Permission.USE_OGUM
+    )
+
+    DEVELOPER_STARTER = (
+        USER | 
+        Permission.GENERATE_API_KEYS | 
+        Permission.VIEW_DEVELOPER_TAB |
+        Permission.API_STARTER_ACCESS |
+        Permission.EXPORT_BASIC_DATA |
+        Permission.USE_REALTIME_B3
+    )
+
+    DEVELOPER_ENTERPRISE = (
+        DEVELOPER_STARTER |
+        Permission.API_ENTERPRISE_ACCESS |
+        Permission.EXPORT_BULK_DATA |
+        Permission.REQUEST_CUSTOM_FIELDS |
+        Permission.SUPPORT_CHAT_ACCESS |
+        Permission.VIEW_USAGE_ANALYTICS
+    )
     
     ADMIN = Permission.ALL()
 

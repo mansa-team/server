@@ -410,7 +410,7 @@ class B3Scraper:
             fundamentalDF = self.fundamentalIndicators(ticker, combinedDF.iloc[0])
             fundamentalDF.index = combinedDF.index
             combinedDF = pd.concat([combinedDF, fundamentalDF], axis=1)
-        except Exception as e: print(f"Error ({ticker}) in fundamentalIndicators: {e}")
+        except Exception as e: pass #print(f"Error ({ticker}) in fundamentalIndicators: {e}")
         return combinedDF
 
     def scrapeStocks(self, maxWorkers=10):
@@ -425,8 +425,7 @@ class B3Scraper:
                 try:
                     res = f.result()
                     if res is not None: processedDFs.append(res)
-                except Exception as e:
-                    print(f"Task failed for {tasks[f]}: {e}")
+                except Exception as e: pass #print(f"Task failed for {tasks[f]}: {e}")
 
         finalDF = pd.concat(processedDFs).reset_index().round(2)
         
@@ -439,8 +438,6 @@ class B3Scraper:
 
         metadata_cols = [c for c in all_cols if c not in historical_cols and c not in special]
         finalDF = finalDF[metadata_cols + historical_cols + [c for c in special if c in all_cols]]
-
-        print(finalDF)
 
         if Config.SCRAPER['JSON'] == 'TRUE': stocksData.to_json(f'b3_stocks.json', orient='records', indent=4)
 
@@ -477,7 +474,7 @@ class B3Scraper:
                             data_type = data_type.lower()
                             if data_type in ('varchar', 'text') or (data_type == 'json' and (max_len is not None and max_len < 100000)):
                                 conn.execute(text(f"ALTER TABLE b3_stocks MODIFY COLUMN `{col}` LONGTEXT NULL"))
-                except Exception as e: print(f"Error checking/altering schema: {e}")
+                except Exception as e: pass #print(f"Error checking/altering schema: {e}")
 
                 finalDF.to_sql('b3_stocks', con=conn, if_exists='append', index=False, method='multi', chunksize=200)
 

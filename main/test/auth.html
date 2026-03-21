@@ -208,13 +208,53 @@
             <div id="devDashboard" class="dev-panel hidden">
                 <h3>Developer Panel</h3>
                 <p style="font-size: 11px; color: #555;">Bem-vindo à área de desenvolvedor. Aqui você pode gerenciar suas chaves de API.</p>
+                
+                <div style="margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                    <h4 style="margin-top: 0; font-size: 13px; color: #2196F3;">Plano Atual: <span id="currentPlan">Starter</span></h4>
+                    <p style="font-size: 11px; margin: 5px 0;">Limite de requisições: <strong id="rateLimit">30/min</strong></p>
+                    <p style="font-size: 11px; margin: 5px 0;">Chaves API: <strong id="apiKeyCount">3</strong> ativas</p>
+                </div>
+                
                 <button class="developer" onclick="generateApiKey()">GERAR NOVA API KEY</button>
                 <div id="apiKeyResult" style="margin-top: 10px; word-break: break-all;"></div>
+                
+                <div style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+                    <h4 style="font-size: 12px; margin-bottom: 10px;">Upgrade de Plano</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div style="border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+                            <h5 style="margin: 0 0 5px 0; font-size: 11px; color: #2196F3;">Starter</h5>
+                            <p style="font-size: 10px; margin: 0 0 8px 0; color: #666;">R$ 49/mês</p>
+                            <ul style="font-size: 10px; margin: 0; padding-left: 15px;">
+                                <li>API ilimitada</li>
+                                <li>30 req/min</li>
+                                <li>3 chaves API</li>
+                                <li>Dados em tempo real</li>
+                            </ul>
+                            <button class="outline" style="margin-top: 8px; padding: 5px; font-size: 10px;" onclick="upgradeToStarter()" id="starterBtn">ATIVAR</button>
+                        </div>
+                        <div style="border: 2px solid #4CAF50; padding: 10px; border-radius: 8px; background: #f1f8e9;">
+                            <h5 style="margin: 0 0 5px 0; font-size: 11px; color: #4CAF50;">Enterprise</h5>
+                            <p style="font-size: 10px; margin: 0 0 8px 0; color: #666;">R$ 999/mês</p>
+                            <ul style="font-size: 10px; margin: 0; padding-left: 15px;">
+                                <li>API ilimitada</li>
+                                <li>300 req/min</li>
+                                <li>20 chaves API</li>
+                                <li>Suporte prioritário</li>
+                                <li>Exportação em massa</li>
+                                <li>White-label</li>
+                            </ul>
+                            <button class="outline" style="margin-top: 8px; padding: 5px; font-size: 10px; background: #4CAF50; color: white;" onclick="upgradeToEnterprise()" id="enterpriseBtn">UPGRADE</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="upgradeToDev" class="hidden" style="margin-bottom: 15px; border: 1px dashed #ccc; padding: 10px;">
                 <p style="font-size: 11px; margin: 0 0 10px 0;">Deseja acessar as funcionalidades de desenvolvedor?</p>
-                <button class="outline" style="margin: 0;" onclick="upgradeDeveloper()">Habilitar Developer Account</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="outline" style="margin: 0; flex: 1;" onclick="upgradeToStarter()">Plano Starter (R$ 49/mês)</button>
+                    <button class="outline" style="margin: 0; flex: 1; background: #4CAF50; color: white;" onclick="upgradeToEnterprise()">Plano Enterprise (R$ 999/mês)</button>
+                </div>
             </div>
 
             <button onclick="testAdmin()">TESTAR ADMIN (ROLE: ADMIN)</button>
@@ -393,10 +433,31 @@
                 `;
 
                 // Developer View Logic
-                const isDeveloper = roles.includes('DEVELOPER') || roles.includes('ADMIN');
+                const isDeveloperStarter = roles.includes('DEVELOPER_STARTER');
+                const isDeveloperEnterprise = roles.includes('DEVELOPER_ENTERPRISE');
+                const isDeveloper = isDeveloperStarter || isDeveloperEnterprise || roles.includes('ADMIN');
+                
                 if (isDeveloper) {
                     document.getElementById('devDashboard').classList.remove('hidden');
                     document.getElementById('upgradeToDev').classList.add('hidden');
+                    
+                    // Update plan display
+                    if (isDeveloperEnterprise) {
+                        document.getElementById('currentPlan').textContent = 'Enterprise';
+                        document.getElementById('rateLimit').textContent = '300/min';
+                        document.getElementById('apiKeyCount').textContent = '20';
+                        document.getElementById('starterBtn').disabled = true;
+                        document.getElementById('starterBtn').textContent = 'ATIVO';
+                        document.getElementById('enterpriseBtn').disabled = true;
+                        document.getElementById('enterpriseBtn').textContent = 'ATIVO';
+                    } else if (isDeveloperStarter) {
+                        document.getElementById('currentPlan').textContent = 'Starter';
+                        document.getElementById('rateLimit').textContent = '30/min';
+                        document.getElementById('apiKeyCount').textContent = '3';
+                        document.getElementById('starterBtn').disabled = true;
+                        document.getElementById('starterBtn').textContent = 'ATIVO';
+                        document.getElementById('enterpriseBtn').disabled = false;
+                    }
                 } else {
                     document.getElementById('devDashboard').classList.add('hidden');
                     document.getElementById('upgradeToDev').classList.remove('hidden');
@@ -428,6 +489,54 @@
                 }
             } catch (e) {
                 log(`Erro na conexão: ${e.message}`);
+            }
+        }
+
+        async function upgradeToStarter() {
+            const token = sessionStorage.getItem('mansa_token') || localStorage.getItem('mansa_token');
+            try {
+                log("Enviando solicitação de upgrade para Starter...");
+                const res = await fetch(`${USER_BASE}/upgrade/developer/starter`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    log("Upgrade para Starter bem-sucedido! Recarregando perfil...");
+                    await fetchProfile(token);
+                } else {
+                    log(`Erro no upgrade Starter: ${data.detail || "Erro desconhecido"}`);
+                    setMessage(data.detail || "Erro ao fazer upgrade para Starter", "error");
+                }
+            } catch (e) {
+                log(`Erro na conexão: ${e.message}`);
+                setMessage("Erro de conexão ao fazer upgrade", "error");
+            }
+        }
+
+        async function upgradeToEnterprise() {
+            const token = sessionStorage.getItem('mansa_token') || localStorage.getItem('mansa_token');
+            try {
+                log("Enviando solicitação de upgrade para Enterprise...");
+                const res = await fetch(`${USER_BASE}/upgrade/developer/enterprise`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    credentials: 'include'
+                });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    log("Upgrade para Enterprise bem-sucedido! Recarregando perfil...");
+                    await fetchProfile(token);
+                } else {
+                    log(`Erro no upgrade Enterprise: ${data.detail || "Erro desconhecido"}`);
+                    setMessage(data.detail || "Erro ao fazer upgrade para Enterprise", "error");
+                }
+            } catch (e) {
+                log(`Erro na conexão: ${e.message}`);
+                setMessage("Erro de conexão ao fazer upgrade", "error");
             }
         }
 
