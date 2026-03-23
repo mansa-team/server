@@ -21,11 +21,18 @@ class PrometheusGenerator:
         self.updateDates()
 
     def updateDates(self):
-        now = datetime.now()
-        self.currentDate = (now - timedelta(days=1)).strftime("%d/%m/%Y")
-        self.currentISODate = (now - timedelta(days=1)).strftime("%Y-%m-%d")
-        self.currentYear = now.year
-        self.lastYear = self.currentYear - 1
+        if Config.DEBUG_MODE == "TRUE":
+            self.currentDate = "23/03/2026"
+            self.currentISODate = "2026-03-23"
+            self.currentYear = 2026
+            self.lastYear = 2025
+        else:
+            now = datetime.now()
+            self.currentDate = (now - timedelta(days=1)).strftime("%d/%m/%Y")
+            self.currentISODate = (now - timedelta(days=1)).strftime("%Y-%m-%d")
+            self.currentYear = now.year
+            self.lastYear = self.currentYear - 1
+            
         
     def executeWorkflow(self, userQuery, history: list = None, sessionId: str = None):
         self.updateDates()
@@ -213,8 +220,8 @@ class PrometheusGenerator:
             except Exception as e:
                 log("prometheus", f"API error ({req['type']}): {e}")
                 return []
-
-        with ThreadPoolExecutor(max_workers=6) as executor:
+            
+        with ThreadPoolExecutor(max_workers=40) as executor:
             futures = [executor.submit(fetchStockData, r) for r in responseData]
             for f in as_completed(futures):
                 APIResponse.extend(f.result())

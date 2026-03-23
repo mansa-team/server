@@ -3,6 +3,7 @@
 
 - [ ] Redis or some similar caching solution for the whole system
 
+- [ ] Update the scraper to find a better LIQUIDEZ MEDIA DIARIA METRIC (prob R$100M >)
 #
 
 - [ ] Ma'at: Stock Picking algorithm designed to help build wallets for the users based on their profile and provide insights in the stocks page, such as its grade and recommended signal (Buy, Hold or Sell) based on Value Investing fundamentals

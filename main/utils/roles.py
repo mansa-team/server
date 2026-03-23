@@ -14,24 +14,20 @@ class Permission(IntFlag):
     USE_OGUM = auto()
 
     # Developer - Startup
-    GENERATE_API_KEYS = auto()
     VIEW_DEVELOPER_TAB = auto()
-    API_STARTER_ACCESS = auto()
-    EXPORT_BASIC_DATA = auto()
-    USE_REALTIME_B3 = auto()
+    STARTER_API_ACCESS = auto()
     
     # Developer - Enterprise
-    API_ENTERPRISE_ACCESS = auto()
+    ENTERPRISE_API_ACCESS = auto()
     EXPORT_BULK_DATA = auto()
     REQUEST_CUSTOM_FIELDS = auto()
-    SUPPORT_CHAT_ACCESS = auto()
-    VIEW_USAGE_ANALYTICS = auto()
+    API_SUPPORT_CHAT_ACCESS = auto()
+    NO_API_ATTRIBUTION_NEEDED = auto()
     
     # Admin
-    VIEW_STATS = auto()
-    VIEW_ANALYTICS = auto()
     MANAGE_USERS = auto()
     SYSTEM_CONFIG = auto()
+    SYSTEM_STATS = auto()
 
     @classmethod
     def ALL(cls):
@@ -55,20 +51,17 @@ class Roles(IntFlag):
 
     DEVELOPER_STARTER = (
         USER | 
-        Permission.GENERATE_API_KEYS | 
-        Permission.VIEW_DEVELOPER_TAB |
-        Permission.API_STARTER_ACCESS |
-        Permission.EXPORT_BASIC_DATA |
-        Permission.USE_REALTIME_B3
+        Permission.VIEW_DEVELOPER_TAB | 
+        Permission.STARTER_API_ACCESS
     )
 
     DEVELOPER_ENTERPRISE = (
         DEVELOPER_STARTER |
-        Permission.API_ENTERPRISE_ACCESS |
+        Permission.ENTERPRISE_API_ACCESS |
         Permission.EXPORT_BULK_DATA |
         Permission.REQUEST_CUSTOM_FIELDS |
-        Permission.SUPPORT_CHAT_ACCESS |
-        Permission.VIEW_USAGE_ANALYTICS
+        Permission.API_SUPPORT_CHAT_ACCESS |
+        Permission.NO_API_ATTRIBUTION_NEEDED
     )
     
     ADMIN = Permission.ALL()

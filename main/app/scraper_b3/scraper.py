@@ -349,10 +349,10 @@ class B3Scraper:
 
             # Liquidity Score
             liq = df.get('LIQUIDEZ MEDIA DIARIA', 0)
-            if liq >= 5000000: score += 2.0
-            elif liq >= 2000000: score += 1.0
-            elif liq >= 1000000: score += 0.5
-            elif liq < 500000: score -= 3.0
+            if liq >= 10000000: score += 2.0
+            elif liq >= 4000000: score += 1.0
+            elif liq >= 2000000: score += 0.5
+            elif liq < 1000000: score -= 3.0
 
             # Governance & ROE
             if not str(TICKER).endswith('3'): score -= 2.0
@@ -397,7 +397,7 @@ class B3Scraper:
             self.historicalDividendYields, 
             self.historicalRevenue,
             self.historicalCotationProfits,
-            self.historicalCotationProfits_Oceans14,
+            #self.historicalCotationProfits_Oceans14,
             self.historicalCotations,
             self.tagAlong
         ]:
@@ -515,5 +515,5 @@ class B3Scraper:
                         conn.execute(text(statement))
 
 if __name__ == "__main__":
-    B3Scraper().scrapeStocks(maxWorkers=Config.SCRAPER['MAX_WORKERS'])
+    B3Scraper().scrapeStocks(maxWorkers=int(Config.SCRAPER['MAX_WORKERS']))
     print(f"\nTotal Execution: {time.time() - start_time:.0f}s")
