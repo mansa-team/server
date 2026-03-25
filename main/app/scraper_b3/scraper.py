@@ -338,21 +338,23 @@ class B3Scraper:
             score = 0
 
             # Growth Score
-            if growth_composite >= 15: score += 3.0
+            if growth_composite >= 15:   score += 3.0
             elif growth_composite >= 10: score += 2.25
-            elif growth_composite >= 5: score += 1.5
+            elif growth_composite >= 5:  score += 1.5
             
             # Growth Divergence Penalty
             growth_diff = cagr - growth_recent
-            if growth_diff > 30: score -= 2.0
+            if growth_diff > 30:   score -= 2.0
             elif growth_diff > 15: score -= 0.5
 
             # Liquidity Score
             liq = df.get('LIQUIDEZ MEDIA DIARIA', 0)
-            if liq >= 10000000: score += 2.0
-            elif liq >= 4000000: score += 1.0
-            elif liq >= 2000000: score += 0.5
-            elif liq < 1000000: score -= 3.0
+            if liq >= 100000000:  score += 2.0
+            elif liq >= 40000000: score += 1.0
+            elif liq >= 20000000: score += 0.5
+            elif liq >= 10000000: score += 0.0
+            elif liq >= 5000000:  score -= 0.5
+            else:                 score -= 2.0
 
             # Governance & ROE
             if not str(TICKER).endswith('3'): score -= 2.0
@@ -363,15 +365,15 @@ class B3Scraper:
             # Debt (Dívida Líquida/EBIT)
             div_ebit = df.get('DIVIDA LIQUIDA / EBIT', np.nan)
             if not np.isnan(div_ebit):
-                if div_ebit <= 2: score += 1.0
+                if div_ebit <= 2:   score += 1.0
                 elif div_ebit <= 3: score += 0.75
-                elif div_ebit > 5: score -= 2.0
+                elif div_ebit > 5:  score -= 2.0
 
             # Survival & Consistency (Losses & Staircase)
             losses = 0
             violations = 0
             prev = None
-            for y in range(self.currentYear - 11, self.currentYear):
+            for y in range(self.currentYear - 16, self.currentYear):
                 val = df.get(f'LUCRO LIQUIDO {y}', np.nan)
                 if not np.isnan(val):
                     if val < 0: losses += 1
