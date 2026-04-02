@@ -1,7 +1,10 @@
+# This file is kept for backward compatibility and to serve as a module entry point.
+# The primary entry point for the FastAPI server is now main.py.
+
 from config import Config, LOCALHOST_ADDRESSES
 from main.utils.util import log
-
 import time
+import os
 
 from main.utils.connectivity import checkMYSQLConnection, checkServiceConnection
 from main.utils.service_manager import ServiceManager
@@ -13,6 +16,8 @@ from main.service.scraper_service import ScraperService
 from main.service.stocksapi_service import StocksAPIService
 
 def orchestrator():
+    log("system", "Warning: Running legacy orchestrator from __init__.py. Prefer main.py.")
+    
     if not checkMYSQLConnection(): return
 
     if Config.USER['ENABLED'] and Config.USER['HOST'] in LOCALHOST_ADDRESSES:

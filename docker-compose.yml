@@ -1,0 +1,45 @@
+services:
+  # MySQL database for local development (User/Auth)
+  db-dev:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD:-password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-mansa_db}
+      MYSQL_USER: ${MYSQL_USER:-user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  # Main FastAPI Application
+  api:
+    build: .
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - MYSQL_HOST=db-dev
+      - RUN_SCRAPER=false
+      - DEBUG_MODE=true
+    depends_on:
+      - db-dev
+    volumes:
+      - .:/app
+
+  # Scraper Worker (Running the same code but with RUN_SCRAPER=true)
+  scraper:
+    build: .
+    restart: always
+    environment:
+      - MYSQL_HOST=db-dev
+      - RUN_SCRAPER=true
+      - DEBUG_MODE=true
+    depends_on:
+      - db-dev
+    volumes:
+      - .:/app
+
+volumes:
+  db_data:
