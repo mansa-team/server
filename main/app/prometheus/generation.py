@@ -21,7 +21,7 @@ class PrometheusGenerator:
         self.updateDates()
 
     def updateDates(self):
-        if Config.DEBUG_MODE == "TRUE":
+        if Config.DEBUG_MODE:
             self.currentDate = "23/03/2026"
             self.currentISODate = "2026-03-23"
             self.currentYear = 2026
@@ -179,7 +179,7 @@ class PrometheusGenerator:
         responseData = json.loads(modelResponse['STAGE 1'])
 
         APIResponse = []
-        headers = {"X-API-Key": Config.STOCKS_API["KEY"]} if Config.STOCKS_API["KEY.SYSTEM"] == "TRUE" else {}
+        headers = {"X-API-Key": Config.STOCKS_API["KEY"]} if Config.STOCKS_API["KEY_SYSTEM"] else {}
 
         topTickers = ""
         globalReq = next((r for r in responseData if not r.get('search') and r.get('type') == "fundamental"), None)

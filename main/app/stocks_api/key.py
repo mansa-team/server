@@ -12,7 +12,7 @@ from main.models import StocksAPIKey
 apiKeyHeader = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depends(getSession)):
-    if Config.STOCKS_API['KEY.SYSTEM'] == 'FALSE':
+    if not Config.STOCKS_API['KEY.SYSTEM']:
         return None
     
     if not apiKey:
@@ -54,7 +54,7 @@ def generateSecureKey(length=32):
 
 def createKey(db: Session, userId: int):
     newKey = generateSecureKey(32)
-    quota = int(Config.STOCKS_API['DEFAULT.QUOTA'])
+    quota = Config.STOCKS_API['DEFAULT.QUOTA']
     
     try:
         existingKey = db.query(StocksAPIKey).filter(StocksAPIKey.userId == userId).first()

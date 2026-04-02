@@ -4,6 +4,8 @@ numpy
 sqlalchemy
 pymysql
 dotenv
+pydantic
+pydantic_settings
 
 # SCRAPER-B3
 cloudscraper

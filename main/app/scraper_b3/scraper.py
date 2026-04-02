@@ -441,13 +441,13 @@ class B3Scraper:
         metadata_cols = [c for c in all_cols if c not in historical_cols and c not in special]
         finalDF = finalDF[metadata_cols + historical_cols + [c for c in special if c in all_cols]]
 
-        if Config.SCRAPER['JSON'] == 'TRUE': stocksData.to_json(f'b3_stocks.json', orient='records', indent=4)
+        if Config.SCRAPER['JSON']: stocksData.to_json(f'b3_stocks.json', orient='records', indent=4)
 
         for col in finalDF.columns:
             if finalDF[col].apply(lambda x: isinstance(x, (dict, list))).any():
                 finalDF[col] = finalDF[col].apply(lambda x: json.dumps(x) if isinstance(x, (dict, list)) else x)
 
-        if Config.SCRAPER['MYSQL'] == 'TRUE':
+        if Config.SCRAPER['MYSQL']:
             with self.engine.begin() as conn:
                 try:
                     existing_cols = pd.read_sql("SELECT * FROM b3_stocks LIMIT 1", con=conn).columns.tolist()
@@ -517,5 +517,5 @@ class B3Scraper:
                         conn.execute(text(statement))
 
 if __name__ == "__main__":
-    B3Scraper().scrapeStocks(maxWorkers=int(Config.SCRAPER['MAX_WORKERS']))
+    B3Scraper().scrapeStocks(maxWorkers=Config.SCRAPER['MAX_WORKERS'])
     print(f"\nTotal Execution: {time.time() - start_time:.0f}s")

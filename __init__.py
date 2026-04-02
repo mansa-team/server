@@ -15,22 +15,22 @@ from main.service.stocksapi_service import StocksAPIService
 def orchestrator():
     if not checkMYSQLConnection(): return
 
-    if Config.USER['ENABLED'] == "TRUE" and Config.USER['HOST'] in LOCALHOST_ADDRESSES:
-        AuthenticationService.initialize(int(Config.USER['PORT']))
-        UserService.initialize(int(Config.USER['PORT']))
+    if Config.USER['ENABLED'] and Config.USER['HOST'] in LOCALHOST_ADDRESSES:
+        AuthenticationService.initialize(Config.USER['PORT'])
+        UserService.initialize(Config.USER['PORT'])
 
-    if Config.STOCKS_API['ENABLED'] == "TRUE" and Config.STOCKS_API['HOST'] in LOCALHOST_ADDRESSES:
-        StocksAPIService.initialize(int(Config.STOCKS_API['PORT']))
+    if Config.STOCKS_API['ENABLED'] and Config.STOCKS_API['HOST'] in LOCALHOST_ADDRESSES:
+        StocksAPIService.initialize(Config.STOCKS_API['PORT'])
 
-    if Config.PROMETHEUS['ENABLED'] == "TRUE" and Config.PROMETHEUS['HOST'] in LOCALHOST_ADDRESSES:
-        PrometheusService.initialize(int(Config.PROMETHEUS['PORT']))
+    if Config.PROMETHEUS['ENABLED'] and Config.PROMETHEUS['HOST'] in LOCALHOST_ADDRESSES:
+        PrometheusService.initialize(Config.PROMETHEUS['PORT'])
 
-    if Config.SCRAPER['ENABLED'] == "TRUE":
+    if Config.SCRAPER['ENABLED']:
         ScraperService.initialize()
         
     ServiceManager.runAll()
 
-    if not checkServiceConnection("STOCKS_API") and Config.PROMETHEUS['ENABLED'] == "TRUE":
+    if not checkServiceConnection("STOCKS_API") and Config.PROMETHEUS['ENABLED']:
         log("system", "Server initialization failed: Couldn't connect to the STOCKS_API in which Prometheus depends on.")
         return
     log("system", "Server initialized!")

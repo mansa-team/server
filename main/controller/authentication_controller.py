@@ -87,8 +87,8 @@ def logout(response: Response):
 @router.get("/google")
 @limiter.limit("5/minute")
 def googleLogin(request: Request):
-    clientId = Config.USER['GOOGLE_CLIENT.ID']
-    redirectUri = Config.USER['GOOGLE_REDIRECT.URI']
+    clientId = Config.USER['GOOGLE_CLIENT_ID']
+    redirectUri = Config.USER['GOOGLE_REDIRECT_URI']
     
     params = {
         "client_id": clientId,
@@ -110,9 +110,9 @@ def googleCallback(request: Request, response: Response, code: str, db: Session 
     log("auth", "--- Google Callback Start ---")
     log("auth", f"Code received: {code[:10]}...")
     
-    clientId = Config.USER['GOOGLE_CLIENT.ID']
-    clientSecret = Config.USER['GOOGLE_CLIENT.SECRET']
-    redirectUri = Config.USER['GOOGLE_REDIRECT.URI']
+    clientId = Config.USER['GOOGLE_CLIENT_ID']
+    clientSecret = Config.USER['GOOGLE_CLIENT_SECRET']
+    redirectUri = Config.USER['GOOGLE_REDIRECT_URI']
 
     try:
         log("auth", "Exchanging code for token...")
