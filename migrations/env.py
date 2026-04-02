@@ -42,7 +42,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = Config.MYSQL.user_url
+    url = Config.MYSQL.userUrl
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -63,7 +63,7 @@ def run_migrations_online() -> None:
     """
     # Use the connection string from our Config
     configuration = config.get_section(config.config_ini_section, {})
-    configuration["sqlalchemy.url"] = Config.MYSQL.user_url
+    configuration["sqlalchemy.url"] = Config.MYSQL.userUrl
     
     connectable = engine_from_config(
         configuration,

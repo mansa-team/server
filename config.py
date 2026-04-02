@@ -29,18 +29,22 @@ class MysqlSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file='.env', extra='ignore')
 
     def __getitem__(self, item):
-        return getattr(self, item)
+        mapping = {
+            'USER_DATABASE_URL': 'USER_DB_URL',
+            'STOCKS_DATABASE_URL': 'STOCKS_DB_URL'
+        }
+        return getattr(self, mapping.get(item, item))
     
     @property
     def url(self):
         return f"mysql+pymysql://{self.USER}:{self.PASSWORD}@{self.HOST}:{self.PORT}/{self.DATABASE}"
 
     @property
-    def user_url(self):
+    def userUrl(self):
         return self.USER_DB_URL or self.url
     
     @property
-    def stocks_url(self):
+    def stocksUrl(self):
         return self.STOCKS_DB_URL or self.url
 
 class StocksApiSettings(BaseSettings):
@@ -123,8 +127,8 @@ engine = create_engine(
     connect_args={'charset': 'utf8mb4'}
 )
 
-stocks_engine = create_engine(
-    Config.MYSQL.stocks_url,
+stocksEngine = create_engine(
+    Config.MYSQL.stocksUrl,
     poolclass=QueuePool,
     pool_size=20,
     max_overflow=40,
@@ -134,7 +138,7 @@ stocks_engine = create_engine(
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-StocksSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=stocks_engine)
+StocksSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=stocksEngine)
 ScopedSession = scoped_session(SessionLocal)
 
 def getSession():

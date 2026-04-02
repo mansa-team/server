@@ -1,6 +1,3 @@
-# This file is kept for backward compatibility and to serve as a module entry point.
-# The primary entry point for the FastAPI server is now main.py.
-
 from config import Config, LOCALHOST_ADDRESSES
 from main.utils.util import log
 import time

@@ -38,8 +38,8 @@ async def lifespan(app: FastAPI):
         PrometheusService.initialize(Config.PROMETHEUS['PORT'])
 
     # The Scraper can be toggled via environment variable for Docker decoupling
-    run_scraper = os.getenv("RUN_SCRAPER", "true").lower() == "true"
-    if Config.SCRAPER['ENABLED'] and run_scraper:
+    runScraper = os.getenv("RUN_SCRAPER", "true").lower() == "true"
+    if Config.SCRAPER['ENABLED'] and runScraper:
         log("system", "Initializing Scraper Service...")
         ScraperService.initialize()
         
