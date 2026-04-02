@@ -18,14 +18,18 @@ services:
     build: .
     restart: always
     ports:
-      - "8000:8000"
-      - "8001:8001"
-      - "8002:8002"
-      - "8003:8003"
+      - "${PORT:-8000}:${PORT:-8000}"
+      - "${STOCKSAPI_PORT:-8001}:${STOCKSAPI_PORT:-8001}"
+      - "${PROMETHEUS_PORT:-8002}:${PROMETHEUS_PORT:-8002}"
+      - "${USER_PORT:-8003}:${USER_PORT:-8003}"
     environment:
       - MYSQL_HOST=db-dev
       - RUN_SCRAPER=false
       - DEBUG_MODE=true
+      - PORT=${PORT:-8000}
+      - STOCKSAPI_PORT=${STOCKSAPI_PORT:-8001}
+      - PROMETHEUS_PORT=${PROMETHEUS_PORT:-8002}
+      - USER_PORT=${USER_PORT:-8003}
     depends_on:
       - db-dev
     volumes:
