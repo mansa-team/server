@@ -27,4 +27,3 @@ jobs:
     - name: Run Tests
       run: |
         # Example: pytest
-        echo "Skipping actual tests as none are defined"

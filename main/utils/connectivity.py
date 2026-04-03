@@ -1,4 +1,4 @@
-from config import Config, engine
+from config import Config, engine, stocksEngine
 from main.utils.util import log
 
 import time
@@ -6,21 +6,32 @@ from sqlalchemy import text
 import requests
 
 def checkMYSQLConnection():
-    try:
-        startTime = time.time()
+    stocksDB = False
+    userDB = False
+    if engine:
+        try:
+            startTime = time.time()
+            with engine.connect() as connection:
+               connection.execute(text("SELECT 1"))
+            latency = (time.time() - startTime) * 1000
+            log("db", f"USER DB connected ({latency:.2f}ms)")
+            userDB = True
+        except Exception as e: log("db", f"USER DB connection failed: {e}")
+    else: log("db", "USER DB engine not initialized!")
 
-        with engine.connect() as connection:
-           connection.execute(text("SELECT 1"))
-        
-        latency = (time.time() - startTime) * 1000
+    if stocksEngine:
+        try:
+            startTime = time.time()
+            with stocksEngine.connect() as connection:
+               connection.execute(text("SELECT 1"))
+            latency = (time.time() - startTime) * 1000
+            log("db", f"STOCKS DB connected ({latency:.2f}ms)")
+            stocksDB = True
+        except Exception as e:
+            log("db", f"STOCKS DB connection failed: {e}")
+    else: log("db", "STOCKS DB engine not initialized!")
 
-        log("db", f"MYSQL connected ({latency:.2f}ms)")
-
-        return True
-    except Exception as e:
-        log("db", f"MYSQL connection failed: {e}")
-
-        return False
+    return userDB and stocksDB
     
 def checkServiceConnection(service: str):
     try:
