@@ -17,7 +17,7 @@ class StocksCacheManager:
         def scheduler():
             self.getCachedStocks()
             while True:
-                time.sleep(360*60) # 360 Minutes
+                time.sleep(6*60*60) # 6 hours
                 self.getCachedStocks()
 
         thread = threading.Thread(target=scheduler, daemon=True)

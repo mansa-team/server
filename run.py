@@ -16,15 +16,15 @@ from main.service.stocksapi_service import StocksAPIService
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    db_connected = False
+    dbConnected = False
     for i in range(10):
         if checkMYSQLConnection():
-            db_connected = True
+            dbConnected = True
             break
         log("system", f"Retrying database connection ({i+1}/10)")
         await asyncio.sleep(3)
 
-    if not db_connected:
+    if not dbConnected:
         log("system", "Database connection failed after retries.")
     else: runMigrations()
     
