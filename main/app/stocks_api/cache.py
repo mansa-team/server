@@ -1,4 +1,4 @@
-from config import engine
+from config import stocksEngine
 from main.utils.util import log
 
 import threading
@@ -17,7 +17,7 @@ class StocksCacheManager:
         def scheduler():
             self.getCachedStocks()
             while True:
-                time.sleep(360*60) # 360 Minutes
+                time.sleep(6*60*60) # 6 hours
                 self.getCachedStocks()
 
         thread = threading.Thread(target=scheduler, daemon=True)
@@ -37,4 +37,4 @@ class StocksCacheManager:
         except Exception as e:
             log("cache", f"Error updating stocks cache: {str(e)}")
 
-stocksCache = StocksCacheManager(engine, threading.Lock())
+stocksCache = StocksCacheManager(stocksEngine, threading.Lock())

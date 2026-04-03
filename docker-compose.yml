@@ -1,0 +1,32 @@
+services:
+  db-dev:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: mansa_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  api:
+    build: .
+    restart: always
+    ports:
+      - "${PORT:-8000}:${PORT:-8000}"
+      - "${STOCKSAPI_PORT:-8001}:${STOCKSAPI_PORT:-8001}"
+      - "${PROMETHEUS_PORT:-8002}:${PROMETHEUS_PORT:-8002}"
+      - "${USER_PORT:-8003}:${USER_PORT:-8003}"
+    environment:
+      - RUN_SCRAPER=false
+      - DEBUG_MODE=true
+    depends_on:
+      - db-dev
+    volumes:
+      - .:/app
+
+volumes:
+  db_data:
