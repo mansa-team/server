@@ -20,7 +20,7 @@ start_time = time.time()
 class B3Scraper:
     def __init__(self):
         self.engine = create_engine(
-            f"mysql+pymysql://{Config.MYSQL['USER']}:{Config.MYSQL['PASSWORD']}@{Config.MYSQL['HOST']}/{Config.MYSQL['DATABASE']}",
+            f"mysql+pymysql://{Config.MYSQL['STOCKS_USER']}:{Config.MYSQL['STOCKS_PASSWORD']}@{Config.MYSQL['STOCKS_HOST']}/{Config.MYSQL['STOCKS_DATABASE']}",
             poolclass=QueuePool,
             pool_size=20,
             max_overflow=40,

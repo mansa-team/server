@@ -188,7 +188,7 @@
                 <div style="flex: 1; height: 1px; background: #ccc;"></div>
             </div>
 
-            <button class="outline" onclick="window.location.href=API_BASE + '/google'" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <button class="outline" onclick="window.location.href=API_BASE + '/google?state=' + encodeURIComponent(window.location.href)" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
                 <img src="https://mansa-team.github.io/icons/icons/MANSA.svg" style="width: 16px; filter: grayscale(1);">
                 ENTRAR COM GOOGLE
             </button>
@@ -280,14 +280,27 @@
         window.onload = async () => {
             log("Iniciando verificação de sessão...");
             
-            // Check for token in URL (Google Fallback)
-            const urlParams = new URLSearchParams(window.location.hash.substring(1));
+            // Check for token in URL Query Param (Google OAuth)
+            const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
             if (urlToken) {
                 log("Token recebido via URL. Autenticando...");
                 localStorage.setItem('mansa_token', urlToken);
-                window.location.hash = ""; // Clean URL
+                sessionStorage.setItem('mansa_token', urlToken);
+                window.location.href = window.location.pathname; // Clean URL
                 await fetchProfile(urlToken);
+                return;
+            }
+            
+            // Check for token in URL Hash (Legacy/Fallback)
+            const hashParams = new URLSearchParams(window.location.hash.substring(1));
+            const hashToken = hashParams.get('token');
+            if (hashToken) {
+                log("Token recebido via URL Hash. Autenticando...");
+                localStorage.setItem('mansa_token', hashToken);
+                sessionStorage.setItem('mansa_token', hashToken);
+                window.location.hash = ""; // Clean URL
+                await fetchProfile(hashToken);
                 return;
             }
 

@@ -54,6 +54,7 @@ async def lifespan(app: FastAPI):
     log("system", "All services initialized!")
     
     yield
+
 app = FastAPI(title="Mansa Server", lifespan=lifespan)
 
 @app.get("/health")

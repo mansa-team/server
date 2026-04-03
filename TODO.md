@@ -1,11 +1,11 @@
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings
+- [ ] Fix the Authentication System after the migration to docker
 - [ ] Refactor the user authentication system to support sessions so the user can manage which session will be held, this will also help in implementing the 2FA system, since the user will be able to chose which mobile device will be attached to the 2FA
 - [ ] Make an Password Recovery Recovery system and 2FA using the Email Protocol
 
 - [ ] Redis or some similar caching solution for the whole system
 
 - [ ] Update the config files to have boolean support instead of string comparasions
-
 #
 
 - [ ] Ma'at: Stock Picking algorithm designed to help build wallets for the users based on their profile and provide insights in the stocks page, such as its grade and recommended signal (Buy, Hold or Sell) based on Value Investing fundamentals
@@ -15,10 +15,6 @@
     - [ ] Execution engine via MetaTrader 5 (MT5) for XP/BTG/Genial accounts
     - [ ] Notification/Deep Link system for manual execution in non-MT5 brokers (Inter, Nubank, Itaú)
     - [ ] Integration with Iniciador (Iniciação de Pagamentos) when support for B3 operations come through
-
-#
-
-- [ ] Fix all the security issues known to man already present in this repo in authentication and authorization
 
 #
 

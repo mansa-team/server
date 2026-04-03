@@ -2,7 +2,7 @@ import subprocess
 import os
 import sys
 
-from util import log
+from main.utils.util import log
 
 def runMigrations():
     try:

@@ -119,7 +119,7 @@ class UserSettings(BaseMansaSettings):
         mapping = {
             'GOOGLE_CLIENT.ID': 'GOOGLE_CLIENT_ID',
             'GOOGLE_CLIENT.SECRET': 'GOOGLE_CLIENT_SECRET',
-            'GOOGLE_REDIRECT.URI': 'GOOGLE_REDIRECT_URI'
+            'GOOGLE_REDIRECT.URI': 'GOOGLE_REDIRECT_URI',
         }
         return getattr(self, mapping.get(item, item))
 

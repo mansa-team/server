@@ -30,12 +30,14 @@ def register(request: Request, response: Response, username: str = Body(...), em
             raise HTTPException(status_code=401, detail="Auto-login failed after registration")
             
         accessToken = createAccessToken(data={"userId": str(user["userId"])})
-           
+        
+        useCookieSecure = request.url.scheme == "https" if request.url.scheme else False
+        
         response.set_cookie(
             key="mansa_token",
             value=accessToken,
             httponly=True,
-            secure=True,
+            secure=useCookieSecure,
             samesite="lax"
         )
         
@@ -59,11 +61,13 @@ def login(request: Request, response: Response, username: str = Body(...), passw
     
     accessToken = createAccessToken(data={"userId": str(user["userId"])})
     
+    useCookieSecure = request.url.scheme == "https" if request.url.scheme else False
+    
     response.set_cookie(
         key="mansa_token",
         value=accessToken,
         httponly=True,
-        secure=True,
+        secure=useCookieSecure,
         samesite="lax"
     )
 
@@ -75,10 +79,11 @@ def login(request: Request, response: Response, username: str = Body(...), passw
 
 @router.post("/logout")
 def logout(response: Response):
+    useCookieSecure = request.url.scheme == "https" if request.url.scheme else False
     response.delete_cookie(
         key="mansa_token",
         httponly=True,
-        secure=True,
+        secure=useCookieSecure,
         samesite="lax",
         path="/"
     )
@@ -90,13 +95,18 @@ def googleLogin(request: Request):
     clientId = Config.USER['GOOGLE_CLIENT_ID']
     redirectUri = Config.USER['GOOGLE_REDIRECT_URI']
     
+    frontendUrl = request.query_params.get("state", "")
+    if not frontendUrl:
+        frontendUrl = request.headers.get("referer", "")
+    
     params = {
         "client_id": clientId,
         "redirect_uri": redirectUri,
         "response_type": "code",
         "scope": "openid email profile",
         "access_type": "offline",
-        "prompt": "select_account"
+        "prompt": "select_account",
+        "state": frontendUrl
     }
     
     queryString = urllib.parse.urlencode(params)
@@ -166,14 +176,32 @@ def googleCallback(request: Request, response: Response, code: str, db: Session 
         log("auth", "Generating local JWT session...")
         accessToken = createAccessToken(data={"userId": str(user["userId"])})
         
-        response = RedirectResponse(url=f"http://127.0.0.1:5500/main/test/auth.html#token={accessToken}")
+        state = request.query_params.get("state", "")
+        
+        if state:
+            frontendUrl = state
+            isSecure = state.startswith("https")
+        else:
+            referer = request.headers.get("referer")
+            if referer:
+                frontendUrl = referer
+                isSecure = referer.startswith("https")
+            else:
+                scheme = request.url.scheme
+                host = request.url.hostname
+                port = request.url.port
+                frontendUrl = f"{scheme}://{host}:{port}" if port else f"{scheme}://{host}"
+                isSecure = scheme == "https"
+        
+        separator = "&" if "?" in frontendUrl else "?"
+        response = RedirectResponse(url=f"{frontendUrl}{separator}token={accessToken}")
         
         response.set_cookie(
             key="mansa_token",
             value=accessToken,
             httponly=True,
-            secure=True, 
-            samesite="lax",
+            secure=isSecure, 
+            samesite="none",
             path="/" 
         )
 
