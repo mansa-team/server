@@ -12,10 +12,10 @@ Built to integrate seamlessly with the main database and provide granular permis
    #
    #$ DATABASE CONFIGURATION
    #
-   MYSQL_USER=user
-   MYSQL_PASSWORD=password
-   MYSQL_HOST=localhost
-   MYSQL_DATABASE=database
+   USER_MYSQL_USER=user
+   USER_MYSQL_PASSWORD=password
+   USER_MYSQL_HOST=localhost
+   USER_MYSQL_DATABASE=database
 
    #
    #$ AUTH SYSTEM

@@ -11,6 +11,7 @@ pydantic_settings
 cloudscraper
 tenacity
 apscheduler
+pytz
 
 # STOCKS-API
 fastapi
