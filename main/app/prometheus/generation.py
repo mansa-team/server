@@ -11,13 +11,11 @@ from google import genai
 from google.genai import types
 
 from main.models.prometheus import PrometheusSession
-from main.app.prometheus.chat import prometheusChatManager
+from main.app.prometheus.chat import PrometheusChatManager
 
 class PrometheusGenerator:
-    def __init__(self, config: dict = None, api_key: str = None):
-        self.config = config or Config.PROMETHEUS
-        self.api_key = api_key or self.config.get('GEMINI_API.KEY')
-        self.client = genai.Client(api_key=self.api_key)
+    def __init__(self):
+        self.client = genai.Client(api_key=Config.PROMETHEUS['GEMINI_API.KEY'])
         self.updateDates()
 
     def updateDates(self):
@@ -162,7 +160,7 @@ class PrometheusGenerator:
         requestContext.append(userQuery)
 
         response = self.client.models.generate_content(
-            model='gemini-3.1-flash-lite-preview',
+            model='gemini-flash-lite-latest',
             contents=requestContext,
             config=types.GenerateContentConfig(
                 system_instruction=sysPrompt['STAGE 1']
@@ -303,7 +301,7 @@ class PrometheusGenerator:
         sysPrompt['STAGE 3'] = sysPrompt['STAGE 3'].replace("{API_RESPONSE}", APIResponse)
 
         response = self.client.models.generate_content(
-            model='gemini-3.1-flash-lite-preview',
+            model='gemma-4-31b-it',
             contents=requestContext,
             config=types.GenerateContentConfig(
                 system_instruction=sysPrompt['STAGE 3'],
@@ -344,7 +342,7 @@ class PrometheusGenerator:
             promptContents = formattedHistory + [userQuery] + [modelResponse['STAGE 3']]
 
             response = self.client.models.generate_content(
-                model='gemma3-27b-it',
+                model='gemini-flash-lite-latest',
                 contents=promptContents,
                 config=types.GenerateContentConfig(
                     system_instruction=sysPrompt['STAGE 4'],
@@ -354,12 +352,10 @@ class PrometheusGenerator:
             
             modelResponse['STAGE 4'] = response.text
 
-            prometheusChatManager.updateSummary(sessionId, modelResponse['STAGE 4'])
-            prometheusChatManager.updateSessionTitle(sessionId, modelResponse['STAGE 4'])
+            PrometheusChatManager().updateSummary(sessionId, modelResponse['STAGE 4'])
+            PrometheusChatManager().updateSessionTitle(sessionId, modelResponse['STAGE 4'])
 
             print(f"""[PROMETHEUS STAGE 4] \n
                 {modelResponse['STAGE 4']}""")
         
         return modelResponse['STAGE 3']
-    
-prometheusGenerator = PrometheusGenerator(Config.PROMETHEUS)

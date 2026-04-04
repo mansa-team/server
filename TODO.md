@@ -1,3 +1,5 @@
+- [ ] Use Google's GenAI native tool calling to improve the Prometheus model and make space for integration with the Thoth system.z
+
 - [ ] Github OAuth
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings
 - [ ] Implement a session-based authentication system with session management capabilities. This includes creating a UserSession model to track user logins with device info, IP address, location, and timestamps. Build a dashboard endpoint so users can view all their active sessions, revoke individual sessions, or logout from all devices at once. Track login history for audit purposes and add device detection to identify browsers and operating systems.

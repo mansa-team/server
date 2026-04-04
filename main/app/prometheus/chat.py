@@ -160,5 +160,3 @@ class PrometheusChatManager:
             return exists
         finally:
             db.close()
-
-prometheusChatManager = PrometheusChatManager()

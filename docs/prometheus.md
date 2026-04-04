@@ -12,10 +12,10 @@ Após o processamento dos dados e a análise de negócios (que inclui a avaliaç
     #
     #$ DATABASE CONFIGURATION
     #
-    MYSQL_USER=user
-    MYSQL_PASSWORD=password
-    MYSQL_HOST=localhost
-    MYSQL_DATABASE=database
+    USER_MYSQL_USER=user
+    USER_MYSQL_PASSWORD=password
+    USER_MYSQL_HOST=localhost
+    USER_MYSQL_DATABASE=database
 
     #
     #$ STOCKS API

@@ -10,10 +10,10 @@ Built for the [Mansa](https://github.com/mansa-team) project and designed for in
     #
     #$ DATABASE CONFIGURATION
     #
-    MYSQL_USER=user
-    MYSQL_PASSWORD=password
-    MYSQL_HOST=localhost
-    MYSQL_DATABASE=database
+    USER_MYSQL_USER=user
+    USER_MYSQL_PASSWORD=password
+    USER_MYSQL_HOST=localhost
+    USER_MYSQL_DATABASE=database
 
     #
     #$ STOCKS API
