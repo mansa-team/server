@@ -1,11 +1,10 @@
+- [ ] Github OAuth
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings
-- [ ] Fix the Authentication System after the migration to docker
-- [ ] Refactor the user authentication system to support sessions so the user can manage which session will be held, this will also help in implementing the 2FA system, since the user will be able to chose which mobile device will be attached to the 2FA
-- [ ] Make an Password Recovery Recovery system and 2FA using the Email Protocol
-
+- [ ] Implement a session-based authentication system with session management capabilities. This includes creating a UserSession model to track user logins with device info, IP address, location, and timestamps. Build a dashboard endpoint so users can view all their active sessions, revoke individual sessions, or logout from all devices at once. Track login history for audit purposes and add device detection to identify browsers and operating systems.
+- [ ] Make an Password Recovery system and 2FA using the Email Protocol
 - [ ] Redis or some similar caching solution for the whole system
-
 - [ ] Update the config files to have boolean support instead of string comparasions
+
 #
 
 - [ ] Ma'at: Stock Picking algorithm designed to help build wallets for the users based on their profile and provide insights in the stocks page, such as its grade and recommended signal (Buy, Hold or Sell) based on Value Investing fundamentals

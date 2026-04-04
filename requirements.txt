@@ -24,3 +24,5 @@ google-genai
 slowapi
 bcrypt
 PyJWT
+fastapi-sso
+itsdangerous

@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
+import asyncio
+import os
 from config import Config, LOCALHOST_ADDRESSES
 from main.utils.util import log
 from main.utils.connectivity import checkMYSQLConnection, checkServiceConnection
 from main.utils.service_manager import ServiceManager
 from main.utils.migrator import runMigrations
-import asyncio
-import os
 
 from main.service.authentication_service import AuthenticationService
 from main.service.user_service import UserService

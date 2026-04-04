@@ -3,12 +3,12 @@ from main.utils.util import log, limiter
 
 from fastapi import APIRouter, Response, Body, HTTPException, Request, Depends
 from fastapi.responses import RedirectResponse
-import urllib.parse
-import requests
 from sqlalchemy.orm import Session
+import traceback
 
 from main.app.authentication.authentication import authManager
 from main.app.authentication.util import *
+from main.app.authentication.sso import getGoogleSSO
 
 router = APIRouter(
     prefix="/auth",
@@ -60,9 +60,7 @@ def login(request: Request, response: Response, username: str = Body(...), passw
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     accessToken = createAccessToken(data={"userId": str(user["userId"])})
-    
     useCookieSecure = request.url.scheme == "https" if request.url.scheme else False
-    
     response.set_cookie(
         key="mansa_token",
         value=accessToken,
@@ -91,79 +89,38 @@ def logout(response: Response):
 
 @router.get("/google")
 @limiter.limit("5/minute")
-def googleLogin(request: Request):
-    clientId = Config.USER['GOOGLE_CLIENT_ID']
-    redirectUri = Config.USER['GOOGLE_REDIRECT_URI']
+async def googleLogin(request: Request):
+    log("auth", "Google Login")
     
-    frontendUrl = request.query_params.get("state", "")
-    if not frontendUrl:
-        frontendUrl = request.headers.get("referer", "")
+    redirectUrl = request.query_params.get("redirect_url", "")
+    if not redirectUrl:
+        redirectUrl = request.headers.get("referer", "")
     
-    params = {
-        "client_id": clientId,
-        "redirect_uri": redirectUri,
-        "response_type": "code",
-        "scope": "openid email profile",
-        "access_type": "offline",
-        "prompt": "select_account",
-        "state": frontendUrl
-    }
+    log(f"auth", f"Redirect URL: {redirectUrl}")
     
-    queryString = urllib.parse.urlencode(params)
-    googleUrl = f"https://accounts.google.com/o/oauth2/v2/auth?{queryString}"
-    
-    return RedirectResponse(googleUrl)
+    googleSSO = getGoogleSSO()
+    async with googleSSO:
+        return await googleSSO.get_login_redirect(state=redirectUrl)
 
 @router.get("/callback")
 @limiter.limit("5/minute")
-def googleCallback(request: Request, response: Response, code: str, db: Session = Depends(getSession)):
+async def googleCallback(request: Request, response: Response, state: str = None, db: Session = Depends(getSession)):
     log("auth", "--- Google Callback Start ---")
-    log("auth", f"Code received: {code[:10]}...")
+    log(f"auth", f"State parameter: {state}")
     
-    clientId = Config.USER['GOOGLE_CLIENT_ID']
-    clientSecret = Config.USER['GOOGLE_CLIENT_SECRET']
-    redirectUri = Config.USER['GOOGLE_REDIRECT_URI']
-
+    googleSSO = getGoogleSSO()
+    
     try:
-        log("auth", "Exchanging code for token...")
-        tokenUrl = "https://oauth2.googleapis.com/token"
-        tokenData = {
-            "code": code,
-            "client_id": clientId,
-            "client_secret": clientSecret,
-            "redirect_uri": redirectUri,
-            "grant_type": "authorization_code",
-        }
+        async with googleSSO:
+            userInfo = await googleSSO.verify_and_process(request)
         
-        tokenRes = requests.post(tokenUrl, data=tokenData, timeout=15)
-        log("auth", f"Token response status: {tokenRes.status_code}")
+        if not userInfo:
+            raise HTTPException(status_code=400, detail="No user info received from Google")
         
-        if not tokenRes.ok:
-            log("auth", f"ERROR: Token exchange failed: {tokenRes.text}")
-            raise HTTPException(status_code=400, detail="Failed to retrieve token from Google")
+        googleId = userInfo.id
+        email = userInfo.email
         
-        tokenJson = tokenRes.json()
-        accessTokenGoogle = tokenJson.get("access_token")
-        
-        if not accessTokenGoogle:
-            raise HTTPException(status_code=400, detail="No access token in Google response")
-
-        log("auth", "Fetching user info...")
-        userInfoUrl = "https://www.googleapis.com/oauth2/v3/userinfo"
-        userInfoRes = requests.get(userInfoUrl, headers={"Authorization": f"Bearer {accessTokenGoogle}"}, timeout=15)
-        log("auth", f"UserInfo response status: {userInfoRes.status_code}")
-        
-        if not userInfoRes.ok:
-            log("auth", f"ERROR: UserInfo fetch failed: {userInfoRes.text}")
-            raise HTTPException(status_code=400, detail="Failed to retrieve user info from Google")
-        
-        googleUser = userInfoRes.json()
-        googleId = googleUser.get("sub")
-        email = googleUser.get("email")
-        
-        log("auth", f"User identified: {email}")
-
-        log("auth", "Verifying database records...")
+        log(f"auth", f"User identified: {email}")
         user = authManager.authenticateGoogleUser(db, googleId)
         
         if not user:
@@ -171,29 +128,13 @@ def googleCallback(request: Request, response: Response, code: str, db: Session 
             username = email.split('@')[0]
             authManager.createUserAccount(db, username=username, email=email, googleId=googleId)
             user = authManager.authenticateGoogleUser(db, googleId)
-            log("auth", "Account created successfully.")
 
-        log("auth", "Generating local JWT session...")
         accessToken = createAccessToken(data={"userId": str(user["userId"])})
         
-        state = request.query_params.get("state", "")
-        
-        if state:
-            frontendUrl = state
-            isSecure = state.startswith("https")
-        else:
-            referer = request.headers.get("referer")
-            if referer:
-                frontendUrl = referer
-                isSecure = referer.startswith("https")
-            else:
-                scheme = request.url.scheme
-                host = request.url.hostname
-                port = request.url.port
-                frontendUrl = f"{scheme}://{host}:{port}" if port else f"{scheme}://{host}"
-                isSecure = scheme == "https"
-        
+        frontendUrl = state if state else ""
+        isSecure = frontendUrl.startswith("https") if frontendUrl else False
         separator = "&" if "?" in frontendUrl else "?"
+
         response = RedirectResponse(url=f"{frontendUrl}{separator}token={accessToken}")
         
         response.set_cookie(
@@ -205,13 +146,11 @@ def googleCallback(request: Request, response: Response, code: str, db: Session 
             path="/" 
         )
 
-        log("auth", "SUCCESS: Redirecting to frontend.")
+        log("auth", f"SUCCESS: Redirecting to {frontendUrl}")
         log("auth", "--- Google Callback End ---")
         return response
 
-    except requests.exceptions.Timeout:
-        log("auth", "ERROR: Google API request timed out")
-        raise HTTPException(status_code=504, detail="Google API connection timed out")
     except Exception as e:
         log("auth", f"CRITICAL ERROR in callback: {str(e)}")
+        log("auth", f"Traceback: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail="Internal server error during Google login")

@@ -50,7 +50,7 @@ class AuthenticationManager:
             raise
         except Exception as e:
             db.rollback()
-            log("error", f"Error creating user: {str(e)}")
+            log("auth", f"Error creating user: {str(e)}")
             raise HTTPException(status_code=500, detail="Failed to create user")
         
     def authenticateGoogleUser(self, db: Session, googleId: str):
@@ -67,7 +67,7 @@ class AuthenticationManager:
             return None
             
         except Exception as e:
-            log("error", f"Error authenticating Google user: {str(e)}")
+            log("auth", f"Error authenticating Google user: {str(e)}")
             return None
 
     def authenticateUser(self, db: Session, username, password):
@@ -84,7 +84,7 @@ class AuthenticationManager:
             return None
             
         except Exception as e:
-            log("error", f"Error authenticating user: {str(e)}")
+            log("auth", f"Error authenticating user: {str(e)}")
             return None
 
 authManager = AuthenticationManager()
