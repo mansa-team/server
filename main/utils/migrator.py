@@ -2,7 +2,7 @@ import subprocess
 import os
 import sys
 
-from util import log
+from main.utils.util import log
 
 def runMigrations():
     try:
@@ -31,7 +31,7 @@ def runMigrations():
             print(result.stderr)
             
     except Exception as e:
-        log("alembic", "Failed to execute migrations: {e}")
+        log("alembic", f"Failed to execute migrations: {e}")
 
 if __name__ == "__main__":
     runMigrations()

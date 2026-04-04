@@ -1,9 +1,8 @@
+- [ ] Github OAuth
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings
-- [ ] Refactor the user authentication system to support sessions so the user can manage which session will be held, this will also help in implementing the 2FA system, since the user will be able to chose which mobile device will be attached to the 2FA
-- [ ] Make an Password Recovery Recovery system and 2FA using the Email Protocol
-
+- [ ] Implement a session-based authentication system with session management capabilities. This includes creating a UserSession model to track user logins with device info, IP address, location, and timestamps. Build a dashboard endpoint so users can view all their active sessions, revoke individual sessions, or logout from all devices at once. Track login history for audit purposes and add device detection to identify browsers and operating systems.
+- [ ] Make an Password Recovery system and 2FA using the Email Protocol
 - [ ] Redis or some similar caching solution for the whole system
-
 - [ ] Update the config files to have boolean support instead of string comparasions
 
 #
@@ -15,10 +14,6 @@
     - [ ] Execution engine via MetaTrader 5 (MT5) for XP/BTG/Genial accounts
     - [ ] Notification/Deep Link system for manual execution in non-MT5 brokers (Inter, Nubank, Itaú)
     - [ ] Integration with Iniciador (Iniciação de Pagamentos) when support for B3 operations come through
-
-#
-
-- [ ] Fix all the security issues known to man already present in this repo in authentication and authorization
 
 #
 

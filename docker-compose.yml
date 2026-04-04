@@ -23,10 +23,12 @@ services:
     environment:
       - RUN_SCRAPER=false
       - DEBUG_MODE=true
+      - FRONTEND_URL=http://host.docker.internal:5500
+      - DEBUG_COOKIE_SECURE=false
     depends_on:
       - db-dev
     volumes:
-      - .:/app
+      - .:/
 
 volumes:
   db_data:

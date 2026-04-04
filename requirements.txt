@@ -23,4 +23,6 @@ google-genai
 # USER
 slowapi
 bcrypt
-jwt
+PyJWT
+fastapi-sso
+itsdangerous

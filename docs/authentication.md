@@ -4,31 +4,36 @@ A secure authentication system for the Mansa ecosystem, utilizing **JSON Web Tok
 
 Built to integrate seamlessly with the main database and provide granular permission control across all Mansa services.
 
+**Note**: This system uses **fastapi-sso** for OAuth2 authentication, providing a standardized and secure OAuth flow.
+
 ## Usage
 1. Environment configuration (`.env`):
    ```env
-    #
-    #$ DATABASE CONFIGURATION
-    #
-    MYSQL_USER=user
-    MYSQL_PASSWORD=password
-    MYSQL_HOST=localhost
-    MYSQL_DATABASE=database
+   #
+   #$ DATABASE CONFIGURATION
+   #
+   MYSQL_USER=user
+   MYSQL_PASSWORD=password
+   MYSQL_HOST=localhost
+   MYSQL_DATABASE=database
 
-    #
-    #$ AUTH SYSTEM
-    #
-    USER_ENABLED=TRUE
-    USER_HOST=localhost
-    USER_PORT=3200
-    
-    # Secret key for JWT signing
-    JWT_SECRET_KEY=your_super_secret_jwt_key
+   #
+   #$ AUTH SYSTEM
+   #
+   USER_ENABLED=TRUE
+   USER_HOST=localhost
+   USER_PORT=3200
+   
+   # Secret key for JWT signing
+   JWT_SECRET_KEY=your_super_secret_jwt_key
 
-    # Google OAuth2
-    GOOGLE_CLIENT.ID=your_id
-    GOOGLE_CLIENT.SECRET=your_secret
-    GOOGLE_REDIRECT.URI=http://localhost:3200/auth/callback
+   # Session secret key (for OAuth state management)
+   SESSION_SECRET_KEY=your_session_secret_key
+
+   # Google OAuth2
+   GOOGLE_CLIENT.ID=your_id
+   GOOGLE_CLIENT.SECRET=your_secret
+   GOOGLE_REDIRECT.URI=http://localhost:3200/auth/callback
    ```
 
 ## Roles and Permissions
@@ -84,17 +89,25 @@ curl -X POST "http://localhost:3200/auth/upgrade/developer" \
 
 ### Google OAuth2 Login
 Initiates the Google authentication flow.
+
+**With custom redirect URL:**
 ```bash
 # Redirect your browser to:
+GET http://localhost:3200/auth/google?redirect_url=http://127.0.0.1:5500/main/test/auth.html
+```
+
+**Without redirect_url (uses Referer header):**
+```bash
 GET http://localhost:3200/auth/google
 ```
 
 ### Google Callback
 Internal endpoint handled by the server. After successful Google login, it:
-1. Verifies the user with Google.
+1. Verifies the user with Google using fastapi-sso.
 2. Synchronizes the user with the local MySQL database.
-3. Redirects to the frontend with the token in the URL fragment:
-   `http://127.0.0.1:5500/main/test/auth.html#token=ACCESS_TOKEN`
+3. Redirects to the frontend with the token in the URL query parameter:
+   - Format: `http://127.0.0.1:5500/main/test/auth.html?token=ACCESS_TOKEN`
+   - The token is also set as an HttpOnly cookie (`mansa_token`)
  
 ## Security Features
 
@@ -102,6 +115,9 @@ Internal endpoint handled by the server. After successful Google login, it:
 - **Auto-increment Gap Prevention**: The registration flow performs pre-insertion checks for existing usernames/emails to prevent database ID gaps on failed attempts.
 - **Stateless Authentication**: JWT allows the server to verify users without session storage.
 - **CORS Protection**: Configured with dynamic origin matching to allow authenticated requests from trusted frontends while maintaining security.
+- **fastapi-sso**: OAuth2 flow handled by fastapi-sso library with built-in CSRF protection via state parameter.
+- **OAuth State Parameter**: Redirect URL is passed via OAuth state parameter, not stored in session (avoids SameSite cookie issues).
+- **HttpOnly Cookies**: Authentication tokens stored in HttpOnly cookies to prevent XSS attacks.
 
 ## Workflow
 
@@ -113,17 +129,25 @@ graph TD
     Login --> Verify["Verify Bcrypt Hash"]
     Verify -- Success --> JWT["Generate JWT"]
     
-    Start -- Google --> GLogin["GET /auth/google"]
-    GLogin --> GRedirect["Redirect to Google"]
-    GRedirect --> GCallback["GET /auth/callback"]
-    GCallback --> GVerify["Verify Google Token"]
+    Start -- Google OAuth --> GLogin["GET /auth/google?redirect_url=URL"]
+    GLogin --> State["Store redirect URL in state param"]
+    State --> GRedirect["Redirect to Google"]
+    GRedirect --> GAuth["User authenticates with Google"]
+    GAuth --> GCallback["GET /auth/callback"]
+    GCallback --> GVerify["Verify and process token"]
     GVerify --> GSync["Sync User in MySQL"]
-    GSync --> JWT
+    GSync --> OAuthJWT["Generate JWT"]
     
     Start -- Register --> Reg["POST /auth/register"]
     Reg --> Valid["Check Duplicate User"]
     Valid -- OK --> Hash["Hash Password"]
     Hash --> Save["Save to MySQL"]
+
+    JWT --> Cookie["Set HttpOnly Cookie & Redirect"]
+    OAuthJWT --> Cookie
+    
+    Cookie --> Home["Access Granted"]
+```
     Save --> JWT
     
     JWT --> Cookie["Set Cookie & Redirect"]
