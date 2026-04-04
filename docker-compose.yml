@@ -16,7 +16,7 @@ services:
     build: .
     restart: always
     ports:
-      - "${PORT:-8000}:${PORT:-8000}"
+      - "8000:8000"
       - "${STOCKSAPI_PORT:-8001}:${STOCKSAPI_PORT:-8001}"
       - "${PROMETHEUS_PORT:-8002}:${PROMETHEUS_PORT:-8002}"
       - "${USER_PORT:-8003}:${USER_PORT:-8003}"
