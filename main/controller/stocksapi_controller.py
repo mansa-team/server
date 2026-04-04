@@ -4,7 +4,7 @@ from config import getSession
 
 from main.app.stocks_api.query import stocksQuery
 from main.app.stocks_api.key import verifyAPIKey, createKey
-from main.app.user.user import userManager
+from main.app.user.user import UserManager
 from main.utils.roles import Permission, Roles
 
 router = APIRouter(
@@ -43,7 +43,7 @@ def getFundamental(
     return stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
 
 @router.get("/key/generate")
-def generateKey(currentUser: dict = Depends(userManager.getCurrentUser), db: Session = Depends(getSession)):
+def generateKey(currentUser: dict = Depends(UserManager().getCurrentUser), db: Session = Depends(getSession)):
     if not Roles.checkAccess(currentUser.get("roles", []), Permission.GENERATE_API_KEYS):
         raise HTTPException(
             status_code=403, 

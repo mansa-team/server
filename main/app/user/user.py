@@ -73,5 +73,3 @@ class UserManager:
                 
         except jwt.PyJWTError:
             raise HTTPException(status_code=401, detail="Could not validate credentials")
-
-userManager = UserManager()

@@ -38,7 +38,7 @@ class ServiceManager:
 
     @classmethod
     def runAll(cls):
-        logLevel = "error" if Config.DEBUG_MODE == "TRUE" else "critical"
+        logLevel = "error" if Config.DEBUG_MODE else "critical"
 
         for port, app in cls._instances.items():
             thread = threading.Thread(

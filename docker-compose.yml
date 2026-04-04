@@ -21,14 +21,11 @@ services:
       - "${PROMETHEUS_PORT:-8002}:${PROMETHEUS_PORT:-8002}"
       - "${USER_PORT:-8003}:${USER_PORT:-8003}"
     environment:
-      - RUN_SCRAPER=false
-      - DEBUG_MODE=true
-      - FRONTEND_URL=http://host.docker.internal:5500
-      - DEBUG_COOKIE_SECURE=false
+      - DEBUG_MODE=TRUE
     depends_on:
       - db-dev
     volumes:
-      - .:/
+      - .:/app
 
 volumes:
   db_data:
