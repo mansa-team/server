@@ -28,7 +28,7 @@ services:
     depends_on:
       - db-dev
     volumes:
-      - .:/app
+      - .:/
 
 volumes:
   db_data:
