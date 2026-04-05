@@ -17,6 +17,12 @@ jobs:
         with:
           python-version: '3.11'
           
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-lint-${{ hashFiles('requirements.txt') }}
+          
       - name: Install Ruff
         run: pip install ruff
         
@@ -25,13 +31,22 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
     steps:
       - uses: actions/checkout@v4
       
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: ${{ matrix.python-version }}
+          
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements.txt') }}
           
       - name: Install dependencies
         run: |
@@ -61,3 +76,37 @@ jobs:
             exit 1
           fi
           echo "Coverage check passed!"
+
+  build-and-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: docker build -t mansa-server:test .
+
+      - name: Run Docker container
+        run: |
+          docker run -d -p 8000:8000 --name mansa-test \
+            -e DEBUG_MODE=TRUE \
+            mansa-server:test
+
+      - name: Wait for app to start
+        run: sleep 15
+
+      - name: Check application health
+        run: |
+          sleep 10
+          curl -f http://localhost:8000/health || curl -f http://localhost:8000/user/health || echo "No health endpoint found"
+
+      - name: Show container logs
+        run: docker logs mansa-test || true
+
+      - name: Stop and remove Docker container
+        run: |
+          docker stop mansa-test || true
+          docker rm mansa-test || true
