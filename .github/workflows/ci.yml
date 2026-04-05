@@ -77,7 +77,7 @@ jobs:
           fi
           echo "Coverage check passed!"
 
-  build-and-run:
+  docker-build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -89,24 +89,29 @@ jobs:
       - name: Build Docker image
         run: docker build -t mansa-server:test .
 
-      - name: Run Docker container
+      - name: Run container in background
         run: |
-          docker run -d -p 8000:8000 --name mansa-test \
-            -e DEBUG_MODE=TRUE \
+          docker run -d --name mansa-test -p 8000:8000 \
+            -e USER_MYSQL_HOST=${{ secrets.USER_MYSQL_HOST }} \
+            -e USER_MYSQL_USER=${{ secrets.USER_MYSQL_USER }} \
+            -e USER_MYSQL_PASSWORD=${{ secrets.USER_MYSQL_PASSWORD }} \
+            -e USER_MYSQL_DATABASE=${{ secrets.USER_MYSQL_DATABASE }} \
+            -e STOCKS_MYSQL_HOST=${{ secrets.STOCKS_MYSQL_HOST }} \
+            -e STOCKS_MYSQL_USER=${{ secrets.STOCKS_MYSQL_USER }} \
+            -e STOCKS_MYSQL_PASSWORD=${{ secrets.STOCKS_MYSQL_PASSWORD }} \
+            -e STOCKS_MYSQL_DATABASE=${{ secrets.STOCKS_MYSQL_DATABASE }} \
             mansa-server:test
 
       - name: Wait for app to start
-        run: sleep 15
+        run: sleep 20
 
-      - name: Check application health
+      - name: Check health endpoint
         run: |
-          sleep 10
-          curl -f http://localhost:8000/health || curl -f http://localhost:8000/user/health || echo "No health endpoint found"
+          curl -f http://localhost:8000/health || curl -f http://localhost:3200/user/health || echo "Checking health..."
+          docker logs mansa-test | tail -20
 
-      - name: Show container logs
-        run: docker logs mansa-test || true
-
-      - name: Stop and remove Docker container
+      - name: Stop and remove container
+        if: always()
         run: |
           docker stop mansa-test || true
           docker rm mansa-test || true
