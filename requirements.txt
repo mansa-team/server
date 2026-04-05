@@ -6,6 +6,7 @@ pymysql
 dotenv
 pydantic
 pydantic_settings
+alembic
 
 # SCRAPER-B3
 cloudscraper
@@ -23,7 +24,7 @@ google-genai
 
 # USER
 slowapi
-bcrypt
-PyJWT
 fastapi-sso
 itsdangerous
+bcrypt
+PyJWT

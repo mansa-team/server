@@ -564,5 +564,5 @@ class B3Scraper:
                     conn.execute(text(statement))
 
 if __name__ == "__main__":
-    B3Scraper().scrapeStocks(maxWorkers=Config.SCRAPER['MAX_WORKERS'])
+    B3Scraper.scrapeStocks(maxWorkers=Config.SCRAPER['MAX_WORKERS'])
     print(f"\nTotal Execution: {time.time() - start_time:.0f}s")

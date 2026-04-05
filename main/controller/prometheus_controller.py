@@ -21,7 +21,7 @@ def health():
 
 @router.get("/sessions")
 def getSessions(user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS))):
-    sessions = PrometheusChatManager().getUserSessions(user['userId'])
+    sessions = PrometheusChatManager.getUserSessions(user['userId'])
     return {"success": True, "sessions": sessions}
 
 @router.post("/sessions")
@@ -29,7 +29,7 @@ def createSession(
     title: str = Body(..., embed=True), 
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS))
 ):
-    sessionId = PrometheusChatManager().createSession(user['userId'], title)
+    sessionId = PrometheusChatManager.createSession(user['userId'], title)
     return {"success": True, "sessionId": sessionId}
 
 @router.put("/sessions/{sessionId}")
@@ -38,10 +38,10 @@ def updateSessionTitle(
     title: str = Body(..., embed=True),
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS))
 ):
-    if not PrometheusChatManager().verifySessionOwnership(sessionId, user['userId']):
+    if not PrometheusChatManager.verifySessionOwnership(sessionId, user['userId']):
         raise HTTPException(status_code=403, detail="Forbidden: You do not own this session")
         
-    success = PrometheusChatManager().updateSessionTitle(sessionId, title)
+    success = PrometheusChatManager.updateSessionTitle(sessionId, title)
     if not success:
         raise HTTPException(status_code=404, detail="Session not found")
     return {"success": True, "message": "Session title updated"}
@@ -64,7 +64,7 @@ def getHistory(sessionId: str, user: dict = Depends(Roles.requirePermission(Perm
 
 @router.delete("/sessions/{sessionId}")
 def deleteSession(sessionId: str, user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS))):
-    success = PrometheusChatManager().deleteSession(sessionId, user['userId'])
+    success = PrometheusChatManager.deleteSession(sessionId, user['userId'])
     if not success:
         raise HTTPException(status_code=404, detail="Session not found or forbidden")
     return {"success": True, "message": "Session deleted"}
@@ -79,15 +79,15 @@ def chat(
 ):
     try:
         if not sessionId:
-            sessionId = PrometheusChatManager().createSession(user['userId'], text[:30] + "...")
+            sessionId = PrometheusChatManager.createSession(user['userId'], text[:30] + "...")
         else:
-            if not PrometheusChatManager().verifySessionOwnership(sessionId, user['userId']):
+            if not PrometheusChatManager.verifySessionOwnership(sessionId, user['userId']):
                 raise HTTPException(status_code=403, detail="Forbidden or invalid session")
 
-        history = PrometheusChatManager().getHistory(sessionId, limit=20)
-        PrometheusChatManager().saveMessage(sessionId, "user", text)
-        aiResponse = PrometheusGenerator().executeWorkflow(text, history=history, sessionId=sessionId)
-        PrometheusChatManager().saveMessage(sessionId, "assistant", aiResponse)
+        history = PrometheusChatManager.getHistory(sessionId, limit=20)
+        PrometheusChatManager.saveMessage(sessionId, "user", text)
+        aiResponse = PrometheusGenerator.executeWorkflow(text, history=history, sessionId=sessionId)
+        PrometheusChatManager.saveMessage(sessionId, "assistant", aiResponse)
         
         return {
             "success": True, 

@@ -6,7 +6,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 import traceback
 
-from main.app.authentication.authentication import authManager
+from main.app.authentication.authentication import AuthenticationManager
 from main.app.authentication.util import *
 from main.app.authentication.sso import getGoogleSSO
 
@@ -23,9 +23,9 @@ def health(request: Request):
 @limiter.limit("5/minute")
 def register(request: Request, response: Response, username: str = Body(...), email: str = Body(...), password: str = Body(...), db: Session = Depends(getSession)):
     try:
-        authManager.createUserAccount(db, username, email, password)
+        AuthenticationManager.createUserAccount(db, username, email, password)
 
-        user = authManager.authenticateUser(db, username, password)
+        user = AuthenticationManager.authenticateUser(db, username, password)
         if not user:
             raise HTTPException(status_code=401, detail="Auto-login failed after registration")
             
@@ -55,7 +55,7 @@ def register(request: Request, response: Response, username: str = Body(...), em
 @router.post("/login")
 @limiter.limit("5/minute")
 def login(request: Request, response: Response, username: str = Body(...), password: str = Body(...), db: Session = Depends(getSession)):
-    user = authManager.authenticateUser(db, username, password)
+    user = AuthenticationManager.authenticateUser(db, username, password)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
@@ -76,7 +76,7 @@ def login(request: Request, response: Response, username: str = Body(...), passw
     }
 
 @router.post("/logout")
-def logout(response: Response):
+def logout(request: Request, response: Response):
     useCookieSecure = request.url.scheme == "https" if request.url.scheme else False
     response.delete_cookie(
         key="mansa_token",
@@ -121,13 +121,13 @@ async def googleCallback(request: Request, response: Response, state: str = None
         email = userInfo.email
         
         log(f"auth", f"User identified: {email}")
-        user = authManager.authenticateGoogleUser(db, googleId)
+        user = AuthenticationManager.authenticateGoogleUser(db, googleId)
         
         if not user:
             log("auth", "New user detected, creating account...")
             username = email.split('@')[0]
-            authManager.createUserAccount(db, username=username, email=email, googleId=googleId)
-            user = authManager.authenticateGoogleUser(db, googleId)
+            AuthenticationManager.createUserAccount(db, username=username, email=email, googleId=googleId)
+            user = AuthenticationManager.authenticateGoogleUser(db, googleId)
 
         accessToken = createAccessToken(data={"userId": str(user["userId"])})
         
