@@ -1,11 +1,9 @@
 import sys
 import os
 from logging.config import fileConfig
-from typing import Generator
 
-from sqlalchemy import engine_from_config, create_engine
+from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from sqlalchemy.orm import Connection
 
 from alembic import context
 
@@ -41,7 +39,7 @@ def runMigrationsOffline() -> None:
 def runMigrationsOnline() -> None:
     configuration = config.get_section(config.config_ini_section, {})
     configuration["sqlalchemy.url"] = getDatabaseUrl()
-    
+
     connectable = engine_from_config(
         configuration,
         prefix="sqlalchemy.",
@@ -49,10 +47,7 @@ def runMigrationsOnline() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection, 
-            target_metadata=targetMetadata
-        )
+        context.configure(connection=connection, target_metadata=targetMetadata)
 
         with context.begin_transaction():
             context.run_migrations()
