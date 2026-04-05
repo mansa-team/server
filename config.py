@@ -59,10 +59,10 @@ class UserSettings(BaseMansaSettings):
         return getattr(self, mapping.get(item, item))
     
 class StocksApiSettings(BaseMansaSettings):
-    ENABLED: bool = Field(default=False, validation_alias=AliasChoices('STOCKSAPI_ENABLED'))
+    ENABLED: bool = Field(default=True, validation_alias=AliasChoices('STOCKSAPI_ENABLED'))
     HOST: str = Field(default='localhost', validation_alias=AliasChoices('STOCKSAPI_HOST'))
-    PORT: int = Field(default=8001, validation_alias=AliasChoices('STOCKSAPI_PORT'))
-    KEY_SYSTEM: bool = Field(default=True, validation_alias=AliasChoices('STOCKSAPI_KEY.SYSTEM'))
+    PORT: int = Field(default=3200, validation_alias=AliasChoices('STOCKSAPI_PORT'))
+    KEY_SYSTEM: bool = Field(default=False, validation_alias=AliasChoices('STOCKSAPI_KEY.SYSTEM'))
     KEY: str = Field(default='', validation_alias=AliasChoices('STOCKSAPI_PRIVATE.KEY'))
     DEFAULT_QUOTA: int = Field(default=100, validation_alias=AliasChoices('STOCKSAPI_DEFAULT.QUOTA'))
     QUOTA_RESETDAYS: int = Field(default=30, validation_alias=AliasChoices('STOCKSAPI_QUOTA.RESETDAYS'))
@@ -77,7 +77,7 @@ class StocksApiSettings(BaseMansaSettings):
         return getattr(self, mapping.get(item, item))
 
 class PrometheusSettings(BaseMansaSettings):
-    ENABLED: bool = Field(default=False, validation_alias=AliasChoices('PROMETHEUS_ENABLED'))
+    ENABLED: bool = Field(default=True, validation_alias=AliasChoices('PROMETHEUS_ENABLED'))
     HOST: str = Field(default='localhost', validation_alias=AliasChoices('PROMETHEUS_HOST'))
     PORT: int = Field(default=3200, validation_alias=AliasChoices('PROMETHEUS_PORT'))
     GEMINI_API_KEY: str = Field(default='', validation_alias=AliasChoices('GEMINI_API.KEY'))
