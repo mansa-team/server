@@ -17,12 +17,6 @@ jobs:
         with:
           python-version: '3.11'
           
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-lint-${{ hashFiles('requirements.txt') }}
-          
       - name: Install Ruff
         run: pip install ruff
         
@@ -41,12 +35,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements.txt') }}
           
       - name: Install dependencies
         run: |
@@ -89,29 +77,61 @@ jobs:
       - name: Build Docker image
         run: docker build -t mansa-server:test .
 
-      - name: Run container in background
+      - name: Create docker-compose.ci.yml for testing
         run: |
-          docker run -d --name mansa-test -p 8000:8000 \
-            -e USER_MYSQL_HOST=${{ secrets.USER_MYSQL_HOST }} \
-            -e USER_MYSQL_USER=${{ secrets.USER_MYSQL_USER }} \
-            -e USER_MYSQL_PASSWORD=${{ secrets.USER_MYSQL_PASSWORD }} \
-            -e USER_MYSQL_DATABASE=${{ secrets.USER_MYSQL_DATABASE }} \
-            -e STOCKS_MYSQL_HOST=${{ secrets.STOCKS_MYSQL_HOST }} \
-            -e STOCKS_MYSQL_USER=${{ secrets.STOCKS_MYSQL_USER }} \
-            -e STOCKS_MYSQL_PASSWORD=${{ secrets.STOCKS_MYSQL_PASSWORD }} \
-            -e STOCKS_MYSQL_DATABASE=${{ secrets.STOCKS_MYSQL_DATABASE }} \
-            mansa-server:test
+          cat > docker-compose.ci.yml << 'EOF'
+          services:
+            db:
+              image: mysql:8.0
+              environment:
+                MYSQL_ROOT_PASSWORD: ${{ secrets.USER_MYSQL_PASSWORD }}
+                MYSQL_DATABASE: ${{ secrets.USER_MYSQL_DATABASE }}
+                MYSQL_USER: ${{ secrets.USER_MYSQL_USER }}
+                MYSQL_PASSWORD: ${{ secrets.USER_MYSQL_PASSWORD }}
+              ports:
+                - "3306:3306"
 
-      - name: Wait for app to start
-        run: sleep 20
+            api:
+              image: mansa-server:test
+              ports:
+                - "8000:8000"
+                - "3200:3200"
+              environment:
+                USER_MYSQL_HOST: ${{ secrets.USER_MYSQL_HOST }}
+                USER_MYSQL_USER: ${{ secrets.USER_MYSQL_USER }}
+                USER_MYSQL_PASSWORD: ${{ secrets.USER_MYSQL_PASSWORD }}
+                USER_MYSQL_DATABASE: ${{ secrets.USER_MYSQL_DATABASE }}
+                STOCKS_MYSQL_HOST: ${{ secrets.STOCKS_MYSQL_HOST }}
+                STOCKS_MYSQL_USER: ${{ secrets.STOCKS_MYSQL_USER }}
+                STOCKS_MYSQL_PASSWORD: ${{ secrets.STOCKS_MYSQL_PASSWORD }}
+                STOCKS_MYSQL_DATABASE: ${{ secrets.STOCKS_MYSQL_DATABASE }}
+                DEBUG_MODE: "TRUE"
+              depends_on:
+                - db
+          EOF
 
-      - name: Check health endpoint
+      - name: Start services
+        run: docker-compose -f docker-compose.ci.yml up -d
+
+      - name: Wait for MySQL to be ready
+        run: sleep 15
+
+      - name: Show container logs
+        run: docker-compose -f docker-compose.ci.yml logs
+
+      - name: Check health endpoints
         run: |
-          curl -f http://localhost:8000/health || curl -f http://localhost:3200/user/health || echo "Checking health..."
-          docker logs mansa-test | tail -20
+          curl -f http://localhost:8000/health || echo "Main health not available"
+          echo ""
+          curl -f http://localhost:3200/user/health || echo "User health not available"
 
-      - name: Stop and remove container
+      - name: Show API logs (verify migrations ran)
+        run: docker-compose -f docker-compose.ci.yml logs api
+
+      - name: Show final container status
         if: always()
-        run: |
-          docker stop mansa-test || true
-          docker rm mansa-test || true
+        run: docker-compose -f docker-compose.ci.yml ps
+
+      - name: Stop and remove containers
+        if: always()
+        run: docker-compose -f docker-compose.ci.yml down -v

@@ -1,5 +1,5 @@
 services:
-  db-dev:
+  db:
     image: mysql:8.0
     restart: always
     environment:
@@ -17,13 +17,13 @@ services:
     restart: always
     ports:
       - "8000:8000"
-      - "${STOCKSAPI_PORT:-8001}:${STOCKSAPI_PORT:-8001}"
-      - "${PROMETHEUS_PORT:-8002}:${PROMETHEUS_PORT:-8002}"
-      - "${USER_PORT:-8003}:${USER_PORT:-8003}"
+      - "${STOCKSAPI_PORT:-3200}:${STOCKSAPI_PORT:-3200}"
+      - "${PROMETHEUS_PORT:-3200}:${PROMETHEUS_PORT:-3200}"
+      - "${USER_PORT:-3200}:${USER_PORT:-3200}"
     environment:
       - DEBUG_MODE=TRUE
     depends_on:
-      - db-dev
+      - db
     volumes:
       - .:/app
 
