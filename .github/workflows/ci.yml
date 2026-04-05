@@ -110,14 +110,20 @@ jobs:
                 - db
           EOF
 
+      - name: Install Docker Compose
+        run: |
+          mkdir -p ~/.docker/cli-plugins
+          curl -SL https://github.com/docker/compose/releases/download/v2.24.0/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
+          chmod +x ~/.docker/cli-plugins/docker-compose
+
       - name: Start services
-        run: docker-compose -f docker-compose.ci.yml up -d
+        run: docker compose -f docker-compose.ci.yml up -d
 
       - name: Wait for MySQL to be ready
         run: sleep 15
 
       - name: Show container logs
-        run: docker-compose -f docker-compose.ci.yml logs
+        run: docker compose -f docker-compose.ci.yml logs
 
       - name: Check health endpoints
         run: |
@@ -126,12 +132,12 @@ jobs:
           curl -f http://localhost:3200/user/health || echo "User health not available"
 
       - name: Show API logs (verify migrations ran)
-        run: docker-compose -f docker-compose.ci.yml logs api
+        run: docker compose -f docker-compose.ci.yml logs api
 
       - name: Show final container status
         if: always()
-        run: docker-compose -f docker-compose.ci.yml ps
+        run: docker compose -f docker-compose.ci.yml ps
 
       - name: Stop and remove containers
         if: always()
-        run: docker-compose -f docker-compose.ci.yml down -v
+        run: docker compose -f docker-compose.ci.yml down -v
