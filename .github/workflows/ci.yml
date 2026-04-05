@@ -54,7 +54,7 @@ jobs:
       - name: Check Coverage Threshold
         run: |
           pip install coverage
-          COVERAGE=$(coverage report --format=total | grep -oP '\d+(?=%)')
+          COVERAGE=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(int(float(root.get('line-rate', 0)) * 100))")
           echo "Coverage: $COVERAGE%"
           if [ "$COVERAGE" -lt 70 ]; then
             echo "Coverage $COVERAGE% is below 70% threshold"

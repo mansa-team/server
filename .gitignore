@@ -1,4 +1,6 @@
 *.env
+*.xml
+
 *cache/
 __pycache__/
 *.py[cod]
