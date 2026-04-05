@@ -1,0 +1,57 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+
+[tool.coverage.run]
+source = ["main"]
+omit = ["*/tests/*", "*/migrations/*", "*/__pycache__/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
+[tool.coverage.html]
+title = "Mansa Server Coverage Report"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+]
+ignore = [
+    "E501",  # line too long
+    "E701",  # multiple statements on one line
+    "E722",  # bare except
+    "F401",  # unused import
+    "F403",  # star import
+    "F405",  # star import usage
+    "F541",  # f-string without placeholders
+    "F811",  # redefinition
+    "F841",  # unused variable
+    "W291",  # trailing whitespace
+    "W292",  # no newline at end of file
+    "W293",  # blank line contains whitespace
+    "I001",  # import block unsorted
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["main"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

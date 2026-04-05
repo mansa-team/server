@@ -352,8 +352,8 @@ class PrometheusGenerator:
             
             modelResponse['STAGE 4'] = response.text
 
-            PrometheusChatManager().updateSummary(sessionId, modelResponse['STAGE 4'])
-            PrometheusChatManager().updateSessionTitle(sessionId, modelResponse['STAGE 4'])
+            PrometheusChatManager.updateSummary(sessionId, modelResponse['STAGE 4'])
+            PrometheusChatManager.updateSessionTitle(sessionId, modelResponse['STAGE 4'])
 
             print(f"""[PROMETHEUS STAGE 4] \n
                 {modelResponse['STAGE 4']}""")

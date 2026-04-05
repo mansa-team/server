@@ -86,5 +86,3 @@ class AuthenticationManager:
         except Exception as e:
             log("auth", f"Error authenticating user: {str(e)}")
             return None
-
-authManager = AuthenticationManager()

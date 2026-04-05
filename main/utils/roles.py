@@ -81,7 +81,7 @@ class Roles(IntFlag):
     def requirePermission(perm: Permission):
         from main.app.user.user import UserManager
         
-        def check(user: dict = Depends(UserManager().getCurrentUser)):
+        def check(user: dict = Depends(UserManager.getCurrentUser)):
             if not Roles.checkAccess(user.get('roles', []), perm):
                 raise HTTPException(
                     status_code=403, 

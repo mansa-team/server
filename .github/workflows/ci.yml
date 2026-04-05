@@ -7,23 +7,57 @@ on:
     branches: [ dev, main ]
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install Ruff
+        run: pip install ruff
+        
+      - name: Run Ruff
+        run: ruff check main/ tests/
+
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install uvicorn pydantic-settings alembic pytest
-    - name: Run Linting (if configured)
-      run: |
-        # Example: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        echo "Skipping lint for now"
-    - name: Run Tests
-      run: |
-        # Example: pytest
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov
+          
+      - name: Run Tests with Coverage
+        run: pytest --cov=main --cov-report=xml --cov-report=term-missing
+        env:
+          PYTHONPATH: .
+          
+      - name: Upload coverage to Codecov
+        if: github.event_name == 'pull_request'
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+          
+      - name: Check Coverage Threshold
+        run: |
+          pip install coverage
+          COVERAGE=$(coverage report --format=total | grep -oP '\d+(?=%)')
+          echo "Coverage: $COVERAGE%"
+          if [ "$COVERAGE" -lt 70 ]; then
+            echo "Coverage $COVERAGE% is below 70% threshold"
+            exit 1
+          fi
+          echo "Coverage check passed!"

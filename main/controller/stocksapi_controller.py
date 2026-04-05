@@ -43,7 +43,7 @@ def getFundamental(
     return stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
 
 @router.get("/key/generate")
-def generateKey(currentUser: dict = Depends(UserManager().getCurrentUser), db: Session = Depends(getSession)):
+def generateKey(currentUser: dict = Depends(UserManager.getCurrentUser), db: Session = Depends(getSession)):
     if not Roles.checkAccess(currentUser.get("roles", []), Permission.GENERATE_API_KEYS):
         raise HTTPException(
             status_code=403, 
