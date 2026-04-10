@@ -14,7 +14,7 @@ def runScraper():
     global _scraper_start_time
     _scraper_start_time = time.time()
     try:
-        B3Scraper.scrapeStocks(maxWorkers=Config.SCRAPER['MAX_WORKERS'])
+        B3Scraper.scrapeStocks()
         elapsed = time.time() - _scraper_start_time if _scraper_start_time else 0
         log("scraper", f"Scraper execution completed. Time: {elapsed:.0f}s")
     except Exception as e:

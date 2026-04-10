@@ -460,7 +460,7 @@ class B3Scraper:
         except Exception as e: pass #print(f"Error ({ticker}) in fundamentalIndicators: {e}")
         return combinedDF
 
-    def scrapeStocks(self, maxWorkers=10):
+    def scrapeStocks(self, maxWorkers=Config.SCRAPER['MAX_WORKERS']):
         stocksDF = self.getInitialData()
         stocksDF['TIME'] = pd.to_datetime(self.scraperDate)
         stocksList = stocksDF.index.tolist()
@@ -564,5 +564,5 @@ class B3Scraper:
                     conn.execute(text(statement))
 
 if __name__ == "__main__":
-    B3Scraper.scrapeStocks(maxWorkers=Config.SCRAPER['MAX_WORKERS'])
+    B3Scraper.scrapeStocks()
     print(f"\nTotal Execution: {time.time() - start_time:.0f}s")
