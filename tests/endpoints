@@ -1,0 +1,6 @@
+https://api.bcb.gov.br/dados/serie/bcdata.sgs.4189/dados?formato=json (selic) 
+https://api.bcb.gov.br/dados/serie/bcdata.sgs.433/dados?formato=json (ipca)
+https://api.bcb.gov.br/dados/serie/bcdata.sgs.13522/dados?formato=json (ipca)
+https://api.bcb.gov.br/dados/serie/bcdata.sgs.4392/dados?formato=json (cdi) 
+
+https://www3.bcb.gov.br/sgspub/localizarseries/localizarSeries.do?method=prepararTelaLocalizarSeries

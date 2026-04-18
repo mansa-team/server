@@ -10,6 +10,7 @@
 #
 
 - [ ] Ma'at: Stock Picking algorithm designed to help build wallets for the users based on their profile and provide insights in the stocks page, such as its grade and recommended signal (Buy, Hold or Sell) based on Value Investing fundamentals
+    - [ ] Use the inverse stocks corr matrix to recommend stocks if they are with an score of 75 >
 - [ ] Thoth: Wallet Management System for the users. 
     - [ ] Import/Export via .xlsx (B3 Portal) or use get_positions() from MT5
 - [ ] Ogum: Algo Trading System for the users.
