@@ -1,6 +1,8 @@
 from config import Config
 from main.utils.util import log
 
+from io import StringIO
+import math
 import time
 import warnings
 from datetime import datetime
@@ -15,6 +17,9 @@ from sqlalchemy import create_engine, text, QueuePool
 
 from tenacity import retry, stop_after_attempt, wait_exponential
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LinearRegression
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
@@ -265,160 +270,163 @@ class B3Scraper:
 
         return pd.DataFrame([{"TICKER": TICKER, "TAG ALONG": tagAlong}]).set_index("TICKER")
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=3))
+    def stockNews(self, TICKER):
+        df = pd.read_xml(
+            StringIO(self.requests.get("https://news.google.com/rss/search?q=WEGE3&hl=pt-BR").text), xpath=".//item"
+        )
+        df = df.drop(columns={"guid", "description"})
+        df["pubDate"] = pd.to_datetime(df["pubDate"])
+
+        df = df.rename(columns={"title": "TITULO", "link": "LINK", "pubDate": "DATE", "source": "SOURCE"})
+
+        newDF = {"TICKER": TICKER, "NOTICIAS": df.to_dict(orient="records")}
+
+        return pd.DataFrame([newDF]).set_index("TICKER")
+
     def fundamentalIndicators(self, TICKER, df):
         newDF = {"TICKER": TICKER}
 
-        m_ebit = df.get("MARGEM EBIT", 0)
-        receita = df.get(f"RECEITA LIQUIDA {self.currentYear - 1}", np.nan)
-        if np.isnan(receita):
-            receita = df.get(f"RECEITA LIQUIDA {self.currentYear - 2}", np.nan)
-        newDF["EBIT"] = (m_ebit * receita) / 100 if receita and not np.isnan(receita) and receita > 0 else np.nan
-
-        dy_vals = np.array([df.get(f"DY {y}", np.nan) for y in range(self.currentYear - 5, self.currentYear)])
-        newDF["DY MEDIO 5 ANOS"] = np.nanmean(dy_vals)
-
-        rent5y = df.get("RENT 5 ANOS", np.nan)
-        newDF["RENT MEDIA 5 ANOS"] = rent5y / 5 if not np.isnan(rent5y) and rent5y != 0 else np.nan
-
-        incomes = np.array(
-            [df.get(f"LUCRO LIQUIDO {y}", np.nan) for y in range(self.currentYear - 5, self.currentYear)]
-        )
-        newDF["LUCRO LIQUIDO MEDIO 5 ANOS"] = np.nanmean(incomes)
-
-        d_start = df.get(f"DIVIDENDOS {self.currentYear - 6}", np.nan)
-        d_end = df.get(f"DIVIDENDOS {self.currentYear - 1}", np.nan)
-        if not np.isnan(d_start) and not np.isnan(d_end) and d_start > 0 and d_end > 0:
-            newDF["CAGR DIVIDENDOS 5 ANOS"] = ((d_end / d_start) ** 0.2 - 1) * 100
-        else:
-            newDF["CAGR DIVIDENDOS 5 ANOS"] = np.nan
-
-        p_start = df.get(f"LUCRO LIQUIDO {self.currentYear - 11}", np.nan)
-        p_end = df.get(f"LUCRO LIQUIDO {self.currentYear - 1}", np.nan)
-        if not np.isnan(p_start) and not np.isnan(p_end) and p_start > 0 and p_end > 0:
-            cagr = ((p_end / p_start) ** 0.1 - 1) * 100
-        else:
-            cagr = np.nan
-        newDF["CAGR LUCROS 10 ANOS"] = cagr
-
-        roe = df.get("ROE", np.nan)
-        div_y2 = df.get(f"DIVIDENDOS {self.currentYear - 2}", np.nan)
-        net_y2 = df.get(f"LUCRO LIQUIDO {self.currentYear - 2}", np.nan)
-        if not np.isnan(roe) and not np.isnan(net_y2) and not np.isnan(div_y2) and net_y2 != 0:
-            newDF["SGR"] = roe * (1 - div_y2 / net_y2)
-        else:
-            newDF["SGR"] = np.nan
-
-        lpa, vpa = df.get("LPA", np.nan), df.get("VPA", np.nan)
-        newDF["PRECO DE GRAHAM"] = (
-            np.sqrt(22.5 * lpa * vpa) if not np.isnan(lpa) and not np.isnan(vpa) and lpa > 0 and vpa > 0 else np.nan
-        )
-
-        divs_5y = np.array([df.get(f"DIVIDENDOS {y}", np.nan) for y in range(self.currentYear - 5, self.currentYear)])
-        avg_div = np.nanmean(divs_5y)
-        newDF["PRECO DE BAZIN"] = avg_div / 0.06 if not np.isnan(avg_div) and avg_div > 0 else np.nan
-
-        # Value Investing Score (0, 10)
         try:
-            recent_p5 = np.array(
+            m_ebit = df.get("MARGEM EBIT", 0)
+            receita = df.get(f"RECEITA LIQUIDA {self.currentYear - 1}", np.nan)
+            if np.isnan(receita):
+                receita = df.get(f"RECEITA LIQUIDA {self.currentYear - 2}", np.nan)
+            newDF["EBIT"] = (m_ebit * receita) / 100 if receita and not np.isnan(receita) and receita > 0 else np.nan
+        except:
+            newDF["EBIT"] = np.nan
+
+        try:
+            dy_vals = np.array([df.get(f"DY {y}", np.nan) for y in range(self.currentYear - 5, self.currentYear)])
+            newDF["DY MEDIO 5 ANOS"] = np.nanmean(dy_vals)
+        except:
+            newDF["DY MEDIO 5 ANOS"] = np.nan
+
+        try:
+            rent5y = df.get("RENT 5 ANOS", np.nan)
+            newDF["RENT MEDIA 5 ANOS"] = rent5y / 5 if not np.isnan(rent5y) and rent5y != 0 else np.nan
+        except:
+            newDF["RENT MEDIA 5 ANOS"] = np.nan
+
+        try:
+            incomes = np.array(
                 [df.get(f"LUCRO LIQUIDO {y}", np.nan) for y in range(self.currentYear - 5, self.currentYear)]
             )
-            past_p5 = np.array(
-                [df.get(f"LUCRO LIQUIDO {y}", np.nan) for y in range(self.currentYear - 10, self.currentYear - 5)]
-            )
+            newDF["LUCRO LIQUIDO MEDIO 5 ANOS"] = np.nanmean(incomes)
+        except:
+            newDF["LUCRO LIQUIDO MEDIO 5 ANOS"] = np.nan
 
-            recent_avg5 = np.nanmean(recent_p5)
-            past_avg5 = np.nanmean(past_p5)
+        try:
+            d_start = df.get(f"DIVIDENDOS {self.currentYear - 6}", np.nan)
+            d_end = df.get(f"DIVIDENDOS {self.currentYear - 1}", np.nan)
+            if not np.isnan(d_start) and not np.isnan(d_end) and d_start > 0 and d_end > 0:
+                newDF["CAGR DIVIDENDOS 5 ANOS"] = ((d_end / d_start) ** 0.2 - 1) * 100
+            else:
+                newDF["CAGR DIVIDENDOS 5 ANOS"] = np.nan
+        except:
+            newDF["CAGR DIVIDENDOS 5 ANOS"] = np.nan
 
-            growth_recent = (
-                ((recent_avg5 / past_avg5) - 1) * 100
-                if not np.isnan(recent_avg5) and not np.isnan(past_avg5) and past_avg5 > 0
-                else np.nan
-            )
-            growth_recent_capped = (
-                min(growth_recent, cagr * 2.5)
-                if not np.isnan(growth_recent) and not np.isnan(cagr) and growth_recent > 0
-                else (growth_recent if not np.isnan(growth_recent) else np.nan)
-            )
+        try:
+            p_start = df.get(f"LUCRO LIQUIDO {self.currentYear - 11}", np.nan)
+            p_end = df.get(f"LUCRO LIQUIDO {self.currentYear - 1}", np.nan)
+            if not np.isnan(p_start) and not np.isnan(p_end) and p_start > 0 and p_end > 0:
+                cagr = ((p_end / p_start) ** 0.1 - 1) * 100
+            else:
+                cagr = np.nan
+            newDF["CAGR LUCROS 10 ANOS"] = cagr
+        except:
+            newDF["CAGR LUCROS 10 ANOS"] = np.nan
 
-            growth_composite = (
-                (cagr * 0.8) + (growth_recent_capped * 0.2)
-                if not np.isnan(cagr) and not np.isnan(growth_recent_capped)
-                else np.nan
-            )
-
-            score = 0
-            if not np.isnan(growth_composite):
-                if growth_composite >= 15:
-                    score += 3.0
-                elif growth_composite >= 10:
-                    score += 2.25
-                elif growth_composite >= 5:
-                    score += 1.5
-
-            if not np.isnan(cagr) and not np.isnan(growth_recent):
-                growth_diff = cagr - growth_recent
-                if growth_diff > 30:
-                    score -= 2.0
-                elif growth_diff > 15:
-                    score -= 0.5
-
-            liq = df.get("LIQUIDEZ MEDIA DIARIA", np.nan)
-            if not np.isnan(liq):
-                if liq >= 100000000:
-                    score += 2.0
-                elif liq >= 40000000:
-                    score += 1.0
-                elif liq >= 20000000:
-                    score += 0.5
-                elif liq >= 10000000:
-                    score += 0.0
-                elif liq >= 5000000:
-                    score -= 0.5
-                else:
-                    score -= 2.0
-
-            if not str(TICKER).endswith("3"):
-                score -= 2.0
+        try:
             roe = df.get("ROE", np.nan)
-            if not np.isnan(roe):
-                if roe >= 20:
-                    score += 1.0
-                elif roe >= 15:
-                    score += 0.75
+            div_y2 = df.get(f"DIVIDENDOS {self.currentYear - 2}", np.nan)
+            net_y2 = df.get(f"LUCRO LIQUIDO {self.currentYear - 2}", np.nan)
+            if not np.isnan(roe) and not np.isnan(net_y2) and not np.isnan(div_y2) and net_y2 != 0:
+                newDF["SGR"] = roe * (1 - div_y2 / net_y2)
+            else:
+                newDF["SGR"] = np.nan
+        except:
+            newDF["SGR"] = np.nan
 
-            # Debt (Dívida Líquida/EBIT)
-            div_ebit = df.get("DIVIDA LIQUIDA / EBIT", np.nan)
-            if not np.isnan(div_ebit):
-                if div_ebit <= 2:
-                    score += 1.0
-                elif div_ebit <= 3:
-                    score += 0.75
-                elif div_ebit > 5:
-                    score -= 2.0
+        try:
+            lpa, vpa = df.get("LPA", np.nan), df.get("VPA", np.nan)
+            newDF["PRECO DE GRAHAM"] = (
+                np.sqrt(22.5 * lpa * vpa) if not np.isnan(lpa) and not np.isnan(vpa) and lpa > 0 and vpa > 0 else np.nan
+            )
+        except:
+            newDF["PRECO DE GRAHAM"] = np.nan
 
-            # Survival & Consistency (Losses & Staircase)
-            losses = 0
-            violations = 0
-            prev = None
-            for y in range(self.currentYear - 16, self.currentYear):
-                val = df.get(f"LUCRO LIQUIDO {y}", np.nan)
+        try:
+            divs_5y = np.array(
+                [df.get(f"DIVIDENDOS {y}", np.nan) for y in range(self.currentYear - 5, self.currentYear)]
+            )
+            avg_div = np.nanmean(divs_5y)
+            newDF["PRECO DE BAZIN"] = avg_div / 0.06 if not np.isnan(avg_div) and avg_div > 0 else np.nan
+        except:
+            newDF["PRECO DE BAZIN"] = np.nan
+
+        try:
+            score = 0
+
+            years = range(self.currentYear - 10, self.currentYear)
+            lucro_data = {"YEAR": [], "LUCRO LIQUIDO": []}
+            for year in years:
+                val = df.get(f"LUCRO LIQUIDO {year}", np.nan)
                 if not np.isnan(val):
-                    if val < 0:
-                        losses += 1
-                    with np.errstate(invalid="ignore", divide="ignore"):
-                        if prev is not None and val < prev and prev != 0:
-                            if (prev - val) / abs(prev) > 0.10:
-                                violations += 1
-                    prev = val
+                    lucro_data["YEAR"].append(year)
+                    lucro_data["LUCRO LIQUIDO"].append(val)
 
-            survival = 3.0 if losses == 0 else 0
-            if violations >= 4:
-                survival -= 2.0
-            elif violations >= 2:
-                survival -= 1.0
+            lucro_df = pd.DataFrame(lucro_data)
+            if len(lucro_df) >= 5:
+                X = lucro_df[["YEAR"]]
+                y = lucro_df[["LUCRO LIQUIDO"]]
 
-            score += max(0, survival)
-            newDF["VALUE INVESTING SCORE"] = min(max(score, 0), 10.0)
+                scaler_x = StandardScaler()
+                X_scaled = scaler_x.fit_transform(X)
+
+                scaler_y = StandardScaler()
+                y_scaled = scaler_y.fit_transform(y)
+
+                model = LinearRegression().fit(X_scaled, y_scaled)
+
+                opposing_cathet = max(0, model.coef_[0][0])
+                angle_deg = math.degrees(math.atan(opposing_cathet))
+                r2 = max(0, model.score(X_scaled, y_scaled))
+
+                profits_numeric = lucro_df["LUCRO LIQUIDO"].astype(float)
+                yearly_growth = profits_numeric.pct_change().dropna()
+                positive_years_ratio = (yearly_growth > 0).sum() / len(yearly_growth) if len(yearly_growth) > 0 else 0
+
+                angle_score = (angle_deg / 90) * 100
+                raw_consist = (r2 + positive_years_ratio) / 2
+                penalty_sensitivity = max(0.1, 1 - (angle_deg / 110))
+                score = angle_score * (raw_consist**penalty_sensitivity)
+
+                if r2 > 0.9 and positive_years_ratio >= 0.9:
+                    score = min(100, score + 5)
+
+                has_negative_years = (lucro_df["LUCRO LIQUIDO"] < 0).any()
+                if has_negative_years:
+                    score *= 0.5
+
+                total_liq = df.get("LIQUIDEZ MEDIA DIARIA", 0) or 0
+                target_liquidity = 10_000_000
+                if total_liq < target_liquidity:
+                    ratio = total_liq / target_liquidity
+                    liquidity_multiplier = max(0.5, np.sqrt(min(1.0, ratio)))
+                    score *= liquidity_multiplier
+
+                divida_ebit = df.get("DIVIDA LIQUIDA / EBIT", np.nan)
+                target_debt = 2.0
+                if not np.isnan(divida_ebit) and divida_ebit > target_debt:
+                    ratio = divida_ebit / target_debt
+                    debt_multiplier = max(0.5, np.sqrt(min(1.0, ratio)))
+                    score *= debt_multiplier
+
+                if TICKER.endswith("4"):
+                    score *= 0.75
+
+            newDF["VALUE INVESTING SCORE"] = min(max(score, 0), 100.0)
         except:
             newDF["VALUE INVESTING SCORE"] = np.nan
 
@@ -435,11 +443,14 @@ class B3Scraper:
             # self.historicalCotationProfits_Oceans14,
             self.historicalCotations,
             self.tagAlong,
+            self.stockNews,
         ]:
             try:
-                results.append(task(ticker))
+                task_df = task(ticker)
+                results.append(task_df)
             except Exception as e:
                 print(f"Error ({ticker}) in {task.__name__}: {e}")
+                results.append(pd.DataFrame(index=pd.Index([ticker], name="TICKER")))
 
         combinedDF = pd.concat(results, axis=1)
         combinedDF = combinedDF.loc[:, ~combinedDF.columns.duplicated(keep="last")]
@@ -448,7 +459,7 @@ class B3Scraper:
             fundamentalDF.index = combinedDF.index
             combinedDF = pd.concat([combinedDF, fundamentalDF], axis=1)
         except Exception as e:
-            pass  # print(f"Error ({ticker}) in fundamentalIndicators: {e}")
+            print(f"Error ({ticker}) in fundamentalIndicators: {e}")
 
         return (ticker, combinedDF)
 
@@ -457,44 +468,43 @@ class B3Scraper:
         stocksDF["TIME"] = pd.to_datetime(self.scraperDate)
         stocksList = stocksDF.index.tolist()
 
-        final_df = stocksDF.copy()
+        processed_dfs = []
 
         with ThreadPoolExecutor(max_workers=maxWorkers) as executor:
-            tasks = {executor.submit(self.processTicker, t, stocksDF.loc[[t]]): t for t in stocksList}
-            for future in as_completed(tasks):
+            results = executor.map(lambda t: self.processTicker(t, stocksDF.loc[[t]]), stocksList)
+            for ticker, result_df in results:
                 try:
-                    ticker, result_df = future.result()
-                    self._mergeTickerData(final_df, ticker, result_df)
-                except Exception:
-                    pass
+                    processed_dfs.append(result_df)
+                except Exception as e:
+                    print(f"Error processing {ticker}: {e}")
 
-        self._roundNumericColumns(final_df)
+        processed_dfs = [
+            df for df in processed_dfs if len(df.dropna(how="all")) > 0 and len(df.dropna(how="all", axis=1)) > 0
+        ]
 
+        if processed_dfs:
+            combined = pd.concat(processed_dfs, axis=0, ignore_index=False)
+
+            if combined.columns.duplicated().any():
+                combined = combined.loc[:, ~combined.columns.duplicated(keep="last")]
+
+            new_cols = [c for c in combined.columns if c not in stocksDF.columns]
+            final_df = pd.concat([stocksDF, combined[new_cols]], axis=1, join="outer")
+            final_df = final_df.reindex(stocksList)
+        else:
+            final_df = stocksDF.copy()
+
+        final_df = final_df.round(2)
         final_df = self.reorderColumns(final_df)
         final_df = self.serializeComplexTypes(final_df)
 
         self.exportJson(final_df)
         self.exportMysql(final_df)
 
-    def _mergeTickerData(self, final_df, ticker, result_df):
-        if ticker not in final_df.index or result_df is None or result_df.empty:
-            return
-
-        new_cols = [col for col in result_df.columns if col not in final_df.columns]
-        if new_cols:
-            new_col_df = pd.DataFrame(np.nan, index=final_df.index, columns=new_cols)
-            final_df[new_cols] = new_col_df.values
-
-        final_df.loc[ticker, result_df.columns] = result_df.iloc[0].values
-
-    def _roundNumericColumns(self, df):
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        df[numeric_cols] = df[numeric_cols].round(2)
-
     def reorderColumns(self, df):
         if df.empty:
             return df
-        special = ["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS"]
+        special = ["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"]
         all_cols = df.columns.tolist()
         historical_cols = sorted([c for c in all_cols if re.match(r".*\d{4}$", c) and c not in special])
         metadata_cols = [c for c in all_cols if c not in historical_cols and c not in special]
@@ -504,14 +514,54 @@ class B3Scraper:
     def serializeComplexTypes(self, df):
         if df.empty:
             return df
+        special_cols = ["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"]
+
+        def convert_value(val):
+            if isinstance(val, (dict, list)):
+                return json.dumps(val, ensure_ascii=False, default=str)
+            return val
+
         for col in df.columns:
-            if df[col].apply(lambda x: isinstance(x, (dict, list))).any():
-                df[col] = df[col].apply(lambda x: json.dumps(x) if isinstance(x, (dict, list)) else x)
+            if col in special_cols and df[col].dtype == "object":
+                df[col] = df[col].apply(convert_value)
+
         return df
 
     def exportJson(self, df):
         if Config.SCRAPER["JSON"] and not df.empty:
-            df.to_json(f"b3_stocks.json", orient="records", indent=4)
+            special_cols = ["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"]
+
+            def convert_value(val, col):
+                if col in special_cols and isinstance(val, (dict, list)):
+                    return val
+                elif isinstance(val, str):
+                    try:
+                        return json.loads(val)
+                    except:
+                        return val
+                return val
+
+            def convert_recursive(val):
+                if hasattr(val, "isoformat"):
+                    return val.isoformat()
+                elif isinstance(val, dict):
+                    return {k: convert_recursive(v) for k, v in val.items()}
+                elif isinstance(val, list):
+                    return [convert_recursive(item) for item in val]
+                return val
+
+            records = []
+            for idx in range(len(df)):
+                record = {}
+                for col in df.columns:
+                    val = df.iloc[idx][col]
+                    val = convert_value(val, col)
+                    record[col] = convert_recursive(val)
+
+                records.append(record)
+
+            with open(f"b3_stocks.json", "w", encoding="utf-8") as f:
+                json.dump(records, f, ensure_ascii=False)
 
     def exportMysql(self, df):
         if not Config.SCRAPER["MYSQL"] or df.empty:
@@ -520,10 +570,6 @@ class B3Scraper:
         df = df.copy()
         df["TICKER"] = df.index
         df = df.reset_index(drop=True)
-        null_tickers = df[df["TICKER"].isna()]
-        if not null_tickers.empty:
-            print(f"Dropping {len(null_tickers)} rows with null TICKER")
-            df = df.dropna(subset=["TICKER"])
 
         with self.engine.begin() as conn:
             existing_cols = pd.read_sql("SELECT * FROM b3_stocks LIMIT 1", con=conn).columns.tolist()
@@ -534,7 +580,9 @@ class B3Scraper:
                     dtype = (
                         "JSON"
                         if df[col].dtype == "object"
-                        and df[col].apply(lambda x: isinstance(x, str) and x.startswith("{")).any()
+                        and df[col]
+                        .apply(lambda x: isinstance(x, (dict, list)) or (isinstance(x, str) and x.startswith("{")))
+                        .any()
                         else ("TEXT" if df[col].dtype == "object" else "DOUBLE PRECISION")
                     )
                     conn.execute(text(f"ALTER TABLE b3_stocks ADD COLUMN `{col}` {dtype} NULL"))
@@ -581,7 +629,9 @@ class B3Scraper:
                 if statement.strip():
                     conn.execute(text(statement))
 
+
 if __name__ == "__main__":
     scraper = B3Scraper()
     scraper.scrapeStocks()
+
     print(f"\nTotal Execution: {time.time() - start_time:.0f}s")

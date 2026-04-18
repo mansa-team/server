@@ -37,7 +37,7 @@ class StocksQueryManager:
             
             if search:
                 searchTerms = [s.strip().upper() for s in search.split(",")]
-                df = df[df['TICKER'].str.upper().isin(searchTerms)]
+                df = df[df['TICKER'].str.upper().apply(lambda x: any(x.startswith(s) for s in searchTerms))]
 
             if 'TIME' in df.columns:
                 df = df.sort_values(by='TIME', ascending=False)
@@ -77,7 +77,7 @@ class StocksQueryManager:
             
             if search:
                 searchTerms = [s.strip().upper() for s in search.split(",")]
-                df = df[df['TICKER'].str.upper().isin(searchTerms)]
+                df = df[df['TICKER'].str.upper().apply(lambda x: any(x.startswith(s) for s in searchTerms))]
                 
             if 'TIME' in df.columns:
                 df['TIME_DT'] = pd.to_datetime(df['TIME'])

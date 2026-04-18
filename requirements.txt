@@ -15,6 +15,7 @@ apscheduler
 pytz
 
 # STOCKS-API
+scikit-learn
 fastapi
 uvicorn
 requests
