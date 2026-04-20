@@ -16,7 +16,7 @@ def verifyPassword(plainPassword: str, hashedPassword: str) -> bool:
     except (ValueError, TypeError):
         return False
 
-def createAccessToken(data: dict, expiresDelta: timedelta = None):
+def createAccessToken(data: dict, expiresDelta: timedelta | None = None):
     from main.utils.util import log
 
     if expiresDelta is None:

@@ -9,38 +9,34 @@ class PrometheusChatManager:
     def __init__(self):
         pass
 
-    def getUserSessions(self, userId: int):
+    @classmethod
+    def getUserSessions(cls, userId: int):
         db = SessionLocal()
         try:
-            sessions = db.query(
-                PrometheusSession.sessionId,
-                PrometheusSession.title,
-                PrometheusSession.lastActivity
-            ).filter(
-                PrometheusSession.userId == userId
-            ).order_by(PrometheusSession.lastActivity.desc()).all()
-            
+            sessions = (
+                db.query(PrometheusSession.sessionId, PrometheusSession.title, PrometheusSession.lastActivity)
+                .filter(PrometheusSession.userId == userId)
+                .order_by(PrometheusSession.lastActivity.desc())
+                .all()
+            )
+
             return [
                 {
                     "sessionId": s.sessionId,
                     "title": s.title,
-                    "lastActivity": s.lastActivity.isoformat() if s.lastActivity else None
+                    "lastActivity": s.lastActivity.isoformat() if s.lastActivity else None,
                 }
                 for s in sessions
             ]
         finally:
             db.close()
 
-    def createSession(self, userId: int, title: str = "New Conversation"):
+    @classmethod
+    def createSession(cls, userId: int, title: str = "New Conversation"):
         db = SessionLocal()
         sessionId = str(uuid.uuid4())
         try:
-            newSession = PrometheusSession(
-                sessionId=sessionId,
-                userId=userId,
-                title=title,
-                history=[]
-            )
+            newSession = PrometheusSession(sessionId=sessionId, userId=userId, title=title, history=[])
             db.add(newSession)
             db.commit()
             return sessionId
@@ -51,14 +47,15 @@ class PrometheusChatManager:
         finally:
             db.close()
 
-    def updateSessionTitle(self, sessionId: str, title: str):
+    @classmethod
+    def updateSessionTitle(cls, sessionId: str, title: str):
         db = SessionLocal()
         try:
             session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
-            
+
             if not session:
                 return False
-                
+
             session.title = title
             db.commit()
             return True
@@ -69,11 +66,12 @@ class PrometheusChatManager:
         finally:
             db.close()
 
-    def saveMessage(self, sessionId: str, role: str, content: str, metadata: dict = None):
+    @classmethod
+    def saveMessage(cls, sessionId: str, role: str, content: str, metadata: dict | None = None):
         db = SessionLocal()
         try:
             session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
-            
+
             if session:
                 if session.history is None:
                     session.history = []
@@ -82,12 +80,12 @@ class PrometheusChatManager:
                     "role": role,
                     "content": content,
                     "metadata": metadata,
-                    "timestamp": datetime.now().isoformat()
+                    "timestamp": datetime.now().isoformat(),
                 }
 
                 session.history.append(message)
                 flag_modified(session, "history")
-                
+
                 session.lastActivity = datetime.now()
                 db.commit()
             else:
@@ -98,29 +96,28 @@ class PrometheusChatManager:
         finally:
             db.close()
 
-    def getHistory(self, sessionId: str, limit: int = 20):
+    @classmethod
+    def getHistory(cls, sessionId: str, limit: int = 20):
         db = SessionLocal()
         try:
-            session = db.query(PrometheusSession).filter(
-                PrometheusSession.sessionId == sessionId
-            ).first()
+            session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
 
             if not session or not session.history:
                 return []
 
             activeHistory = session.history[-limit:]
-            
+
             formattedHistory = []
             for msg in activeHistory:
-                formattedHistory.append({
-                    "role": "user" if msg['role'] == "user" else "model",
-                    "parts": [{"text": msg['content']}]
-                })
+                formattedHistory.append(
+                    {"role": "user" if msg["role"] == "user" else "model", "parts": [{"text": msg["content"]}]}
+                )
             return formattedHistory
         finally:
             db.close()
 
-    def updateSummary(self, sessionId: str, summary: str):
+    @classmethod
+    def updateSummary(cls, sessionId: str, summary: str):
         db = SessionLocal()
         try:
             session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
@@ -130,14 +127,16 @@ class PrometheusChatManager:
         finally:
             db.close()
 
-    def deleteSession(self, sessionId: str, userId: int):
+    @classmethod
+    def deleteSession(cls, sessionId: str, userId: int):
         db = SessionLocal()
         try:
-            session = db.query(PrometheusSession).filter(
-                PrometheusSession.sessionId == sessionId,
-                PrometheusSession.userId == userId
-            ).first()
-            
+            session = (
+                db.query(PrometheusSession)
+                .filter(PrometheusSession.sessionId == sessionId, PrometheusSession.userId == userId)
+                .first()
+            )
+
             if session:
                 db.delete(session)
                 db.commit()
@@ -150,13 +149,16 @@ class PrometheusChatManager:
         finally:
             db.close()
 
-    def verifySessionOwnership(self, sessionId: str, userId: int) -> bool:
+    @classmethod
+    def verifySessionOwnership(cls, sessionId: str, userId: int) -> bool:
         db = SessionLocal()
         try:
-            exists = db.query(PrometheusSession.sessionId).filter(
-                PrometheusSession.sessionId == sessionId,
-                PrometheusSession.userId == userId
-            ).first() is not None
+            exists = (
+                db.query(PrometheusSession.sessionId)
+                .filter(PrometheusSession.sessionId == sessionId, PrometheusSession.userId == userId)
+                .first()
+                is not None
+            )
             return exists
         finally:
             db.close()
