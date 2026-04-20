@@ -1,5 +1,6 @@
 *.env
 *.xml
+*.json
 
 *cache/
 __pycache__/

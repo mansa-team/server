@@ -1,89 +1,93 @@
-from config import Config, getSession
-from main.utils.util import log, limiter
+from config import getSession
+from main.utils.util import log, limiter, log_error
 
 from fastapi import APIRouter, Response, Body, HTTPException, Request, Depends
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-import traceback
 
 from main.app.authentication.authentication import AuthenticationManager
-from main.app.authentication.util import *
+from main.app.authentication.util import createAccessToken
 from main.app.authentication.sso import getGoogleSSO
+from main.app.authentication.constants import COOKIE_NAME, COOKIE_PATH, COOKIE_SAMESITE
 
-router = APIRouter(
-    prefix="/auth",
-    tags=["Authentication"]
-)
+router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+def _is_secure_scheme(request: Request) -> bool:
+    return request.url.scheme == "https" if request.url.scheme else False
 
 @router.get("/health")
 def health(request: Request):
-    return {"status": "ok", "service": "authenticaton"}
+    return {"status": "ok", "service": "authentication"}
 
 @router.post("/register")
 @limiter.limit("5/minute")
-def register(request: Request, response: Response, username: str = Body(...), email: str = Body(...), password: str = Body(...), db: Session = Depends(getSession)):
+def register(
+    request: Request,
+    response: Response,
+    username: str = Body(..., min_length=3, max_length=50),
+    email: str = Body(..., min_length=5, max_length=100),
+    password: str = Body(..., min_length=6, max_length=100),
+    db: Session = Depends(getSession),
+):
     try:
         AuthenticationManager.createUserAccount(db, username, email, password)
 
         user = AuthenticationManager.authenticateUser(db, username, password)
         if not user:
             raise HTTPException(status_code=401, detail="Auto-login failed after registration")
-            
+
         accessToken = createAccessToken(data={"userId": str(user["userId"])})
-        
-        useCookieSecure = request.url.scheme == "https" if request.url.scheme else False
-        
+        useCookieSecure = _is_secure_scheme(request)
         response.set_cookie(
-            key="mansa_token",
+            key=COOKIE_NAME,
             value=accessToken,
             httponly=True,
             secure=useCookieSecure,
-            samesite="lax"
+            samesite=COOKIE_SAMESITE,
+            path=COOKIE_PATH,
         )
-        
-        return {
-            "message": "success",
-            "accessToken": accessToken,
-            "tokenType": "bearer",
-            "user": user
-        }
-    except HTTPException as e:
-        raise e
-    except Exception:
-        raise HTTPException(status_code=400, detail="Registration failed. Internal error or credentials already in use.")
+
+        return {"message": "success", "accessToken": accessToken, "tokenType": "bearer", "user": user}
+    except HTTPException:
+        raise
+    except ValueError as e:
+        log_error("auth", f"Registration validation error: {str(e)}", e)
+        raise HTTPException(status_code=400, detail="Registration failed. Invalid input.")
+    except Exception as e:
+        log_error("auth", "Unexpected error during registration", e)
+        raise HTTPException(status_code=500, detail="Registration failed. Internal error.")
 
 @router.post("/login")
 @limiter.limit("5/minute")
-def login(request: Request, response: Response, username: str = Body(...), password: str = Body(...), db: Session = Depends(getSession)):
+def login(
+    request: Request,
+    response: Response,
+    username: str = Body(..., min_length=3, max_length=50),
+    password: str = Body(..., min_length=1),
+    db: Session = Depends(getSession),
+):
     user = AuthenticationManager.authenticateUser(db, username, password)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
+
     accessToken = createAccessToken(data={"userId": str(user["userId"])})
-    useCookieSecure = request.url.scheme == "https" if request.url.scheme else False
+    useCookieSecure = _is_secure_scheme(request)
     response.set_cookie(
-        key="mansa_token",
+        key=COOKIE_NAME,
         value=accessToken,
         httponly=True,
         secure=useCookieSecure,
-        samesite="lax"
+        samesite=COOKIE_SAMESITE,
+        path=COOKIE_PATH,
     )
 
-    return {
-        "accessToken": accessToken,
-        "tokenType": "bearer",
-        "user": user
-    }
+    return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
 
 @router.post("/logout")
 def logout(request: Request, response: Response):
-    useCookieSecure = request.url.scheme == "https" if request.url.scheme else False
+    useCookieSecure = _is_secure_scheme(request)
     response.delete_cookie(
-        key="mansa_token",
-        httponly=True,
-        secure=useCookieSecure,
-        samesite="lax",
-        path="/"
+        key=COOKIE_NAME, httponly=True, secure=useCookieSecure, samesite=COOKIE_SAMESITE, path=COOKIE_PATH
     )
     return {"message": "Successfully logged out"}
 
@@ -91,13 +95,13 @@ def logout(request: Request, response: Response):
 @limiter.limit("5/minute")
 async def googleLogin(request: Request):
     log("auth", "Google Login")
-    
+
     redirectUrl = request.query_params.get("redirect_url", "")
     if not redirectUrl:
         redirectUrl = request.headers.get("referer", "")
-    
-    log(f"auth", f"Redirect URL: {redirectUrl}")
-    
+
+    log("auth", f"Redirect URL: {redirectUrl}")
+
     googleSSO = getGoogleSSO()
     async with googleSSO:
         return await googleSSO.get_login_redirect(state=redirectUrl)
@@ -106,51 +110,46 @@ async def googleLogin(request: Request):
 @limiter.limit("5/minute")
 async def googleCallback(request: Request, response: Response, state: str = None, db: Session = Depends(getSession)):
     log("auth", "--- Google Callback Start ---")
-    log(f"auth", f"State parameter: {state}")
-    
+    log("auth", f"State parameter: {state}")
+
     googleSSO = getGoogleSSO()
-    
+
     try:
-        async with googleSSO:
-            userInfo = await googleSSO.verify_and_process(request)
-        
-        if not userInfo:
-            raise HTTPException(status_code=400, detail="No user info received from Google")
-        
+        async with googleSSO: userInfo = await googleSSO.verify_and_process(request)
+
+        if not userInfo: raise HTTPException(status_code=400, detail="No user info received from Google")
+
         googleId = userInfo.id
         email = userInfo.email
-        
-        log(f"auth", f"User identified: {email}")
+
+        log("auth", f"User identified: {email}")
         user = AuthenticationManager.authenticateGoogleUser(db, googleId)
-        
+
         if not user:
             log("auth", "New user detected, creating account...")
-            username = email.split('@')[0]
+            username = email.split("@")[0]
             AuthenticationManager.createUserAccount(db, username=username, email=email, googleId=googleId)
             user = AuthenticationManager.authenticateGoogleUser(db, googleId)
 
         accessToken = createAccessToken(data={"userId": str(user["userId"])})
-        
-        frontendUrl = state if state else ""
-        isSecure = frontendUrl.startswith("https") if frontendUrl else False
-        separator = "&" if "?" in frontendUrl else "?"
+        isSecure = _is_secure_scheme(request)
 
-        response = RedirectResponse(url=f"{frontendUrl}{separator}token={accessToken}")
-        
         response.set_cookie(
-            key="mansa_token",
-            value=accessToken,
-            httponly=True,
-            secure=isSecure, 
-            samesite="none",
-            path="/" 
+            key=COOKIE_NAME, value=accessToken, httponly=True, secure=isSecure, samesite="none", path="/"
         )
 
-        log("auth", f"SUCCESS: Redirecting to {frontendUrl}")
-        log("auth", "--- Google Callback End ---")
-        return response
+        if state:
+            response = RedirectResponse(url=f"{state}?token={accessToken}")
+            response.set_cookie(
+                key=COOKIE_NAME, value=accessToken, httponly=True, secure=isSecure, samesite="none", path="/"
+            )
+            return response
 
+        log("auth", "--- Google Callback End ---")
+        return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
+
+    except HTTPException:
+        raise
     except Exception as e:
-        log("auth", f"CRITICAL ERROR in callback: {str(e)}")
-        log("auth", f"Traceback: {traceback.format_exc()}")
+        log_error("auth", f"Critical error in Google callback: {str(e)}", e)
         raise HTTPException(status_code=500, detail="Internal server error during Google login")

@@ -10,7 +10,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 class ServiceManager:
-    _instances = {}
+    _instances: dict[int, FastAPI] = {}
 
     @classmethod
     def getApp(cls, port: int) -> FastAPI:
@@ -20,10 +20,7 @@ class ServiceManager:
 
             @app.exception_handler(RateLimitExceeded)
             async def _rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
-                return JSONResponse(
-                    status_code=429,
-                    content={"detail": "Too many requests", "error": str(exc.detail)}
-                )
+                return JSONResponse(status_code=429, content={"detail": "Too many requests", "error": str(exc.detail)})
 
             app.add_middleware(
                 CORSMiddleware,
@@ -32,7 +29,7 @@ class ServiceManager:
                 allow_methods=["*"],
                 allow_headers=["*"],
             )
-            
+
             cls._instances[port] = app
         return cls._instances[port]
 
@@ -42,8 +39,7 @@ class ServiceManager:
 
         for port, app in cls._instances.items():
             thread = threading.Thread(
-                target=lambda p=port, a=app: uvicorn.run(a, host="0.0.0.0", port=p, log_level=logLevel),
-                daemon=True
+                target=lambda p=port, a=app: uvicorn.run(a, host="0.0.0.0", port=p, log_level=logLevel), daemon=True
             )
             thread.start()
 

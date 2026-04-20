@@ -280,30 +280,19 @@
         window.onload = async () => {
             log("Iniciando verificação de sessão...");
             
-            // Check for token in URL Query Param (Google OAuth)
+            // Check for token in URL Query Param (clean and save)
             const urlParams = new URLSearchParams(window.location.search);
             const urlToken = urlParams.get('token');
             if (urlToken) {
-                log("Token recebido via URL. Autenticando...");
+                log("Token recebido via URL. Salvando...");
                 localStorage.setItem('mansa_token', urlToken);
                 sessionStorage.setItem('mansa_token', urlToken);
-                window.location.href = window.location.pathname; // Clean URL
+                window.location.href = window.location.pathname;
                 await fetchProfile(urlToken);
                 return;
             }
             
-            // Check for token in URL Hash (Legacy/Fallback)
-            const hashParams = new URLSearchParams(window.location.hash.substring(1));
-            const hashToken = hashParams.get('token');
-            if (hashToken) {
-                log("Token recebido via URL Hash. Autenticando...");
-                localStorage.setItem('mansa_token', hashToken);
-                sessionStorage.setItem('mansa_token', hashToken);
-                window.location.hash = ""; // Clean URL
-                await fetchProfile(hashToken);
-                return;
-            }
-
+            // Check localStorage
             const token = localStorage.getItem('mansa_token');
 
             if (token) {
@@ -311,7 +300,7 @@
                 await fetchProfile(token);
             } else {
                 log("Tentando sessão via Cookies...");
-                await fetchProfile(); // No token passed, rely on Cookies
+                await fetchProfile();
             }
             checkHealth();
         };

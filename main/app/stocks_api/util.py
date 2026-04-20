@@ -1,12 +1,12 @@
 from fastapi import HTTPException
 import pandas as pd
- 
+
 def categorizeColumns(columns: list) -> tuple:
-    historicalFields = {}
+    historicalFields: dict[str, list[int]] = {}
     fundamentalCols = []
-    
+
     for col in columns:
-        parts = col.split(' ')
+        parts = col.split(" ")
         if len(parts) >= 2 and parts[-1].isdigit():
             year = int(parts[-1])
             field = " ".join(parts[:-1])
@@ -16,7 +16,7 @@ def categorizeColumns(columns: list) -> tuple:
         else:
             if col not in ["TICKER", "NOME", "TIME"]:
                 fundamentalCols.append(col)
-                
+
     return historicalFields, fundamentalCols
 
 def parseYearInput(years: str) -> tuple:

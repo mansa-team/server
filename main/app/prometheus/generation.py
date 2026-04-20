@@ -15,7 +15,7 @@ from main.app.prometheus.chat import PrometheusChatManager
 
 class PrometheusGenerator:
     def __init__(self):
-        self.client = genai.Client(api_key=Config.PROMETHEUS['GEMINI_API.KEY'])
+        self.client = genai.Client(api_key=Config.PROMETHEUS["GEMINI_API.KEY"])
         self.updateDates()
 
     def updateDates(self):
@@ -30,23 +30,22 @@ class PrometheusGenerator:
             self.currentISODate = (now - timedelta(days=1)).strftime("%Y-%m-%d")
             self.currentYear = now.year
             self.lastYear = self.currentYear - 1
-            
-        
-    def executeWorkflow(self, userQuery, history: list = None, sessionId: str = None):
+
+    def executeWorkflow(self, userQuery, history: list | None = None, sessionId: str | None = None):
         self.updateDates()
         log("prometheus", f"Query: {userQuery}")
-        sysPrompt = {}
-        promptContents = {}
-        modelResponse = {}
-        requestContext = []
+        sysPrompt: dict = {}
+        promptContents: list = []
+        modelResponse: dict = {}
+        requestContext: list = []
         formattedHistory = []
 
         if history:
             formattedHistory = history[-20:]
 
         #
-        #$ Stage 0 (Memory Optimization)
-        #$ Determine if we should include the session summary for context
+        # $ Stage 0 (Memory Optimization)
+        # $ Determine if we should include the session summary for context
         #
         summaryContext = ""
         if sessionId:
@@ -60,10 +59,10 @@ class PrometheusGenerator:
                 pass
 
         #
-        #$ Stage 1
-        #$ Filtering out the user's request prompt to get the API data
+        # $ Stage 1
+        # $ Filtering out the user's request prompt to get the API data
         #
-        sysPrompt['STAGE 1'] = """
+        sysPrompt["STAGE 1"] = """
             Data atual: {CURRENT_DATE}
             Ano atual: {CURRENT_YEAR}
             Ano anterior (usar para dados históricos incompletos): {LAST_YEAR}
@@ -112,7 +111,7 @@ class PrometheusGenerator:
 
             Lista de Campos Válidos (Strict):
             * historical (Apenas ANOS - Ex: {CURRENT_YEAR}): DESPESAS, DIVIDENDOS, DY, LUCRO LIQUIDO, MARGEM BRUTA, MARGEM EBIT, MARGEM EBITDA, MARGEM LIQUIDA, RECEITA LIQUIDA, COTACAO
-            * fundamental (DATAS COMPLETAS - Ex: {CURRENT_DATE}): PRECO, VALOR DE MERCADO, LIQUIDEZ MEDIA DIARIA, P/L, P/VP, P/ATIVOS, P/EBIT, P/CAP. GIRO, P. AT CIR. LIQ., PSR, EV/EBIT, PEG Ratio, PRECO DE GRAHAM, PRECO DE BAZIN, MARG. LIQUIDA, MARGEM BRUTA, MARGEM EBIT, ROE, ROA, ROIC, VPA, LPA, DY, DY MEDIO 5 ANOS, CAGR DIVIDENDOS 5 ANOS, CAGR RECEITAS 5 ANOS, CAGR LUCROS 5 ANOS, CAGR LUCROS 10 ANOS, LUCRO LIQUIDO MEDIO 5 ANOS, RENT 1 DIA, RENT 5 DIAS, RENT 1 MES, RENT 6 MESES, RENT 1 ANO, RENT 12 MESES, RENT 5 ANOS, RENT MEDIA 5 ANOS, RENT TOTAL, PATRIMONIO / ATIVOS, PASSIVOS / ATIVOS, LIQ. CORRENTE, DIVIDA LIQUIDA / EBIT, DIV. LIQ. / PATRI., GIRO ATIVOS, NOME, TICKER, SETOR, SUBSETOR, SEGMENTO, SGR, TAG ALONG, VALUE INVESTING SCORE
+            * fundamental (DATAS COMPLETAS - Ex: {CURRENT_DATE}): PRECO, VALOR DE MERCADO, LIQUIDEZ MEDIA DIARIA, P/L, P/VP, P/ATIVOS, P/EBIT, P/CAP. GIRO, P. AT CIR. LIQ., PSR, EV/EBIT, PEG Ratio, PRECO DE GRAHAM, PRECO DE BAZIN, MARG. LIQUIDA, MARGEM BRUTA, MARGEM EBIT, ROE, ROA, ROIC, VPA, LPA, DY, DY MEDIO 5 ANOS, CAGR DIVIDENDOS 5 ANOS, CAGR RECEITAS 5 ANOS, CAGR LUCROS 5 ANOS, CAGR LUCROS 10 ANOS, LUCRO LIQUIDO MEDIO 5 ANOS, RENT 1 DIA, RENT 5 DIAS, RENT 1 MES, RENT 6 MESES, RENT 1 ANO, RENT 12 MESES, RENT 5 ANOS, RENT MEDIA 5 ANOS, RENT TOTAL, PATRIMONIO / ATIVOS, PASSIVOS / ATIVOS, LIQ. CORRENTE, DIVIDA LIQUIDA / EBIT, DIV. LIQ. / PATRI., GIRO ATIVOS, NOME, TICKER, SETOR, SUBSETOR, SEGMENTO, SGR, TAG ALONG, VALUE INVESTING SCORE, NOTICIAS
 
             REGRAS DE FORMATAÇÃO DE CAMPOS (CRITICAL):
             1. SEM UNDERSCORES: Todos os nomes de campos devem ser escritos EXATAMENTE como estão na Lista de Campos Válidos, usando espaços quando houver, e NUNCA underscores (ex: use "VALUE INVESTING SCORE" e não "VALUE_INVESTING_SCORE").
@@ -147,92 +146,95 @@ class PrometheusGenerator:
             * Input: "Como eu posso calcular o valor intrinseco de uma acao" -> Output: []
             * Input: "Oi, pode me ajudar?" -> Output: []
             """.replace("{CURRENT_DATE}", self.currentDate)
-        sysPrompt['STAGE 1'] = sysPrompt['STAGE 1'].replace("{CURRENT_YEAR}", str(self.currentYear))
-        sysPrompt['STAGE 1'] = sysPrompt['STAGE 1'].replace("{LAST_YEAR}", str(self.lastYear))
-        sysPrompt['STAGE 1'] = sysPrompt['STAGE 1'].replace("{Y-M-D}", self.currentISODate)
-        sysPrompt['STAGE 1'] = sysPrompt['STAGE 1'].replace("{L_Y}", str(self.lastYear))
-        sysPrompt['STAGE 1'] = sysPrompt['STAGE 1'].replace("{SUMMARY_CONTEXT}", summaryContext)
+        sysPrompt["STAGE 1"] = sysPrompt["STAGE 1"].replace("{CURRENT_YEAR}", str(self.currentYear))
+        sysPrompt["STAGE 1"] = sysPrompt["STAGE 1"].replace("{LAST_YEAR}", str(self.lastYear))
+        sysPrompt["STAGE 1"] = sysPrompt["STAGE 1"].replace("{Y-M-D}", self.currentISODate)
+        sysPrompt["STAGE 1"] = sysPrompt["STAGE 1"].replace("{L_Y}", str(self.lastYear))
+        sysPrompt["STAGE 1"] = sysPrompt["STAGE 1"].replace("{SUMMARY_CONTEXT}", summaryContext)
 
         requestContext = []
         if formattedHistory:
             requestContext.extend(formattedHistory)
-        
+
         requestContext.append(userQuery)
 
         response = self.client.models.generate_content(
-            model='gemini-flash-lite-latest',
+            model="gemini-flash-lite-latest",
             contents=requestContext,
-            config=types.GenerateContentConfig(
-                system_instruction=sysPrompt['STAGE 1']
-            )
+            config=types.GenerateContentConfig(system_instruction=sysPrompt["STAGE 1"]),
         )
-        modelResponse['STAGE 1'] = response.text
+        modelResponse["STAGE 1"] = response.text
         print(f"""[PROMETHEUS STAGE 1] \n
-              {modelResponse['STAGE 1']}""")
+              {modelResponse["STAGE 1"]}""")
 
         #
-        #$ Stage 2
-        #$ Getting the Stage 1 response data the STOCKS API request that will be used to give further information for the final response
+        # $ Stage 2
+        # $ Getting the Stage 1 response data the STOCKS API request that will be used to give further information for the final response
         #
-        responseData = json.loads(modelResponse['STAGE 1'])
+        responseData = json.loads(modelResponse["STAGE 1"])
 
         APIResponse = []
         headers = {"X-API-Key": Config.STOCKS_API["KEY"]} if Config.STOCKS_API["KEY_SYSTEM"] else {}
 
         topTickers = ""
-        globalReq = next((r for r in responseData if not r.get('search') and r.get('type') == "fundamental"), None)
-        
+        globalReq = next((r for r in responseData if not r.get("search") and r.get("type") == "fundamental"), None)
+
         if globalReq:
             try:
                 params = {
-                    'search': "", 
-                    'fields': "TICKER", 
-                    'dates': f"{globalReq['date_start']},{globalReq['date_end']}",
-                    'orderBy': globalReq.get('order_by'),
-                    'limit': globalReq.get('limit')
+                    "search": "",
+                    "fields": "TICKER",
+                    "dates": f"{globalReq['date_start']},{globalReq['date_end']}",
+                    "orderBy": globalReq.get("order_by"),
+                    "limit": globalReq.get("limit"),
                 }
-                syncRes = requests.get(f'http://{Config.STOCKS_API["HOST"]}:{Config.STOCKS_API["PORT"]}/stocks/fundamental', params=params, headers=headers, timeout=20)
-                
+                syncRes = requests.get(
+                    f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/fundamental",
+                    params=params,
+                    headers=headers,
+                    timeout=20,
+                )
+
                 if syncRes.status_code == 200:
-                    tickers = [s['TICKER'] for s in syncRes.json().get('data', []) if 'TICKER' in s]
+                    tickers = [s["TICKER"] for s in syncRes.json().get("data", []) if "TICKER" in s]
                     topTickers = ",".join(tickers)
 
                     for req in responseData:
-                        if not req.get('search'):
-                            req['search'] = topTickers
+                        if not req.get("search"):
+                            req["search"] = topTickers
             except Exception as e:
                 log("prometheus", f"Error resolving global tickers: {e}")
 
         def fetchStockData(req):
             params = {
-                'search': req['search'], 
-                'fields': req['fields'], 
-                'dates': f"{req['date_start']},{req['date_end']}",
-                'orderBy': req.get('order_by'),
-                'limit': req.get('limit')
+                "search": req["search"],
+                "fields": req["fields"],
+                "dates": f"{req['date_start']},{req['date_end']}",
+                "orderBy": req.get("order_by"),
+                "limit": req.get("limit"),
             }
             try:
-                url = f'http://{Config.STOCKS_API["HOST"]}:{Config.STOCKS_API["PORT"]}/stocks/{req["type"]}'
+                url = f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/{req['type']}"
                 res = requests.get(url, params=params, headers=headers, timeout=20)
-                return res.json().get('data', []) if res.status_code == 200 else []
+                return res.json().get("data", []) if res.status_code == 200 else []
             except Exception as e:
                 log("prometheus", f"API error ({req['type']}): {e}")
                 return []
-            
+
         with ThreadPoolExecutor(max_workers=40) as executor:
             futures = [executor.submit(fetchStockData, r) for r in responseData]
             for f in as_completed(futures):
                 APIResponse.extend(f.result())
 
-        APIResponse = json.dumps(APIResponse, ensure_ascii=False, indent=2)
+        api_response_str = json.dumps(APIResponse, ensure_ascii=False, indent=2)
         print(f"""[PROMETHEUS STAGE 2] \n
-              {APIResponse}""")
+              {api_response_str}""")
 
         #
-        #$ Stage 3
-        #$ Give the final prompt to the model that will generate a markdown/chart response for the user
+        # $ Stage 3
+        # $ Give the final prompt to the model that will generate a markdown/chart response for the user
         #
-        sysPrompt['STAGE 3'] = """
+        sysPrompt["STAGE 3"] = """
         Data atual: {CURRENT_DATE}
         
         [MEMÓRIA DA CONVERSA]:
@@ -297,28 +299,28 @@ class PrometheusGenerator:
 
         Lembre-se: o tempo é o melhor amigo do investidor de valor. Esta análise utiliza dados históricos para apoiar sua jornada educacional e não constitui uma recomendação de compra ou venda. O mercado oscila, mas os fundamentos são sua bússola para o acúmulo de patrimônio.
         """.replace("{CURRENT_DATE}", self.currentDate)
-        sysPrompt['STAGE 3'] = sysPrompt['STAGE 3'].replace("{SUMMARY_CONTEXT}", summaryContext)
-        sysPrompt['STAGE 3'] = sysPrompt['STAGE 3'].replace("{API_RESPONSE}", APIResponse)
+        sysPrompt["STAGE 3"] = sysPrompt["STAGE 3"].replace("{SUMMARY_CONTEXT}", summaryContext)
+        sysPrompt["STAGE 3"] = sysPrompt["STAGE 3"].replace("{API_RESPONSE}", api_response_str)
 
         response = self.client.models.generate_content(
-            model='gemma-4-31b-it',
+            model="gemma-4-31b-it",
             contents=requestContext,
             config=types.GenerateContentConfig(
-                system_instruction=sysPrompt['STAGE 3'],
-                #tools=[types.Tool(google_search=types.GoogleSearch())]
-            )
+                system_instruction=sysPrompt["STAGE 3"],
+                # tools=[types.Tool(google_search=types.GoogleSearch())]
+            ),
         )
 
-        modelResponse['STAGE 3'] = response.text
+        modelResponse["STAGE 3"] = response.text
         print(f"""[PROMETHEUS STAGE 3] \n
-              {modelResponse['STAGE 3']}""")
-        
+              {modelResponse["STAGE 3"]}""")
+
         #
-        #$ Stage 4
-        #$ Update the summary and title if the history is long enough
+        # $ Stage 4
+        # $ Update the summary and title if the history is long enough
         #
         if sessionId and history and len(history) % 10 == 0:
-            sysPrompt['STAGE 4'] = """
+            sysPrompt["STAGE 4"] = """
             Função: Jornalista e Sumarista Financeiro Sênior.
             Tarefa: Resuma o contexto técnico e narrativo desta conversa em UMA única frase curta, que funcione como uma MANCHETE de portal de notícias.
             
@@ -339,23 +341,20 @@ class PrometheusGenerator:
             IMPORTANTE: NÃO use pontos finais. O resumo deve ser uma manchete limpa.
             """
 
-            promptContents = formattedHistory + [userQuery] + [modelResponse['STAGE 3']]
+            promptContents = formattedHistory + [userQuery] + [modelResponse["STAGE 3"]]
 
             response = self.client.models.generate_content(
-                model='gemini-flash-lite-latest',
+                model="gemini-flash-lite-latest",
                 contents=promptContents,
-                config=types.GenerateContentConfig(
-                    system_instruction=sysPrompt['STAGE 4'],
-                    max_output_tokens=67
-                )
+                config=types.GenerateContentConfig(system_instruction=sysPrompt["STAGE 4"], max_output_tokens=67),
             )
-            
-            modelResponse['STAGE 4'] = response.text
 
-            PrometheusChatManager.updateSummary(sessionId, modelResponse['STAGE 4'])
-            PrometheusChatManager.updateSessionTitle(sessionId, modelResponse['STAGE 4'])
+            modelResponse["STAGE 4"] = response.text
+
+            PrometheusChatManager.updateSummary(sessionId, modelResponse["STAGE 4"])
+            PrometheusChatManager.updateSessionTitle(sessionId, modelResponse["STAGE 4"])
 
             print(f"""[PROMETHEUS STAGE 4] \n
-                {modelResponse['STAGE 4']}""")
-        
-        return modelResponse['STAGE 3']
+                {modelResponse["STAGE 4"]}""")
+
+        return modelResponse["STAGE 3"]

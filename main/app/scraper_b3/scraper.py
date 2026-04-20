@@ -18,7 +18,7 @@ from sqlalchemy import create_engine, text, QueuePool
 from tenacity import retry, stop_after_attempt, wait_exponential
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.linear_model import LinearRegression
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
@@ -273,7 +273,7 @@ class B3Scraper:
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=3))
     def stockNews(self, TICKER):
         df = pd.read_xml(
-            StringIO(self.requests.get("https://news.google.com/rss/search?q=WEGE3&hl=pt-BR").text), xpath=".//item"
+            StringIO(self.requests.get(f"https://news.google.com/rss/search?q={TICKER}&hl=pt-BR").text), xpath=".//item"
         )
         df = df.drop(columns={"guid", "description"})
         df["pubDate"] = pd.to_datetime(df["pubDate"])
@@ -369,22 +369,31 @@ class B3Scraper:
             score = 0
 
             years = range(self.currentYear - 10, self.currentYear)
-            lucro_data = {"YEAR": [], "LUCRO LIQUIDO": []}
-            for year in years:
-                val = df.get(f"LUCRO LIQUIDO {year}", np.nan)
-                if not np.isnan(val):
-                    lucro_data["YEAR"].append(year)
-                    lucro_data["LUCRO LIQUIDO"].append(val)
 
-            lucro_df = pd.DataFrame(lucro_data)
-            if len(lucro_df) >= 5:
-                X = lucro_df[["YEAR"]]
-                y = lucro_df[["LUCRO LIQUIDO"]]
+            row = df if isinstance(df, pd.Series) else df.iloc[0]
+            profit_cols = [col for col in row.keys() if str(col).startswith("LUCRO LIQUIDO") and str(col)[-1].isdigit()]
 
-                scaler_x = StandardScaler()
+            profit_df = []
+            for col in profit_cols:
+                try:
+                    year_val = int(col.split()[-1])
+                    profit_val = row[col]
+                    if not pd.isna(profit_val):
+                        profit_df.append({"YEAR": year_val, "LUCRO LIQUIDO": profit_val})
+                except (ValueError, IndexError):
+                    continue
+
+            profit_df = pd.DataFrame(profit_df).sort_values("YEAR").reset_index(drop=True)
+            profit10y_df = profit_df[profit_df["YEAR"].isin(years)].copy().reset_index(drop=True)
+
+            if len(profit10y_df) >= 10:
+                X = profit10y_df[["YEAR"]]
+                y = profit10y_df[["LUCRO LIQUIDO"]]
+
+                scaler_x = MinMaxScaler()
                 X_scaled = scaler_x.fit_transform(X)
 
-                scaler_y = StandardScaler()
+                scaler_y = MinMaxScaler(feature_range=(0, 10))
                 y_scaled = scaler_y.fit_transform(y)
 
                 model = LinearRegression().fit(X_scaled, y_scaled)
@@ -393,7 +402,7 @@ class B3Scraper:
                 angle_deg = math.degrees(math.atan(opposing_cathet))
                 r2 = max(0, model.score(X_scaled, y_scaled))
 
-                profits_numeric = lucro_df["LUCRO LIQUIDO"].astype(float)
+                profits_numeric = profit10y_df["LUCRO LIQUIDO"].astype(float)
                 yearly_growth = profits_numeric.pct_change().dropna()
                 positive_years_ratio = (yearly_growth > 0).sum() / len(yearly_growth) if len(yearly_growth) > 0 else 0
 
@@ -405,8 +414,7 @@ class B3Scraper:
                 if r2 > 0.9 and positive_years_ratio >= 0.9:
                     score = min(100, score + 5)
 
-                has_negative_years = (lucro_df["LUCRO LIQUIDO"] < 0).any()
-                if has_negative_years:
+                if (profit_df["LUCRO LIQUIDO"] < 0).any():
                     score *= 0.5
 
                 total_liq = df.get("LIQUIDEZ MEDIA DIARIA", 0) or 0
@@ -416,18 +424,11 @@ class B3Scraper:
                     liquidity_multiplier = max(0.5, np.sqrt(min(1.0, ratio)))
                     score *= liquidity_multiplier
 
-                divida_ebit = df.get("DIVIDA LIQUIDA / EBIT", np.nan)
-                target_debt = 2.0
-                if not np.isnan(divida_ebit) and divida_ebit > target_debt:
-                    ratio = divida_ebit / target_debt
-                    debt_multiplier = max(0.5, np.sqrt(min(1.0, ratio)))
-                    score *= debt_multiplier
-
                 if TICKER.endswith("4"):
                     score *= 0.75
 
-            newDF["VALUE INVESTING SCORE"] = min(max(score, 0), 100.0)
-        except:
+            newDF["VALUE INVESTING SCORE"] = min(max(score, 0), 100)
+        except Exception as e:
             newDF["VALUE INVESTING SCORE"] = np.nan
 
         return pd.DataFrame([newDF]).set_index("TICKER")
@@ -491,6 +492,18 @@ class B3Scraper:
             new_cols = [c for c in combined.columns if c not in stocksDF.columns]
             final_df = pd.concat([stocksDF, combined[new_cols]], axis=1, join="outer")
             final_df = final_df.reindex(stocksList)
+
+            prefix_liq = final_df.groupby(final_df.index.str[:4])["LIQUIDEZ MEDIA DIARIA"].sum()
+            for ticker in final_df.index:
+                prefix = ticker[:4]
+                total_liq = prefix_liq.get(prefix, 0)
+                score = final_df.loc[ticker, "VALUE INVESTING SCORE"]
+                if pd.notna(score) and score > 0:
+                    target_liquidity = 10_000_000
+                    if total_liq < target_liquidity:
+                        ratio = total_liq / target_liquidity
+                        liquidity_multiplier = max(0.5, np.sqrt(min(1.0, ratio)))
+                        final_df.loc[ticker, "VALUE INVESTING SCORE"] = min(max(score * liquidity_multiplier, 0), 100)
         else:
             final_df = stocksDF.copy()
 
@@ -514,6 +527,11 @@ class B3Scraper:
     def serializeComplexTypes(self, df):
         if df.empty:
             return df
+
+        df = df.copy()
+        df["TICKER"] = df.index
+        df = df.reset_index(drop=True)
+
         special_cols = ["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"]
 
         def convert_value(val):
@@ -587,11 +605,11 @@ class B3Scraper:
                     )
                     conn.execute(text(f"ALTER TABLE b3_stocks ADD COLUMN `{col}` {dtype} NULL"))
 
-            for col in ["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS"]:
+            for col in ["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"]:
                 if col in df.columns:
                     conn.execute(text(f"ALTER TABLE b3_stocks MODIFY COLUMN `{col}` LONGTEXT NULL"))
 
-            df.to_sql("b3_stocks", con=conn, if_exists="append", index=False, method="multi", chunksize=200)
+            df.to_sql("b3_stocks", con=conn, if_exists="append", index=False, method=None, chunksize=1)
 
             cleanup_sql = """
             CREATE TEMPORARY TABLE IF NOT EXISTS ticker_lookup (
