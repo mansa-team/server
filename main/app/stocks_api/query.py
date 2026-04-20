@@ -40,9 +40,7 @@ class StocksQueryManager:
 
         return df
 
-    def queryHistorical(
-        self, search: str = None, fields: str = None, dates: str = None, orderBy: str = None, limit: int = None
-    ):
+    def queryHistorical(self, search: str = None, fields: str = None, dates: str = None, orderBy: str = None, limit: int = None):
         if self.cache_manager.STOCKS_CACHE is None:
             raise HTTPException(status_code=503, detail="Cache not initialized")
 
@@ -101,9 +99,7 @@ class StocksQueryManager:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Cached historical error: {str(e)}")
 
-    def queryFundamental(
-        self, search: str = None, fields: str = None, dates: str = None, orderBy: str = None, limit: int = None
-    ):
+    def queryFundamental(self, search: str = None, fields: str = None, dates: str = None, orderBy: str = None, limit: int = None):
         if self.cache_manager.STOCKS_CACHE is None:
             raise HTTPException(status_code=503, detail="Cache not initialized")
 
@@ -150,11 +146,9 @@ class StocksQueryManager:
             if orderBy and orderBy in df.columns:
                 df = df.sort_values(by=orderBy, ascending=False)
 
-            if limit:
-                df = df.head(limit)
+            if limit: df = df.head(limit)
 
             df = df[[c for c in cols if c in df.columns]]
-
             df = self._deserialize_json_columns(df)
 
             return {
@@ -167,6 +161,5 @@ class StocksQueryManager:
             }
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Cached fundamental error: {str(e)}")
-
 
 stocksQuery = StocksQueryManager(stocksCache)

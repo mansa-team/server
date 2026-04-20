@@ -1,4 +1,5 @@
 from main.utils.util import log
+from main.utils.roles import Roles
 
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
@@ -25,9 +26,7 @@ class AuthenticationManager:
 
             hashedPassword = hashPassword(password) if password else None
 
-            newUser = User(
-                username=username, email=email, passwordHash=hashedPassword, googleId=googleId, roles=Roles.USER.name
-            )
+            newUser = User(username=username, email=email, passwordHash=hashedPassword, googleId=googleId, roles=Roles.USER.name)
 
             db.add(newUser)
             db.commit()

@@ -1,4 +1,4 @@
-from config import Config, getSession
+from config import getSession
 from main.utils.util import log, limiter, log_error
 
 from fastapi import APIRouter, Response, Body, HTTPException, Request, Depends
@@ -6,23 +6,18 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from main.app.authentication.authentication import AuthenticationManager
-from main.app.authentication.util import createAccessToken, verifyAccessToken
+from main.app.authentication.util import createAccessToken
 from main.app.authentication.sso import getGoogleSSO
 from main.app.authentication.constants import COOKIE_NAME, COOKIE_PATH, COOKIE_SAMESITE
-from main.app.stocks_api.key import verifyAPIKey
-from main.app.user.user import UserManager
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
-
 
 def _is_secure_scheme(request: Request) -> bool:
     return request.url.scheme == "https" if request.url.scheme else False
 
-
 @router.get("/health")
 def health(request: Request):
     return {"status": "ok", "service": "authentication"}
-
 
 @router.post("/register")
 @limiter.limit("5/minute")
@@ -62,7 +57,6 @@ def register(
         log_error("auth", "Unexpected error during registration", e)
         raise HTTPException(status_code=500, detail="Registration failed. Internal error.")
 
-
 @router.post("/login")
 @limiter.limit("5/minute")
 def login(
@@ -89,7 +83,6 @@ def login(
 
     return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
 
-
 @router.post("/logout")
 def logout(request: Request, response: Response):
     useCookieSecure = _is_secure_scheme(request)
@@ -97,7 +90,6 @@ def logout(request: Request, response: Response):
         key=COOKIE_NAME, httponly=True, secure=useCookieSecure, samesite=COOKIE_SAMESITE, path=COOKIE_PATH
     )
     return {"message": "Successfully logged out"}
-
 
 @router.get("/google")
 @limiter.limit("5/minute")
@@ -114,7 +106,6 @@ async def googleLogin(request: Request):
     async with googleSSO:
         return await googleSSO.get_login_redirect(state=redirectUrl)
 
-
 @router.get("/callback")
 @limiter.limit("5/minute")
 async def googleCallback(request: Request, response: Response, state: str = None, db: Session = Depends(getSession)):
@@ -124,11 +115,9 @@ async def googleCallback(request: Request, response: Response, state: str = None
     googleSSO = getGoogleSSO()
 
     try:
-        async with googleSSO:
-            userInfo = await googleSSO.verify_and_process(request)
+        async with googleSSO: userInfo = await googleSSO.verify_and_process(request)
 
-        if not userInfo:
-            raise HTTPException(status_code=400, detail="No user info received from Google")
+        if not userInfo: raise HTTPException(status_code=400, detail="No user info received from Google")
 
         googleId = userInfo.id
         email = userInfo.email
@@ -143,7 +132,6 @@ async def googleCallback(request: Request, response: Response, state: str = None
             user = AuthenticationManager.authenticateGoogleUser(db, googleId)
 
         accessToken = createAccessToken(data={"userId": str(user["userId"])})
-
         isSecure = _is_secure_scheme(request)
 
         response.set_cookie(

@@ -1,11 +1,8 @@
-from config import Config, getSession
+from config import getSession
 from main.utils.util import log
 from main.models import User
 from fastapi import HTTPException, Request, Depends
 from sqlalchemy.orm import Session
-
-from main.app.authentication.constants import SECRET_KEY, ALGORITHM
-
 
 class UserManager:
     def __init__(self):

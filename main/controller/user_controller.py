@@ -6,10 +6,7 @@ from sqlalchemy.orm import Session
 
 from fastapi import APIRouter, Request, Depends
 
-router = APIRouter(
-    prefix="/user",
-    tags=["User"]
-)
+router = APIRouter(prefix="/user", tags=["User"])
 
 @router.get("/health")
 def health(request: Request):
