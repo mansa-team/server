@@ -25,6 +25,8 @@ class UserManager:
     @staticmethod
     def getCurrentUser(request: Request, db: Session = Depends(getSession)):
         from main.app.authentication.util import verifyAccessToken
+        from main.app.authentication.session import SessionManager
+        from main.utils.util import log
 
         token = request.headers.get("X-Access-Token")
         if not token:
@@ -38,21 +40,36 @@ class UserManager:
         try:
             payload = verifyAccessToken(token)
             userId = payload.get("userId")
+            sessionId = payload.get("sessionId")
 
             if userId is None:
                 raise HTTPException(status_code=401, detail="Invalid Token")
+
+            if sessionId:
+                isValid = SessionManager.validateSession(db, sessionId, userId)
+                if not isValid:
+                    log("session", f"Session {sessionId} revoked, logging out user {userId}")
+                    raise HTTPException(status_code=401, detail="Session revoked")
 
             user = db.query(User).filter(User.userId == userId).first()
 
             if not user:
                 raise HTTPException(status_code=401, detail="User no longer exists")
 
-            return {
+            result = {
                 "userId": user.userId,
                 "username": user.username,
                 "email": user.email,
                 "roles": user.getRolesList(),
             }
+
+            if sessionId:
+                try:
+                    result["sessionId"] = sessionId
+                except (ValueError, TypeError):
+                    pass
+
+            return result
 
         except HTTPException:
             raise

@@ -72,6 +72,7 @@ curl -X POST "http://localhost:3200/auth/login" \
 **Response Behavior:**
 - Sets a `mansa_token` cookie (HttpOnly, Secure, SameSite=Lax).
 - Returns a JSON object with `accessToken`, user metadata, and a list of `roles`.
+- Creates a new session in the database with device information.
 
 ### Profile (Me)
 Retrieves the logged-in user's information and current roles.
@@ -80,12 +81,15 @@ curl -X GET "http://localhost:3200/auth/me" \
      -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-### Upgrade to Developer
-Adds the `DEVELOPER` role to the current authenticated user.
+### Logout
+Logs out the user and revokes the current session.
 ```bash
-curl -X POST "http://localhost:3200/auth/upgrade/developer" \
+curl -X POST "http://localhost:3200/auth/logout" \
      -H "Authorization: Bearer YOUR_TOKEN"
 ```
+**Response Behavior:**
+- Revokes the current session in the database.
+- Deletes the authentication cookie.
 
 ### Google OAuth2 Login
 Initiates the Google authentication flow.
@@ -105,19 +109,47 @@ GET http://localhost:3200/auth/google
 Internal endpoint handled by the server. After successful Google login, it:
 1. Verifies the user with Google using fastapi-sso.
 2. Synchronizes the user with the local MySQL database.
-3. Redirects to the frontend with the token in the URL query parameter:
+3. Creates a session with device information.
+4. Redirects to the frontend with the token in the URL query parameter:
    - Format: `http://127.0.0.1:5500/main/test/auth.html?token=ACCESS_TOKEN`
    - The token is also set as an HttpOnly cookie (`mansa_token`)
- 
+
 ## Security Features
 
 - **Bcrypt Hashing**: All passwords are salted and hashed using the Blowfish algorithm (bcrypt).
 - **Auto-increment Gap Prevention**: The registration flow performs pre-insertion checks for existing usernames/emails to prevent database ID gaps on failed attempts.
 - **Stateless Authentication**: JWT allows the server to verify users without session storage.
+- **Hybrid Session Management**: JWT tokens include session IDs for tracking and revocation capabilities.
+- **Device Detection**: Sessions include device fingerprinting (browser, OS, IP).
+- **Session Revocation**: Users can revoke individual sessions or all sessions at once.
 - **CORS Protection**: Configured with dynamic origin matching to allow authenticated requests from trusted frontends while maintaining security.
 - **fastapi-sso**: OAuth2 flow handled by fastapi-sso library with built-in CSRF protection via state parameter.
 - **OAuth State Parameter**: Redirect URL is passed via OAuth state parameter, not stored in session (avoids SameSite cookie issues).
 - **HttpOnly Cookies**: Authentication tokens stored in HttpOnly cookies to prevent XSS attacks.
+
+## Device Detection
+
+The system automatically detects and stores device information for each session:
+
+| Field | Description |
+|-------|------------|
+| browser | Detected browser (Chrome, Firefox, Safari, etc.) |
+| browserVersion | Browser version |
+| os | Operating system (Windows, macOS, Linux, Android, iOS) |
+| osVersion | OS version |
+| deviceType | Device category (desktop, mobile, tablet) |
+| ipAddress | Client IP address |
+| userAgent | Raw user agent string |
+
+## Session Management
+
+Sessions are tracked in the database and provide:
+- **Device Fingerprinting**: Unique identifier based on User-Agent + IP
+- **Session Listing**: View all active sessions
+- **Session Revocation**: Revoke individual or all sessions
+- **Automatic Expiration**: Sessions expire with JWT (24 hours)
+
+See [User Documentation](user.md#session-management) for session management endpoints.
 
 ## Workflow
 
@@ -127,7 +159,8 @@ graph TD
     
     Start -- Standard --> Login["POST /auth/login"]
     Login --> Verify["Verify Bcrypt Hash"]
-    Verify -- Success --> JWT["Generate JWT"]
+    Verify -- Success --> CreateSession["Create Session in DB"]
+    CreateSession --> JWT["Generate JWT with sessionId"]
     
     Start -- Google OAuth --> GLogin["GET /auth/google?redirect_url=URL"]
     GLogin --> State["Store redirect URL in state param"]
@@ -136,23 +169,21 @@ graph TD
     GAuth --> GCallback["GET /auth/callback"]
     GCallback --> GVerify["Verify and process token"]
     GVerify --> GSync["Sync User in MySQL"]
-    GSync --> OAuthJWT["Generate JWT"]
+    GSync --> GCreateSession["Create Session in DB"]
+    GCreateSession --> OAuthJWT["Generate JWT with sessionId"]
     
     Start -- Register --> Reg["POST /auth/register"]
     Reg --> Valid["Check Duplicate User"]
     Valid -- OK --> Hash["Hash Password"]
     Hash --> Save["Save to MySQL"]
+    Save --> CreateSession
 
     JWT --> Cookie["Set HttpOnly Cookie & Redirect"]
     OAuthJWT --> Cookie
     
     Cookie --> Home["Access Granted"]
 ```
-    Save --> JWT
-    
-    JWT --> Cookie["Set Cookie & Redirect"]
-    Cookie --> Home["Access Granted"]
-```
 
 ## License
+
 Mansa Team's MODIFIED GPL 3.0 License. See LICENSE for details.

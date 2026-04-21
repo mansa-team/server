@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, String, Text, TIMESTAMP, func
 from sqlalchemy.orm import relationship
 from main.models.base import Base
 
-
 class User(Base):
     __tablename__ = "users"
 
@@ -15,6 +14,7 @@ class User(Base):
     createdAt = Column(TIMESTAMP, server_default=func.current_timestamp(), nullable=False)
 
     stocksapi_keys = relationship("StocksAPIKey", back_populates="user", cascade="all, delete-orphan", uselist=False)
+    sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<User(userId={self.userId}, username='{self.username}', email='{self.email}')>"
@@ -30,7 +30,7 @@ class User(Base):
         currentRoles = self.getRolesList()
         if role not in currentRoles:
             currentRoles.append(role)
-            self.roles = ",".join(currentRoles)  # type: ignore
+            self.roles = ",".join(currentRoles)
 
     def removeRole(self, role: str):
         if hasattr(role, "name"):
@@ -38,7 +38,7 @@ class User(Base):
         currentRoles = self.getRolesList()
         if role in currentRoles:
             currentRoles.remove(role)
-            self.roles = ",".join(currentRoles) if currentRoles else "USER"  # type: ignore
+            self.roles = ",".join(currentRoles) if currentRoles else "USER"
 
     def hasRole(self, role: str) -> bool:
         if hasattr(role, "name"):

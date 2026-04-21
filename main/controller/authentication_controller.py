@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from config import getSession
 from main.utils.util import log, limiter, log_error
 
@@ -8,7 +9,8 @@ from sqlalchemy.orm import Session
 from main.app.authentication.authentication import AuthenticationManager
 from main.app.authentication.util import createAccessToken
 from main.app.authentication.sso import getGoogleSSO
-from main.app.authentication.constants import COOKIE_NAME, COOKIE_PATH, COOKIE_SAMESITE
+from main.app.authentication.constants import COOKIE_NAME, COOKIE_PATH, COOKIE_SAMESITE, TOKEN_EXPIRY_HOURS
+from main.app.authentication.session import SessionManager
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -36,7 +38,11 @@ def register(
         if not user:
             raise HTTPException(status_code=401, detail="Auto-login failed after registration")
 
-        accessToken = createAccessToken(data={"userId": str(user["userId"])})
+        userAgent = request.headers.get("User-Agent", "")
+        expiresAt = datetime.utcnow() + timedelta(hours=TOKEN_EXPIRY_HOURS)
+        session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
+
+        accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
         useCookieSecure = _is_secure_scheme(request)
         response.set_cookie(
             key=COOKIE_NAME,
@@ -70,7 +76,11 @@ def login(
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    accessToken = createAccessToken(data={"userId": str(user["userId"])})
+    userAgent = request.headers.get("User-Agent", "")
+    expiresAt = datetime.utcnow() + timedelta(hours=TOKEN_EXPIRY_HOURS)
+    session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
+
+    accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
     useCookieSecure = _is_secure_scheme(request)
     response.set_cookie(
         key=COOKIE_NAME,
@@ -84,7 +94,29 @@ def login(
     return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
 
 @router.post("/logout")
-def logout(request: Request, response: Response):
+def logout(request: Request, response: Response, db: Session = Depends(getSession)):
+    from main.app.authentication.util import verifyAccessToken
+
+    token = request.headers.get("X-Access-Token")
+    if not token:
+        authHeader = request.headers.get("Authorization")
+        if authHeader and authHeader.startswith("Bearer "):
+            token = authHeader.split(" ")[1]
+
+    if token:
+        try:
+            payload = verifyAccessToken(token)
+            userId = payload.get("userId")
+            sessionId = payload.get("sessionId")
+            if userId and sessionId:
+                try:
+                    sessionId = int(sessionId)
+                    SessionManager.revokeSession(db, sessionId, userId)
+                except (ValueError, TypeError):
+                    pass
+        except Exception:
+            pass
+
     useCookieSecure = _is_secure_scheme(request)
     response.delete_cookie(
         key=COOKIE_NAME, httponly=True, secure=useCookieSecure, samesite=COOKIE_SAMESITE, path=COOKIE_PATH
@@ -115,9 +147,11 @@ async def googleCallback(request: Request, response: Response, state: str = None
     googleSSO = getGoogleSSO()
 
     try:
-        async with googleSSO: userInfo = await googleSSO.verify_and_process(request)
+        async with googleSSO:
+            userInfo = await googleSSO.verify_and_process(request)
 
-        if not userInfo: raise HTTPException(status_code=400, detail="No user info received from Google")
+        if not userInfo:
+            raise HTTPException(status_code=400, detail="No user info received from Google")
 
         googleId = userInfo.id
         email = userInfo.email
@@ -131,7 +165,11 @@ async def googleCallback(request: Request, response: Response, state: str = None
             AuthenticationManager.createUserAccount(db, username=username, email=email, googleId=googleId)
             user = AuthenticationManager.authenticateGoogleUser(db, googleId)
 
-        accessToken = createAccessToken(data={"userId": str(user["userId"])})
+        userAgent = request.headers.get("User-Agent", "")
+        expiresAt = datetime.utcnow() + timedelta(hours=TOKEN_EXPIRY_HOURS)
+        session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
+
+        accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
         isSecure = _is_secure_scheme(request)
 
         response.set_cookie(

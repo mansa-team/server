@@ -3,19 +3,18 @@ pandas
 numpy
 sqlalchemy
 pymysql
-dotenv
 pydantic
 pydantic_settings
 alembic
 
 # SCRAPER-B3
+scikit-learn
 cloudscraper
 tenacity
 apscheduler
 pytz
 
 # STOCKS-API
-scikit-learn
 fastapi
 uvicorn
 requests
@@ -26,6 +25,5 @@ google-genai
 # USER
 slowapi
 fastapi-sso
-itsdangerous
 bcrypt
 PyJWT
