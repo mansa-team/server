@@ -136,6 +136,68 @@
             font-weight: bold;
             border: 1px solid #000;
         }
+
+        .sessions-panel {
+            border: 1px solid #9c27b0;
+            padding: 15px;
+            margin-top: 20px;
+            background: #fcf0ff;
+        }
+
+        .session-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .session-item.current {
+            border: 2px solid #4CAF50;
+            background: #f1f8e9;
+        }
+
+        .session-info {
+            font-size: 11px;
+        }
+
+        .session-badge {
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: 5px;
+        }
+
+        .badge-current { background: #4CAF50; color: white; }
+        .badge-active { background: #2196F3; color: white; }
+        .badge-inactive { background: #999; color: white; }
+
+        .btn-revoke {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            width: auto;
+            margin: 0;
+        }
+
+        .btn-revoke-all {
+            background: #ff9800;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            font-size: 11px;
+            cursor: pointer;
+            border-radius: 4px;
+            width: auto;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body class="app-main">
@@ -202,6 +264,14 @@
             <div class="user-info">
                 <p class="success">Conectado</p>
                 <div id="userData"></div>
+            </div>
+
+            <!-- Sessions Panel -->
+            <div id="sessionsPanel" class="sessions-panel hidden">
+                <h3 style="margin-top: 0; font-size: 13px; color: #9c27b0;">Minhas Sessões</h3>
+                <p style="font-size: 10px; color: #666;">Gerencie seus dispositivos conectados</p>
+                <div id="sessionsList"></div>
+                <button class="btn-revoke-all" onclick="revokeAllSessions()">SAIR DE TODOS OS DISPOSITIVOS</button>
             </div>
 
             <!-- Developer Dashboard -->
@@ -466,6 +536,10 @@
                 }
 
                 log(`Perfil carregado: ${user.username}`);
+
+                // Load sessions panel
+                document.getElementById('sessionsPanel').classList.remove('hidden');
+                await loadSessions();
             } catch (e) {
                 log(`Erro ao carregar perfil: ${e.message}`);
                 logout();
@@ -571,9 +645,25 @@
             }
         }
 
-        async function logout() {
+        async function logout(revokeServerSide = true) {
+            const token = sessionStorage.getItem('mansa_token') || localStorage.getItem('mansa_token');
+            
+            if (revokeServerSide && token) {
+                try {
+                    // Revoke all sessions on server first
+                    log("Encerrando todas as sessões no servidor...");
+                    await fetch(`${USER_BASE}/sessions/revoke-all`, { 
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` },
+                        credentials: 'include'
+                    });
+                } catch (e) {
+                    log("Aviso: Falha ao comunicar revoke com o servidor.");
+                }
+            }
+            
             try {
-                // Notificar o backend para deletar o Cookie HttpOnly
+                // Notify backend to delete the HttpOnly Cookie
                 log("Encerrando sessão no servidor...");
                 await fetch(`${API_BASE}/logout`, { 
                     method: 'POST',
@@ -591,12 +681,131 @@
             document.getElementById('profileView').classList.add('hidden');
             document.getElementById('userData').innerHTML = "";
             document.getElementById('adminMsg').innerHTML = "";
+            document.getElementById('sessionsPanel').classList.add('hidden');
+            document.getElementById('sessionsList').innerHTML = "";
             log("Sessão encerrada localmente.");
         }
 
         function setMessage(msg, type) {
             const div = document.getElementById('msgDisplay');
             div.innerHTML = `<p class="${type}">${msg}</p>`;
+        }
+
+        async function loadSessions() {
+            const token = sessionStorage.getItem('mansa_token') || localStorage.getItem('mansa_token');
+            if (!token) return;
+
+            try {
+                log("Carregando sessões...");
+                const res = await fetch(`${USER_BASE}/sessions`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    credentials: 'include'
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    log(`Erro ao carregar sessões: ${data.detail}`);
+                    return;
+                }
+
+                const sessionsList = document.getElementById('sessionsList');
+                if (data.sessions && data.sessions.length > 0) {
+                    sessionsList.innerHTML = data.sessions.map(s => `
+                        <div class="session-item ${s.isCurrent ? 'current' : ''}">
+                            <div class="session-info">
+                                <strong>${s.deviceName || 'Dispositivo Desconhecido'}</strong>
+                                <div style="color: #666; margin-top: 3px;">
+                                    ${s.browser || ''} ${s.os || ''} | ${s.ipAddress || ''}
+                                </div>
+                                <div style="font-size: 9px; color: #999; margin-top: 3px;">
+                                    ${s.isCurrent ? 'Atual' : 'Última atividade: ' + (s.lastActiveAt ? new Date(s.lastActiveAt).toLocaleString() : 'N/A')}
+                                </div>
+                            </div>
+                            <div>
+                                ${s.isCurrent ? 
+                                    '<span class="session-badge badge-current">ATUAL</span>' : 
+                                    s.isActive ? 
+                                        '<span class="session-badge badge-active">ATIVA</span>' :
+                                        '<span class="session-badge badge-inactive">INATIVA</span>'
+                                }
+                                ${!s.isCurrent && s.isActive ? 
+                                    `<button class="btn-revoke" onclick="revokeSession('${s.sessionId}')">ENCERRAR</button>` : 
+                                    ''
+                                }
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    sessionsList.innerHTML = '<p style="font-size: 11px; color: #666;">Nenhuma sessão encontrada.</p>';
+                }
+
+                log(`Total de ${data.total || 0} sessões carregadas.`);
+            } catch (e) {
+                log(`Erro ao carregar sessões: ${e.message}`);
+            }
+        }
+
+        async function revokeSession(sessionId) {
+            const token = sessionStorage.getItem('mansa_token') || localStorage.getItem('mansa_token');
+            if (!token) return;
+
+            if (!confirm('Tem certeza que deseja encerrar esta sessão?')) {
+                return;
+            }
+
+            try {
+                log(`Encerrando sessão ${sessionId}...`);
+                const res = await fetch(`${USER_BASE}/sessions/${sessionId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    credentials: 'include'
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    log(`Sessão ${sessionId} encerrada.`);
+                    await loadSessions();
+                } else {
+                    log(`Erro: ${data.detail}`);
+                }
+            } catch (e) {
+                log(`Erro ao encerrar sessão: ${e.message}`);
+            }
+        }
+
+        async function revokeAllSessions() {
+            const token = sessionStorage.getItem('mansa_token') || localStorage.getItem('mansa_token');
+            if (!token) return;
+
+            if (!confirm('Tem certeza que deseja SAIR de todos os dispositivos? Esta ação encerrará todas as sessões.')) {
+                return;
+            }
+
+            try {
+                log("Encerrando todas as sessões...");
+                const res = await fetch(`${USER_BASE}/sessions/revoke-all`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    credentials: 'include'
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    log(`Todas as sessões encerradas (${data.revokedCount}).`);
+                    // Just clear local storage without calling revoke again
+                    localStorage.removeItem('mansa_token');
+                    sessionStorage.removeItem('mansa_token');
+                    document.getElementById('loginView').classList.remove('hidden');
+                    document.getElementById('profileView').classList.add('hidden');
+                    document.getElementById('sessionsPanel').classList.add('hidden');
+                    document.getElementById('userData').innerHTML = "";
+                    log("Sessão encerrada.");
+                } else {
+                    log(`Erro: ${data.detail}`);
+                }
+            } catch (e) {
+                log(`Erro ao encerrar sessões: ${e.message}`);
+            }
         }
     </script>
 </body>

@@ -1,3 +1,4 @@
+from main.utils.util import log
 from fastapi import HTTPException
 from datetime import datetime, timedelta
 import jwt
@@ -17,8 +18,6 @@ def verifyPassword(plainPassword: str, hashedPassword: str) -> bool:
         return False
 
 def createAccessToken(data: dict, expiresDelta: timedelta | None = None):
-    from main.utils.util import log
-
     if expiresDelta is None:
         expiresDelta = timedelta(hours=TOKEN_EXPIRY_HOURS)
 
@@ -27,11 +26,9 @@ def createAccessToken(data: dict, expiresDelta: timedelta | None = None):
 
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
     log("auth", "Token created successfully")
-    return token
+    return token, expiresDelta
 
 def verifyAccessToken(token: str) -> dict:
-    from main.utils.util import log
-
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         log("auth", "Token verified successfully")

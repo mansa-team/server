@@ -9,6 +9,7 @@ from datetime import timedelta
 from datetime import datetime
 import jwt
 
+
 class TestAuthUtil:
     def test_hash_password_returns_string(self):
         result = hashPassword("testpassword123")
@@ -39,26 +40,26 @@ class TestAuthUtil:
         assert verifyPassword("", hashed) is False
 
     def test_create_access_token_default_expiry(self):
-        token = createAccessToken({"userId": "123"})
+        token, _ = createAccessToken({"userId": "123"})
         decoded = jwt.decode(token, options={"verify_signature": False})
-        
+
         assert "exp" in decoded
         assert decoded["userId"] == "123"
 
     def test_create_access_token_custom_expiry(self):
         customDelta = timedelta(hours=48)
-        token = createAccessToken({"userId": "123"}, expiresDelta=customDelta)
+        token, _ = createAccessToken({"userId": "123"}, expiresDelta=customDelta)
         decoded = jwt.decode(token, options={"verify_signature": False})
-        
+
         expTime = datetime.fromtimestamp(decoded["exp"])
         now = datetime.utcnow()
         hoursDiff = (expTime - now).total_seconds() / 3600
-        
+
         assert 47 <= hoursDiff <= 49
 
     def test_create_access_token_contains_data(self):
         data = {"userId": "456", "username": "testuser"}
-        token = createAccessToken(data)
+        token, _ = createAccessToken(data)
         decoded = jwt.decode(token, options={"verify_signature": False})
-        
+
         assert decoded["userId"] == "456"

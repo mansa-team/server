@@ -1,6 +1,6 @@
 # User Management
 
-Manage user profiles, role upgrades, and detailed user settings within the Mansa ecosystem. This module provides endpoints for users to view their own data and upgrade their status within the system.
+Manage user profiles, role upgrades, and detailed user settings within the Mansa ecosystem. This module provides endpoints for users to view their own data, upgrade their status, and manage their sessions.
 
 ## Roles and Permissions
 
@@ -27,11 +27,114 @@ Retrieve the currently authenticated user's information.
 ```bash
 curl -H "Authorization: Bearer <token>" http://localhost:3200/user/me
 ```
+**Response:**
+```json
+{
+  "userId": 1,
+  "username": "john",
+  "email": "john@example.com",
+  "roles": ["USER"],
+  "sessionId": 5
+}
+```
 
-### Upgrade to Developer
+### Upgrade to Developer Starter
 Grants the `DEVELOPER_STARTER` role to the authenticated user.
 ```bash
-curl -X POST -H "Authorization: Bearer <token>" http://localhost:3200/user/upgrade/developer
+curl -X POST -H "Authorization: Bearer <token>" http://localhost:3200/user/upgrade/developer/starter
+```
+
+### Upgrade to Developer Enterprise
+Grants the `DEVELOPER_ENTERPRISE` role to the authenticated user.
+```bash
+curl -X POST -H "Authorization: Bearer <token>" http://localhost:3200/user/upgrade/developer/enterprise
+```
+
+### Admin Access
+Test admin access (requires ADMIN role).
+```bash
+curl -H "Authorization: Bearer <token>" http://localhost:3200/user/admin
+```
+
+## Session Management
+
+Manage user authentication sessions, view active devices, and revoke sessions.
+
+### List All Sessions
+View all active sessions for the current user.
+```bash
+curl -H "Authorization: Bearer <token>" http://localhost:3200/user/sessions
+```
+**Response:**
+```json
+{
+  "sessions": [
+    {
+      "sessionId": 1,
+      "deviceName": "Chrome on Windows 11",
+      "browser": "Chrome",
+      "browserVersion": "135",
+      "os": "Windows",
+      "osVersion": "11",
+      "deviceType": "desktop",
+      "ipAddress": "192.168.1.xxx",
+      "lastActiveAt": "2026-04-20T10:30:00",
+      "createdAt": "2026-04-20T10:00:00",
+      "isActive": true,
+      "isCurrent": false
+    }
+  ],
+  "total": 2,
+  "active": 2
+}
+```
+
+### Get Current Session
+Get details about the current active session.
+```bash
+curl -H "Authorization: Bearer <token>" http://localhost:3200/user/sessions/current
+```
+**Response:**
+```json
+{
+  "sessionId": 1,
+  "deviceName": "Chrome on Windows 11",
+  "browser": "Chrome",
+  "browserVersion": "135",
+  "os": "Windows",
+  "osVersion": "11",
+  "deviceType": "desktop",
+  "ipAddress": "192.168.1.100",
+  "userAgent": "Mozilla/5.0 ...",
+  "lastActiveAt": "2026-04-20T10:30:00",
+  "createdAt": "2026-04-20T10:00:00"
+}
+```
+
+### Revoke a Session
+Revoke a specific session (logs out that device).
+```bash
+curl -X DELETE -H "Authorization: Bearer <token>" http://localhost:3200/user/sessions/1
+```
+**Response:**
+```json
+{
+  "message": "Session revoked successfully",
+  "sessionId": 1
+}
+```
+
+### Revoke All Sessions
+Log out from all devices except the current one.
+```bash
+curl -X POST -H "Authorization: Bearer <token>" http://localhost:3200/user/sessions/revoke-all
+```
+**Response:**
+```json
+{
+  "message": "All sessions revoked successfully",
+  "revokedCount": 3
+}
 ```
 
 ## Permission System
@@ -57,10 +160,18 @@ graph TD
     User["User Profile"] --> Me["GET /user/me"]
     Me --> View["View Profile Data"]
     
-    User --> Upgrade["POST /user/upgrade/developer"]
+    User --> Upgrade["POST /user/upgrade/developer/starter"]
     Upgrade --> Verify["Check Existing Roles"]
-    Verify -- Not Dev --> Apply["Apply DEVELOPER role"]
+    Verify -- Not Dev --> Apply["Apply DEVELOPER_STARTER role"]
     Apply --> Success["Access to Developer API Keys"]
+    
+    User --> Sessions["GET /user/sessions"]
+    Sessions --> ListSessions["List All Sessions"]
+    ListSessions --> ViewDevice["View Device Info"]
+    
+    Sessions --> Revoke["DELETE /user/sessions/{id}"]
+    Revoke --> MarkInactive["Mark Session Inactive"]
+    MarkInactive --> LoggedOut["Device Logged Out"]
 ```
 
 ## License
