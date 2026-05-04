@@ -1,6 +1,8 @@
 import json
+import logging
 import threading
-from datetime import datetime
+from datetime import datetime, timezone
+from functools import lru_cache
 from typing import Optional
 import requests
 
@@ -8,6 +10,8 @@ from config import Config
 
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+
+logger = logging.getLogger(__name__)
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -29,21 +33,22 @@ class DiscordWebhook:
                         "description": message[:2000],
                         "color": color,
                         "footer": {"text": "Mansa Server"},
-                        "timestamp": datetime.utcnow().isoformat(),
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
                     }
                 ]
             }
 
             threading.Thread(target=self._send_async, args=(payload,), daemon=True).start()
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to send webhook: {e}")
 
     def _send_async(self, payload: dict):
         try:
             requests.post(self.webhook_url, json=payload, timeout=5)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"Failed to send async webhook: {e}")
 
+@lru_cache(maxsize=1)
 def _get_webhook() -> Optional[DiscordWebhook]:
     if not Config.DISCORD.ENABLED:
         return None

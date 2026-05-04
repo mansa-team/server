@@ -1,10 +1,10 @@
-import uuid
-from datetime import datetime
+import secrets
+from datetime import datetime, timedelta, timezone
+import hashlib
 from sqlalchemy.orm import Session
 from main.models.user_session import UserSession
 from main.app.authentication.device import parseUserAgent
 from main.utils.util import log
-import hashlib
 
 class SessionManager:
     @staticmethod
@@ -15,17 +15,13 @@ class SessionManager:
         request,
         expiresAt: datetime = None,
     ) -> UserSession:
-        import secrets
-
-        sessionId = str(uuid.uuid4())
+        sessionId = secrets.token_urlsafe(32)
         accessTokenHash = hashlib.sha256(secrets.token_hex(32).encode()).hexdigest()[:64]
 
         deviceInfo = parseUserAgent(userAgent)
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         if expiresAt is None:
-            from datetime import timedelta
-
             expiresAt = now + timedelta(hours=24)
 
         session = UserSession(
@@ -100,12 +96,7 @@ class SessionManager:
         if exceptSessionId:
             query = query.filter(UserSession.sessionId != exceptSessionId)
 
-        sessions = query.all()
-        count = len(sessions)
-
-        for session in sessions:
-            session.isActive = False
-
+        count = query.update({UserSession.isActive: False}, synchronize_session=False)
         db.commit()
 
         log("session", f"Revoked {count} sessions for user {userId}")
@@ -117,26 +108,17 @@ class SessionManager:
         if not session:
             return False
 
-        session.lastActivityAt = datetime.utcnow()
+        session.lastActivityAt = datetime.now(timezone.utc)
         db.commit()
         return True
 
     @staticmethod
     def cleanupExpiredSessions(db: Session) -> int:
-        now = datetime.utcnow()
-        expired = (
-            db.query(UserSession)
-            .filter(
-                UserSession.isActive,
-                UserSession.expiresAt < now,
-            )
-            .all()
-        )
-
-        count = len(expired)
-        for session in expired:
-            session.isActive = False
-
+        now = datetime.now(timezone.utc)
+        count = db.query(UserSession).filter(
+            UserSession.isActive,
+            UserSession.expiresAt < now,
+        ).update({UserSession.isActive: False}, synchronize_session=False)
         db.commit()
 
         if count > 0:
@@ -153,7 +135,7 @@ class SessionManager:
         if not session.isActive:
             return False
 
-        if session.expiresAt and session.expiresAt < datetime.utcnow():
+        if session.expiresAt and session.expiresAt < datetime.now(timezone.utc):
             session.isActive = False
             db.commit()
             return False

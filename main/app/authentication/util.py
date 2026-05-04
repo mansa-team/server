@@ -1,6 +1,6 @@
 from main.utils.util import log
 from fastapi import HTTPException
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import jwt
 import bcrypt
 
@@ -22,16 +22,14 @@ def createAccessToken(data: dict, expiresDelta: timedelta | None = None):
         expiresDelta = timedelta(hours=TOKEN_EXPIRY_HOURS)
 
     payload = data.copy()
-    payload["exp"] = (datetime.utcnow() + expiresDelta).timestamp()
+    payload["exp"] = datetime.now(timezone.utc) + expiresDelta
 
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
-    log("auth", "Token created successfully")
     return token, expiresDelta
 
 def verifyAccessToken(token: str) -> dict:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        log("auth", "Token verified successfully")
         return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
