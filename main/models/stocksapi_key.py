@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, TIMESTAMP, ForeignKey, func
 from sqlalchemy.orm import relationship
 from main.models.base import Base
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class StocksAPIKey(Base):
@@ -19,23 +19,25 @@ class StocksAPIKey(Base):
         return f"<StocksAPIKey(apiKey='{self.apiKey[:8]}...', userId={self.userId}, usage={self.currentUsage}/{self.requestLimit})>"
 
     def isQuotaExceeded(self) -> bool:
-        return bool(self.currentUsage >= self.requestLimit)  # type: ignore
+        return self.currentUsage >= self.requestLimit
 
     def needsReset(self, resetDays: int) -> bool:
         if not self.lastReset:
             return True
-        daysSinceReset = (datetime.now() - self.lastReset).days
+        now = datetime.now(timezone.utc)
+        last_reset = self.lastReset.replace(tzinfo=timezone.utc) if self.lastReset.tzinfo is None else self.lastReset
+        daysSinceReset = (now - last_reset).days
         return daysSinceReset >= resetDays
 
     def resetQuota(self):
         self.currentUsage = 0
-        self.lastReset = datetime.now()
+        self.lastReset = datetime.now(timezone.utc)
 
     def incrementUsage(self):
         self.currentUsage += 1
 
     def getRemainingQuota(self) -> int:
-        return int(max(0, self.requestLimit - self.currentUsage))
+        return max(0, self.requestLimit - self.currentUsage)
 
     def toDict(self):
         return {

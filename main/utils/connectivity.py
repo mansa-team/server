@@ -2,8 +2,12 @@ from config import Config, engine, stocksEngine
 from main.utils.util import log
 
 import time
+import logging
+from requests.exceptions import ConnectionError, Timeout, RequestException
 from sqlalchemy import text
 import requests
+
+logger = logging.getLogger(__name__)
 
 def checkMYSQLConnection():
     stocksDB = False
@@ -13,11 +17,14 @@ def checkMYSQLConnection():
             startTime = time.time()
             with engine.connect() as connection:
                 connection.execute(text("SELECT 1"))
+                connection.commit()
             latency = (time.time() - startTime) * 1000
             log("db", f"USER DB connected ({latency:.2f}ms)")
             userDB = True
-        except Exception as e:
+        except (ConnectionError, Timeout) as e:
             log("db", f"USER DB connection failed: {e}")
+        except Exception as e:
+            log("db", f"USER DB unexpected error: {e}")
     else:
         log("db", "USER DB engine not initialized!")
 
@@ -26,11 +33,14 @@ def checkMYSQLConnection():
             startTime = time.time()
             with stocksEngine.connect() as connection:
                 connection.execute(text("SELECT 1"))
+                connection.commit()
             latency = (time.time() - startTime) * 1000
             log("db", f"STOCKS DB connected ({latency:.2f}ms)")
             stocksDB = True
-        except Exception as e:
+        except (ConnectionError, Timeout) as e:
             log("db", f"STOCKS DB connection failed: {e}")
+        except Exception as e:
+            log("db", f"STOCKS DB unexpected error: {e}")
     else:
         log("db", "STOCKS DB engine not initialized!")
 
@@ -47,8 +57,10 @@ def checkServiceConnection(service: str):
 
         if service == "STOCKS_API":
             prefix = "stocks"
-        if service == "PROMETHEUS":
+        elif service == "PROMETHEUS":
             prefix = "prometheus"
+        else:
+            prefix = service.lower()
 
         startTime = time.time()
         response = requests.get(f"http://{host}:{port}/{prefix}/health", timeout=5)
@@ -56,9 +68,10 @@ def checkServiceConnection(service: str):
 
         if response.status_code == 200:
             log("service", f"{service} connected ({latency:.2f}ms)")
-
             return True
+    except (ConnectionError, Timeout, RequestException) as e:
+        log("service", f"{service} connection failed: {e}")
+        return False
     except Exception as e:
-        log("service", f"{service} connection failed: {e}\nDue to this issue the server couldn't start.")
-
+        log("service", f"{service} unexpected error: {e}")
         return False
