@@ -1,3 +1,4 @@
+import os
 from config import Config
 
 from starlette.middleware.sessions import SessionMiddleware
@@ -9,10 +10,11 @@ class AuthenticationService:
     @staticmethod
     def initialize(port: int):
         service = ServiceManager.getApp(port)
+
         service.add_middleware(
-            SessionMiddleware, 
+            SessionMiddleware,
             secret_key= Config.USER['SESSION_SECRET_KEY'],
-            same_site="none",
+            same_site="lax",
             https_only=False
         )
         service.include_router(authenticationRouter)

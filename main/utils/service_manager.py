@@ -1,4 +1,5 @@
-from config import Config
+import os
+from config import Config, LOCALHOST_ADDRESSES
 from main.utils.util import log, limiter
 
 import threading
@@ -11,22 +12,29 @@ from slowapi.errors import RateLimitExceeded
 
 class ServiceManager:
     _instances: dict[int, FastAPI] = {}
+    _lock = threading.Lock()
 
     @classmethod
     def getApp(cls, port: int) -> FastAPI:
-        if port not in cls._instances:
+        if port in cls._instances:
+            return cls._instances[port]
+
+        with cls._lock:
+            if port in cls._instances:
+                return cls._instances[port]
+
             app = FastAPI(title=f"Mansa Service {port}")
             app.state.limiter = limiter
 
             @app.exception_handler(RateLimitExceeded)
             async def _rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
                 return JSONResponse(status_code=429, content={"detail": "Too many requests", "error": str(exc.detail)})
-
+            
             app.add_middleware(
                 CORSMiddleware,
                 allow_origin_regex="https?://.*",
                 allow_credentials=True,
-                allow_methods=["*"],
+                allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
                 allow_headers=["*"],
             )
 
@@ -37,9 +45,14 @@ class ServiceManager:
     def runAll(cls):
         logLevel = "error" if Config.DEBUG_MODE else "critical"
 
+        def _runUvicorn(app: FastAPI, port: int, log_level: str):
+            uvicorn.run(app, host="0.0.0.0", port=port, log_level=log_level)
+
         for port, app in cls._instances.items():
             thread = threading.Thread(
-                target=lambda p=port, a=app: uvicorn.run(a, host="0.0.0.0", port=p, log_level=logLevel), daemon=True
+                target=_runUvicorn,
+                args=(app, port, logLevel),
+                daemon=True
             )
             thread.start()
 
