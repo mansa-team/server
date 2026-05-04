@@ -1,3 +1,4 @@
+import math
 from fastapi import HTTPException
 from typing import TYPE_CHECKING
 import pandas as pd
@@ -15,9 +16,12 @@ class StocksQueryManager:
     def __init__(self, cache_manager: "StocksCacheManager"):
         self.cache_manager = cache_manager
 
-    def _deserialize_json_columns(self, df: pd.DataFrame) -> pd.DataFrame:
-        special_cols = ["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"]
+    SPECIAL_COLS = frozenset([
+        "COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA",
+        "HISTORICO DIVIDENDOS", "NOTICIAS"
+    ])
 
+    def _deserialize_json_columns(self, df: pd.DataFrame) -> pd.DataFrame:
         if df.empty:
             return df
 
@@ -28,17 +32,32 @@ class StocksQueryManager:
                 return {k: replace_nan(v) for k, v in obj.items()}
             elif isinstance(obj, list):
                 return [replace_nan(item) for item in obj]
-            elif isinstance(obj, float) and (obj != obj):
+            elif isinstance(obj, float):
+                try:
+                    if math.isnan(obj):
+                        return None
+                except (TypeError, ValueError):
+                    pass
+            elif pd.isna(obj):
                 return None
             return obj
 
         for col in df.columns:
-            if col in special_cols and df[col].dtype == "object":
+            if col in self.SPECIAL_COLS and df[col].dtype == "object":
                 df[col] = df[col].apply(
                     lambda x: replace_nan(json.loads(x)) if isinstance(x, str) and x.startswith(("{", "[")) else x
                 )
 
         return df
+
+    def _filter_by_search_terms(self, df: pd.DataFrame, search: str) -> pd.DataFrame:
+        if not search:
+            return df
+        searchTerms = [s.strip().upper() for s in search.split(",")]
+        mask = pd.Series([False] * len(df), index=df.index)
+        for term in searchTerms:
+            mask |= df["TICKER"].str.upper().str.startswith(term)
+        return df[mask]
 
     def queryHistorical(
         self,
@@ -78,8 +97,7 @@ class StocksQueryManager:
             ]
 
             if search:
-                searchTerms = [s.strip().upper() for s in search.split(",")]
-                df = df[df["TICKER"].str.upper().apply(lambda x: any(x.startswith(s) for s in searchTerms))]
+                df = self._filter_by_search_terms(df, search)
 
             if "TIME" in df.columns:
                 df = df.sort_values(by="TIME", ascending=False)
@@ -131,11 +149,10 @@ class StocksQueryManager:
             cols = ["TICKER", "NOME", "TIME"] + [field for field in fieldList if field in availableColumnsSet]
 
             if search:
-                searchTerms = [s.strip().upper() for s in search.split(",")]
-                df = df[df["TICKER"].str.upper().apply(lambda x: any(x.startswith(s) for s in searchTerms))]
+                df = self._filter_by_search_terms(df, search)
 
             if "TIME" in df.columns:
-                df["TIME_DT"] = pd.to_datetime(df["TIME"])
+                time_col = pd.to_datetime(df["TIME"])
 
                 if dates:
                     try:
@@ -143,16 +160,16 @@ class StocksQueryManager:
                         if len(dateRange) == 2:
                             startDate = pd.to_datetime(dateRange[0]).date()
                             endDate = pd.to_datetime(dateRange[1]).date()
-                            df = df[(df["TIME_DT"].dt.date >= startDate) & (df["TIME_DT"].dt.date <= endDate)]
+                            mask = (time_col.dt.date >= startDate) & (time_col.dt.date <= endDate)
+                            df = df[mask]
                         elif len(dateRange) == 1:
                             targetDate = pd.to_datetime(dateRange[0]).date()
-                            df = df[df["TIME_DT"].dt.date == targetDate]
+                            df = df[time_col.dt.date == targetDate]
                     except Exception as e:
                         raise HTTPException(status_code=400, detail=f"Data format error (YYYY-MM-DD): {str(e)}")
 
-                df["TIME"] = df["TIME_DT"].astype(str)
+                df["TIME"] = time_col.dt.strftime("%Y-%m-%d")
                 df = df.sort_values(by="TIME", ascending=False)
-                df = df.drop(columns=["TIME_DT"])
 
             if not search or search.strip() == "":
                 df = df.drop_duplicates(subset=["TICKER"], keep="first")

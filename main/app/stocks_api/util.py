@@ -1,8 +1,9 @@
+from collections import defaultdict
 from fastapi import HTTPException
 import pandas as pd
 
 def categorizeColumns(columns: list) -> tuple:
-    historicalFields: dict[str, list[int]] = {}
+    historicalFields: dict[str, list[int]] = defaultdict(list)
     fundamentalCols = []
 
     for col in columns:
@@ -10,28 +11,22 @@ def categorizeColumns(columns: list) -> tuple:
         if len(parts) >= 2 and parts[-1].isdigit():
             year = int(parts[-1])
             field = " ".join(parts[:-1])
-            if field not in historicalFields:
-                historicalFields[field] = []
             historicalFields[field].append(year)
         else:
             if col not in ["TICKER", "NOME", "TIME"]:
                 fundamentalCols.append(col)
 
-    return historicalFields, fundamentalCols
+    return dict(historicalFields), fundamentalCols
 
 def parseYearInput(years: str) -> tuple:
     if not years:
         return None, None
     yearList = [int(y.strip()) for y in years.split(",")]
-    if len(yearList) == 1:
-        return yearList[0], yearList[0]
-    elif len(yearList) == 2:
-        return yearList[0], yearList[1]
-    raise HTTPException(status_code=400, detail="Years format: YEAR or START_YEAR,END_YEAR")
+    if len(yearList) not in (1, 2):
+        raise HTTPException(status_code=400, detail="Years format: YEAR or START_YEAR,END_YEAR")
+    return yearList[0], yearList[0] if len(yearList) == 1 else yearList[1]
 
 def normalizeColumns(data: pd.DataFrame, order: list) -> pd.DataFrame:
-    columns = list(data.columns)
-    orderedColumns = [col for col in order if col in columns]
-    remainingColumns = sorted([col for col in columns if col not in orderedColumns])
-    newOrder = orderedColumns + remainingColumns
-    return data[newOrder]
+    existing_order = [col for col in order if col in data.columns]
+    remaining = sorted(col for col in data.columns if col not in existing_order)
+    return data[existing_order + remaining]
