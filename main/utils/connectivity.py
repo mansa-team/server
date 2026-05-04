@@ -9,9 +9,9 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-def checkMYSQLConnection():
-    stocksDB = False
-    userDB = False
+def checkMySqlConnection():
+    stocksDb = False
+    userDb = False
     if engine:
         try:
             startTime = time.time()
@@ -20,7 +20,7 @@ def checkMYSQLConnection():
                 connection.commit()
             latency = (time.time() - startTime) * 1000
             log("db", f"USER DB connected ({latency:.2f}ms)")
-            userDB = True
+            userDb = True
         except (ConnectionError, Timeout) as e:
             log("db", f"USER DB connection failed: {e}")
         except Exception as e:
@@ -36,7 +36,7 @@ def checkMYSQLConnection():
                 connection.commit()
             latency = (time.time() - startTime) * 1000
             log("db", f"STOCKS DB connected ({latency:.2f}ms)")
-            stocksDB = True
+            stocksDb = True
         except (ConnectionError, Timeout) as e:
             log("db", f"STOCKS DB connection failed: {e}")
         except Exception as e:
@@ -44,7 +44,7 @@ def checkMYSQLConnection():
     else:
         log("db", "STOCKS DB engine not initialized!")
 
-    return userDB and stocksDB
+    return userDb and stocksDb
 
 
 def checkServiceConnection(service: str):

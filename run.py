@@ -4,7 +4,7 @@ import asyncio
 import os
 from config import Config, LOCALHOST_ADDRESSES
 from main.utils.util import log
-from main.utils.connectivity import checkMYSQLConnection, checkServiceConnection
+from main.utils.connectivity import checkMySqlConnection, checkServiceConnection
 from main.utils.service_manager import ServiceManager
 from main.utils.migrator import runMigrations
 
@@ -18,7 +18,7 @@ from main.service.stocksapi_service import StocksAPIService
 async def lifespan(app: FastAPI):
     dbConnected = False
     for i in range(10):
-        if checkMYSQLConnection():
+        if checkMySqlConnection():
             dbConnected = True
             break
         log("system", f"Retrying database connection ({i+1}/10)")
@@ -27,7 +27,7 @@ async def lifespan(app: FastAPI):
     if not dbConnected:
         log("system", "Database connection failed after retries.")
     else: runMigrations()
-    
+
     if Config.USER['ENABLED']:
         if Config.USER['HOST'] in LOCALHOST_ADDRESSES:
             AuthenticationService.initialize(Config.USER['PORT'])
@@ -41,7 +41,7 @@ async def lifespan(app: FastAPI):
         else:
             if not checkServiceConnection("STOCKS_API"): log("system", "Remote connection to the STOCKS_API Service failed")
 
-    if Config.PROMETHEUS['ENABLED']: 
+    if Config.PROMETHEUS['ENABLED']:
         if Config.PROMETHEUS['HOST'] in LOCALHOST_ADDRESSES:
             PrometheusService.initialize(Config.PROMETHEUS['PORT'])
         else:
@@ -49,10 +49,10 @@ async def lifespan(app: FastAPI):
 
     if Config.SCRAPER['ENABLED']:
         ScraperService.initialize()
-        
+
     ServiceManager.runAll()
     log("system", "All services initialized!")
-    
+
     yield
 
 app = FastAPI(title="Mansa Server", lifespan=lifespan)

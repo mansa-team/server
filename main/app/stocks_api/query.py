@@ -21,17 +21,17 @@ class StocksQueryManager:
         "HISTORICO DIVIDENDOS", "NOTICIAS"
     ])
 
-    def _deserialize_json_columns(self, df: pd.DataFrame) -> pd.DataFrame:
+    def deserializeJsonColumns(self, df: pd.DataFrame) -> pd.DataFrame:
         if df.empty:
             return df
 
         df = df.copy()
 
-        def replace_nan(obj):
+        def replaceNan(obj):
             if isinstance(obj, dict):
-                return {k: replace_nan(v) for k, v in obj.items()}
+                return {k: replaceNan(v) for k, v in obj.items()}
             elif isinstance(obj, list):
-                return [replace_nan(item) for item in obj]
+                return [replaceNan(item) for item in obj]
             elif isinstance(obj, float):
                 try:
                     if math.isnan(obj):
@@ -45,12 +45,12 @@ class StocksQueryManager:
         for col in df.columns:
             if col in self.SPECIAL_COLS and df[col].dtype == "object":
                 df[col] = df[col].apply(
-                    lambda x: replace_nan(json.loads(x)) if isinstance(x, str) and x.startswith(("{", "[")) else x
+                    lambda x: replaceNan(json.loads(x)) if isinstance(x, str) and x.startswith(("{", "[")) else x
                 )
 
         return df
 
-    def _filter_by_search_terms(self, df: pd.DataFrame, search: str) -> pd.DataFrame:
+    def filterBySearchTerms(self, df: pd.DataFrame, search: str) -> pd.DataFrame:
         if not search:
             return df
         searchTerms = [s.strip().upper() for s in search.split(",")]
@@ -97,7 +97,7 @@ class StocksQueryManager:
             ]
 
             if search:
-                df = self._filter_by_search_terms(df, search)
+                df = self.filterBySearchTerms(df, search)
 
             if "TIME" in df.columns:
                 df = df.sort_values(by="TIME", ascending=False)
@@ -111,7 +111,7 @@ class StocksQueryManager:
             df = df[[c for c in cols if c in df.columns]]
             df = df.drop_duplicates(subset=["TICKER"], keep="first")
 
-            df = self._deserialize_json_columns(df)
+            df = self.deserializeJsonColumns(df)
 
             return {
                 "search": search or "all",
@@ -149,7 +149,7 @@ class StocksQueryManager:
             cols = ["TICKER", "NOME", "TIME"] + [field for field in fieldList if field in availableColumnsSet]
 
             if search:
-                df = self._filter_by_search_terms(df, search)
+                df = self.filterBySearchTerms(df, search)
 
             if "TIME" in df.columns:
                 time_col = pd.to_datetime(df["TIME"])
@@ -181,7 +181,7 @@ class StocksQueryManager:
                 df = df.head(limit)
 
             df = df[[c for c in cols if c in df.columns]]
-            df = self._deserialize_json_columns(df)
+            df = self.deserializeJsonColumns(df)
 
             return {
                 "search": search or "all",

@@ -1,5 +1,5 @@
 from config import SessionLocal
-from main.utils.util import limiter, log_error
+from main.utils.util import limiter, logError
 from main.utils.roles import Roles, Permission
 
 from main.models.prometheus import PrometheusSession
@@ -92,5 +92,5 @@ def chat(
     except HTTPException:
         raise
     except Exception as e:
-        log_error("prometheus", "Chat execution error", e)
+        logError("prometheus", "Chat execution error", e)
         return {"success": False, "error": str(e), "timestamp": str(time.time())}

@@ -38,18 +38,18 @@ class DiscordWebhook:
                 ]
             }
 
-            threading.Thread(target=self._send_async, args=(payload,), daemon=True).start()
+            threading.Thread(target=self.sendAsync, args=(payload,), daemon=True).start()
         except Exception as e:
             logger.warning(f"Failed to send webhook: {e}")
 
-    def _send_async(self, payload: dict):
+    def sendAsync(self, payload: dict):
         try:
             requests.post(self.webhook_url, json=payload, timeout=5)
         except Exception as e:
             logger.warning(f"Failed to send async webhook: {e}")
 
 @lru_cache(maxsize=1)
-def _get_webhook() -> Optional[DiscordWebhook]:
+def getWebhook() -> Optional[DiscordWebhook]:
     if not Config.DISCORD.ENABLED:
         return None
     url = Config.DISCORD.WEBHOOK_URL
@@ -62,10 +62,10 @@ def log(tag: str, message: str):
         print(f"[{tag.upper()}] {message}", flush=True)
 
     if Config.DISCORD.ENABLED:
-        webhook = _get_webhook()
+        webhook = getWebhook()
         if webhook: webhook.send(tag, message, level="info")
 
-def log_error(tag: str, message: str, exc: Optional[Exception] = None):
+def logError(tag: str, message: str, exc: Optional[Exception] = None):
     full_message = f"{message}"
     if exc:
         full_message += f"\n```\n{type(exc).__name__}: {str(exc)}\n```"
@@ -74,6 +74,6 @@ def log_error(tag: str, message: str, exc: Optional[Exception] = None):
         print(f"[{tag.upper()}] ERROR: {full_message}", flush=True)
 
     if Config.DISCORD.ENABLED:
-        webhook = _get_webhook()
+        webhook = getWebhook()
         if webhook:
             webhook.send(tag, full_message, level="error")

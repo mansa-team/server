@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from config import getSession
-from main.utils.util import log, limiter, log_error
+from main.utils.util import log, limiter, logError
 
 from fastapi import APIRouter, Response, Body, HTTPException, Request, Depends
 from fastapi.responses import RedirectResponse
@@ -14,7 +14,7 @@ from main.app.authentication.session import SessionManager
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-def _is_secure_scheme(request: Request) -> bool:
+def isSecureScheme(request: Request) -> bool:
     return request.url.scheme == "https" if request.url.scheme else False
 
 @router.get("/health")
@@ -43,7 +43,7 @@ def register(
         session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
 
         accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
-        useCookieSecure = _is_secure_scheme(request)
+        useCookieSecure = isSecureScheme(request)
         response.set_cookie(
             key=COOKIE_NAME,
             value=accessToken,
@@ -57,10 +57,10 @@ def register(
     except HTTPException:
         raise
     except ValueError as e:
-        log_error("auth", f"Registration validation error: {str(e)}", e)
+        logError("auth", f"Registration validation error: {str(e)}", e)
         raise HTTPException(status_code=400, detail="Registration failed. Invalid input.")
     except Exception as e:
-        log_error("auth", "Unexpected error during registration", e)
+        logError("auth", "Unexpected error during registration", e)
         raise HTTPException(status_code=500, detail="Registration failed. Internal error.")
 
 @router.post("/login")
@@ -81,7 +81,7 @@ def login(
     session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
 
     accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
-    useCookieSecure = _is_secure_scheme(request)
+    useCookieSecure = isSecureScheme(request)
     response.set_cookie(
         key=COOKIE_NAME,
         value=accessToken,
@@ -117,7 +117,7 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
         except Exception:
             pass
 
-    useCookieSecure = _is_secure_scheme(request)
+    useCookieSecure = isSecureScheme(request)
     response.delete_cookie(
         key=COOKIE_NAME, httponly=True, secure=useCookieSecure, samesite=COOKIE_SAMESITE, path=COOKIE_PATH
     )
@@ -170,7 +170,7 @@ async def googleCallback(request: Request, response: Response, state: str = None
         session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
 
         accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
-        isSecure = _is_secure_scheme(request)
+        isSecure = isSecureScheme(request)
 
         response.set_cookie(
             key=COOKIE_NAME, value=accessToken, httponly=True, secure=isSecure, samesite="none", path="/"
@@ -189,5 +189,5 @@ async def googleCallback(request: Request, response: Response, state: str = None
     except HTTPException:
         raise
     except Exception as e:
-        log_error("auth", f"Critical error in Google callback: {str(e)}", e)
+        logError("auth", f"Critical error in Google callback: {str(e)}", e)
         raise HTTPException(status_code=500, detail="Internal server error during Google login")

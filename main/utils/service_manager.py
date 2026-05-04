@@ -27,7 +27,7 @@ class ServiceManager:
             app.state.limiter = limiter
 
             @app.exception_handler(RateLimitExceeded)
-            async def _rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
+            async def rateLimitExceededHandler(request: Request, exc: RateLimitExceeded):
                 return JSONResponse(status_code=429, content={"detail": "Too many requests", "error": str(exc.detail)})
             
             app.add_middleware(
