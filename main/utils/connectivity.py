@@ -4,10 +4,12 @@ from main.utils.util import log
 import time
 import logging
 from requests.exceptions import ConnectionError, Timeout, RequestException
+from requests import Session
 from sqlalchemy import text
-import requests
 
 logger = logging.getLogger(__name__)
+
+httpSession = Session()
 
 def checkMySqlConnection():
     stocksDb = False
@@ -57,13 +59,11 @@ def checkServiceConnection(service: str):
 
         if service == "STOCKS_API":
             prefix = "stocks"
-        elif service == "PROMETHEUS":
-            prefix = "prometheus"
         else:
             prefix = service.lower()
 
         startTime = time.time()
-        response = requests.get(f"http://{host}:{port}/{prefix}/health", timeout=5)
+        response = httpSession.get(f"http://{host}:{port}/{prefix}/health", timeout=5)
         latency = (time.time() - startTime) * 1000
 
         if response.status_code == 200:

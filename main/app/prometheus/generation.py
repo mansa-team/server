@@ -3,7 +3,7 @@ from main.utils.util import log
 
 import pandas as pd
 import json
-import requests
+from requests import Session
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 
@@ -12,6 +12,8 @@ from google.genai import types
 
 from main.models.prometheus import PrometheusSession
 from main.app.prometheus.chat import PrometheusChatManager
+
+httpSession = Session()
 
 class PrometheusGenerator:
     def __init__(self):
@@ -188,7 +190,7 @@ class PrometheusGenerator:
                     "orderBy": globalReq.get("order_by"),
                     "limit": globalReq.get("limit"),
                 }
-                syncRes = requests.get(
+                syncRes = httpSession.get(
                     f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/fundamental",
                     params=params,
                     headers=headers,
@@ -215,7 +217,7 @@ class PrometheusGenerator:
             }
             try:
                 url = f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/{req['type']}"
-                res = requests.get(url, params=params, headers=headers, timeout=20)
+                res = httpSession.get(url, params=params, headers=headers, timeout=20)
                 return res.json().get("data", []) if res.status_code == 200 else []
             except Exception as e:
                 log("prometheus", f"API error ({req['type']}): {e}")
