@@ -1,6 +1,7 @@
+import logging
 import os
 from config import Config, LOCALHOST_ADDRESSES
-from main.utils.util import log, limiter
+from main.utils.logging_config import limiter
 
 import threading
 import uvicorn
@@ -9,6 +10,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+
+logger = logging.getLogger(__name__)
 
 class ServiceManager:
     _instances: dict[int, FastAPI] = {}
@@ -45,8 +48,8 @@ class ServiceManager:
     def runAll(cls):
         logLevel = "error" if Config.DEBUG_MODE else "critical"
 
-        def _runUvicorn(app: FastAPI, port: int, log_level: str):
-            uvicorn.run(app, host="0.0.0.0", port=port, log_level=log_level)
+        def _runUvicorn(app: FastAPI, port: int, logLevel: str):
+            uvicorn.run(app, host="0.0.0.0", port=port, log_level=logLevel)
 
         for port, app in cls._instances.items():
             thread = threading.Thread(
@@ -56,4 +59,4 @@ class ServiceManager:
             )
             thread.start()
 
-            log("manager", f"Service running on port {port}")
+            logger.info(f"Service running on port {port}")

@@ -1,11 +1,10 @@
-from config import Config, engine, stocksEngine
-from main.utils.util import log
-
-import time
 import logging
+import time
 from requests.exceptions import ConnectionError, Timeout, RequestException
 from requests import Session
 from sqlalchemy import text
+
+from config import Config, engine, stocksEngine
 
 logger = logging.getLogger(__name__)
 
@@ -21,14 +20,14 @@ def checkMySqlConnection():
                 connection.execute(text("SELECT 1"))
                 connection.commit()
             latency = (time.time() - startTime) * 1000
-            log("db", f"USER DB connected ({latency:.2f}ms)")
+            logger.info(f"USER DB connected ({latency:.2f}ms)")
             userDb = True
         except (ConnectionError, Timeout) as e:
-            log("db", f"USER DB connection failed: {e}")
+            logger.error(f"USER DB connection failed: {e}")
         except Exception as e:
-            log("db", f"USER DB unexpected error: {e}")
+            logger.error(f"USER DB unexpected error: {e}")
     else:
-        log("db", "USER DB engine not initialized!")
+        logger.warning("USER DB engine not initialized!")
 
     if stocksEngine:
         try:
@@ -37,14 +36,14 @@ def checkMySqlConnection():
                 connection.execute(text("SELECT 1"))
                 connection.commit()
             latency = (time.time() - startTime) * 1000
-            log("db", f"STOCKS DB connected ({latency:.2f}ms)")
+            logger.info(f"STOCKS DB connected ({latency:.2f}ms)")
             stocksDb = True
         except (ConnectionError, Timeout) as e:
-            log("db", f"STOCKS DB connection failed: {e}")
+            logger.error(f"STOCKS DB connection failed: {e}")
         except Exception as e:
-            log("db", f"STOCKS DB unexpected error: {e}")
+            logger.error(f"STOCKS DB unexpected error: {e}")
     else:
-        log("db", "STOCKS DB engine not initialized!")
+        logger.warning("STOCKS DB engine not initialized!")
 
     return userDb and stocksDb
 
@@ -67,11 +66,11 @@ def checkServiceConnection(service: str):
         latency = (time.time() - startTime) * 1000
 
         if response.status_code == 200:
-            log("service", f"{service} connected ({latency:.2f}ms)")
+            logger.info(f"{service} connected ({latency:.2f}ms)")
             return True
     except (ConnectionError, Timeout, RequestException) as e:
-        log("service", f"{service} connection failed: {e}")
+        logger.error(f"{service} connection failed: {e}")
         return False
     except Exception as e:
-        log("service", f"{service} unexpected error: {e}")
+        logger.error(f"{service} unexpected error: {e}")
         return False

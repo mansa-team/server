@@ -1,10 +1,12 @@
+import logging
 import secrets
 from datetime import datetime, timedelta, timezone
 import hashlib
 from sqlalchemy.orm import Session
 from main.models.user_session import UserSession
 from main.app.authentication.device import parseUserAgent
-from main.utils.util import log
+
+logger = logging.getLogger(__name__)
 
 class SessionManager:
     @staticmethod
@@ -41,7 +43,7 @@ class SessionManager:
         db.add(session)
         db.commit()
 
-        log("session", f"Created session {sessionId} for user {userId}")
+        logger.info(f"Created session {sessionId} for user {userId}")
         return session
 
     @staticmethod
@@ -83,7 +85,7 @@ class SessionManager:
         session.isActive = False
         db.commit()
 
-        log("session", f"Revoked session {sessionId} for user {userId}")
+        logger.info(f"Revoked session {sessionId} for user {userId}")
         return True
 
     @staticmethod
@@ -99,7 +101,7 @@ class SessionManager:
         count = query.update({UserSession.isActive: False}, synchronize_session=False)
         db.commit()
 
-        log("session", f"Revoked {count} sessions for user {userId}")
+        logger.info(f"Revoked {count} sessions for user {userId}")
         return count
 
     @staticmethod
@@ -122,7 +124,7 @@ class SessionManager:
         db.commit()
 
         if count > 0:
-            log("session", f"Cleaned up {count} expired sessions")
+            logger.info(f"Cleaned up {count} expired sessions")
 
         return count
 

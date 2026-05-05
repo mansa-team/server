@@ -1,9 +1,11 @@
+import logging
 from config import SessionLocal
 from main.models import PrometheusSession
-from main.utils.util import log
 from datetime import datetime
 from sqlalchemy.orm.attributes import flag_modified
 import uuid
+
+logger = logging.getLogger(__name__)
 
 class PrometheusChatManager:
     def __init__(self):
@@ -42,7 +44,7 @@ class PrometheusChatManager:
             return sessionId
         except Exception as e:
             db.rollback()
-            log("error", f"Error creating session: {str(e)}")
+            logger.error(f"Error creating session: {str(e)}", exc_info=True)
             raise e
         finally:
             db.close()
@@ -61,7 +63,7 @@ class PrometheusChatManager:
             return True
         except Exception as e:
             db.rollback()
-            log("error", f"Error updating session title: {str(e)}")
+            logger.error(f"Error updating session title: {str(e)}", exc_info=True)
             return False
         finally:
             db.close()
@@ -89,10 +91,10 @@ class PrometheusChatManager:
                 session.lastActivity = datetime.now()
                 db.commit()
             else:
-                log("error", f"Session {sessionId} not found for saveMessage")
+                logger.error(f"Session {sessionId} not found for saveMessage")
         except Exception as e:
             db.rollback()
-            log("error", f"Error saving message to JSON: {str(e)}")
+            logger.error(f"Error saving message to JSON: {str(e)}", exc_info=True)
         finally:
             db.close()
 
@@ -144,7 +146,7 @@ class PrometheusChatManager:
             return False
         except Exception as e:
             db.rollback()
-            log("error", f"Error deleting session: {str(e)}")
+            logger.error(f"Error deleting session: {str(e)}", exc_info=True)
             return False
         finally:
             db.close()

@@ -1,4 +1,3 @@
-from main.utils.util import log
 from fastapi import HTTPException
 from datetime import datetime, timedelta, timezone
 import jwt

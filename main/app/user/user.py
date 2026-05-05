@@ -1,8 +1,10 @@
+import logging
 from config import getSession
-from main.utils.util import log
 from main.models import User
 from fastapi import HTTPException, Request, Depends
 from sqlalchemy.orm import Session
+
+logger = logging.getLogger(__name__)
 
 class UserManager:
     def __init__(self):
@@ -18,7 +20,7 @@ class UserManager:
         if not user.hasRole(role):
             user.addRole(role)
             db.commit()
-            log("auth", f"Added role {role} to user {userId}")
+            logger.info(f"Added role {role} to user {userId}")
             return True
         return False
 
@@ -26,7 +28,6 @@ class UserManager:
     def getCurrentUser(request: Request, db: Session = Depends(getSession)):
         from main.app.authentication.util import verifyAccessToken
         from main.app.authentication.session import SessionManager
-        from main.utils.util import log
 
         token = request.headers.get("X-Access-Token")
         if not token:
@@ -48,7 +49,7 @@ class UserManager:
             if sessionId:
                 isValid = SessionManager.validateSession(db, sessionId, userId)
                 if not isValid:
-                    log("session", f"Session {sessionId} revoked, logging out user {userId}")
+                    logger.info(f"Session {sessionId} revoked, logging out user {userId}")
                     raise HTTPException(status_code=401, detail="Session revoked")
 
             user = db.query(User).filter(User.userId == userId).first()
@@ -74,5 +75,5 @@ class UserManager:
         except HTTPException:
             raise
         except Exception as e:
-            log("error", f"Error in getCurrentUser: {str(e)}")
+            logger.error(f"Error in getCurrentUser: {str(e)}", exc_info=True)
             raise HTTPException(status_code=401, detail="Could not validate credentials")

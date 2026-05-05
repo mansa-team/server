@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from config import getSession
@@ -6,7 +7,8 @@ from main.app.stocks_api.query import stocksQuery
 from main.app.stocks_api.key import verifyAPIKey, createKey
 from main.app.user.user import UserManager
 from main.utils.roles import Permission, Roles
-from main.utils.util import logError
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/stocks", tags=["Stocks API"])
 
@@ -52,5 +54,5 @@ def generateKey(currentUser: dict = Depends(UserManager.getCurrentUser), db: Ses
         newKey = createKey(db, userId)
         return {"message": "Key successfully generated", "apiKey": newKey, "owner": currentUser.get("username")}
     except Exception as e:
-        logError("stocksapi", "Failed to generate API key", e)
+        logger.error("Failed to generate API key", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to generate API key")

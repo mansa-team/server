@@ -1,9 +1,10 @@
+import logging
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 import asyncio
 import os
 from config import Config, LOCALHOST_ADDRESSES
-from main.utils.util import log
+from main.utils.logging_config import limiter
 from main.utils.connectivity import checkMySqlConnection, checkServiceConnection
 from main.utils.service_manager import ServiceManager
 from main.utils.migrator import runMigrations
@@ -14,6 +15,8 @@ from main.service.prometheus_service import PrometheusService
 from main.service.scraper_service import ScraperService
 from main.service.stocksapi_service import StocksAPIService
 
+logger = logging.getLogger(__name__)
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     dbConnected = False
@@ -21,11 +24,11 @@ async def lifespan(app: FastAPI):
         if checkMySqlConnection():
             dbConnected = True
             break
-        log("system", f"Retrying database connection ({i+1}/10)")
+        logger.info(f"Retrying database connection ({i+1}/10)")
         await asyncio.sleep(3)
 
     if not dbConnected:
-        log("system", "Database connection failed after retries.")
+        logger.error("Database connection failed after retries.")
     else: runMigrations()
 
     if Config.USER['ENABLED']:
@@ -33,25 +36,25 @@ async def lifespan(app: FastAPI):
             AuthenticationService.initialize(Config.USER['PORT'])
             UserService.initialize(Config.USER['PORT'])
         else:
-            if not checkServiceConnection("USER"): log("system", "Remote connection to the USER Service failed")
+            if not checkServiceConnection("USER"): logger.error("Remote connection to the USER Service failed")
 
     if Config.STOCKS_API['ENABLED']:
         if Config.STOCKS_API['HOST'] in LOCALHOST_ADDRESSES:
             StocksAPIService.initialize(Config.STOCKS_API['PORT'])
         else:
-            if not checkServiceConnection("STOCKS_API"): log("system", "Remote connection to the STOCKS_API Service failed")
+            if not checkServiceConnection("STOCKS_API"): logger.error("Remote connection to the STOCKS_API Service failed")
 
     if Config.PROMETHEUS['ENABLED']:
         if Config.PROMETHEUS['HOST'] in LOCALHOST_ADDRESSES:
             PrometheusService.initialize(Config.PROMETHEUS['PORT'])
         else:
-            if not checkServiceConnection("PROMETHEUS"): log("system", "Remote connection to the PRONETHEUS Service failed")
+            if not checkServiceConnection("PROMETHEUS"): logger.error("Remote connection to the PRONETHEUS Service failed")
 
     if Config.SCRAPER['ENABLED']:
         ScraperService.initialize()
 
     ServiceManager.runAll()
-    log("system", "All services initialized!")
+    logger.info("All services initialized!")
 
     yield
 
