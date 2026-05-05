@@ -1,5 +1,5 @@
-from sqlalchemy import Column, Integer, String, TIMESTAMP, ForeignKey, func
-from sqlalchemy.orm import relationship
+from sqlalchemy import Integer, String, TIMESTAMP, ForeignKey, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from main.models.base import Base
 from datetime import datetime, timezone
 
@@ -7,11 +7,11 @@ from datetime import datetime, timezone
 class StocksAPIKey(Base):
     __tablename__ = "stocksapi_keys"
 
-    apiKey = Column(String(255), primary_key=True)
-    userId = Column(Integer, ForeignKey("users.userId", ondelete="CASCADE"), unique=True, nullable=False, index=True)
-    requestLimit = Column(Integer, nullable=False, default=100)
-    currentUsage = Column(Integer, nullable=False, default=0)
-    lastReset = Column(TIMESTAMP, server_default=func.current_timestamp(), nullable=False)
+    apiKey: Mapped[str] = mapped_column(String(255), primary_key=True)
+    userId: Mapped[int] = mapped_column(Integer, ForeignKey("users.userId", ondelete="CASCADE"), unique=True, nullable=False, index=True)
+    requestLimit: Mapped[int] = mapped_column(Integer, nullable=False, default=100)
+    currentUsage: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    lastReset: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.current_timestamp(), nullable=False)
 
     user = relationship("User", back_populates="stocksapi_keys")
 
@@ -25,8 +25,8 @@ class StocksAPIKey(Base):
         if not self.lastReset:
             return True
         now = datetime.now(timezone.utc)
-        last_reset = self.lastReset.replace(tzinfo=timezone.utc) if self.lastReset.tzinfo is None else self.lastReset
-        daysSinceReset = (now - last_reset).days
+        lastResetTime = self.lastReset.replace(tzinfo=timezone.utc) if self.lastReset.tzinfo is None else self.lastReset
+        daysSinceReset = (now - lastResetTime).days
         return daysSinceReset >= resetDays
 
     def resetQuota(self):
