@@ -11,10 +11,9 @@ from main.app.stocks_api.util import categorizeColumns, parseYearInput
 if TYPE_CHECKING:
     from main.app.stocks_api.cache import StocksCacheManager
 
-
 class StocksQueryManager:
-    def __init__(self, cache_manager: "StocksCacheManager"):
-        self.cache_manager = cache_manager
+    def __init__(self, cacheManager: "StocksCacheManager"):
+        self.cacheManager = cacheManager
 
     SPECIAL_COLS = frozenset([
         "COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA",
@@ -67,11 +66,11 @@ class StocksQueryManager:
         orderBy: str | None = None,
         limit: int | None = None,
     ):
-        if self.cache_manager.STOCKS_CACHE is None:
+        if self.cacheManager.STOCKS_CACHE is None:
             raise HTTPException(status_code=503, detail="Cache not initialized")
 
         try:
-            df = self.cache_manager.STOCKS_CACHE.copy()
+            df = self.cacheManager.STOCKS_CACHE.copy()
             availableColumns = df.columns.tolist()
             availableColumnsSet = set(availableColumns)
             historicalFields, _ = categorizeColumns(availableColumns)
@@ -132,11 +131,11 @@ class StocksQueryManager:
         orderBy: str | None = None,
         limit: int | None = None,
     ):
-        if self.cache_manager.STOCKS_CACHE is None:
+        if self.cacheManager.STOCKS_CACHE is None:
             raise HTTPException(status_code=503, detail="Cache not initialized")
 
         try:
-            df = self.cache_manager.STOCKS_CACHE.copy()
+            df = self.cacheManager.STOCKS_CACHE.copy()
             availableColumns = df.columns.tolist()
             availableColumnsSet = set(availableColumns)
             _, fundamentalCols = categorizeColumns(availableColumns)
@@ -152,7 +151,7 @@ class StocksQueryManager:
                 df = self.filterBySearchTerms(df, search)
 
             if "TIME" in df.columns:
-                time_col = pd.to_datetime(df["TIME"])
+                timeCol = pd.to_datetime(df["TIME"])
 
                 if dates:
                     try:
@@ -160,15 +159,15 @@ class StocksQueryManager:
                         if len(dateRange) == 2:
                             startDate = pd.to_datetime(dateRange[0]).date()
                             endDate = pd.to_datetime(dateRange[1]).date()
-                            mask = (time_col.dt.date >= startDate) & (time_col.dt.date <= endDate)
+                            mask = (timeCol.dt.date >= startDate) & (timeCol.dt.date <= endDate)
                             df = df[mask]
                         elif len(dateRange) == 1:
                             targetDate = pd.to_datetime(dateRange[0]).date()
-                            df = df[time_col.dt.date == targetDate]
+                            df = df[timeCol.dt.date == targetDate]
                     except Exception as e:
                         raise HTTPException(status_code=400, detail=f"Data format error (YYYY-MM-DD): {str(e)}")
 
-                df["TIME"] = time_col.dt.strftime("%Y-%m-%d")
+                df["TIME"] = timeCol.dt.strftime("%Y-%m-%d")
                 df = df.sort_values(by="TIME", ascending=False)
 
             if not search or search.strip() == "":

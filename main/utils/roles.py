@@ -48,7 +48,7 @@ class Roles(IntFlag):
     ADMIN = Permission.ALL()
 
     @classmethod
-    def checkAccess(cls, userRoles: list[str], required_perm: Permission) -> bool:
+    def checkAccess(cls, userRoles: list[str], requiredPerm: Permission) -> bool:
         userPerms = Permission.NONE
         for roleName in userRoles:
             role = roleName.upper()
@@ -58,7 +58,7 @@ class Roles(IntFlag):
                 userPerms |= cls[role]
             except KeyError:
                 continue
-        return bool(userPerms & required_perm)
+        return bool(userPerms & requiredPerm)
 
     @staticmethod
     def requirePermission(perm: Permission):

@@ -27,6 +27,6 @@ def parseYearInput(years: str) -> tuple:
     return yearList[0], yearList[0] if len(yearList) == 1 else yearList[1]
 
 def normalizeColumns(data: pd.DataFrame, order: list) -> pd.DataFrame:
-    existing_order = [col for col in order if col in data.columns]
-    remaining = sorted(col for col in data.columns if col not in existing_order)
-    return data[existing_order + remaining]
+    existingOrder = [col for col in order if col in data.columns]
+    remaining = sorted(col for col in data.columns if col not in existingOrder)
+    return data[existingOrder + remaining]
