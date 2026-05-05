@@ -3044,491 +3044,491 @@
       "file_type": "code",
       "source_file": "config.py",
       "source_location": 109,
-      "id": "config_Config",
       "community": 26,
-      "norm_label": "config"
+      "norm_label": "config",
+      "id": "config_Config"
     },
     {
       "label": "MySQL Engine (user_db)",
       "file_type": "code",
       "source_file": "config.py",
       "source_location": 120,
-      "id": "config_engine",
       "community": 20,
-      "norm_label": "mysql engine (user_db)"
+      "norm_label": "mysql engine (user_db)",
+      "id": "config_engine"
     },
     {
       "label": "MySQL Engine (stocks_db)",
       "file_type": "code",
       "source_file": "config.py",
       "source_location": 130,
-      "id": "config_stocksEngine",
       "community": 20,
-      "norm_label": "mysql engine (stocks_db)"
+      "norm_label": "mysql engine (stocks_db)",
+      "id": "config_stocksEngine"
     },
     {
       "label": "AuthenticationManager",
       "file_type": "code",
       "source_file": "main/app/authentication/authentication.py",
       "source_location": 13,
-      "id": "AuthenticationManager",
       "community": 12,
-      "norm_label": "authenticationmanager"
+      "norm_label": "authenticationmanager",
+      "id": "AuthenticationManager"
     },
     {
       "label": "SessionManager",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
       "source_location": 11,
-      "id": "SessionManager",
       "community": 12,
-      "norm_label": "sessionmanager"
+      "norm_label": "sessionmanager",
+      "id": "SessionManager"
     },
     {
       "label": "Auth Utilities (JWT/Password)",
       "file_type": "code",
       "source_file": "main/app/authentication/util.py",
       "source_location": 1,
-      "id": "auth_util",
       "community": 12,
-      "norm_label": "auth utilities (jwt/password)"
+      "norm_label": "auth utilities (jwt/password)",
+      "id": "auth_util"
     },
     {
       "label": "Auth Constants",
       "file_type": "code",
       "source_file": "main/app/authentication/constants.py",
       "source_location": 1,
-      "id": "auth_constants",
       "community": 27,
-      "norm_label": "auth constants"
+      "norm_label": "auth constants",
+      "id": "auth_constants"
     },
     {
       "label": "Google SSO Factory",
       "file_type": "code",
       "source_file": "main/app/authentication/sso.py",
       "source_location": 5,
-      "id": "getGoogleSSO",
       "community": 12,
-      "norm_label": "google sso factory"
+      "norm_label": "google sso factory",
+      "id": "getGoogleSSO"
     },
     {
       "label": "UserManager",
       "file_type": "code",
       "source_file": "main/app/user/user.py",
       "source_location": 9,
-      "id": "UserManager",
       "community": 12,
-      "norm_label": "usermanager"
+      "norm_label": "usermanager",
+      "id": "UserManager"
     },
     {
       "label": "PrometheusChatManager",
       "file_type": "code",
       "source_file": "main/app/prometheus/chat.py",
       "source_location": 10,
-      "id": "PrometheusChatManager",
       "community": 12,
-      "norm_label": "prometheuschatmanager"
+      "norm_label": "prometheuschatmanager",
+      "id": "PrometheusChatManager"
     },
     {
       "label": "PrometheusGenerator",
       "file_type": "code",
       "source_file": "main/app/prometheus/generation.py",
       "source_location": 20,
-      "id": "PrometheusGenerator",
       "community": 12,
-      "norm_label": "prometheusgenerator"
+      "norm_label": "prometheusgenerator",
+      "id": "PrometheusGenerator"
     },
     {
       "label": "StocksCacheManager",
       "file_type": "code",
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": 12,
-      "id": "stocksCache",
       "community": 22,
-      "norm_label": "stockscachemanager"
+      "norm_label": "stockscachemanager",
+      "id": "stocksCache"
     },
     {
       "label": "StocksQueryManager",
       "file_type": "code",
       "source_file": "main/app/stocks_api/query.py",
       "source_location": 14,
-      "id": "stocksQuery",
       "community": 12,
-      "norm_label": "stocksquerymanager"
+      "norm_label": "stocksquerymanager",
+      "id": "stocksQuery"
     },
     {
       "label": "API Key Verifier",
       "file_type": "code",
       "source_file": "main/app/stocks_api/key.py",
       "source_location": 14,
-      "id": "verifyAPIKey",
       "community": 12,
-      "norm_label": "api key verifier"
+      "norm_label": "api key verifier",
+      "id": "verifyAPIKey"
     },
     {
       "label": "B3Scraper",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": 31,
-      "id": "B3Scraper",
       "community": 21,
-      "norm_label": "b3scraper"
+      "norm_label": "b3scraper",
+      "id": "B3Scraper"
     },
     {
       "label": "Authentication Controller",
       "file_type": "code",
       "source_file": "main/controller/authentication_controller.py",
       "source_location": 1,
-      "id": "auth_controller",
       "community": 12,
-      "norm_label": "authentication controller"
+      "norm_label": "authentication controller",
+      "id": "auth_controller"
     },
     {
       "label": "Prometheus Controller",
       "file_type": "code",
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": 1,
-      "id": "prometheus_controller",
       "community": 12,
-      "norm_label": "prometheus controller"
+      "norm_label": "prometheus controller",
+      "id": "prometheus_controller"
     },
     {
       "label": "Stocks API Controller",
       "file_type": "code",
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": 1,
-      "id": "stocksapi_controller",
       "community": 12,
-      "norm_label": "stocks api controller"
+      "norm_label": "stocks api controller",
+      "id": "stocksapi_controller"
     },
     {
       "label": "User Controller",
       "file_type": "code",
       "source_file": "main/controller/user_controller.py",
       "source_location": 1,
-      "id": "user_controller",
       "community": 12,
-      "norm_label": "user controller"
+      "norm_label": "user controller",
+      "id": "user_controller"
     },
     {
       "label": "Base SQLAlchemy declarative base",
       "file_type": "code",
       "source_file": "main/models/base.py",
-      "id": "Base",
       "community": 16,
-      "norm_label": "base sqlalchemy declarative base"
+      "norm_label": "base sqlalchemy declarative base",
+      "id": "Base"
     },
     {
       "label": "PrometheusSession model",
       "file_type": "code",
       "source_file": "main/models/prometheus.py",
-      "id": "PrometheusSession",
       "community": 16,
-      "norm_label": "prometheussession model"
+      "norm_label": "prometheussession model",
+      "id": "PrometheusSession"
     },
     {
       "label": "StocksAPIKey model",
       "file_type": "code",
       "source_file": "main/models/stocksapi_key.py",
-      "id": "StocksAPIKey",
       "community": 16,
-      "norm_label": "stocksapikey model"
+      "norm_label": "stocksapikey model",
+      "id": "StocksAPIKey"
     },
     {
       "label": "User model",
       "file_type": "code",
       "source_file": "main/models/user.py",
-      "id": "User",
       "community": 16,
-      "norm_label": "user model"
+      "norm_label": "user model",
+      "id": "User"
     },
     {
       "label": "UserSession model",
       "file_type": "code",
       "source_file": "main/models/user_session.py",
-      "id": "UserSession",
       "community": 16,
-      "norm_label": "usersession model"
+      "norm_label": "usersession model",
+      "id": "UserSession"
     },
     {
       "label": "AuthenticationService",
       "file_type": "code",
       "source_file": "main/service/authentication_service.py",
-      "id": "AuthenticationService",
       "community": 12,
-      "norm_label": "authenticationservice"
+      "norm_label": "authenticationservice",
+      "id": "AuthenticationService"
     },
     {
       "label": "PrometheusService",
       "file_type": "code",
       "source_file": "main/service/prometheus_service.py",
-      "id": "PrometheusService",
       "community": 12,
-      "norm_label": "prometheusservice"
+      "norm_label": "prometheusservice",
+      "id": "PrometheusService"
     },
     {
       "label": "ScraperService",
       "file_type": "code",
       "source_file": "main/service/scraper_service.py",
-      "id": "ScraperService",
       "community": 21,
-      "norm_label": "scraperservice"
+      "norm_label": "scraperservice",
+      "id": "ScraperService"
     },
     {
       "label": "StocksAPIService",
       "file_type": "code",
       "source_file": "main/service/stocksapi_service.py",
-      "id": "StocksAPIService",
       "community": 22,
-      "norm_label": "stocksapiservice"
+      "norm_label": "stocksapiservice",
+      "id": "StocksAPIService"
     },
     {
       "label": "UserService",
       "file_type": "code",
       "source_file": "main/service/user_service.py",
-      "id": "UserService",
       "community": 12,
-      "norm_label": "userservice"
+      "norm_label": "userservice",
+      "id": "UserService"
     },
     {
       "label": "checkMySqlConnection",
       "file_type": "code",
       "source_file": "main/utils/connectivity.py",
-      "id": "checkMySqlConnection",
       "community": 20,
-      "norm_label": "checkmysqlconnection"
+      "norm_label": "checkmysqlconnection",
+      "id": "checkMySqlConnection"
     },
     {
       "label": "checkServiceConnection",
       "file_type": "code",
       "source_file": "main/utils/connectivity.py",
-      "id": "checkServiceConnection",
       "community": 28,
-      "norm_label": "checkserviceconnection"
+      "norm_label": "checkserviceconnection",
+      "id": "checkServiceConnection"
     },
     {
       "label": "Mansa Server",
       "file_type": "document",
       "source_file": "README.md",
-      "id": "mansa_server",
       "community": 10,
-      "norm_label": "mansa server"
+      "norm_label": "mansa server",
+      "id": "mansa_server"
     },
     {
       "label": "FastAPI",
       "file_type": "rationale",
       "source_file": "README.md",
-      "id": "fastapi",
       "community": 0,
-      "norm_label": "fastapi"
+      "norm_label": "fastapi",
+      "id": "fastapi"
     },
     {
       "label": "B3 Scraper",
       "file_type": "document",
       "source_file": "docs/scraper_b3.md",
-      "id": "b3_scraper",
       "community": 10,
-      "norm_label": "b3 scraper"
+      "norm_label": "b3 scraper",
+      "id": "b3_scraper"
     },
     {
       "label": "USER Service",
       "file_type": "document",
       "source_file": "AGENTS.md",
-      "id": "user_service",
       "community": 10,
-      "norm_label": "user service"
+      "norm_label": "user service",
+      "id": "user_service"
     },
     {
       "label": "STOCKS_API Service",
       "file_type": "document",
       "source_file": "AGENTS.md",
-      "id": "stocks_api",
       "community": 10,
-      "norm_label": "stocks_api service"
+      "norm_label": "stocks_api service",
+      "id": "stocks_api"
     },
     {
       "label": "Prometheus AI",
       "file_type": "document",
       "source_file": "docs/prometheus.md",
-      "id": "prometheus",
       "community": 10,
-      "norm_label": "prometheus ai"
+      "norm_label": "prometheus ai",
+      "id": "prometheus"
     },
     {
       "label": "Authentication System",
       "file_type": "document",
       "source_file": "docs/authentication.md",
-      "id": "authentication",
       "community": 1,
-      "norm_label": "authentication system"
+      "norm_label": "authentication system",
+      "id": "authentication"
     },
     {
       "label": "JWT Authentication",
       "file_type": "rationale",
       "source_file": "docs/authentication.md",
-      "id": "jwt",
       "community": 1,
-      "norm_label": "jwt authentication"
+      "norm_label": "jwt authentication",
+      "id": "jwt"
     },
     {
       "label": "Google OAuth",
       "file_type": "rationale",
       "source_file": "docs/authentication.md",
-      "id": "google_oauth",
       "community": 1,
-      "norm_label": "google oauth"
+      "norm_label": "google oauth",
+      "id": "google_oauth"
     },
     {
       "label": "Session Management",
       "file_type": "rationale",
       "source_file": "docs/authentication.md",
-      "id": "session_management",
       "community": 29,
-      "norm_label": "session management"
+      "norm_label": "session management",
+      "id": "session_management"
     },
     {
       "label": "MySQL Database",
       "file_type": "document",
       "source_file": "docker-compose.yml",
-      "id": "mysql",
       "community": 10,
-      "norm_label": "mysql database"
+      "norm_label": "mysql database",
+      "id": "mysql"
     },
     {
       "label": "user_db",
       "file_type": "rationale",
       "source_file": "AGENTS.md",
-      "id": "user_db",
       "community": 10,
-      "norm_label": "user_db"
+      "norm_label": "user_db",
+      "id": "user_db"
     },
     {
       "label": "stocks_db",
       "file_type": "rationale",
       "source_file": "AGENTS.md",
-      "id": "stocks_db",
       "community": 10,
-      "norm_label": "stocks_db"
+      "norm_label": "stocks_db",
+      "id": "stocks_db"
     },
     {
       "label": "User Roles System",
       "file_type": "rationale",
       "source_file": "docs/user.md",
-      "id": "user_roles",
       "community": 10,
-      "norm_label": "user roles system"
+      "norm_label": "user roles system",
+      "id": "user_roles"
     },
     {
       "label": "API Key System",
       "file_type": "rationale",
       "source_file": "docs/stocks_api.md",
-      "id": "api_key_system",
       "community": 10,
-      "norm_label": "api key system"
+      "norm_label": "api key system",
+      "id": "api_key_system"
     },
     {
       "label": "RAG Architecture",
       "file_type": "rationale",
       "source_file": "docs/prometheus.md",
-      "id": "rag_architecture",
       "community": 10,
-      "norm_label": "rag architecture"
+      "norm_label": "rag architecture",
+      "id": "rag_architecture"
     },
     {
       "label": "Gemini Model",
       "file_type": "rationale",
       "source_file": "docs/prometheus.md",
-      "id": "gemini_model",
       "community": 10,
-      "norm_label": "gemini model"
+      "norm_label": "gemini model",
+      "id": "gemini_model"
     },
     {
       "label": "Docker Deployment",
       "file_type": "document",
       "source_file": "docker-compose.yml",
-      "id": "docker",
       "community": 30,
-      "norm_label": "docker deployment"
+      "norm_label": "docker deployment",
+      "id": "docker"
     },
     {
       "label": "Ruff Linter",
       "file_type": "rationale",
       "source_file": "pyproject.toml",
-      "id": "ruff",
       "community": 31,
-      "norm_label": "ruff linter"
+      "norm_label": "ruff linter",
+      "id": "ruff"
     },
     {
       "label": "Pytest Testing",
       "file_type": "rationale",
       "source_file": "pyproject.toml",
-      "id": "pytest",
       "community": 15,
-      "norm_label": "pytest testing"
+      "norm_label": "pytest testing",
+      "id": "pytest"
     },
     {
       "label": "Mypy Typecheck",
       "file_type": "rationale",
       "source_file": "AGENTS.md",
-      "id": "mypy",
       "community": 32,
-      "norm_label": "mypy typecheck"
+      "norm_label": "mypy typecheck",
+      "id": "mypy"
     },
     {
       "label": "Permission System",
       "file_type": "rationale",
       "source_file": "docs/user.md",
-      "id": "permission_system",
       "community": 10,
-      "norm_label": "permission system"
+      "norm_label": "permission system",
+      "id": "permission_system"
     },
     {
       "label": "Ma'at Stock Algorithm",
       "file_type": "rationale",
       "source_file": "TODO.md",
-      "id": "ma_at",
       "community": 10,
-      "norm_label": "ma'at stock algorithm"
+      "norm_label": "ma'at stock algorithm",
+      "id": "ma_at"
     },
     {
       "label": "Thoth Wallet Management",
       "file_type": "rationale",
       "source_file": "TODO.md",
-      "id": "thoth",
       "community": 10,
-      "norm_label": "thoth wallet management"
+      "norm_label": "thoth wallet management",
+      "id": "thoth"
     },
     {
       "label": "Ogum Algo Trading",
       "file_type": "rationale",
       "source_file": "TODO.md",
-      "id": "ogum",
       "community": 10,
-      "norm_label": "ogum algo trading"
+      "norm_label": "ogum algo trading",
+      "id": "ogum"
     },
     {
       "label": "Fundamental Data",
       "file_type": "rationale",
       "source_file": "docs/stocks_api.md",
-      "id": "fundamental_data",
       "community": 10,
-      "norm_label": "fundamental data"
+      "norm_label": "fundamental data",
+      "id": "fundamental_data"
     },
     {
       "label": "Historical Data",
       "file_type": "rationale",
       "source_file": "docs/stocks_api.md",
-      "id": "historical_data",
       "community": 10,
-      "norm_label": "historical data"
+      "norm_label": "historical data",
+      "id": "historical_data"
     },
     {
       "label": "Value Investing",
       "file_type": "rationale",
       "source_file": "docs/stocks_api.md",
-      "id": "value_investing",
       "community": 10,
-      "norm_label": "value investing"
+      "norm_label": "value investing",
+      "id": "value_investing"
     }
   ],
   "links": [
@@ -3538,9 +3538,9 @@
       "source_file": "config.py",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "config_py",
-      "target": "server_config_applyipv4force",
-      "confidence_score": 1.0
+      "target": "server_config_applyipv4force"
     },
     {
       "relation": "contains",
@@ -3548,9 +3548,9 @@
       "source_file": "config.py",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "config_py",
-      "target": "server_config_basemansasettings",
-      "confidence_score": 1.0
+      "target": "server_config_basemansasettings"
     },
     {
       "relation": "contains",
@@ -3558,9 +3558,9 @@
       "source_file": "config.py",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "config_py",
-      "target": "server_config_mysqlsettings",
-      "confidence_score": 1.0
+      "target": "server_config_mysqlsettings"
     },
     {
       "relation": "contains",
@@ -3568,9 +3568,9 @@
       "source_file": "config.py",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "config_py",
-      "target": "server_config_usersettings",
-      "confidence_score": 1.0
+      "target": "server_config_usersettings"
     },
     {
       "relation": "contains",
@@ -3578,9 +3578,9 @@
       "source_file": "config.py",
       "source_location": "L65",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "config_py",
-      "target": "server_config_stocksapisettings",
-      "confidence_score": 1.0
+      "target": "server_config_stocksapisettings"
     },
     {
       "relation": "contains",
@@ -3588,9 +3588,9 @@
       "source_file": "config.py",
       "source_location": "L79",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "config_py",
-      "target": "server_config_prometheussettings",
-      "confidence_score": 1.0
+      "target": "server_config_prometheussettings"
     },
     {
       "relation": "contains",
@@ -3598,9 +3598,9 @@
       "source_file": "config.py",
       "source_location": "L90",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "config_py",
-      "target": "server_config_scrapersettings",
-      "confidence_score": 1.0
+      "target": "server_config_scrapersettings"
     },
     {
       "relation": "contains",
@@ -3608,9 +3608,9 @@
       "source_file": "config.py",
       "source_location": "L101",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "config_py",
-      "target": "server_config_discordsettings",
-      "confidence_score": 1.0
+      "target": "server_config_discordsettings"
     },
     {
       "relation": "contains",
@@ -3618,9 +3618,9 @@
       "source_file": "config.py",
       "source_location": "L109",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "config_py",
-      "target": "server_config_config",
-      "confidence_score": 1.0
+      "target": "server_config_config"
     },
     {
       "relation": "contains",
@@ -3628,9 +3628,9 @@
       "source_file": "config.py",
       "source_location": "L144",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "config_py",
-      "target": "server_config_getsession",
-      "confidence_score": 1.0
+      "target": "server_config_getsession"
     },
     {
       "relation": "contains",
@@ -3638,9 +3638,9 @@
       "source_file": "config.py",
       "source_location": "L151",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "config_py",
-      "target": "server_config_getstockssession",
-      "confidence_score": 1.0
+      "target": "server_config_getstockssession"
     },
     {
       "relation": "inherits",
@@ -3648,9 +3648,9 @@
       "source_file": "config.py",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_basemansasettings",
-      "target": "basesettings",
-      "confidence_score": 1.0
+      "target": "basesettings"
     },
     {
       "relation": "method",
@@ -3658,9 +3658,9 @@
       "source_file": "config.py",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_basemansasettings",
-      "target": "server_config_basemansasettings_get",
-      "confidence_score": 1.0
+      "target": "server_config_basemansasettings_get"
     },
     {
       "relation": "inherits",
@@ -3668,9 +3668,9 @@
       "source_file": "config.py",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_mysqlsettings",
-      "target": "server_config_basemansasettings",
-      "confidence_score": 1.0
+      "target": "server_config_basemansasettings"
     },
     {
       "relation": "inherits",
@@ -3678,9 +3678,9 @@
       "source_file": "config.py",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_usersettings",
-      "target": "server_config_basemansasettings",
-      "confidence_score": 1.0
+      "target": "server_config_basemansasettings"
     },
     {
       "relation": "inherits",
@@ -3688,9 +3688,9 @@
       "source_file": "config.py",
       "source_location": "L65",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_stocksapisettings",
-      "target": "server_config_basemansasettings",
-      "confidence_score": 1.0
+      "target": "server_config_basemansasettings"
     },
     {
       "relation": "inherits",
@@ -3698,9 +3698,9 @@
       "source_file": "config.py",
       "source_location": "L79",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_prometheussettings",
-      "target": "server_config_basemansasettings",
-      "confidence_score": 1.0
+      "target": "server_config_basemansasettings"
     },
     {
       "relation": "inherits",
@@ -3708,9 +3708,9 @@
       "source_file": "config.py",
       "source_location": "L90",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_scrapersettings",
-      "target": "server_config_basemansasettings",
-      "confidence_score": 1.0
+      "target": "server_config_basemansasettings"
     },
     {
       "relation": "inherits",
@@ -3718,9 +3718,9 @@
       "source_file": "config.py",
       "source_location": "L101",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_discordsettings",
-      "target": "server_config_basemansasettings",
-      "confidence_score": 1.0
+      "target": "server_config_basemansasettings"
     },
     {
       "relation": "calls",
@@ -3729,9 +3729,9 @@
       "source_file": "config.py",
       "source_location": "L63",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_usersettings_getitem",
-      "target": "server_config_basemansasettings_get",
-      "confidence_score": 1.0
+      "target": "server_config_basemansasettings_get"
     },
     {
       "relation": "calls",
@@ -3740,9 +3740,9 @@
       "source_file": "config.py",
       "source_location": "L77",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_stocksapisettings_getitem",
-      "target": "server_config_basemansasettings_get",
-      "confidence_score": 1.0
+      "target": "server_config_basemansasettings_get"
     },
     {
       "relation": "calls",
@@ -3751,9 +3751,9 @@
       "source_file": "config.py",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_prometheussettings_getitem",
-      "target": "server_config_basemansasettings_get",
-      "confidence_score": 1.0
+      "target": "server_config_basemansasettings_get"
     },
     {
       "relation": "method",
@@ -3761,9 +3761,9 @@
       "source_file": "config.py",
       "source_location": "L43",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_mysqlsettings",
-      "target": "server_config_mysqlsettings_getitem",
-      "confidence_score": 1.0
+      "target": "server_config_mysqlsettings_getitem"
     },
     {
       "relation": "method",
@@ -3771,9 +3771,9 @@
       "source_file": "config.py",
       "source_location": "L57",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_usersettings",
-      "target": "server_config_usersettings_getitem",
-      "confidence_score": 1.0
+      "target": "server_config_usersettings_getitem"
     },
     {
       "relation": "method",
@@ -3781,9 +3781,9 @@
       "source_file": "config.py",
       "source_location": "L75",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_stocksapisettings",
-      "target": "server_config_stocksapisettings_getitem",
-      "confidence_score": 1.0
+      "target": "server_config_stocksapisettings_getitem"
     },
     {
       "relation": "method",
@@ -3791,9 +3791,9 @@
       "source_file": "config.py",
       "source_location": "L86",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_prometheussettings",
-      "target": "server_config_prometheussettings_getitem",
-      "confidence_score": 1.0
+      "target": "server_config_prometheussettings_getitem"
     },
     {
       "relation": "method",
@@ -3801,9 +3801,9 @@
       "source_file": "config.py",
       "source_location": "L98",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_scrapersettings",
-      "target": "server_config_scrapersettings_getitem",
-      "confidence_score": 1.0
+      "target": "server_config_scrapersettings_getitem"
     },
     {
       "relation": "method",
@@ -3811,9 +3811,9 @@
       "source_file": "config.py",
       "source_location": "L106",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_config_discordsettings",
-      "target": "server_config_discordsettings_getitem",
-      "confidence_score": 1.0
+      "target": "server_config_discordsettings_getitem"
     },
     {
       "relation": "uses",
@@ -3821,9 +3821,9 @@
       "source_file": "main/app/prometheus/generation.py",
       "source_location": "L2",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "prometheus_generation_prometheusgenerator",
-      "target": "server_config_config",
-      "confidence_score": 0.5
+      "target": "server_config_config"
     },
     {
       "relation": "uses",
@@ -3831,9 +3831,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L2",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "scraper_b3_scraper_b3scraper",
-      "target": "server_config_config",
-      "confidence_score": 0.5
+      "target": "server_config_config"
     },
     {
       "relation": "uses",
@@ -3841,9 +3841,9 @@
       "source_file": "main/service/authentication_service.py",
       "source_location": "L2",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "service_authentication_service_authenticationservice",
-      "target": "server_config_config",
-      "confidence_score": 0.5
+      "target": "server_config_config"
     },
     {
       "relation": "uses",
@@ -3851,9 +3851,9 @@
       "source_file": "main/service/scraper_service.py",
       "source_location": "L7",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "service_scraper_service_scraperservice",
-      "target": "server_config_config",
-      "confidence_score": 0.5
+      "target": "server_config_config"
     },
     {
       "relation": "uses",
@@ -3861,9 +3861,9 @@
       "source_file": "main/utils/logging_config.py",
       "source_location": "L6",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "utils_logging_config_discordhandler",
-      "target": "server_config_config",
-      "confidence_score": 0.5
+      "target": "server_config_config"
     },
     {
       "relation": "uses",
@@ -3871,9 +3871,9 @@
       "source_file": "main/utils/service_manager.py",
       "source_location": "L3",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "utils_service_manager_servicemanager",
-      "target": "server_config_config",
-      "confidence_score": 0.5
+      "target": "server_config_config"
     },
     {
       "relation": "imports_from",
@@ -3882,9 +3882,9 @@
       "source_file": "run.py",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "run_py",
-      "target": "fastapi",
-      "confidence_score": 1.0
+      "target": "fastapi"
     },
     {
       "relation": "contains",
@@ -3892,9 +3892,9 @@
       "source_file": "run.py",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "run_py",
-      "target": "server_run_lifespan",
-      "confidence_score": 1.0
+      "target": "server_run_lifespan"
     },
     {
       "relation": "contains",
@@ -3902,9 +3902,9 @@
       "source_file": "run.py",
       "source_location": "L64",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "run_py",
-      "target": "server_run_health",
-      "confidence_score": 1.0
+      "target": "server_run_health"
     },
     {
       "relation": "calls",
@@ -3946,9 +3946,9 @@
       "source_file": "main/app/authentication/authentication.py",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_authentication_py",
-      "target": "fastapi",
-      "confidence_score": 1.0
+      "target": "fastapi"
     },
     {
       "relation": "contains",
@@ -3956,9 +3956,9 @@
       "source_file": "main/app/authentication/authentication.py",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_authentication_py",
-      "target": "authentication_authentication_authenticationmanager",
-      "confidence_score": 1.0
+      "target": "authentication_authentication_authenticationmanager"
     },
     {
       "relation": "contains",
@@ -3966,9 +3966,9 @@
       "source_file": "main/app/authentication/authentication.py",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_authentication_py",
-      "target": "authentication_authentication_createuseraccount",
-      "confidence_score": 1.0
+      "target": "authentication_authentication_createuseraccount"
     },
     {
       "relation": "contains",
@@ -3976,9 +3976,9 @@
       "source_file": "main/app/authentication/authentication.py",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_authentication_py",
-      "target": "authentication_authentication_authenticategoogleuser",
-      "confidence_score": 1.0
+      "target": "authentication_authentication_authenticategoogleuser"
     },
     {
       "relation": "contains",
@@ -3986,9 +3986,9 @@
       "source_file": "main/app/authentication/authentication.py",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_authentication_py",
-      "target": "authentication_authentication_authenticateuser",
-      "confidence_score": 1.0
+      "target": "authentication_authentication_authenticateuser"
     },
     {
       "relation": "uses",
@@ -3996,9 +3996,9 @@
       "source_file": "main/app/authentication/authentication.py",
       "source_location": "L2",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "authentication_authentication_authenticationmanager",
-      "target": "utils_roles_roles",
-      "confidence_score": 0.5
+      "target": "utils_roles_roles"
     },
     {
       "relation": "calls",
@@ -4039,9 +4039,9 @@
       "source_file": "main/app/authentication/device.py",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_device_py",
-      "target": "authentication_device_deviceinfo",
-      "confidence_score": 1.0
+      "target": "authentication_device_deviceinfo"
     },
     {
       "relation": "contains",
@@ -4049,9 +4049,9 @@
       "source_file": "main/app/authentication/device.py",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_device_py",
-      "target": "authentication_device_parseuseragent",
-      "confidence_score": 1.0
+      "target": "authentication_device_parseuseragent"
     },
     {
       "relation": "contains",
@@ -4059,9 +4059,9 @@
       "source_file": "main/app/authentication/device.py",
       "source_location": "L43",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_device_py",
-      "target": "authentication_device_detectbrowser",
-      "confidence_score": 1.0
+      "target": "authentication_device_detectbrowser"
     },
     {
       "relation": "contains",
@@ -4069,9 +4069,9 @@
       "source_file": "main/app/authentication/device.py",
       "source_location": "L70",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_device_py",
-      "target": "authentication_device_detectos",
-      "confidence_score": 1.0
+      "target": "authentication_device_detectos"
     },
     {
       "relation": "contains",
@@ -4079,9 +4079,9 @@
       "source_file": "main/app/authentication/device.py",
       "source_location": "L100",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_device_py",
-      "target": "authentication_device_detectdevicetype",
-      "confidence_score": 1.0
+      "target": "authentication_device_detectdevicetype"
     },
     {
       "relation": "contains",
@@ -4089,9 +4089,9 @@
       "source_file": "main/app/authentication/device.py",
       "source_location": "L122",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_device_py",
-      "target": "authentication_device_generatefingerprint",
-      "confidence_score": 1.0
+      "target": "authentication_device_generatefingerprint"
     },
     {
       "relation": "calls",
@@ -4100,9 +4100,9 @@
       "source_file": "main/app/authentication/device.py",
       "source_location": "L17",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "authentication_device_parseuseragent",
-      "target": "authentication_device_deviceinfo",
-      "confidence_score": 1.0
+      "target": "authentication_device_deviceinfo"
     },
     {
       "relation": "calls",
@@ -4111,9 +4111,9 @@
       "source_file": "main/app/authentication/device.py",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "authentication_device_parseuseragent",
-      "target": "authentication_device_detectbrowser",
-      "confidence_score": 1.0
+      "target": "authentication_device_detectbrowser"
     },
     {
       "relation": "calls",
@@ -4122,9 +4122,9 @@
       "source_file": "main/app/authentication/device.py",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "authentication_device_parseuseragent",
-      "target": "authentication_device_detectos",
-      "confidence_score": 1.0
+      "target": "authentication_device_detectos"
     },
     {
       "relation": "calls",
@@ -4133,9 +4133,9 @@
       "source_file": "main/app/authentication/device.py",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "authentication_device_parseuseragent",
-      "target": "authentication_device_detectdevicetype",
-      "confidence_score": 1.0
+      "target": "authentication_device_detectdevicetype"
     },
     {
       "relation": "calls",
@@ -4275,9 +4275,9 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_session_py",
-      "target": "authentication_session_sessionmanager",
-      "confidence_score": 1.0
+      "target": "authentication_session_sessionmanager"
     },
     {
       "relation": "contains",
@@ -4285,9 +4285,9 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_session_py",
-      "target": "authentication_session_createsession",
-      "confidence_score": 1.0
+      "target": "authentication_session_createsession"
     },
     {
       "relation": "contains",
@@ -4295,9 +4295,9 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L50",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_session_py",
-      "target": "authentication_session_getusersessions",
-      "confidence_score": 1.0
+      "target": "authentication_session_getusersessions"
     },
     {
       "relation": "contains",
@@ -4305,9 +4305,9 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L57",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_session_py",
-      "target": "authentication_session_getsessionbyid",
-      "confidence_score": 1.0
+      "target": "authentication_session_getsessionbyid"
     },
     {
       "relation": "contains",
@@ -4315,9 +4315,9 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L64",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_session_py",
-      "target": "authentication_session_getsessionbyidsafe",
-      "confidence_score": 1.0
+      "target": "authentication_session_getsessionbyidsafe"
     },
     {
       "relation": "contains",
@@ -4325,9 +4325,9 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L68",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_session_py",
-      "target": "authentication_session_getcurrentsession",
-      "confidence_score": 1.0
+      "target": "authentication_session_getcurrentsession"
     },
     {
       "relation": "contains",
@@ -4335,9 +4335,9 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L80",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_session_py",
-      "target": "authentication_session_revokesession",
-      "confidence_score": 1.0
+      "target": "authentication_session_revokesession"
     },
     {
       "relation": "contains",
@@ -4345,9 +4345,9 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L92",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_session_py",
-      "target": "authentication_session_revokeallsessions",
-      "confidence_score": 1.0
+      "target": "authentication_session_revokeallsessions"
     },
     {
       "relation": "contains",
@@ -4355,9 +4355,9 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L108",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_session_py",
-      "target": "authentication_session_updatelastactive",
-      "confidence_score": 1.0
+      "target": "authentication_session_updatelastactive"
     },
     {
       "relation": "contains",
@@ -4365,9 +4365,9 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L118",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_session_py",
-      "target": "authentication_session_cleanupexpiredsessions",
-      "confidence_score": 1.0
+      "target": "authentication_session_cleanupexpiredsessions"
     },
     {
       "relation": "contains",
@@ -4375,9 +4375,9 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L132",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_session_py",
-      "target": "authentication_session_validatesession",
-      "confidence_score": 1.0
+      "target": "authentication_session_validatesession"
     },
     {
       "relation": "uses",
@@ -4385,9 +4385,9 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L6",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "authentication_session_sessionmanager",
-      "target": "models_user_session_usersession",
-      "confidence_score": 0.5
+      "target": "models_user_session_usersession"
     },
     {
       "relation": "uses",
@@ -4395,9 +4395,9 @@
       "source_file": "main/app/user/user.py",
       "source_location": "L30",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "user_user_usermanager",
-      "target": "authentication_session_sessionmanager",
-      "confidence_score": 0.5
+      "target": "authentication_session_sessionmanager"
     },
     {
       "relation": "calls",
@@ -4417,9 +4417,9 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L81",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "authentication_session_revokesession",
-      "target": "authentication_session_getsessionbyid",
-      "confidence_score": 1.0
+      "target": "authentication_session_getsessionbyid"
     },
     {
       "relation": "calls",
@@ -4428,9 +4428,9 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L133",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "authentication_session_validatesession",
-      "target": "authentication_session_getsessionbyid",
-      "confidence_score": 1.0
+      "target": "authentication_session_getsessionbyid"
     },
     {
       "relation": "contains",
@@ -4438,9 +4438,9 @@
       "source_file": "main/app/authentication/sso.py",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_sso_py",
-      "target": "authentication_sso_getgooglesso",
-      "confidence_score": 1.0
+      "target": "authentication_sso_getgooglesso"
     },
     {
       "relation": "calls",
@@ -4471,9 +4471,9 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_util_py",
-      "target": "fastapi",
-      "confidence_score": 1.0
+      "target": "fastapi"
     },
     {
       "relation": "imports",
@@ -4482,9 +4482,9 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_util_py",
-      "target": "jwt",
-      "confidence_score": 1.0
+      "target": "jwt"
     },
     {
       "relation": "contains",
@@ -4492,9 +4492,9 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_util_py",
-      "target": "authentication_util_hashpassword",
-      "confidence_score": 1.0
+      "target": "authentication_util_hashpassword"
     },
     {
       "relation": "contains",
@@ -4502,9 +4502,9 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_util_py",
-      "target": "authentication_util_verifypassword",
-      "confidence_score": 1.0
+      "target": "authentication_util_verifypassword"
     },
     {
       "relation": "contains",
@@ -4512,9 +4512,9 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_util_py",
-      "target": "authentication_util_createaccesstoken",
-      "confidence_score": 1.0
+      "target": "authentication_util_createaccesstoken"
     },
     {
       "relation": "contains",
@@ -4522,9 +4522,9 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_authentication_util_py",
-      "target": "authentication_util_verifyaccesstoken",
-      "confidence_score": 1.0
+      "target": "authentication_util_verifyaccesstoken"
     },
     {
       "relation": "calls",
@@ -4730,9 +4730,9 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_prometheus_chat_py",
-      "target": "prometheus_chat_prometheuschatmanager",
-      "confidence_score": 1.0
+      "target": "prometheus_chat_prometheuschatmanager"
     },
     {
       "relation": "contains",
@@ -4740,9 +4740,9 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_prometheus_chat_py",
-      "target": "prometheus_chat_getusersessions",
-      "confidence_score": 1.0
+      "target": "prometheus_chat_getusersessions"
     },
     {
       "relation": "contains",
@@ -4750,9 +4750,9 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L37",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_prometheus_chat_py",
-      "target": "prometheus_chat_createsession",
-      "confidence_score": 1.0
+      "target": "prometheus_chat_createsession"
     },
     {
       "relation": "contains",
@@ -4760,9 +4760,9 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_prometheus_chat_py",
-      "target": "prometheus_chat_updatesessiontitle",
-      "confidence_score": 1.0
+      "target": "prometheus_chat_updatesessiontitle"
     },
     {
       "relation": "contains",
@@ -4770,9 +4770,9 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L72",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_prometheus_chat_py",
-      "target": "prometheus_chat_savemessage",
-      "confidence_score": 1.0
+      "target": "prometheus_chat_savemessage"
     },
     {
       "relation": "contains",
@@ -4780,9 +4780,9 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L102",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_prometheus_chat_py",
-      "target": "prometheus_chat_gethistory",
-      "confidence_score": 1.0
+      "target": "prometheus_chat_gethistory"
     },
     {
       "relation": "contains",
@@ -4790,9 +4790,9 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L122",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_prometheus_chat_py",
-      "target": "prometheus_chat_updatesummary",
-      "confidence_score": 1.0
+      "target": "prometheus_chat_updatesummary"
     },
     {
       "relation": "contains",
@@ -4800,9 +4800,9 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L133",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_prometheus_chat_py",
-      "target": "prometheus_chat_deletesession",
-      "confidence_score": 1.0
+      "target": "prometheus_chat_deletesession"
     },
     {
       "relation": "contains",
@@ -4810,9 +4810,9 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L155",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_prometheus_chat_py",
-      "target": "prometheus_chat_verifysessionownership",
-      "confidence_score": 1.0
+      "target": "prometheus_chat_verifysessionownership"
     },
     {
       "relation": "method",
@@ -4820,9 +4820,9 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_chat_prometheuschatmanager",
-      "target": "prometheus_chat_prometheuschatmanager_init",
-      "confidence_score": 1.0
+      "target": "prometheus_chat_prometheuschatmanager_init"
     },
     {
       "relation": "uses",
@@ -4830,9 +4830,9 @@
       "source_file": "main/app/prometheus/generation.py",
       "source_location": "L14",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "prometheus_generation_prometheusgenerator",
-      "target": "prometheus_chat_prometheuschatmanager",
-      "confidence_score": 0.5
+      "target": "prometheus_chat_prometheuschatmanager"
     },
     {
       "relation": "calls",
@@ -4851,9 +4851,9 @@
       "source_file": "main/app/prometheus/generation.py",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_prometheus_generation_py",
-      "target": "prometheus_generation_prometheusgenerator",
-      "confidence_score": 1.0
+      "target": "prometheus_generation_prometheusgenerator"
     },
     {
       "relation": "method",
@@ -4861,9 +4861,9 @@
       "source_file": "main/app/prometheus/generation.py",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_generation_prometheusgenerator",
-      "target": "prometheus_generation_prometheusgenerator_init",
-      "confidence_score": 1.0
+      "target": "prometheus_generation_prometheusgenerator_init"
     },
     {
       "relation": "method",
@@ -4871,9 +4871,9 @@
       "source_file": "main/app/prometheus/generation.py",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_generation_prometheusgenerator",
-      "target": "prometheus_generation_prometheusgenerator_updatedates",
-      "confidence_score": 1.0
+      "target": "prometheus_generation_prometheusgenerator_updatedates"
     },
     {
       "relation": "method",
@@ -4881,9 +4881,9 @@
       "source_file": "main/app/prometheus/generation.py",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_generation_prometheusgenerator",
-      "target": "prometheus_generation_prometheusgenerator_executeworkflow",
-      "confidence_score": 1.0
+      "target": "prometheus_generation_prometheusgenerator_executeworkflow"
     },
     {
       "relation": "uses",
@@ -4891,9 +4891,9 @@
       "source_file": "main/app/prometheus/generation.py",
       "source_location": "L13",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "prometheus_generation_prometheusgenerator",
-      "target": "models_prometheus_prometheussession",
-      "confidence_score": 0.5
+      "target": "models_prometheus_prometheussession"
     },
     {
       "relation": "calls",
@@ -4902,9 +4902,9 @@
       "source_file": "main/app/prometheus/generation.py",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_generation_prometheusgenerator_init",
-      "target": "prometheus_generation_prometheusgenerator_updatedates",
-      "confidence_score": 1.0
+      "target": "prometheus_generation_prometheusgenerator_updatedates"
     },
     {
       "relation": "calls",
@@ -4913,9 +4913,9 @@
       "source_file": "main/app/prometheus/generation.py",
       "source_location": "L39",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_generation_prometheusgenerator_executeworkflow",
-      "target": "prometheus_generation_prometheusgenerator_updatedates",
-      "confidence_score": 1.0
+      "target": "prometheus_generation_prometheusgenerator_updatedates"
     },
     {
       "relation": "contains",
@@ -4923,9 +4923,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L31",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_scraper_b3_scraper_py",
-      "target": "scraper_b3_scraper_b3scraper",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_b3scraper"
     },
     {
       "relation": "contains",
@@ -4933,9 +4933,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_scraper_b3_scraper_py",
-      "target": "scraper_b3_scraper_getinitialdata",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_getinitialdata"
     },
     {
       "relation": "contains",
@@ -4943,9 +4943,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L106",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_scraper_b3_scraper_py",
-      "target": "scraper_b3_scraper_historicalrentability",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_historicalrentability"
     },
     {
       "relation": "contains",
@@ -4953,9 +4953,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L129",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_scraper_b3_scraper_py",
-      "target": "scraper_b3_scraper_historicaldividends",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_historicaldividends"
     },
     {
       "relation": "contains",
@@ -4963,9 +4963,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L160",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_scraper_b3_scraper_py",
-      "target": "scraper_b3_scraper_historicaldividendyields",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_historicaldividendyields"
     },
     {
       "relation": "contains",
@@ -4973,9 +4973,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L188",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_scraper_b3_scraper_py",
-      "target": "scraper_b3_scraper_historicalrevenue",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_historicalrevenue"
     },
     {
       "relation": "contains",
@@ -4983,9 +4983,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L209",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_scraper_b3_scraper_py",
-      "target": "scraper_b3_scraper_historicalcotationprofits",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_historicalcotationprofits"
     },
     {
       "relation": "contains",
@@ -4993,9 +4993,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L235",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_scraper_b3_scraper_py",
-      "target": "scraper_b3_scraper_historicalcotations",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_historicalcotations"
     },
     {
       "relation": "contains",
@@ -5003,9 +5003,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L252",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_scraper_b3_scraper_py",
-      "target": "scraper_b3_scraper_tagalong",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_tagalong"
     },
     {
       "relation": "contains",
@@ -5013,9 +5013,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L276",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_scraper_b3_scraper_py",
-      "target": "scraper_b3_scraper_stocknews",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_stocknews"
     },
     {
       "relation": "method",
@@ -5023,9 +5023,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scraper_b3_scraper_b3scraper",
-      "target": "scraper_b3_scraper_b3scraper_init",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_b3scraper_init"
     },
     {
       "relation": "method",
@@ -5033,9 +5033,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L222",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scraper_b3_scraper_b3scraper",
-      "target": "scraper_b3_scraper_b3scraper_historicalcotationprofits_oceans14",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_b3scraper_historicalcotationprofits_oceans14"
     },
     {
       "relation": "method",
@@ -5043,9 +5043,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L289",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scraper_b3_scraper_b3scraper",
-      "target": "scraper_b3_scraper_b3scraper_fundamentalindicators",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_b3scraper_fundamentalindicators"
     },
     {
       "relation": "method",
@@ -5053,9 +5053,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L438",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scraper_b3_scraper_b3scraper",
-      "target": "scraper_b3_scraper_b3scraper_processticker",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_b3scraper_processticker"
     },
     {
       "relation": "method",
@@ -5063,9 +5063,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L469",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scraper_b3_scraper_b3scraper",
-      "target": "scraper_b3_scraper_b3scraper_scrapestocks",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_b3scraper_scrapestocks"
     },
     {
       "relation": "method",
@@ -5073,9 +5073,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L519",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scraper_b3_scraper_b3scraper",
-      "target": "scraper_b3_scraper_b3scraper_reordercolumns",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_b3scraper_reordercolumns"
     },
     {
       "relation": "method",
@@ -5083,9 +5083,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L529",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scraper_b3_scraper_b3scraper",
-      "target": "scraper_b3_scraper_b3scraper_serializecomplextypes",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_b3scraper_serializecomplextypes"
     },
     {
       "relation": "method",
@@ -5093,9 +5093,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L550",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scraper_b3_scraper_b3scraper",
-      "target": "scraper_b3_scraper_b3scraper_exportjson",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_b3scraper_exportjson"
     },
     {
       "relation": "method",
@@ -5103,9 +5103,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L586",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scraper_b3_scraper_b3scraper",
-      "target": "scraper_b3_scraper_b3scraper_exportmysql",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_b3scraper_exportmysql"
     },
     {
       "relation": "uses",
@@ -5113,9 +5113,9 @@
       "source_file": "main/service/scraper_service.py",
       "source_location": "L8",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "service_scraper_service_scraperservice",
-      "target": "scraper_b3_scraper_b3scraper",
-      "confidence_score": 0.5
+      "target": "scraper_b3_scraper_b3scraper"
     },
     {
       "relation": "calls",
@@ -5135,9 +5135,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L470",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scraper_b3_scraper_b3scraper_scrapestocks",
-      "target": "scraper_b3_scraper_getinitialdata",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_getinitialdata"
     },
     {
       "relation": "calls",
@@ -5146,9 +5146,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L461",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scraper_b3_scraper_b3scraper_processticker",
-      "target": "scraper_b3_scraper_b3scraper_fundamentalindicators",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_b3scraper_fundamentalindicators"
     },
     {
       "relation": "calls",
@@ -5157,9 +5157,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L477",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scraper_b3_scraper_b3scraper_scrapestocks",
-      "target": "scraper_b3_scraper_b3scraper_processticker",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_b3scraper_processticker"
     },
     {
       "relation": "calls",
@@ -5168,9 +5168,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L513",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scraper_b3_scraper_b3scraper_scrapestocks",
-      "target": "scraper_b3_scraper_b3scraper_reordercolumns",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_b3scraper_reordercolumns"
     },
     {
       "relation": "calls",
@@ -5179,9 +5179,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L514",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scraper_b3_scraper_b3scraper_scrapestocks",
-      "target": "scraper_b3_scraper_b3scraper_serializecomplextypes",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_b3scraper_serializecomplextypes"
     },
     {
       "relation": "calls",
@@ -5190,9 +5190,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L516",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scraper_b3_scraper_b3scraper_scrapestocks",
-      "target": "scraper_b3_scraper_b3scraper_exportjson",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_b3scraper_exportjson"
     },
     {
       "relation": "calls",
@@ -5201,9 +5201,9 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L517",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "scraper_b3_scraper_b3scraper_scrapestocks",
-      "target": "scraper_b3_scraper_b3scraper_exportmysql",
-      "confidence_score": 1.0
+      "target": "scraper_b3_scraper_b3scraper_exportmysql"
     },
     {
       "relation": "contains",
@@ -5211,9 +5211,9 @@
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_stocks_api_cache_py",
-      "target": "stocks_api_cache_stockscachemanager",
-      "confidence_score": 1.0
+      "target": "stocks_api_cache_stockscachemanager"
     },
     {
       "relation": "method",
@@ -5221,9 +5221,9 @@
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "stocks_api_cache_stockscachemanager",
-      "target": "stocks_api_cache_stockscachemanager_init",
-      "confidence_score": 1.0
+      "target": "stocks_api_cache_stockscachemanager_init"
     },
     {
       "relation": "method",
@@ -5231,9 +5231,9 @@
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "stocks_api_cache_stockscachemanager",
-      "target": "stocks_api_cache_stockscachemanager_cachescheduler",
-      "confidence_score": 1.0
+      "target": "stocks_api_cache_stockscachemanager_cachescheduler"
     },
     {
       "relation": "method",
@@ -5241,9 +5241,9 @@
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "stocks_api_cache_stockscachemanager",
-      "target": "stocks_api_cache_stockscachemanager_getcachedstocks",
-      "confidence_score": 1.0
+      "target": "stocks_api_cache_stockscachemanager_getcachedstocks"
     },
     {
       "relation": "uses",
@@ -5251,9 +5251,9 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L12",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "stocks_api_query_stocksquerymanager",
-      "target": "stocks_api_cache_stockscachemanager",
-      "confidence_score": 0.5
+      "target": "stocks_api_cache_stockscachemanager"
     },
     {
       "relation": "imports_from",
@@ -5262,9 +5262,9 @@
       "source_file": "main/app/stocks_api/key.py",
       "source_location": "L3",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_stocks_api_key_py",
-      "target": "fastapi",
-      "confidence_score": 1.0
+      "target": "fastapi"
     },
     {
       "relation": "contains",
@@ -5272,9 +5272,9 @@
       "source_file": "main/app/stocks_api/key.py",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_stocks_api_key_py",
-      "target": "stocks_api_key_verifyapikey",
-      "confidence_score": 1.0
+      "target": "stocks_api_key_verifyapikey"
     },
     {
       "relation": "contains",
@@ -5282,9 +5282,9 @@
       "source_file": "main/app/stocks_api/key.py",
       "source_location": "L44",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_stocks_api_key_py",
-      "target": "stocks_api_key_generatesecurekey",
-      "confidence_score": 1.0
+      "target": "stocks_api_key_generatesecurekey"
     },
     {
       "relation": "contains",
@@ -5292,9 +5292,9 @@
       "source_file": "main/app/stocks_api/key.py",
       "source_location": "L47",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_stocks_api_key_py",
-      "target": "stocks_api_key_createkey",
-      "confidence_score": 1.0
+      "target": "stocks_api_key_createkey"
     },
     {
       "relation": "calls",
@@ -5303,9 +5303,9 @@
       "source_file": "main/app/stocks_api/key.py",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "stocks_api_key_createkey",
-      "target": "stocks_api_key_generatesecurekey",
-      "confidence_score": 1.0
+      "target": "stocks_api_key_generatesecurekey"
     },
     {
       "relation": "calls",
@@ -5336,9 +5336,9 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_stocks_api_query_py",
-      "target": "fastapi",
-      "confidence_score": 1.0
+      "target": "fastapi"
     },
     {
       "relation": "contains",
@@ -5346,9 +5346,9 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_stocks_api_query_py",
-      "target": "stocks_api_query_stocksquerymanager",
-      "confidence_score": 1.0
+      "target": "stocks_api_query_stocksquerymanager"
     },
     {
       "relation": "method",
@@ -5356,9 +5356,9 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "stocks_api_query_stocksquerymanager",
-      "target": "stocks_api_query_stocksquerymanager_init",
-      "confidence_score": 1.0
+      "target": "stocks_api_query_stocksquerymanager_init"
     },
     {
       "relation": "method",
@@ -5366,9 +5366,9 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "stocks_api_query_stocksquerymanager",
-      "target": "stocks_api_query_stocksquerymanager_deserializejsoncolumns",
-      "confidence_score": 1.0
+      "target": "stocks_api_query_stocksquerymanager_deserializejsoncolumns"
     },
     {
       "relation": "method",
@@ -5376,9 +5376,9 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L52",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "stocks_api_query_stocksquerymanager",
-      "target": "stocks_api_query_stocksquerymanager_filterbysearchterms",
-      "confidence_score": 1.0
+      "target": "stocks_api_query_stocksquerymanager_filterbysearchterms"
     },
     {
       "relation": "method",
@@ -5386,9 +5386,9 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L61",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "stocks_api_query_stocksquerymanager",
-      "target": "stocks_api_query_stocksquerymanager_queryhistorical",
-      "confidence_score": 1.0
+      "target": "stocks_api_query_stocksquerymanager_queryhistorical"
     },
     {
       "relation": "method",
@@ -5396,9 +5396,9 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L126",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "stocks_api_query_stocksquerymanager",
-      "target": "stocks_api_query_stocksquerymanager_queryfundamental",
-      "confidence_score": 1.0
+      "target": "stocks_api_query_stocksquerymanager_queryfundamental"
     },
     {
       "relation": "calls",
@@ -5407,9 +5407,9 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L113",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "stocks_api_query_stocksquerymanager_queryhistorical",
-      "target": "stocks_api_query_stocksquerymanager_deserializejsoncolumns",
-      "confidence_score": 1.0
+      "target": "stocks_api_query_stocksquerymanager_deserializejsoncolumns"
     },
     {
       "relation": "calls",
@@ -5418,9 +5418,9 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L183",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "stocks_api_query_stocksquerymanager_queryfundamental",
-      "target": "stocks_api_query_stocksquerymanager_deserializejsoncolumns",
-      "confidence_score": 1.0
+      "target": "stocks_api_query_stocksquerymanager_deserializejsoncolumns"
     },
     {
       "relation": "calls",
@@ -5429,9 +5429,9 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L99",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "stocks_api_query_stocksquerymanager_queryhistorical",
-      "target": "stocks_api_query_stocksquerymanager_filterbysearchterms",
-      "confidence_score": 1.0
+      "target": "stocks_api_query_stocksquerymanager_filterbysearchterms"
     },
     {
       "relation": "calls",
@@ -5440,9 +5440,9 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L151",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "stocks_api_query_stocksquerymanager_queryfundamental",
-      "target": "stocks_api_query_stocksquerymanager_filterbysearchterms",
-      "confidence_score": 1.0
+      "target": "stocks_api_query_stocksquerymanager_filterbysearchterms"
     },
     {
       "relation": "calls",
@@ -5484,9 +5484,9 @@
       "source_file": "main/app/stocks_api/util.py",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_stocks_api_util_py",
-      "target": "fastapi",
-      "confidence_score": 1.0
+      "target": "fastapi"
     },
     {
       "relation": "contains",
@@ -5494,9 +5494,9 @@
       "source_file": "main/app/stocks_api/util.py",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_stocks_api_util_py",
-      "target": "stocks_api_util_categorizecolumns",
-      "confidence_score": 1.0
+      "target": "stocks_api_util_categorizecolumns"
     },
     {
       "relation": "contains",
@@ -5504,9 +5504,9 @@
       "source_file": "main/app/stocks_api/util.py",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_stocks_api_util_py",
-      "target": "stocks_api_util_parseyearinput",
-      "confidence_score": 1.0
+      "target": "stocks_api_util_parseyearinput"
     },
     {
       "relation": "contains",
@@ -5514,9 +5514,9 @@
       "source_file": "main/app/stocks_api/util.py",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_stocks_api_util_py",
-      "target": "stocks_api_util_normalizecolumns",
-      "confidence_score": 1.0
+      "target": "stocks_api_util_normalizecolumns"
     },
     {
       "relation": "calls",
@@ -5657,9 +5657,9 @@
       "source_file": "main/app/user/user.py",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_user_user_py",
-      "target": "fastapi",
-      "confidence_score": 1.0
+      "target": "fastapi"
     },
     {
       "relation": "contains",
@@ -5667,9 +5667,9 @@
       "source_file": "main/app/user/user.py",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_user_user_py",
-      "target": "user_user_usermanager",
-      "confidence_score": 1.0
+      "target": "user_user_usermanager"
     },
     {
       "relation": "contains",
@@ -5677,9 +5677,9 @@
       "source_file": "main/app/user/user.py",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_user_user_py",
-      "target": "user_user_addroletouser",
-      "confidence_score": 1.0
+      "target": "user_user_addroletouser"
     },
     {
       "relation": "contains",
@@ -5687,9 +5687,9 @@
       "source_file": "main/app/user/user.py",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_user_user_py",
-      "target": "user_user_getcurrentuser",
-      "confidence_score": 1.0
+      "target": "user_user_getcurrentuser"
     },
     {
       "relation": "method",
@@ -5697,9 +5697,9 @@
       "source_file": "main/app/user/user.py",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "user_user_usermanager",
-      "target": "user_user_usermanager_init",
-      "confidence_score": 1.0
+      "target": "user_user_usermanager_init"
     },
     {
       "relation": "uses",
@@ -5707,9 +5707,9 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L65",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "utils_roles_permission",
-      "target": "user_user_usermanager",
-      "confidence_score": 0.5
+      "target": "user_user_usermanager"
     },
     {
       "relation": "uses",
@@ -5717,9 +5717,9 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L65",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "utils_roles_roles",
-      "target": "user_user_usermanager",
-      "confidence_score": 0.5
+      "target": "user_user_usermanager"
     },
     {
       "relation": "imports_from",
@@ -5728,9 +5728,9 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_authentication_controller_py",
-      "target": "fastapi",
-      "confidence_score": 1.0
+      "target": "fastapi"
     },
     {
       "relation": "contains",
@@ -5738,9 +5738,9 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_authentication_controller_py",
-      "target": "controller_authentication_controller_issecurescheme",
-      "confidence_score": 1.0
+      "target": "controller_authentication_controller_issecurescheme"
     },
     {
       "relation": "contains",
@@ -5748,9 +5748,9 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_authentication_controller_py",
-      "target": "controller_authentication_controller_health",
-      "confidence_score": 1.0
+      "target": "controller_authentication_controller_health"
     },
     {
       "relation": "contains",
@@ -5758,9 +5758,9 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_authentication_controller_py",
-      "target": "controller_authentication_controller_register",
-      "confidence_score": 1.0
+      "target": "controller_authentication_controller_register"
     },
     {
       "relation": "contains",
@@ -5768,9 +5768,9 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_authentication_controller_py",
-      "target": "controller_authentication_controller_login",
-      "confidence_score": 1.0
+      "target": "controller_authentication_controller_login"
     },
     {
       "relation": "contains",
@@ -5778,9 +5778,9 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L100",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_authentication_controller_py",
-      "target": "controller_authentication_controller_logout",
-      "confidence_score": 1.0
+      "target": "controller_authentication_controller_logout"
     },
     {
       "relation": "contains",
@@ -5788,9 +5788,9 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L131",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_authentication_controller_py",
-      "target": "controller_authentication_controller_googlelogin",
-      "confidence_score": 1.0
+      "target": "controller_authentication_controller_googlelogin"
     },
     {
       "relation": "contains",
@@ -5798,9 +5798,9 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L146",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_authentication_controller_py",
-      "target": "controller_authentication_controller_googlecallback",
-      "confidence_score": 1.0
+      "target": "controller_authentication_controller_googlecallback"
     },
     {
       "relation": "calls",
@@ -5809,9 +5809,9 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controller_authentication_controller_register",
-      "target": "controller_authentication_controller_issecurescheme",
-      "confidence_score": 1.0
+      "target": "controller_authentication_controller_issecurescheme"
     },
     {
       "relation": "calls",
@@ -5820,9 +5820,9 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controller_authentication_controller_login",
-      "target": "controller_authentication_controller_issecurescheme",
-      "confidence_score": 1.0
+      "target": "controller_authentication_controller_issecurescheme"
     },
     {
       "relation": "calls",
@@ -5831,9 +5831,9 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L123",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controller_authentication_controller_logout",
-      "target": "controller_authentication_controller_issecurescheme",
-      "confidence_score": 1.0
+      "target": "controller_authentication_controller_issecurescheme"
     },
     {
       "relation": "calls",
@@ -5842,9 +5842,9 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L176",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controller_authentication_controller_googlecallback",
-      "target": "controller_authentication_controller_issecurescheme",
-      "confidence_score": 1.0
+      "target": "controller_authentication_controller_issecurescheme"
     },
     {
       "relation": "imports_from",
@@ -5853,9 +5853,9 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_prometheus_controller_py",
-      "target": "fastapi",
-      "confidence_score": 1.0
+      "target": "fastapi"
     },
     {
       "relation": "contains",
@@ -5863,9 +5863,9 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_prometheus_controller_py",
-      "target": "controller_prometheus_controller_health",
-      "confidence_score": 1.0
+      "target": "controller_prometheus_controller_health"
     },
     {
       "relation": "contains",
@@ -5873,9 +5873,9 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_prometheus_controller_py",
-      "target": "controller_prometheus_controller_getsessions",
-      "confidence_score": 1.0
+      "target": "controller_prometheus_controller_getsessions"
     },
     {
       "relation": "contains",
@@ -5883,9 +5883,9 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_prometheus_controller_py",
-      "target": "controller_prometheus_controller_createsession",
-      "confidence_score": 1.0
+      "target": "controller_prometheus_controller_createsession"
     },
     {
       "relation": "contains",
@@ -5893,9 +5893,9 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_prometheus_controller_py",
-      "target": "controller_prometheus_controller_updatesessiontitle",
-      "confidence_score": 1.0
+      "target": "controller_prometheus_controller_updatesessiontitle"
     },
     {
       "relation": "contains",
@@ -5903,9 +5903,9 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L50",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_prometheus_controller_py",
-      "target": "controller_prometheus_controller_gethistory",
-      "confidence_score": 1.0
+      "target": "controller_prometheus_controller_gethistory"
     },
     {
       "relation": "contains",
@@ -5913,9 +5913,9 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L67",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_prometheus_controller_py",
-      "target": "controller_prometheus_controller_deletesession",
-      "confidence_score": 1.0
+      "target": "controller_prometheus_controller_deletesession"
     },
     {
       "relation": "contains",
@@ -5923,9 +5923,9 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L75",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_prometheus_controller_py",
-      "target": "controller_prometheus_controller_chat",
-      "confidence_score": 1.0
+      "target": "controller_prometheus_controller_chat"
     },
     {
       "relation": "calls",
@@ -5934,9 +5934,9 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L83",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controller_prometheus_controller_chat",
-      "target": "controller_prometheus_controller_createsession",
-      "confidence_score": 1.0
+      "target": "controller_prometheus_controller_createsession"
     },
     {
       "relation": "calls",
@@ -5945,9 +5945,9 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controller_prometheus_controller_chat",
-      "target": "controller_prometheus_controller_gethistory",
-      "confidence_score": 1.0
+      "target": "controller_prometheus_controller_gethistory"
     },
     {
       "relation": "imports_from",
@@ -5956,9 +5956,9 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_stocksapi_controller_py",
-      "target": "fastapi",
-      "confidence_score": 1.0
+      "target": "fastapi"
     },
     {
       "relation": "contains",
@@ -5966,9 +5966,9 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_stocksapi_controller_py",
-      "target": "controller_stocksapi_controller_health",
-      "confidence_score": 1.0
+      "target": "controller_stocksapi_controller_health"
     },
     {
       "relation": "contains",
@@ -5976,9 +5976,9 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_stocksapi_controller_py",
-      "target": "controller_stocksapi_controller_apikeytest",
-      "confidence_score": 1.0
+      "target": "controller_stocksapi_controller_apikeytest"
     },
     {
       "relation": "contains",
@@ -5986,9 +5986,9 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_stocksapi_controller_py",
-      "target": "controller_stocksapi_controller_gethistorical",
-      "confidence_score": 1.0
+      "target": "controller_stocksapi_controller_gethistorical"
     },
     {
       "relation": "contains",
@@ -5996,9 +5996,9 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L35",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_stocksapi_controller_py",
-      "target": "controller_stocksapi_controller_getfundamental",
-      "confidence_score": 1.0
+      "target": "controller_stocksapi_controller_getfundamental"
     },
     {
       "relation": "contains",
@@ -6006,9 +6006,9 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_stocksapi_controller_py",
-      "target": "controller_stocksapi_controller_generatekey",
-      "confidence_score": 1.0
+      "target": "controller_stocksapi_controller_generatekey"
     },
     {
       "relation": "imports_from",
@@ -6017,9 +6017,9 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_user_controller_py",
-      "target": "fastapi",
-      "confidence_score": 1.0
+      "target": "fastapi"
     },
     {
       "relation": "contains",
@@ -6027,9 +6027,9 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_user_controller_py",
-      "target": "controller_user_controller_health",
-      "confidence_score": 1.0
+      "target": "controller_user_controller_health"
     },
     {
       "relation": "contains",
@@ -6037,9 +6037,9 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_user_controller_py",
-      "target": "controller_user_controller_getme",
-      "confidence_score": 1.0
+      "target": "controller_user_controller_getme"
     },
     {
       "relation": "contains",
@@ -6047,9 +6047,9 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_user_controller_py",
-      "target": "controller_user_controller_upgradetodeveloperstarter",
-      "confidence_score": 1.0
+      "target": "controller_user_controller_upgradetodeveloperstarter"
     },
     {
       "relation": "contains",
@@ -6057,9 +6057,9 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L34",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_user_controller_py",
-      "target": "controller_user_controller_upgradetodeveloperenterprise",
-      "confidence_score": 1.0
+      "target": "controller_user_controller_upgradetodeveloperenterprise"
     },
     {
       "relation": "contains",
@@ -6067,9 +6067,9 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L45",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_user_controller_py",
-      "target": "controller_user_controller_testadminaccess",
-      "confidence_score": 1.0
+      "target": "controller_user_controller_testadminaccess"
     },
     {
       "relation": "contains",
@@ -6077,9 +6077,9 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L52",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_user_controller_py",
-      "target": "controller_user_controller_getsessions",
-      "confidence_score": 1.0
+      "target": "controller_user_controller_getsessions"
     },
     {
       "relation": "contains",
@@ -6087,9 +6087,9 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L94",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_user_controller_py",
-      "target": "controller_user_controller_getcurrentsession",
-      "confidence_score": 1.0
+      "target": "controller_user_controller_getcurrentsession"
     },
     {
       "relation": "contains",
@@ -6097,9 +6097,9 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L115",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_user_controller_py",
-      "target": "controller_user_controller_revokesession",
-      "confidence_score": 1.0
+      "target": "controller_user_controller_revokesession"
     },
     {
       "relation": "contains",
@@ -6107,9 +6107,9 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L135",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_user_controller_py",
-      "target": "controller_user_controller_revokeallsessions",
-      "confidence_score": 1.0
+      "target": "controller_user_controller_revokeallsessions"
     },
     {
       "relation": "contains",
@@ -6117,9 +6117,9 @@
       "source_file": "main/models/prometheus.py",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_models_prometheus_py",
-      "target": "models_prometheus_prometheussession",
-      "confidence_score": 1.0
+      "target": "models_prometheus_prometheussession"
     },
     {
       "relation": "inherits",
@@ -6127,9 +6127,9 @@
       "source_file": "main/models/prometheus.py",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_prometheus_prometheussession",
-      "target": "base",
-      "confidence_score": 1.0
+      "target": "base"
     },
     {
       "relation": "uses",
@@ -6137,9 +6137,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L4",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_models_testusermodel",
-      "target": "models_prometheus_prometheussession",
-      "confidence_score": 0.5
+      "target": "models_prometheus_prometheussession"
     },
     {
       "relation": "uses",
@@ -6147,9 +6147,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L4",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_models_teststocksapikeymodel",
-      "target": "models_prometheus_prometheussession",
-      "confidence_score": 0.5
+      "target": "models_prometheus_prometheussession"
     },
     {
       "relation": "uses",
@@ -6157,9 +6157,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L4",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_models_testprometheussessionmodel",
-      "target": "models_prometheus_prometheussession",
-      "confidence_score": 0.5
+      "target": "models_prometheus_prometheussession"
     },
     {
       "relation": "calls",
@@ -6189,9 +6189,9 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_stocksapi_key_stocksapikey",
-      "target": "base",
-      "confidence_score": 1.0
+      "target": "base"
     },
     {
       "relation": "inherits",
@@ -6199,9 +6199,9 @@
       "source_file": "main/models/user.py",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_user_user",
-      "target": "base",
-      "confidence_score": 1.0
+      "target": "base"
     },
     {
       "relation": "inherits",
@@ -6209,9 +6209,9 @@
       "source_file": "main/models/user_session.py",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_user_session_usersession",
-      "target": "base",
-      "confidence_score": 1.0
+      "target": "base"
     },
     {
       "relation": "contains",
@@ -6219,9 +6219,9 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_models_stocksapi_key_py",
-      "target": "models_stocksapi_key_stocksapikey",
-      "confidence_score": 1.0
+      "target": "models_stocksapi_key_stocksapikey"
     },
     {
       "relation": "method",
@@ -6229,9 +6229,9 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_stocksapi_key_stocksapikey",
-      "target": "models_stocksapi_key_stocksapikey_repr",
-      "confidence_score": 1.0
+      "target": "models_stocksapi_key_stocksapikey_repr"
     },
     {
       "relation": "method",
@@ -6239,9 +6239,9 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_stocksapi_key_stocksapikey",
-      "target": "models_stocksapi_key_stocksapikey_isquotaexceeded",
-      "confidence_score": 1.0
+      "target": "models_stocksapi_key_stocksapikey_isquotaexceeded"
     },
     {
       "relation": "method",
@@ -6249,9 +6249,9 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_stocksapi_key_stocksapikey",
-      "target": "models_stocksapi_key_stocksapikey_needsreset",
-      "confidence_score": 1.0
+      "target": "models_stocksapi_key_stocksapikey_needsreset"
     },
     {
       "relation": "method",
@@ -6259,9 +6259,9 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_stocksapi_key_stocksapikey",
-      "target": "models_stocksapi_key_stocksapikey_resetquota",
-      "confidence_score": 1.0
+      "target": "models_stocksapi_key_stocksapikey_resetquota"
     },
     {
       "relation": "method",
@@ -6269,9 +6269,9 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_stocksapi_key_stocksapikey",
-      "target": "models_stocksapi_key_stocksapikey_incrementusage",
-      "confidence_score": 1.0
+      "target": "models_stocksapi_key_stocksapikey_incrementusage"
     },
     {
       "relation": "method",
@@ -6279,9 +6279,9 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L39",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_stocksapi_key_stocksapikey",
-      "target": "models_stocksapi_key_stocksapikey_getremainingquota",
-      "confidence_score": 1.0
+      "target": "models_stocksapi_key_stocksapikey_getremainingquota"
     },
     {
       "relation": "method",
@@ -6289,9 +6289,9 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L42",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_stocksapi_key_stocksapikey",
-      "target": "models_stocksapi_key_stocksapikey_todict",
-      "confidence_score": 1.0
+      "target": "models_stocksapi_key_stocksapikey_todict"
     },
     {
       "relation": "uses",
@@ -6299,9 +6299,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L3",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_models_testusermodel",
-      "target": "models_stocksapi_key_stocksapikey",
-      "confidence_score": 0.5
+      "target": "models_stocksapi_key_stocksapikey"
     },
     {
       "relation": "uses",
@@ -6309,9 +6309,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L3",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_models_teststocksapikeymodel",
-      "target": "models_stocksapi_key_stocksapikey",
-      "confidence_score": 0.5
+      "target": "models_stocksapi_key_stocksapikey"
     },
     {
       "relation": "uses",
@@ -6319,9 +6319,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L3",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_models_testprometheussessionmodel",
-      "target": "models_stocksapi_key_stocksapikey",
-      "confidence_score": 0.5
+      "target": "models_stocksapi_key_stocksapikey"
     },
     {
       "relation": "calls",
@@ -6451,9 +6451,9 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_stocksapi_key_stocksapikey_todict",
-      "target": "models_stocksapi_key_stocksapikey_getremainingquota",
-      "confidence_score": 1.0
+      "target": "models_stocksapi_key_stocksapikey_getremainingquota"
     },
     {
       "relation": "contains",
@@ -6461,9 +6461,9 @@
       "source_file": "main/models/user.py",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_models_user_py",
-      "target": "models_user_user",
-      "confidence_score": 1.0
+      "target": "models_user_user"
     },
     {
       "relation": "method",
@@ -6471,9 +6471,9 @@
       "source_file": "main/models/user.py",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_user_user",
-      "target": "models_user_user_repr",
-      "confidence_score": 1.0
+      "target": "models_user_user_repr"
     },
     {
       "relation": "method",
@@ -6481,9 +6481,9 @@
       "source_file": "main/models/user.py",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_user_user",
-      "target": "models_user_user_getroleslist",
-      "confidence_score": 1.0
+      "target": "models_user_user_getroleslist"
     },
     {
       "relation": "method",
@@ -6491,9 +6491,9 @@
       "source_file": "main/models/user.py",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_user_user",
-      "target": "models_user_user_addrole",
-      "confidence_score": 1.0
+      "target": "models_user_user_addrole"
     },
     {
       "relation": "method",
@@ -6501,9 +6501,9 @@
       "source_file": "main/models/user.py",
       "source_location": "L35",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_user_user",
-      "target": "models_user_user_removerole",
-      "confidence_score": 1.0
+      "target": "models_user_user_removerole"
     },
     {
       "relation": "method",
@@ -6511,9 +6511,9 @@
       "source_file": "main/models/user.py",
       "source_location": "L43",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_user_user",
-      "target": "models_user_user_hasrole",
-      "confidence_score": 1.0
+      "target": "models_user_user_hasrole"
     },
     {
       "relation": "method",
@@ -6521,9 +6521,9 @@
       "source_file": "main/models/user.py",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_user_user",
-      "target": "models_user_user_todict",
-      "confidence_score": 1.0
+      "target": "models_user_user_todict"
     },
     {
       "relation": "uses",
@@ -6531,9 +6531,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L2",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_models_testusermodel",
-      "target": "models_user_user",
-      "confidence_score": 0.5
+      "target": "models_user_user"
     },
     {
       "relation": "uses",
@@ -6541,9 +6541,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L2",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_models_teststocksapikeymodel",
-      "target": "models_user_user",
-      "confidence_score": 0.5
+      "target": "models_user_user"
     },
     {
       "relation": "uses",
@@ -6551,9 +6551,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L2",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_models_testprometheussessionmodel",
-      "target": "models_user_user",
-      "confidence_score": 0.5
+      "target": "models_user_user"
     },
     {
       "relation": "calls",
@@ -6694,9 +6694,9 @@
       "source_file": "main/models/user.py",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_user_user_addrole",
-      "target": "models_user_user_getroleslist",
-      "confidence_score": 1.0
+      "target": "models_user_user_getroleslist"
     },
     {
       "relation": "calls",
@@ -6705,9 +6705,9 @@
       "source_file": "main/models/user.py",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_user_user_removerole",
-      "target": "models_user_user_getroleslist",
-      "confidence_score": 1.0
+      "target": "models_user_user_getroleslist"
     },
     {
       "relation": "calls",
@@ -6716,9 +6716,9 @@
       "source_file": "main/models/user.py",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_user_user_hasrole",
-      "target": "models_user_user_getroleslist",
-      "confidence_score": 1.0
+      "target": "models_user_user_getroleslist"
     },
     {
       "relation": "calls",
@@ -6727,9 +6727,9 @@
       "source_file": "main/models/user.py",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_user_user_todict",
-      "target": "models_user_user_getroleslist",
-      "confidence_score": 1.0
+      "target": "models_user_user_getroleslist"
     },
     {
       "relation": "contains",
@@ -6737,9 +6737,9 @@
       "source_file": "main/models/user_session.py",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_models_user_session_py",
-      "target": "models_user_session_usersession",
-      "confidence_score": 1.0
+      "target": "models_user_session_usersession"
     },
     {
       "relation": "method",
@@ -6747,9 +6747,9 @@
       "source_file": "main/models/user_session.py",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_user_session_usersession",
-      "target": "models_user_session_usersession_repr",
-      "confidence_score": 1.0
+      "target": "models_user_session_usersession_repr"
     },
     {
       "relation": "method",
@@ -6757,9 +6757,9 @@
       "source_file": "main/models/user_session.py",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_user_session_usersession",
-      "target": "models_user_session_usersession_todict",
-      "confidence_score": 1.0
+      "target": "models_user_session_usersession_todict"
     },
     {
       "relation": "method",
@@ -6767,9 +6767,9 @@
       "source_file": "main/models/user_session.py",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_user_session_usersession",
-      "target": "models_user_session_usersession_getdevicename",
-      "confidence_score": 1.0
+      "target": "models_user_session_usersession_getdevicename"
     },
     {
       "relation": "uses",
@@ -6777,9 +6777,9 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L7",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_sessions_testusersessionmodel",
-      "target": "models_user_session_usersession",
-      "confidence_score": 0.5
+      "target": "models_user_session_usersession"
     },
     {
       "relation": "calls",
@@ -6920,9 +6920,9 @@
       "source_file": "main/models/user_session.py",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "models_user_session_usersession_todict",
-      "target": "models_user_session_usersession_getdevicename",
-      "confidence_score": 1.0
+      "target": "models_user_session_usersession_getdevicename"
     },
     {
       "relation": "contains",
@@ -6930,9 +6930,9 @@
       "source_file": "main/service/authentication_service.py",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_service_authentication_service_py",
-      "target": "service_authentication_service_authenticationservice",
-      "confidence_score": 1.0
+      "target": "service_authentication_service_authenticationservice"
     },
     {
       "relation": "contains",
@@ -6940,9 +6940,9 @@
       "source_file": "main/service/authentication_service.py",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_service_authentication_service_py",
-      "target": "service_authentication_service_initialize",
-      "confidence_score": 1.0
+      "target": "service_authentication_service_initialize"
     },
     {
       "relation": "uses",
@@ -6950,9 +6950,9 @@
       "source_file": "main/service/authentication_service.py",
       "source_location": "L6",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "service_authentication_service_authenticationservice",
-      "target": "utils_service_manager_servicemanager",
-      "confidence_score": 0.5
+      "target": "utils_service_manager_servicemanager"
     },
     {
       "relation": "contains",
@@ -6960,9 +6960,9 @@
       "source_file": "main/service/prometheus_service.py",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_service_prometheus_service_py",
-      "target": "service_prometheus_service_prometheusservice",
-      "confidence_score": 1.0
+      "target": "service_prometheus_service_prometheusservice"
     },
     {
       "relation": "contains",
@@ -6970,9 +6970,9 @@
       "source_file": "main/service/prometheus_service.py",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_service_prometheus_service_py",
-      "target": "service_prometheus_service_initialize",
-      "confidence_score": 1.0
+      "target": "service_prometheus_service_initialize"
     },
     {
       "relation": "uses",
@@ -6980,9 +6980,9 @@
       "source_file": "main/service/prometheus_service.py",
       "source_location": "L1",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "service_prometheus_service_prometheusservice",
-      "target": "utils_service_manager_servicemanager",
-      "confidence_score": 0.5
+      "target": "utils_service_manager_servicemanager"
     },
     {
       "relation": "contains",
@@ -6990,9 +6990,9 @@
       "source_file": "main/service/scraper_service.py",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_service_scraper_service_py",
-      "target": "service_scraper_service_runscraper",
-      "confidence_score": 1.0
+      "target": "service_scraper_service_runscraper"
     },
     {
       "relation": "contains",
@@ -7000,9 +7000,9 @@
       "source_file": "main/service/scraper_service.py",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_service_scraper_service_py",
-      "target": "service_scraper_service_scraperservice",
-      "confidence_score": 1.0
+      "target": "service_scraper_service_scraperservice"
     },
     {
       "relation": "contains",
@@ -7010,9 +7010,9 @@
       "source_file": "main/service/scraper_service.py",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_service_scraper_service_py",
-      "target": "service_scraper_service_initialize",
-      "confidence_score": 1.0
+      "target": "service_scraper_service_initialize"
     },
     {
       "relation": "contains",
@@ -7020,9 +7020,9 @@
       "source_file": "main/service/stocksapi_service.py",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_service_stocksapi_service_py",
-      "target": "service_stocksapi_service_stocksapiservice",
-      "confidence_score": 1.0
+      "target": "service_stocksapi_service_stocksapiservice"
     },
     {
       "relation": "contains",
@@ -7030,9 +7030,9 @@
       "source_file": "main/service/stocksapi_service.py",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_service_stocksapi_service_py",
-      "target": "service_stocksapi_service_initialize",
-      "confidence_score": 1.0
+      "target": "service_stocksapi_service_initialize"
     },
     {
       "relation": "uses",
@@ -7040,9 +7040,9 @@
       "source_file": "main/service/stocksapi_service.py",
       "source_location": "L1",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "service_stocksapi_service_stocksapiservice",
-      "target": "utils_service_manager_servicemanager",
-      "confidence_score": 0.5
+      "target": "utils_service_manager_servicemanager"
     },
     {
       "relation": "contains",
@@ -7050,9 +7050,9 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_service_user_service_py",
-      "target": "service_user_service_userservice",
-      "confidence_score": 1.0
+      "target": "service_user_service_userservice"
     },
     {
       "relation": "contains",
@@ -7060,9 +7060,9 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_service_user_service_py",
-      "target": "service_user_service_initialize",
-      "confidence_score": 1.0
+      "target": "service_user_service_initialize"
     },
     {
       "relation": "uses",
@@ -7070,9 +7070,9 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L1",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "service_user_service_userservice",
-      "target": "utils_service_manager_servicemanager",
-      "confidence_score": 0.5
+      "target": "utils_service_manager_servicemanager"
     },
     {
       "relation": "contains",
@@ -7080,9 +7080,9 @@
       "source_file": "main/utils/connectivity.py",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_utils_connectivity_py",
-      "target": "utils_connectivity_checkmysqlconnection",
-      "confidence_score": 1.0
+      "target": "utils_connectivity_checkmysqlconnection"
     },
     {
       "relation": "contains",
@@ -7090,9 +7090,9 @@
       "source_file": "main/utils/connectivity.py",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_utils_connectivity_py",
-      "target": "utils_connectivity_checkserviceconnection",
-      "confidence_score": 1.0
+      "target": "utils_connectivity_checkserviceconnection"
     },
     {
       "relation": "contains",
@@ -7100,9 +7100,9 @@
       "source_file": "main/utils/logging_config.py",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_utils_logging_config_py",
-      "target": "utils_logging_config_setuplogging",
-      "confidence_score": 1.0
+      "target": "utils_logging_config_setuplogging"
     },
     {
       "relation": "contains",
@@ -7110,9 +7110,9 @@
       "source_file": "main/utils/logging_config.py",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_utils_logging_config_py",
-      "target": "utils_logging_config_discordhandler",
-      "confidence_score": 1.0
+      "target": "utils_logging_config_discordhandler"
     },
     {
       "relation": "contains",
@@ -7120,9 +7120,9 @@
       "source_file": "main/utils/logging_config.py",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_utils_logging_config_py",
-      "target": "utils_logging_config_setupdiscordhandler",
-      "confidence_score": 1.0
+      "target": "utils_logging_config_setupdiscordhandler"
     },
     {
       "relation": "method",
@@ -7130,9 +7130,9 @@
       "source_file": "main/utils/logging_config.py",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "utils_logging_config_discordhandler",
-      "target": "utils_logging_config_discordhandler_emit",
-      "confidence_score": 1.0
+      "target": "utils_logging_config_discordhandler_emit"
     },
     {
       "relation": "calls",
@@ -7141,9 +7141,9 @@
       "source_file": "main/utils/logging_config.py",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "utils_logging_config_setupdiscordhandler",
-      "target": "utils_logging_config_discordhandler",
-      "confidence_score": 1.0
+      "target": "utils_logging_config_discordhandler"
     },
     {
       "relation": "contains",
@@ -7151,9 +7151,9 @@
       "source_file": "main/utils/migrator.py",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_utils_migrator_py",
-      "target": "utils_migrator_runmigrations",
-      "confidence_score": 1.0
+      "target": "utils_migrator_runmigrations"
     },
     {
       "relation": "imports_from",
@@ -7162,9 +7162,9 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L2",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_utils_roles_py",
-      "target": "fastapi",
-      "confidence_score": 1.0
+      "target": "fastapi"
     },
     {
       "relation": "contains",
@@ -7172,9 +7172,9 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_utils_roles_py",
-      "target": "utils_roles_permission",
-      "confidence_score": 1.0
+      "target": "utils_roles_permission"
     },
     {
       "relation": "contains",
@@ -7182,9 +7182,9 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_utils_roles_py",
-      "target": "utils_roles_all",
-      "confidence_score": 1.0
+      "target": "utils_roles_all"
     },
     {
       "relation": "contains",
@@ -7192,9 +7192,9 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_utils_roles_py",
-      "target": "utils_roles_roles",
-      "confidence_score": 1.0
+      "target": "utils_roles_roles"
     },
     {
       "relation": "contains",
@@ -7202,9 +7202,9 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_utils_roles_py",
-      "target": "utils_roles_checkaccess",
-      "confidence_score": 1.0
+      "target": "utils_roles_checkaccess"
     },
     {
       "relation": "contains",
@@ -7212,9 +7212,9 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L64",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_utils_roles_py",
-      "target": "utils_roles_requirepermission",
-      "confidence_score": 1.0
+      "target": "utils_roles_requirepermission"
     },
     {
       "relation": "inherits",
@@ -7222,9 +7222,9 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "utils_roles_permission",
-      "target": "intflag",
-      "confidence_score": 1.0
+      "target": "intflag"
     },
     {
       "relation": "uses",
@@ -7232,9 +7232,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L7",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_roles_testpermission",
-      "target": "utils_roles_permission",
-      "confidence_score": 0.5
+      "target": "utils_roles_permission"
     },
     {
       "relation": "uses",
@@ -7242,9 +7242,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L7",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_roles_testroles",
-      "target": "utils_roles_permission",
-      "confidence_score": 0.5
+      "target": "utils_roles_permission"
     },
     {
       "relation": "inherits",
@@ -7252,9 +7252,9 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "utils_roles_roles",
-      "target": "intflag",
-      "confidence_score": 1.0
+      "target": "intflag"
     },
     {
       "relation": "uses",
@@ -7262,9 +7262,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L7",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_roles_testpermission",
-      "target": "utils_roles_roles",
-      "confidence_score": 0.5
+      "target": "utils_roles_roles"
     },
     {
       "relation": "uses",
@@ -7272,9 +7272,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L7",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_roles_testroles",
-      "target": "utils_roles_roles",
-      "confidence_score": 0.5
+      "target": "utils_roles_roles"
     },
     {
       "relation": "imports_from",
@@ -7283,9 +7283,9 @@
       "source_file": "main/utils/service_manager.py",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_utils_service_manager_py",
-      "target": "fastapi",
-      "confidence_score": 1.0
+      "target": "fastapi"
     },
     {
       "relation": "contains",
@@ -7293,9 +7293,9 @@
       "source_file": "main/utils/service_manager.py",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_utils_service_manager_py",
-      "target": "utils_service_manager_servicemanager",
-      "confidence_score": 1.0
+      "target": "utils_service_manager_servicemanager"
     },
     {
       "relation": "contains",
@@ -7303,9 +7303,9 @@
       "source_file": "main/utils/service_manager.py",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_utils_service_manager_py",
-      "target": "utils_service_manager_getapp",
-      "confidence_score": 1.0
+      "target": "utils_service_manager_getapp"
     },
     {
       "relation": "contains",
@@ -7313,9 +7313,9 @@
       "source_file": "main/utils/service_manager.py",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_utils_service_manager_py",
-      "target": "utils_service_manager_runall",
-      "confidence_score": 1.0
+      "target": "utils_service_manager_runall"
     },
     {
       "relation": "contains",
@@ -7323,9 +7323,9 @@
       "source_file": "migrations/env.py",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "migrations_env_py",
-      "target": "migrations_env_getdatabaseurl",
-      "confidence_score": 1.0
+      "target": "migrations_env_getdatabaseurl"
     },
     {
       "relation": "contains",
@@ -7333,9 +7333,9 @@
       "source_file": "migrations/env.py",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "migrations_env_py",
-      "target": "migrations_env_runmigrationsoffline",
-      "confidence_score": 1.0
+      "target": "migrations_env_runmigrationsoffline"
     },
     {
       "relation": "contains",
@@ -7343,9 +7343,9 @@
       "source_file": "migrations/env.py",
       "source_location": "L39",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "migrations_env_py",
-      "target": "migrations_env_runmigrationsonline",
-      "confidence_score": 1.0
+      "target": "migrations_env_runmigrationsonline"
     },
     {
       "relation": "calls",
@@ -7354,9 +7354,9 @@
       "source_file": "migrations/env.py",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "migrations_env_runmigrationsoffline",
-      "target": "migrations_env_getdatabaseurl",
-      "confidence_score": 1.0
+      "target": "migrations_env_getdatabaseurl"
     },
     {
       "relation": "calls",
@@ -7365,9 +7365,9 @@
       "source_file": "migrations/env.py",
       "source_location": "L41",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "migrations_env_runmigrationsonline",
-      "target": "migrations_env_getdatabaseurl",
-      "confidence_score": 1.0
+      "target": "migrations_env_getdatabaseurl"
     },
     {
       "relation": "contains",
@@ -7375,9 +7375,9 @@
       "source_file": "migrations/versions/25af7ad931e7_initial_migration.py",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "migrations_versions_25af7ad931e7_initial_migration_py",
-      "target": "versions_25af7ad931e7_initial_migration_upgrade",
-      "confidence_score": 1.0
+      "target": "versions_25af7ad931e7_initial_migration_upgrade"
     },
     {
       "relation": "contains",
@@ -7385,9 +7385,9 @@
       "source_file": "migrations/versions/25af7ad931e7_initial_migration.py",
       "source_location": "L61",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "migrations_versions_25af7ad931e7_initial_migration_py",
-      "target": "versions_25af7ad931e7_initial_migration_downgrade",
-      "confidence_score": 1.0
+      "target": "versions_25af7ad931e7_initial_migration_downgrade"
     },
     {
       "relation": "rationale_for",
@@ -7395,9 +7395,9 @@
       "source_file": "migrations/versions/25af7ad931e7_initial_migration.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "versions_25af7ad931e7_initial_migration_rationale_1",
-      "target": "migrations_versions_25af7ad931e7_initial_migration_py",
-      "confidence_score": 1.0
+      "target": "migrations_versions_25af7ad931e7_initial_migration_py"
     },
     {
       "relation": "contains",
@@ -7405,9 +7405,9 @@
       "source_file": "migrations/versions/4a2f1c9e3b5d_user_sessions.py",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "migrations_versions_4a2f1c9e3b5d_user_sessions_py",
-      "target": "versions_4a2f1c9e3b5d_user_sessions_upgrade",
-      "confidence_score": 1.0
+      "target": "versions_4a2f1c9e3b5d_user_sessions_upgrade"
     },
     {
       "relation": "contains",
@@ -7415,9 +7415,9 @@
       "source_file": "migrations/versions/4a2f1c9e3b5d_user_sessions.py",
       "source_location": "L47",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "migrations_versions_4a2f1c9e3b5d_user_sessions_py",
-      "target": "versions_4a2f1c9e3b5d_user_sessions_downgrade",
-      "confidence_score": 1.0
+      "target": "versions_4a2f1c9e3b5d_user_sessions_downgrade"
     },
     {
       "relation": "rationale_for",
@@ -7425,9 +7425,9 @@
       "source_file": "migrations/versions/4a2f1c9e3b5d_user_sessions.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "versions_4a2f1c9e3b5d_user_sessions_rationale_1",
-      "target": "migrations_versions_4a2f1c9e3b5d_user_sessions_py",
-      "confidence_score": 1.0
+      "target": "migrations_versions_4a2f1c9e3b5d_user_sessions_py"
     },
     {
       "relation": "imports",
@@ -7436,9 +7436,9 @@
       "source_file": "tests/conftest.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_conftest_py",
-      "target": "pytest",
-      "confidence_score": 1.0
+      "target": "pytest"
     },
     {
       "relation": "contains",
@@ -7446,9 +7446,9 @@
       "source_file": "tests/conftest.py",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_conftest_py",
-      "target": "tests_conftest_dbsession",
-      "confidence_score": 1.0
+      "target": "tests_conftest_dbsession"
     },
     {
       "relation": "contains",
@@ -7456,9 +7456,9 @@
       "source_file": "tests/conftest.py",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_conftest_py",
-      "target": "tests_conftest_sampleuserdata",
-      "confidence_score": 1.0
+      "target": "tests_conftest_sampleuserdata"
     },
     {
       "relation": "contains",
@@ -7466,9 +7466,9 @@
       "source_file": "tests/conftest.py",
       "source_location": "L35",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_conftest_py",
-      "target": "tests_conftest_sampleapikeydata",
-      "confidence_score": 1.0
+      "target": "tests_conftest_sampleapikeydata"
     },
     {
       "relation": "contains",
@@ -7476,9 +7476,9 @@
       "source_file": "tests/conftest.py",
       "source_location": "L44",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_conftest_py",
-      "target": "tests_conftest_sampleprometheussessiondata",
-      "confidence_score": 1.0
+      "target": "tests_conftest_sampleprometheussessiondata"
     },
     {
       "relation": "imports",
@@ -7487,9 +7487,9 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_auth_util_py",
-      "target": "pytest",
-      "confidence_score": 1.0
+      "target": "pytest"
     },
     {
       "relation": "imports",
@@ -7498,9 +7498,9 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_auth_util_py",
-      "target": "jwt",
-      "confidence_score": 1.0
+      "target": "jwt"
     },
     {
       "relation": "contains",
@@ -7508,9 +7508,9 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_auth_util_py",
-      "target": "tests_test_auth_util_testauthutil",
-      "confidence_score": 1.0
+      "target": "tests_test_auth_util_testauthutil"
     },
     {
       "relation": "method",
@@ -7518,9 +7518,9 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_auth_util_testauthutil",
-      "target": "tests_test_auth_util_testauthutil_test_hash_password_returns_string",
-      "confidence_score": 1.0
+      "target": "tests_test_auth_util_testauthutil_test_hash_password_returns_string"
     },
     {
       "relation": "method",
@@ -7528,9 +7528,9 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_auth_util_testauthutil",
-      "target": "tests_test_auth_util_testauthutil_test_hash_password_unique_hashes",
-      "confidence_score": 1.0
+      "target": "tests_test_auth_util_testauthutil_test_hash_password_unique_hashes"
     },
     {
       "relation": "method",
@@ -7538,9 +7538,9 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_auth_util_testauthutil",
-      "target": "tests_test_auth_util_testauthutil_test_verify_password_correct",
-      "confidence_score": 1.0
+      "target": "tests_test_auth_util_testauthutil_test_verify_password_correct"
     },
     {
       "relation": "method",
@@ -7548,9 +7548,9 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_auth_util_testauthutil",
-      "target": "tests_test_auth_util_testauthutil_test_verify_password_incorrect",
-      "confidence_score": 1.0
+      "target": "tests_test_auth_util_testauthutil_test_verify_password_incorrect"
     },
     {
       "relation": "method",
@@ -7558,9 +7558,9 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L35",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_auth_util_testauthutil",
-      "target": "tests_test_auth_util_testauthutil_test_verify_password_invalid_hash",
-      "confidence_score": 1.0
+      "target": "tests_test_auth_util_testauthutil_test_verify_password_invalid_hash"
     },
     {
       "relation": "method",
@@ -7568,9 +7568,9 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_auth_util_testauthutil",
-      "target": "tests_test_auth_util_testauthutil_test_verify_password_empty_password",
-      "confidence_score": 1.0
+      "target": "tests_test_auth_util_testauthutil_test_verify_password_empty_password"
     },
     {
       "relation": "method",
@@ -7578,9 +7578,9 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L42",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_auth_util_testauthutil",
-      "target": "tests_test_auth_util_testauthutil_test_create_access_token_default_expiry",
-      "confidence_score": 1.0
+      "target": "tests_test_auth_util_testauthutil_test_create_access_token_default_expiry"
     },
     {
       "relation": "method",
@@ -7588,9 +7588,9 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_auth_util_testauthutil",
-      "target": "tests_test_auth_util_testauthutil_test_create_access_token_custom_expiry",
-      "confidence_score": 1.0
+      "target": "tests_test_auth_util_testauthutil_test_create_access_token_custom_expiry"
     },
     {
       "relation": "method",
@@ -7598,9 +7598,9 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L60",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_auth_util_testauthutil",
-      "target": "tests_test_auth_util_testauthutil_test_create_access_token_contains_data",
-      "confidence_score": 1.0
+      "target": "tests_test_auth_util_testauthutil_test_create_access_token_contains_data"
     },
     {
       "relation": "imports",
@@ -7609,9 +7609,9 @@
       "source_file": "tests/test_device.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_device_py",
-      "target": "pytest",
-      "confidence_score": 1.0
+      "target": "pytest"
     },
     {
       "relation": "contains",
@@ -7619,9 +7619,9 @@
       "source_file": "tests/test_device.py",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_device_py",
-      "target": "tests_test_device_testdevicedetection",
-      "confidence_score": 1.0
+      "target": "tests_test_device_testdevicedetection"
     },
     {
       "relation": "method",
@@ -7629,9 +7629,9 @@
       "source_file": "tests/test_device.py",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_device_testdevicedetection",
-      "target": "tests_test_device_testdevicedetection_test_parse_chrome_windows",
-      "confidence_score": 1.0
+      "target": "tests_test_device_testdevicedetection_test_parse_chrome_windows"
     },
     {
       "relation": "method",
@@ -7639,9 +7639,9 @@
       "source_file": "tests/test_device.py",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_device_testdevicedetection",
-      "target": "tests_test_device_testdevicedetection_test_parse_firefox_windows",
-      "confidence_score": 1.0
+      "target": "tests_test_device_testdevicedetection_test_parse_firefox_windows"
     },
     {
       "relation": "method",
@@ -7649,9 +7649,9 @@
       "source_file": "tests/test_device.py",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_device_testdevicedetection",
-      "target": "tests_test_device_testdevicedetection_test_parse_safari_mac",
-      "confidence_score": 1.0
+      "target": "tests_test_device_testdevicedetection_test_parse_safari_mac"
     },
     {
       "relation": "method",
@@ -7659,9 +7659,9 @@
       "source_file": "tests/test_device.py",
       "source_location": "L35",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_device_testdevicedetection",
-      "target": "tests_test_device_testdevicedetection_test_parse_chrome_android",
-      "confidence_score": 1.0
+      "target": "tests_test_device_testdevicedetection_test_parse_chrome_android"
     },
     {
       "relation": "method",
@@ -7669,9 +7669,9 @@
       "source_file": "tests/test_device.py",
       "source_location": "L43",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_device_testdevicedetection",
-      "target": "tests_test_device_testdevicedetection_test_parse_safari_iphone",
-      "confidence_score": 1.0
+      "target": "tests_test_device_testdevicedetection_test_parse_safari_iphone"
     },
     {
       "relation": "method",
@@ -7679,9 +7679,9 @@
       "source_file": "tests/test_device.py",
       "source_location": "L50",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_device_testdevicedetection",
-      "target": "tests_test_device_testdevicedetection_test_parse_edge",
-      "confidence_score": 1.0
+      "target": "tests_test_device_testdevicedetection_test_parse_edge"
     },
     {
       "relation": "method",
@@ -7689,9 +7689,9 @@
       "source_file": "tests/test_device.py",
       "source_location": "L56",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_device_testdevicedetection",
-      "target": "tests_test_device_testdevicedetection_test_parse_empty_user_agent",
-      "confidence_score": 1.0
+      "target": "tests_test_device_testdevicedetection_test_parse_empty_user_agent"
     },
     {
       "relation": "method",
@@ -7699,9 +7699,9 @@
       "source_file": "tests/test_device.py",
       "source_location": "L63",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_device_testdevicedetection",
-      "target": "tests_test_device_testdevicedetection_test_parse_none_user_agent",
-      "confidence_score": 1.0
+      "target": "tests_test_device_testdevicedetection_test_parse_none_user_agent"
     },
     {
       "relation": "method",
@@ -7709,9 +7709,9 @@
       "source_file": "tests/test_device.py",
       "source_location": "L69",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_device_testdevicedetection",
-      "target": "tests_test_device_testdevicedetection_test_generate_fingerprint_consistent",
-      "confidence_score": 1.0
+      "target": "tests_test_device_testdevicedetection_test_generate_fingerprint_consistent"
     },
     {
       "relation": "method",
@@ -7719,9 +7719,9 @@
       "source_file": "tests/test_device.py",
       "source_location": "L79",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_device_testdevicedetection",
-      "target": "tests_test_device_testdevicedetection_test_generate_fingerprint_different_inputs",
-      "confidence_score": 1.0
+      "target": "tests_test_device_testdevicedetection_test_generate_fingerprint_different_inputs"
     },
     {
       "relation": "method",
@@ -7729,9 +7729,9 @@
       "source_file": "tests/test_device.py",
       "source_location": "L85",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_device_testdevicedetection",
-      "target": "tests_test_device_testdevicedetection_test_generate_fingerprint_includes_language",
-      "confidence_score": 1.0
+      "target": "tests_test_device_testdevicedetection_test_generate_fingerprint_includes_language"
     },
     {
       "relation": "imports",
@@ -7740,9 +7740,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_py",
-      "target": "pytest",
-      "confidence_score": 1.0
+      "target": "pytest"
     },
     {
       "relation": "contains",
@@ -7750,9 +7750,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_py",
-      "target": "tests_test_models_testusermodel",
-      "confidence_score": 1.0
+      "target": "tests_test_models_testusermodel"
     },
     {
       "relation": "contains",
@@ -7760,9 +7760,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L90",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_py",
-      "target": "tests_test_models_teststocksapikeymodel",
-      "confidence_score": 1.0
+      "target": "tests_test_models_teststocksapikeymodel"
     },
     {
       "relation": "contains",
@@ -7770,9 +7770,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L166",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_py",
-      "target": "tests_test_models_testprometheussessionmodel",
-      "confidence_score": 1.0
+      "target": "tests_test_models_testprometheussessionmodel"
     },
     {
       "relation": "method",
@@ -7780,9 +7780,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_testusermodel",
-      "target": "tests_test_models_testusermodel_test_create_user",
-      "confidence_score": 1.0
+      "target": "tests_test_models_testusermodel_test_create_user"
     },
     {
       "relation": "method",
@@ -7790,9 +7790,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_testusermodel",
-      "target": "tests_test_models_testusermodel_test_get_roles_list_default",
-      "confidence_score": 1.0
+      "target": "tests_test_models_testusermodel_test_get_roles_list_default"
     },
     {
       "relation": "method",
@@ -7800,9 +7800,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_testusermodel",
-      "target": "tests_test_models_testusermodel_test_get_roles_list_single_role",
-      "confidence_score": 1.0
+      "target": "tests_test_models_testusermodel_test_get_roles_list_single_role"
     },
     {
       "relation": "method",
@@ -7810,9 +7810,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_testusermodel",
-      "target": "tests_test_models_testusermodel_test_get_roles_list_multiple_roles",
-      "confidence_score": 1.0
+      "target": "tests_test_models_testusermodel_test_get_roles_list_multiple_roles"
     },
     {
       "relation": "method",
@@ -7820,9 +7820,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_testusermodel",
-      "target": "tests_test_models_testusermodel_test_add_role_new",
-      "confidence_score": 1.0
+      "target": "tests_test_models_testusermodel_test_add_role_new"
     },
     {
       "relation": "method",
@@ -7830,9 +7830,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L42",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_testusermodel",
-      "target": "tests_test_models_testusermodel_test_add_role_existing",
-      "confidence_score": 1.0
+      "target": "tests_test_models_testusermodel_test_add_role_existing"
     },
     {
       "relation": "method",
@@ -7840,9 +7840,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_testusermodel",
-      "target": "tests_test_models_testusermodel_test_remove_role_existing",
-      "confidence_score": 1.0
+      "target": "tests_test_models_testusermodel_test_remove_role_existing"
     },
     {
       "relation": "method",
@@ -7850,9 +7850,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L56",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_testusermodel",
-      "target": "tests_test_models_testusermodel_test_remove_role_last_role",
-      "confidence_score": 1.0
+      "target": "tests_test_models_testusermodel_test_remove_role_last_role"
     },
     {
       "relation": "method",
@@ -7860,9 +7860,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_testusermodel",
-      "target": "tests_test_models_testusermodel_test_has_role_true",
-      "confidence_score": 1.0
+      "target": "tests_test_models_testusermodel_test_has_role_true"
     },
     {
       "relation": "method",
@@ -7870,9 +7870,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L67",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_testusermodel",
-      "target": "tests_test_models_testusermodel_test_has_role_false",
-      "confidence_score": 1.0
+      "target": "tests_test_models_testusermodel_test_has_role_false"
     },
     {
       "relation": "method",
@@ -7880,9 +7880,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L72",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_testusermodel",
-      "target": "tests_test_models_testusermodel_test_has_role_with_enum",
-      "confidence_score": 1.0
+      "target": "tests_test_models_testusermodel_test_has_role_with_enum"
     },
     {
       "relation": "method",
@@ -7890,9 +7890,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L79",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_testusermodel",
-      "target": "tests_test_models_testusermodel_test_to_dict",
-      "confidence_score": 1.0
+      "target": "tests_test_models_testusermodel_test_to_dict"
     },
     {
       "relation": "method",
@@ -7900,9 +7900,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L91",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_teststocksapikeymodel",
-      "target": "tests_test_models_teststocksapikeymodel_test_create_api_key",
-      "confidence_score": 1.0
+      "target": "tests_test_models_teststocksapikeymodel_test_create_api_key"
     },
     {
       "relation": "method",
@@ -7910,9 +7910,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L100",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_teststocksapikeymodel",
-      "target": "tests_test_models_teststocksapikeymodel_test_is_quota_exceeded_true",
-      "confidence_score": 1.0
+      "target": "tests_test_models_teststocksapikeymodel_test_is_quota_exceeded_true"
     },
     {
       "relation": "method",
@@ -7920,9 +7920,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L106",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_teststocksapikeymodel",
-      "target": "tests_test_models_teststocksapikeymodel_test_is_quota_exceeded_false",
-      "confidence_score": 1.0
+      "target": "tests_test_models_teststocksapikeymodel_test_is_quota_exceeded_false"
     },
     {
       "relation": "method",
@@ -7930,9 +7930,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L112",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_teststocksapikeymodel",
-      "target": "tests_test_models_teststocksapikeymodel_test_needs_reset_true_no_last_reset",
-      "confidence_score": 1.0
+      "target": "tests_test_models_teststocksapikeymodel_test_needs_reset_true_no_last_reset"
     },
     {
       "relation": "method",
@@ -7940,9 +7940,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_teststocksapikeymodel",
-      "target": "tests_test_models_teststocksapikeymodel_test_needs_reset_true_expired",
-      "confidence_score": 1.0
+      "target": "tests_test_models_teststocksapikeymodel_test_needs_reset_true_expired"
     },
     {
       "relation": "method",
@@ -7950,9 +7950,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L123",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_teststocksapikeymodel",
-      "target": "tests_test_models_teststocksapikeymodel_test_needs_reset_false_recent",
-      "confidence_score": 1.0
+      "target": "tests_test_models_teststocksapikeymodel_test_needs_reset_false_recent"
     },
     {
       "relation": "method",
@@ -7960,9 +7960,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L129",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_teststocksapikeymodel",
-      "target": "tests_test_models_teststocksapikeymodel_test_reset_quota",
-      "confidence_score": 1.0
+      "target": "tests_test_models_teststocksapikeymodel_test_reset_quota"
     },
     {
       "relation": "method",
@@ -7970,9 +7970,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L137",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_teststocksapikeymodel",
-      "target": "tests_test_models_teststocksapikeymodel_test_increment_usage",
-      "confidence_score": 1.0
+      "target": "tests_test_models_teststocksapikeymodel_test_increment_usage"
     },
     {
       "relation": "method",
@@ -7980,9 +7980,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L143",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_teststocksapikeymodel",
-      "target": "tests_test_models_teststocksapikeymodel_test_get_remaining_quota",
-      "confidence_score": 1.0
+      "target": "tests_test_models_teststocksapikeymodel_test_get_remaining_quota"
     },
     {
       "relation": "method",
@@ -7990,9 +7990,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L149",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_teststocksapikeymodel",
-      "target": "tests_test_models_teststocksapikeymodel_test_get_remaining_quota_exceeded",
-      "confidence_score": 1.0
+      "target": "tests_test_models_teststocksapikeymodel_test_get_remaining_quota_exceeded"
     },
     {
       "relation": "method",
@@ -8000,9 +8000,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L155",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_teststocksapikeymodel",
-      "target": "tests_test_models_teststocksapikeymodel_test_to_dict",
-      "confidence_score": 1.0
+      "target": "tests_test_models_teststocksapikeymodel_test_to_dict"
     },
     {
       "relation": "method",
@@ -8010,9 +8010,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L167",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_testprometheussessionmodel",
-      "target": "tests_test_models_testprometheussessionmodel_test_create_session",
-      "confidence_score": 1.0
+      "target": "tests_test_models_testprometheussessionmodel_test_create_session"
     },
     {
       "relation": "method",
@@ -8020,9 +8020,9 @@
       "source_file": "tests/test_models.py",
       "source_location": "L176",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_models_testprometheussessionmodel",
-      "target": "tests_test_models_testprometheussessionmodel_test_default_history",
-      "confidence_score": 1.0
+      "target": "tests_test_models_testprometheussessionmodel_test_default_history"
     },
     {
       "relation": "imports",
@@ -8031,9 +8031,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_py",
-      "target": "pytest",
-      "confidence_score": 1.0
+      "target": "pytest"
     },
     {
       "relation": "contains",
@@ -8041,9 +8041,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_py",
-      "target": "tests_test_roles_testpermission",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testpermission"
     },
     {
       "relation": "contains",
@@ -8051,9 +8051,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_py",
-      "target": "tests_test_roles_testroles",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testroles"
     },
     {
       "relation": "method",
@@ -8061,9 +8061,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testpermission",
-      "target": "tests_test_roles_testpermission_test_permission_enum_values",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testpermission_test_permission_enum_values"
     },
     {
       "relation": "method",
@@ -8071,9 +8071,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testpermission",
-      "target": "tests_test_roles_testpermission_test_permission_all_includes_all",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testpermission_test_permission_all_includes_all"
     },
     {
       "relation": "method",
@@ -8081,9 +8081,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testroles",
-      "target": "tests_test_roles_testroles_test_user_role_has_basic_permissions",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testroles_test_user_role_has_basic_permissions"
     },
     {
       "relation": "method",
@@ -8091,9 +8091,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testroles",
-      "target": "tests_test_roles_testroles_test_user_role_missing_premium_permissions",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testroles_test_user_role_missing_premium_permissions"
     },
     {
       "relation": "method",
@@ -8101,9 +8101,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testroles",
-      "target": "tests_test_roles_testroles_test_premium_includes_user_permissions",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testroles_test_premium_includes_user_permissions"
     },
     {
       "relation": "method",
@@ -8111,9 +8111,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testroles",
-      "target": "tests_test_roles_testroles_test_premium_has_extra_permissions",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testroles_test_premium_has_extra_permissions"
     },
     {
       "relation": "method",
@@ -8121,9 +8121,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L40",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testroles",
-      "target": "tests_test_roles_testroles_test_developer_starter_includes_user",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testroles_test_developer_starter_includes_user"
     },
     {
       "relation": "method",
@@ -8131,9 +8131,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L44",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testroles",
-      "target": "tests_test_roles_testroles_test_developer_enterprise_includes_all",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testroles_test_developer_enterprise_includes_all"
     },
     {
       "relation": "method",
@@ -8141,9 +8141,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testroles",
-      "target": "tests_test_roles_testroles_test_admin_has_all_permissions",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testroles_test_admin_has_all_permissions"
     },
     {
       "relation": "method",
@@ -8151,9 +8151,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testroles",
-      "target": "tests_test_roles_testroles_test_check_access_admin_returns_true",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testroles_test_check_access_admin_returns_true"
     },
     {
       "relation": "method",
@@ -8161,9 +8161,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L57",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testroles",
-      "target": "tests_test_roles_testroles_test_check_access_user_with_permission",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testroles_test_check_access_user_with_permission"
     },
     {
       "relation": "method",
@@ -8171,9 +8171,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L61",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testroles",
-      "target": "tests_test_roles_testroles_test_check_access_user_without_permission",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testroles_test_check_access_user_without_permission"
     },
     {
       "relation": "method",
@@ -8181,9 +8181,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L65",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testroles",
-      "target": "tests_test_roles_testroles_test_check_access_premium_has_prometheus",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testroles_test_check_access_premium_has_prometheus"
     },
     {
       "relation": "method",
@@ -8191,9 +8191,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L69",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testroles",
-      "target": "tests_test_roles_testroles_test_check_access_case_insensitive",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testroles_test_check_access_case_insensitive"
     },
     {
       "relation": "method",
@@ -8201,9 +8201,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L73",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testroles",
-      "target": "tests_test_roles_testroles_test_check_access_invalid_role_ignored",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testroles_test_check_access_invalid_role_ignored"
     },
     {
       "relation": "method",
@@ -8211,9 +8211,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L77",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testroles",
-      "target": "tests_test_roles_testroles_test_check_access_empty_roles",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testroles_test_check_access_empty_roles"
     },
     {
       "relation": "method",
@@ -8221,9 +8221,9 @@
       "source_file": "tests/test_roles.py",
       "source_location": "L81",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_roles_testroles",
-      "target": "tests_test_roles_testroles_test_check_access_multiple_roles",
-      "confidence_score": 1.0
+      "target": "tests_test_roles_testroles_test_check_access_multiple_roles"
     },
     {
       "relation": "imports",
@@ -8232,9 +8232,9 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_sessions_py",
-      "target": "pytest",
-      "confidence_score": 1.0
+      "target": "pytest"
     },
     {
       "relation": "contains",
@@ -8242,9 +8242,9 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_sessions_py",
-      "target": "tests_test_sessions_testusersessionmodel",
-      "confidence_score": 1.0
+      "target": "tests_test_sessions_testusersessionmodel"
     },
     {
       "relation": "method",
@@ -8252,9 +8252,9 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_sessions_testusersessionmodel",
-      "target": "tests_test_sessions_testusersessionmodel_test_repr",
-      "confidence_score": 1.0
+      "target": "tests_test_sessions_testusersessionmodel_test_repr"
     },
     {
       "relation": "method",
@@ -8262,9 +8262,9 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_sessions_testusersessionmodel",
-      "target": "tests_test_sessions_testusersessionmodel_test_to_dict_basic",
-      "confidence_score": 1.0
+      "target": "tests_test_sessions_testusersessionmodel_test_to_dict_basic"
     },
     {
       "relation": "method",
@@ -8272,9 +8272,9 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L33",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_sessions_testusersessionmodel",
-      "target": "tests_test_sessions_testusersessionmodel_test_to_dict_with_sensitive",
-      "confidence_score": 1.0
+      "target": "tests_test_sessions_testusersessionmodel_test_to_dict_with_sensitive"
     },
     {
       "relation": "method",
@@ -8282,9 +8282,9 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L44",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_sessions_testusersessionmodel",
-      "target": "tests_test_sessions_testusersessionmodel_test_to_dict_hides_useragent",
-      "confidence_score": 1.0
+      "target": "tests_test_sessions_testusersessionmodel_test_to_dict_hides_useragent"
     },
     {
       "relation": "method",
@@ -8292,9 +8292,9 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_sessions_testusersessionmodel",
-      "target": "tests_test_sessions_testusersessionmodel_test_getdevicename_with_browser_and_os",
-      "confidence_score": 1.0
+      "target": "tests_test_sessions_testusersessionmodel_test_getdevicename_with_browser_and_os"
     },
     {
       "relation": "method",
@@ -8302,9 +8302,9 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L68",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_sessions_testusersessionmodel",
-      "target": "tests_test_sessions_testusersessionmodel_test_getdevicename_with_fingerprint_only",
-      "confidence_score": 1.0
+      "target": "tests_test_sessions_testusersessionmodel_test_getdevicename_with_fingerprint_only"
     },
     {
       "relation": "method",
@@ -8312,9 +8312,9 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L80",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_sessions_testusersessionmodel",
-      "target": "tests_test_sessions_testusersessionmodel_test_getdevicename_fallback",
-      "confidence_score": 1.0
+      "target": "tests_test_sessions_testusersessionmodel_test_getdevicename_fallback"
     },
     {
       "relation": "method",
@@ -8322,9 +8322,9 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L93",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_sessions_testusersessionmodel",
-      "target": "tests_test_sessions_testusersessionmodel_test_getdevicename_empty_strings",
-      "confidence_score": 1.0
+      "target": "tests_test_sessions_testusersessionmodel_test_getdevicename_empty_strings"
     },
     {
       "relation": "method",
@@ -8332,9 +8332,9 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L107",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_sessions_testusersessionmodel",
-      "target": "tests_test_sessions_testusersessionmodel_test_isactive_default",
-      "confidence_score": 1.0
+      "target": "tests_test_sessions_testusersessionmodel_test_isactive_default"
     },
     {
       "relation": "method",
@@ -8342,9 +8342,9 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L111",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_sessions_testusersessionmodel",
-      "target": "tests_test_sessions_testusersessionmodel_test_isactive_can_be_false",
-      "confidence_score": 1.0
+      "target": "tests_test_sessions_testusersessionmodel_test_isactive_can_be_false"
     },
     {
       "relation": "method",
@@ -8352,9 +8352,9 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L115",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_sessions_testusersessionmodel",
-      "target": "tests_test_sessions_testusersessionmodel_test_todict_with_timestamps",
-      "confidence_score": 1.0
+      "target": "tests_test_sessions_testusersessionmodel_test_todict_with_timestamps"
     },
     {
       "relation": "method",
@@ -8362,9 +8362,9 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L131",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_sessions_testusersessionmodel",
-      "target": "tests_test_sessions_testusersessionmodel_test_todict_without_timestamps",
-      "confidence_score": 1.0
+      "target": "tests_test_sessions_testusersessionmodel_test_todict_without_timestamps"
     },
     {
       "relation": "imports",
@@ -8373,9 +8373,9 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_util_py",
-      "target": "pytest",
-      "confidence_score": 1.0
+      "target": "pytest"
     },
     {
       "relation": "imports_from",
@@ -8384,9 +8384,9 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_util_py",
-      "target": "fastapi",
-      "confidence_score": 1.0
+      "target": "fastapi"
     },
     {
       "relation": "contains",
@@ -8394,9 +8394,9 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_util_py",
-      "target": "tests_test_stocks_util_testcategorizecolumns",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_util_testcategorizecolumns"
     },
     {
       "relation": "contains",
@@ -8404,9 +8404,9 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L52",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_util_py",
-      "target": "tests_test_stocks_util_testparseyearinput",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_util_testparseyearinput"
     },
     {
       "relation": "method",
@@ -8414,9 +8414,9 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_util_testcategorizecolumns",
-      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_historical_only",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_historical_only"
     },
     {
       "relation": "method",
@@ -8424,9 +8424,9 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_util_testcategorizecolumns",
-      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_fundamental_only",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_fundamental_only"
     },
     {
       "relation": "method",
@@ -8434,9 +8434,9 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_util_testcategorizecolumns",
-      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_mixed",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_mixed"
     },
     {
       "relation": "method",
@@ -8444,9 +8444,9 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_util_testcategorizecolumns",
-      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_excludes_special",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_excludes_special"
     },
     {
       "relation": "method",
@@ -8454,9 +8454,9 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_util_testcategorizecolumns",
-      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_empty",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_empty"
     },
     {
       "relation": "method",
@@ -8464,9 +8464,9 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_util_testparseyearinput",
-      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_single",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_single"
     },
     {
       "relation": "method",
@@ -8474,9 +8474,9 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L58",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_util_testparseyearinput",
-      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_range",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_range"
     },
     {
       "relation": "method",
@@ -8484,9 +8484,9 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L63",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_util_testparseyearinput",
-      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_none",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_none"
     },
     {
       "relation": "method",
@@ -8494,9 +8494,9 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L68",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_util_testparseyearinput",
-      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_empty_string",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_empty_string"
     },
     {
       "relation": "method",
@@ -8504,9 +8504,9 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L73",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_util_testparseyearinput",
-      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_with_spaces",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_with_spaces"
     },
     {
       "relation": "method",
@@ -8514,9 +8514,9 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L78",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_util_testparseyearinput",
-      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_invalid_format",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_invalid_format"
     },
     {
       "relation": "method",
@@ -8524,9 +8524,9 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L83",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_util_testparseyearinput",
-      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_invalid_non_digit",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_invalid_non_digit"
     },
     {
       "relation": "calls",
@@ -8966,5 +8966,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "b001e1e56411fb90e4b5794cdbc8a136670bc5aa"
+  "built_at_commit": "d6b1d9f555b40cef58cbce2b093c2586c8ee0fbc"
 }

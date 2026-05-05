@@ -1,12 +1,18 @@
-# Graph Report - .  (2026-05-05)
+# Graph Report - server  (2026-05-05)
 
 ## Corpus Check
-- Corpus is ~24,056 words - fits in a single context window. You may not need a graph.
+- 46 files · ~24,059 words
+- Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
 - 390 nodes · 535 edges · 33 communities (19 shown, 14 thin omitted)
 - Extraction: 76% EXTRACTED · 24% INFERRED · 0% AMBIGUOUS · INFERRED: 128 edges (avg confidence: 0.72)
 - Token cost: 0 input · 0 output
+
+## Graph Freshness
+- Built from commit: `d6b1d9f5`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - [[_COMMUNITY_Stocks API Controller|Stocks API Controller]]
