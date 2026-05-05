@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from main.app.authentication.util import hashPassword, verifyPassword, createAccessToken
 from datetime import timedelta
-from datetime import datetime
+from datetime import timedelta, datetime, timezone
 import jwt
 
 
@@ -51,8 +51,8 @@ class TestAuthUtil:
         token, _ = createAccessToken({"userId": "123"}, expiresDelta=customDelta)
         decoded = jwt.decode(token, options={"verify_signature": False})
 
-        expTime = datetime.fromtimestamp(decoded["exp"])
-        now = datetime.utcnow()
+        expTime = datetime.fromtimestamp(decoded["exp"], tz=timezone.utc)
+        now = datetime.now(timezone.utc)
         hoursDiff = (expTime - now).total_seconds() / 3600
 
         assert 47 <= hoursDiff <= 49

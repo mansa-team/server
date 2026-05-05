@@ -13,7 +13,7 @@ class StocksAPIKey(Base):
     currentUsage: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     lastReset: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.current_timestamp(), nullable=False)
 
-    user = relationship("User", back_populates="stocksapi_keys")
+    user = relationship("User", back_populates="stocksapiKeys")
 
     def __repr__(self):
         return f"<StocksAPIKey(apiKey='{self.apiKey[:8]}...', userId={self.userId}, usage={self.currentUsage}/{self.requestLimit})>"
