@@ -50,7 +50,7 @@ class ServiceManager:
         logLevel = "error" if Config.DEBUG_MODE else "critical"
 
         def _runUvicorn(app: FastAPI, port: int, logLevel: str):
-            uvicorn.run(app, host="0.0.0.0", port=port, log_level=logLevel)
+            uvicorn.run(app, host="0.0.0.0", port=port, log_level=logLevel)  # nosec: B104
 
         for port, app in cls._instances.items():
             thread = threading.Thread(target=_runUvicorn, args=(app, port, logLevel), daemon=True)

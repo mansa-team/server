@@ -8,7 +8,7 @@ from slowapi import Limiter
 from slowapi.util import get_remote_address
 
 limiter = Limiter(key_func=get_remote_address)
-
+logger = logging.getLogger(__name__)
 
 def setupLogging():
     root = logging.getLogger()
@@ -39,8 +39,8 @@ class DiscordHandler(logging.Handler):
             threading.Thread(
                 target=lambda: requests.post(Config.DISCORD.WEBHOOK_URL, json=payload, timeout=5), daemon=True
             ).start()
-        except Exception:
-            pass
+        except Exception as e:
+                logger.debug(f"Discord webhook failed: {e}")
 
 
 def setupDiscordHandler():

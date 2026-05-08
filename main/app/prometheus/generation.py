@@ -60,8 +60,8 @@ class PrometheusGenerator:
                 if session and session.summary:
                     summaryContext = f"{session.summary}"
                 db.close()
-            except:
-                pass
+            except Exception as e:
+                logger.debug(f"Failed to load session context: {e}")
 
         #
         # $ Stage 1

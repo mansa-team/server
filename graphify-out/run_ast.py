@@ -1,4 +1,5 @@
-import sys, json
+import sys
+import json
 from graphify.extract import collect_files, extract
 from pathlib import Path
 

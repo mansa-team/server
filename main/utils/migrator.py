@@ -1,5 +1,5 @@
 import logging
-import subprocess
+import subprocess  # nosec: B404
 import os
 import sys
 
@@ -16,7 +16,9 @@ def runMigrations():
             logger.error(f"alembic.ini not found in {os.getcwd()} or {rootPath}")
             return
 
-        result = subprocess.run(["alembic", "upgrade", "head"], capture_output=True, text=True, env=os.environ.copy())
+        result = subprocess.run(  # nosec: B607, B603
+            ["alembic", "upgrade", "head"], capture_output=True, text=True, env=os.environ.copy()
+        )
 
         if result.returncode == 0:
             logger.info("Successfully updated database to the latest version.")

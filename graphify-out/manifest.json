@@ -36,16 +36,16 @@
     "hash": "7f3150aadba033f8973c63d276b023c8"
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\generation.py": {
-    "mtime": 1778275652.32398,
-    "hash": "bd8db441655a604d9066d265e8cb5cce"
+    "mtime": 1778276382.6278703,
+    "hash": "9db633a48253b57f8a0c62321a670ee6"
   },
   "D:\\Repositories\\server\\main\\app\\scraper_b3\\scraper.py": {
-    "mtime": 1778275652.3249788,
-    "hash": "e2646b57571d9e260fc36ff5f6cb27a6"
+    "mtime": 1778276585.1840625,
+    "hash": "175a77b3b1138429627afbb4de39e1f1"
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\cache.py": {
-    "mtime": 1778275652.3229797,
-    "hash": "8948fdc6b1ddfd31ae77d0f73479947a"
+    "mtime": 1778278439.5843048,
+    "hash": "80475ff384c1dc6d81bfcfa0c2094544"
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\key.py": {
     "mtime": 1778275652.3199797,
@@ -64,8 +64,8 @@
     "hash": "dac43fb506e35b41b7855c1b31f24cac"
   },
   "D:\\Repositories\\server\\main\\controller\\authentication_controller.py": {
-    "mtime": 1778275652.3264842,
-    "hash": "66bf883e4e87d3a453d74c2ef9d958bc"
+    "mtime": 1778276467.218699,
+    "hash": "3af996c117bd434789aaafd608797077"
   },
   "D:\\Repositories\\server\\main\\controller\\prometheus_controller.py": {
     "mtime": 1778275652.32398,
@@ -76,8 +76,8 @@
     "hash": "f8b72932858edb0b6ad8fd825572da63"
   },
   "D:\\Repositories\\server\\main\\controller\\user_controller.py": {
-    "mtime": 1778275652.3249788,
-    "hash": "e72f33f3ec96108e38eda1a220502c02"
+    "mtime": 1778276489.0019858,
+    "hash": "064369ac9db25a64c88935ecd975f9da"
   },
   "D:\\Repositories\\server\\main\\models\\base.py": {
     "mtime": 1778275652.3249788,
@@ -128,20 +128,20 @@
     "hash": "7772733a99b8156d33b1d844b86d0de0"
   },
   "D:\\Repositories\\server\\main\\utils\\logging_config.py": {
-    "mtime": 1778275652.32198,
-    "hash": "fcc2c4387f29205d75087f554df0904e"
+    "mtime": 1778278298.574858,
+    "hash": "c12ba709cb3f6c948f97891212b80c2d"
   },
   "D:\\Repositories\\server\\main\\utils\\migrator.py": {
-    "mtime": 1778275652.3209789,
-    "hash": "ee1aa618acd13bff6021a7c221d54695"
+    "mtime": 1778278166.2342825,
+    "hash": "9dbc726568707fab9f65eae4fce9cb40"
   },
   "D:\\Repositories\\server\\main\\utils\\roles.py": {
     "mtime": 1778275652.32198,
     "hash": "2193e4b9afb9be126e77a4aaa28b213a"
   },
   "D:\\Repositories\\server\\main\\utils\\service_manager.py": {
-    "mtime": 1778275652.32398,
-    "hash": "c7b9a31e86577901e93ce0c7291efd5f"
+    "mtime": 1778278166.222922,
+    "hash": "e78fafe6d6878ba5a02380287727ae29"
   },
   "D:\\Repositories\\server\\migrations\\env.py": {
     "mtime": 1778270593.733372,

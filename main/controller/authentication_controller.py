@@ -122,8 +122,8 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
                     SessionManager.revokeSession(db, sessionId, userId)
                 except (ValueError, TypeError):
                     pass
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Logout token verification failed: {e}")
 
     useCookieSecure = isSecureScheme(request)
     response.delete_cookie(

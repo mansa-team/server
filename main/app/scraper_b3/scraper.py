@@ -267,8 +267,8 @@ class B3Scraper:
         if match:
             try:
                 tagAlong = int(float(match.group(1).replace(",", ".").strip()))
-            except:
-                pass
+            except ValueError as e:
+                logger.debug(f"Failed to parse TAG ALONG for {TICKER}: {e}")
 
         return pd.DataFrame([{"TICKER": TICKER, "TAG ALONG": tagAlong}]).set_index("TICKER")
 

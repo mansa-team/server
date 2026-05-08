@@ -71,8 +71,8 @@ def getSessions(
         try:
             payload = verifyAccessToken(token)
             currentSessionId = payload.get("sessionId")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Token verification failed: {e}")
 
     sessions = SessionManager.getUserSessions(db, currentUser["userId"])
     activeCount = sum(1 for s in sessions if s.isActive)
