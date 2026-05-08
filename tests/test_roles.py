@@ -6,6 +6,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from main.utils.roles import Permission, Roles
 
+
 class TestPermission:
     def test_permission_enum_values(self):
         assert Permission.NONE == 0

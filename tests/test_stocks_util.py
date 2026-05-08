@@ -8,11 +8,12 @@ from main.app.stocks_api.util import categorizeColumns, parseYearInput
 import pandas as pd
 from fastapi import HTTPException
 
+
 class TestCategorizeColumns:
     def test_categorize_columns_historical_only(self):
         columns = ["TICKER", "NOME", "LUCRO LIQUIDO 2020", "LUCRO LIQUIDO 2021", "RECEITA 2020", "RECEITA 2021"]
         historical, fundamental = categorizeColumns(columns)
-        
+
         assert "LUCRO LIQUIDO" in historical
         assert 2020 in historical["LUCRO LIQUIDO"]
         assert 2021 in historical["LUCRO LIQUIDO"]
@@ -21,7 +22,7 @@ class TestCategorizeColumns:
     def test_categorize_columns_fundamental_only(self):
         columns = ["TICKER", "NOME", "PRECO", "P/L", "ROE", "DY"]
         historical, fundamental = categorizeColumns(columns)
-        
+
         assert len(historical) == 0
         assert "PRECO" in fundamental
         assert "P/L" in fundamental
@@ -30,7 +31,7 @@ class TestCategorizeColumns:
     def test_categorize_columns_mixed(self):
         columns = ["TICKER", "NOME", "TIME", "PRECO", "P/L", "LUCRO LIQUIDO 2020", "LUCRO LIQUIDO 2021"]
         historical, fundamental = categorizeColumns(columns)
-        
+
         assert "LUCRO LIQUIDO" in historical
         assert "PRECO" in fundamental
         assert "P/L" in fundamental
@@ -38,7 +39,7 @@ class TestCategorizeColumns:
     def test_categorize_columns_excludes_special(self):
         columns = ["TICKER", "NOME", "TIME", "PRECO"]
         historical, fundamental = categorizeColumns(columns)
-        
+
         assert "TICKER" not in fundamental
         assert "NOME" not in fundamental
         assert "TIME" not in fundamental

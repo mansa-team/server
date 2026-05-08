@@ -15,8 +15,8 @@ class StocksCacheManager:
         self.db = db
         self.cacheLock = cacheLock
         self.STOCKS_CACHE = None
-        self.ticker_index = {}
-        self.query_cache = {}
+        self.tickerIndex = {}
+        self.queryCache = {}
         self.QUERY_CACHE_TTL = 300  # 5 minutes TTL
 
     def cacheScheduler(self):
@@ -30,14 +30,14 @@ class StocksCacheManager:
         thread.start()
 
     def getCachedStocks(self, columns: list[str] | None = None, force_refresh: bool = False):
-        cache_key = tuple(columns) if columns else None
+        cacheKey = tuple(columns) if columns else None
         now = time.time()
 
         if not force_refresh:
-            if cache_key in self.query_cache:
-                cached_data, cached_time = self.query_cache[cache_key]
+            if cacheKey in self.queryCache:
+                cachedData, cached_time = self.queryCache[cacheKey]
                 if now - cached_time < self.QUERY_CACHE_TTL:
-                    return cached_data
+                    return cachedData
 
         try:
             with self.db.connect() as conn:
@@ -50,19 +50,20 @@ class StocksCacheManager:
 
                 df = df.replace({np.nan: None, np.inf: None, -np.inf: None})
 
-                self.ticker_index = {str(ticker).upper(): idx for idx, ticker in enumerate(df["TICKER"])}
+                self.tickerIndex = {str(ticker).upper(): idx for idx, ticker in enumerate(df["TICKER"])}
 
                 with self.cacheLock:
                     self.STOCKS_CACHE = df
 
-                self.query_cache[cache_key] = (df, now)
+                self.queryCache[cacheKey] = (df, now)
 
-                logger.info(f"Stocks cache updated ({len(df)} records, {len(self.ticker_index)} tickers)")
+                logger.info(f"Stocks cache updated ({len(df)} records, {len(self.tickerIndex)} tickers)")
 
         except Exception as e:
             logger.error(f"Error updating stocks cache: {str(e)}", exc_info=True)
 
     def clearQueryCache(self):
-        self.query_cache.clear()
+        self.queryCache.clear()
+
 
 stocksCache = StocksCacheManager(stocksEngine, threading.Lock())

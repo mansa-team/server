@@ -11,13 +11,16 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/user", tags=["User"])
 
+
 @router.get("/health")
 def health(request: Request):
     return {"status": "ok", "service": "user"}
 
+
 @router.get("/me")
 def getMe(currentUser: dict = Depends(UserManager.getCurrentUser)):
     return currentUser
+
 
 @router.post("/upgrade/developer/starter")
 def upgradeToDeveloperStarter(
@@ -30,6 +33,7 @@ def upgradeToDeveloperStarter(
         }
     return {"message": "You are already a developer or upgrade failed"}
 
+
 @router.post("/upgrade/developer/enterprise")
 def upgradeToDeveloperEnterprise(
     currentUser: dict = Depends(UserManager.getCurrentUser), db: Session = Depends(getSession)
@@ -41,12 +45,14 @@ def upgradeToDeveloperEnterprise(
         }
     return {"message": "You are already a developer or upgrade failed"}
 
+
 @router.get("/admin")
 def testAdminAccess(currentUser: dict = Depends(UserManager.getCurrentUser)):
     if "ADMIN" in currentUser.get("roles", []):
         return {"message": "Admin access granted", "user": currentUser}
     else:
         raise HTTPException(status_code=403, detail="Admin access denied")
+
 
 @router.get("/sessions")
 def getSessions(
@@ -90,6 +96,7 @@ def getSessions(
         "active": activeCount,
     }
 
+
 @router.get("/sessions/current")
 def getCurrentSession(
     request: Request, currentUser: dict = Depends(UserManager.getCurrentUser), db: Session = Depends(getSession)
@@ -111,6 +118,7 @@ def getCurrentSession(
         "createdAt": session.createdAt.isoformat() if session.createdAt else None,
     }
 
+
 @router.delete("/sessions/{sessionId}")
 def revokeSession(
     request: Request,
@@ -130,6 +138,7 @@ def revokeSession(
 
     logger.info(f"Session {sessionId} revoked by user {currentUser['userId']}")
     return {"message": "Session revoked successfully", "sessionId": sessionId}
+
 
 @router.post("/sessions/revoke-all")
 def revokeAllSessions(

@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 httpSession = Session()
 
+
 class PrometheusGenerator:
     def __init__(self):
         self.client = genai.Client(api_key=Config.PROMETHEUS["GEMINI_API.KEY"])

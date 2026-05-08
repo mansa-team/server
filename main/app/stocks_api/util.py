@@ -2,6 +2,7 @@ from collections import defaultdict
 from fastapi import HTTPException
 import pandas as pd
 
+
 def categorizeColumns(columns: list) -> tuple:
     historicalFields: dict[str, list[int]] = defaultdict(list)
     fundamentalCols = []
@@ -18,6 +19,7 @@ def categorizeColumns(columns: list) -> tuple:
 
     return dict(historicalFields), fundamentalCols
 
+
 def parseYearInput(years: str) -> tuple:
     if not years:
         return None, None
@@ -25,6 +27,7 @@ def parseYearInput(years: str) -> tuple:
     if len(yearList) not in (1, 2):
         raise HTTPException(status_code=400, detail="Years format: YEAR or START_YEAR,END_YEAR")
     return yearList[0], yearList[0] if len(yearList) == 1 else yearList[1]
+
 
 def normalizeColumns(data: pd.DataFrame, order: list) -> pd.DataFrame:
     existingOrder = [col for col in order if col in data.columns]

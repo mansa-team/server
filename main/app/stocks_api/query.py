@@ -11,6 +11,7 @@ from main.app.stocks_api.util import categorizeColumns, parseYearInput
 if TYPE_CHECKING:
     from main.app.stocks_api.cache import StocksCacheManager
 
+
 class StocksQueryManager:
     def __init__(self, cacheManager: "StocksCacheManager"):
         self.cacheManager = cacheManager
@@ -54,8 +55,8 @@ class StocksQueryManager:
 
         valid_indices = []
         for term in searchTerms:
-            if term in self.cacheManager.ticker_index:
-                valid_indices.append(self.cacheManager.ticker_index[term])
+            if term in self.cacheManager.tickerIndex:
+                valid_indices.append(self.cacheManager.tickerIndex[term])
 
         if valid_indices:
             return df.iloc[valid_indices]
@@ -199,5 +200,6 @@ class StocksQueryManager:
             }
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Cached fundamental error: {str(e)}")
+
 
 stocksQuery = StocksQueryManager(stocksCache)

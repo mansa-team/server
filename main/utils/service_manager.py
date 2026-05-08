@@ -13,6 +13,7 @@ from slowapi.errors import RateLimitExceeded
 
 logger = logging.getLogger(__name__)
 
+
 class ServiceManager:
     _instances: dict[int, FastAPI] = {}
     _lock = threading.Lock()
@@ -32,7 +33,7 @@ class ServiceManager:
             @app.exception_handler(RateLimitExceeded)
             async def rateLimitExceededHandler(request: Request, exc: RateLimitExceeded):
                 return JSONResponse(status_code=429, content={"detail": "Too many requests", "error": str(exc.detail)})
-            
+
             app.add_middleware(
                 CORSMiddleware,
                 allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?",
@@ -52,11 +53,7 @@ class ServiceManager:
             uvicorn.run(app, host="0.0.0.0", port=port, log_level=logLevel)
 
         for port, app in cls._instances.items():
-            thread = threading.Thread(
-                target=_runUvicorn,
-                args=(app, port, logLevel),
-                daemon=True
-            )
+            thread = threading.Thread(target=_runUvicorn, args=(app, port, logLevel), daemon=True)
             thread.start()
 
             logger.info(f"Service running on port {port}")

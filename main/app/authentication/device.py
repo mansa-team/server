@@ -3,6 +3,7 @@ import re
 from typing import Optional
 from dataclasses import dataclass
 
+
 @dataclass
 class DeviceInfo:
     browser: str
@@ -11,6 +12,7 @@ class DeviceInfo:
     osVersion: str
     deviceType: str
     deviceName: str
+
 
 def parseUserAgent(userAgent: str) -> DeviceInfo:
     if not userAgent:
@@ -40,6 +42,7 @@ def parseUserAgent(userAgent: str) -> DeviceInfo:
         deviceName=deviceName,
     )
 
+
 def detectBrowser(ua: str) -> tuple[str, str]:
     if "edg/" in ua or "edge/" in ua:
         match = re.search(r"edg[eo]/(\d+[\.\d]*)", ua)
@@ -66,6 +69,7 @@ def detectBrowser(ua: str) -> tuple[str, str]:
         return ("Brave", match.group(1) if match else "")
 
     return ("Unknown", "")
+
 
 def detectOS(ua: str) -> tuple[str, str]:
     osPatterns = [
@@ -97,6 +101,7 @@ def detectOS(ua: str) -> tuple[str, str]:
 
     return ("Unknown", "")
 
+
 def detectDeviceType(ua: str) -> str:
     mobilePatterns = [
         r"mobile",
@@ -118,6 +123,7 @@ def detectDeviceType(ua: str) -> str:
             return "mobile"
 
     return "desktop"
+
 
 def generateFingerprint(userAgent: str, ipAddress: str, language: Optional[str] = None) -> str:
     raw = f"{userAgent}|{ipAddress}|{language or ''}"

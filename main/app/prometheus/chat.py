@@ -7,6 +7,7 @@ import uuid
 
 logger = logging.getLogger(__name__)
 
+
 class PrometheusChatManager:
     def __init__(self):
         pass

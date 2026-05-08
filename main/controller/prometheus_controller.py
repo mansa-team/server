@@ -15,14 +15,17 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/prometheus", tags=["Prometheus"])
 
+
 @router.get("/health")
 def health():
     return {"status": "ok", "service": "prometheus"}
+
 
 @router.get("/sessions")
 def getSessions(user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS))):
     sessions = PrometheusChatManager.getUserSessions(user["userId"])
     return {"success": True, "sessions": sessions}
+
 
 @router.post("/sessions")
 def createSession(
@@ -31,6 +34,7 @@ def createSession(
 ):
     sessionId = PrometheusChatManager.createSession(user["userId"], title)
     return {"success": True, "sessionId": sessionId}
+
 
 @router.put("/sessions/{sessionId}")
 def updateSessionTitle(
@@ -45,6 +49,7 @@ def updateSessionTitle(
     if not success:
         raise HTTPException(status_code=404, detail="Session not found")
     return {"success": True, "message": "Session title updated"}
+
 
 @router.get("/history/{sessionId}")
 def getHistory(sessionId: str, user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS))):
@@ -63,12 +68,14 @@ def getHistory(sessionId: str, user: dict = Depends(Roles.requirePermission(Perm
     finally:
         db.close()
 
+
 @router.delete("/sessions/{sessionId}")
 def deleteSession(sessionId: str, user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS))):
     success = PrometheusChatManager.deleteSession(sessionId, user["userId"])
     if not success:
         raise HTTPException(status_code=404, detail="Session not found or forbidden")
     return {"success": True, "message": "Session deleted"}
+
 
 @router.post("/chat")
 @limiter.limit("5/minute")

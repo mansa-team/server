@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 httpSession = Session()
 
+
 def checkMySqlConnection():
     stocksDb = False
     userDb = False
