@@ -1,12 +1,15 @@
 import logging
 import secrets
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+from pytz import timezone
 import hashlib
 from sqlalchemy.orm import Session
 from main.models.user_session import UserSession
 from main.app.authentication.device import parseUserAgent
+from main.app.authentication.constants import SESSION_EXPIRY_DAYS
 
 logger = logging.getLogger(__name__)
+
 
 class SessionManager:
     @staticmethod
@@ -22,9 +25,9 @@ class SessionManager:
 
         deviceInfo = parseUserAgent(userAgent)
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(timezone("America/Sao_Paulo"))
         if expiresAt is None:
-            expiresAt = now + timedelta(hours=24)
+            expiresAt = now + timedelta(days=SESSION_EXPIRY_DAYS)
 
         session = UserSession(
             sessionId=sessionId,
@@ -110,17 +113,21 @@ class SessionManager:
         if not session:
             return False
 
-        session.lastActivityAt = datetime.now(timezone.utc)
+        session.lastActivityAt = datetime.now(timezone("America/Sao_Paulo"))
         db.commit()
         return True
 
     @staticmethod
     def cleanupExpiredSessions(db: Session) -> int:
-        now = datetime.now(timezone.utc)
-        count = db.query(UserSession).filter(
-            UserSession.isActive,
-            UserSession.expiresAt < now,
-        ).update({UserSession.isActive: False}, synchronize_session=False)
+        now = datetime.now(timezone("America/Sao_Paulo"))
+        count = (
+            db.query(UserSession)
+            .filter(
+                UserSession.isActive,
+                UserSession.expiresAt < now,
+            )
+            .update({UserSession.isActive: False}, synchronize_session=False)
+        )
         db.commit()
 
         if count > 0:
@@ -137,9 +144,15 @@ class SessionManager:
         if not session.isActive:
             return False
 
-        if session.expiresAt and session.expiresAt < datetime.now(timezone.utc):
-            session.isActive = False
-            db.commit()
-            return False
+        if session.expiresAt:
+            expTime = (
+                session.expiresAt.replace(tzinfo=timezone("America/Sao_Paulo"))
+                if session.expiresAt.tzinfo is None
+                else session.expiresAt
+            )
+            if expTime < datetime.now(timezone("America/Sao_Paulo")):
+                session.isActive = False
+                db.commit()
+                return False
 
         return True

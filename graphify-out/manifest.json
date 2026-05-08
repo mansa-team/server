@@ -12,24 +12,24 @@
     "hash": "c97ff028a8f1c1028d88adf63a851da3"
   },
   "D:\\Repositories\\server\\main\\app\\authentication\\constants.py": {
-    "mtime": 1777914159.706629,
-    "hash": "deabdc43bdb0b70e5b3cc154a7c3786b"
+    "mtime": 1778264236.6121151,
+    "hash": "e3826f2f948a8d58a82144f3a27724ab"
   },
   "D:\\Repositories\\server\\main\\app\\authentication\\device.py": {
     "mtime": 1777914159.7071288,
     "hash": "e860b06872c5144f1ab44409cd7704c6"
   },
   "D:\\Repositories\\server\\main\\app\\authentication\\session.py": {
-    "mtime": 1777920333.3847055,
-    "hash": "a0a0eb0d5c3165b68e272ba4146f300a"
+    "mtime": 1778264219.1345756,
+    "hash": "3a298f78519a60f4f89c96e4ce595d36"
   },
   "D:\\Repositories\\server\\main\\app\\authentication\\sso.py": {
     "mtime": 1777920293.2331083,
     "hash": "5a9629f931a8c150ed526a16284ec590"
   },
   "D:\\Repositories\\server\\main\\app\\authentication\\util.py": {
-    "mtime": 1777920283.1724105,
-    "hash": "7d194eaccef8fd0c1f47fc42c4887e6a"
+    "mtime": 1778264426.6333773,
+    "hash": "3ead0b3ad5de9572b78883f71f68a494"
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\chat.py": {
     "mtime": 1777920272.8518941,
@@ -84,20 +84,20 @@
     "hash": "7e0b7f928ed22b56c072dcfe684e8994"
   },
   "D:\\Repositories\\server\\main\\models\\prometheus.py": {
-    "mtime": 1777914159.7206674,
-    "hash": "3300e303917057aa8773b0bec046d646"
+    "mtime": 1777981590.7286098,
+    "hash": "14af1b2e7e9934c9a60a6b667b37cecb"
   },
   "D:\\Repositories\\server\\main\\models\\stocksapi_key.py": {
-    "mtime": 1777979600.4827595,
-    "hash": "d3c5d0901f656b30e1463aa79586f5e6"
+    "mtime": 1778264236.6121151,
+    "hash": "c65d113a8e53c49c48f9b8b30e4ca910"
   },
   "D:\\Repositories\\server\\main\\models\\user.py": {
     "mtime": 1777923992.3034713,
     "hash": "837a605dacf486e54b8d9feddaa3e74d"
   },
   "D:\\Repositories\\server\\main\\models\\user_session.py": {
-    "mtime": 1777914159.7226746,
-    "hash": "f7320bbd025427e78b4d65592e49cce1"
+    "mtime": 1777981872.1222668,
+    "hash": "b66a53994e185bc99d78ca5c693c887d"
   },
   "D:\\Repositories\\server\\main\\models\\__init__.py": {
     "mtime": 1777914159.719654,
@@ -120,8 +120,8 @@
     "hash": "afee0b80b990797ca92d8753f26c4038"
   },
   "D:\\Repositories\\server\\main\\service\\user_service.py": {
-    "mtime": 1777914159.7246947,
-    "hash": "d4ee33bba321f5722af51ba6782adcae"
+    "mtime": 1778264112.3745763,
+    "hash": "221104bbb3f2fbb1a0e3b6e6587edfb1"
   },
   "D:\\Repositories\\server\\main\\utils\\connectivity.py": {
     "mtime": 1777915914.5542133,
@@ -160,8 +160,8 @@
     "hash": "6c7459479563ce730cab5d3474d909e2"
   },
   "D:\\Repositories\\server\\tests\\test_auth_util.py": {
-    "mtime": 1777979861.760441,
-    "hash": "edf0a27e1f0e3804224eceecec0a7f2b"
+    "mtime": 1778264431.1516778,
+    "hash": "f481144d3c37f50c2cf00f9859c66cad"
   },
   "D:\\Repositories\\server\\tests\\test_device.py": {
     "mtime": 1777914159.7412212,
@@ -176,8 +176,8 @@
     "hash": "f0580c4b9e0c341199a73fd4975d5fe4"
   },
   "D:\\Repositories\\server\\tests\\test_sessions.py": {
-    "mtime": 1777914159.743221,
-    "hash": "a4cfa0c0b714337b5ce2a1f279eb3e66"
+    "mtime": 1778264397.3151436,
+    "hash": "86af039827ca66e5d44d9ee8bf33fefd"
   },
   "D:\\Repositories\\server\\tests\\test_stocks_util.py": {
     "mtime": 1777915243.2421508,
