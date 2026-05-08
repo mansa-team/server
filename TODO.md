@@ -1,3 +1,5 @@
+- [ ] Fix the massive system overhead that the stocks_api brings
+
 - [ ] Use Google's GenAI native tool calling to improve the Prometheus model and make space for integration with the Thoth system.
 
 - [ ] Github OAuth
