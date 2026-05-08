@@ -1,8 +1,9 @@
+import logging
 import subprocess
 import os
 import sys
 
-from main.utils.util import log
+logger = logging.getLogger(__name__)
 
 def runMigrations():
     try:
@@ -11,7 +12,7 @@ def runMigrations():
         if os.path.exists(os.path.join(rootPath, "alembic.ini")):
             os.chdir(rootPath)
         elif not os.path.exists("alembic.ini"):
-            log("alembic", f"Error: alembic.ini not found in {os.getcwd()} or {rootPath}")
+            logger.error(f"alembic.ini not found in {os.getcwd()} or {rootPath}")
             return
 
         result = subprocess.run(
@@ -22,16 +23,16 @@ def runMigrations():
         )
         
         if result.returncode == 0:
-            log("alembic", "Successfully updated database to the latest version.")
+            logger.info("Successfully updated database to the latest version.")
             if result.stdout:
-                print(result.stdout.strip())
+                logger.info(result.stdout.strip())
         else:
-            log("alembic", "Error during migration:")
-            print(result.stdout)
-            print(result.stderr)
+            logger.error("Error during migration:")
+            logger.error(result.stdout)
+            logger.error(result.stderr)
             
     except Exception as e:
-        log("alembic", f"Failed to execute migrations: {e}")
+        logger.error(f"Failed to execute migrations: {e}")
 
 if __name__ == "__main__":
     runMigrations()

@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from config import getSession
@@ -6,7 +7,8 @@ from main.app.stocks_api.query import stocksQuery
 from main.app.stocks_api.key import verifyAPIKey, createKey
 from main.app.user.user import UserManager
 from main.utils.roles import Permission, Roles
-from main.utils.util import log_error
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/stocks", tags=["Stocks API"])
 
@@ -20,7 +22,7 @@ def apiKeyTest(apiKey: str = Depends(verifyAPIKey)):
 
 @router.get("/historical")
 def getHistorical(
-    search: str = Query(None, max_length=100, pattern=r"^[A-Za-z0-9,\s]*$"),
+    search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     fields: str = Query(None, max_length=200, pattern=r"^[A-Z,\s]*$"),
     dates: str = Query(None, max_length=50),
     orderBy: str = Query(None),
@@ -31,7 +33,7 @@ def getHistorical(
 
 @router.get("/fundamental")
 def getFundamental(
-    search: str = Query(None, max_length=100, pattern=r"^[A-Za-z0-9,\s]*$"),
+    search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     fields: str = Query(None, max_length=200, pattern=r"^[A-Z,\s]*$"),
     dates: str = Query(None, max_length=50),
     orderBy: str = Query(None),
@@ -52,5 +54,5 @@ def generateKey(currentUser: dict = Depends(UserManager.getCurrentUser), db: Ses
         newKey = createKey(db, userId)
         return {"message": "Key successfully generated", "apiKey": newKey, "owner": currentUser.get("username")}
     except Exception as e:
-        log_error("stocksapi", "Failed to generate API key", e)
+        logger.error("Failed to generate API key", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to generate API key")

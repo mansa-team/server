@@ -5,7 +5,7 @@ from main.models.base import Base
 class UserSession(Base):
     __tablename__ = "user_sessions"
 
-    sessionId = Column(String(36), primary_key=True)
+    sessionId = Column(String(64), primary_key=True)
     userId = Column(Integer, ForeignKey("users.userId"), nullable=False, index=True)
     accessTokenHash = Column(String(64), nullable=False)
     deviceType = Column(String(20), nullable=True)

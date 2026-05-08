@@ -1,7 +1,6 @@
 from fastapi_sso.sso.google import GoogleSSO
 
 from config import Config
-from main.utils.util import log
 
 def getGoogleSSO(redirectUri: str | None = None) -> GoogleSSO:
     if not redirectUri:

@@ -1,10 +1,12 @@
 import pytest
 import sys
 import os
+from datetime import datetime, timedelta
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from main.models.user_session import UserSession
+from main.app.authentication.constants import SESSION_EXPIRY_DAYS
 
 
 class TestUserSessionModel:
@@ -139,3 +141,78 @@ class TestUserSessionModel:
 
         assert result["createdAt"] is None
         assert result["lastActiveAt"] is None
+
+
+class TestSessionExpiration:
+    def test_session_expiry_days_is_30(self):
+        assert SESSION_EXPIRY_DAYS == 30
+
+    def test_session_can_expire(self):
+        from pytz import timezone
+
+        now = datetime.now(timezone("America/Sao_Paulo"))
+        expired_date = now - timedelta(days=SESSION_EXPIRY_DAYS + 1)
+
+        session = UserSession(
+            sessionId="expired-session",
+            userId=1,
+            accessTokenHash="abc",
+            isActive=True,
+            createdAt=expired_date,
+            lastActivityAt=expired_date,
+            expiresAt=expired_date,
+        )
+
+        assert session.expiresAt is not None
+        assert session.expiresAt < now
+
+    def test_session_still_valid_within_expiry(self):
+        from pytz import timezone
+
+        now = datetime.now(timezone("America/Sao_Paulo"))
+        valid_date = now - timedelta(days=SESSION_EXPIRY_DAYS - 1)
+
+        session = UserSession(
+            sessionId="valid-session",
+            userId=1,
+            accessTokenHash="abc",
+            isActive=True,
+            createdAt=valid_date,
+            lastActivityAt=valid_date,
+            expiresAt=valid_date + timedelta(days=SESSION_EXPIRY_DAYS),
+        )
+
+        assert session.expiresAt > now
+
+    def test_session_exactly_at_boundary(self):
+        from pytz import timezone
+
+        now = datetime.now(timezone("America/Sao_Paulo"))
+        boundary_date = now - timedelta(days=SESSION_EXPIRY_DAYS)
+
+        session = UserSession(
+            sessionId="boundary-session",
+            userId=1,
+            accessTokenHash="abc",
+            isActive=True,
+            createdAt=boundary_date,
+            lastActivityAt=boundary_date,
+            expiresAt=boundary_date + timedelta(days=SESSION_EXPIRY_DAYS),
+        )
+
+        assert session.expiresAt.date() <= now.date()
+
+    def test_created_at_future_date(self):
+        from pytz import timezone
+
+        future = datetime.now(timezone("America/Sao_Paulo")) + timedelta(days=1)
+
+        session = UserSession(
+            sessionId="future-session",
+            userId=1,
+            accessTokenHash="abc",
+            isActive=True,
+            createdAt=future,
+        )
+
+        assert session.createdAt > datetime.now(timezone("America/Sao_Paulo"))

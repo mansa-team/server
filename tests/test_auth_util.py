@@ -5,8 +5,9 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from main.app.authentication.util import hashPassword, verifyPassword, createAccessToken
-from datetime import timedelta
-from datetime import datetime
+from main.app.authentication.constants import SESSION_EXPIRY_DAYS
+from datetime import timedelta, datetime
+from pytz import timezone
 import jwt
 
 
@@ -51,8 +52,8 @@ class TestAuthUtil:
         token, _ = createAccessToken({"userId": "123"}, expiresDelta=customDelta)
         decoded = jwt.decode(token, options={"verify_signature": False})
 
-        expTime = datetime.fromtimestamp(decoded["exp"])
-        now = datetime.utcnow()
+        expTime = datetime.fromtimestamp(decoded["exp"], tz=timezone("America/Sao_Paulo"))
+        now = datetime.now(timezone("America/Sao_Paulo"))
         hoursDiff = (expTime - now).total_seconds() / 3600
 
         assert 47 <= hoursDiff <= 49
@@ -63,3 +64,50 @@ class TestAuthUtil:
         decoded = jwt.decode(token, options={"verify_signature": False})
 
         assert decoded["userId"] == "456"
+
+
+class TestSessionExpiryConfig:
+    def test_session_expiry_days_is_30(self):
+        assert SESSION_EXPIRY_DAYS == 30
+
+    def test_session_expiry_hours_calculation(self):
+        from main.app.authentication.constants import TOKEN_EXPIRY_HOURS
+
+        assert TOKEN_EXPIRY_HOURS == SESSION_EXPIRY_DAYS * 24
+
+    def test_default_token_expiry_equals_30_days(self):
+        token, _ = createAccessToken({"userId": "123"})
+        decoded = jwt.decode(token, options={"verify_signature": False})
+
+        expTime = datetime.fromtimestamp(decoded["exp"], tz=timezone("America/Sao_Paulo"))
+        now = datetime.now(timezone("America/Sao_Paulo"))
+        daysDiff = (expTime - now).days
+
+        assert 29 <= daysDiff <= 30
+
+
+class TestAuthUtilEdgeCases:
+    def test_verify_password_none_hash(self):
+        result = verifyPassword("password", None)
+        assert result is False
+
+    def test_verify_password_none_password(self):
+        hashed = hashPassword("password")
+        result = verifyPassword(None, hashed)
+        assert result is False
+
+    def test_verify_password_both_none(self):
+        result = verifyPassword(None, None)
+        assert result is False
+
+    def test_create_access_token_with_empty_data(self):
+        token, _ = createAccessToken({})
+        decoded = jwt.decode(token, options={"verify_signature": False})
+
+        assert "exp" in decoded
+
+    def test_create_access_token_with_none_data(self):
+        token, _ = createAccessToken(None)
+        decoded = jwt.decode(token, options={"verify_signature": False})
+
+        assert "exp" in decoded

@@ -1,10 +1,15 @@
-import uuid
-from datetime import datetime
+import logging
+import secrets
+from datetime import datetime, timedelta
+from pytz import timezone
+import hashlib
 from sqlalchemy.orm import Session
 from main.models.user_session import UserSession
 from main.app.authentication.device import parseUserAgent
-from main.utils.util import log
-import hashlib
+from main.app.authentication.constants import SESSION_EXPIRY_DAYS
+
+logger = logging.getLogger(__name__)
+
 
 class SessionManager:
     @staticmethod
@@ -15,18 +20,14 @@ class SessionManager:
         request,
         expiresAt: datetime = None,
     ) -> UserSession:
-        import secrets
-
-        sessionId = str(uuid.uuid4())
+        sessionId = secrets.token_urlsafe(32)
         accessTokenHash = hashlib.sha256(secrets.token_hex(32).encode()).hexdigest()[:64]
 
         deviceInfo = parseUserAgent(userAgent)
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone("America/Sao_Paulo"))
         if expiresAt is None:
-            from datetime import timedelta
-
-            expiresAt = now + timedelta(hours=24)
+            expiresAt = now + timedelta(days=SESSION_EXPIRY_DAYS)
 
         session = UserSession(
             sessionId=sessionId,
@@ -45,7 +46,7 @@ class SessionManager:
         db.add(session)
         db.commit()
 
-        log("session", f"Created session {sessionId} for user {userId}")
+        logger.info(f"Created session {sessionId} for user {userId}")
         return session
 
     @staticmethod
@@ -87,7 +88,7 @@ class SessionManager:
         session.isActive = False
         db.commit()
 
-        log("session", f"Revoked session {sessionId} for user {userId}")
+        logger.info(f"Revoked session {sessionId} for user {userId}")
         return True
 
     @staticmethod
@@ -100,15 +101,10 @@ class SessionManager:
         if exceptSessionId:
             query = query.filter(UserSession.sessionId != exceptSessionId)
 
-        sessions = query.all()
-        count = len(sessions)
-
-        for session in sessions:
-            session.isActive = False
-
+        count = query.update({UserSession.isActive: False}, synchronize_session=False)
         db.commit()
 
-        log("session", f"Revoked {count} sessions for user {userId}")
+        logger.info(f"Revoked {count} sessions for user {userId}")
         return count
 
     @staticmethod
@@ -117,30 +113,25 @@ class SessionManager:
         if not session:
             return False
 
-        session.lastActivityAt = datetime.utcnow()
+        session.lastActivityAt = datetime.now(timezone("America/Sao_Paulo"))
         db.commit()
         return True
 
     @staticmethod
     def cleanupExpiredSessions(db: Session) -> int:
-        now = datetime.utcnow()
-        expired = (
+        now = datetime.now(timezone("America/Sao_Paulo"))
+        count = (
             db.query(UserSession)
             .filter(
                 UserSession.isActive,
                 UserSession.expiresAt < now,
             )
-            .all()
+            .update({UserSession.isActive: False}, synchronize_session=False)
         )
-
-        count = len(expired)
-        for session in expired:
-            session.isActive = False
-
         db.commit()
 
         if count > 0:
-            log("session", f"Cleaned up {count} expired sessions")
+            logger.info(f"Cleaned up {count} expired sessions")
 
         return count
 
@@ -153,9 +144,15 @@ class SessionManager:
         if not session.isActive:
             return False
 
-        if session.expiresAt and session.expiresAt < datetime.utcnow():
-            session.isActive = False
-            db.commit()
-            return False
+        if session.expiresAt:
+            expTime = (
+                session.expiresAt.replace(tzinfo=timezone("America/Sao_Paulo"))
+                if session.expiresAt.tzinfo is None
+                else session.expiresAt
+            )
+            if expTime < datetime.now(timezone("America/Sao_Paulo")):
+                session.isActive = False
+                db.commit()
+                return False
 
         return True

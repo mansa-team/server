@@ -1,5 +1,6 @@
+import logging
 from config import SessionLocal
-from main.utils.util import limiter, log_error
+from main.utils.logging_config import limiter
 from main.utils.roles import Roles, Permission
 
 from main.models.prometheus import PrometheusSession
@@ -9,6 +10,8 @@ import time
 
 from main.app.prometheus.generation import PrometheusGenerator
 from main.app.prometheus.chat import PrometheusChatManager
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/prometheus", tags=["Prometheus"])
 
@@ -92,5 +95,5 @@ def chat(
     except HTTPException:
         raise
     except Exception as e:
-        log_error("prometheus", "Chat execution error", e)
+        logger.error("Chat execution error", exc_info=True)
         return {"success": False, "error": str(e), "timestamp": str(time.time())}

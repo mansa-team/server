@@ -1,10 +1,13 @@
+import logging
 from config import Config, getSession
-from main.utils.util import log, limiter
+from main.utils.logging_config import limiter
 from main.app.user.user import UserManager
 from sqlalchemy.orm import Session
 
 from fastapi import APIRouter, Request, Depends, HTTPException
 from main.app.authentication.session import SessionManager
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/user", tags=["User"])
 
@@ -118,25 +121,23 @@ def revokeSession(
 
     session = SessionManager.getSessionById(db, sessionId, currentUser["userId"])
     if not session:
-        log("session", f"Session not found: {sessionId} for user {currentUser['userId']}")
+        logger.warning(f"Session not found: {sessionId} for user {currentUser['userId']}")
         raise HTTPException(status_code=404, detail="Session not found")
 
     success = SessionManager.revokeSession(db, sessionId, currentUser["userId"])
     if not success:
         raise HTTPException(status_code=500, detail="Failed to revoke session")
 
-    log("session", f"Session {sessionId} revoked by user {currentUser['userId']}")
+    logger.info(f"Session {sessionId} revoked by user {currentUser['userId']}")
     return {"message": "Session revoked successfully", "sessionId": sessionId}
 
 @router.post("/sessions/revoke-all")
 def revokeAllSessions(
     request: Request, currentUser: dict = Depends(UserManager.getCurrentUser), db: Session = Depends(getSession)
 ):
-    from main.utils.util import log
-
-    log("session", f"User {currentUser['userId']} requesting revoke-all for all sessions")
+    logger.info(f"User {currentUser['userId']} requesting revoke-all for all sessions")
 
     revokedCount = SessionManager.revokeAllSessions(db, currentUser["userId"], exceptSessionId=None)
 
-    log("session", f"Revoked {revokedCount} sessions for user {currentUser['userId']}")
+    logger.info(f"Revoked {revokedCount} sessions for user {currentUser['userId']}")
     return {"message": "All sessions revoked successfully", "revokedCount": revokedCount}

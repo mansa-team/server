@@ -1,25 +1,26 @@
-from config import Config
-from main.utils.util import log
-
+import logging
 import time
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 from pytz import timezone
-  
+
+from config import Config
 from main.app.scraper_b3.scraper import B3Scraper
 
-_scraper_start_time = None
+logger = logging.getLogger(__name__)
+
+_scraperStartTime = None
 
 def runScraper():
-    global _scraper_start_time
-    _scraper_start_time = time.time()
+    global _scraperStartTime
+    _scraperStartTime = time.time()
     try:
         scraper = B3Scraper()
         scraper.scrapeStocks()
-        elapsed = time.time() - _scraper_start_time if _scraper_start_time else 0
-        log("scraper", f"Scraper execution completed. Time: {elapsed:.0f}s")
+        elapsed = time.time() - _scraperStartTime if _scraperStartTime else 0
+        logger.info(f"Scraper execution completed. Time: {elapsed:.0f}s")
     except Exception as e:
-        log("scraper", f"Scraper Exception: {e}")
+        logger.error(f"Scraper Exception: {e}")
     
 class ScraperService:
     @staticmethod
@@ -28,7 +29,7 @@ class ScraperService:
         scheduler = BackgroundScheduler(timezone=timezone('America/Sao_Paulo'))
 
         if not schedules:
-            log("scraper", "No schedules configured in SCRAPER_SCHEDULER")
+            logger.warning("No schedules configured in SCRAPER_SCHEDULER")
             return
         
         for idx, schedule in enumerate(schedules):
@@ -41,8 +42,8 @@ class ScraperService:
                     name=f'Scraper ({schedule})'
                 )
 
-                log("scraper", f"Scheduled Hours: {schedule}")
+                logger.info(f"Scheduled Hours: {schedule}")
             except ValueError:
-                log("scraper", f"Invalid format: {schedule} (use HH:MM)")
+                logger.warning(f"Invalid format: {schedule} (use HH:MM)")
         
         scheduler.start()

@@ -1,4 +1,4 @@
-from main.utils.util import log
+import logging
 from main.utils.roles import Roles
 
 from sqlalchemy.orm import Session
@@ -6,6 +6,8 @@ from fastapi import HTTPException
 
 from main.app.authentication.util import *
 from main.models import User
+
+logger = logging.getLogger(__name__)
 
 
 class AuthenticationManager:
@@ -31,7 +33,7 @@ class AuthenticationManager:
             db.add(newUser)
             db.commit()
 
-            log("auth", f"User created: {username} ({email})")
+            logger.info(f"User created: {username} ({email})")
             return True
 
         except HTTPException:
@@ -39,7 +41,7 @@ class AuthenticationManager:
             raise
         except Exception as e:
             db.rollback()
-            log("auth", f"Error creating user: {str(e)}")
+            logger.error(f"Error creating user: {str(e)}", exc_info=True)
             raise HTTPException(status_code=500, detail="Failed to create user")
 
     @staticmethod
@@ -48,12 +50,12 @@ class AuthenticationManager:
             user = db.query(User).filter(User.googleId == googleId).first()
 
             if user:
-                log("auth", f"Google Login: {user.username}")
+                logger.info(f"Google Login: {user.username}")
                 return {"userId": user.userId, "username": user.username, "roles": user.getRolesList()}
             return None
 
         except Exception as e:
-            log("auth", f"Error authenticating Google user: {str(e)}")
+            logger.error(f"Error authenticating Google user: {str(e)}", exc_info=True)
             return None
 
     @staticmethod
@@ -62,10 +64,10 @@ class AuthenticationManager:
             user = db.query(User).filter(User.username == username).first()
 
             if user and user.passwordHash and verifyPassword(password, user.passwordHash):
-                log("auth", f"Password Login: {user.username}")
+                logger.info(f"Password Login: {user.username}")
                 return {"userId": user.userId, "username": user.username, "roles": user.getRolesList()}
             return None
 
         except Exception as e:
-            log("auth", f"Error authenticating user: {str(e)}")
+            logger.error(f"Error authenticating user: {str(e)}", exc_info=True)
             return None

@@ -1,0 +1,846 @@
+{
+  "nodes": [
+    {
+      "id": "config_Config",
+      "label": "Config",
+      "file_type": "code",
+      "source_file": "config.py",
+      "source_location": 109
+    },
+    {
+      "id": "config_engine",
+      "label": "MySQL Engine (user_db)",
+      "file_type": "code",
+      "source_file": "config.py",
+      "source_location": 120
+    },
+    {
+      "id": "config_stocksEngine",
+      "label": "MySQL Engine (stocks_db)",
+      "file_type": "code",
+      "source_file": "config.py",
+      "source_location": 130
+    },
+    {
+      "id": "run_py",
+      "label": "run.py Entry Point",
+      "file_type": "code",
+      "source_file": "run.py",
+      "source_location": 1
+    },
+    {
+      "id": "AuthenticationManager",
+      "label": "AuthenticationManager",
+      "file_type": "code",
+      "source_file": "main/app/authentication/authentication.py",
+      "source_location": 13
+    },
+    {
+      "id": "SessionManager",
+      "label": "SessionManager",
+      "file_type": "code",
+      "source_file": "main/app/authentication/session.py",
+      "source_location": 11
+    },
+    {
+      "id": "auth_util",
+      "label": "Auth Utilities (JWT/Password)",
+      "file_type": "code",
+      "source_file": "main/app/authentication/util.py",
+      "source_location": 1
+    },
+    {
+      "id": "auth_constants",
+      "label": "Auth Constants",
+      "file_type": "code",
+      "source_file": "main/app/authentication/constants.py",
+      "source_location": 1
+    },
+    {
+      "id": "getGoogleSSO",
+      "label": "Google SSO Factory",
+      "file_type": "code",
+      "source_file": "main/app/authentication/sso.py",
+      "source_location": 5
+    },
+    {
+      "id": "UserManager",
+      "label": "UserManager",
+      "file_type": "code",
+      "source_file": "main/app/user/user.py",
+      "source_location": 9
+    },
+    {
+      "id": "PrometheusChatManager",
+      "label": "PrometheusChatManager",
+      "file_type": "code",
+      "source_file": "main/app/prometheus/chat.py",
+      "source_location": 10
+    },
+    {
+      "id": "PrometheusGenerator",
+      "label": "PrometheusGenerator",
+      "file_type": "code",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": 20
+    },
+    {
+      "id": "stocksCache",
+      "label": "StocksCacheManager",
+      "file_type": "code",
+      "source_file": "main/app/stocks_api/cache.py",
+      "source_location": 12
+    },
+    {
+      "id": "stocksQuery",
+      "label": "StocksQueryManager",
+      "file_type": "code",
+      "source_file": "main/app/stocks_api/query.py",
+      "source_location": 14
+    },
+    {
+      "id": "verifyAPIKey",
+      "label": "API Key Verifier",
+      "file_type": "code",
+      "source_file": "main/app/stocks_api/key.py",
+      "source_location": 14
+    },
+    {
+      "id": "B3Scraper",
+      "label": "B3Scraper",
+      "file_type": "code",
+      "source_file": "main/app/scraper_b3/scraper.py",
+      "source_location": 31
+    },
+    {
+      "id": "auth_controller",
+      "label": "Authentication Controller",
+      "file_type": "code",
+      "source_file": "main/controller/authentication_controller.py",
+      "source_location": 1
+    },
+    {
+      "id": "prometheus_controller",
+      "label": "Prometheus Controller",
+      "file_type": "code",
+      "source_file": "main/controller/prometheus_controller.py",
+      "source_location": 1
+    },
+    {
+      "id": "stocksapi_controller",
+      "label": "Stocks API Controller",
+      "file_type": "code",
+      "source_file": "main/controller/stocksapi_controller.py",
+      "source_location": 1
+    },
+    {
+      "id": "user_controller",
+      "label": "User Controller",
+      "file_type": "code",
+      "source_file": "main/controller/user_controller.py",
+      "source_location": 1
+    },
+    {
+      "id": "Base",
+      "label": "Base SQLAlchemy declarative base",
+      "file_type": "code",
+      "source_file": "main/models/base.py"
+    },
+    {
+      "id": "PrometheusSession",
+      "label": "PrometheusSession model",
+      "file_type": "code",
+      "source_file": "main/models/prometheus.py"
+    },
+    {
+      "id": "StocksAPIKey",
+      "label": "StocksAPIKey model",
+      "file_type": "code",
+      "source_file": "main/models/stocksapi_key.py"
+    },
+    {
+      "id": "User",
+      "label": "User model",
+      "file_type": "code",
+      "source_file": "main/models/user.py"
+    },
+    {
+      "id": "UserSession",
+      "label": "UserSession model",
+      "file_type": "code",
+      "source_file": "main/models/user_session.py"
+    },
+    {
+      "id": "AuthenticationService",
+      "label": "AuthenticationService",
+      "file_type": "code",
+      "source_file": "main/service/authentication_service.py"
+    },
+    {
+      "id": "PrometheusService",
+      "label": "PrometheusService",
+      "file_type": "code",
+      "source_file": "main/service/prometheus_service.py"
+    },
+    {
+      "id": "ScraperService",
+      "label": "ScraperService",
+      "file_type": "code",
+      "source_file": "main/service/scraper_service.py"
+    },
+    {
+      "id": "StocksAPIService",
+      "label": "StocksAPIService",
+      "file_type": "code",
+      "source_file": "main/service/stocksapi_service.py"
+    },
+    {
+      "id": "UserService",
+      "label": "UserService",
+      "file_type": "code",
+      "source_file": "main/service/user_service.py"
+    },
+    {
+      "id": "checkMySqlConnection",
+      "label": "checkMySqlConnection",
+      "file_type": "code",
+      "source_file": "main/utils/connectivity.py"
+    },
+    {
+      "id": "checkServiceConnection",
+      "label": "checkServiceConnection",
+      "file_type": "code",
+      "source_file": "main/utils/connectivity.py"
+    },
+    {
+      "id": "mansa_server",
+      "label": "Mansa Server",
+      "file_type": "document",
+      "source_file": "README.md"
+    },
+    {
+      "id": "fastapi",
+      "label": "FastAPI",
+      "file_type": "rationale",
+      "source_file": "README.md"
+    },
+    {
+      "id": "b3_scraper",
+      "label": "B3 Scraper",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md"
+    },
+    {
+      "id": "user_service",
+      "label": "USER Service",
+      "file_type": "document",
+      "source_file": "AGENTS.md"
+    },
+    {
+      "id": "stocks_api",
+      "label": "STOCKS_API Service",
+      "file_type": "document",
+      "source_file": "AGENTS.md"
+    },
+    {
+      "id": "prometheus",
+      "label": "Prometheus AI",
+      "file_type": "document",
+      "source_file": "docs/prometheus.md"
+    },
+    {
+      "id": "authentication",
+      "label": "Authentication System",
+      "file_type": "document",
+      "source_file": "docs/authentication.md"
+    },
+    {
+      "id": "jwt",
+      "label": "JWT Authentication",
+      "file_type": "rationale",
+      "source_file": "docs/authentication.md"
+    },
+    {
+      "id": "google_oauth",
+      "label": "Google OAuth",
+      "file_type": "rationale",
+      "source_file": "docs/authentication.md"
+    },
+    {
+      "id": "session_management",
+      "label": "Session Management",
+      "file_type": "rationale",
+      "source_file": "docs/authentication.md"
+    },
+    {
+      "id": "mysql",
+      "label": "MySQL Database",
+      "file_type": "document",
+      "source_file": "docker-compose.yml"
+    },
+    {
+      "id": "user_db",
+      "label": "user_db",
+      "file_type": "rationale",
+      "source_file": "AGENTS.md"
+    },
+    {
+      "id": "stocks_db",
+      "label": "stocks_db",
+      "file_type": "rationale",
+      "source_file": "AGENTS.md"
+    },
+    {
+      "id": "user_roles",
+      "label": "User Roles System",
+      "file_type": "rationale",
+      "source_file": "docs/user.md"
+    },
+    {
+      "id": "api_key_system",
+      "label": "API Key System",
+      "file_type": "rationale",
+      "source_file": "docs/stocks_api.md"
+    },
+    {
+      "id": "rag_architecture",
+      "label": "RAG Architecture",
+      "file_type": "rationale",
+      "source_file": "docs/prometheus.md"
+    },
+    {
+      "id": "gemini_model",
+      "label": "Gemini Model",
+      "file_type": "rationale",
+      "source_file": "docs/prometheus.md"
+    },
+    {
+      "id": "docker",
+      "label": "Docker Deployment",
+      "file_type": "document",
+      "source_file": "docker-compose.yml"
+    },
+    {
+      "id": "ruff",
+      "label": "Ruff Linter",
+      "file_type": "rationale",
+      "source_file": "pyproject.toml"
+    },
+    {
+      "id": "pytest",
+      "label": "Pytest Testing",
+      "file_type": "rationale",
+      "source_file": "pyproject.toml"
+    },
+    {
+      "id": "mypy",
+      "label": "Mypy Typecheck",
+      "file_type": "rationale",
+      "source_file": "AGENTS.md"
+    },
+    {
+      "id": "permission_system",
+      "label": "Permission System",
+      "file_type": "rationale",
+      "source_file": "docs/user.md"
+    },
+    {
+      "id": "ma_at",
+      "label": "Ma'at Stock Algorithm",
+      "file_type": "rationale",
+      "source_file": "TODO.md"
+    },
+    {
+      "id": "thoth",
+      "label": "Thoth Wallet Management",
+      "file_type": "rationale",
+      "source_file": "TODO.md"
+    },
+    {
+      "id": "ogum",
+      "label": "Ogum Algo Trading",
+      "file_type": "rationale",
+      "source_file": "TODO.md"
+    },
+    {
+      "id": "fundamental_data",
+      "label": "Fundamental Data",
+      "file_type": "rationale",
+      "source_file": "docs/stocks_api.md"
+    },
+    {
+      "id": "historical_data",
+      "label": "Historical Data",
+      "file_type": "rationale",
+      "source_file": "docs/stocks_api.md"
+    },
+    {
+      "id": "value_investing",
+      "label": "Value Investing",
+      "file_type": "rationale",
+      "source_file": "docs/stocks_api.md"
+    }
+  ],
+  "edges": [
+    {
+      "source": "UserManager",
+      "target": "auth_util",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/app/user/user.py"
+    },
+    {
+      "source": "UserManager",
+      "target": "SessionManager",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/app/user/user.py"
+    },
+    {
+      "source": "PrometheusGenerator",
+      "target": "stocksQuery",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/app/prometheus/generation.py"
+    },
+    {
+      "source": "PrometheusGenerator",
+      "target": "PrometheusChatManager",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/app/prometheus/generation.py"
+    },
+    {
+      "source": "auth_controller",
+      "target": "AuthenticationManager",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/controller/authentication_controller.py"
+    },
+    {
+      "source": "auth_controller",
+      "target": "auth_util",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/controller/authentication_controller.py"
+    },
+    {
+      "source": "auth_controller",
+      "target": "SessionManager",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/controller/authentication_controller.py"
+    },
+    {
+      "source": "auth_controller",
+      "target": "getGoogleSSO",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/controller/authentication_controller.py"
+    },
+    {
+      "source": "prometheus_controller",
+      "target": "PrometheusChatManager",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/controller/prometheus_controller.py"
+    },
+    {
+      "source": "prometheus_controller",
+      "target": "PrometheusGenerator",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/controller/prometheus_controller.py"
+    },
+    {
+      "source": "stocksapi_controller",
+      "target": "stocksQuery",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/controller/stocksapi_controller.py"
+    },
+    {
+      "source": "stocksapi_controller",
+      "target": "verifyAPIKey",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/controller/stocksapi_controller.py"
+    },
+    {
+      "source": "stocksapi_controller",
+      "target": "UserManager",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/controller/stocksapi_controller.py"
+    },
+    {
+      "source": "user_controller",
+      "target": "UserManager",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/controller/user_controller.py"
+    },
+    {
+      "source": "user_controller",
+      "target": "SessionManager",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/controller/user_controller.py"
+    },
+    {
+      "source": "PrometheusSession",
+      "target": "Base",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/models/prometheus.py"
+    },
+    {
+      "source": "StocksAPIKey",
+      "target": "Base",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/models/stocksapi_key.py"
+    },
+    {
+      "source": "User",
+      "target": "Base",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/models/user.py"
+    },
+    {
+      "source": "UserSession",
+      "target": "Base",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/models/user_session.py"
+    },
+    {
+      "source": "User",
+      "target": "StocksAPIKey",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "User",
+      "target": "UserSession",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "PrometheusSession",
+      "target": "User",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "StocksAPIKey",
+      "target": "User",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "UserSession",
+      "target": "User",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "AuthenticationService",
+      "target": "AuthenticationManager",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/service/authentication_service.py"
+    },
+    {
+      "source": "PrometheusService",
+      "target": "PrometheusChatManager",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/service/prometheus_service.py"
+    },
+    {
+      "source": "ScraperService",
+      "target": "B3Scraper",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/service/scraper_service.py"
+    },
+    {
+      "source": "StocksAPIService",
+      "target": "stocksCache",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/service/stocksapi_service.py"
+    },
+    {
+      "source": "UserService",
+      "target": "UserManager",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "main/service/user_service.py"
+    },
+    {
+      "source": "checkMySqlConnection",
+      "target": "config_engine",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "checkMySqlConnection",
+      "target": "config_stocksEngine",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "mansa_server",
+      "target": "fastapi",
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "mansa_server",
+      "target": "b3_scraper",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "user_service",
+      "target": "user_db",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "stocks_api",
+      "target": "stocks_db",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "mysql",
+      "target": "user_db",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "mysql",
+      "target": "stocks_db",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "authentication",
+      "target": "jwt",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "authentication",
+      "target": "google_oauth",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "prometheus",
+      "target": "stocks_api",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "prometheus",
+      "target": "rag_architecture",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "prometheus",
+      "target": "gemini_model",
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "stocks_api",
+      "target": "api_key_system",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "user_service",
+      "target": "user_roles",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "user_roles",
+      "target": "permission_system",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "docker",
+      "target": "dockerfile",
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "prometheus",
+      "target": "fundamental_data",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "stocks_api",
+      "target": "fundamental_data",
+      "relation": "provides",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "stocks_api",
+      "target": "historical_data",
+      "relation": "provides",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "value_investing",
+      "target": "fundamental_data",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "b3_scraper",
+      "target": "stocks_db",
+      "relation": "fills",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "ma_at",
+      "target": "value_investing",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "thoth",
+      "target": "fundamental_data",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    },
+    {
+      "source": "ogum",
+      "target": "b3_scraper",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "nodes": [
+        "AuthenticationManager",
+        "SessionManager",
+        "auth_util",
+        "auth_constants",
+        "getGoogleSSO"
+      ],
+      "label": "Authentication Module"
+    },
+    {
+      "nodes": [
+        "PrometheusChatManager",
+        "PrometheusGenerator",
+        "stocksQuery"
+      ],
+      "label": "Prometheus AI Chat System"
+    },
+    {
+      "nodes": [
+        "stocksCache",
+        "stocksQuery",
+        "verifyAPIKey",
+        "B3Scraper"
+      ],
+      "label": "B3 Stock Data Pipeline"
+    },
+    {
+      "nodes": [
+        "UserManager",
+        "auth_controller",
+        "user_controller",
+        "SessionManager",
+        "auth_util"
+      ],
+      "label": "User Management & Sessions"
+    },
+    {
+      "nodes": [
+        "config_Config",
+        "config_engine",
+        "config_stocksEngine"
+      ],
+      "label": "Configuration & Database Infrastructure"
+    },
+    {
+      "nodes": [
+        "user_service",
+        "authentication",
+        "user_roles",
+        "permission_system"
+      ],
+      "label": "User Authentication & Authorization"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

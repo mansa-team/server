@@ -1,40 +1,51 @@
-from config import Config, engine, stocksEngine
-from main.utils.util import log
-
+import logging
 import time
+from requests.exceptions import ConnectionError, Timeout, RequestException
+from requests import Session
 from sqlalchemy import text
-import requests
 
-def checkMYSQLConnection():
-    stocksDB = False
-    userDB = False
+from config import Config, engine, stocksEngine
+
+logger = logging.getLogger(__name__)
+
+httpSession = Session()
+
+def checkMySqlConnection():
+    stocksDb = False
+    userDb = False
     if engine:
         try:
             startTime = time.time()
             with engine.connect() as connection:
                 connection.execute(text("SELECT 1"))
+                connection.commit()
             latency = (time.time() - startTime) * 1000
-            log("db", f"USER DB connected ({latency:.2f}ms)")
-            userDB = True
+            logger.info(f"USER DB connected ({latency:.2f}ms)")
+            userDb = True
+        except (ConnectionError, Timeout) as e:
+            logger.error(f"USER DB connection failed: {e}")
         except Exception as e:
-            log("db", f"USER DB connection failed: {e}")
+            logger.error(f"USER DB unexpected error: {e}")
     else:
-        log("db", "USER DB engine not initialized!")
+        logger.warning("USER DB engine not initialized!")
 
     if stocksEngine:
         try:
             startTime = time.time()
             with stocksEngine.connect() as connection:
                 connection.execute(text("SELECT 1"))
+                connection.commit()
             latency = (time.time() - startTime) * 1000
-            log("db", f"STOCKS DB connected ({latency:.2f}ms)")
-            stocksDB = True
+            logger.info(f"STOCKS DB connected ({latency:.2f}ms)")
+            stocksDb = True
+        except (ConnectionError, Timeout) as e:
+            logger.error(f"STOCKS DB connection failed: {e}")
         except Exception as e:
-            log("db", f"STOCKS DB connection failed: {e}")
+            logger.error(f"STOCKS DB unexpected error: {e}")
     else:
-        log("db", "STOCKS DB engine not initialized!")
+        logger.warning("STOCKS DB engine not initialized!")
 
-    return userDB and stocksDB
+    return userDb and stocksDb
 
 
 def checkServiceConnection(service: str):
@@ -47,18 +58,19 @@ def checkServiceConnection(service: str):
 
         if service == "STOCKS_API":
             prefix = "stocks"
-        if service == "PROMETHEUS":
-            prefix = "prometheus"
+        else:
+            prefix = service.lower()
 
         startTime = time.time()
-        response = requests.get(f"http://{host}:{port}/{prefix}/health", timeout=5)
+        response = httpSession.get(f"http://{host}:{port}/{prefix}/health", timeout=5)
         latency = (time.time() - startTime) * 1000
 
         if response.status_code == 200:
-            log("service", f"{service} connected ({latency:.2f}ms)")
-
+            logger.info(f"{service} connected ({latency:.2f}ms)")
             return True
+    except (ConnectionError, Timeout, RequestException) as e:
+        logger.error(f"{service} connection failed: {e}")
+        return False
     except Exception as e:
-        log("service", f"{service} connection failed: {e}\nDue to this issue the server couldn't start.")
-
+        logger.error(f"{service} unexpected error: {e}")
         return False

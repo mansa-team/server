@@ -1,9 +1,9 @@
+import logging
 from config import Config, SessionLocal
-from main.utils.util import log
 
 import pandas as pd
 import json
-import requests
+from requests import Session
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 
@@ -12,6 +12,10 @@ from google.genai import types
 
 from main.models.prometheus import PrometheusSession
 from main.app.prometheus.chat import PrometheusChatManager
+
+logger = logging.getLogger(__name__)
+
+httpSession = Session()
 
 class PrometheusGenerator:
     def __init__(self):
@@ -33,7 +37,7 @@ class PrometheusGenerator:
 
     def executeWorkflow(self, userQuery, history: list | None = None, sessionId: str | None = None):
         self.updateDates()
-        log("prometheus", f"Query: {userQuery}")
+        logger.info(f"Query: {userQuery}")
         sysPrompt: dict = {}
         promptContents: list = []
         modelResponse: dict = {}
@@ -164,7 +168,7 @@ class PrometheusGenerator:
             config=types.GenerateContentConfig(system_instruction=sysPrompt["STAGE 1"]),
         )
         modelResponse["STAGE 1"] = response.text
-        print(f"""[PROMETHEUS STAGE 1] \n
+        logger.debug(f"""[PROMETHEUS STAGE 1] \n
               {modelResponse["STAGE 1"]}""")
 
         #
@@ -188,7 +192,7 @@ class PrometheusGenerator:
                     "orderBy": globalReq.get("order_by"),
                     "limit": globalReq.get("limit"),
                 }
-                syncRes = requests.get(
+                syncRes = httpSession.get(
                     f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/fundamental",
                     params=params,
                     headers=headers,
@@ -203,7 +207,7 @@ class PrometheusGenerator:
                         if not req.get("search"):
                             req["search"] = topTickers
             except Exception as e:
-                log("prometheus", f"Error resolving global tickers: {e}")
+                logger.error(f"Error resolving global tickers: {e}", exc_info=True)
 
         def fetchStockData(req):
             params = {
@@ -215,10 +219,10 @@ class PrometheusGenerator:
             }
             try:
                 url = f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/{req['type']}"
-                res = requests.get(url, params=params, headers=headers, timeout=20)
+                res = httpSession.get(url, params=params, headers=headers, timeout=20)
                 return res.json().get("data", []) if res.status_code == 200 else []
             except Exception as e:
-                log("prometheus", f"API error ({req['type']}): {e}")
+                logger.error(f"API error ({req['type']}): {e}", exc_info=True)
                 return []
 
         with ThreadPoolExecutor(max_workers=40) as executor:
@@ -226,9 +230,9 @@ class PrometheusGenerator:
             for f in as_completed(futures):
                 APIResponse.extend(f.result())
 
-        api_response_str = json.dumps(APIResponse, ensure_ascii=False, indent=2)
-        print(f"""[PROMETHEUS STAGE 2] \n
-              {api_response_str}""")
+        apiResponseStr = json.dumps(APIResponse, ensure_ascii=False, indent=2)
+        logger.debug(f"""[PROMETHEUS STAGE 2] \n
+              {apiResponseStr}""")
 
         #
         # $ Stage 3
@@ -300,7 +304,7 @@ class PrometheusGenerator:
         Lembre-se: o tempo é o melhor amigo do investidor de valor. Esta análise utiliza dados históricos para apoiar sua jornada educacional e não constitui uma recomendação de compra ou venda. O mercado oscila, mas os fundamentos são sua bússola para o acúmulo de patrimônio.
         """.replace("{CURRENT_DATE}", self.currentDate)
         sysPrompt["STAGE 3"] = sysPrompt["STAGE 3"].replace("{SUMMARY_CONTEXT}", summaryContext)
-        sysPrompt["STAGE 3"] = sysPrompt["STAGE 3"].replace("{API_RESPONSE}", api_response_str)
+        sysPrompt["STAGE 3"] = sysPrompt["STAGE 3"].replace("{API_RESPONSE}", apiResponseStr)
 
         response = self.client.models.generate_content(
             model="gemma-4-31b-it",
@@ -312,7 +316,7 @@ class PrometheusGenerator:
         )
 
         modelResponse["STAGE 3"] = response.text
-        print(f"""[PROMETHEUS STAGE 3] \n
+        logger.debug(f"""[PROMETHEUS STAGE 3] \n
               {modelResponse["STAGE 3"]}""")
 
         #
@@ -354,7 +358,7 @@ class PrometheusGenerator:
             PrometheusChatManager.updateSummary(sessionId, modelResponse["STAGE 4"])
             PrometheusChatManager.updateSessionTitle(sessionId, modelResponse["STAGE 4"])
 
-            print(f"""[PROMETHEUS STAGE 4] \n
+            logger.debug(f"""[PROMETHEUS STAGE 4] \n
                 {modelResponse["STAGE 4"]}""")
 
         return modelResponse["STAGE 3"]

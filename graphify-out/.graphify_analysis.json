@@ -1,0 +1,641 @@
+{
+  "communities": {
+    "0": [
+      "authentication_util_verifyaccesstoken",
+      "controller_stocksapi_controller_apikeytest",
+      "controller_stocksapi_controller_generatekey",
+      "controller_stocksapi_controller_getfundamental",
+      "controller_stocksapi_controller_gethistorical",
+      "controller_stocksapi_controller_health",
+      "controller_user_controller_getcurrentsession",
+      "controller_user_controller_getme",
+      "controller_user_controller_getsessions",
+      "controller_user_controller_health",
+      "controller_user_controller_revokeallsessions",
+      "controller_user_controller_revokesession",
+      "controller_user_controller_testadminaccess",
+      "controller_user_controller_upgradetodeveloperenterprise",
+      "controller_user_controller_upgradetodeveloperstarter",
+      "fastapi",
+      "main_app_stocks_api_key_py",
+      "main_app_user_user_py",
+      "main_controller_stocksapi_controller_py",
+      "main_controller_user_controller_py",
+      "main_utils_connectivity_py",
+      "main_utils_migrator_py",
+      "run_py",
+      "server_run_health",
+      "server_run_lifespan",
+      "stocks_api_key_createkey",
+      "stocks_api_key_generatesecurekey",
+      "stocks_api_key_verifyapikey",
+      "user_user_addroletouser",
+      "user_user_getcurrentuser",
+      "utils_connectivity_checkmysqlconnection",
+      "utils_connectivity_checkserviceconnection",
+      "utils_migrator_runmigrations"
+    ],
+    "1": [
+      "authentication",
+      "authentication_authentication_authenticategoogleuser",
+      "authentication_authentication_authenticateuser",
+      "authentication_authentication_authenticationmanager",
+      "authentication_authentication_createuseraccount",
+      "authentication_sso_getgooglesso",
+      "authentication_util_createaccesstoken",
+      "authentication_util_hashpassword",
+      "authentication_util_verifypassword",
+      "controller_authentication_controller_googlecallback",
+      "controller_authentication_controller_googlelogin",
+      "controller_authentication_controller_health",
+      "controller_authentication_controller_issecurescheme",
+      "controller_authentication_controller_login",
+      "controller_authentication_controller_logout",
+      "controller_authentication_controller_register",
+      "google_oauth",
+      "jwt",
+      "main_app_authentication_authentication_py",
+      "main_app_authentication_sso_py",
+      "main_app_authentication_util_py",
+      "main_controller_authentication_controller_py",
+      "tests_test_auth_util_py",
+      "tests_test_auth_util_testauthutil",
+      "tests_test_auth_util_testauthutil_test_create_access_token_contains_data",
+      "tests_test_auth_util_testauthutil_test_create_access_token_custom_expiry",
+      "tests_test_auth_util_testauthutil_test_create_access_token_default_expiry",
+      "tests_test_auth_util_testauthutil_test_hash_password_returns_string",
+      "tests_test_auth_util_testauthutil_test_hash_password_unique_hashes",
+      "tests_test_auth_util_testauthutil_test_verify_password_correct",
+      "tests_test_auth_util_testauthutil_test_verify_password_empty_password",
+      "tests_test_auth_util_testauthutil_test_verify_password_incorrect",
+      "tests_test_auth_util_testauthutil_test_verify_password_invalid_hash"
+    ],
+    "2": [
+      "main_app_stocks_api_cache_py",
+      "main_app_stocks_api_query_py",
+      "main_app_stocks_api_util_py",
+      "stocks_api_cache_stockscachemanager",
+      "stocks_api_cache_stockscachemanager_cachescheduler",
+      "stocks_api_cache_stockscachemanager_getcachedstocks",
+      "stocks_api_cache_stockscachemanager_init",
+      "stocks_api_query_stocksquerymanager",
+      "stocks_api_query_stocksquerymanager_deserializejsoncolumns",
+      "stocks_api_query_stocksquerymanager_filterbysearchterms",
+      "stocks_api_query_stocksquerymanager_init",
+      "stocks_api_query_stocksquerymanager_queryfundamental",
+      "stocks_api_query_stocksquerymanager_queryhistorical",
+      "stocks_api_util_categorizecolumns",
+      "stocks_api_util_normalizecolumns",
+      "stocks_api_util_parseyearinput",
+      "tests_test_stocks_util_py",
+      "tests_test_stocks_util_testcategorizecolumns",
+      "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_empty",
+      "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_excludes_special",
+      "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_fundamental_only",
+      "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_historical_only",
+      "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_mixed",
+      "tests_test_stocks_util_testparseyearinput",
+      "tests_test_stocks_util_testparseyearinput_test_parse_year_empty_string",
+      "tests_test_stocks_util_testparseyearinput_test_parse_year_invalid_format",
+      "tests_test_stocks_util_testparseyearinput_test_parse_year_invalid_non_digit",
+      "tests_test_stocks_util_testparseyearinput_test_parse_year_none",
+      "tests_test_stocks_util_testparseyearinput_test_parse_year_range",
+      "tests_test_stocks_util_testparseyearinput_test_parse_year_single",
+      "tests_test_stocks_util_testparseyearinput_test_parse_year_with_spaces"
+    ],
+    "3": [
+      "authentication_session_cleanupexpiredsessions",
+      "authentication_session_createsession",
+      "authentication_session_getcurrentsession",
+      "authentication_session_getsessionbyid",
+      "authentication_session_getsessionbyidsafe",
+      "authentication_session_getusersessions",
+      "authentication_session_revokeallsessions",
+      "authentication_session_revokesession",
+      "authentication_session_sessionmanager",
+      "authentication_session_updatelastactive",
+      "authentication_session_validatesession",
+      "main_app_authentication_session_py",
+      "main_models_user_session_py",
+      "models_user_session_usersession",
+      "models_user_session_usersession_getdevicename",
+      "models_user_session_usersession_repr",
+      "models_user_session_usersession_todict",
+      "tests_test_sessions_testusersessionmodel",
+      "tests_test_sessions_testusersessionmodel_test_getdevicename_empty_strings",
+      "tests_test_sessions_testusersessionmodel_test_getdevicename_fallback",
+      "tests_test_sessions_testusersessionmodel_test_getdevicename_with_browser_and_os",
+      "tests_test_sessions_testusersessionmodel_test_getdevicename_with_fingerprint_only",
+      "tests_test_sessions_testusersessionmodel_test_isactive_can_be_false",
+      "tests_test_sessions_testusersessionmodel_test_isactive_default",
+      "tests_test_sessions_testusersessionmodel_test_repr",
+      "tests_test_sessions_testusersessionmodel_test_to_dict_basic",
+      "tests_test_sessions_testusersessionmodel_test_to_dict_hides_useragent",
+      "tests_test_sessions_testusersessionmodel_test_to_dict_with_sensitive",
+      "tests_test_sessions_testusersessionmodel_test_todict_with_timestamps",
+      "tests_test_sessions_testusersessionmodel_test_todict_without_timestamps"
+    ],
+    "4": [
+      "base",
+      "main_models_prometheus_py",
+      "main_models_stocksapi_key_py",
+      "models_prometheus_prometheussession",
+      "models_stocksapi_key_stocksapikey",
+      "models_stocksapi_key_stocksapikey_getremainingquota",
+      "models_stocksapi_key_stocksapikey_incrementusage",
+      "models_stocksapi_key_stocksapikey_isquotaexceeded",
+      "models_stocksapi_key_stocksapikey_needsreset",
+      "models_stocksapi_key_stocksapikey_repr",
+      "models_stocksapi_key_stocksapikey_resetquota",
+      "models_stocksapi_key_stocksapikey_todict",
+      "prometheus_chat_createsession",
+      "tests_test_models_py",
+      "tests_test_models_testprometheussessionmodel",
+      "tests_test_models_testprometheussessionmodel_test_create_session",
+      "tests_test_models_testprometheussessionmodel_test_default_history",
+      "tests_test_models_teststocksapikeymodel",
+      "tests_test_models_teststocksapikeymodel_test_create_api_key",
+      "tests_test_models_teststocksapikeymodel_test_get_remaining_quota",
+      "tests_test_models_teststocksapikeymodel_test_get_remaining_quota_exceeded",
+      "tests_test_models_teststocksapikeymodel_test_increment_usage",
+      "tests_test_models_teststocksapikeymodel_test_is_quota_exceeded_false",
+      "tests_test_models_teststocksapikeymodel_test_is_quota_exceeded_true",
+      "tests_test_models_teststocksapikeymodel_test_needs_reset_false_recent",
+      "tests_test_models_teststocksapikeymodel_test_needs_reset_true_expired",
+      "tests_test_models_teststocksapikeymodel_test_needs_reset_true_no_last_reset",
+      "tests_test_models_teststocksapikeymodel_test_reset_quota",
+      "tests_test_models_teststocksapikeymodel_test_to_dict"
+    ],
+    "5": [
+      "intflag",
+      "main_utils_roles_py",
+      "tests_test_roles_py",
+      "tests_test_roles_testpermission",
+      "tests_test_roles_testpermission_test_permission_all_includes_all",
+      "tests_test_roles_testpermission_test_permission_enum_values",
+      "tests_test_roles_testroles",
+      "tests_test_roles_testroles_test_admin_has_all_permissions",
+      "tests_test_roles_testroles_test_check_access_admin_returns_true",
+      "tests_test_roles_testroles_test_check_access_case_insensitive",
+      "tests_test_roles_testroles_test_check_access_empty_roles",
+      "tests_test_roles_testroles_test_check_access_invalid_role_ignored",
+      "tests_test_roles_testroles_test_check_access_multiple_roles",
+      "tests_test_roles_testroles_test_check_access_premium_has_prometheus",
+      "tests_test_roles_testroles_test_check_access_user_with_permission",
+      "tests_test_roles_testroles_test_check_access_user_without_permission",
+      "tests_test_roles_testroles_test_developer_enterprise_includes_all",
+      "tests_test_roles_testroles_test_developer_starter_includes_user",
+      "tests_test_roles_testroles_test_premium_has_extra_permissions",
+      "tests_test_roles_testroles_test_premium_includes_user_permissions",
+      "tests_test_roles_testroles_test_user_role_has_basic_permissions",
+      "tests_test_roles_testroles_test_user_role_missing_premium_permissions",
+      "user_user_usermanager",
+      "user_user_usermanager_init",
+      "utils_roles_all",
+      "utils_roles_checkaccess",
+      "utils_roles_permission",
+      "utils_roles_requirepermission",
+      "utils_roles_roles"
+    ],
+    "6": [
+      "basesettings",
+      "config_py",
+      "main_utils_logging_config_py",
+      "server_config_applyipv4force",
+      "server_config_basemansasettings",
+      "server_config_basemansasettings_get",
+      "server_config_config",
+      "server_config_discordsettings",
+      "server_config_discordsettings_getitem",
+      "server_config_getsession",
+      "server_config_getstockssession",
+      "server_config_mysqlsettings",
+      "server_config_mysqlsettings_getitem",
+      "server_config_prometheussettings",
+      "server_config_prometheussettings_getitem",
+      "server_config_scrapersettings",
+      "server_config_scrapersettings_getitem",
+      "server_config_stocksapisettings",
+      "server_config_stocksapisettings_getitem",
+      "server_config_usersettings",
+      "server_config_usersettings_getitem",
+      "utils_logging_config_discordhandler",
+      "utils_logging_config_discordhandler_emit",
+      "utils_logging_config_setupdiscordhandler",
+      "utils_logging_config_setuplogging"
+    ],
+    "7": [
+      "main_app_scraper_b3_scraper_py",
+      "main_service_scraper_service_py",
+      "scraper_b3_scraper_b3scraper",
+      "scraper_b3_scraper_b3scraper_exportjson",
+      "scraper_b3_scraper_b3scraper_exportmysql",
+      "scraper_b3_scraper_b3scraper_fundamentalindicators",
+      "scraper_b3_scraper_b3scraper_historicalcotationprofits_oceans14",
+      "scraper_b3_scraper_b3scraper_init",
+      "scraper_b3_scraper_b3scraper_processticker",
+      "scraper_b3_scraper_b3scraper_reordercolumns",
+      "scraper_b3_scraper_b3scraper_scrapestocks",
+      "scraper_b3_scraper_b3scraper_serializecomplextypes",
+      "scraper_b3_scraper_getinitialdata",
+      "scraper_b3_scraper_historicalcotationprofits",
+      "scraper_b3_scraper_historicalcotations",
+      "scraper_b3_scraper_historicaldividends",
+      "scraper_b3_scraper_historicaldividendyields",
+      "scraper_b3_scraper_historicalrentability",
+      "scraper_b3_scraper_historicalrevenue",
+      "scraper_b3_scraper_stocknews",
+      "scraper_b3_scraper_tagalong",
+      "service_scraper_service_initialize",
+      "service_scraper_service_runscraper",
+      "service_scraper_service_scraperservice"
+    ],
+    "8": [
+      "main_models_user_py",
+      "models_user_user",
+      "models_user_user_addrole",
+      "models_user_user_getroleslist",
+      "models_user_user_hasrole",
+      "models_user_user_removerole",
+      "models_user_user_repr",
+      "models_user_user_todict",
+      "tests_test_models_testusermodel",
+      "tests_test_models_testusermodel_test_add_role_existing",
+      "tests_test_models_testusermodel_test_add_role_new",
+      "tests_test_models_testusermodel_test_create_user",
+      "tests_test_models_testusermodel_test_get_roles_list_default",
+      "tests_test_models_testusermodel_test_get_roles_list_multiple_roles",
+      "tests_test_models_testusermodel_test_get_roles_list_single_role",
+      "tests_test_models_testusermodel_test_has_role_false",
+      "tests_test_models_testusermodel_test_has_role_true",
+      "tests_test_models_testusermodel_test_has_role_with_enum",
+      "tests_test_models_testusermodel_test_remove_role_existing",
+      "tests_test_models_testusermodel_test_remove_role_last_role",
+      "tests_test_models_testusermodel_test_to_dict"
+    ],
+    "9": [
+      "authentication_device_detectbrowser",
+      "authentication_device_detectdevicetype",
+      "authentication_device_detectos",
+      "authentication_device_deviceinfo",
+      "authentication_device_generatefingerprint",
+      "authentication_device_parseuseragent",
+      "main_app_authentication_device_py",
+      "tests_test_device_testdevicedetection",
+      "tests_test_device_testdevicedetection_test_generate_fingerprint_consistent",
+      "tests_test_device_testdevicedetection_test_generate_fingerprint_different_inputs",
+      "tests_test_device_testdevicedetection_test_generate_fingerprint_includes_language",
+      "tests_test_device_testdevicedetection_test_parse_chrome_android",
+      "tests_test_device_testdevicedetection_test_parse_chrome_windows",
+      "tests_test_device_testdevicedetection_test_parse_edge",
+      "tests_test_device_testdevicedetection_test_parse_empty_user_agent",
+      "tests_test_device_testdevicedetection_test_parse_firefox_windows",
+      "tests_test_device_testdevicedetection_test_parse_none_user_agent",
+      "tests_test_device_testdevicedetection_test_parse_safari_iphone",
+      "tests_test_device_testdevicedetection_test_parse_safari_mac"
+    ],
+    "10": [
+      "api_key_system",
+      "b3_scraper",
+      "fundamental_data",
+      "gemini_model",
+      "historical_data",
+      "ma_at",
+      "mansa_server",
+      "mysql",
+      "ogum",
+      "permission_system",
+      "prometheus",
+      "rag_architecture",
+      "stocks_api",
+      "stocks_db",
+      "thoth",
+      "user_db",
+      "user_roles",
+      "user_service",
+      "value_investing"
+    ],
+    "11": [
+      "main_service_authentication_service_py",
+      "main_service_prometheus_service_py",
+      "main_service_stocksapi_service_py",
+      "main_service_user_service_py",
+      "main_utils_service_manager_py",
+      "service_authentication_service_authenticationservice",
+      "service_authentication_service_initialize",
+      "service_prometheus_service_initialize",
+      "service_prometheus_service_prometheusservice",
+      "service_stocksapi_service_initialize",
+      "service_stocksapi_service_stocksapiservice",
+      "service_user_service_initialize",
+      "service_user_service_userservice",
+      "utils_service_manager_getapp",
+      "utils_service_manager_runall",
+      "utils_service_manager_servicemanager"
+    ],
+    "12": [
+      "AuthenticationManager",
+      "AuthenticationService",
+      "PrometheusChatManager",
+      "PrometheusGenerator",
+      "PrometheusService",
+      "SessionManager",
+      "UserManager",
+      "UserService",
+      "auth_controller",
+      "auth_util",
+      "getGoogleSSO",
+      "prometheus_controller",
+      "stocksQuery",
+      "stocksapi_controller",
+      "user_controller",
+      "verifyAPIKey"
+    ],
+    "13": [
+      "main_app_prometheus_chat_py",
+      "main_app_prometheus_generation_py",
+      "prometheus_chat_deletesession",
+      "prometheus_chat_gethistory",
+      "prometheus_chat_getusersessions",
+      "prometheus_chat_prometheuschatmanager",
+      "prometheus_chat_prometheuschatmanager_init",
+      "prometheus_chat_savemessage",
+      "prometheus_chat_updatesessiontitle",
+      "prometheus_chat_updatesummary",
+      "prometheus_chat_verifysessionownership",
+      "prometheus_generation_prometheusgenerator",
+      "prometheus_generation_prometheusgenerator_executeworkflow",
+      "prometheus_generation_prometheusgenerator_init",
+      "prometheus_generation_prometheusgenerator_updatedates"
+    ],
+    "14": [
+      "controller_prometheus_controller_chat",
+      "controller_prometheus_controller_createsession",
+      "controller_prometheus_controller_deletesession",
+      "controller_prometheus_controller_gethistory",
+      "controller_prometheus_controller_getsessions",
+      "controller_prometheus_controller_health",
+      "controller_prometheus_controller_updatesessiontitle",
+      "main_controller_prometheus_controller_py"
+    ],
+    "15": [
+      "pytest",
+      "tests_conftest_dbsession",
+      "tests_conftest_py",
+      "tests_conftest_sampleapikeydata",
+      "tests_conftest_sampleprometheussessiondata",
+      "tests_conftest_sampleuserdata",
+      "tests_test_device_py",
+      "tests_test_sessions_py"
+    ],
+    "16": [
+      "Base",
+      "PrometheusSession",
+      "StocksAPIKey",
+      "User",
+      "UserSession"
+    ],
+    "17": [
+      "migrations_env_getdatabaseurl",
+      "migrations_env_py",
+      "migrations_env_runmigrationsoffline",
+      "migrations_env_runmigrationsonline"
+    ],
+    "18": [
+      "migrations_versions_25af7ad931e7_initial_migration_py",
+      "versions_25af7ad931e7_initial_migration_downgrade",
+      "versions_25af7ad931e7_initial_migration_rationale_1",
+      "versions_25af7ad931e7_initial_migration_upgrade"
+    ],
+    "19": [
+      "migrations_versions_4a2f1c9e3b5d_user_sessions_py",
+      "versions_4a2f1c9e3b5d_user_sessions_downgrade",
+      "versions_4a2f1c9e3b5d_user_sessions_rationale_1",
+      "versions_4a2f1c9e3b5d_user_sessions_upgrade"
+    ],
+    "20": [
+      "checkMySqlConnection",
+      "config_engine",
+      "config_stocksEngine"
+    ],
+    "21": [
+      "B3Scraper",
+      "ScraperService"
+    ],
+    "22": [
+      "StocksAPIService",
+      "stocksCache"
+    ],
+    "23": [
+      "main_app_authentication_constants_py"
+    ],
+    "24": [
+      "main_models_base_py"
+    ],
+    "25": [
+      "main_models_init_py"
+    ],
+    "26": [
+      "config_Config"
+    ],
+    "27": [
+      "auth_constants"
+    ],
+    "28": [
+      "checkServiceConnection"
+    ],
+    "29": [
+      "session_management"
+    ],
+    "30": [
+      "docker"
+    ],
+    "31": [
+      "ruff"
+    ],
+    "32": [
+      "mypy"
+    ]
+  },
+  "cohesion": {
+    "0": 0.07,
+    "1": 0.1,
+    "2": 0.1,
+    "3": 0.1,
+    "4": 0.11,
+    "5": 0.08,
+    "6": 0.11,
+    "7": 0.11,
+    "8": 0.17,
+    "9": 0.19,
+    "10": 0.11,
+    "11": 0.12,
+    "12": 0.15,
+    "13": 0.15,
+    "14": 0.32,
+    "15": 0.25,
+    "16": 0.7,
+    "17": 0.83,
+    "18": 0.5,
+    "19": 0.5,
+    "20": 0.67,
+    "21": 1.0,
+    "22": 1.0,
+    "23": 1.0,
+    "24": 1.0,
+    "25": 1.0,
+    "26": 1.0,
+    "27": 1.0,
+    "28": 1.0,
+    "29": 1.0,
+    "30": 1.0,
+    "31": 1.0,
+    "32": 1.0
+  },
+  "gods": [
+    {
+      "id": "models_stocksapi_key_stocksapikey",
+      "label": "StocksAPIKey",
+      "degree": 24
+    },
+    {
+      "id": "models_user_user",
+      "label": "User",
+      "degree": 24
+    },
+    {
+      "id": "models_user_session_usersession",
+      "label": "UserSession",
+      "degree": 20
+    },
+    {
+      "id": "tests_test_roles_testroles",
+      "label": "TestRoles",
+      "degree": 18
+    },
+    {
+      "id": "tests_test_models_testusermodel",
+      "label": "TestUserModel",
+      "degree": 16
+    },
+    {
+      "id": "tests_test_models_teststocksapikeymodel",
+      "label": "TestStocksAPIKeyModel",
+      "degree": 15
+    },
+    {
+      "id": "fastapi",
+      "label": "FastAPI",
+      "degree": 15
+    },
+    {
+      "id": "authentication_device_parseuseragent",
+      "label": "parseUserAgent()",
+      "degree": 14
+    },
+    {
+      "id": "tests_test_sessions_testusersessionmodel",
+      "label": "TestUserSessionModel",
+      "degree": 14
+    },
+    {
+      "id": "scraper_b3_scraper_b3scraper",
+      "label": "B3Scraper",
+      "degree": 13
+    }
+  ],
+  "surprises": [
+    {
+      "source": "PrometheusGenerator",
+      "target": "Config",
+      "source_files": [
+        "main/app/prometheus/generation.py",
+        "config.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "uses",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "B3Scraper",
+      "target": "Config",
+      "source_files": [
+        "main/app/scraper_b3/scraper.py",
+        "config.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "uses",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "AuthenticationService",
+      "target": "Config",
+      "source_files": [
+        "main/service/authentication_service.py",
+        "config.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "uses",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "ScraperService",
+      "target": "Config",
+      "source_files": [
+        "main/service/scraper_service.py",
+        "config.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "uses",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "ServiceManager",
+      "target": "Config",
+      "source_files": [
+        "main/utils/service_manager.py",
+        "config.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "uses",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories; bridges separate communities"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `FastAPI` connect `Community 0` to `Community 1`, `Community 2`, `Community 5`, `Community 10`, `Community 11`, `Community 14`?",
+      "why": "High betweenness centrality (0.393) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `Config` connect `Community 6` to `Community 11`, `Community 13`, `Community 7`?",
+      "why": "High betweenness centrality (0.228) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `ServiceManager` connect `Community 11` to `Community 6`?",
+      "why": "High betweenness centrality (0.166) - this node is a cross-community bridge."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 15 inferred relationships involving `StocksAPIKey` (e.g. with `TestUserModel` and `TestStocksAPIKeyModel`) actually correct?",
+      "why": "`StocksAPIKey` has 15 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 16 inferred relationships involving `User` (e.g. with `TestUserModel` and `TestStocksAPIKeyModel`) actually correct?",
+      "why": "`User` has 16 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 15 inferred relationships involving `UserSession` (e.g. with `SessionManager` and `TestUserSessionModel`) actually correct?",
+      "why": "`UserSession` has 15 INFERRED edges - model-reasoned connections that need verification."
+    },
+    {
+      "type": "verify_inferred",
+      "question": "Are the 2 inferred relationships involving `TestRoles` (e.g. with `Permission` and `Roles`) actually correct?",
+      "why": "`TestRoles` has 2 INFERRED edges - model-reasoned connections that need verification."
+    }
+  ]
+}

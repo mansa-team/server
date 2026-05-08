@@ -4,37 +4,29 @@ from fastapi import HTTPException, Depends
 class Permission(IntFlag):
     NONE = 0
 
-    # User
     VIEW_PROFILE = auto()
     USE_THOTH = auto()
     USE_MAAT = auto()
 
-    # Premium
     USE_PROMETHEUS = auto()
     USE_OGUM = auto()
 
-    # Developer - Startup
     VIEW_DEVELOPER_TAB = auto()
     STARTER_API_ACCESS = auto()
 
-    # Developer - Enterprise
     ENTERPRISE_API_ACCESS = auto()
     EXPORT_BULK_DATA = auto()
     REQUEST_CUSTOM_FIELDS = auto()
     API_SUPPORT_CHAT_ACCESS = auto()
     NO_API_ATTRIBUTION_NEEDED = auto()
 
-    # Admin
     MANAGE_USERS = auto()
     SYSTEM_CONFIG = auto()
     SYSTEM_STATS = auto()
 
     @classmethod
     def ALL(cls):
-        mask = cls.NONE
-        for member in cls:
-            mask |= member
-        return mask
+        return sum(cls)
 
 
 class Roles(IntFlag):
@@ -56,24 +48,27 @@ class Roles(IntFlag):
     ADMIN = Permission.ALL()
 
     @classmethod
-    def checkAccess(cls, userRoles: list[str], required_perm: Permission) -> bool:
+    def checkAccess(cls, userRoles: list[str], requiredPerm: Permission) -> bool:
         userPerms = Permission.NONE
         for roleName in userRoles:
+            role = roleName.upper()
+            if role == "ADMIN":
+                return True
             try:
-                if roleName.upper() == "ADMIN":
-                    return True
-                userPerms |= cls[roleName.upper()].value
+                userPerms |= cls[role]
             except KeyError:
                 continue
-        return (userPerms & required_perm) == required_perm
+        return bool(userPerms & requiredPerm)
 
     @staticmethod
     def requirePermission(perm: Permission):
         from main.app.user.user import UserManager
 
-        def check(user: dict = Depends(UserManager.getCurrentUser)):
+        async def checker(user: dict = Depends(UserManager.getCurrentUser)):
             if not Roles.checkAccess(user.get("roles", []), perm):
-                raise HTTPException(status_code=403, detail=f"Missing required permission: {perm.name}")
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Missing required permission: {perm.name}"
+                )
             return user
-        
-        return check
+        return checker
