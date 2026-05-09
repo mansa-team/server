@@ -1,16 +1,16 @@
 # Graph Report - server  (2026-05-08)
 
 ## Corpus Check
-- 47 files · ~25,654 words
+- 47 files · ~25,663 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 568 nodes · 807 edges · 45 communities (30 shown, 15 thin omitted)
+- 568 nodes · 807 edges · 46 communities (31 shown, 15 thin omitted)
 - Extraction: 73% EXTRACTED · 27% INFERRED · 0% AMBIGUOUS · INFERRED: 214 edges (avg confidence: 0.71)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `82d6c3ee`
+- Built from commit: `a78fdaec`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -36,9 +36,8 @@
 - [[_COMMUNITY_Responses|Responses]]
 - [[_COMMUNITY_Enums|Enums]]
 - [[_COMMUNITY_Prometheus Model|Prometheus Model]]
-- [[_COMMUNITY_API Key Model|API Key Model]]
+- [[_COMMUNITY_MySQL Connectivity|MySQL Connectivity]]
 - [[_COMMUNITY_Auth Constants|Auth Constants]]
-- [[_COMMUNITY_SSO|SSO]]
 - [[_COMMUNITY_Generator|Generator]]
 - [[_COMMUNITY_JWT Auth|JWT Auth]]
 - [[_COMMUNITY_Entry Point|Entry Point]]
@@ -49,13 +48,14 @@
 - [[_COMMUNITY_Docker|Docker]]
 - [[_COMMUNITY_Community 33|Community 33]]
 - [[_COMMUNITY_Community 34|Community 34]]
-- [[_COMMUNITY_Community 38|Community 38]]
+- [[_COMMUNITY_Community 35|Community 35]]
 - [[_COMMUNITY_Community 39|Community 39]]
 - [[_COMMUNITY_Community 40|Community 40]]
 - [[_COMMUNITY_Community 41|Community 41]]
 - [[_COMMUNITY_Community 42|Community 42]]
 - [[_COMMUNITY_Community 43|Community 43]]
 - [[_COMMUNITY_Community 44|Community 44]]
+- [[_COMMUNITY_Community 45|Community 45]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `StocksCacheManager` - 59 edges
@@ -89,7 +89,7 @@
 - **Configuration & Database Infrastructure** — config_Config, config_engine, config_stocksEngine [INFERRED]
 - **User Authentication & Authorization** — user_service, authentication, user_roles, permission_system [INFERRED]
 
-## Communities (45 total, 15 thin omitted)
+## Communities (46 total, 15 thin omitted)
 
 ### Community 0 - "Stocks API Controller"
 Cohesion: 0.07
@@ -161,27 +161,27 @@ Nodes (8): Performance benchmark tests for stocks API, Ticker index lookup shoul
 
 ### Community 18 - "Responses"
 Cohesion: 0.17
-Nodes (7): Tests for dynamic ticker index feature, Ticker index should be built when cache is loaded, Ticker index should contain all tickers from cache, Ticker index should be case-insensitive, Looking up ticker should return valid row index, Ticker index should be rebuilt when cache refreshes, TestTickerIndex
+Nodes (3): StocksAPIService, UserService, ServiceManager
 
 ### Community 19 - "Enums"
 Cohesion: 0.17
 Nodes (7): Different query parameters should not share cache, Cache should expire after TTL, Tests for query result caching, CacheManager should track cached queries, Query cache should have configurable TTL, getCachedStocks should support column filtering, TestQueryCaching
 
 ### Community 20 - "Prometheus Model"
-Cohesion: 0.22
-Nodes (3): generateKey(), createKey(), generateSecureKey()
+Cohesion: 0.17
+Nodes (7): Tests for dynamic ticker index feature, Ticker index should be built when cache is loaded, Ticker index should contain all tickers from cache, Ticker index should be case-insensitive, Looking up ticker should return valid row index, Ticker index should be rebuilt when cache refreshes, TestTickerIndex
 
-### Community 21 - "API Key Model"
-Cohesion: 0.2
-Nodes (3): PrometheusService, StocksAPIService, ServiceManager
-
-### Community 23 - "Auth Constants"
+### Community 22 - "MySQL Connectivity"
 Cohesion: 0.32
 Nodes (3): chat(), createSession(), getHistory()
 
-### Community 24 - "SSO"
+### Community 23 - "Auth Constants"
 Cohesion: 0.4
 Nodes (4): lifespan(), checkMySqlConnection(), checkServiceConnection(), runMigrations()
+
+### Community 25 - "Generator"
+Cohesion: 0.5
+Nodes (3): generateKey(), createKey(), generateSecureKey()
 
 ### Community 26 - "JWT Auth"
 Cohesion: 0.7
@@ -191,7 +191,7 @@ Nodes (5): Base SQLAlchemy declarative base, PrometheusSession model, StocksAPIK
 Cohesion: 0.83
 Nodes (3): getDatabaseUrl(), runMigrationsOffline(), runMigrationsOnline()
 
-### Community 31 - "Helpers"
+### Community 32 - "Docker"
 Cohesion: 0.67
 Nodes (3): checkMySqlConnection, MySQL Engine (user_db), MySQL Engine (stocks_db)
 
@@ -203,11 +203,11 @@ Nodes (3): checkMySqlConnection, MySQL Engine (user_db), MySQL Engine (stocks_db
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `FastAPI` connect `Entry Point` to `Stocks API Controller`, `Session Management`, `Scraper B3`, `User Controller`, `Prometheus Model`, `API Key Model`, `MySQL Connectivity`, `Auth Constants`?**
+- **Why does `FastAPI` connect `Entry Point` to `Stocks API Controller`, `Session Management`, `Scraper B3`, `User Controller`, `Responses`, `API Key Model`, `MySQL Connectivity`, `SSO`, `Generator`?**
   _High betweenness centrality (0.340) - this node is a cross-community bridge._
 - **Why does `Pytest Testing` connect `Scraper B3` to `Stocks API Controller`, `Authentication Manager`, `Stocks Cache & Query`, `Session Management`, `SQLAlchemy Models`?**
   _High betweenness centrality (0.258) - this node is a cross-community bridge._
-- **Why does `StocksQueryManager` connect `Authentication Manager` to `SQLAlchemy Models`, `Device Detection`, `User Service`, `Auth Service`, `Decorators`, `Responses`, `Enums`, `Entry Point`?**
+- **Why does `StocksQueryManager` connect `Authentication Manager` to `SQLAlchemy Models`, `Device Detection`, `User Service`, `Auth Service`, `Decorators`, `Enums`, `Prometheus Model`, `Entry Point`?**
   _High betweenness centrality (0.204) - this node is a cross-community bridge._
 - **Are the 54 inferred relationships involving `StocksCacheManager` (e.g. with `StocksQueryManager` and `TestTickerIndex`) actually correct?**
   _`StocksCacheManager` has 54 INFERRED edges - model-reasoned connections that need verification._

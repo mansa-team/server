@@ -1,4 +1,5 @@
 import logging
+import re
 from config import stocksEngine
 
 import threading
@@ -9,6 +10,7 @@ from sqlalchemy.engine import Engine
 
 logger = logging.getLogger(__name__)
 
+COLUMN_VALIDATOR = re.compile(r"^[A-Z0-9_ ]+$", re.IGNORECASE)
 
 class StocksCacheManager:
     def __init__(self, db: Engine, cacheLock: threading.Lock):
@@ -42,8 +44,10 @@ class StocksCacheManager:
         try:
             with self.db.connect() as conn:
                 if columns:
-                    cols = ["TICKER", "NOME", "TIME"] + [c for c in columns if c not in ["TICKER", "NOME", "TIME"]]
-                    query = f"SELECT {','.join(cols)} FROM b3_stocks"
+                    validatedCols = [c for c in columns if c and COLUMN_VALIDATOR.match(str(c))]
+                    cols = ["TICKER", "NOME", "TIME"] + [c for c in validatedCols if c not in ["TICKER", "NOME", "TIME"]]
+
+                    query = f"SELECT {','.join(cols)} FROM b3_stocks"  # nosec: B608
                     df = pd.read_sql(query, conn)
                 else:
                     df = pd.read_sql("SELECT * FROM b3_stocks", conn)
