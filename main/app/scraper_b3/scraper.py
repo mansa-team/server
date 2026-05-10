@@ -1,5 +1,6 @@
 import logging
 from config import Config
+from xango import calculateInvestingScore
 
 from io import StringIO
 import math
@@ -17,9 +18,6 @@ from sqlalchemy import create_engine, text, QueuePool
 
 from tenacity import retry, stop_after_attempt, wait_exponential
 from concurrent.futures import ThreadPoolExecutor, as_completed
-
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.linear_model import LinearRegression
 
 logger = logging.getLogger(__name__)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
@@ -68,34 +66,34 @@ class B3Scraper:
                 "subsectorname": "SUBSETOR",
                 "segmentname": "SEGMENTO",
                 "price": "PRECO",
-                "pL": "P/L",
-                "pVp": "P/VP",
-                "pEbit": "P/EBIT",
-                "pAtivo": "P/ATIVO",
-                "evEbit": "EV/EBIT",
+                "p_l": "P/L",
+                "p_vp": "P/VP",
+                "p_ebit": "P/EBIT",
+                "p_ativo": "P/ATIVO",
+                "ev_ebit": "EV/EBIT",
                 "margembruta": "MARGEM BRUTA",
                 "margemebit": "MARGEM EBIT",
                 "margemliquida": "MARG. LIQUIDA",
-                "pSr": "PSR",
-                "pCapitalgiro": "P/CAP. GIRO",
-                "pAtivocirculante": "P. AT CIR. LIQ.",
+                "p_sr": "PSR",
+                "p_capitalgiro": "P/CAP. GIRO",
+                "p_ativocirculante": "P. AT CIR. LIQ.",
                 "giroativos": "GIRO ATIVOS",
                 "roe": "ROE",
                 "roa": "ROA",
                 "roic": "ROIC",
                 "dividaliquidapatrimonioliquido": "DIV. LIQ. / PATRI.",
                 "dividaliquidaebit": "DIVIDA LIQUIDA / EBIT",
-                "plAtivo": "PATRIMONIO / ATIVOS",
-                "passivoAtivo": "PASSIVO / ATIVOS",
+                "pl_ativo": "PATRIMONIO / ATIVOS",
+                "passivo_ativo": "PASSIVO / ATIVOS",
                 "liquidezcorrente": "LIQ. CORRENTE",
-                "pegRatio": "PEG Ratio",
+                "peg_ratio": "PEG Ratio",
                 "receitas_cagr5": "CAGR RECEITAS 5 ANOS",
                 "liquidezmediadiaria": "LIQUIDEZ MEDIA DIARIA",
                 "vpa": "VPA",
                 "lpa": "LPA",
                 "valormercado": "VALOR DE MERCADO",
                 "dy": "DY",
-                "lucrosCagr5": "CAGR LUCROS 5 ANOS",
+                "lucros_cagr5": "CAGR LUCROS 5 ANOS",
             }
         )
         df.dropna(subset=["TICKER", "PRECO", "LIQUIDEZ MEDIA DIARIA", "VALOR DE MERCADO"])
@@ -366,70 +364,41 @@ class B3Scraper:
             newDF["PRECO DE BAZIN"] = np.nan
 
         try:
-            score = 0
-
             years = range(self.currentYear - 10, self.currentYear)
 
             row = df if isinstance(df, pd.Series) else df.iloc[0]
             profitCols = [col for col in row.keys() if str(col).startswith("LUCRO LIQUIDO") and str(col)[-1].isdigit()]
 
-            profitDf = []
+            profitDF = []
             for col in profitCols:
                 try:
                     yearVal = int(col.split()[-1])
                     profitVal = row[col]
                     if not pd.isna(profitVal):
-                        profitDf.append({"YEAR": yearVal, "LUCRO LIQUIDO": profitVal})
+                        profitDF.append({"YEAR": yearVal, "LUCRO LIQUIDO": profitVal})
                 except (ValueError, IndexError):
                     continue
 
-            profitDf = pd.DataFrame(profitDf).sort_values("YEAR").reset_index(drop=True)
-            profit10yDf = profitDf[profitDf["YEAR"].isin(years)].copy().reset_index(drop=True)
+            profitDF = pd.DataFrame(profitDF).sort_values("YEAR").reset_index(drop=True)
+            profit10yDF = profitDF[profitDF["YEAR"].isin(years)].copy().reset_index(drop=True)
 
-            if len(profit10yDf) >= 10:
-                X = profit10yDf[["YEAR"]]
-                y = profit10yDf[["LUCRO LIQUIDO"]]
+            companyLiquidity = df.get("LIQUIDEZ MEDIA DIARIA", 0) or 0
 
-                scalerX = MinMaxScaler()
-                X_scaled = scalerX.fit_transform(X)
+            prefix = TICKER[:4]
+            prefixLiquidity = (
+                self.stocksDF.groupby(self.stocksDF.index.str[:4])["LIQUIDEZ MEDIA DIARIA"].sum().get(prefix, 0)
+            )
 
-                scalerY = MinMaxScaler(feature_range=(0, 10))
-                yScaled = scalerY.fit_transform(y)
+            score = calculateInvestingScore(
+                ticker=TICKER,
+                profitsDf=profit10yDF,
+                companyLiquidity=companyLiquidity,
+                prefixLiquidity=prefixLiquidity
+            )
 
-                model = LinearRegression().fit(X_scaled, yScaled)
-
-                opposingCathet = max(0, model.coef_[0][0])
-                angleDeg = math.degrees(math.atan(opposingCathet))
-                r2 = max(0, model.score(X_scaled, yScaled))
-
-                profitsNumeric = profit10yDf["LUCRO LIQUIDO"].astype(float)
-                yearlyGrowth = profitsNumeric.pct_change().dropna()
-                positiveYearsRatio = (yearlyGrowth > 0).sum() / len(yearlyGrowth) if len(yearlyGrowth) > 0 else 0
-
-                angleScore = (angleDeg / 90) * 100
-                rawConsist = (r2 + positiveYearsRatio) / 2
-                penaltySensitivity = max(0.1, 1 - (angleDeg / 110))
-                score = angleScore * (rawConsist**penaltySensitivity)
-
-                if r2 > 0.9 and positiveYearsRatio >= 0.9:
-                    score = min(100, score + 5)
-
-                if (profitDf["LUCRO LIQUIDO"] < 0).any():
-                    score *= 0.5
-
-                totalLiq = df.get("LIQUIDEZ MEDIA DIARIA", 0) or 0
-                targetLiquidity = 10_000_000
-                if totalLiq < targetLiquidity:
-                    ratio = totalLiq / targetLiquidity
-                    liquidityMultiplier = max(0.5, np.sqrt(min(1.0, ratio)))
-                    score *= liquidityMultiplier
-
-                if TICKER.endswith("4"):
-                    score *= 0.75
-
-            newDF["VALUE INVESTING SCORE"] = min(max(score, 0), 100)
+            newDF["INVESTING SCORE"] = min(max(score, 0), 100)
         except Exception as e:
-            newDF["VALUE INVESTING SCORE"] = np.nan
+            newDF["INVESTING SCORE"] = np.nan
 
         return pd.DataFrame([newDF]).set_index("TICKER")
 
@@ -469,6 +438,9 @@ class B3Scraper:
         stocksDF["TIME"] = pd.to_datetime(self.scraperDate)
         stocksList = stocksDF.index.tolist()
 
+        # Store for access in fundamentalIndicators
+        self.stocksDF = stocksDF
+
         processedDfs = []
 
         with ThreadPoolExecutor(max_workers=maxWorkers) as executor:
@@ -492,18 +464,6 @@ class B3Scraper:
             newCols = [c for c in combined.columns if c not in stocksDF.columns]
             finalDf = pd.concat([stocksDF, combined[newCols]], axis=1, join="outer")
             finalDf = finalDf.reindex(stocksList)
-
-            prefixLiq = finalDf.groupby(finalDf.index.str[:4])["LIQUIDEZ MEDIA DIARIA"].sum()
-            for ticker in finalDf.index:
-                prefix = ticker[:4]
-                totalLiq = prefixLiq.get(prefix, 0)
-                score = finalDf.loc[ticker, "VALUE INVESTING SCORE"]
-                if pd.notna(score) and score > 0:
-                    targetLiquidity = 10_000_000
-                    if totalLiq < targetLiquidity:
-                        ratio = totalLiq / targetLiquidity
-                        liquidityMultiplier = max(0.5, np.sqrt(min(1.0, ratio)))
-                        finalDf.loc[ticker, "VALUE INVESTING SCORE"] = min(max(score * liquidityMultiplier, 0), 100)
         else:
             finalDf = stocksDF.copy()
 
