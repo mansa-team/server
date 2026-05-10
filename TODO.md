@@ -6,6 +6,8 @@
 - [ ] Redis or some similar caching solution for the whole system
 - [ ] Update the config files to have boolean support instead of string comparasions
 
+- [ ] Add a framework to quickly debug the scraper over time
+
 #
 
 - [ ] Ma'at: Stock Picking algorithm designed to help build wallets for the users based on their profile and provide insights in the stocks page, such as its grade and recommended signal (Buy, Hold or Sell) based on Value Investing fundamentals

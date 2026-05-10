@@ -246,7 +246,7 @@
       "source_file": "run.py",
       "source_location": "L1",
       "id": "run_py",
-      "community": 4,
+      "community": 23,
       "norm_label": "run.py"
     },
     {
@@ -255,7 +255,7 @@
       "source_file": "run.py",
       "source_location": "L22",
       "id": "server_run_lifespan",
-      "community": 4,
+      "community": 23,
       "norm_label": "lifespan()"
     },
     {
@@ -264,7 +264,7 @@
       "source_file": "run.py",
       "source_location": "L71",
       "id": "server_run_health",
-      "community": 4,
+      "community": 23,
       "norm_label": "health()"
     },
     {
@@ -273,7 +273,7 @@
       "source_file": "main/app/authentication/authentication.py",
       "source_location": "L1",
       "id": "main_app_authentication_authentication_py",
-      "community": 0,
+      "community": 1,
       "norm_label": "authentication.py"
     },
     {
@@ -282,7 +282,7 @@
       "source_file": "main/app/authentication/authentication.py",
       "source_location": "L13",
       "id": "authentication_authentication_authenticationmanager",
-      "community": 0,
+      "community": 1,
       "norm_label": "authenticationmanager"
     },
     {
@@ -291,7 +291,7 @@
       "source_file": "main/app/authentication/authentication.py",
       "source_location": "L15",
       "id": "authentication_authentication_createuseraccount",
-      "community": 0,
+      "community": 1,
       "norm_label": "createuseraccount()"
     },
     {
@@ -300,7 +300,7 @@
       "source_file": "main/app/authentication/authentication.py",
       "source_location": "L50",
       "id": "authentication_authentication_authenticategoogleuser",
-      "community": 0,
+      "community": 1,
       "norm_label": "authenticategoogleuser()"
     },
     {
@@ -309,7 +309,7 @@
       "source_file": "main/app/authentication/authentication.py",
       "source_location": "L64",
       "id": "authentication_authentication_authenticateuser",
-      "community": 0,
+      "community": 1,
       "norm_label": "authenticateuser()"
     },
     {
@@ -390,7 +390,7 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L1",
       "id": "main_app_authentication_session_py",
-      "community": 2,
+      "community": 3,
       "norm_label": "session.py"
     },
     {
@@ -399,7 +399,7 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L14",
       "id": "authentication_session_sessionmanager",
-      "community": 2,
+      "community": 3,
       "norm_label": "sessionmanager"
     },
     {
@@ -408,7 +408,7 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L16",
       "id": "authentication_session_createsession",
-      "community": 2,
+      "community": 3,
       "norm_label": "createsession()"
     },
     {
@@ -417,7 +417,7 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L53",
       "id": "authentication_session_getusersessions",
-      "community": 2,
+      "community": 3,
       "norm_label": "getusersessions()"
     },
     {
@@ -426,7 +426,7 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L60",
       "id": "authentication_session_getsessionbyid",
-      "community": 2,
+      "community": 3,
       "norm_label": "getsessionbyid()"
     },
     {
@@ -435,7 +435,7 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L67",
       "id": "authentication_session_getsessionbyidsafe",
-      "community": 2,
+      "community": 3,
       "norm_label": "getsessionbyidsafe()"
     },
     {
@@ -444,7 +444,7 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L71",
       "id": "authentication_session_getcurrentsession",
-      "community": 2,
+      "community": 3,
       "norm_label": "getcurrentsession()"
     },
     {
@@ -453,7 +453,7 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L83",
       "id": "authentication_session_revokesession",
-      "community": 2,
+      "community": 3,
       "norm_label": "revokesession()"
     },
     {
@@ -462,7 +462,7 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L95",
       "id": "authentication_session_revokeallsessions",
-      "community": 2,
+      "community": 3,
       "norm_label": "revokeallsessions()"
     },
     {
@@ -471,7 +471,7 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L111",
       "id": "authentication_session_updatelastactive",
-      "community": 2,
+      "community": 3,
       "norm_label": "updatelastactive()"
     },
     {
@@ -480,7 +480,7 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L121",
       "id": "authentication_session_cleanupexpiredsessions",
-      "community": 2,
+      "community": 3,
       "norm_label": "cleanupexpiredsessions()"
     },
     {
@@ -489,7 +489,7 @@
       "source_file": "main/app/authentication/session.py",
       "source_location": "L139",
       "id": "authentication_session_validatesession",
-      "community": 2,
+      "community": 3,
       "norm_label": "validatesession()"
     },
     {
@@ -498,7 +498,7 @@
       "source_file": "main/app/authentication/sso.py",
       "source_location": "L1",
       "id": "main_app_authentication_sso_py",
-      "community": 0,
+      "community": 1,
       "norm_label": "sso.py"
     },
     {
@@ -507,7 +507,7 @@
       "source_file": "main/app/authentication/sso.py",
       "source_location": "L6",
       "id": "authentication_sso_getgooglesso",
-      "community": 0,
+      "community": 1,
       "norm_label": "getgooglesso()"
     },
     {
@@ -516,7 +516,7 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L1",
       "id": "main_app_authentication_util_py",
-      "community": 0,
+      "community": 1,
       "norm_label": "util.py"
     },
     {
@@ -525,7 +525,7 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L10",
       "id": "authentication_util_hashpassword",
-      "community": 0,
+      "community": 1,
       "norm_label": "hashpassword()"
     },
     {
@@ -534,7 +534,7 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L18",
       "id": "authentication_util_verifypassword",
-      "community": 0,
+      "community": 1,
       "norm_label": "verifypassword()"
     },
     {
@@ -543,7 +543,7 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L27",
       "id": "authentication_util_createaccesstoken",
-      "community": 0,
+      "community": 1,
       "norm_label": "createaccesstoken()"
     },
     {
@@ -552,7 +552,7 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L40",
       "id": "authentication_util_verifyaccesstoken",
-      "community": 4,
+      "community": 17,
       "norm_label": "verifyaccesstoken()"
     },
     {
@@ -561,7 +561,7 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L1",
       "id": "main_app_prometheus_chat_py",
-      "community": 17,
+      "community": 15,
       "norm_label": "chat.py"
     },
     {
@@ -570,7 +570,7 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L11",
       "id": "prometheus_chat_prometheuschatmanager",
-      "community": 17,
+      "community": 15,
       "norm_label": "prometheuschatmanager"
     },
     {
@@ -579,7 +579,7 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L12",
       "id": "prometheus_chat_prometheuschatmanager_init",
-      "community": 17,
+      "community": 15,
       "norm_label": ".__init__()"
     },
     {
@@ -588,7 +588,7 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L16",
       "id": "prometheus_chat_getusersessions",
-      "community": 17,
+      "community": 15,
       "norm_label": "getusersessions()"
     },
     {
@@ -597,7 +597,7 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L38",
       "id": "prometheus_chat_createsession",
-      "community": 17,
+      "community": 15,
       "norm_label": "createsession()"
     },
     {
@@ -606,7 +606,7 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L54",
       "id": "prometheus_chat_updatesessiontitle",
-      "community": 17,
+      "community": 15,
       "norm_label": "updatesessiontitle()"
     },
     {
@@ -615,7 +615,7 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L73",
       "id": "prometheus_chat_savemessage",
-      "community": 17,
+      "community": 15,
       "norm_label": "savemessage()"
     },
     {
@@ -624,7 +624,7 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L103",
       "id": "prometheus_chat_gethistory",
-      "community": 17,
+      "community": 15,
       "norm_label": "gethistory()"
     },
     {
@@ -633,7 +633,7 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L123",
       "id": "prometheus_chat_updatesummary",
-      "community": 17,
+      "community": 15,
       "norm_label": "updatesummary()"
     },
     {
@@ -642,7 +642,7 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L134",
       "id": "prometheus_chat_deletesession",
-      "community": 17,
+      "community": 15,
       "norm_label": "deletesession()"
     },
     {
@@ -651,7 +651,7 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L156",
       "id": "prometheus_chat_verifysessionownership",
-      "community": 17,
+      "community": 15,
       "norm_label": "verifysessionownership()"
     },
     {
@@ -660,7 +660,7 @@
       "source_file": "main/app/prometheus/generation.py",
       "source_location": "L1",
       "id": "main_app_prometheus_generation_py",
-      "community": 17,
+      "community": 15,
       "norm_label": "generation.py"
     },
     {
@@ -669,7 +669,7 @@
       "source_file": "main/app/prometheus/generation.py",
       "source_location": "L21",
       "id": "prometheus_generation_prometheusgenerator",
-      "community": 17,
+      "community": 15,
       "norm_label": "prometheusgenerator"
     },
     {
@@ -678,7 +678,7 @@
       "source_file": "main/app/prometheus/generation.py",
       "source_location": "L22",
       "id": "prometheus_generation_prometheusgenerator_init",
-      "community": 17,
+      "community": 15,
       "norm_label": ".__init__()"
     },
     {
@@ -687,7 +687,7 @@
       "source_file": "main/app/prometheus/generation.py",
       "source_location": "L26",
       "id": "prometheus_generation_prometheusgenerator_updatedates",
-      "community": 17,
+      "community": 15,
       "norm_label": ".updatedates()"
     },
     {
@@ -696,7 +696,7 @@
       "source_file": "main/app/prometheus/generation.py",
       "source_location": "L39",
       "id": "prometheus_generation_prometheusgenerator_executeworkflow",
-      "community": 17,
+      "community": 15,
       "norm_label": ".executeworkflow()"
     },
     {
@@ -705,7 +705,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L1",
       "id": "main_app_scraper_b3_scraper_py",
-      "community": 8,
+      "community": 7,
       "norm_label": "scraper.py"
     },
     {
@@ -714,7 +714,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L30",
       "id": "scraper_b3_scraper_b3scraper",
-      "community": 8,
+      "community": 7,
       "norm_label": "b3scraper"
     },
     {
@@ -723,7 +723,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L31",
       "id": "scraper_b3_scraper_b3scraper_init",
-      "community": 8,
+      "community": 7,
       "norm_label": ".__init__()"
     },
     {
@@ -732,7 +732,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L50",
       "id": "scraper_b3_scraper_getinitialdata",
-      "community": 8,
+      "community": 7,
       "norm_label": "getinitialdata()"
     },
     {
@@ -741,7 +741,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L105",
       "id": "scraper_b3_scraper_historicalrentability",
-      "community": 8,
+      "community": 7,
       "norm_label": "historicalrentability()"
     },
     {
@@ -750,7 +750,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L128",
       "id": "scraper_b3_scraper_historicaldividends",
-      "community": 8,
+      "community": 7,
       "norm_label": "historicaldividends()"
     },
     {
@@ -759,7 +759,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L159",
       "id": "scraper_b3_scraper_historicaldividendyields",
-      "community": 8,
+      "community": 7,
       "norm_label": "historicaldividendyields()"
     },
     {
@@ -768,7 +768,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L187",
       "id": "scraper_b3_scraper_historicalrevenue",
-      "community": 8,
+      "community": 7,
       "norm_label": "historicalrevenue()"
     },
     {
@@ -777,7 +777,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L208",
       "id": "scraper_b3_scraper_historicalcotationprofits",
-      "community": 8,
+      "community": 7,
       "norm_label": "historicalcotationprofits()"
     },
     {
@@ -786,7 +786,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L221",
       "id": "scraper_b3_scraper_b3scraper_historicalcotationprofits_oceans14",
-      "community": 8,
+      "community": 7,
       "norm_label": ".historicalcotationprofits_oceans14()"
     },
     {
@@ -795,7 +795,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L234",
       "id": "scraper_b3_scraper_historicalcotations",
-      "community": 8,
+      "community": 7,
       "norm_label": "historicalcotations()"
     },
     {
@@ -804,7 +804,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L251",
       "id": "scraper_b3_scraper_tagalong",
-      "community": 8,
+      "community": 7,
       "norm_label": "tagalong()"
     },
     {
@@ -813,7 +813,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L272",
       "id": "scraper_b3_scraper_stocknews",
-      "community": 8,
+      "community": 7,
       "norm_label": "stocknews()"
     },
     {
@@ -822,7 +822,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L285",
       "id": "scraper_b3_scraper_b3scraper_fundamentalindicators",
-      "community": 8,
+      "community": 7,
       "norm_label": ".fundamentalindicators()"
     },
     {
@@ -831,7 +831,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L402",
       "id": "scraper_b3_scraper_b3scraper_processticker",
-      "community": 8,
+      "community": 7,
       "norm_label": ".processticker()"
     },
     {
@@ -840,7 +840,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L433",
       "id": "scraper_b3_scraper_b3scraper_scrapestocks",
-      "community": 8,
+      "community": 7,
       "norm_label": ".scrapestocks()"
     },
     {
@@ -849,7 +849,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L474",
       "id": "scraper_b3_scraper_b3scraper_reordercolumns",
-      "community": 8,
+      "community": 7,
       "norm_label": ".reordercolumns()"
     },
     {
@@ -858,7 +858,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L484",
       "id": "scraper_b3_scraper_b3scraper_serializecomplextypes",
-      "community": 8,
+      "community": 7,
       "norm_label": ".serializecomplextypes()"
     },
     {
@@ -867,7 +867,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L505",
       "id": "scraper_b3_scraper_b3scraper_exportjson",
-      "community": 8,
+      "community": 7,
       "norm_label": ".exportjson()"
     },
     {
@@ -876,7 +876,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L513",
       "id": "scraper_b3_scraper_b3scraper_exportmysql",
-      "community": 8,
+      "community": 7,
       "norm_label": ".exportmysql()"
     },
     {
@@ -885,7 +885,7 @@
       "source_file": "main/app/scraper_b3/xango.py",
       "source_location": "L1",
       "id": "main_app_scraper_b3_xango_py",
-      "community": 8,
+      "community": 7,
       "norm_label": "xango.py"
     },
     {
@@ -894,7 +894,7 @@
       "source_file": "main/app/scraper_b3/xango.py",
       "source_location": "L14",
       "id": "scraper_b3_xango_calculateinvestingscore",
-      "community": 8,
+      "community": 7,
       "norm_label": "calculateinvestingscore()"
     },
     {
@@ -903,7 +903,7 @@
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": "L1",
       "id": "main_app_stocks_api_cache_py",
-      "community": 10,
+      "community": 11,
       "norm_label": "cache.py"
     },
     {
@@ -912,7 +912,7 @@
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": "L16",
       "id": "stocks_api_cache_stockscachemanager",
-      "community": 10,
+      "community": 11,
       "norm_label": "stockscachemanager"
     },
     {
@@ -921,7 +921,7 @@
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": "L17",
       "id": "stocks_api_cache_stockscachemanager_init",
-      "community": 10,
+      "community": 11,
       "norm_label": ".__init__()"
     },
     {
@@ -930,7 +930,7 @@
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": "L25",
       "id": "stocks_api_cache_stockscachemanager_cachescheduler",
-      "community": 10,
+      "community": 11,
       "norm_label": ".cachescheduler()"
     },
     {
@@ -948,7 +948,7 @@
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": "L72",
       "id": "stocks_api_cache_stockscachemanager_clearquerycache",
-      "community": 10,
+      "community": 11,
       "norm_label": ".clearquerycache()"
     },
     {
@@ -957,7 +957,7 @@
       "source_file": "main/app/stocks_api/key.py",
       "source_location": "L1",
       "id": "main_app_stocks_api_key_py",
-      "community": 4,
+      "community": 21,
       "norm_label": "key.py"
     },
     {
@@ -966,7 +966,7 @@
       "source_file": "main/app/stocks_api/key.py",
       "source_location": "L15",
       "id": "stocks_api_key_verifyapikey",
-      "community": 4,
+      "community": 21,
       "norm_label": "verifyapikey()"
     },
     {
@@ -975,7 +975,7 @@
       "source_file": "main/app/stocks_api/key.py",
       "source_location": "L46",
       "id": "stocks_api_key_generatesecurekey",
-      "community": 4,
+      "community": 21,
       "norm_label": "generatesecurekey()"
     },
     {
@@ -984,7 +984,7 @@
       "source_file": "main/app/stocks_api/key.py",
       "source_location": "L50",
       "id": "stocks_api_key_createkey",
-      "community": 4,
+      "community": 21,
       "norm_label": "createkey()"
     },
     {
@@ -993,7 +993,7 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L1",
       "id": "main_app_stocks_api_query_py",
-      "community": 4,
+      "community": 0,
       "norm_label": "query.py"
     },
     {
@@ -1002,7 +1002,7 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L15",
       "id": "stocks_api_query_stocksquerymanager",
-      "community": 1,
+      "community": 0,
       "norm_label": "stocksquerymanager"
     },
     {
@@ -1011,7 +1011,7 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L16",
       "id": "stocks_api_query_stocksquerymanager_init",
-      "community": 1,
+      "community": 0,
       "norm_label": ".__init__()"
     },
     {
@@ -1020,7 +1020,7 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L21",
       "id": "stocks_api_query_stocksquerymanager_deserializejsoncolumns",
-      "community": 1,
+      "community": 0,
       "norm_label": ".deserializejsoncolumns()"
     },
     {
@@ -1029,7 +1029,7 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L50",
       "id": "stocks_api_query_stocksquerymanager_filterbysearchterms",
-      "community": 1,
+      "community": 0,
       "norm_label": ".filterbysearchterms()"
     },
     {
@@ -1038,7 +1038,7 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L69",
       "id": "stocks_api_query_stocksquerymanager_queryhistorical",
-      "community": 1,
+      "community": 0,
       "norm_label": ".queryhistorical()"
     },
     {
@@ -1047,7 +1047,7 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L134",
       "id": "stocks_api_query_stocksquerymanager_queryfundamental",
-      "community": 1,
+      "community": 0,
       "norm_label": ".queryfundamental()"
     },
     {
@@ -1056,7 +1056,7 @@
       "source_file": "main/app/stocks_api/util.py",
       "source_location": "L1",
       "id": "main_app_stocks_api_util_py",
-      "community": 13,
+      "community": 0,
       "norm_label": "util.py"
     },
     {
@@ -1065,7 +1065,7 @@
       "source_file": "main/app/stocks_api/util.py",
       "source_location": "L6",
       "id": "stocks_api_util_categorizecolumns",
-      "community": 13,
+      "community": 0,
       "norm_label": "categorizecolumns()"
     },
     {
@@ -1074,7 +1074,7 @@
       "source_file": "main/app/stocks_api/util.py",
       "source_location": "L23",
       "id": "stocks_api_util_parseyearinput",
-      "community": 13,
+      "community": 0,
       "norm_label": "parseyearinput()"
     },
     {
@@ -1083,7 +1083,7 @@
       "source_file": "main/app/stocks_api/util.py",
       "source_location": "L32",
       "id": "stocks_api_util_normalizecolumns",
-      "community": 13,
+      "community": 0,
       "norm_label": "normalizecolumns()"
     },
     {
@@ -1092,7 +1092,7 @@
       "source_file": "main/app/user/user.py",
       "source_location": "L1",
       "id": "main_app_user_user_py",
-      "community": 4,
+      "community": 17,
       "norm_label": "user.py"
     },
     {
@@ -1119,7 +1119,7 @@
       "source_file": "main/app/user/user.py",
       "source_location": "L15",
       "id": "user_user_addroletouser",
-      "community": 4,
+      "community": 17,
       "norm_label": "addroletouser()"
     },
     {
@@ -1128,7 +1128,7 @@
       "source_file": "main/app/user/user.py",
       "source_location": "L29",
       "id": "user_user_getcurrentuser",
-      "community": 4,
+      "community": 17,
       "norm_label": "getcurrentuser()"
     },
     {
@@ -1137,7 +1137,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L1",
       "id": "main_controller_authentication_controller_py",
-      "community": 0,
+      "community": 1,
       "norm_label": "authentication_controller.py"
     },
     {
@@ -1146,7 +1146,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L21",
       "id": "controller_authentication_controller_issecurescheme",
-      "community": 0,
+      "community": 1,
       "norm_label": "issecurescheme()"
     },
     {
@@ -1155,7 +1155,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L26",
       "id": "controller_authentication_controller_health",
-      "community": 0,
+      "community": 1,
       "norm_label": "health()"
     },
     {
@@ -1164,7 +1164,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L32",
       "id": "controller_authentication_controller_register",
-      "community": 0,
+      "community": 1,
       "norm_label": "register()"
     },
     {
@@ -1173,7 +1173,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L75",
       "id": "controller_authentication_controller_login",
-      "community": 0,
+      "community": 1,
       "norm_label": "login()"
     },
     {
@@ -1182,7 +1182,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L105",
       "id": "controller_authentication_controller_logout",
-      "community": 0,
+      "community": 1,
       "norm_label": "logout()"
     },
     {
@@ -1191,7 +1191,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L137",
       "id": "controller_authentication_controller_googlelogin",
-      "community": 0,
+      "community": 1,
       "norm_label": "googlelogin()"
     },
     {
@@ -1200,7 +1200,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L153",
       "id": "controller_authentication_controller_googlecallback",
-      "community": 0,
+      "community": 1,
       "norm_label": "googlecallback()"
     },
     {
@@ -1281,7 +1281,7 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L1",
       "id": "main_controller_stocksapi_controller_py",
-      "community": 4,
+      "community": 21,
       "norm_label": "stocksapi_controller.py"
     },
     {
@@ -1290,7 +1290,7 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L17",
       "id": "controller_stocksapi_controller_health",
-      "community": 4,
+      "community": 21,
       "norm_label": "health()"
     },
     {
@@ -1299,7 +1299,7 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L22",
       "id": "controller_stocksapi_controller_apikeytest",
-      "community": 4,
+      "community": 21,
       "norm_label": "apikeytest()"
     },
     {
@@ -1308,7 +1308,7 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L27",
       "id": "controller_stocksapi_controller_gethistorical",
-      "community": 4,
+      "community": 21,
       "norm_label": "gethistorical()"
     },
     {
@@ -1317,7 +1317,7 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L39",
       "id": "controller_stocksapi_controller_getfundamental",
-      "community": 4,
+      "community": 21,
       "norm_label": "getfundamental()"
     },
     {
@@ -1326,7 +1326,7 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L51",
       "id": "controller_stocksapi_controller_generatekey",
-      "community": 4,
+      "community": 21,
       "norm_label": "generatekey()"
     },
     {
@@ -1335,7 +1335,7 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L1",
       "id": "main_controller_user_controller_py",
-      "community": 4,
+      "community": 17,
       "norm_label": "user_controller.py"
     },
     {
@@ -1344,7 +1344,7 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L16",
       "id": "controller_user_controller_health",
-      "community": 4,
+      "community": 17,
       "norm_label": "health()"
     },
     {
@@ -1353,7 +1353,7 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L21",
       "id": "controller_user_controller_getme",
-      "community": 4,
+      "community": 17,
       "norm_label": "getme()"
     },
     {
@@ -1362,7 +1362,7 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L26",
       "id": "controller_user_controller_upgradetodeveloperstarter",
-      "community": 4,
+      "community": 17,
       "norm_label": "upgradetodeveloperstarter()"
     },
     {
@@ -1371,7 +1371,7 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L38",
       "id": "controller_user_controller_upgradetodeveloperenterprise",
-      "community": 4,
+      "community": 17,
       "norm_label": "upgradetodeveloperenterprise()"
     },
     {
@@ -1380,7 +1380,7 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L50",
       "id": "controller_user_controller_testadminaccess",
-      "community": 4,
+      "community": 17,
       "norm_label": "testadminaccess()"
     },
     {
@@ -1389,7 +1389,7 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L58",
       "id": "controller_user_controller_getsessions",
-      "community": 4,
+      "community": 17,
       "norm_label": "getsessions()"
     },
     {
@@ -1398,7 +1398,7 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L101",
       "id": "controller_user_controller_getcurrentsession",
-      "community": 4,
+      "community": 17,
       "norm_label": "getcurrentsession()"
     },
     {
@@ -1407,7 +1407,7 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L123",
       "id": "controller_user_controller_revokesession",
-      "community": 4,
+      "community": 17,
       "norm_label": "revokesession()"
     },
     {
@@ -1416,7 +1416,7 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L144",
       "id": "controller_user_controller_revokeallsessions",
-      "community": 4,
+      "community": 17,
       "norm_label": "revokeallsessions()"
     },
     {
@@ -1434,7 +1434,7 @@
       "source_file": "main/models/prometheus.py",
       "source_location": "L1",
       "id": "main_models_prometheus_py",
-      "community": 3,
+      "community": 4,
       "norm_label": "prometheus.py"
     },
     {
@@ -1443,7 +1443,7 @@
       "source_file": "main/models/prometheus.py",
       "source_location": "L6",
       "id": "models_prometheus_prometheussession",
-      "community": 3,
+      "community": 4,
       "norm_label": "prometheussession"
     },
     {
@@ -1452,7 +1452,7 @@
       "source_file": "",
       "source_location": "",
       "id": "base",
-      "community": 3,
+      "community": 4,
       "norm_label": "base"
     },
     {
@@ -1461,7 +1461,7 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L1",
       "id": "main_models_stocksapi_key_py",
-      "community": 3,
+      "community": 4,
       "norm_label": "stocksapi_key.py"
     },
     {
@@ -1470,7 +1470,7 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L8",
       "id": "models_stocksapi_key_stocksapikey",
-      "community": 3,
+      "community": 4,
       "norm_label": "stocksapikey"
     },
     {
@@ -1479,7 +1479,7 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L21",
       "id": "models_stocksapi_key_stocksapikey_repr",
-      "community": 3,
+      "community": 4,
       "norm_label": ".__repr__()"
     },
     {
@@ -1488,7 +1488,7 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L24",
       "id": "models_stocksapi_key_stocksapikey_isquotaexceeded",
-      "community": 3,
+      "community": 4,
       "norm_label": ".isquotaexceeded()"
     },
     {
@@ -1497,7 +1497,7 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L27",
       "id": "models_stocksapi_key_stocksapikey_needsreset",
-      "community": 3,
+      "community": 4,
       "norm_label": ".needsreset()"
     },
     {
@@ -1506,7 +1506,7 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L39",
       "id": "models_stocksapi_key_stocksapikey_resetquota",
-      "community": 3,
+      "community": 4,
       "norm_label": ".resetquota()"
     },
     {
@@ -1515,7 +1515,7 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L43",
       "id": "models_stocksapi_key_stocksapikey_incrementusage",
-      "community": 3,
+      "community": 4,
       "norm_label": ".incrementusage()"
     },
     {
@@ -1524,7 +1524,7 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L46",
       "id": "models_stocksapi_key_stocksapikey_getremainingquota",
-      "community": 3,
+      "community": 4,
       "norm_label": ".getremainingquota()"
     },
     {
@@ -1533,7 +1533,7 @@
       "source_file": "main/models/stocksapi_key.py",
       "source_location": "L49",
       "id": "models_stocksapi_key_stocksapikey_todict",
-      "community": 3,
+      "community": 4,
       "norm_label": ".todict()"
     },
     {
@@ -1542,7 +1542,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L1",
       "id": "main_models_user_py",
-      "community": 9,
+      "community": 10,
       "norm_label": "user.py"
     },
     {
@@ -1551,7 +1551,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L6",
       "id": "models_user_user",
-      "community": 9,
+      "community": 10,
       "norm_label": "user"
     },
     {
@@ -1560,7 +1560,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L20",
       "id": "models_user_user_repr",
-      "community": 9,
+      "community": 10,
       "norm_label": ".__repr__()"
     },
     {
@@ -1569,7 +1569,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L23",
       "id": "models_user_user_getroleslist",
-      "community": 9,
+      "community": 10,
       "norm_label": ".getroleslist()"
     },
     {
@@ -1578,7 +1578,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L28",
       "id": "models_user_user_addrole",
-      "community": 9,
+      "community": 10,
       "norm_label": ".addrole()"
     },
     {
@@ -1587,7 +1587,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L36",
       "id": "models_user_user_removerole",
-      "community": 9,
+      "community": 10,
       "norm_label": ".removerole()"
     },
     {
@@ -1596,7 +1596,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L44",
       "id": "models_user_user_hasrole",
-      "community": 9,
+      "community": 10,
       "norm_label": ".hasrole()"
     },
     {
@@ -1605,7 +1605,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L49",
       "id": "models_user_user_todict",
-      "community": 9,
+      "community": 10,
       "norm_label": ".todict()"
     },
     {
@@ -1614,7 +1614,7 @@
       "source_file": "main/models/user_session.py",
       "source_location": "L1",
       "id": "main_models_user_session_py",
-      "community": 2,
+      "community": 3,
       "norm_label": "user_session.py"
     },
     {
@@ -1623,7 +1623,7 @@
       "source_file": "main/models/user_session.py",
       "source_location": "L6",
       "id": "models_user_session_usersession",
-      "community": 2,
+      "community": 3,
       "norm_label": "usersession"
     },
     {
@@ -1632,7 +1632,7 @@
       "source_file": "main/models/user_session.py",
       "source_location": "L23",
       "id": "models_user_session_usersession_repr",
-      "community": 2,
+      "community": 3,
       "norm_label": ".__repr__()"
     },
     {
@@ -1641,7 +1641,7 @@
       "source_file": "main/models/user_session.py",
       "source_location": "L26",
       "id": "models_user_session_usersession_todict",
-      "community": 2,
+      "community": 3,
       "norm_label": ".todict()"
     },
     {
@@ -1650,7 +1650,7 @@
       "source_file": "main/models/user_session.py",
       "source_location": "L39",
       "id": "models_user_session_usersession_getdevicename",
-      "community": 2,
+      "community": 3,
       "norm_label": ".getdevicename()"
     },
     {
@@ -1668,7 +1668,7 @@
       "source_file": "main/service/authentication_service.py",
       "source_location": "L1",
       "id": "main_service_authentication_service_py",
-      "community": 16,
+      "community": 14,
       "norm_label": "authentication_service.py"
     },
     {
@@ -1677,7 +1677,7 @@
       "source_file": "main/service/authentication_service.py",
       "source_location": "L10",
       "id": "service_authentication_service_authenticationservice",
-      "community": 16,
+      "community": 14,
       "norm_label": "authenticationservice"
     },
     {
@@ -1686,7 +1686,7 @@
       "source_file": "main/service/authentication_service.py",
       "source_location": "L12",
       "id": "service_authentication_service_initialize",
-      "community": 16,
+      "community": 14,
       "norm_label": "initialize()"
     },
     {
@@ -1695,7 +1695,7 @@
       "source_file": "main/service/prometheus_service.py",
       "source_location": "L1",
       "id": "main_service_prometheus_service_py",
-      "community": 16,
+      "community": 14,
       "norm_label": "prometheus_service.py"
     },
     {
@@ -1704,7 +1704,7 @@
       "source_file": "main/service/prometheus_service.py",
       "source_location": "L5",
       "id": "service_prometheus_service_prometheusservice",
-      "community": 16,
+      "community": 14,
       "norm_label": "prometheusservice"
     },
     {
@@ -1713,7 +1713,7 @@
       "source_file": "main/service/prometheus_service.py",
       "source_location": "L7",
       "id": "service_prometheus_service_initialize",
-      "community": 16,
+      "community": 14,
       "norm_label": "initialize()"
     },
     {
@@ -1722,7 +1722,7 @@
       "source_file": "main/service/scraper_service.py",
       "source_location": "L1",
       "id": "main_service_scraper_service_py",
-      "community": 8,
+      "community": 7,
       "norm_label": "scraper_service.py"
     },
     {
@@ -1731,7 +1731,7 @@
       "source_file": "main/service/scraper_service.py",
       "source_location": "L15",
       "id": "service_scraper_service_runscraper",
-      "community": 8,
+      "community": 7,
       "norm_label": "runscraper()"
     },
     {
@@ -1740,7 +1740,7 @@
       "source_file": "main/service/scraper_service.py",
       "source_location": "L27",
       "id": "service_scraper_service_scraperservice",
-      "community": 8,
+      "community": 7,
       "norm_label": "scraperservice"
     },
     {
@@ -1749,7 +1749,7 @@
       "source_file": "main/service/scraper_service.py",
       "source_location": "L29",
       "id": "service_scraper_service_initialize",
-      "community": 8,
+      "community": 7,
       "norm_label": "initialize()"
     },
     {
@@ -1758,7 +1758,7 @@
       "source_file": "main/service/stocksapi_service.py",
       "source_location": "L1",
       "id": "main_service_stocksapi_service_py",
-      "community": 16,
+      "community": 14,
       "norm_label": "stocksapi_service.py"
     },
     {
@@ -1767,7 +1767,7 @@
       "source_file": "main/service/stocksapi_service.py",
       "source_location": "L7",
       "id": "service_stocksapi_service_stocksapiservice",
-      "community": 16,
+      "community": 14,
       "norm_label": "stocksapiservice"
     },
     {
@@ -1776,7 +1776,7 @@
       "source_file": "main/service/stocksapi_service.py",
       "source_location": "L9",
       "id": "service_stocksapi_service_initialize",
-      "community": 16,
+      "community": 14,
       "norm_label": "initialize()"
     },
     {
@@ -1785,7 +1785,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L1",
       "id": "main_service_user_service_py",
-      "community": 16,
+      "community": 14,
       "norm_label": "user_service.py"
     },
     {
@@ -1794,7 +1794,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L16",
       "id": "service_user_service_removeinactivesessions",
-      "community": 16,
+      "community": 14,
       "norm_label": "removeinactivesessions()"
     },
     {
@@ -1803,7 +1803,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L33",
       "id": "service_user_service_inactivesessionsscheduler",
-      "community": 16,
+      "community": 14,
       "norm_label": "inactivesessionsscheduler()"
     },
     {
@@ -1812,7 +1812,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L43",
       "id": "service_user_service_userservice",
-      "community": 16,
+      "community": 14,
       "norm_label": "userservice"
     },
     {
@@ -1821,7 +1821,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L45",
       "id": "service_user_service_initialize",
-      "community": 16,
+      "community": 14,
       "norm_label": "initialize()"
     },
     {
@@ -1830,7 +1830,7 @@
       "source_file": "main/utils/connectivity.py",
       "source_location": "L1",
       "id": "main_utils_connectivity_py",
-      "community": 4,
+      "community": 23,
       "norm_label": "connectivity.py"
     },
     {
@@ -1839,7 +1839,7 @@
       "source_file": "main/utils/connectivity.py",
       "source_location": "L14",
       "id": "utils_connectivity_checkmysqlconnection",
-      "community": 4,
+      "community": 23,
       "norm_label": "checkmysqlconnection()"
     },
     {
@@ -1848,7 +1848,7 @@
       "source_file": "main/utils/connectivity.py",
       "source_location": "L52",
       "id": "utils_connectivity_checkserviceconnection",
-      "community": 4,
+      "community": 23,
       "norm_label": "checkserviceconnection()"
     },
     {
@@ -1902,7 +1902,7 @@
       "source_file": "main/utils/migrator.py",
       "source_location": "L1",
       "id": "main_utils_migrator_py",
-      "community": 4,
+      "community": 23,
       "norm_label": "migrator.py"
     },
     {
@@ -1911,7 +1911,7 @@
       "source_file": "main/utils/migrator.py",
       "source_location": "L9",
       "id": "utils_migrator_runmigrations",
-      "community": 4,
+      "community": 23,
       "norm_label": "runmigrations()"
     },
     {
@@ -1983,7 +1983,7 @@
       "source_file": "main/utils/service_manager.py",
       "source_location": "L1",
       "id": "main_utils_service_manager_py",
-      "community": 16,
+      "community": 14,
       "norm_label": "service_manager.py"
     },
     {
@@ -1992,7 +1992,7 @@
       "source_file": "main/utils/service_manager.py",
       "source_location": "L17",
       "id": "utils_service_manager_servicemanager",
-      "community": 16,
+      "community": 14,
       "norm_label": "servicemanager"
     },
     {
@@ -2001,7 +2001,7 @@
       "source_file": "main/utils/service_manager.py",
       "source_location": "L22",
       "id": "utils_service_manager_getapp",
-      "community": 16,
+      "community": 14,
       "norm_label": "getapp()"
     },
     {
@@ -2010,7 +2010,7 @@
       "source_file": "main/utils/service_manager.py",
       "source_location": "L49",
       "id": "utils_service_manager_runall",
-      "community": 16,
+      "community": 14,
       "norm_label": "runall()"
     },
     {
@@ -2019,7 +2019,7 @@
       "source_file": "migrations/env.py",
       "source_location": "L1",
       "id": "migrations_env_py",
-      "community": 25,
+      "community": 26,
       "norm_label": "env.py"
     },
     {
@@ -2028,7 +2028,7 @@
       "source_file": "migrations/env.py",
       "source_location": "L26",
       "id": "migrations_env_getdatabaseurl",
-      "community": 25,
+      "community": 26,
       "norm_label": "getdatabaseurl()"
     },
     {
@@ -2037,7 +2037,7 @@
       "source_file": "migrations/env.py",
       "source_location": "L30",
       "id": "migrations_env_runmigrationsoffline",
-      "community": 25,
+      "community": 26,
       "norm_label": "runmigrationsoffline()"
     },
     {
@@ -2046,7 +2046,7 @@
       "source_file": "migrations/env.py",
       "source_location": "L42",
       "id": "migrations_env_runmigrationsonline",
-      "community": 25,
+      "community": 26,
       "norm_label": "runmigrationsonline()"
     },
     {
@@ -2055,7 +2055,7 @@
       "source_file": "migrations/versions/25af7ad931e7_initial_migration.py",
       "source_location": "L1",
       "id": "migrations_versions_25af7ad931e7_initial_migration_py",
-      "community": 26,
+      "community": 27,
       "norm_label": "25af7ad931e7_initial_migration.py"
     },
     {
@@ -2064,7 +2064,7 @@
       "source_file": "migrations/versions/25af7ad931e7_initial_migration.py",
       "source_location": "L22",
       "id": "versions_25af7ad931e7_initial_migration_upgrade",
-      "community": 26,
+      "community": 27,
       "norm_label": "upgrade()"
     },
     {
@@ -2073,7 +2073,7 @@
       "source_file": "migrations/versions/25af7ad931e7_initial_migration.py",
       "source_location": "L65",
       "id": "versions_25af7ad931e7_initial_migration_downgrade",
-      "community": 26,
+      "community": 27,
       "norm_label": "downgrade()"
     },
     {
@@ -2082,7 +2082,7 @@
       "source_file": "migrations/versions/25af7ad931e7_initial_migration.py",
       "source_location": "L1",
       "id": "versions_25af7ad931e7_initial_migration_rationale_1",
-      "community": 26,
+      "community": 27,
       "norm_label": "initial migration  revision id: 25af7ad931e7 revises: create date: 2026-04-0"
     },
     {
@@ -2091,7 +2091,7 @@
       "source_file": "migrations/versions/4a2f1c9e3b5d_user_sessions.py",
       "source_location": "L1",
       "id": "migrations_versions_4a2f1c9e3b5d_user_sessions_py",
-      "community": 27,
+      "community": 28,
       "norm_label": "4a2f1c9e3b5d_user_sessions.py"
     },
     {
@@ -2100,7 +2100,7 @@
       "source_file": "migrations/versions/4a2f1c9e3b5d_user_sessions.py",
       "source_location": "L20",
       "id": "versions_4a2f1c9e3b5d_user_sessions_upgrade",
-      "community": 27,
+      "community": 28,
       "norm_label": "upgrade()"
     },
     {
@@ -2109,7 +2109,7 @@
       "source_file": "migrations/versions/4a2f1c9e3b5d_user_sessions.py",
       "source_location": "L47",
       "id": "versions_4a2f1c9e3b5d_user_sessions_downgrade",
-      "community": 27,
+      "community": 28,
       "norm_label": "downgrade()"
     },
     {
@@ -2118,7 +2118,7 @@
       "source_file": "migrations/versions/4a2f1c9e3b5d_user_sessions.py",
       "source_location": "L1",
       "id": "versions_4a2f1c9e3b5d_user_sessions_rationale_1",
-      "community": 27,
+      "community": 28,
       "norm_label": "user sessions table  revision id: 4a2f1c9e3b5d revises: 25af7ad931e7 create date"
     },
     {
@@ -2127,7 +2127,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L1",
       "id": "tests_conftest_py",
-      "community": 3,
+      "community": 4,
       "norm_label": "conftest.py"
     },
     {
@@ -2136,7 +2136,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L15",
       "id": "tests_conftest_dbsession",
-      "community": 3,
+      "community": 4,
       "norm_label": "dbsession()"
     },
     {
@@ -2145,7 +2145,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L27",
       "id": "tests_conftest_sampleuserdata",
-      "community": 3,
+      "community": 4,
       "norm_label": "sampleuserdata()"
     },
     {
@@ -2154,7 +2154,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L38",
       "id": "tests_conftest_sampleapikeydata",
-      "community": 3,
+      "community": 4,
       "norm_label": "sampleapikeydata()"
     },
     {
@@ -2163,7 +2163,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L43",
       "id": "tests_conftest_sampleprometheussessiondata",
-      "community": 3,
+      "community": 4,
       "norm_label": "sampleprometheussessiondata()"
     },
     {
@@ -2172,7 +2172,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L1",
       "id": "tests_test_auth_util_py",
-      "community": 0,
+      "community": 1,
       "norm_label": "test_auth_util.py"
     },
     {
@@ -2181,7 +2181,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L14",
       "id": "tests_test_auth_util_testauthutil",
-      "community": 0,
+      "community": 1,
       "norm_label": "testauthutil"
     },
     {
@@ -2190,7 +2190,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L15",
       "id": "tests_test_auth_util_testauthutil_test_hash_password_returns_string",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_hash_password_returns_string()"
     },
     {
@@ -2199,7 +2199,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L20",
       "id": "tests_test_auth_util_testauthutil_test_hash_password_unique_hashes",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_hash_password_unique_hashes()"
     },
     {
@@ -2208,7 +2208,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L26",
       "id": "tests_test_auth_util_testauthutil_test_verify_password_correct",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_verify_password_correct()"
     },
     {
@@ -2217,7 +2217,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L31",
       "id": "tests_test_auth_util_testauthutil_test_verify_password_incorrect",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_verify_password_incorrect()"
     },
     {
@@ -2226,7 +2226,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L36",
       "id": "tests_test_auth_util_testauthutil_test_verify_password_invalid_hash",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_verify_password_invalid_hash()"
     },
     {
@@ -2235,7 +2235,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L39",
       "id": "tests_test_auth_util_testauthutil_test_verify_password_empty_password",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_verify_password_empty_password()"
     },
     {
@@ -2244,7 +2244,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L43",
       "id": "tests_test_auth_util_testauthutil_test_create_access_token_default_expiry",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_create_access_token_default_expiry()"
     },
     {
@@ -2253,7 +2253,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L50",
       "id": "tests_test_auth_util_testauthutil_test_create_access_token_custom_expiry",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_create_access_token_custom_expiry()"
     },
     {
@@ -2262,7 +2262,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L61",
       "id": "tests_test_auth_util_testauthutil_test_create_access_token_contains_data",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_create_access_token_contains_data()"
     },
     {
@@ -2271,7 +2271,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L69",
       "id": "tests_test_auth_util_testsessionexpiryconfig",
-      "community": 0,
+      "community": 1,
       "norm_label": "testsessionexpiryconfig"
     },
     {
@@ -2280,7 +2280,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L70",
       "id": "tests_test_auth_util_testsessionexpiryconfig_test_session_expiry_days_is_30",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_session_expiry_days_is_30()"
     },
     {
@@ -2289,7 +2289,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L73",
       "id": "tests_test_auth_util_testsessionexpiryconfig_test_session_expiry_hours_calculation",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_session_expiry_hours_calculation()"
     },
     {
@@ -2298,7 +2298,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L78",
       "id": "tests_test_auth_util_testsessionexpiryconfig_test_default_token_expiry_equals_30_days",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_default_token_expiry_equals_30_days()"
     },
     {
@@ -2307,7 +2307,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L89",
       "id": "tests_test_auth_util_testauthutiledgecases",
-      "community": 0,
+      "community": 1,
       "norm_label": "testauthutiledgecases"
     },
     {
@@ -2316,7 +2316,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L90",
       "id": "tests_test_auth_util_testauthutiledgecases_test_verify_password_none_hash",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_verify_password_none_hash()"
     },
     {
@@ -2325,7 +2325,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L94",
       "id": "tests_test_auth_util_testauthutiledgecases_test_verify_password_none_password",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_verify_password_none_password()"
     },
     {
@@ -2334,7 +2334,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L99",
       "id": "tests_test_auth_util_testauthutiledgecases_test_verify_password_both_none",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_verify_password_both_none()"
     },
     {
@@ -2343,7 +2343,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L103",
       "id": "tests_test_auth_util_testauthutiledgecases_test_create_access_token_with_empty_data",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_create_access_token_with_empty_data()"
     },
     {
@@ -2352,7 +2352,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L109",
       "id": "tests_test_auth_util_testauthutiledgecases_test_create_access_token_with_none_data",
-      "community": 0,
+      "community": 1,
       "norm_label": ".test_create_access_token_with_none_data()"
     },
     {
@@ -2361,7 +2361,7 @@
       "source_file": "tests/test_config.py",
       "source_location": "L1",
       "id": "tests_test_config_py",
-      "community": 3,
+      "community": 4,
       "norm_label": "test_config.py"
     },
     {
@@ -2415,7 +2415,7 @@
       "source_file": "tests/test_device.py",
       "source_location": "L1",
       "id": "tests_test_device_py",
-      "community": 3,
+      "community": 4,
       "norm_label": "test_device.py"
     },
     {
@@ -2532,7 +2532,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L1",
       "id": "tests_test_models_py",
-      "community": 3,
+      "community": 4,
       "norm_label": "test_models.py"
     },
     {
@@ -2541,7 +2541,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L8",
       "id": "tests_test_models_testusermodel",
-      "community": 9,
+      "community": 10,
       "norm_label": "testusermodel"
     },
     {
@@ -2550,7 +2550,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L9",
       "id": "tests_test_models_testusermodel_test_create_user",
-      "community": 9,
+      "community": 10,
       "norm_label": ".test_create_user()"
     },
     {
@@ -2559,7 +2559,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L19",
       "id": "tests_test_models_testusermodel_test_get_roles_list_default",
-      "community": 9,
+      "community": 10,
       "norm_label": ".test_get_roles_list_default()"
     },
     {
@@ -2568,7 +2568,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L24",
       "id": "tests_test_models_testusermodel_test_get_roles_list_single_role",
-      "community": 9,
+      "community": 10,
       "norm_label": ".test_get_roles_list_single_role()"
     },
     {
@@ -2577,7 +2577,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L29",
       "id": "tests_test_models_testusermodel_test_get_roles_list_multiple_roles",
-      "community": 9,
+      "community": 10,
       "norm_label": ".test_get_roles_list_multiple_roles()"
     },
     {
@@ -2586,7 +2586,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L37",
       "id": "tests_test_models_testusermodel_test_add_role_new",
-      "community": 9,
+      "community": 10,
       "norm_label": ".test_add_role_new()"
     },
     {
@@ -2595,7 +2595,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L43",
       "id": "tests_test_models_testusermodel_test_add_role_existing",
-      "community": 9,
+      "community": 10,
       "norm_label": ".test_add_role_existing()"
     },
     {
@@ -2604,7 +2604,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L50",
       "id": "tests_test_models_testusermodel_test_remove_role_existing",
-      "community": 9,
+      "community": 10,
       "norm_label": ".test_remove_role_existing()"
     },
     {
@@ -2613,7 +2613,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L57",
       "id": "tests_test_models_testusermodel_test_remove_role_last_role",
-      "community": 9,
+      "community": 10,
       "norm_label": ".test_remove_role_last_role()"
     },
     {
@@ -2622,7 +2622,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L63",
       "id": "tests_test_models_testusermodel_test_has_role_true",
-      "community": 9,
+      "community": 10,
       "norm_label": ".test_has_role_true()"
     },
     {
@@ -2631,7 +2631,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L68",
       "id": "tests_test_models_testusermodel_test_has_role_false",
-      "community": 9,
+      "community": 10,
       "norm_label": ".test_has_role_false()"
     },
     {
@@ -2640,7 +2640,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L73",
       "id": "tests_test_models_testusermodel_test_has_role_with_enum",
-      "community": 9,
+      "community": 10,
       "norm_label": ".test_has_role_with_enum()"
     },
     {
@@ -2649,7 +2649,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L81",
       "id": "tests_test_models_testusermodel_test_to_dict",
-      "community": 9,
+      "community": 10,
       "norm_label": ".test_to_dict()"
     },
     {
@@ -2658,7 +2658,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L92",
       "id": "tests_test_models_teststocksapikeymodel",
-      "community": 3,
+      "community": 4,
       "norm_label": "teststocksapikeymodel"
     },
     {
@@ -2667,7 +2667,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L93",
       "id": "tests_test_models_teststocksapikeymodel_test_create_api_key",
-      "community": 3,
+      "community": 4,
       "norm_label": ".test_create_api_key()"
     },
     {
@@ -2676,7 +2676,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L102",
       "id": "tests_test_models_teststocksapikeymodel_test_is_quota_exceeded_true",
-      "community": 3,
+      "community": 4,
       "norm_label": ".test_is_quota_exceeded_true()"
     },
     {
@@ -2685,7 +2685,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L108",
       "id": "tests_test_models_teststocksapikeymodel_test_is_quota_exceeded_false",
-      "community": 3,
+      "community": 4,
       "norm_label": ".test_is_quota_exceeded_false()"
     },
     {
@@ -2694,7 +2694,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L114",
       "id": "tests_test_models_teststocksapikeymodel_test_needs_reset_true_no_last_reset",
-      "community": 3,
+      "community": 4,
       "norm_label": ".test_needs_reset_true_no_last_reset()"
     },
     {
@@ -2703,7 +2703,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L119",
       "id": "tests_test_models_teststocksapikeymodel_test_needs_reset_true_expired",
-      "community": 3,
+      "community": 4,
       "norm_label": ".test_needs_reset_true_expired()"
     },
     {
@@ -2712,7 +2712,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L126",
       "id": "tests_test_models_teststocksapikeymodel_test_needs_reset_false_recent",
-      "community": 3,
+      "community": 4,
       "norm_label": ".test_needs_reset_false_recent()"
     },
     {
@@ -2721,7 +2721,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L133",
       "id": "tests_test_models_teststocksapikeymodel_test_reset_quota",
-      "community": 3,
+      "community": 4,
       "norm_label": ".test_reset_quota()"
     },
     {
@@ -2730,7 +2730,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L141",
       "id": "tests_test_models_teststocksapikeymodel_test_increment_usage",
-      "community": 3,
+      "community": 4,
       "norm_label": ".test_increment_usage()"
     },
     {
@@ -2739,7 +2739,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L147",
       "id": "tests_test_models_teststocksapikeymodel_test_get_remaining_quota",
-      "community": 3,
+      "community": 4,
       "norm_label": ".test_get_remaining_quota()"
     },
     {
@@ -2748,7 +2748,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L153",
       "id": "tests_test_models_teststocksapikeymodel_test_get_remaining_quota_exceeded",
-      "community": 3,
+      "community": 4,
       "norm_label": ".test_get_remaining_quota_exceeded()"
     },
     {
@@ -2757,7 +2757,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L159",
       "id": "tests_test_models_teststocksapikeymodel_test_to_dict",
-      "community": 3,
+      "community": 4,
       "norm_label": ".test_to_dict()"
     },
     {
@@ -2766,7 +2766,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L170",
       "id": "tests_test_models_testprometheussessionmodel",
-      "community": 3,
+      "community": 4,
       "norm_label": "testprometheussessionmodel"
     },
     {
@@ -2775,7 +2775,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L171",
       "id": "tests_test_models_testprometheussessionmodel_test_create_session",
-      "community": 3,
+      "community": 4,
       "norm_label": ".test_create_session()"
     },
     {
@@ -2784,7 +2784,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L180",
       "id": "tests_test_models_testprometheussessionmodel_test_default_history",
-      "community": 3,
+      "community": 4,
       "norm_label": ".test_default_history()"
     },
     {
@@ -2973,7 +2973,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L1",
       "id": "tests_test_sessions_py",
-      "community": 2,
+      "community": 3,
       "norm_label": "test_sessions.py"
     },
     {
@@ -2982,7 +2982,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L12",
       "id": "tests_test_sessions_testusersessionmodel",
-      "community": 2,
+      "community": 3,
       "norm_label": "testusersessionmodel"
     },
     {
@@ -2991,7 +2991,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L13",
       "id": "tests_test_sessions_testusersessionmodel_test_repr",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_repr()"
     },
     {
@@ -3000,7 +3000,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L18",
       "id": "tests_test_sessions_testusersessionmodel_test_to_dict_basic",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_to_dict_basic()"
     },
     {
@@ -3009,7 +3009,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L35",
       "id": "tests_test_sessions_testusersessionmodel_test_to_dict_with_sensitive",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_to_dict_with_sensitive()"
     },
     {
@@ -3018,7 +3018,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L46",
       "id": "tests_test_sessions_testusersessionmodel_test_to_dict_hides_useragent",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_to_dict_hides_useragent()"
     },
     {
@@ -3027,7 +3027,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L57",
       "id": "tests_test_sessions_testusersessionmodel_test_getdevicename_with_browser_and_os",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_getdevicename_with_browser_and_os()"
     },
     {
@@ -3036,7 +3036,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L70",
       "id": "tests_test_sessions_testusersessionmodel_test_getdevicename_with_fingerprint_only",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_getdevicename_with_fingerprint_only()"
     },
     {
@@ -3045,7 +3045,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L82",
       "id": "tests_test_sessions_testusersessionmodel_test_getdevicename_fallback",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_getdevicename_fallback()"
     },
     {
@@ -3054,7 +3054,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L95",
       "id": "tests_test_sessions_testusersessionmodel_test_getdevicename_empty_strings",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_getdevicename_empty_strings()"
     },
     {
@@ -3063,7 +3063,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L109",
       "id": "tests_test_sessions_testusersessionmodel_test_isactive_default",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_isactive_default()"
     },
     {
@@ -3072,7 +3072,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L113",
       "id": "tests_test_sessions_testusersessionmodel_test_isactive_can_be_false",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_isactive_can_be_false()"
     },
     {
@@ -3081,7 +3081,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L117",
       "id": "tests_test_sessions_testusersessionmodel_test_todict_with_timestamps",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_todict_with_timestamps()"
     },
     {
@@ -3090,7 +3090,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L133",
       "id": "tests_test_sessions_testusersessionmodel_test_todict_without_timestamps",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_todict_without_timestamps()"
     },
     {
@@ -3099,7 +3099,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L146",
       "id": "tests_test_sessions_testsessionexpiration",
-      "community": 2,
+      "community": 3,
       "norm_label": "testsessionexpiration"
     },
     {
@@ -3108,7 +3108,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L147",
       "id": "tests_test_sessions_testsessionexpiration_test_session_expiry_days_is_30",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_session_expiry_days_is_30()"
     },
     {
@@ -3117,7 +3117,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L150",
       "id": "tests_test_sessions_testsessionexpiration_test_session_can_expire",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_session_can_expire()"
     },
     {
@@ -3126,7 +3126,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L169",
       "id": "tests_test_sessions_testsessionexpiration_test_session_still_valid_within_expiry",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_session_still_valid_within_expiry()"
     },
     {
@@ -3135,7 +3135,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L187",
       "id": "tests_test_sessions_testsessionexpiration_test_session_exactly_at_boundary",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_session_exactly_at_boundary()"
     },
     {
@@ -3144,557 +3144,8 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L205",
       "id": "tests_test_sessions_testsessionexpiration_test_created_at_future_date",
-      "community": 2,
+      "community": 3,
       "norm_label": ".test_created_at_future_date()"
-    },
-    {
-      "label": "test_stocks_cache.py",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L1",
-      "id": "tests_test_stocks_cache_py",
-      "community": 7,
-      "norm_label": "test_stocks_cache.py"
-    },
-    {
-      "label": "TestTickerIndex",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L17",
-      "id": "tests_test_stocks_cache_testtickerindex",
-      "community": 10,
-      "norm_label": "testtickerindex"
-    },
-    {
-      "label": ".test_tickerIndex_built_after_cache_load()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L20",
-      "id": "tests_test_stocks_cache_testtickerindex_test_tickerindex_built_after_cache_load",
-      "community": 10,
-      "norm_label": ".test_tickerindex_built_after_cache_load()"
-    },
-    {
-      "label": ".test_tickerIndex_contains_all_tickers()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L28",
-      "id": "tests_test_stocks_cache_testtickerindex_test_tickerindex_contains_all_tickers",
-      "community": 10,
-      "norm_label": ".test_tickerindex_contains_all_tickers()"
-    },
-    {
-      "label": ".test_tickerIndex_case_insensitive()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L38",
-      "id": "tests_test_stocks_cache_testtickerindex_test_tickerindex_case_insensitive",
-      "community": 10,
-      "norm_label": ".test_tickerindex_case_insensitive()"
-    },
-    {
-      "label": ".test_ticker_lookup_returns_valid_index()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L47",
-      "id": "tests_test_stocks_cache_testtickerindex_test_ticker_lookup_returns_valid_index",
-      "community": 10,
-      "norm_label": ".test_ticker_lookup_returns_valid_index()"
-    },
-    {
-      "label": ".test_tickerIndex_rebuilt_on_cache_refresh()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L58",
-      "id": "tests_test_stocks_cache_testtickerindex_test_tickerindex_rebuilt_on_cache_refresh",
-      "community": 10,
-      "norm_label": ".test_tickerindex_rebuilt_on_cache_refresh()"
-    },
-    {
-      "label": "TestQueryCaching",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L70",
-      "id": "tests_test_stocks_cache_testquerycaching",
-      "community": 14,
-      "norm_label": "testquerycaching"
-    },
-    {
-      "label": ".test_cache_manager_has_caches_method()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L73",
-      "id": "tests_test_stocks_cache_testquerycaching_test_cache_manager_has_caches_method",
-      "community": 14,
-      "norm_label": ".test_cache_manager_has_caches_method()"
-    },
-    {
-      "label": ".test_queryCache_ttl_configuration()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L81",
-      "id": "tests_test_stocks_cache_testquerycaching_test_querycache_ttl_configuration",
-      "community": 14,
-      "norm_label": ".test_querycache_ttl_configuration()"
-    },
-    {
-      "label": ".test_get_cached_stocks_respects_columns_parameter()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L89",
-      "id": "tests_test_stocks_cache_testquerycaching_test_get_cached_stocks_respects_columns_parameter",
-      "community": 14,
-      "norm_label": ".test_get_cached_stocks_respects_columns_parameter()"
-    },
-    {
-      "label": ".test_different_queries_not_cached()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L99",
-      "id": "tests_test_stocks_cache_testquerycaching_test_different_queries_not_cached",
-      "community": 14,
-      "norm_label": ".test_different_queries_not_cached()"
-    },
-    {
-      "label": ".test_cache_expiry_after_ttl()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L103",
-      "id": "tests_test_stocks_cache_testquerycaching_test_cache_expiry_after_ttl",
-      "community": 14,
-      "norm_label": ".test_cache_expiry_after_ttl()"
-    },
-    {
-      "label": "TestConnectionPool",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L109",
-      "id": "tests_test_stocks_cache_testconnectionpool",
-      "community": 7,
-      "norm_label": "testconnectionpool"
-    },
-    {
-      "label": ".test_stocks_engine_has_pool_configuration()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L112",
-      "id": "tests_test_stocks_cache_testconnectionpool_test_stocks_engine_has_pool_configuration",
-      "community": 7,
-      "norm_label": ".test_stocks_engine_has_pool_configuration()"
-    },
-    {
-      "label": "TestLazyDeserialization",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L121",
-      "id": "tests_test_stocks_cache_testlazydeserialization",
-      "community": 1,
-      "norm_label": "testlazydeserialization"
-    },
-    {
-      "label": ".test_query_manager_has_deserialize_method()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L124",
-      "id": "tests_test_stocks_cache_testlazydeserialization_test_query_manager_has_deserialize_method",
-      "community": 1,
-      "norm_label": ".test_query_manager_has_deserialize_method()"
-    },
-    {
-      "label": "TestQueryOptimization",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L135",
-      "id": "tests_test_stocks_cache_testqueryoptimization",
-      "community": 7,
-      "norm_label": "testqueryoptimization"
-    },
-    {
-      "label": ".test_all_optimizations_present()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L138",
-      "id": "tests_test_stocks_cache_testqueryoptimization_test_all_optimizations_present",
-      "community": 7,
-      "norm_label": ".test_all_optimizations_present()"
-    },
-    {
-      "label": ".test_query_filter_uses_optimization()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L153",
-      "id": "tests_test_stocks_cache_testqueryoptimization_test_query_filter_uses_optimization",
-      "community": 7,
-      "norm_label": ".test_query_filter_uses_optimization()"
-    },
-    {
-      "label": "TestPerformanceBenchmarks",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L171",
-      "id": "tests_test_stocks_cache_testperformancebenchmarks",
-      "community": 11,
-      "norm_label": "testperformancebenchmarks"
-    },
-    {
-      "label": ".test_tickerIndex_lookup_performance()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L174",
-      "id": "tests_test_stocks_cache_testperformancebenchmarks_test_tickerindex_lookup_performance",
-      "community": 11,
-      "norm_label": ".test_tickerindex_lookup_performance()"
-    },
-    {
-      "label": ".test_prefix_scan_performance()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L194",
-      "id": "tests_test_stocks_cache_testperformancebenchmarks_test_prefix_scan_performance",
-      "community": 11,
-      "norm_label": ".test_prefix_scan_performance()"
-    },
-    {
-      "label": ".test_index_lookup_vs_scan_comparison()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L214",
-      "id": "tests_test_stocks_cache_testperformancebenchmarks_test_index_lookup_vs_scan_comparison",
-      "community": 11,
-      "norm_label": ".test_index_lookup_vs_scan_comparison()"
-    },
-    {
-      "label": ".test_queryCache_performance()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L244",
-      "id": "tests_test_stocks_cache_testperformancebenchmarks_test_querycache_performance",
-      "community": 11,
-      "norm_label": ".test_querycache_performance()"
-    },
-    {
-      "label": ".test_column_projection_performance()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L266",
-      "id": "tests_test_stocks_cache_testperformancebenchmarks_test_column_projection_performance",
-      "community": 28,
-      "norm_label": ".test_column_projection_performance()"
-    },
-    {
-      "label": ".test_cache_initialization_time()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L281",
-      "id": "tests_test_stocks_cache_testperformancebenchmarks_test_cache_initialization_time",
-      "community": 11,
-      "norm_label": ".test_cache_initialization_time()"
-    },
-    {
-      "label": "TestFilterBySearchTerms",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L299",
-      "id": "tests_test_stocks_cache_testfilterbysearchterms",
-      "community": 7,
-      "norm_label": "testfilterbysearchterms"
-    },
-    {
-      "label": ".test_filter_with_tickerIndex()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L302",
-      "id": "tests_test_stocks_cache_testfilterbysearchterms_test_filter_with_tickerindex",
-      "community": 7,
-      "norm_label": ".test_filter_with_tickerindex()"
-    },
-    {
-      "label": "TestQueryPerformance",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L308",
-      "id": "tests_test_stocks_cache_testqueryperformance",
-      "community": 7,
-      "norm_label": "testqueryperformance"
-    },
-    {
-      "label": ".test_query_response_time_under_1_second()",
-      "file_type": "code",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L311",
-      "id": "tests_test_stocks_cache_testqueryperformance_test_query_response_time_under_1_second",
-      "community": 7,
-      "norm_label": ".test_query_response_time_under_1_second()"
-    },
-    {
-      "label": "Tests for dynamic ticker index feature",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L18",
-      "id": "tests_test_stocks_cache_rationale_18",
-      "community": 10,
-      "norm_label": "tests for dynamic ticker index feature"
-    },
-    {
-      "label": "Ticker index should be built when cache is loaded",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L21",
-      "id": "tests_test_stocks_cache_rationale_21",
-      "community": 10,
-      "norm_label": "ticker index should be built when cache is loaded"
-    },
-    {
-      "label": "Ticker index should contain all tickers from cache",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L29",
-      "id": "tests_test_stocks_cache_rationale_29",
-      "community": 10,
-      "norm_label": "ticker index should contain all tickers from cache"
-    },
-    {
-      "label": "Ticker index should be case-insensitive",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L39",
-      "id": "tests_test_stocks_cache_rationale_39",
-      "community": 10,
-      "norm_label": "ticker index should be case-insensitive"
-    },
-    {
-      "label": "Looking up ticker should return valid row index",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L48",
-      "id": "tests_test_stocks_cache_rationale_48",
-      "community": 10,
-      "norm_label": "looking up ticker should return valid row index"
-    },
-    {
-      "label": "Ticker index should be rebuilt when cache refreshes",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L59",
-      "id": "tests_test_stocks_cache_rationale_59",
-      "community": 10,
-      "norm_label": "ticker index should be rebuilt when cache refreshes"
-    },
-    {
-      "label": "Tests for query result caching",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L71",
-      "id": "tests_test_stocks_cache_rationale_71",
-      "community": 14,
-      "norm_label": "tests for query result caching"
-    },
-    {
-      "label": "CacheManager should track cached queries",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L74",
-      "id": "tests_test_stocks_cache_rationale_74",
-      "community": 14,
-      "norm_label": "cachemanager should track cached queries"
-    },
-    {
-      "label": "Query cache should have configurable TTL",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L82",
-      "id": "tests_test_stocks_cache_rationale_82",
-      "community": 14,
-      "norm_label": "query cache should have configurable ttl"
-    },
-    {
-      "label": "getCachedStocks should support column filtering",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L90",
-      "id": "tests_test_stocks_cache_rationale_90",
-      "community": 14,
-      "norm_label": "getcachedstocks should support column filtering"
-    },
-    {
-      "label": "Different query parameters should not share cache",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L100",
-      "id": "tests_test_stocks_cache_rationale_100",
-      "community": 14,
-      "norm_label": "different query parameters should not share cache"
-    },
-    {
-      "label": "Cache should expire after TTL",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L104",
-      "id": "tests_test_stocks_cache_rationale_104",
-      "community": 14,
-      "norm_label": "cache should expire after ttl"
-    },
-    {
-      "label": "Tests for connection pool configuration",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L110",
-      "id": "tests_test_stocks_cache_rationale_110",
-      "community": 7,
-      "norm_label": "tests for connection pool configuration"
-    },
-    {
-      "label": "Stocks engine should have optimized pool settings",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L113",
-      "id": "tests_test_stocks_cache_rationale_113",
-      "community": 7,
-      "norm_label": "stocks engine should have optimized pool settings"
-    },
-    {
-      "label": "Tests for lazy JSON deserialization",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L122",
-      "id": "tests_test_stocks_cache_rationale_122",
-      "community": 1,
-      "norm_label": "tests for lazy json deserialization"
-    },
-    {
-      "label": "Query manager should have deserialize method",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L125",
-      "id": "tests_test_stocks_cache_rationale_125",
-      "community": 1,
-      "norm_label": "query manager should have deserialize method"
-    },
-    {
-      "label": "Integration tests for all query optimizations",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L136",
-      "id": "tests_test_stocks_cache_rationale_136",
-      "community": 7,
-      "norm_label": "integration tests for all query optimizations"
-    },
-    {
-      "label": "All optimizations should be implemented",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L139",
-      "id": "tests_test_stocks_cache_rationale_139",
-      "community": 7,
-      "norm_label": "all optimizations should be implemented"
-    },
-    {
-      "label": "Query filter should use ticker index",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L154",
-      "id": "tests_test_stocks_cache_rationale_154",
-      "community": 7,
-      "norm_label": "query filter should use ticker index"
-    },
-    {
-      "label": "Performance benchmark tests for stocks API",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L172",
-      "id": "tests_test_stocks_cache_rationale_172",
-      "community": 11,
-      "norm_label": "performance benchmark tests for stocks api"
-    },
-    {
-      "label": "Ticker index lookup should be O(1) - very fast",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L175",
-      "id": "tests_test_stocks_cache_rationale_175",
-      "community": 11,
-      "norm_label": "ticker index lookup should be o(1) - very fast"
-    },
-    {
-      "label": "Prefix scan should be much slower than index lookup",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L195",
-      "id": "tests_test_stocks_cache_rationale_195",
-      "community": 11,
-      "norm_label": "prefix scan should be much slower than index lookup"
-    },
-    {
-      "label": "Index lookup should be significantly faster than scan",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L215",
-      "id": "tests_test_stocks_cache_rationale_215",
-      "community": 11,
-      "norm_label": "index lookup should be significantly faster than scan"
-    },
-    {
-      "label": "Query cache should avoid recomputation",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L245",
-      "id": "tests_test_stocks_cache_rationale_245",
-      "community": 11,
-      "norm_label": "query cache should avoid recomputation"
-    },
-    {
-      "label": "Column projection should reduce memory and time",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L267",
-      "id": "tests_test_stocks_cache_rationale_267",
-      "community": 28,
-      "norm_label": "column projection should reduce memory and time"
-    },
-    {
-      "label": "Cache initialization should complete in reasonable time",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L282",
-      "id": "tests_test_stocks_cache_rationale_282",
-      "community": 11,
-      "norm_label": "cache initialization should complete in reasonable time"
-    },
-    {
-      "label": "Tests for optimized search filtering",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L300",
-      "id": "tests_test_stocks_cache_rationale_300",
-      "community": 7,
-      "norm_label": "tests for optimized search filtering"
-    },
-    {
-      "label": "Filter should use ticker index for O(1) lookup",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L303",
-      "id": "tests_test_stocks_cache_rationale_303",
-      "community": 7,
-      "norm_label": "filter should use ticker index for o(1) lookup"
-    },
-    {
-      "label": "Performance tests for query operations",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L309",
-      "id": "tests_test_stocks_cache_rationale_309",
-      "community": 7,
-      "norm_label": "performance tests for query operations"
-    },
-    {
-      "label": "Query should respond within 1 second",
-      "file_type": "rationale",
-      "source_file": "tests/test_stocks_cache.py",
-      "source_location": "L312",
-      "id": "tests_test_stocks_cache_rationale_312",
-      "community": 7,
-      "norm_label": "query should respond within 1 second"
     },
     {
       "label": "test_stocks_util.py",
@@ -3702,7 +3153,7 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L1",
       "id": "tests_test_stocks_util_py",
-      "community": 13,
+      "community": 0,
       "norm_label": "test_stocks_util.py"
     },
     {
@@ -3711,7 +3162,7 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L12",
       "id": "tests_test_stocks_util_testcategorizecolumns",
-      "community": 13,
+      "community": 0,
       "norm_label": "testcategorizecolumns"
     },
     {
@@ -3720,7 +3171,7 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L13",
       "id": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_historical_only",
-      "community": 13,
+      "community": 0,
       "norm_label": ".test_categorize_columns_historical_only()"
     },
     {
@@ -3729,7 +3180,7 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L22",
       "id": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_fundamental_only",
-      "community": 13,
+      "community": 0,
       "norm_label": ".test_categorize_columns_fundamental_only()"
     },
     {
@@ -3738,7 +3189,7 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L31",
       "id": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_mixed",
-      "community": 13,
+      "community": 0,
       "norm_label": ".test_categorize_columns_mixed()"
     },
     {
@@ -3747,7 +3198,7 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L39",
       "id": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_excludes_special",
-      "community": 13,
+      "community": 0,
       "norm_label": ".test_categorize_columns_excludes_special()"
     },
     {
@@ -3756,7 +3207,7 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L47",
       "id": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_empty",
-      "community": 13,
+      "community": 0,
       "norm_label": ".test_categorize_columns_empty()"
     },
     {
@@ -3765,7 +3216,7 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L53",
       "id": "tests_test_stocks_util_testparseyearinput",
-      "community": 13,
+      "community": 0,
       "norm_label": "testparseyearinput"
     },
     {
@@ -3774,7 +3225,7 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L54",
       "id": "tests_test_stocks_util_testparseyearinput_test_parse_year_single",
-      "community": 13,
+      "community": 0,
       "norm_label": ".test_parse_year_single()"
     },
     {
@@ -3783,7 +3234,7 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L59",
       "id": "tests_test_stocks_util_testparseyearinput_test_parse_year_range",
-      "community": 13,
+      "community": 0,
       "norm_label": ".test_parse_year_range()"
     },
     {
@@ -3792,7 +3243,7 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L64",
       "id": "tests_test_stocks_util_testparseyearinput_test_parse_year_none",
-      "community": 13,
+      "community": 0,
       "norm_label": ".test_parse_year_none()"
     },
     {
@@ -3801,7 +3252,7 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L69",
       "id": "tests_test_stocks_util_testparseyearinput_test_parse_year_empty_string",
-      "community": 13,
+      "community": 0,
       "norm_label": ".test_parse_year_empty_string()"
     },
     {
@@ -3810,7 +3261,7 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L74",
       "id": "tests_test_stocks_util_testparseyearinput_test_parse_year_with_spaces",
-      "community": 13,
+      "community": 0,
       "norm_label": ".test_parse_year_with_spaces()"
     },
     {
@@ -3819,7 +3270,7 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L79",
       "id": "tests_test_stocks_util_testparseyearinput_test_parse_year_invalid_format",
-      "community": 13,
+      "community": 0,
       "norm_label": ".test_parse_year_invalid_format()"
     },
     {
@@ -3828,15 +3279,564 @@
       "source_file": "tests/test_stocks_util.py",
       "source_location": "L84",
       "id": "tests_test_stocks_util_testparseyearinput_test_parse_year_invalid_non_digit",
-      "community": 13,
+      "community": 0,
       "norm_label": ".test_parse_year_invalid_non_digit()"
+    },
+    {
+      "label": "test_stocks_cache.py",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L1",
+      "community": 2,
+      "norm_label": "test_stocks_cache.py",
+      "id": "tests_test_stocks_cache_py"
+    },
+    {
+      "label": "TestTickerIndex",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L17",
+      "community": 11,
+      "norm_label": "testtickerindex",
+      "id": "tests_test_stocks_cache_testtickerindex"
+    },
+    {
+      "label": ".test_tickerIndex_built_after_cache_load()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L20",
+      "community": 11,
+      "norm_label": ".test_tickerindex_built_after_cache_load()",
+      "id": "tests_test_stocks_cache_testtickerindex_test_tickerindex_built_after_cache_load"
+    },
+    {
+      "label": ".test_tickerIndex_contains_all_tickers()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L28",
+      "community": 11,
+      "norm_label": ".test_tickerindex_contains_all_tickers()",
+      "id": "tests_test_stocks_cache_testtickerindex_test_tickerindex_contains_all_tickers"
+    },
+    {
+      "label": ".test_tickerIndex_case_insensitive()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L38",
+      "community": 11,
+      "norm_label": ".test_tickerindex_case_insensitive()",
+      "id": "tests_test_stocks_cache_testtickerindex_test_tickerindex_case_insensitive"
+    },
+    {
+      "label": ".test_ticker_lookup_returns_valid_index()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L47",
+      "community": 11,
+      "norm_label": ".test_ticker_lookup_returns_valid_index()",
+      "id": "tests_test_stocks_cache_testtickerindex_test_ticker_lookup_returns_valid_index"
+    },
+    {
+      "label": ".test_tickerIndex_rebuilt_on_cache_refresh()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L58",
+      "community": 11,
+      "norm_label": ".test_tickerindex_rebuilt_on_cache_refresh()",
+      "id": "tests_test_stocks_cache_testtickerindex_test_tickerindex_rebuilt_on_cache_refresh"
+    },
+    {
+      "label": "TestQueryCaching",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L70",
+      "community": 2,
+      "norm_label": "testquerycaching",
+      "id": "tests_test_stocks_cache_testquerycaching"
+    },
+    {
+      "label": ".test_cache_manager_has_caches_method()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L73",
+      "community": 2,
+      "norm_label": ".test_cache_manager_has_caches_method()",
+      "id": "tests_test_stocks_cache_testquerycaching_test_cache_manager_has_caches_method"
+    },
+    {
+      "label": ".test_queryCache_ttl_configuration()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L81",
+      "community": 2,
+      "norm_label": ".test_querycache_ttl_configuration()",
+      "id": "tests_test_stocks_cache_testquerycaching_test_querycache_ttl_configuration"
+    },
+    {
+      "label": ".test_get_cached_stocks_respects_columns_parameter()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L89",
+      "community": 2,
+      "norm_label": ".test_get_cached_stocks_respects_columns_parameter()",
+      "id": "tests_test_stocks_cache_testquerycaching_test_get_cached_stocks_respects_columns_parameter"
+    },
+    {
+      "label": ".test_different_queries_not_cached()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L99",
+      "community": 2,
+      "norm_label": ".test_different_queries_not_cached()",
+      "id": "tests_test_stocks_cache_testquerycaching_test_different_queries_not_cached"
+    },
+    {
+      "label": ".test_cache_expiry_after_ttl()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L103",
+      "community": 2,
+      "norm_label": ".test_cache_expiry_after_ttl()",
+      "id": "tests_test_stocks_cache_testquerycaching_test_cache_expiry_after_ttl"
+    },
+    {
+      "label": "TestConnectionPool",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L109",
+      "community": 2,
+      "norm_label": "testconnectionpool",
+      "id": "tests_test_stocks_cache_testconnectionpool"
+    },
+    {
+      "label": ".test_stocks_engine_has_pool_configuration()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L112",
+      "community": 2,
+      "norm_label": ".test_stocks_engine_has_pool_configuration()",
+      "id": "tests_test_stocks_cache_testconnectionpool_test_stocks_engine_has_pool_configuration"
+    },
+    {
+      "label": "TestLazyDeserialization",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L121",
+      "community": 0,
+      "norm_label": "testlazydeserialization",
+      "id": "tests_test_stocks_cache_testlazydeserialization"
+    },
+    {
+      "label": ".test_query_manager_has_deserialize_method()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L124",
+      "community": 0,
+      "norm_label": ".test_query_manager_has_deserialize_method()",
+      "id": "tests_test_stocks_cache_testlazydeserialization_test_query_manager_has_deserialize_method"
+    },
+    {
+      "label": "TestQueryOptimization",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L135",
+      "community": 0,
+      "norm_label": "testqueryoptimization",
+      "id": "tests_test_stocks_cache_testqueryoptimization"
+    },
+    {
+      "label": ".test_all_optimizations_present()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L138",
+      "community": 0,
+      "norm_label": ".test_all_optimizations_present()",
+      "id": "tests_test_stocks_cache_testqueryoptimization_test_all_optimizations_present"
+    },
+    {
+      "label": ".test_query_filter_uses_optimization()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L153",
+      "community": 0,
+      "norm_label": ".test_query_filter_uses_optimization()",
+      "id": "tests_test_stocks_cache_testqueryoptimization_test_query_filter_uses_optimization"
+    },
+    {
+      "label": "TestPerformanceBenchmarks",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L171",
+      "community": 8,
+      "norm_label": "testperformancebenchmarks",
+      "id": "tests_test_stocks_cache_testperformancebenchmarks"
+    },
+    {
+      "label": ".test_tickerIndex_lookup_performance()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L174",
+      "community": 8,
+      "norm_label": ".test_tickerindex_lookup_performance()",
+      "id": "tests_test_stocks_cache_testperformancebenchmarks_test_tickerindex_lookup_performance"
+    },
+    {
+      "label": ".test_prefix_scan_performance()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L194",
+      "community": 8,
+      "norm_label": ".test_prefix_scan_performance()",
+      "id": "tests_test_stocks_cache_testperformancebenchmarks_test_prefix_scan_performance"
+    },
+    {
+      "label": ".test_index_lookup_vs_scan_comparison()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L214",
+      "community": 8,
+      "norm_label": ".test_index_lookup_vs_scan_comparison()",
+      "id": "tests_test_stocks_cache_testperformancebenchmarks_test_index_lookup_vs_scan_comparison"
+    },
+    {
+      "label": ".test_queryCache_performance()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L244",
+      "community": 8,
+      "norm_label": ".test_querycache_performance()",
+      "id": "tests_test_stocks_cache_testperformancebenchmarks_test_querycache_performance"
+    },
+    {
+      "label": ".test_column_projection_performance()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L266",
+      "community": 8,
+      "norm_label": ".test_column_projection_performance()",
+      "id": "tests_test_stocks_cache_testperformancebenchmarks_test_column_projection_performance"
+    },
+    {
+      "label": ".test_cache_initialization_time()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L281",
+      "community": 8,
+      "norm_label": ".test_cache_initialization_time()",
+      "id": "tests_test_stocks_cache_testperformancebenchmarks_test_cache_initialization_time"
+    },
+    {
+      "label": "TestFilterBySearchTerms",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L299",
+      "community": 2,
+      "norm_label": "testfilterbysearchterms",
+      "id": "tests_test_stocks_cache_testfilterbysearchterms"
+    },
+    {
+      "label": ".test_filter_with_tickerIndex()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L302",
+      "community": 2,
+      "norm_label": ".test_filter_with_tickerindex()",
+      "id": "tests_test_stocks_cache_testfilterbysearchterms_test_filter_with_tickerindex"
+    },
+    {
+      "label": "TestQueryPerformance",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L308",
+      "community": 2,
+      "norm_label": "testqueryperformance",
+      "id": "tests_test_stocks_cache_testqueryperformance"
+    },
+    {
+      "label": ".test_query_response_time_under_1_second()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L311",
+      "community": 2,
+      "norm_label": ".test_query_response_time_under_1_second()",
+      "id": "tests_test_stocks_cache_testqueryperformance_test_query_response_time_under_1_second"
+    },
+    {
+      "label": "Tests for dynamic ticker index feature",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L18",
+      "community": 11,
+      "norm_label": "tests for dynamic ticker index feature",
+      "id": "tests_test_stocks_cache_rationale_18"
+    },
+    {
+      "label": "Ticker index should be built when cache is loaded",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L21",
+      "community": 11,
+      "norm_label": "ticker index should be built when cache is loaded",
+      "id": "tests_test_stocks_cache_rationale_21"
+    },
+    {
+      "label": "Ticker index should contain all tickers from cache",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L29",
+      "community": 11,
+      "norm_label": "ticker index should contain all tickers from cache",
+      "id": "tests_test_stocks_cache_rationale_29"
+    },
+    {
+      "label": "Ticker index should be case-insensitive",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L39",
+      "community": 11,
+      "norm_label": "ticker index should be case-insensitive",
+      "id": "tests_test_stocks_cache_rationale_39"
+    },
+    {
+      "label": "Looking up ticker should return valid row index",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L48",
+      "community": 11,
+      "norm_label": "looking up ticker should return valid row index",
+      "id": "tests_test_stocks_cache_rationale_48"
+    },
+    {
+      "label": "Ticker index should be rebuilt when cache refreshes",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L59",
+      "community": 11,
+      "norm_label": "ticker index should be rebuilt when cache refreshes",
+      "id": "tests_test_stocks_cache_rationale_59"
+    },
+    {
+      "label": "Tests for query result caching",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L71",
+      "community": 2,
+      "norm_label": "tests for query result caching",
+      "id": "tests_test_stocks_cache_rationale_71"
+    },
+    {
+      "label": "CacheManager should track cached queries",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L74",
+      "community": 2,
+      "norm_label": "cachemanager should track cached queries",
+      "id": "tests_test_stocks_cache_rationale_74"
+    },
+    {
+      "label": "Query cache should have configurable TTL",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L82",
+      "community": 2,
+      "norm_label": "query cache should have configurable ttl",
+      "id": "tests_test_stocks_cache_rationale_82"
+    },
+    {
+      "label": "getCachedStocks should support column filtering",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L90",
+      "community": 2,
+      "norm_label": "getcachedstocks should support column filtering",
+      "id": "tests_test_stocks_cache_rationale_90"
+    },
+    {
+      "label": "Different query parameters should not share cache",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L100",
+      "community": 2,
+      "norm_label": "different query parameters should not share cache",
+      "id": "tests_test_stocks_cache_rationale_100"
+    },
+    {
+      "label": "Cache should expire after TTL",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L104",
+      "community": 2,
+      "norm_label": "cache should expire after ttl",
+      "id": "tests_test_stocks_cache_rationale_104"
+    },
+    {
+      "label": "Tests for connection pool configuration",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L110",
+      "community": 2,
+      "norm_label": "tests for connection pool configuration",
+      "id": "tests_test_stocks_cache_rationale_110"
+    },
+    {
+      "label": "Stocks engine should have optimized pool settings",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L113",
+      "community": 2,
+      "norm_label": "stocks engine should have optimized pool settings",
+      "id": "tests_test_stocks_cache_rationale_113"
+    },
+    {
+      "label": "Tests for lazy JSON deserialization",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L122",
+      "community": 0,
+      "norm_label": "tests for lazy json deserialization",
+      "id": "tests_test_stocks_cache_rationale_122"
+    },
+    {
+      "label": "Query manager should have deserialize method",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L125",
+      "community": 0,
+      "norm_label": "query manager should have deserialize method",
+      "id": "tests_test_stocks_cache_rationale_125"
+    },
+    {
+      "label": "Integration tests for all query optimizations",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L136",
+      "community": 0,
+      "norm_label": "integration tests for all query optimizations",
+      "id": "tests_test_stocks_cache_rationale_136"
+    },
+    {
+      "label": "All optimizations should be implemented",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L139",
+      "community": 0,
+      "norm_label": "all optimizations should be implemented",
+      "id": "tests_test_stocks_cache_rationale_139"
+    },
+    {
+      "label": "Query filter should use ticker index",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L154",
+      "community": 0,
+      "norm_label": "query filter should use ticker index",
+      "id": "tests_test_stocks_cache_rationale_154"
+    },
+    {
+      "label": "Performance benchmark tests for stocks API",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L172",
+      "community": 8,
+      "norm_label": "performance benchmark tests for stocks api",
+      "id": "tests_test_stocks_cache_rationale_172"
+    },
+    {
+      "label": "Ticker index lookup should be O(1) - very fast",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L175",
+      "community": 8,
+      "norm_label": "ticker index lookup should be o(1) - very fast",
+      "id": "tests_test_stocks_cache_rationale_175"
+    },
+    {
+      "label": "Prefix scan should be much slower than index lookup",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L195",
+      "community": 8,
+      "norm_label": "prefix scan should be much slower than index lookup",
+      "id": "tests_test_stocks_cache_rationale_195"
+    },
+    {
+      "label": "Index lookup should be significantly faster than scan",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L215",
+      "community": 8,
+      "norm_label": "index lookup should be significantly faster than scan",
+      "id": "tests_test_stocks_cache_rationale_215"
+    },
+    {
+      "label": "Query cache should avoid recomputation",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L245",
+      "community": 8,
+      "norm_label": "query cache should avoid recomputation",
+      "id": "tests_test_stocks_cache_rationale_245"
+    },
+    {
+      "label": "Column projection should reduce memory and time",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L267",
+      "community": 8,
+      "norm_label": "column projection should reduce memory and time",
+      "id": "tests_test_stocks_cache_rationale_267"
+    },
+    {
+      "label": "Cache initialization should complete in reasonable time",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L282",
+      "community": 8,
+      "norm_label": "cache initialization should complete in reasonable time",
+      "id": "tests_test_stocks_cache_rationale_282"
+    },
+    {
+      "label": "Tests for optimized search filtering",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L300",
+      "community": 2,
+      "norm_label": "tests for optimized search filtering",
+      "id": "tests_test_stocks_cache_rationale_300"
+    },
+    {
+      "label": "Filter should use ticker index for O(1) lookup",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L303",
+      "community": 2,
+      "norm_label": "filter should use ticker index for o(1) lookup",
+      "id": "tests_test_stocks_cache_rationale_303"
+    },
+    {
+      "label": "Performance tests for query operations",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L309",
+      "community": 2,
+      "norm_label": "performance tests for query operations",
+      "id": "tests_test_stocks_cache_rationale_309"
+    },
+    {
+      "label": "Query should respond within 1 second",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_cache.py",
+      "source_location": "L312",
+      "community": 2,
+      "norm_label": "query should respond within 1 second",
+      "id": "tests_test_stocks_cache_rationale_312"
     },
     {
       "label": "coverage_html_cb_188fc9a4.js",
       "file_type": "code",
       "source_file": "htmlcov/coverage_html_cb_188fc9a4.js",
       "source_location": "L1",
-      "community": 23,
+      "community": 24,
       "norm_label": "coverage_html_cb_188fc9a4.js",
       "id": "htmlcov_coverage_html_cb_188fc9a4_js"
     },
@@ -3845,7 +3845,7 @@
       "file_type": "code",
       "source_file": "htmlcov/coverage_html_cb_188fc9a4.js",
       "source_location": "L11",
-      "community": 23,
+      "community": 24,
       "norm_label": "debounce()",
       "id": "htmlcov_coverage_html_cb_188fc9a4_debounce"
     },
@@ -3854,7 +3854,7 @@
       "file_type": "code",
       "source_file": "htmlcov/coverage_html_cb_188fc9a4.js",
       "source_location": "L21",
-      "community": 23,
+      "community": 24,
       "norm_label": "checkvisible()",
       "id": "htmlcov_coverage_html_cb_188fc9a4_checkvisible"
     },
@@ -3863,7 +3863,7 @@
       "file_type": "code",
       "source_file": "htmlcov/coverage_html_cb_188fc9a4.js",
       "source_location": "L28",
-      "community": 23,
+      "community": 24,
       "norm_label": "on_click()",
       "id": "htmlcov_coverage_html_cb_188fc9a4_on_click"
     },
@@ -3872,7 +3872,7 @@
       "file_type": "code",
       "source_file": "htmlcov/coverage_html_cb_188fc9a4.js",
       "source_location": "L36",
-      "community": 23,
+      "community": 24,
       "norm_label": "getcellvalue()",
       "id": "htmlcov_coverage_html_cb_188fc9a4_getcellvalue"
     },
@@ -3881,7 +3881,7 @@
       "file_type": "code",
       "source_file": "htmlcov/coverage_html_cb_188fc9a4.js",
       "source_location": "L50",
-      "community": 23,
+      "community": 24,
       "norm_label": "rowcomparator()",
       "id": "htmlcov_coverage_html_cb_188fc9a4_rowcomparator"
     },
@@ -3890,7 +3890,7 @@
       "file_type": "code",
       "source_file": "htmlcov/coverage_html_cb_188fc9a4.js",
       "source_location": "L59",
-      "community": 23,
+      "community": 24,
       "norm_label": "sortcolumn()",
       "id": "htmlcov_coverage_html_cb_188fc9a4_sortcolumn"
     },
@@ -3899,7 +3899,7 @@
       "file_type": "code",
       "source_file": "htmlcov/coverage_html_cb_188fc9a4.js",
       "source_location": "L699",
-      "community": 23,
+      "community": 24,
       "norm_label": "updateheader()",
       "id": "htmlcov_coverage_html_cb_188fc9a4_updateheader"
     },
@@ -3908,7 +3908,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L73",
-      "community": 14,
+      "community": 2,
       "norm_label": "tests for query result caching",
       "id": "tests_test_stocks_cache_rationale_73"
     },
@@ -3917,7 +3917,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L76",
-      "community": 14,
+      "community": 2,
       "norm_label": "cachemanager should track cached queries",
       "id": "tests_test_stocks_cache_rationale_76"
     },
@@ -3926,7 +3926,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L84",
-      "community": 14,
+      "community": 2,
       "norm_label": "query cache should have configurable ttl",
       "id": "tests_test_stocks_cache_rationale_84"
     },
@@ -3935,7 +3935,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L92",
-      "community": 14,
+      "community": 2,
       "norm_label": "getcachedstocks should support column filtering",
       "id": "tests_test_stocks_cache_rationale_92"
     },
@@ -3944,7 +3944,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L102",
-      "community": 14,
+      "community": 2,
       "norm_label": "different query parameters should not share cache",
       "id": "tests_test_stocks_cache_rationale_102"
     },
@@ -3953,7 +3953,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L106",
-      "community": 14,
+      "community": 2,
       "norm_label": "cache should expire after ttl",
       "id": "tests_test_stocks_cache_rationale_106"
     },
@@ -3962,7 +3962,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L112",
-      "community": 7,
+      "community": 2,
       "norm_label": "tests for connection pool configuration",
       "id": "tests_test_stocks_cache_rationale_112"
     },
@@ -3971,7 +3971,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L115",
-      "community": 7,
+      "community": 2,
       "norm_label": "stocks engine should have optimized pool settings",
       "id": "tests_test_stocks_cache_rationale_115"
     },
@@ -3980,7 +3980,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L124",
-      "community": 1,
+      "community": 0,
       "norm_label": "tests for lazy json deserialization",
       "id": "tests_test_stocks_cache_rationale_124"
     },
@@ -3989,7 +3989,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L127",
-      "community": 1,
+      "community": 0,
       "norm_label": "query manager should have deserialize method",
       "id": "tests_test_stocks_cache_rationale_127"
     },
@@ -3998,7 +3998,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L138",
-      "community": 7,
+      "community": 0,
       "norm_label": "integration tests for all query optimizations",
       "id": "tests_test_stocks_cache_rationale_138"
     },
@@ -4007,7 +4007,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L141",
-      "community": 7,
+      "community": 0,
       "norm_label": "all optimizations should be implemented",
       "id": "tests_test_stocks_cache_rationale_141"
     },
@@ -4016,7 +4016,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L156",
-      "community": 7,
+      "community": 0,
       "norm_label": "query filter should use ticker index",
       "id": "tests_test_stocks_cache_rationale_156"
     },
@@ -4025,7 +4025,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L174",
-      "community": 11,
+      "community": 8,
       "norm_label": "performance benchmark tests for stocks api",
       "id": "tests_test_stocks_cache_rationale_174"
     },
@@ -4034,7 +4034,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L177",
-      "community": 11,
+      "community": 8,
       "norm_label": "ticker index lookup should be o(1) - very fast",
       "id": "tests_test_stocks_cache_rationale_177"
     },
@@ -4043,7 +4043,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L197",
-      "community": 11,
+      "community": 8,
       "norm_label": "prefix scan should be much slower than index lookup",
       "id": "tests_test_stocks_cache_rationale_197"
     },
@@ -4052,7 +4052,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L217",
-      "community": 11,
+      "community": 8,
       "norm_label": "index lookup should be significantly faster than scan",
       "id": "tests_test_stocks_cache_rationale_217"
     },
@@ -4061,7 +4061,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L247",
-      "community": 11,
+      "community": 8,
       "norm_label": "query cache should avoid recomputation",
       "id": "tests_test_stocks_cache_rationale_247"
     },
@@ -4070,7 +4070,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L269",
-      "community": 28,
+      "community": 8,
       "norm_label": "column projection should reduce memory and time",
       "id": "tests_test_stocks_cache_rationale_269"
     },
@@ -4079,7 +4079,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L284",
-      "community": 11,
+      "community": 8,
       "norm_label": "cache initialization should complete in reasonable time",
       "id": "tests_test_stocks_cache_rationale_284"
     },
@@ -4088,7 +4088,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L302",
-      "community": 7,
+      "community": 2,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_cache_rationale_302"
     },
@@ -4097,7 +4097,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L305",
-      "community": 7,
+      "community": 2,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_cache_rationale_305"
     },
@@ -4106,7 +4106,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L311",
-      "community": 7,
+      "community": 2,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_cache_rationale_311"
     },
@@ -4115,7 +4115,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L314",
-      "community": 7,
+      "community": 2,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_cache_rationale_314"
     },
@@ -4124,7 +4124,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L20",
-      "community": 10,
+      "community": 11,
       "norm_label": ".test_tickerindex_built_after_cache_load()",
       "id": "tests_test_stocks_cache_testtickerindex_test_tickerIndex_built_after_cache_load"
     },
@@ -4133,7 +4133,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L28",
-      "community": 10,
+      "community": 11,
       "norm_label": ".test_tickerindex_contains_all_tickers()",
       "id": "tests_test_stocks_cache_testtickerindex_test_tickerIndex_contains_all_tickers"
     },
@@ -4142,7 +4142,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L38",
-      "community": 10,
+      "community": 11,
       "norm_label": ".test_tickerindex_case_insensitive()",
       "id": "tests_test_stocks_cache_testtickerindex_test_tickerIndex_case_insensitive"
     },
@@ -4151,7 +4151,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L58",
-      "community": 10,
+      "community": 11,
       "norm_label": ".test_tickerindex_rebuilt_on_cache_refresh()",
       "id": "tests_test_stocks_cache_testtickerindex_test_tickerIndex_rebuilt_on_cache_refresh"
     },
@@ -4160,7 +4160,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L83",
-      "community": 14,
+      "community": 2,
       "norm_label": ".test_querycache_ttl_configuration()",
       "id": "tests_test_stocks_cache_testquerycaching_test_queryCache_ttl_configuration"
     },
@@ -4169,7 +4169,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L176",
-      "community": 11,
+      "community": 8,
       "norm_label": ".test_tickerindex_lookup_performance()",
       "id": "tests_test_stocks_cache_testperformancebenchmarks_test_tickerIndex_lookup_performance"
     },
@@ -4178,7 +4178,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L246",
-      "community": 11,
+      "community": 8,
       "norm_label": ".test_querycache_performance()",
       "id": "tests_test_stocks_cache_testperformancebenchmarks_test_queryCache_performance"
     },
@@ -4187,7 +4187,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L304",
-      "community": 7,
+      "community": 2,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_cache_testfilterbysearchterms_test_filter_with_tickerIndex"
     },
@@ -4196,7 +4196,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L1",
-      "community": 1,
+      "community": 9,
       "norm_label": "test_stocks_optimization.py",
       "id": "tests_test_stocks_optimization_py"
     },
@@ -4205,7 +4205,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L17",
-      "community": 20,
+      "community": 19,
       "norm_label": "testtickerindex",
       "id": "tests_test_stocks_optimization_testtickerindex"
     },
@@ -4214,7 +4214,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L20",
-      "community": 20,
+      "community": 19,
       "norm_label": ".test_tickerindex_built_after_cache_load()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_tickerIndex_built_after_cache_load"
     },
@@ -4223,7 +4223,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L28",
-      "community": 20,
+      "community": 19,
       "norm_label": ".test_tickerindex_contains_all_tickers()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_tickerIndex_contains_all_tickers"
     },
@@ -4232,7 +4232,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L38",
-      "community": 20,
+      "community": 19,
       "norm_label": ".test_tickerindex_case_insensitive()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_tickerIndex_case_insensitive"
     },
@@ -4241,7 +4241,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L47",
-      "community": 20,
+      "community": 19,
       "norm_label": ".test_ticker_lookup_returns_valid_index()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_ticker_lookup_returns_valid_index"
     },
@@ -4250,7 +4250,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L58",
-      "community": 20,
+      "community": 19,
       "norm_label": ".test_tickerindex_rebuilt_on_cache_refresh()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_tickerIndex_rebuilt_on_cache_refresh"
     },
@@ -4259,7 +4259,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L72",
-      "community": 21,
+      "community": 20,
       "norm_label": "testquerycaching",
       "id": "tests_test_stocks_optimization_testquerycaching"
     },
@@ -4268,7 +4268,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L75",
-      "community": 21,
+      "community": 20,
       "norm_label": ".test_cache_manager_has_caches_method()",
       "id": "tests_test_stocks_optimization_testquerycaching_test_cache_manager_has_caches_method"
     },
@@ -4277,7 +4277,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L83",
-      "community": 21,
+      "community": 20,
       "norm_label": ".test_querycache_ttl_configuration()",
       "id": "tests_test_stocks_optimization_testquerycaching_test_queryCache_ttl_configuration"
     },
@@ -4286,7 +4286,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L91",
-      "community": 21,
+      "community": 20,
       "norm_label": ".test_get_cached_stocks_respects_columns_parameter()",
       "id": "tests_test_stocks_optimization_testquerycaching_test_get_cached_stocks_respects_columns_parameter"
     },
@@ -4295,7 +4295,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L101",
-      "community": 21,
+      "community": 20,
       "norm_label": ".test_different_queries_not_cached()",
       "id": "tests_test_stocks_optimization_testquerycaching_test_different_queries_not_cached"
     },
@@ -4304,7 +4304,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L105",
-      "community": 21,
+      "community": 20,
       "norm_label": ".test_cache_expiry_after_ttl()",
       "id": "tests_test_stocks_optimization_testquerycaching_test_cache_expiry_after_ttl"
     },
@@ -4313,7 +4313,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L111",
-      "community": 1,
+      "community": 9,
       "norm_label": "testconnectionpool",
       "id": "tests_test_stocks_optimization_testconnectionpool"
     },
@@ -4322,7 +4322,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L114",
-      "community": 1,
+      "community": 9,
       "norm_label": ".test_stocks_engine_has_pool_configuration()",
       "id": "tests_test_stocks_optimization_testconnectionpool_test_stocks_engine_has_pool_configuration"
     },
@@ -4331,7 +4331,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L123",
-      "community": 1,
+      "community": 0,
       "norm_label": "testlazydeserialization",
       "id": "tests_test_stocks_optimization_testlazydeserialization"
     },
@@ -4340,7 +4340,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L126",
-      "community": 1,
+      "community": 0,
       "norm_label": ".test_query_manager_has_deserialize_method()",
       "id": "tests_test_stocks_optimization_testlazydeserialization_test_query_manager_has_deserialize_method"
     },
@@ -4349,7 +4349,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L137",
-      "community": 1,
+      "community": 9,
       "norm_label": "testqueryoptimization",
       "id": "tests_test_stocks_optimization_testqueryoptimization"
     },
@@ -4358,7 +4358,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L140",
-      "community": 1,
+      "community": 9,
       "norm_label": ".test_all_optimizations_present()",
       "id": "tests_test_stocks_optimization_testqueryoptimization_test_all_optimizations_present"
     },
@@ -4367,7 +4367,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L155",
-      "community": 1,
+      "community": 9,
       "norm_label": ".test_query_filter_uses_optimization()",
       "id": "tests_test_stocks_optimization_testqueryoptimization_test_query_filter_uses_optimization"
     },
@@ -4376,7 +4376,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L173",
-      "community": 19,
+      "community": 18,
       "norm_label": "testperformancebenchmarks",
       "id": "tests_test_stocks_optimization_testperformancebenchmarks"
     },
@@ -4385,7 +4385,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L176",
-      "community": 19,
+      "community": 18,
       "norm_label": ".test_tickerindex_lookup_performance()",
       "id": "tests_test_stocks_optimization_testperformancebenchmarks_test_tickerIndex_lookup_performance"
     },
@@ -4394,7 +4394,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L196",
-      "community": 19,
+      "community": 18,
       "norm_label": ".test_prefix_scan_performance()",
       "id": "tests_test_stocks_optimization_testperformancebenchmarks_test_prefix_scan_performance"
     },
@@ -4403,7 +4403,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L216",
-      "community": 19,
+      "community": 18,
       "norm_label": ".test_index_lookup_vs_scan_comparison()",
       "id": "tests_test_stocks_optimization_testperformancebenchmarks_test_index_lookup_vs_scan_comparison"
     },
@@ -4412,7 +4412,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L246",
-      "community": 19,
+      "community": 18,
       "norm_label": ".test_querycache_performance()",
       "id": "tests_test_stocks_optimization_testperformancebenchmarks_test_queryCache_performance"
     },
@@ -4421,7 +4421,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L268",
-      "community": 19,
+      "community": 18,
       "norm_label": ".test_column_projection_performance()",
       "id": "tests_test_stocks_optimization_testperformancebenchmarks_test_column_projection_performance"
     },
@@ -4430,7 +4430,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L283",
-      "community": 19,
+      "community": 18,
       "norm_label": ".test_cache_initialization_time()",
       "id": "tests_test_stocks_optimization_testperformancebenchmarks_test_cache_initialization_time"
     },
@@ -4439,7 +4439,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L301",
-      "community": 1,
+      "community": 9,
       "norm_label": "testfilterbysearchterms",
       "id": "tests_test_stocks_optimization_testfilterbysearchterms"
     },
@@ -4448,7 +4448,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L304",
-      "community": 1,
+      "community": 9,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_optimization_testfilterbysearchterms_test_filter_with_tickerIndex"
     },
@@ -4457,7 +4457,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L310",
-      "community": 1,
+      "community": 9,
       "norm_label": "testqueryperformance",
       "id": "tests_test_stocks_optimization_testqueryperformance"
     },
@@ -4466,7 +4466,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L313",
-      "community": 1,
+      "community": 9,
       "norm_label": ".test_query_response_time_under_1_second()",
       "id": "tests_test_stocks_optimization_testqueryperformance_test_query_response_time_under_1_second"
     },
@@ -4475,7 +4475,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L18",
-      "community": 20,
+      "community": 19,
       "norm_label": "tests for dynamic ticker index feature",
       "id": "tests_test_stocks_optimization_rationale_18"
     },
@@ -4484,7 +4484,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L21",
-      "community": 20,
+      "community": 19,
       "norm_label": "ticker index should be built when cache is loaded",
       "id": "tests_test_stocks_optimization_rationale_21"
     },
@@ -4493,7 +4493,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L29",
-      "community": 20,
+      "community": 19,
       "norm_label": "ticker index should contain all tickers from cache",
       "id": "tests_test_stocks_optimization_rationale_29"
     },
@@ -4502,7 +4502,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L39",
-      "community": 20,
+      "community": 19,
       "norm_label": "ticker index should be case-insensitive",
       "id": "tests_test_stocks_optimization_rationale_39"
     },
@@ -4511,7 +4511,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L48",
-      "community": 20,
+      "community": 19,
       "norm_label": "looking up ticker should return valid row index",
       "id": "tests_test_stocks_optimization_rationale_48"
     },
@@ -4520,7 +4520,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L59",
-      "community": 20,
+      "community": 19,
       "norm_label": "ticker index should be rebuilt when cache refreshes",
       "id": "tests_test_stocks_optimization_rationale_59"
     },
@@ -4529,7 +4529,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L73",
-      "community": 21,
+      "community": 20,
       "norm_label": "tests for query result caching",
       "id": "tests_test_stocks_optimization_rationale_73"
     },
@@ -4538,7 +4538,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L76",
-      "community": 21,
+      "community": 20,
       "norm_label": "cachemanager should track cached queries",
       "id": "tests_test_stocks_optimization_rationale_76"
     },
@@ -4547,7 +4547,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L84",
-      "community": 21,
+      "community": 20,
       "norm_label": "query cache should have configurable ttl",
       "id": "tests_test_stocks_optimization_rationale_84"
     },
@@ -4556,7 +4556,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L92",
-      "community": 21,
+      "community": 20,
       "norm_label": "getcachedstocks should support column filtering",
       "id": "tests_test_stocks_optimization_rationale_92"
     },
@@ -4565,7 +4565,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L102",
-      "community": 21,
+      "community": 20,
       "norm_label": "different query parameters should not share cache",
       "id": "tests_test_stocks_optimization_rationale_102"
     },
@@ -4574,7 +4574,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L106",
-      "community": 21,
+      "community": 20,
       "norm_label": "cache should expire after ttl",
       "id": "tests_test_stocks_optimization_rationale_106"
     },
@@ -4583,7 +4583,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L112",
-      "community": 1,
+      "community": 9,
       "norm_label": "tests for connection pool configuration",
       "id": "tests_test_stocks_optimization_rationale_112"
     },
@@ -4592,7 +4592,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L115",
-      "community": 1,
+      "community": 9,
       "norm_label": "stocks engine should have optimized pool settings",
       "id": "tests_test_stocks_optimization_rationale_115"
     },
@@ -4601,7 +4601,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L124",
-      "community": 1,
+      "community": 0,
       "norm_label": "tests for lazy json deserialization",
       "id": "tests_test_stocks_optimization_rationale_124"
     },
@@ -4610,7 +4610,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L127",
-      "community": 1,
+      "community": 0,
       "norm_label": "query manager should have deserialize method",
       "id": "tests_test_stocks_optimization_rationale_127"
     },
@@ -4619,7 +4619,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L138",
-      "community": 1,
+      "community": 9,
       "norm_label": "integration tests for all query optimizations",
       "id": "tests_test_stocks_optimization_rationale_138"
     },
@@ -4628,7 +4628,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L141",
-      "community": 1,
+      "community": 9,
       "norm_label": "all optimizations should be implemented",
       "id": "tests_test_stocks_optimization_rationale_141"
     },
@@ -4637,7 +4637,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L156",
-      "community": 1,
+      "community": 9,
       "norm_label": "query filter should use ticker index",
       "id": "tests_test_stocks_optimization_rationale_156"
     },
@@ -4646,7 +4646,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L174",
-      "community": 19,
+      "community": 18,
       "norm_label": "performance benchmark tests for stocks api",
       "id": "tests_test_stocks_optimization_rationale_174"
     },
@@ -4655,7 +4655,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L177",
-      "community": 19,
+      "community": 18,
       "norm_label": "ticker index lookup should be o(1) - very fast",
       "id": "tests_test_stocks_optimization_rationale_177"
     },
@@ -4664,7 +4664,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L197",
-      "community": 19,
+      "community": 18,
       "norm_label": "prefix scan should be much slower than index lookup",
       "id": "tests_test_stocks_optimization_rationale_197"
     },
@@ -4673,7 +4673,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L217",
-      "community": 19,
+      "community": 18,
       "norm_label": "index lookup should be significantly faster than scan",
       "id": "tests_test_stocks_optimization_rationale_217"
     },
@@ -4682,7 +4682,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L247",
-      "community": 19,
+      "community": 18,
       "norm_label": "query cache should avoid recomputation",
       "id": "tests_test_stocks_optimization_rationale_247"
     },
@@ -4691,7 +4691,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L269",
-      "community": 19,
+      "community": 18,
       "norm_label": "column projection should reduce memory and time",
       "id": "tests_test_stocks_optimization_rationale_269"
     },
@@ -4700,7 +4700,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L284",
-      "community": 19,
+      "community": 18,
       "norm_label": "cache initialization should complete in reasonable time",
       "id": "tests_test_stocks_optimization_rationale_284"
     },
@@ -4709,7 +4709,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L302",
-      "community": 1,
+      "community": 9,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_optimization_rationale_302"
     },
@@ -4718,7 +4718,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L305",
-      "community": 1,
+      "community": 9,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_optimization_rationale_305"
     },
@@ -4727,7 +4727,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L311",
-      "community": 1,
+      "community": 9,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_optimization_rationale_311"
     },
@@ -4736,7 +4736,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L314",
-      "community": 1,
+      "community": 9,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_optimization_rationale_314"
     },
@@ -4754,7 +4754,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L173",
-      "community": 1,
+      "community": 9,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_optimization_rationale_173"
     },
@@ -4763,7 +4763,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L176",
-      "community": 1,
+      "community": 9,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_optimization_rationale_176"
     },
@@ -4772,7 +4772,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L182",
-      "community": 1,
+      "community": 9,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_optimization_rationale_182"
     },
@@ -4781,7 +4781,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L185",
-      "community": 1,
+      "community": 9,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_optimization_rationale_185"
     },
@@ -4817,7 +4817,7 @@
       "file_type": "code",
       "source_file": "main/app/authentication/authentication.py",
       "source_location": 13,
-      "community": 18,
+      "community": 16,
       "norm_label": "authenticationmanager",
       "id": "AuthenticationManager"
     },
@@ -4826,7 +4826,7 @@
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
       "source_location": 11,
-      "community": 18,
+      "community": 16,
       "norm_label": "sessionmanager",
       "id": "SessionManager"
     },
@@ -4835,7 +4835,7 @@
       "file_type": "code",
       "source_file": "main/app/authentication/util.py",
       "source_location": 1,
-      "community": 18,
+      "community": 16,
       "norm_label": "auth utilities (jwt/password)",
       "id": "auth_util"
     },
@@ -4853,7 +4853,7 @@
       "file_type": "code",
       "source_file": "main/app/authentication/sso.py",
       "source_location": 5,
-      "community": 18,
+      "community": 16,
       "norm_label": "google sso factory",
       "id": "getGoogleSSO"
     },
@@ -4862,7 +4862,7 @@
       "file_type": "code",
       "source_file": "main/app/user/user.py",
       "source_location": 9,
-      "community": 18,
+      "community": 16,
       "norm_label": "usermanager",
       "id": "UserManager"
     },
@@ -4871,7 +4871,7 @@
       "file_type": "code",
       "source_file": "main/app/prometheus/chat.py",
       "source_location": 10,
-      "community": 18,
+      "community": 16,
       "norm_label": "prometheuschatmanager",
       "id": "PrometheusChatManager"
     },
@@ -4880,7 +4880,7 @@
       "file_type": "code",
       "source_file": "main/app/prometheus/generation.py",
       "source_location": 20,
-      "community": 18,
+      "community": 16,
       "norm_label": "prometheusgenerator",
       "id": "PrometheusGenerator"
     },
@@ -4898,7 +4898,7 @@
       "file_type": "code",
       "source_file": "main/app/stocks_api/query.py",
       "source_location": 14,
-      "community": 18,
+      "community": 16,
       "norm_label": "stocksquerymanager",
       "id": "stocksQuery"
     },
@@ -4907,7 +4907,7 @@
       "file_type": "code",
       "source_file": "main/app/stocks_api/key.py",
       "source_location": 14,
-      "community": 18,
+      "community": 16,
       "norm_label": "api key verifier",
       "id": "verifyAPIKey"
     },
@@ -4925,7 +4925,7 @@
       "file_type": "code",
       "source_file": "main/controller/authentication_controller.py",
       "source_location": 1,
-      "community": 18,
+      "community": 16,
       "norm_label": "authentication controller",
       "id": "auth_controller"
     },
@@ -4934,7 +4934,7 @@
       "file_type": "code",
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": 1,
-      "community": 18,
+      "community": 16,
       "norm_label": "prometheus controller",
       "id": "prometheus_controller"
     },
@@ -4943,7 +4943,7 @@
       "file_type": "code",
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": 1,
-      "community": 18,
+      "community": 16,
       "norm_label": "stocks api controller",
       "id": "stocksapi_controller"
     },
@@ -4952,7 +4952,7 @@
       "file_type": "code",
       "source_file": "main/controller/user_controller.py",
       "source_location": 1,
-      "community": 18,
+      "community": 16,
       "norm_label": "user controller",
       "id": "user_controller"
     },
@@ -4960,7 +4960,7 @@
       "label": "Base SQLAlchemy declarative base",
       "file_type": "code",
       "source_file": "main/models/base.py",
-      "community": 24,
+      "community": 25,
       "norm_label": "base sqlalchemy declarative base",
       "id": "Base"
     },
@@ -4968,7 +4968,7 @@
       "label": "PrometheusSession model",
       "file_type": "code",
       "source_file": "main/models/prometheus.py",
-      "community": 24,
+      "community": 25,
       "norm_label": "prometheussession model",
       "id": "PrometheusSession"
     },
@@ -4976,7 +4976,7 @@
       "label": "StocksAPIKey model",
       "file_type": "code",
       "source_file": "main/models/stocksapi_key.py",
-      "community": 24,
+      "community": 25,
       "norm_label": "stocksapikey model",
       "id": "StocksAPIKey"
     },
@@ -4984,7 +4984,7 @@
       "label": "User model",
       "file_type": "code",
       "source_file": "main/models/user.py",
-      "community": 24,
+      "community": 25,
       "norm_label": "user model",
       "id": "User"
     },
@@ -4992,7 +4992,7 @@
       "label": "UserSession model",
       "file_type": "code",
       "source_file": "main/models/user_session.py",
-      "community": 24,
+      "community": 25,
       "norm_label": "usersession model",
       "id": "UserSession"
     },
@@ -5000,7 +5000,7 @@
       "label": "AuthenticationService",
       "file_type": "code",
       "source_file": "main/service/authentication_service.py",
-      "community": 18,
+      "community": 16,
       "norm_label": "authenticationservice",
       "id": "AuthenticationService"
     },
@@ -5008,7 +5008,7 @@
       "label": "PrometheusService",
       "file_type": "code",
       "source_file": "main/service/prometheus_service.py",
-      "community": 18,
+      "community": 16,
       "norm_label": "prometheusservice",
       "id": "PrometheusService"
     },
@@ -5032,7 +5032,7 @@
       "label": "UserService",
       "file_type": "code",
       "source_file": "main/service/user_service.py",
-      "community": 18,
+      "community": 16,
       "norm_label": "userservice",
       "id": "UserService"
     },
@@ -5056,7 +5056,7 @@
       "label": "Mansa Server",
       "file_type": "document",
       "source_file": "README.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "mansa server",
       "id": "mansa_server"
     },
@@ -5064,7 +5064,7 @@
       "label": "FastAPI",
       "file_type": "rationale",
       "source_file": "README.md",
-      "community": 4,
+      "community": 0,
       "norm_label": "fastapi",
       "id": "fastapi"
     },
@@ -5072,7 +5072,7 @@
       "label": "B3 Scraper",
       "file_type": "document",
       "source_file": "docs/scraper_b3.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "b3 scraper",
       "id": "b3_scraper"
     },
@@ -5080,7 +5080,7 @@
       "label": "USER Service",
       "file_type": "document",
       "source_file": "AGENTS.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "user service",
       "id": "user_service"
     },
@@ -5088,7 +5088,7 @@
       "label": "STOCKS_API Service",
       "file_type": "document",
       "source_file": "AGENTS.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "stocks_api service",
       "id": "stocks_api"
     },
@@ -5096,7 +5096,7 @@
       "label": "Prometheus AI",
       "file_type": "document",
       "source_file": "docs/prometheus.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "prometheus ai",
       "id": "prometheus"
     },
@@ -5104,7 +5104,7 @@
       "label": "Authentication System",
       "file_type": "document",
       "source_file": "docs/authentication.md",
-      "community": 0,
+      "community": 1,
       "norm_label": "authentication system",
       "id": "authentication"
     },
@@ -5112,7 +5112,7 @@
       "label": "JWT Authentication",
       "file_type": "rationale",
       "source_file": "docs/authentication.md",
-      "community": 0,
+      "community": 1,
       "norm_label": "jwt authentication",
       "id": "jwt"
     },
@@ -5120,7 +5120,7 @@
       "label": "Google OAuth",
       "file_type": "rationale",
       "source_file": "docs/authentication.md",
-      "community": 0,
+      "community": 1,
       "norm_label": "google oauth",
       "id": "google_oauth"
     },
@@ -5136,7 +5136,7 @@
       "label": "MySQL Database",
       "file_type": "document",
       "source_file": "docker-compose.yml",
-      "community": 15,
+      "community": 13,
       "norm_label": "mysql database",
       "id": "mysql"
     },
@@ -5144,7 +5144,7 @@
       "label": "user_db",
       "file_type": "rationale",
       "source_file": "AGENTS.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "user_db",
       "id": "user_db"
     },
@@ -5152,7 +5152,7 @@
       "label": "stocks_db",
       "file_type": "rationale",
       "source_file": "AGENTS.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "stocks_db",
       "id": "stocks_db"
     },
@@ -5160,7 +5160,7 @@
       "label": "User Roles System",
       "file_type": "rationale",
       "source_file": "docs/user.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "user roles system",
       "id": "user_roles"
     },
@@ -5168,7 +5168,7 @@
       "label": "API Key System",
       "file_type": "rationale",
       "source_file": "docs/stocks_api.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "api key system",
       "id": "api_key_system"
     },
@@ -5176,7 +5176,7 @@
       "label": "RAG Architecture",
       "file_type": "rationale",
       "source_file": "docs/prometheus.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "rag architecture",
       "id": "rag_architecture"
     },
@@ -5184,7 +5184,7 @@
       "label": "Gemini Model",
       "file_type": "rationale",
       "source_file": "docs/prometheus.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "gemini model",
       "id": "gemini_model"
     },
@@ -5208,7 +5208,7 @@
       "label": "Pytest Testing",
       "file_type": "rationale",
       "source_file": "pyproject.toml",
-      "community": 3,
+      "community": 4,
       "norm_label": "pytest testing",
       "id": "pytest"
     },
@@ -5224,7 +5224,7 @@
       "label": "Permission System",
       "file_type": "rationale",
       "source_file": "docs/user.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "permission system",
       "id": "permission_system"
     },
@@ -5232,7 +5232,7 @@
       "label": "Ma'at Stock Algorithm",
       "file_type": "rationale",
       "source_file": "TODO.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "ma'at stock algorithm",
       "id": "ma_at"
     },
@@ -5240,7 +5240,7 @@
       "label": "Thoth Wallet Management",
       "file_type": "rationale",
       "source_file": "TODO.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "thoth wallet management",
       "id": "thoth"
     },
@@ -5248,7 +5248,7 @@
       "label": "Ogum Algo Trading",
       "file_type": "rationale",
       "source_file": "TODO.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "ogum algo trading",
       "id": "ogum"
     },
@@ -5256,7 +5256,7 @@
       "label": "Fundamental Data",
       "file_type": "rationale",
       "source_file": "docs/stocks_api.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "fundamental data",
       "id": "fundamental_data"
     },
@@ -5264,7 +5264,7 @@
       "label": "Historical Data",
       "file_type": "rationale",
       "source_file": "docs/stocks_api.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "historical data",
       "id": "historical_data"
     },
@@ -5272,7 +5272,7 @@
       "label": "Value Investing",
       "file_type": "rationale",
       "source_file": "docs/stocks_api.md",
-      "community": 15,
+      "community": 13,
       "norm_label": "value investing",
       "id": "value_investing"
     }
@@ -11393,6 +11393,168 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_util.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_util_py",
+      "target": "pytest"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_util.py",
+      "source_location": "L9",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_util_py",
+      "target": "fastapi"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_util.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_util_py",
+      "target": "tests_test_stocks_util_testcategorizecolumns"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_util.py",
+      "source_location": "L52",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_util_py",
+      "target": "tests_test_stocks_util_testparseyearinput"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_util.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_util_testcategorizecolumns",
+      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_historical_only"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_util.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_util_testcategorizecolumns",
+      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_fundamental_only"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_util.py",
+      "source_location": "L30",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_util_testcategorizecolumns",
+      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_mixed"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_util.py",
+      "source_location": "L38",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_util_testcategorizecolumns",
+      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_excludes_special"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_util.py",
+      "source_location": "L46",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_util_testcategorizecolumns",
+      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_empty"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_util.py",
+      "source_location": "L53",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_util_testparseyearinput",
+      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_single"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_util.py",
+      "source_location": "L58",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_util_testparseyearinput",
+      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_range"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_util.py",
+      "source_location": "L63",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_util_testparseyearinput",
+      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_none"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_util.py",
+      "source_location": "L68",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_util_testparseyearinput",
+      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_empty_string"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_util.py",
+      "source_location": "L73",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_util_testparseyearinput",
+      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_with_spaces"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_util.py",
+      "source_location": "L78",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_util_testparseyearinput",
+      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_invalid_format"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_util.py",
+      "source_location": "L83",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_util_testparseyearinput",
+      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_invalid_non_digit"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L1",
       "weight": 1.0,
@@ -12359,168 +12521,6 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_cache_rationale_59",
       "target": "tests_test_stocks_cache_testtickerindex_test_tickerIndex_rebuilt_on_cache_refresh"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_util.py",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_stocks_util_py",
-      "target": "pytest"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_util.py",
-      "source_location": "L9",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_stocks_util_py",
-      "target": "fastapi"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_util.py",
-      "source_location": "L11",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_stocks_util_py",
-      "target": "tests_test_stocks_util_testcategorizecolumns"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_util.py",
-      "source_location": "L52",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_stocks_util_py",
-      "target": "tests_test_stocks_util_testparseyearinput"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_util.py",
-      "source_location": "L12",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_stocks_util_testcategorizecolumns",
-      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_historical_only"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_util.py",
-      "source_location": "L21",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_stocks_util_testcategorizecolumns",
-      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_fundamental_only"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_util.py",
-      "source_location": "L30",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_stocks_util_testcategorizecolumns",
-      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_mixed"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_util.py",
-      "source_location": "L38",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_stocks_util_testcategorizecolumns",
-      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_excludes_special"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_util.py",
-      "source_location": "L46",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_stocks_util_testcategorizecolumns",
-      "target": "tests_test_stocks_util_testcategorizecolumns_test_categorize_columns_empty"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_util.py",
-      "source_location": "L53",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_stocks_util_testparseyearinput",
-      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_single"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_util.py",
-      "source_location": "L58",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_stocks_util_testparseyearinput",
-      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_range"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_util.py",
-      "source_location": "L63",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_stocks_util_testparseyearinput",
-      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_none"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_util.py",
-      "source_location": "L68",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_stocks_util_testparseyearinput",
-      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_empty_string"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_util.py",
-      "source_location": "L73",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_stocks_util_testparseyearinput",
-      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_with_spaces"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_util.py",
-      "source_location": "L78",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_stocks_util_testparseyearinput",
-      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_invalid_format"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_util.py",
-      "source_location": "L83",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_stocks_util_testparseyearinput",
-      "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_invalid_non_digit"
     },
     {
       "relation": "contains",
@@ -13732,5 +13732,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "20e53cf3761a2f5940d626651b50514d5e1aa9a6"
+  "built_at_commit": "126e083e3218b99d6a2aeecb68f0e397cf54e513"
 }
