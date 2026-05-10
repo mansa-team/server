@@ -393,7 +393,10 @@ class B3Scraper:
                 ticker=TICKER, profitsDf=profit10yDF, companyLiquidity=companyLiquidity, prefixLiquidity=prefixLiquidity
             )
 
-            newDF["INVESTING SCORE"] = min(max(score, 0), 100)
+            if score is None or pd.isna(score):
+                newDF["INVESTING SCORE"] = np.nan
+            else:
+                newDF["INVESTING SCORE"] = min(max(score, 0), 100)
         except Exception as e:
             newDF["INVESTING SCORE"] = np.nan
 
@@ -600,11 +603,17 @@ class B3Scraper:
                 mergeSql = f"""
                 UPDATE b3_stocks s
                 INNER JOIN (
-                    SELECT TICKER, MAX(`{col}`) as VAL
-                    FROM b3_stocks
-                    WHERE `{col}` IS NOT NULL
-                      AND TIME < :currentDate
-                    GROUP BY TICKER
+                    SELECT TICKER, `{col}` as VAL
+                    FROM b3_stocks t1
+                    WHERE t1.`{col}` IS NOT NULL
+                      AND t1.TIME < :currentDate
+                      AND t1.TIME = (
+                          SELECT MAX(t2.TIME)
+                          FROM b3_stocks t2
+                          WHERE t2.TICKER = t1.TICKER
+                            AND t2.`{col}` IS NOT NULL
+                            AND t2.TIME < :currentDate
+                      )
                 ) prev ON s.TICKER = prev.TICKER
                 SET s.`{col}` = COALESCE(s.`{col}`, prev.VAL)
                 WHERE s.`{col}` IS NULL

@@ -49,8 +49,9 @@ class StocksCacheManager:
                     cols = ["TICKER", "NOME", "TIME"] + [
                         c for c in validatedCols if c not in ["TICKER", "NOME", "TIME"]
                     ]
-
-                    query = f"SELECT {','.join(cols)} FROM b3_stocks"  # nosec: B608
+                    
+                    quotedCols = [f"`{c}`" for c in cols]
+                    query = f"SELECT {','.join(quotedCols)} FROM b3_stocks"
                     df = pd.read_sql(query, conn)
                 else:
                     df = pd.read_sql("SELECT * FROM b3_stocks", conn)

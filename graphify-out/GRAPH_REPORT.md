@@ -1,16 +1,16 @@
 # Graph Report - server  (2026-05-10)
 
 ## Corpus Check
-- 48 files · ~25,384 words
+- 48 files · ~25,424 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 584 nodes · 831 edges · 43 communities (29 shown, 14 thin omitted)
+- 584 nodes · 831 edges · 44 communities (29 shown, 15 thin omitted)
 - Extraction: 73% EXTRACTED · 27% INFERRED · 0% AMBIGUOUS · INFERRED: 223 edges (avg confidence: 0.7)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `126e083e`
+- Built from commit: `8a6231a4`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -48,13 +48,14 @@
 - [[_COMMUNITY_Error Handling|Error Handling]]
 - [[_COMMUNITY_Helpers|Helpers]]
 - [[_COMMUNITY_Docker|Docker]]
-- [[_COMMUNITY_Community 36|Community 36]]
+- [[_COMMUNITY_Community 33|Community 33]]
 - [[_COMMUNITY_Community 37|Community 37]]
 - [[_COMMUNITY_Community 38|Community 38]]
 - [[_COMMUNITY_Community 39|Community 39]]
 - [[_COMMUNITY_Community 40|Community 40]]
 - [[_COMMUNITY_Community 41|Community 41]]
 - [[_COMMUNITY_Community 42|Community 42]]
+- [[_COMMUNITY_Community 43|Community 43]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `StocksCacheManager` - 59 edges
@@ -88,7 +89,7 @@
 - **Configuration & Database Infrastructure** — config_Config, config_engine, config_stocksEngine [INFERRED]
 - **User Authentication & Authorization** — user_service, authentication, user_roles, permission_system [INFERRED]
 
-## Communities (43 total, 14 thin omitted)
+## Communities (44 total, 15 thin omitted)
 
 ### Community 0 - "Stocks API Controller"
 Cohesion: 0.06
@@ -124,15 +125,15 @@ Nodes (5): B3Scraper, getInitialData(), calculateInvestingScore(), runScraper(),
 
 ### Community 8 - "User Model"
 Cohesion: 0.09
-Nodes (15): Performance benchmark tests for stocks API, Performance benchmark tests for stocks API, Ticker index lookup should be O(1) - very fast, Ticker index lookup should be O(1) - very fast, Prefix scan should be much slower than index lookup, Prefix scan should be much slower than index lookup, Index lookup should be significantly faster than scan, Index lookup should be significantly faster than scan (+7 more)
-
-### Community 9 - "Device Detection"
-Cohesion: 0.09
 Nodes (17): Tests for connection pool configuration, Stocks engine should have optimized pool settings, Integration tests for all query optimizations, All optimizations should be implemented, Query filter should use ticker index, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Performance tests for query operations (+9 more)
 
-### Community 11 - "User Service"
+### Community 10 - "Prometheus Chat"
 Cohesion: 0.16
 Nodes (8): StocksCacheManager, Tests for dynamic ticker index feature, Ticker index should be built when cache is loaded, Ticker index should contain all tickers from cache, Ticker index should be case-insensitive, Looking up ticker should return valid row index, Ticker index should be rebuilt when cache refreshes, TestTickerIndex
+
+### Community 11 - "User Service"
+Cohesion: 0.11
+Nodes (13): Performance benchmark tests for stocks API, Performance benchmark tests for stocks API, Ticker index lookup should be O(1) - very fast, Ticker index lookup should be O(1) - very fast, Prefix scan should be much slower than index lookup, Prefix scan should be much slower than index lookup, Index lookup should be significantly faster than scan, Index lookup should be significantly faster than scan (+5 more)
 
 ### Community 12 - "Scraper Service"
 Cohesion: 0.19
@@ -190,23 +191,23 @@ Nodes (5): Base SQLAlchemy declarative base, PrometheusSession model, StocksAPIK
 Cohesion: 0.83
 Nodes (3): getDatabaseUrl(), runMigrationsOffline(), runMigrationsOnline()
 
-### Community 29 - "Settings"
+### Community 30 - "Error Handling"
 Cohesion: 0.67
 Nodes (3): checkMySqlConnection, MySQL Engine (user_db), MySQL Engine (stocks_db)
 
 ## Knowledge Gaps
 - **110 isolated node(s):** `Initial migration  Revision ID: 25af7ad931e7 Revises: Create Date: 2026-04-0`, `User sessions table  Revision ID: 4a2f1c9e3b5d Revises: 25af7ad931e7 Create Date`, `Tests for dynamic ticker index feature`, `Looking up ticker should return valid row index`, `Tests for query result caching` (+105 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **14 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **15 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Pytest Testing` connect `SQLAlchemy Models` to `Stocks API Controller`, `Authentication Manager`, `Stocks Cache & Query`, `Session Management`, `Configuration & Logging`, `Device Detection`?**
+- **Why does `Pytest Testing` connect `SQLAlchemy Models` to `Stocks API Controller`, `Authentication Manager`, `Stocks Cache & Query`, `Session Management`, `Configuration & Logging`, `User Model`?**
   _High betweenness centrality (0.325) - this node is a cross-community bridge._
 - **Why does `FastAPI` connect `Stocks API Controller` to `Authentication Manager`, `Configuration & Logging`, `Auth Service`, `User Controller`, `Decorators`, `API Key Model`, `MySQL Connectivity`, `Auth Constants`?**
   _High betweenness centrality (0.264) - this node is a cross-community bridge._
-- **Why does `StocksQueryManager` connect `Stocks API Controller` to `Stocks Cache & Query`, `User Model`, `Device Detection`, `User Service`, `Responses`, `Enums`, `Prometheus Model`?**
+- **Why does `StocksQueryManager` connect `Stocks API Controller` to `Stocks Cache & Query`, `User Model`, `Prometheus Chat`, `User Service`, `Responses`, `Enums`, `Prometheus Model`?**
   _High betweenness centrality (0.146) - this node is a cross-community bridge._
 - **Are the 54 inferred relationships involving `StocksCacheManager` (e.g. with `StocksQueryManager` and `TestTickerIndex`) actually correct?**
   _`StocksCacheManager` has 54 INFERRED edges - model-reasoned connections that need verification._

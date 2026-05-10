@@ -54,7 +54,8 @@ A high-performance Python scraper to collect, process, and store Brazilian stock
 
 ## Xangô
 
-Mansa's own stock scoring algorithm created for the Brazilian Stock Market that focus on the fundamental approaches that Mansa seeks for evaluating stocks, it addresses the Growth-Volatility Paradox to select stocks with consise growth in profits, grading stocks based on their ability to generate consistent profits over time and grow with them, using math to achieve these goals.
+Mansa's own stock scoring algorithm for the Brazilian Stock Market focuses on the fundamental principles Mansa uses to evaluate stocks. It addresses the Growth-Volatility Paradox to select stocks with concise, consistent profit growth, grading them based on their ability to generate and grow profits over time using mathematical methods.
+
 
 ### Global Score Function
 

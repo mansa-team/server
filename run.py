@@ -53,7 +53,7 @@ async def lifespan(app: FastAPI):
             PrometheusService.initialize(Config.PROMETHEUS["PORT"])
         else:
             if not checkServiceConnection("PROMETHEUS"):
-                logger.error("Remote connection to the PRONETHEUS Service failed")
+                logger.error("Remote connection to the PROMETHEUS Service failed")
 
     if Config.SCRAPER["ENABLED"]:
         ScraperService.initialize()
