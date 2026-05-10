@@ -11,14 +11,12 @@ from main.app.stocks_api.util import categorizeColumns, parseYearInput
 if TYPE_CHECKING:
     from main.app.stocks_api.cache import StocksCacheManager
 
+
 class StocksQueryManager:
     def __init__(self, cacheManager: "StocksCacheManager"):
         self.cacheManager = cacheManager
 
-    SPECIAL_COLS = frozenset([
-        "COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA",
-        "HISTORICO DIVIDENDOS", "NOTICIAS"
-    ])
+    SPECIAL_COLS = frozenset(["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"])
 
     def deserializeJsonColumns(self, df: pd.DataFrame) -> pd.DataFrame:
         if df.empty:
@@ -52,7 +50,17 @@ class StocksQueryManager:
     def filterBySearchTerms(self, df: pd.DataFrame, search: str) -> pd.DataFrame:
         if not search:
             return df
+
         searchTerms = [s.strip().upper() for s in search.split(",")]
+
+        valid_indices = []
+        for term in searchTerms:
+            if term in self.cacheManager.tickerIndex:
+                valid_indices.append(self.cacheManager.tickerIndex[term])
+
+        if valid_indices:
+            return df.iloc[valid_indices]
+
         mask = pd.Series([False] * len(df), index=df.index)
         for term in searchTerms:
             mask |= df["TICKER"].str.upper().str.startswith(term)
@@ -192,5 +200,6 @@ class StocksQueryManager:
             }
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Cached fundamental error: {str(e)}")
+
 
 stocksQuery = StocksQueryManager(stocksCache)

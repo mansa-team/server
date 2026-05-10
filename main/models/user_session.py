@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, TIMESTAMP, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from main.models.base import Base
 
+
 class UserSession(Base):
     __tablename__ = "user_sessions"
 

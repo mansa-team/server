@@ -28,7 +28,9 @@ class AuthenticationManager:
 
             hashedPassword = hashPassword(password) if password else None
 
-            newUser = User(username=username, email=email, passwordHash=hashedPassword, googleId=googleId, roles=Roles.USER.name)
+            newUser = User(
+                username=username, email=email, passwordHash=hashedPassword, googleId=googleId, roles=Roles.USER.name
+            )
 
             db.add(newUser)
             db.commit()

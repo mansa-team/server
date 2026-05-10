@@ -13,6 +13,7 @@ cloudscraper
 tenacity
 apscheduler
 pytz
+lxml
 
 # STOCKS-API
 fastapi

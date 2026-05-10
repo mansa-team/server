@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import create_engine, QueuePool
 from sqlalchemy.orm import sessionmaker, scoped_session
 
+
 def applyIPv4Force():
     _old_getaddrinfo = socket.getaddrinfo
 
@@ -15,7 +16,9 @@ def applyIPv4Force():
 
     socket.getaddrinfo = _new_getaddrinfo
 
+
 applyIPv4Force()
+
 
 class BaseMansaSettings(BaseSettings):
     def get(self, item, default=None):
@@ -25,6 +28,7 @@ class BaseMansaSettings(BaseSettings):
             return default
         except AttributeError:
             return default
+
 
 class MysqlSettings(BaseMansaSettings):
     USER_USER: Optional[str] = Field(default=None, validation_alias=AliasChoices("USER_MYSQL_USER"))
@@ -42,6 +46,7 @@ class MysqlSettings(BaseMansaSettings):
 
     def __getitem__(self, item):
         return getattr(self, item)
+
 
 class UserSettings(BaseMansaSettings):
     ENABLED: bool = Field(default=True, validation_alias=AliasChoices("USER_ENABLED"))
@@ -62,6 +67,7 @@ class UserSettings(BaseMansaSettings):
         }
         return getattr(self, mapping.get(item, item))
 
+
 class StocksApiSettings(BaseMansaSettings):
     ENABLED: bool = Field(default=True, validation_alias=AliasChoices("STOCKSAPI_ENABLED"))
     HOST: str = Field(default="localhost", validation_alias=AliasChoices("STOCKSAPI_HOST"))
@@ -76,6 +82,7 @@ class StocksApiSettings(BaseMansaSettings):
         mapping = {"KEY.SYSTEM": "KEY_SYSTEM", "DEFAULT.QUOTA": "DEFAULT_QUOTA", "QUOTA.RESETDAYS": "QUOTA_RESETDAYS"}
         return getattr(self, mapping.get(item, item))
 
+
 class PrometheusSettings(BaseMansaSettings):
     ENABLED: bool = Field(default=True, validation_alias=AliasChoices("PROMETHEUS_ENABLED"))
     HOST: str = Field(default="localhost", validation_alias=AliasChoices("PROMETHEUS_HOST"))
@@ -86,6 +93,7 @@ class PrometheusSettings(BaseMansaSettings):
     def __getitem__(self, item):
         mapping = {"GEMINI_API.KEY": "GEMINI_API_KEY"}
         return getattr(self, mapping.get(item, item))
+
 
 class ScraperSettings(BaseMansaSettings):
     ENABLED: bool = Field(default=False, validation_alias=AliasChoices("SCRAPER_ENABLED"))
@@ -98,6 +106,7 @@ class ScraperSettings(BaseMansaSettings):
     def __getitem__(self, item):
         return getattr(self, item)
 
+
 class DiscordSettings(BaseMansaSettings):
     ENABLED: bool = Field(default=False, validation_alias=AliasChoices("DISCORD_ENABLED"))
     WEBHOOK_URL: str = Field(default="", validation_alias=AliasChoices("DISCORD_WEBHOOK_URL"))
@@ -105,7 +114,8 @@ class DiscordSettings(BaseMansaSettings):
 
     def __getitem__(self, item):
         return getattr(self, item)
-    
+
+
 class Config:
     DEBUG_MODE: bool = os.getenv("DEBUG_MODE", "FALSE").upper() == "TRUE"
     MYSQL = MysqlSettings()
@@ -114,6 +124,7 @@ class Config:
     SCRAPER = ScraperSettings()
     USER = UserSettings()
     DISCORD = DiscordSettings()
+
 
 LOCALHOST_ADDRESSES = ["localhost", "127.0.0.1", "0.0.0.0", "None", "host.docker.internal", None]
 
@@ -141,12 +152,14 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 StocksSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=stocksEngine)
 ScopedSession = scoped_session(SessionLocal)
 
+
 def getSession():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
 
 def getStocksSession():
     db = StocksSessionLocal()

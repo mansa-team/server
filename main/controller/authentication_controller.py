@@ -17,12 +17,15 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
+
 def isSecureScheme(request: Request) -> bool:
     return request.url.scheme == "https" if request.url.scheme else False
+
 
 @router.get("/health")
 def health(request: Request):
     return {"status": "ok", "service": "authentication"}
+
 
 @router.post("/register")
 @limiter.limit("5/minute")
@@ -66,6 +69,7 @@ def register(
         logger.error("Unexpected error during registration", exc_info=True)
         raise HTTPException(status_code=500, detail="Registration failed. Internal error.")
 
+
 @router.post("/login")
 @limiter.limit("5/minute")
 def login(
@@ -96,6 +100,7 @@ def login(
 
     return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
 
+
 @router.post("/logout")
 def logout(request: Request, response: Response, db: Session = Depends(getSession)):
     from main.app.authentication.util import verifyAccessToken
@@ -117,14 +122,15 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
                     SessionManager.revokeSession(db, sessionId, userId)
                 except (ValueError, TypeError):
                     pass
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Logout token verification failed: {e}")
 
     useCookieSecure = isSecureScheme(request)
     response.delete_cookie(
         key=COOKIE_NAME, httponly=True, secure=useCookieSecure, samesite=COOKIE_SAMESITE, path=COOKIE_PATH
     )
     return {"message": "Successfully logged out"}
+
 
 @router.get("/google")
 @limiter.limit("5/minute")
@@ -140,6 +146,7 @@ async def googleLogin(request: Request):
     googleSSO = getGoogleSSO()
     async with googleSSO:
         return await googleSSO.get_login_redirect(state=redirectUrl)
+
 
 @router.get("/callback")
 @limiter.limit("5/minute")

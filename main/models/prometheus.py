@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, ForeignKey, TIMESTAMP, Enu
 from sqlalchemy.orm import relationship
 from main.models.base import Base
 
+
 class PrometheusSession(Base):
     __tablename__ = "prometheus"
 

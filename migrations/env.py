@@ -22,8 +22,10 @@ if config.config_file_name is not None:
 
 targetMetadata = Base.metadata
 
+
 def getDatabaseUrl() -> str:
     return f"mysql+pymysql://{Config.MYSQL['USER_USER']}:{Config.MYSQL['USER_PASSWORD']}@{Config.MYSQL['USER_HOST']}/{Config.MYSQL['USER_DATABASE']}"
+
 
 def runMigrationsOffline() -> None:
     context.configure(
@@ -35,6 +37,7 @@ def runMigrationsOffline() -> None:
 
     with context.begin_transaction():
         context.run_migrations()
+
 
 def runMigrationsOnline() -> None:
     configuration = config.get_section(config.config_ini_section, {})
@@ -51,6 +54,7 @@ def runMigrationsOnline() -> None:
 
         with context.begin_transaction():
             context.run_migrations()
+
 
 if context.is_offline_mode():
     runMigrationsOffline()

@@ -1,4 +1,5 @@
 import logging
+import re
 from config import stocksEngine
 
 import threading
@@ -9,34 +10,68 @@ from sqlalchemy.engine import Engine
 
 logger = logging.getLogger(__name__)
 
+COLUMN_VALIDATOR = re.compile(r"^[A-Z0-9_ ]+$", re.IGNORECASE)
+
+
 class StocksCacheManager:
     def __init__(self, db: Engine, cacheLock: threading.Lock):
         self.db = db
         self.cacheLock = cacheLock
         self.STOCKS_CACHE = None
+        self.tickerIndex: dict = {}
+        self.queryCache: dict = {}
+        self.QUERY_CACHE_TTL = 300  # 5 minutes TTL
 
     def cacheScheduler(self):
         def scheduler():
             self.getCachedStocks()
             while True:
-                time.sleep(12*60*60) # 12 hours
+                time.sleep(12 * 60 * 60)  # 12 hours
                 self.getCachedStocks()
 
         thread = threading.Thread(target=scheduler, daemon=True)
         thread.start()
 
-    def getCachedStocks(self):
+    def getCachedStocks(self, columns: list[str] | None = None, force_refresh: bool = False):
+        cacheKey = tuple(columns) if columns else None
+        now = time.time()
+
+        if not force_refresh:
+            if cacheKey in self.queryCache:
+                cachedData, cached_time = self.queryCache[cacheKey]
+                if now - cached_time < self.QUERY_CACHE_TTL:
+                    return cachedData
+
         try:
             with self.db.connect() as conn:
-                df = pd.read_sql("SELECT * FROM b3_stocks", conn)
+                if columns:
+                    validatedCols = [c for c in columns if c and COLUMN_VALIDATOR.match(str(c))]
+                    cols = ["TICKER", "NOME", "TIME"] + [
+                        c for c in validatedCols if c not in ["TICKER", "NOME", "TIME"]
+                    ]
+                    
+                    quotedCols = [f"`{c}`" for c in cols]
+                    query = f"SELECT {','.join(quotedCols)} FROM b3_stocks"
+                    df = pd.read_sql(query, conn)
+                else:
+                    df = pd.read_sql("SELECT * FROM b3_stocks", conn)
+
                 df = df.replace({np.nan: None, np.inf: None, -np.inf: None})
 
-                with self.cacheLock: 
+                self.tickerIndex = {str(ticker).upper(): idx for idx, ticker in enumerate(df["TICKER"])}
+
+                with self.cacheLock:
                     self.STOCKS_CACHE = df
-                
-                logger.info(f"Stocks cache updated ({len(df)} records)")
+
+                self.queryCache[cacheKey] = (df, now)
+
+                logger.info(f"Stocks cache updated ({len(df)} records, {len(self.tickerIndex)} tickers)")
 
         except Exception as e:
             logger.error(f"Error updating stocks cache: {str(e)}", exc_info=True)
+
+    def clearQueryCache(self):
+        self.queryCache.clear()
+
 
 stocksCache = StocksCacheManager(stocksEngine, threading.Lock())
