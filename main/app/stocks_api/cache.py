@@ -12,13 +12,14 @@ logger = logging.getLogger(__name__)
 
 COLUMN_VALIDATOR = re.compile(r"^[A-Z0-9_ ]+$", re.IGNORECASE)
 
+
 class StocksCacheManager:
     def __init__(self, db: Engine, cacheLock: threading.Lock):
         self.db = db
         self.cacheLock = cacheLock
         self.STOCKS_CACHE = None
-        self.tickerIndex = {}
-        self.queryCache = {}
+        self.tickerIndex: dict = {}
+        self.queryCache: dict = {}
         self.QUERY_CACHE_TTL = 300  # 5 minutes TTL
 
     def cacheScheduler(self):
@@ -45,7 +46,9 @@ class StocksCacheManager:
             with self.db.connect() as conn:
                 if columns:
                     validatedCols = [c for c in columns if c and COLUMN_VALIDATOR.match(str(c))]
-                    cols = ["TICKER", "NOME", "TIME"] + [c for c in validatedCols if c not in ["TICKER", "NOME", "TIME"]]
+                    cols = ["TICKER", "NOME", "TIME"] + [
+                        c for c in validatedCols if c not in ["TICKER", "NOME", "TIME"]
+                    ]
 
                     query = f"SELECT {','.join(cols)} FROM b3_stocks"  # nosec: B608
                     df = pd.read_sql(query, conn)

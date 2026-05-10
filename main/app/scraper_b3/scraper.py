@@ -22,6 +22,7 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.linear_model import LinearRegression
 
 logger = logging.getLogger(__name__)
+logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
@@ -214,7 +215,7 @@ class B3Scraper:
         newDF = {
             "TICKER": TICKER,
             **{f"COTACAO {year}": float(row["quotation"]) for year, row in df.iterrows()},
-            **{f"LUCRO LIQUIDO {year}": row["netProfit"] for year, row in df.iterrows()},
+            **{f"LUCRO LIQUIDO {year}": row["net_profit"] for year, row in df.iterrows()},
         }
 
         return pd.DataFrame([newDF]).set_index("TICKER")
@@ -265,10 +266,7 @@ class B3Scraper:
 
         tagAlong = np.nan
         if match:
-            try:
-                tagAlong = int(float(match.group(1).replace(",", ".").strip()))
-            except ValueError as e:
-                logger.debug(f"Failed to parse TAG ALONG for {TICKER}: {e}")
+            tagAlong = int(float(match.group(1).replace(",", ".").strip()))
 
         return pd.DataFrame([{"TICKER": TICKER, "TAG ALONG": tagAlong}]).set_index("TICKER")
 
@@ -452,7 +450,7 @@ class B3Scraper:
                 taskDf = task(ticker)
                 results.append(taskDf)
             except Exception as e:
-                logger.error(f"Error ({ticker}) in {task.__name__}: {e}", exc_info=True)
+                logger.error(f"Error ({ticker}) in {task.__name__}: {e}")
                 results.append(pd.DataFrame(index=pd.Index([ticker], name="TICKER")))
 
         combinedDF = pd.concat(results, axis=1)
@@ -462,7 +460,7 @@ class B3Scraper:
             fundamentalDF.index = combinedDF.index
             combinedDF = pd.concat([combinedDF, fundamentalDF], axis=1)
         except Exception as e:
-            logger.error(f"Error ({ticker}) in fundamentalIndicators: {e}", exc_info=True)
+            logger.error(f"Error ({ticker}) in fundamentalIndicators: {e}")
 
         return (ticker, combinedDF)
 
@@ -479,7 +477,7 @@ class B3Scraper:
                 try:
                     processedDfs.append(resultDf)
                 except Exception as e:
-                    logger.error(f"Error processing {ticker}: {e}", exc_info=True)
+                    logger.error(f"Error processing {ticker}: {e}")
 
         processedDfs = [
             df for df in processedDfs if len(df.dropna(how="all")) > 0 and len(df.dropna(how="all", axis=1)) > 0
@@ -530,7 +528,6 @@ class B3Scraper:
         if df.empty:
             return df
 
-        df = df.copy()
         df["TICKER"] = df.index
         df = df.reset_index(drop=True)
 
@@ -549,47 +546,15 @@ class B3Scraper:
 
     def exportJson(self, df):
         if Config.SCRAPER["JSON"] and not df.empty:
-            specialCols = ["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"]
+            df = df.copy()
+            for col in df.select_dtypes(include=["datetime"]).columns:
+                df[col] = df[col].astype(str)
 
-            def convertValue(val, col):
-                if col in specialCols and isinstance(val, (dict, list)):
-                    return val
-                elif isinstance(val, str):
-                    try:
-                        return json.loads(val)
-                    except:
-                        return val
-                return val
-
-            def convertRecursive(val):
-                if hasattr(val, "isoformat"):
-                    return val.isoformat()
-                elif isinstance(val, dict):
-                    return {k: convertRecursive(v) for k, v in val.items()}
-                elif isinstance(val, list):
-                    return [convertRecursive(item) for item in val]
-                return val
-
-            records = []
-            for idx in range(len(df)):
-                record = {}
-                for col in df.columns:
-                    val = df.iloc[idx][col]
-                    val = convertValue(val, col)
-                    record[col] = convertRecursive(val)
-
-                records.append(record)
-
-            with open(f"b3_stocks.json", "w", encoding="utf-8") as f:
-                json.dump(records, f, ensure_ascii=False)
+            df.to_json(f"b3_stocks.json", orient="records", force_ascii=False, default_handler=str)
 
     def exportMysql(self, df):
         if not Config.SCRAPER["MYSQL"] or df.empty:
             return
-
-        df = df.copy()
-        df["TICKER"] = df.index
-        df = df.reset_index(drop=True)
 
         with self.engine.begin() as conn:
             existingCols = pd.read_sql("SELECT * FROM b3_stocks LIMIT 1", con=conn).columns.tolist()
@@ -611,7 +576,7 @@ class B3Scraper:
                 if col in df.columns:
                     conn.execute(text(f"ALTER TABLE b3_stocks MODIFY COLUMN `{col}` LONGTEXT NULL"))
 
-            df.to_sql("b3_stocks", con=conn, if_exists="append", index=False, method=None, chunksize=1)
+            df.to_sql("b3_stocks", con=conn, if_exists="append", index=False, method="multi", chunksize=50)
 
             cleanupSql = """
             CREATE TEMPORARY TABLE IF NOT EXISTS tickerLookup (

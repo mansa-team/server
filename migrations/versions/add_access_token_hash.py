@@ -21,7 +21,7 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Add accessTokenHash, operatingSystem, lastActivityAt, sessionId to user_sessions."""
     conn = op.get_bind()
-    
+
     # Change sessionId to VARCHAR(64) if currently smaller
     result = conn.execute(text("SHOW COLUMNS FROM user_sessions WHERE Field = 'sessionId'"))
     col = result.fetchone()
@@ -29,22 +29,26 @@ def upgrade() -> None:
         type_str = str(col).lower()
         if "64" not in type_str:
             op.execute(text("ALTER TABLE user_sessions MODIFY sessionId VARCHAR(64) NOT NULL"))
-    
+
     # Add accessTokenHash if not exists
     result = conn.execute(text("SHOW COLUMNS FROM user_sessions LIKE 'accessTokenHash'"))
     if not result.fetchone():
         op.add_column("user_sessions", sa.Column("accessTokenHash", sa.String(length=64), nullable=True))
-    
+
     # Add operatingSystem if not exists
     result = conn.execute(text("SHOW COLUMNS FROM user_sessions LIKE 'operatingSystem'"))
     if not result.fetchone():
         op.add_column("user_sessions", sa.Column("operatingSystem", sa.String(length=50), nullable=True))
-    
+
     # Add lastActivityAt if not exists
     result = conn.execute(text("SHOW COLUMNS FROM user_sessions LIKE 'lastActivityAt'"))
     if not result.fetchone():
         op.add_column("user_sessions", sa.Column("lastActivityAt", sa.TIMESTAMP(), nullable=True))
-        op.execute(text("UPDATE user_sessions SET lastActivityAt = lastActiveAt WHERE lastActivityAt IS NULL AND lastActiveAt IS NOT NULL"))
+        op.execute(
+            text(
+                "UPDATE user_sessions SET lastActivityAt = lastActiveAt WHERE lastActivityAt IS NULL AND lastActiveAt IS NOT NULL"
+            )
+        )
 
 
 def downgrade() -> None:

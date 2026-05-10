@@ -17,6 +17,7 @@ from main.service.stocksapi_service import StocksAPIService
 
 logger = logging.getLogger(__name__)
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     dbConnected = False
@@ -24,33 +25,37 @@ async def lifespan(app: FastAPI):
         if checkMySqlConnection():
             dbConnected = True
             break
-        logger.info(f"Retrying database connection ({i+1}/10)")
+        logger.info(f"Retrying database connection ({i + 1}/10)")
         await asyncio.sleep(3)
 
     if not dbConnected:
         logger.error("Database connection failed after retries.")
-    else: runMigrations()
+    else:
+        runMigrations()
 
-    if Config.USER['ENABLED']:
-        if Config.USER['HOST'] in LOCALHOST_ADDRESSES:
-            AuthenticationService.initialize(Config.USER['PORT'])
-            UserService.initialize(Config.USER['PORT'])
+    if Config.USER["ENABLED"]:
+        if Config.USER["HOST"] in LOCALHOST_ADDRESSES:
+            AuthenticationService.initialize(Config.USER["PORT"])
+            UserService.initialize(Config.USER["PORT"])
         else:
-            if not checkServiceConnection("USER"): logger.error("Remote connection to the USER Service failed")
+            if not checkServiceConnection("USER"):
+                logger.error("Remote connection to the USER Service failed")
 
-    if Config.STOCKS_API['ENABLED']:
-        if Config.STOCKS_API['HOST'] in LOCALHOST_ADDRESSES:
-            StocksAPIService.initialize(Config.STOCKS_API['PORT'])
+    if Config.STOCKS_API["ENABLED"]:
+        if Config.STOCKS_API["HOST"] in LOCALHOST_ADDRESSES:
+            StocksAPIService.initialize(Config.STOCKS_API["PORT"])
         else:
-            if not checkServiceConnection("STOCKS_API"): logger.error("Remote connection to the STOCKS_API Service failed")
+            if not checkServiceConnection("STOCKS_API"):
+                logger.error("Remote connection to the STOCKS_API Service failed")
 
-    if Config.PROMETHEUS['ENABLED']:
-        if Config.PROMETHEUS['HOST'] in LOCALHOST_ADDRESSES:
-            PrometheusService.initialize(Config.PROMETHEUS['PORT'])
+    if Config.PROMETHEUS["ENABLED"]:
+        if Config.PROMETHEUS["HOST"] in LOCALHOST_ADDRESSES:
+            PrometheusService.initialize(Config.PROMETHEUS["PORT"])
         else:
-            if not checkServiceConnection("PROMETHEUS"): logger.error("Remote connection to the PRONETHEUS Service failed")
+            if not checkServiceConnection("PROMETHEUS"):
+                logger.error("Remote connection to the PRONETHEUS Service failed")
 
-    if Config.SCRAPER['ENABLED']:
+    if Config.SCRAPER["ENABLED"]:
         ScraperService.initialize()
 
     ServiceManager.runAll()
@@ -58,12 +63,16 @@ async def lifespan(app: FastAPI):
 
     yield
 
+
 app = FastAPI(title="Mansa Server", lifespan=lifespan)
+
 
 @app.get("/health")
 async def health():
     return {"status": "ok", "message": "Mansa Server is running"}
 
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)
