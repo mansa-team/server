@@ -109,29 +109,29 @@ class PrometheusGenerator:
                 1. Defina "search" como "" (string vazia).
                 2. Defina "limit" como o número solicitado (ex: 10 ou 20).
                 3. COMPATIBILIDADE DE CAMPOS (CRITICAL): O "order_by" DEVE ser compatível com o "type" do objeto:
-                   - Se type: fundamental, use: "VALUE INVESTING SCORE" (preferencial), "CAGR LUCROS 10 ANOS", "ROE", "DY", etc.
+                   - Se type: fundamental, use: "INVESTING SCORE" (preferencial), "CAGR LUCROS 10 ANOS", "ROE", "DY", etc.
                    - Se type: historical, use: "LUCRO LIQUIDO", "RECEITA LIQUIDA", "DIVIDENDOS", etc.
                 4. Se o critério for rentabilidade, use "order_by" compatível (ex: "RENT TOTAL" para fundamental).
                 5. Use SEMPRE a data atual {Y-M-D} para date_start e date_end para obter os rankings mais recentes em fundamental.
 
             Lista de Campos Válidos (Strict):
             * historical (Apenas ANOS - Ex: {CURRENT_YEAR}): DESPESAS, DIVIDENDOS, DY, LUCRO LIQUIDO, MARGEM BRUTA, MARGEM EBIT, MARGEM EBITDA, MARGEM LIQUIDA, RECEITA LIQUIDA, COTACAO
-            * fundamental (DATAS COMPLETAS - Ex: {CURRENT_DATE}): PRECO, VALOR DE MERCADO, LIQUIDEZ MEDIA DIARIA, P/L, P/VP, P/ATIVOS, P/EBIT, P/CAP. GIRO, P. AT CIR. LIQ., PSR, EV/EBIT, PEG Ratio, PRECO DE GRAHAM, PRECO DE BAZIN, MARG. LIQUIDA, MARGEM BRUTA, MARGEM EBIT, ROE, ROA, ROIC, VPA, LPA, DY, DY MEDIO 5 ANOS, CAGR DIVIDENDOS 5 ANOS, CAGR RECEITAS 5 ANOS, CAGR LUCROS 5 ANOS, CAGR LUCROS 10 ANOS, LUCRO LIQUIDO MEDIO 5 ANOS, RENT 1 DIA, RENT 5 DIAS, RENT 1 MES, RENT 6 MESES, RENT 1 ANO, RENT 12 MESES, RENT 5 ANOS, RENT MEDIA 5 ANOS, RENT TOTAL, PATRIMONIO / ATIVOS, PASSIVOS / ATIVOS, LIQ. CORRENTE, DIVIDA LIQUIDA / EBIT, DIV. LIQ. / PATRI., GIRO ATIVOS, NOME, TICKER, SETOR, SUBSETOR, SEGMENTO, SGR, TAG ALONG, VALUE INVESTING SCORE, NOTICIAS
+            * fundamental (DATAS COMPLETAS - Ex: {CURRENT_DATE}): PRECO, VALOR DE MERCADO, LIQUIDEZ MEDIA DIARIA, P/L, P/VP, P/ATIVOS, P/EBIT, P/CAP. GIRO, P. AT CIR. LIQ., PSR, EV/EBIT, PEG Ratio, PRECO DE GRAHAM, PRECO DE BAZIN, MARG. LIQUIDA, MARGEM BRUTA, MARGEM EBIT, ROE, ROA, ROIC, VPA, LPA, DY, DY MEDIO 5 ANOS, CAGR DIVIDENDOS 5 ANOS, CAGR RECEITAS 5 ANOS, CAGR LUCROS 5 ANOS, CAGR LUCROS 10 ANOS, LUCRO LIQUIDO MEDIO 5 ANOS, RENT 1 DIA, RENT 5 DIAS, RENT 1 MES, RENT 6 MESES, RENT 1 ANO, RENT 12 MESES, RENT 5 ANOS, RENT MEDIA 5 ANOS, RENT TOTAL, PATRIMONIO / ATIVOS, PASSIVOS / ATIVOS, LIQ. CORRENTE, DIVIDA LIQUIDA / EBIT, DIV. LIQ. / PATRI., GIRO ATIVOS, NOME, TICKER, SETOR, SUBSETOR, SEGMENTO, SGR, TAG ALONG, INVESTING SCORE, NOTICIAS
 
             REGRAS DE FORMATAÇÃO DE CAMPOS (CRITICAL):
-            1. SEM UNDERSCORES: Todos os nomes de campos devem ser escritos EXATAMENTE como estão na Lista de Campos Válidos, usando espaços quando houver, e NUNCA underscores (ex: use "VALUE INVESTING SCORE" e não "VALUE_INVESTING_SCORE").
+            1. SEM UNDERSCORES: Todos os nomes de campos devem ser escritos EXATAMENTE como estão na Lista de Campos Válidos, usando espaços quando houver, e NUNCA underscores (ex: use "INVESTING SCORE" e não "VALUE_INVESTING_SCORE").
             2. CAIXA ALTA: Os campos em "fields" e "order_by" devem estar sempre em CAIXA ALTA.
 
             REGRA DE SEPARAÇÃO POR CATEGORIA (CRITICAL):
             - SE UM CAMPO É HISTORICAL (ex: LUCRO LIQUIDO), você DEVE criar um objeto com type: historical.
-            - SE UM CAMPO É FUNDAMENTAL (ex: VALUE INVESTING SCORE), você DEVE criar um objeto com type: fundamental.
+            - SE UM CAMPO É FUNDAMENTAL (ex: INVESTING SCORE), você DEVE criar um objeto com type: fundamental.
             - PROIBIÇÃO ABSOLUTA: Nunca misture campos historical e fundamental no mesmo "fields". Gere obrigatoriamente objetos separados.
 
             ESTRATÉGIA DE SELEÇÃO E ORDENAÇÃO (FILOSOFIA DE VALOR):
-            - PRIORIDADE MÁXIMA DE ORDENAÇÃO: Para rankings, use SEMPRE "order_by": "VALUE INVESTING SCORE" (no objeto fundamental) ou "CAGR LUCROS 10 ANOS" (no objeto fundamental).
-            - FILTRO DE QUALIDADE SUPREMO: Use o campo **VALUE INVESTING SCORE** para validar a tese. Se for baixo (ex: < 5.0), a empresa deve ser analisada com cautela ou criticada. Se for alto (ex: >= 8.5), ela é o alvo principal.
+            - PRIORIDADE MÁXIMA DE ORDENAÇÃO: Para rankings, use SEMPRE "order_by": "INVESTING SCORE" (no objeto fundamental) ou "CAGR LUCROS 10 ANOS" (no objeto fundamental).
+            - FILTRO DE QUALIDADE SUPREMO: Use o campo **INVESTING SCORE** para validar a tese. Se for baixo (ex: < 5.0), a empresa deve ser analisada com cautela ou criticada. Se for alto (ex: >= 8.5), ela é o alvo principal.
             - REJEIÇÃO TÉCNICA: O crescimento dos LUCROS LÍQUIDOS de 10 anos ("Lucros Escadinha") é o único validador real.
-            - Se o usuário pedir análise de qualidade, traga os quatro: o histórico de LUCRO LIQUIDO (historical), o CAGR LUCROS 10 ANOS (fundamental), o CRESCIMENTO MEDIO LUCROS 10 ANOS (fundamental) e o VALUE INVESTING SCORE (fundamental).
+            - Se o usuário pedir análise de qualidade, traga os quatro: o histórico de LUCRO LIQUIDO (historical), o CAGR LUCROS 10 ANOS (fundamental), o CRESCIMENTO MEDIO LUCROS 10 ANOS (fundamental) e o INVESTING SCORE (fundamental).
 
             Instruções Detalhadas:
             1. Identifique a empresa/ticker ou pedido de ranking. Se ausente, retorne [].
@@ -143,8 +143,8 @@ class PrometheusGenerator:
             7. NÃO INCLUA NENHUM "fields" que não esteja EXPLICIAMENTE incluso na Lista de Campos Válidos
 
             Exemplos de Comportamento:
-            * Input: "Melhores ações de valor com lucros crescentes há 10 anos" -> [{"search":"","fields":"VALUE INVESTING SCORE,CAGR LUCROS 10 ANOS,ROE","type":"fundamental","date_start":"{Y-M-D}","date_end":"{Y-M-D}","order_by":"VALUE INVESTING SCORE","limit":10},{"search":"","fields":"LUCRO LIQUIDO","type":"historical","date_start":"2016","date_end":"{L_Y}","limit":10}]
-            * Input: "Análise qualitativa da WEGE3" -> [{"search":"WEGE3","fields":"VALUE INVESTING SCORE,CAGR LUCROS 10 ANOS,ROE,P/L","type":"fundamental","date_start":"{Y-M-D}","date_end":"{Y-M-D}"},{"search":"WEGE3","fields":"LUCRO LIQUIDO","type":"historical","date_start":"2016","date_end":"{L_Y}"}]
+            * Input: "Melhores ações de valor com lucros crescentes há 10 anos" -> [{"search":"","fields":"INVESTING SCORE,CAGR LUCROS 10 ANOS,ROE","type":"fundamental","date_start":"{Y-M-D}","date_end":"{Y-M-D}","order_by":"INVESTING SCORE","limit":10},{"search":"","fields":"LUCRO LIQUIDO","type":"historical","date_start":"2016","date_end":"{L_Y}","limit":10}]
+            * Input: "Análise qualitativa da WEGE3" -> [{"search":"WEGE3","fields":"INVESTING SCORE,CAGR LUCROS 10 ANOS,ROE,P/L","type":"fundamental","date_start":"{Y-M-D}","date_end":"{Y-M-D}"},{"search":"WEGE3","fields":"LUCRO LIQUIDO","type":"historical","date_start":"2016","date_end":"{L_Y}"}]
             * Input: "Qual o P/L de PETR4?" -> Output: [{"search":"PETR4","fields":"P/L","type":"fundamental","date_start":"{Y-M-D}","date_end":"{Y-M-D}"}]
             * Input: "Faca um grafico de lucros da wege desde 2014" -> [{"search":"WEGE3","fields":"LUCRO LIQUIDO","type":"historical","date_start":"2014","date_end":"{L_Y}"}]
             * Input: "Histórico de dividendos de VALE3 de 2020 até 2026" -> [{"search":"VALE3","fields":"DIVIDENDOS","type":"historical","date_start":"2020","date_end":"{L_Y}"}]

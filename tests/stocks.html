@@ -252,7 +252,7 @@
 
     <script>
         let allStocksData = [];
-        let sortConfig = { key: 'VALUE INVESTING SCORE', direction: 'desc' };
+        let sortConfig = { key: 'INVESTING SCORE', direction: 'desc' };
 
         function toggleListing() {
             const dash = document.getElementById('dashboardContent');
@@ -286,7 +286,7 @@
         function renderTable() {
             if (!allStocksData.length) return;
             
-            const keys = ['TICKER', 'NOME', 'VALUE INVESTING SCORE', 'PRECO', 'DY', 'P/L', 'P/VP', 'P/ATIVOS', 'ROE', 'DIVIDA LIQUIDA / EBIT', 'LIQUIDEZ MEDIA DIARIA'];
+            const keys = ['TICKER', 'NOME', 'INVESTING SCORE', 'PRECO', 'DY', 'P/L', 'P/VP', 'P/ATIVOS', 'ROE', 'DIVIDA LIQUIDA / EBIT', 'LIQUIDEZ MEDIA DIARIA'];
             const header = document.getElementById('tableHeader');
             const body = document.getElementById('tableBody');
             
@@ -428,7 +428,7 @@
             document.getElementById('h-tags').textContent = (f.SETOR || '') + ' > ' + (f.SUBSETOR || '') + ' > ' + (f.SEGMENTO || '');
 
             document.getElementById('m-price').textContent = fmtBRL(f.PRECO);
-            document.getElementById('m-score').textContent = (f['VALUE INVESTING SCORE'] != null ? f['VALUE INVESTING SCORE'].toFixed(2) : '---');
+            document.getElementById('m-score').textContent = (f['INVESTING SCORE'] != null ? f['INVESTING SCORE'].toFixed(2) : '---');
             document.getElementById('m-pl').textContent = f['P/L'] || '---';
             document.getElementById('m-pvp').textContent = f['P/VP'] || '---';
             document.getElementById('m-dy').textContent = fmtPctRaw(f.DY);

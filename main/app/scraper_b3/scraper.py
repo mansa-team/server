@@ -1,6 +1,6 @@
 import logging
 from config import Config
-from xango import calculateInvestingScore
+from main.app.scraper_b3.xango import calculateInvestingScore
 
 from io import StringIO
 import math
@@ -390,10 +390,7 @@ class B3Scraper:
             )
 
             score = calculateInvestingScore(
-                ticker=TICKER,
-                profitsDf=profit10yDF,
-                companyLiquidity=companyLiquidity,
-                prefixLiquidity=prefixLiquidity
+                ticker=TICKER, profitsDf=profit10yDF, companyLiquidity=companyLiquidity, prefixLiquidity=prefixLiquidity
             )
 
             newDF["INVESTING SCORE"] = min(max(score, 0), 100)
@@ -488,6 +485,7 @@ class B3Scraper:
         if df.empty:
             return df
 
+        df = df.copy()
         df["TICKER"] = df.index
         df = df.reset_index(drop=True)
 
@@ -573,6 +571,46 @@ class B3Scraper:
             for statement in cleanupSql.split(";"):
                 if statement.strip():
                     conn.execute(text(statement))
+
+            currentDate = pd.to_datetime(self.scraperDate)
+            existingCols = pd.read_sql("SELECT * FROM b3_stocks LIMIT 1", con=conn).columns.tolist()
+
+            excludeCols = {"COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"}
+
+            historicalPatterns = [
+                "RECEITA LIQUIDA",
+                "LUCRO LIQUIDO",
+                "DIVIDENDOS",
+                "DY",
+                "MARGEM BRUTA",
+                "MARGEM EBITDA",
+                "MARGEM EBIT",
+                "MARGEM LIQUIDA",
+                "DESPESAS",
+                "COTACAO ",
+            ]
+
+            historicalCols = [
+                col
+                for col in existingCols
+                if any(pattern in col for pattern in historicalPatterns) and col not in excludeCols
+            ]
+
+            for col in historicalCols:
+                mergeSql = f"""
+                UPDATE b3_stocks s
+                INNER JOIN (
+                    SELECT TICKER, MAX(`{col}`) as VAL
+                    FROM b3_stocks
+                    WHERE `{col}` IS NOT NULL
+                      AND TIME < :currentDate
+                    GROUP BY TICKER
+                ) prev ON s.TICKER = prev.TICKER
+                SET s.`{col}` = COALESCE(s.`{col}`, prev.VAL)
+                WHERE s.`{col}` IS NULL
+                  AND s.TIME >= :currentDate;
+                """
+                conn.execute(text(mergeSql), {"currentDate": currentDate})
 
 
 if __name__ == "__main__":
