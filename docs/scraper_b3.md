@@ -103,7 +103,7 @@ $$\Lambda(L, c) = M_{liq}(L) \cdot M_{class}(c)$$
 
 - **Liquidity** ($M_{liq}$): Square-root decay for low liquidity:
   $$M_{liq}(L) = \begin{cases} 1.0 & \text{if } L \geq T_{liq} \\ \max\left(F_{liq}, \sqrt{L/T_{liq}}\right) & \text{otherwise} \end{cases}$$
-  Defaults: $T_{liq} = 10,000,000$ (R$10M), $F_{liq} = 0.5$
+  Defaults: $T_{liq} = 10,000,000$, $F_{liq} = 0.5$
 
 - **Class** ($M_{class}$): Governance factor for B3 tickers:
   $$M_{class}(c) = \begin{cases} 1.0 & \text{if } c = 3 \\ \alpha_{class} & \text{otherwise} \end{cases}$$
