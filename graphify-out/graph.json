@@ -318,7 +318,7 @@
       "source_file": "main/app/authentication/constants.py",
       "source_location": "L1",
       "id": "main_app_authentication_constants_py",
-      "community": 32,
+      "community": 33,
       "norm_label": "constants.py"
     },
     {
@@ -903,7 +903,7 @@
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": "L1",
       "id": "main_app_stocks_api_cache_py",
-      "community": 11,
+      "community": 10,
       "norm_label": "cache.py"
     },
     {
@@ -912,7 +912,7 @@
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": "L16",
       "id": "stocks_api_cache_stockscachemanager",
-      "community": 11,
+      "community": 10,
       "norm_label": "stockscachemanager"
     },
     {
@@ -921,7 +921,7 @@
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": "L17",
       "id": "stocks_api_cache_stockscachemanager_init",
-      "community": 11,
+      "community": 10,
       "norm_label": ".__init__()"
     },
     {
@@ -930,7 +930,7 @@
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": "L25",
       "id": "stocks_api_cache_stockscachemanager_cachescheduler",
-      "community": 11,
+      "community": 10,
       "norm_label": ".cachescheduler()"
     },
     {
@@ -939,7 +939,7 @@
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": "L35",
       "id": "stocks_api_cache_stockscachemanager_getcachedstocks",
-      "community": 29,
+      "community": 30,
       "norm_label": ".getcachedstocks()"
     },
     {
@@ -948,7 +948,7 @@
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": "L72",
       "id": "stocks_api_cache_stockscachemanager_clearquerycache",
-      "community": 11,
+      "community": 10,
       "norm_label": ".clearquerycache()"
     },
     {
@@ -1425,7 +1425,7 @@
       "source_file": "main/models/base.py",
       "source_location": "L1",
       "id": "main_models_base_py",
-      "community": 33,
+      "community": 34,
       "norm_label": "base.py"
     },
     {
@@ -1542,7 +1542,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L1",
       "id": "main_models_user_py",
-      "community": 10,
+      "community": 9,
       "norm_label": "user.py"
     },
     {
@@ -1551,7 +1551,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L6",
       "id": "models_user_user",
-      "community": 10,
+      "community": 9,
       "norm_label": "user"
     },
     {
@@ -1560,7 +1560,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L20",
       "id": "models_user_user_repr",
-      "community": 10,
+      "community": 9,
       "norm_label": ".__repr__()"
     },
     {
@@ -1569,7 +1569,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L23",
       "id": "models_user_user_getroleslist",
-      "community": 10,
+      "community": 9,
       "norm_label": ".getroleslist()"
     },
     {
@@ -1578,7 +1578,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L28",
       "id": "models_user_user_addrole",
-      "community": 10,
+      "community": 9,
       "norm_label": ".addrole()"
     },
     {
@@ -1587,7 +1587,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L36",
       "id": "models_user_user_removerole",
-      "community": 10,
+      "community": 9,
       "norm_label": ".removerole()"
     },
     {
@@ -1596,7 +1596,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L44",
       "id": "models_user_user_hasrole",
-      "community": 10,
+      "community": 9,
       "norm_label": ".hasrole()"
     },
     {
@@ -1605,7 +1605,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L49",
       "id": "models_user_user_todict",
-      "community": 10,
+      "community": 9,
       "norm_label": ".todict()"
     },
     {
@@ -1659,7 +1659,7 @@
       "source_file": "main/models/__init__.py",
       "source_location": "L1",
       "id": "main_models_init_py",
-      "community": 34,
+      "community": 35,
       "norm_label": "__init__.py"
     },
     {
@@ -2541,7 +2541,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L8",
       "id": "tests_test_models_testusermodel",
-      "community": 10,
+      "community": 9,
       "norm_label": "testusermodel"
     },
     {
@@ -2550,7 +2550,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L9",
       "id": "tests_test_models_testusermodel_test_create_user",
-      "community": 10,
+      "community": 9,
       "norm_label": ".test_create_user()"
     },
     {
@@ -2559,7 +2559,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L19",
       "id": "tests_test_models_testusermodel_test_get_roles_list_default",
-      "community": 10,
+      "community": 9,
       "norm_label": ".test_get_roles_list_default()"
     },
     {
@@ -2568,7 +2568,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L24",
       "id": "tests_test_models_testusermodel_test_get_roles_list_single_role",
-      "community": 10,
+      "community": 9,
       "norm_label": ".test_get_roles_list_single_role()"
     },
     {
@@ -2577,7 +2577,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L29",
       "id": "tests_test_models_testusermodel_test_get_roles_list_multiple_roles",
-      "community": 10,
+      "community": 9,
       "norm_label": ".test_get_roles_list_multiple_roles()"
     },
     {
@@ -2586,7 +2586,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L37",
       "id": "tests_test_models_testusermodel_test_add_role_new",
-      "community": 10,
+      "community": 9,
       "norm_label": ".test_add_role_new()"
     },
     {
@@ -2595,7 +2595,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L43",
       "id": "tests_test_models_testusermodel_test_add_role_existing",
-      "community": 10,
+      "community": 9,
       "norm_label": ".test_add_role_existing()"
     },
     {
@@ -2604,7 +2604,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L50",
       "id": "tests_test_models_testusermodel_test_remove_role_existing",
-      "community": 10,
+      "community": 9,
       "norm_label": ".test_remove_role_existing()"
     },
     {
@@ -2613,7 +2613,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L57",
       "id": "tests_test_models_testusermodel_test_remove_role_last_role",
-      "community": 10,
+      "community": 9,
       "norm_label": ".test_remove_role_last_role()"
     },
     {
@@ -2622,7 +2622,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L63",
       "id": "tests_test_models_testusermodel_test_has_role_true",
-      "community": 10,
+      "community": 9,
       "norm_label": ".test_has_role_true()"
     },
     {
@@ -2631,7 +2631,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L68",
       "id": "tests_test_models_testusermodel_test_has_role_false",
-      "community": 10,
+      "community": 9,
       "norm_label": ".test_has_role_false()"
     },
     {
@@ -2640,7 +2640,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L73",
       "id": "tests_test_models_testusermodel_test_has_role_with_enum",
-      "community": 10,
+      "community": 9,
       "norm_label": ".test_has_role_with_enum()"
     },
     {
@@ -2649,7 +2649,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L81",
       "id": "tests_test_models_testusermodel_test_to_dict",
-      "community": 10,
+      "community": 9,
       "norm_label": ".test_to_dict()"
     },
     {
@@ -3162,7 +3162,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L17",
       "id": "tests_test_stocks_cache_testtickerindex",
-      "community": 11,
+      "community": 10,
       "norm_label": "testtickerindex"
     },
     {
@@ -3171,7 +3171,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L20",
       "id": "tests_test_stocks_cache_testtickerindex_test_tickerindex_built_after_cache_load",
-      "community": 11,
+      "community": 10,
       "norm_label": ".test_tickerindex_built_after_cache_load()"
     },
     {
@@ -3180,7 +3180,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L28",
       "id": "tests_test_stocks_cache_testtickerindex_test_tickerindex_contains_all_tickers",
-      "community": 11,
+      "community": 10,
       "norm_label": ".test_tickerindex_contains_all_tickers()"
     },
     {
@@ -3189,7 +3189,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L38",
       "id": "tests_test_stocks_cache_testtickerindex_test_tickerindex_case_insensitive",
-      "community": 11,
+      "community": 10,
       "norm_label": ".test_tickerindex_case_insensitive()"
     },
     {
@@ -3198,7 +3198,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L47",
       "id": "tests_test_stocks_cache_testtickerindex_test_ticker_lookup_returns_valid_index",
-      "community": 11,
+      "community": 10,
       "norm_label": ".test_ticker_lookup_returns_valid_index()"
     },
     {
@@ -3207,7 +3207,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L58",
       "id": "tests_test_stocks_cache_testtickerindex_test_tickerindex_rebuilt_on_cache_refresh",
-      "community": 11,
+      "community": 10,
       "norm_label": ".test_tickerindex_rebuilt_on_cache_refresh()"
     },
     {
@@ -3333,7 +3333,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L171",
       "id": "tests_test_stocks_cache_testperformancebenchmarks",
-      "community": 9,
+      "community": 11,
       "norm_label": "testperformancebenchmarks"
     },
     {
@@ -3342,7 +3342,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L174",
       "id": "tests_test_stocks_cache_testperformancebenchmarks_test_tickerindex_lookup_performance",
-      "community": 9,
+      "community": 11,
       "norm_label": ".test_tickerindex_lookup_performance()"
     },
     {
@@ -3351,7 +3351,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L194",
       "id": "tests_test_stocks_cache_testperformancebenchmarks_test_prefix_scan_performance",
-      "community": 9,
+      "community": 11,
       "norm_label": ".test_prefix_scan_performance()"
     },
     {
@@ -3360,7 +3360,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L214",
       "id": "tests_test_stocks_cache_testperformancebenchmarks_test_index_lookup_vs_scan_comparison",
-      "community": 9,
+      "community": 11,
       "norm_label": ".test_index_lookup_vs_scan_comparison()"
     },
     {
@@ -3369,7 +3369,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L244",
       "id": "tests_test_stocks_cache_testperformancebenchmarks_test_querycache_performance",
-      "community": 9,
+      "community": 11,
       "norm_label": ".test_querycache_performance()"
     },
     {
@@ -3378,7 +3378,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L266",
       "id": "tests_test_stocks_cache_testperformancebenchmarks_test_column_projection_performance",
-      "community": 9,
+      "community": 28,
       "norm_label": ".test_column_projection_performance()"
     },
     {
@@ -3387,7 +3387,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L281",
       "id": "tests_test_stocks_cache_testperformancebenchmarks_test_cache_initialization_time",
-      "community": 9,
+      "community": 11,
       "norm_label": ".test_cache_initialization_time()"
     },
     {
@@ -3432,7 +3432,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L18",
       "id": "tests_test_stocks_cache_rationale_18",
-      "community": 11,
+      "community": 10,
       "norm_label": "tests for dynamic ticker index feature"
     },
     {
@@ -3441,7 +3441,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L21",
       "id": "tests_test_stocks_cache_rationale_21",
-      "community": 11,
+      "community": 10,
       "norm_label": "ticker index should be built when cache is loaded"
     },
     {
@@ -3450,7 +3450,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L29",
       "id": "tests_test_stocks_cache_rationale_29",
-      "community": 11,
+      "community": 10,
       "norm_label": "ticker index should contain all tickers from cache"
     },
     {
@@ -3459,7 +3459,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L39",
       "id": "tests_test_stocks_cache_rationale_39",
-      "community": 11,
+      "community": 10,
       "norm_label": "ticker index should be case-insensitive"
     },
     {
@@ -3468,7 +3468,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L48",
       "id": "tests_test_stocks_cache_rationale_48",
-      "community": 11,
+      "community": 10,
       "norm_label": "looking up ticker should return valid row index"
     },
     {
@@ -3477,7 +3477,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L59",
       "id": "tests_test_stocks_cache_rationale_59",
-      "community": 11,
+      "community": 10,
       "norm_label": "ticker index should be rebuilt when cache refreshes"
     },
     {
@@ -3603,7 +3603,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L172",
       "id": "tests_test_stocks_cache_rationale_172",
-      "community": 9,
+      "community": 11,
       "norm_label": "performance benchmark tests for stocks api"
     },
     {
@@ -3612,7 +3612,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L175",
       "id": "tests_test_stocks_cache_rationale_175",
-      "community": 9,
+      "community": 11,
       "norm_label": "ticker index lookup should be o(1) - very fast"
     },
     {
@@ -3621,7 +3621,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L195",
       "id": "tests_test_stocks_cache_rationale_195",
-      "community": 9,
+      "community": 11,
       "norm_label": "prefix scan should be much slower than index lookup"
     },
     {
@@ -3630,7 +3630,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L215",
       "id": "tests_test_stocks_cache_rationale_215",
-      "community": 9,
+      "community": 11,
       "norm_label": "index lookup should be significantly faster than scan"
     },
     {
@@ -3639,7 +3639,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L245",
       "id": "tests_test_stocks_cache_rationale_245",
-      "community": 9,
+      "community": 11,
       "norm_label": "query cache should avoid recomputation"
     },
     {
@@ -3648,7 +3648,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L267",
       "id": "tests_test_stocks_cache_rationale_267",
-      "community": 9,
+      "community": 28,
       "norm_label": "column projection should reduce memory and time"
     },
     {
@@ -3657,7 +3657,7 @@
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L282",
       "id": "tests_test_stocks_cache_rationale_282",
-      "community": 9,
+      "community": 11,
       "norm_label": "cache initialization should complete in reasonable time"
     },
     {
@@ -4025,7 +4025,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L174",
-      "community": 9,
+      "community": 11,
       "norm_label": "performance benchmark tests for stocks api",
       "id": "tests_test_stocks_cache_rationale_174"
     },
@@ -4034,7 +4034,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L177",
-      "community": 9,
+      "community": 11,
       "norm_label": "ticker index lookup should be o(1) - very fast",
       "id": "tests_test_stocks_cache_rationale_177"
     },
@@ -4043,7 +4043,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L197",
-      "community": 9,
+      "community": 11,
       "norm_label": "prefix scan should be much slower than index lookup",
       "id": "tests_test_stocks_cache_rationale_197"
     },
@@ -4052,7 +4052,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L217",
-      "community": 9,
+      "community": 11,
       "norm_label": "index lookup should be significantly faster than scan",
       "id": "tests_test_stocks_cache_rationale_217"
     },
@@ -4061,7 +4061,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L247",
-      "community": 9,
+      "community": 11,
       "norm_label": "query cache should avoid recomputation",
       "id": "tests_test_stocks_cache_rationale_247"
     },
@@ -4070,7 +4070,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L269",
-      "community": 9,
+      "community": 28,
       "norm_label": "column projection should reduce memory and time",
       "id": "tests_test_stocks_cache_rationale_269"
     },
@@ -4079,7 +4079,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L284",
-      "community": 9,
+      "community": 11,
       "norm_label": "cache initialization should complete in reasonable time",
       "id": "tests_test_stocks_cache_rationale_284"
     },
@@ -4124,7 +4124,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L20",
-      "community": 11,
+      "community": 10,
       "norm_label": ".test_tickerindex_built_after_cache_load()",
       "id": "tests_test_stocks_cache_testtickerindex_test_tickerIndex_built_after_cache_load"
     },
@@ -4133,7 +4133,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L28",
-      "community": 11,
+      "community": 10,
       "norm_label": ".test_tickerindex_contains_all_tickers()",
       "id": "tests_test_stocks_cache_testtickerindex_test_tickerIndex_contains_all_tickers"
     },
@@ -4142,7 +4142,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L38",
-      "community": 11,
+      "community": 10,
       "norm_label": ".test_tickerindex_case_insensitive()",
       "id": "tests_test_stocks_cache_testtickerindex_test_tickerIndex_case_insensitive"
     },
@@ -4151,7 +4151,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L58",
-      "community": 11,
+      "community": 10,
       "norm_label": ".test_tickerindex_rebuilt_on_cache_refresh()",
       "id": "tests_test_stocks_cache_testtickerindex_test_tickerIndex_rebuilt_on_cache_refresh"
     },
@@ -4169,7 +4169,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L176",
-      "community": 9,
+      "community": 11,
       "norm_label": ".test_tickerindex_lookup_performance()",
       "id": "tests_test_stocks_cache_testperformancebenchmarks_test_tickerIndex_lookup_performance"
     },
@@ -4178,7 +4178,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L246",
-      "community": 9,
+      "community": 11,
       "norm_label": ".test_querycache_performance()",
       "id": "tests_test_stocks_cache_testperformancebenchmarks_test_queryCache_performance"
     },
@@ -4205,7 +4205,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L17",
-      "community": 21,
+      "community": 20,
       "norm_label": "testtickerindex",
       "id": "tests_test_stocks_optimization_testtickerindex"
     },
@@ -4214,7 +4214,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L20",
-      "community": 21,
+      "community": 20,
       "norm_label": ".test_tickerindex_built_after_cache_load()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_tickerIndex_built_after_cache_load"
     },
@@ -4223,7 +4223,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L28",
-      "community": 21,
+      "community": 20,
       "norm_label": ".test_tickerindex_contains_all_tickers()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_tickerIndex_contains_all_tickers"
     },
@@ -4232,7 +4232,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L38",
-      "community": 21,
+      "community": 20,
       "norm_label": ".test_tickerindex_case_insensitive()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_tickerIndex_case_insensitive"
     },
@@ -4241,7 +4241,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L47",
-      "community": 21,
+      "community": 20,
       "norm_label": ".test_ticker_lookup_returns_valid_index()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_ticker_lookup_returns_valid_index"
     },
@@ -4250,7 +4250,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L58",
-      "community": 21,
+      "community": 20,
       "norm_label": ".test_tickerindex_rebuilt_on_cache_refresh()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_tickerIndex_rebuilt_on_cache_refresh"
     },
@@ -4259,7 +4259,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L72",
-      "community": 20,
+      "community": 21,
       "norm_label": "testquerycaching",
       "id": "tests_test_stocks_optimization_testquerycaching"
     },
@@ -4268,7 +4268,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L75",
-      "community": 20,
+      "community": 21,
       "norm_label": ".test_cache_manager_has_caches_method()",
       "id": "tests_test_stocks_optimization_testquerycaching_test_cache_manager_has_caches_method"
     },
@@ -4277,7 +4277,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L83",
-      "community": 20,
+      "community": 21,
       "norm_label": ".test_querycache_ttl_configuration()",
       "id": "tests_test_stocks_optimization_testquerycaching_test_queryCache_ttl_configuration"
     },
@@ -4286,7 +4286,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L91",
-      "community": 20,
+      "community": 21,
       "norm_label": ".test_get_cached_stocks_respects_columns_parameter()",
       "id": "tests_test_stocks_optimization_testquerycaching_test_get_cached_stocks_respects_columns_parameter"
     },
@@ -4295,7 +4295,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L101",
-      "community": 20,
+      "community": 21,
       "norm_label": ".test_different_queries_not_cached()",
       "id": "tests_test_stocks_optimization_testquerycaching_test_different_queries_not_cached"
     },
@@ -4304,7 +4304,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L105",
-      "community": 20,
+      "community": 21,
       "norm_label": ".test_cache_expiry_after_ttl()",
       "id": "tests_test_stocks_optimization_testquerycaching_test_cache_expiry_after_ttl"
     },
@@ -4475,7 +4475,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L18",
-      "community": 21,
+      "community": 20,
       "norm_label": "tests for dynamic ticker index feature",
       "id": "tests_test_stocks_optimization_rationale_18"
     },
@@ -4484,7 +4484,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L21",
-      "community": 21,
+      "community": 20,
       "norm_label": "ticker index should be built when cache is loaded",
       "id": "tests_test_stocks_optimization_rationale_21"
     },
@@ -4493,7 +4493,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L29",
-      "community": 21,
+      "community": 20,
       "norm_label": "ticker index should contain all tickers from cache",
       "id": "tests_test_stocks_optimization_rationale_29"
     },
@@ -4502,7 +4502,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L39",
-      "community": 21,
+      "community": 20,
       "norm_label": "ticker index should be case-insensitive",
       "id": "tests_test_stocks_optimization_rationale_39"
     },
@@ -4511,7 +4511,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L48",
-      "community": 21,
+      "community": 20,
       "norm_label": "looking up ticker should return valid row index",
       "id": "tests_test_stocks_optimization_rationale_48"
     },
@@ -4520,7 +4520,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L59",
-      "community": 21,
+      "community": 20,
       "norm_label": "ticker index should be rebuilt when cache refreshes",
       "id": "tests_test_stocks_optimization_rationale_59"
     },
@@ -4529,7 +4529,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L73",
-      "community": 20,
+      "community": 21,
       "norm_label": "tests for query result caching",
       "id": "tests_test_stocks_optimization_rationale_73"
     },
@@ -4538,7 +4538,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L76",
-      "community": 20,
+      "community": 21,
       "norm_label": "cachemanager should track cached queries",
       "id": "tests_test_stocks_optimization_rationale_76"
     },
@@ -4547,7 +4547,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L84",
-      "community": 20,
+      "community": 21,
       "norm_label": "query cache should have configurable ttl",
       "id": "tests_test_stocks_optimization_rationale_84"
     },
@@ -4556,7 +4556,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L92",
-      "community": 20,
+      "community": 21,
       "norm_label": "getcachedstocks should support column filtering",
       "id": "tests_test_stocks_optimization_rationale_92"
     },
@@ -4565,7 +4565,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L102",
-      "community": 20,
+      "community": 21,
       "norm_label": "different query parameters should not share cache",
       "id": "tests_test_stocks_optimization_rationale_102"
     },
@@ -4574,7 +4574,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L106",
-      "community": 20,
+      "community": 21,
       "norm_label": "cache should expire after ttl",
       "id": "tests_test_stocks_optimization_rationale_106"
     },
@@ -4745,7 +4745,7 @@
       "file_type": "rationale",
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": "L33",
-      "community": 29,
+      "community": 30,
       "norm_label": "get cached stocks data with optional column filtering.",
       "id": "stocks_api_cache_rationale_33"
     },
@@ -4790,7 +4790,7 @@
       "file_type": "code",
       "source_file": "config.py",
       "source_location": 109,
-      "community": 35,
+      "community": 36,
       "norm_label": "config",
       "id": "config_Config"
     },
@@ -4799,7 +4799,7 @@
       "file_type": "code",
       "source_file": "config.py",
       "source_location": 120,
-      "community": 28,
+      "community": 29,
       "norm_label": "mysql engine (user_db)",
       "id": "config_engine"
     },
@@ -4808,7 +4808,7 @@
       "file_type": "code",
       "source_file": "config.py",
       "source_location": 130,
-      "community": 28,
+      "community": 29,
       "norm_label": "mysql engine (stocks_db)",
       "id": "config_stocksEngine"
     },
@@ -4844,7 +4844,7 @@
       "file_type": "code",
       "source_file": "main/app/authentication/constants.py",
       "source_location": 1,
-      "community": 36,
+      "community": 37,
       "norm_label": "auth constants",
       "id": "auth_constants"
     },
@@ -4889,7 +4889,7 @@
       "file_type": "code",
       "source_file": "main/app/stocks_api/cache.py",
       "source_location": 12,
-      "community": 31,
+      "community": 32,
       "norm_label": "stockscachemanager",
       "id": "stocksCache"
     },
@@ -4916,7 +4916,7 @@
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": 31,
-      "community": 30,
+      "community": 31,
       "norm_label": "b3scraper",
       "id": "B3Scraper"
     },
@@ -5016,7 +5016,7 @@
       "label": "ScraperService",
       "file_type": "code",
       "source_file": "main/service/scraper_service.py",
-      "community": 30,
+      "community": 31,
       "norm_label": "scraperservice",
       "id": "ScraperService"
     },
@@ -5024,7 +5024,7 @@
       "label": "StocksAPIService",
       "file_type": "code",
       "source_file": "main/service/stocksapi_service.py",
-      "community": 31,
+      "community": 32,
       "norm_label": "stocksapiservice",
       "id": "StocksAPIService"
     },
@@ -5040,7 +5040,7 @@
       "label": "checkMySqlConnection",
       "file_type": "code",
       "source_file": "main/utils/connectivity.py",
-      "community": 28,
+      "community": 29,
       "norm_label": "checkmysqlconnection",
       "id": "checkMySqlConnection"
     },
@@ -5048,7 +5048,7 @@
       "label": "checkServiceConnection",
       "file_type": "code",
       "source_file": "main/utils/connectivity.py",
-      "community": 37,
+      "community": 38,
       "norm_label": "checkserviceconnection",
       "id": "checkServiceConnection"
     },
@@ -5128,7 +5128,7 @@
       "label": "Session Management",
       "file_type": "rationale",
       "source_file": "docs/authentication.md",
-      "community": 38,
+      "community": 39,
       "norm_label": "session management",
       "id": "session_management"
     },
@@ -5192,7 +5192,7 @@
       "label": "Docker Deployment",
       "file_type": "document",
       "source_file": "docker-compose.yml",
-      "community": 39,
+      "community": 40,
       "norm_label": "docker deployment",
       "id": "docker"
     },
@@ -5200,7 +5200,7 @@
       "label": "Ruff Linter",
       "file_type": "rationale",
       "source_file": "pyproject.toml",
-      "community": 40,
+      "community": 41,
       "norm_label": "ruff linter",
       "id": "ruff"
     },
@@ -5216,7 +5216,7 @@
       "label": "Mypy Typecheck",
       "file_type": "rationale",
       "source_file": "AGENTS.md",
-      "community": 41,
+      "community": 42,
       "norm_label": "mypy typecheck",
       "id": "mypy"
     },
@@ -13732,5 +13732,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "f33b25209fe4b3bd364ddd4faaa9e8623c6d979d"
+  "built_at_commit": "20e53cf3761a2f5940d626651b50514d5e1aa9a6"
 }
