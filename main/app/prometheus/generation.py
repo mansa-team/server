@@ -308,7 +308,7 @@ class PrometheusGenerator:
         sysPrompt["STAGE 3"] = sysPrompt["STAGE 3"].replace("{API_RESPONSE}", apiResponseStr)
 
         response = self.client.models.generate_content(
-            model="gemma-4-31b-it",
+            model="gemma-4-26b-a4b-it",
             contents=requestContext,
             config=types.GenerateContentConfig(
                 system_instruction=sysPrompt["STAGE 3"],

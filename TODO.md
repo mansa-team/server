@@ -1,4 +1,5 @@
 - [ ] Use Google's GenAI native tool calling to improve the Prometheus model and make space for integration with the Thoth system.
+- [ ] Make my own code_execution sandbox for appropriate mathematical output using Prometheus, with support for sklearn, skfolio and multiple data science packages that would not be possible with the standard code_execution tool from Google
 
 - [ ] Github OAuth
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings

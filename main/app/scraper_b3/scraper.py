@@ -410,7 +410,7 @@ class B3Scraper:
             self.historicalDividendYields,
             self.historicalRevenue,
             self.historicalCotationProfits,
-            # self.historicalCotationProfits_Oceans14,
+            self.historicalCotationProfits_Oceans14,
             self.historicalCotations,
             self.tagAlong,
             self.stockNews,
@@ -438,7 +438,6 @@ class B3Scraper:
         stocksDF["TIME"] = pd.to_datetime(self.scraperDate)
         stocksList = stocksDF.index.tolist()
 
-        # Store for access in fundamentalIndicators
         self.stocksDF = stocksDF
 
         processedDfs = []
