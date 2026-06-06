@@ -70,3 +70,11 @@
 ### Prometheus
 - [ ] CORS environment validation to prevent API requests outside the website
 - [ ] Make Prometheus able to iterate over the user's wallet and make recommendations based on what positions they have
+
+
+Renaming ideas:
+- Xango - Scraper / Stock Grading algorithm
+- Oxossi - Portfolio Optimizer
+- Iyagba - Wallet Manager
+- Ogum - Automated Trading System
+- Orunmila - Chatbot

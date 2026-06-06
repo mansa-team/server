@@ -246,7 +246,7 @@
       "source_file": "run.py",
       "source_location": "L1",
       "id": "run_py",
-      "community": 23,
+      "community": 17,
       "norm_label": "run.py"
     },
     {
@@ -255,7 +255,7 @@
       "source_file": "run.py",
       "source_location": "L22",
       "id": "server_run_lifespan",
-      "community": 23,
+      "community": 17,
       "norm_label": "lifespan()"
     },
     {
@@ -264,7 +264,7 @@
       "source_file": "run.py",
       "source_location": "L71",
       "id": "server_run_health",
-      "community": 23,
+      "community": 17,
       "norm_label": "health()"
     },
     {
@@ -597,7 +597,7 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L38",
       "id": "prometheus_chat_createsession",
-      "community": 15,
+      "community": 4,
       "norm_label": "createsession()"
     },
     {
@@ -847,7 +847,7 @@
       "label": ".reorderColumns()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L477",
+      "source_location": "L476",
       "id": "scraper_b3_scraper_b3scraper_reordercolumns",
       "community": 7,
       "norm_label": ".reordercolumns()"
@@ -856,7 +856,7 @@
       "label": ".serializeComplexTypes()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L487",
+      "source_location": "L486",
       "id": "scraper_b3_scraper_b3scraper_serializecomplextypes",
       "community": 7,
       "norm_label": ".serializecomplextypes()"
@@ -865,7 +865,7 @@
       "label": ".exportJson()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L508",
+      "source_location": "L507",
       "id": "scraper_b3_scraper_b3scraper_exportjson",
       "community": 7,
       "norm_label": ".exportjson()"
@@ -874,7 +874,7 @@
       "label": ".exportMysql()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L516",
+      "source_location": "L515",
       "id": "scraper_b3_scraper_b3scraper_exportmysql",
       "community": 7,
       "norm_label": ".exportmysql()"
@@ -957,7 +957,7 @@
       "source_file": "main/app/stocks_api/key.py",
       "source_location": "L1",
       "id": "main_app_stocks_api_key_py",
-      "community": 21,
+      "community": 17,
       "norm_label": "key.py"
     },
     {
@@ -966,7 +966,7 @@
       "source_file": "main/app/stocks_api/key.py",
       "source_location": "L15",
       "id": "stocks_api_key_verifyapikey",
-      "community": 21,
+      "community": 17,
       "norm_label": "verifyapikey()"
     },
     {
@@ -975,7 +975,7 @@
       "source_file": "main/app/stocks_api/key.py",
       "source_location": "L46",
       "id": "stocks_api_key_generatesecurekey",
-      "community": 21,
+      "community": 17,
       "norm_label": "generatesecurekey()"
     },
     {
@@ -984,7 +984,7 @@
       "source_file": "main/app/stocks_api/key.py",
       "source_location": "L50",
       "id": "stocks_api_key_createkey",
-      "community": 21,
+      "community": 17,
       "norm_label": "createkey()"
     },
     {
@@ -993,7 +993,7 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L1",
       "id": "main_app_stocks_api_query_py",
-      "community": 0,
+      "community": 17,
       "norm_label": "query.py"
     },
     {
@@ -1209,7 +1209,7 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L1",
       "id": "main_controller_prometheus_controller_py",
-      "community": 22,
+      "community": 17,
       "norm_label": "prometheus_controller.py"
     },
     {
@@ -1218,7 +1218,7 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L20",
       "id": "controller_prometheus_controller_health",
-      "community": 22,
+      "community": 17,
       "norm_label": "health()"
     },
     {
@@ -1227,7 +1227,7 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L25",
       "id": "controller_prometheus_controller_getsessions",
-      "community": 22,
+      "community": 17,
       "norm_label": "getsessions()"
     },
     {
@@ -1236,7 +1236,7 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L31",
       "id": "controller_prometheus_controller_createsession",
-      "community": 22,
+      "community": 17,
       "norm_label": "createsession()"
     },
     {
@@ -1245,7 +1245,7 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L40",
       "id": "controller_prometheus_controller_updatesessiontitle",
-      "community": 22,
+      "community": 17,
       "norm_label": "updatesessiontitle()"
     },
     {
@@ -1254,7 +1254,7 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L55",
       "id": "controller_prometheus_controller_gethistory",
-      "community": 22,
+      "community": 17,
       "norm_label": "gethistory()"
     },
     {
@@ -1263,7 +1263,7 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L73",
       "id": "controller_prometheus_controller_deletesession",
-      "community": 22,
+      "community": 17,
       "norm_label": "deletesession()"
     },
     {
@@ -1272,7 +1272,7 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L82",
       "id": "controller_prometheus_controller_chat",
-      "community": 22,
+      "community": 17,
       "norm_label": "chat()"
     },
     {
@@ -1281,7 +1281,7 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L1",
       "id": "main_controller_stocksapi_controller_py",
-      "community": 21,
+      "community": 17,
       "norm_label": "stocksapi_controller.py"
     },
     {
@@ -1290,7 +1290,7 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L17",
       "id": "controller_stocksapi_controller_health",
-      "community": 21,
+      "community": 17,
       "norm_label": "health()"
     },
     {
@@ -1299,7 +1299,7 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L22",
       "id": "controller_stocksapi_controller_apikeytest",
-      "community": 21,
+      "community": 17,
       "norm_label": "apikeytest()"
     },
     {
@@ -1308,7 +1308,7 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L27",
       "id": "controller_stocksapi_controller_gethistorical",
-      "community": 21,
+      "community": 17,
       "norm_label": "gethistorical()"
     },
     {
@@ -1317,7 +1317,7 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L39",
       "id": "controller_stocksapi_controller_getfundamental",
-      "community": 21,
+      "community": 17,
       "norm_label": "getfundamental()"
     },
     {
@@ -1326,7 +1326,7 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L51",
       "id": "controller_stocksapi_controller_generatekey",
-      "community": 21,
+      "community": 17,
       "norm_label": "generatekey()"
     },
     {
@@ -1542,7 +1542,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L1",
       "id": "main_models_user_py",
-      "community": 9,
+      "community": 4,
       "norm_label": "user.py"
     },
     {
@@ -1551,7 +1551,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L6",
       "id": "models_user_user",
-      "community": 9,
+      "community": 4,
       "norm_label": "user"
     },
     {
@@ -1560,7 +1560,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L20",
       "id": "models_user_user_repr",
-      "community": 9,
+      "community": 4,
       "norm_label": ".__repr__()"
     },
     {
@@ -1569,7 +1569,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L23",
       "id": "models_user_user_getroleslist",
-      "community": 9,
+      "community": 4,
       "norm_label": ".getroleslist()"
     },
     {
@@ -1578,7 +1578,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L28",
       "id": "models_user_user_addrole",
-      "community": 9,
+      "community": 4,
       "norm_label": ".addrole()"
     },
     {
@@ -1587,7 +1587,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L36",
       "id": "models_user_user_removerole",
-      "community": 9,
+      "community": 4,
       "norm_label": ".removerole()"
     },
     {
@@ -1596,7 +1596,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L44",
       "id": "models_user_user_hasrole",
-      "community": 9,
+      "community": 4,
       "norm_label": ".hasrole()"
     },
     {
@@ -1605,7 +1605,7 @@
       "source_file": "main/models/user.py",
       "source_location": "L49",
       "id": "models_user_user_todict",
-      "community": 9,
+      "community": 4,
       "norm_label": ".todict()"
     },
     {
@@ -1830,7 +1830,7 @@
       "source_file": "main/utils/connectivity.py",
       "source_location": "L1",
       "id": "main_utils_connectivity_py",
-      "community": 23,
+      "community": 17,
       "norm_label": "connectivity.py"
     },
     {
@@ -1839,7 +1839,7 @@
       "source_file": "main/utils/connectivity.py",
       "source_location": "L14",
       "id": "utils_connectivity_checkmysqlconnection",
-      "community": 23,
+      "community": 17,
       "norm_label": "checkmysqlconnection()"
     },
     {
@@ -1848,7 +1848,7 @@
       "source_file": "main/utils/connectivity.py",
       "source_location": "L52",
       "id": "utils_connectivity_checkserviceconnection",
-      "community": 23,
+      "community": 17,
       "norm_label": "checkserviceconnection()"
     },
     {
@@ -1902,7 +1902,7 @@
       "source_file": "main/utils/migrator.py",
       "source_location": "L1",
       "id": "main_utils_migrator_py",
-      "community": 23,
+      "community": 17,
       "norm_label": "migrator.py"
     },
     {
@@ -1911,7 +1911,7 @@
       "source_file": "main/utils/migrator.py",
       "source_location": "L9",
       "id": "utils_migrator_runmigrations",
-      "community": 23,
+      "community": 17,
       "norm_label": "runmigrations()"
     },
     {
@@ -2122,12 +2122,66 @@
       "norm_label": "user sessions table  revision id: 4a2f1c9e3b5d revises: 25af7ad931e7 create date"
     },
     {
+      "label": "add_access_token_hash.py",
+      "file_type": "code",
+      "source_file": "migrations/versions/add_access_token_hash.py",
+      "source_location": "L1",
+      "id": "migrations_versions_add_access_token_hash_py",
+      "community": 48,
+      "norm_label": "add_access_token_hash.py"
+    },
+    {
+      "label": "upgrade()",
+      "file_type": "code",
+      "source_file": "migrations/versions/add_access_token_hash.py",
+      "source_location": "L21",
+      "id": "versions_add_access_token_hash_upgrade",
+      "community": 48,
+      "norm_label": "upgrade()"
+    },
+    {
+      "label": "downgrade()",
+      "file_type": "code",
+      "source_file": "migrations/versions/add_access_token_hash.py",
+      "source_location": "L54",
+      "id": "versions_add_access_token_hash_downgrade",
+      "community": 48,
+      "norm_label": "downgrade()"
+    },
+    {
+      "label": "Add accessTokenHash, operatingSystem, lastActivityAt to user_sessions  Revision",
+      "file_type": "rationale",
+      "source_file": "migrations/versions/add_access_token_hash.py",
+      "source_location": "L1",
+      "id": "versions_add_access_token_hash_rationale_1",
+      "community": 48,
+      "norm_label": "add accesstokenhash, operatingsystem, lastactivityat to user_sessions  revision"
+    },
+    {
+      "label": "Add accessTokenHash, operatingSystem, lastActivityAt, sessionId to user_sessions",
+      "file_type": "rationale",
+      "source_file": "migrations/versions/add_access_token_hash.py",
+      "source_location": "L22",
+      "id": "versions_add_access_token_hash_rationale_22",
+      "community": 48,
+      "norm_label": "add accesstokenhash, operatingsystem, lastactivityat, sessionid to user_sessions"
+    },
+    {
+      "label": "Remove columns from user_sessions.",
+      "file_type": "rationale",
+      "source_file": "migrations/versions/add_access_token_hash.py",
+      "source_location": "L55",
+      "id": "versions_add_access_token_hash_rationale_55",
+      "community": 48,
+      "norm_label": "remove columns from user_sessions."
+    },
+    {
       "label": "conftest.py",
       "file_type": "code",
       "source_file": "tests/conftest.py",
       "source_location": "L1",
       "id": "tests_conftest_py",
-      "community": 4,
+      "community": 0,
       "norm_label": "conftest.py"
     },
     {
@@ -2136,7 +2190,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L15",
       "id": "tests_conftest_dbsession",
-      "community": 4,
+      "community": 0,
       "norm_label": "dbsession()"
     },
     {
@@ -2145,7 +2199,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L27",
       "id": "tests_conftest_sampleuserdata",
-      "community": 4,
+      "community": 0,
       "norm_label": "sampleuserdata()"
     },
     {
@@ -2154,7 +2208,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L38",
       "id": "tests_conftest_sampleapikeydata",
-      "community": 4,
+      "community": 0,
       "norm_label": "sampleapikeydata()"
     },
     {
@@ -2163,7 +2217,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L43",
       "id": "tests_conftest_sampleprometheussessiondata",
-      "community": 4,
+      "community": 0,
       "norm_label": "sampleprometheussessiondata()"
     },
     {
@@ -2361,7 +2415,7 @@
       "source_file": "tests/test_config.py",
       "source_location": "L1",
       "id": "tests_test_config_py",
-      "community": 4,
+      "community": 5,
       "norm_label": "test_config.py"
     },
     {
@@ -2415,7 +2469,7 @@
       "source_file": "tests/test_device.py",
       "source_location": "L1",
       "id": "tests_test_device_py",
-      "community": 4,
+      "community": 0,
       "norm_label": "test_device.py"
     },
     {
@@ -2541,7 +2595,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L8",
       "id": "tests_test_models_testusermodel",
-      "community": 9,
+      "community": 4,
       "norm_label": "testusermodel"
     },
     {
@@ -2550,7 +2604,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L9",
       "id": "tests_test_models_testusermodel_test_create_user",
-      "community": 9,
+      "community": 4,
       "norm_label": ".test_create_user()"
     },
     {
@@ -2559,7 +2613,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L19",
       "id": "tests_test_models_testusermodel_test_get_roles_list_default",
-      "community": 9,
+      "community": 4,
       "norm_label": ".test_get_roles_list_default()"
     },
     {
@@ -2568,7 +2622,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L24",
       "id": "tests_test_models_testusermodel_test_get_roles_list_single_role",
-      "community": 9,
+      "community": 4,
       "norm_label": ".test_get_roles_list_single_role()"
     },
     {
@@ -2577,7 +2631,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L29",
       "id": "tests_test_models_testusermodel_test_get_roles_list_multiple_roles",
-      "community": 9,
+      "community": 4,
       "norm_label": ".test_get_roles_list_multiple_roles()"
     },
     {
@@ -2586,7 +2640,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L37",
       "id": "tests_test_models_testusermodel_test_add_role_new",
-      "community": 9,
+      "community": 4,
       "norm_label": ".test_add_role_new()"
     },
     {
@@ -2595,7 +2649,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L43",
       "id": "tests_test_models_testusermodel_test_add_role_existing",
-      "community": 9,
+      "community": 4,
       "norm_label": ".test_add_role_existing()"
     },
     {
@@ -2604,7 +2658,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L50",
       "id": "tests_test_models_testusermodel_test_remove_role_existing",
-      "community": 9,
+      "community": 4,
       "norm_label": ".test_remove_role_existing()"
     },
     {
@@ -2613,7 +2667,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L57",
       "id": "tests_test_models_testusermodel_test_remove_role_last_role",
-      "community": 9,
+      "community": 4,
       "norm_label": ".test_remove_role_last_role()"
     },
     {
@@ -2622,7 +2676,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L63",
       "id": "tests_test_models_testusermodel_test_has_role_true",
-      "community": 9,
+      "community": 4,
       "norm_label": ".test_has_role_true()"
     },
     {
@@ -2631,7 +2685,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L68",
       "id": "tests_test_models_testusermodel_test_has_role_false",
-      "community": 9,
+      "community": 4,
       "norm_label": ".test_has_role_false()"
     },
     {
@@ -2640,7 +2694,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L73",
       "id": "tests_test_models_testusermodel_test_has_role_with_enum",
-      "community": 9,
+      "community": 4,
       "norm_label": ".test_has_role_with_enum()"
     },
     {
@@ -2649,7 +2703,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L81",
       "id": "tests_test_models_testusermodel_test_to_dict",
-      "community": 9,
+      "community": 4,
       "norm_label": ".test_to_dict()"
     },
     {
@@ -3283,6 +3337,1167 @@
       "norm_label": ".test_parse_year_invalid_non_digit()"
     },
     {
+      "label": "AGENTS.md",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L1",
+      "id": "agents_md",
+      "community": 46,
+      "norm_label": "agents.md"
+    },
+    {
+      "label": "Project Overview",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L1",
+      "id": "server_agents_project_overview",
+      "community": 46,
+      "norm_label": "project overview"
+    },
+    {
+      "label": "Dev Commands",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L4",
+      "id": "server_agents_dev_commands",
+      "community": 46,
+      "norm_label": "dev commands"
+    },
+    {
+      "label": "code:bash (# Run (Docker))",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L5",
+      "id": "server_agents_codeblock_1",
+      "community": 46,
+      "norm_label": "code:bash (# run (docker))"
+    },
+    {
+      "label": "Architecture",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L23",
+      "id": "server_agents_architecture",
+      "community": 46,
+      "norm_label": "architecture"
+    },
+    {
+      "label": "Key Quirks",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L28",
+      "id": "server_agents_key_quirks",
+      "community": 46,
+      "norm_label": "key quirks"
+    },
+    {
+      "label": "Testing",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L34",
+      "id": "server_agents_testing",
+      "community": 46,
+      "norm_label": "testing"
+    },
+    {
+      "label": "graphify",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L38",
+      "id": "server_agents_graphify",
+      "community": 46,
+      "norm_label": "graphify"
+    },
+    {
+      "label": "README.md",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L1",
+      "id": "readme_md",
+      "community": 45,
+      "norm_label": "readme.md"
+    },
+    {
+      "label": "Mansa Server",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L1",
+      "id": "server_readme_mansa_server",
+      "community": 45,
+      "norm_label": "mansa server"
+    },
+    {
+      "label": "Run with Docker",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L7",
+      "id": "server_readme_run_with_docker",
+      "community": 45,
+      "norm_label": "run with docker"
+    },
+    {
+      "label": "code:bash (# Build and start)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L9",
+      "id": "server_readme_codeblock_1",
+      "community": 45,
+      "norm_label": "code:bash (# build and start)"
+    },
+    {
+      "label": "Environment Setup",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L20",
+      "id": "server_readme_environment_setup",
+      "community": 45,
+      "norm_label": "environment setup"
+    },
+    {
+      "label": "code:env (#)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L24",
+      "id": "server_readme_codeblock_2",
+      "community": 45,
+      "norm_label": "code:env (#)"
+    },
+    {
+      "label": "Health Check",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L85",
+      "id": "server_readme_health_check",
+      "community": 45,
+      "norm_label": "health check"
+    },
+    {
+      "label": "code:bash (curl http://localhost:3200/health)",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L87",
+      "id": "server_readme_codeblock_3",
+      "community": 45,
+      "norm_label": "code:bash (curl http://localhost:3200/health)"
+    },
+    {
+      "label": "License",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L91",
+      "id": "server_readme_license",
+      "community": 45,
+      "norm_label": "license"
+    },
+    {
+      "label": "TODO.md",
+      "file_type": "document",
+      "source_file": "TODO.md",
+      "source_location": "L1",
+      "id": "todo_md",
+      "community": 47,
+      "norm_label": "todo.md"
+    },
+    {
+      "label": "User structure defined by string roles:",
+      "file_type": "document",
+      "source_file": "TODO.md",
+      "source_location": "L25",
+      "id": "server_todo_user_structure_defined_by_string_roles",
+      "community": 47,
+      "norm_label": "user structure defined by string roles:"
+    },
+    {
+      "label": "USER:",
+      "file_type": "document",
+      "source_file": "TODO.md",
+      "source_location": "L34",
+      "id": "server_todo_user",
+      "community": 47,
+      "norm_label": "user:"
+    },
+    {
+      "label": "PREMIUM:",
+      "file_type": "document",
+      "source_file": "TODO.md",
+      "source_location": "L37",
+      "id": "server_todo_premium",
+      "community": 47,
+      "norm_label": "premium:"
+    },
+    {
+      "label": "DEVELOPER:",
+      "file_type": "document",
+      "source_file": "TODO.md",
+      "source_location": "L40",
+      "id": "server_todo_developer",
+      "community": 47,
+      "norm_label": "developer:"
+    },
+    {
+      "label": "STOCKS_API",
+      "file_type": "document",
+      "source_file": "TODO.md",
+      "source_location": "L67",
+      "id": "server_todo_stocks_api",
+      "community": 47,
+      "norm_label": "stocks_api"
+    },
+    {
+      "label": "Prometheus",
+      "file_type": "document",
+      "source_file": "TODO.md",
+      "source_location": "L70",
+      "id": "server_todo_prometheus",
+      "community": 47,
+      "norm_label": "prometheus"
+    },
+    {
+      "label": "authentication.md",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L1",
+      "id": "docs_authentication_md",
+      "community": 9,
+      "norm_label": "authentication.md"
+    },
+    {
+      "label": "Authentication Management",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L1",
+      "id": "docs_authentication_authentication_management",
+      "community": 9,
+      "norm_label": "authentication management"
+    },
+    {
+      "label": "Usage",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L9",
+      "id": "docs_authentication_usage",
+      "community": 9,
+      "norm_label": "usage"
+    },
+    {
+      "label": "code:env (#)",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L11",
+      "id": "docs_authentication_codeblock_1",
+      "community": 9,
+      "norm_label": "code:env (#)"
+    },
+    {
+      "label": "Roles and Permissions",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L39",
+      "id": "docs_authentication_roles_and_permissions",
+      "community": 9,
+      "norm_label": "roles and permissions"
+    },
+    {
+      "label": "API Endpoints",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L49",
+      "id": "docs_authentication_api_endpoints",
+      "community": 9,
+      "norm_label": "api endpoints"
+    },
+    {
+      "label": "Health Check",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L51",
+      "id": "docs_authentication_health_check",
+      "community": 9,
+      "norm_label": "health check"
+    },
+    {
+      "label": "code:bash (curl http://localhost:3200/auth/health)",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L52",
+      "id": "docs_authentication_codeblock_2",
+      "community": 9,
+      "norm_label": "code:bash (curl http://localhost:3200/auth/health)"
+    },
+    {
+      "label": "User Registration",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L57",
+      "id": "docs_authentication_user_registration",
+      "community": 9,
+      "norm_label": "user registration"
+    },
+    {
+      "label": "code:bash (curl -X POST \"http://localhost:3200/auth/register\" \\)",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L59",
+      "id": "docs_authentication_codeblock_3",
+      "community": 9,
+      "norm_label": "code:bash (curl -x post \"http://localhost:3200/auth/register\" \\)"
+    },
+    {
+      "label": "User Login",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L65",
+      "id": "docs_authentication_user_login",
+      "community": 9,
+      "norm_label": "user login"
+    },
+    {
+      "label": "code:bash (curl -X POST \"http://localhost:3200/auth/login\" \\)",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L67",
+      "id": "docs_authentication_codeblock_4",
+      "community": 9,
+      "norm_label": "code:bash (curl -x post \"http://localhost:3200/auth/login\" \\)"
+    },
+    {
+      "label": "Profile (Me)",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L77",
+      "id": "docs_authentication_profile_me",
+      "community": 9,
+      "norm_label": "profile (me)"
+    },
+    {
+      "label": "code:bash (curl -X GET \"http://localhost:3200/auth/me\" \\)",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L79",
+      "id": "docs_authentication_codeblock_5",
+      "community": 9,
+      "norm_label": "code:bash (curl -x get \"http://localhost:3200/auth/me\" \\)"
+    },
+    {
+      "label": "Logout",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L84",
+      "id": "docs_authentication_logout",
+      "community": 9,
+      "norm_label": "logout"
+    },
+    {
+      "label": "code:bash (curl -X POST \"http://localhost:3200/auth/logout\" \\)",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L86",
+      "id": "docs_authentication_codeblock_6",
+      "community": 9,
+      "norm_label": "code:bash (curl -x post \"http://localhost:3200/auth/logout\" \\)"
+    },
+    {
+      "label": "Google OAuth2 Login",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L94",
+      "id": "docs_authentication_google_oauth2_login",
+      "community": 9,
+      "norm_label": "google oauth2 login"
+    },
+    {
+      "label": "code:bash (# Redirect your browser to:)",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L98",
+      "id": "docs_authentication_codeblock_7",
+      "community": 9,
+      "norm_label": "code:bash (# redirect your browser to:)"
+    },
+    {
+      "label": "code:bash (GET http://localhost:3200/auth/google)",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L104",
+      "id": "docs_authentication_codeblock_8",
+      "community": 9,
+      "norm_label": "code:bash (get http://localhost:3200/auth/google)"
+    },
+    {
+      "label": "Google Callback",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L108",
+      "id": "docs_authentication_google_callback",
+      "community": 9,
+      "norm_label": "google callback"
+    },
+    {
+      "label": "Security Features",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L117",
+      "id": "docs_authentication_security_features",
+      "community": 9,
+      "norm_label": "security features"
+    },
+    {
+      "label": "Device Detection",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L130",
+      "id": "docs_authentication_device_detection",
+      "community": 9,
+      "norm_label": "device detection"
+    },
+    {
+      "label": "Session Management",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L144",
+      "id": "docs_authentication_session_management",
+      "community": 9,
+      "norm_label": "session management"
+    },
+    {
+      "label": "Workflow",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L154",
+      "id": "docs_authentication_workflow",
+      "community": 9,
+      "norm_label": "workflow"
+    },
+    {
+      "label": "code:mermaid (graph TD)",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L156",
+      "id": "docs_authentication_codeblock_9",
+      "community": 9,
+      "norm_label": "code:mermaid (graph td)"
+    },
+    {
+      "label": "License",
+      "file_type": "document",
+      "source_file": "docs/authentication.md",
+      "source_location": "L187",
+      "id": "docs_authentication_license",
+      "community": 9,
+      "norm_label": "license"
+    },
+    {
+      "label": "prometheus.md",
+      "file_type": "document",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L1",
+      "id": "docs_prometheus_md",
+      "community": 44,
+      "norm_label": "prometheus.md"
+    },
+    {
+      "label": "Prometheus",
+      "file_type": "document",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L1",
+      "id": "docs_prometheus_prometheus",
+      "community": 44,
+      "norm_label": "prometheus"
+    },
+    {
+      "label": "Usage",
+      "file_type": "document",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L9",
+      "id": "docs_prometheus_usage",
+      "community": 44,
+      "norm_label": "usage"
+    },
+    {
+      "label": "code:env (#)",
+      "file_type": "document",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L11",
+      "id": "docs_prometheus_codeblock_1",
+      "community": 44,
+      "norm_label": "code:env (#)"
+    },
+    {
+      "label": "code:bash (python __init__.py)",
+      "file_type": "document",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L51",
+      "id": "docs_prometheus_codeblock_2",
+      "community": 44,
+      "norm_label": "code:bash (python __init__.py)"
+    },
+    {
+      "label": "Workflow",
+      "file_type": "document",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L55",
+      "id": "docs_prometheus_workflow",
+      "community": 44,
+      "norm_label": "workflow"
+    },
+    {
+      "label": "code:mermaid (graph TD)",
+      "file_type": "document",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L57",
+      "id": "docs_prometheus_codeblock_3",
+      "community": 44,
+      "norm_label": "code:mermaid (graph td)"
+    },
+    {
+      "label": "API Endpoints",
+      "file_type": "document",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L67",
+      "id": "docs_prometheus_api_endpoints",
+      "community": 44,
+      "norm_label": "api endpoints"
+    },
+    {
+      "label": "License",
+      "file_type": "document",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L74",
+      "id": "docs_prometheus_license",
+      "community": 44,
+      "norm_label": "license"
+    },
+    {
+      "label": "scraper_b3.md",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L1",
+      "id": "docs_scraper_b3_md",
+      "community": 23,
+      "norm_label": "scraper_b3.md"
+    },
+    {
+      "label": "Brazilian Stocks Market Scraper",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L1",
+      "id": "docs_scraper_b3_brazilian_stocks_market_scraper",
+      "community": 23,
+      "norm_label": "brazilian stocks market scraper"
+    },
+    {
+      "label": "Usage",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L5",
+      "id": "docs_scraper_b3_usage",
+      "community": 23,
+      "norm_label": "usage"
+    },
+    {
+      "label": "code:env (#)",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L8",
+      "id": "docs_scraper_b3_codeblock_1",
+      "community": 23,
+      "norm_label": "code:env (#)"
+    },
+    {
+      "label": "Output Format",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L27",
+      "id": "docs_scraper_b3_output_format",
+      "community": 23,
+      "norm_label": "output format"
+    },
+    {
+      "label": "MySQL Table (b3_stocks)",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L29",
+      "id": "docs_scraper_b3_mysql_table_b3_stocks",
+      "community": 23,
+      "norm_label": "mysql table (b3_stocks)"
+    },
+    {
+      "label": "Sample Record",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L38",
+      "id": "docs_scraper_b3_sample_record",
+      "community": 23,
+      "norm_label": "sample record"
+    },
+    {
+      "label": "code:json ({)",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L40",
+      "id": "docs_scraper_b3_codeblock_2",
+      "community": 23,
+      "norm_label": "code:json ({)"
+    },
+    {
+      "label": "Xang\u00f4",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L55",
+      "id": "docs_scraper_b3_xang\u00f4",
+      "community": 23,
+      "norm_label": "xango"
+    },
+    {
+      "label": "Global Score Function",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L60",
+      "id": "docs_scraper_b3_global_score_function",
+      "community": 23,
+      "norm_label": "global score function"
+    },
+    {
+      "label": "Engines",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L69",
+      "id": "docs_scraper_b3_engines",
+      "community": 23,
+      "norm_label": "engines"
+    },
+    {
+      "label": "Profit Quality Gate ($M_{profit}$)",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L71",
+      "id": "docs_scraper_b3_profit_quality_gate_m_profit",
+      "community": 23,
+      "norm_label": "profit quality gate ($m_{profit}$)"
+    },
+    {
+      "label": "Fundamental Engine ($\\Phi$)",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L76",
+      "id": "docs_scraper_b3_fundamental_engine_phi",
+      "community": 23,
+      "norm_label": "fundamental engine ($\\phi$)"
+    },
+    {
+      "label": "Risk-Quality Engine ($\\Omega$)",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L89",
+      "id": "docs_scraper_b3_risk_quality_engine_omega",
+      "community": 23,
+      "norm_label": "risk-quality engine ($\\omega$)"
+    },
+    {
+      "label": "Constraint Engine ($\\Lambda$)",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L101",
+      "id": "docs_scraper_b3_constraint_engine_lambda",
+      "community": 23,
+      "norm_label": "constraint engine ($\\lambda$)"
+    },
+    {
+      "label": "Configuration Parameters",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L113",
+      "id": "docs_scraper_b3_configuration_parameters",
+      "community": 23,
+      "norm_label": "configuration parameters"
+    },
+    {
+      "label": "License",
+      "file_type": "document",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L131",
+      "id": "docs_scraper_b3_license",
+      "community": 23,
+      "norm_label": "license"
+    },
+    {
+      "label": "stocks_api.md",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L1",
+      "id": "docs_stocks_api_md",
+      "community": 21,
+      "norm_label": "stocks_api.md"
+    },
+    {
+      "label": "Brazilian Stocks Market API",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L1",
+      "id": "docs_stocks_api_brazilian_stocks_market_api",
+      "community": 21,
+      "norm_label": "brazilian stocks market api"
+    },
+    {
+      "label": "Usage",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L7",
+      "id": "docs_stocks_api_usage",
+      "community": 21,
+      "norm_label": "usage"
+    },
+    {
+      "label": "code:env (#)",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L9",
+      "id": "docs_stocks_api_codeblock_1",
+      "community": 21,
+      "norm_label": "code:env (#)"
+    },
+    {
+      "label": "API Endpoints",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L32",
+      "id": "docs_stocks_api_api_endpoints",
+      "community": 21,
+      "norm_label": "api endpoints"
+    },
+    {
+      "label": "Health Check",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L34",
+      "id": "docs_stocks_api_health_check",
+      "community": 21,
+      "norm_label": "health check"
+    },
+    {
+      "label": "code:bash (curl http://localhost:3200/stocks/health)",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L35",
+      "id": "docs_stocks_api_codeblock_2",
+      "community": 21,
+      "norm_label": "code:bash (curl http://localhost:3200/stocks/health)"
+    },
+    {
+      "label": "API Key Verification",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L40",
+      "id": "docs_stocks_api_api_key_verification",
+      "community": 21,
+      "norm_label": "api key verification"
+    },
+    {
+      "label": "code:bash (curl -H \"X-API-Key: YOUR_KEY\" http://localhost:3200/stocks/k)",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L41",
+      "id": "docs_stocks_api_codeblock_3",
+      "community": 21,
+      "norm_label": "code:bash (curl -h \"x-api-key: your_key\" http://localhost:3200/stocks/k)"
+    },
+    {
+      "label": "Key Management",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L45",
+      "id": "docs_stocks_api_key_management",
+      "community": 21,
+      "norm_label": "key management"
+    },
+    {
+      "label": "code:bash (curl \"http://localhost:3200/stocks/key/generate?userId=1\")",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L47",
+      "id": "docs_stocks_api_codeblock_4",
+      "community": 21,
+      "norm_label": "code:bash (curl \"http://localhost:3200/stocks/key/generate?userid=1\")"
+    },
+    {
+      "label": "Historical Data",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L53",
+      "id": "docs_stocks_api_historical_data",
+      "community": 21,
+      "norm_label": "historical data"
+    },
+    {
+      "label": "code:bash (curl -H \"X-API-Key: YOUR_KEY\" \"http://localhost:3200/stocks/)",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L55",
+      "id": "docs_stocks_api_codeblock_5",
+      "community": 21,
+      "norm_label": "code:bash (curl -h \"x-api-key: your_key\" \"http://localhost:3200/stocks/)"
+    },
+    {
+      "label": "code:block6 (DESPESAS, DIVIDENDOS, DY, LUCRO LIQUIDO, MARGEM BRUTA, MARGE)",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L68",
+      "id": "docs_stocks_api_codeblock_6",
+      "community": 21,
+      "norm_label": "code:block6 (despesas, dividendos, dy, lucro liquido, margem bruta, marge)"
+    },
+    {
+      "label": "Fundamental Data",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L72",
+      "id": "docs_stocks_api_fundamental_data",
+      "community": 21,
+      "norm_label": "fundamental data"
+    },
+    {
+      "label": "code:bash (curl -H \"X-API-Key: YOUR_KEY\" \"http://localhost:3200/stocks/)",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L74",
+      "id": "docs_stocks_api_codeblock_7",
+      "community": 21,
+      "norm_label": "code:bash (curl -h \"x-api-key: your_key\" \"http://localhost:3200/stocks/)"
+    },
+    {
+      "label": "code:block8 (NOME, TICKER, SETOR, SUBSETOR, SEGMENTO, SGR, TAG ALONG, INV)",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L86",
+      "id": "docs_stocks_api_codeblock_8",
+      "community": 21,
+      "norm_label": "code:block8 (nome, ticker, setor, subsetor, segmento, sgr, tag along, inv)"
+    },
+    {
+      "label": "Response Format",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L90",
+      "id": "docs_stocks_api_response_format",
+      "community": 21,
+      "norm_label": "response format"
+    },
+    {
+      "label": "code:json ({)",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L94",
+      "id": "docs_stocks_api_codeblock_9",
+      "community": 21,
+      "norm_label": "code:json ({)"
+    },
+    {
+      "label": "License",
+      "file_type": "document",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L113",
+      "id": "docs_stocks_api_license",
+      "community": 21,
+      "norm_label": "license"
+    },
+    {
+      "label": "user.md",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L1",
+      "id": "docs_user_md",
+      "community": 8,
+      "norm_label": "user.md"
+    },
+    {
+      "label": "User Management",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L1",
+      "id": "docs_user_user_management",
+      "community": 8,
+      "norm_label": "user management"
+    },
+    {
+      "label": "Roles and Permissions",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L5",
+      "id": "docs_user_roles_and_permissions",
+      "community": 8,
+      "norm_label": "roles and permissions"
+    },
+    {
+      "label": "API Endpoints",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L17",
+      "id": "docs_user_api_endpoints",
+      "community": 8,
+      "norm_label": "api endpoints"
+    },
+    {
+      "label": "Health Check",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L19",
+      "id": "docs_user_health_check",
+      "community": 8,
+      "norm_label": "health check"
+    },
+    {
+      "label": "code:bash (curl http://localhost:3200/user/health)",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L20",
+      "id": "docs_user_codeblock_1",
+      "community": 8,
+      "norm_label": "code:bash (curl http://localhost:3200/user/health)"
+    },
+    {
+      "label": "Get Profile",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L25",
+      "id": "docs_user_get_profile",
+      "community": 8,
+      "norm_label": "get profile"
+    },
+    {
+      "label": "code:bash (curl -H \"Authorization: Bearer <token>\" http://localhost:320)",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L27",
+      "id": "docs_user_codeblock_2",
+      "community": 8,
+      "norm_label": "code:bash (curl -h \"authorization: bearer <token>\" http://localhost:320)"
+    },
+    {
+      "label": "code:json ({)",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L31",
+      "id": "docs_user_codeblock_3",
+      "community": 8,
+      "norm_label": "code:json ({)"
+    },
+    {
+      "label": "Upgrade to Developer Starter",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L41",
+      "id": "docs_user_upgrade_to_developer_starter",
+      "community": 8,
+      "norm_label": "upgrade to developer starter"
+    },
+    {
+      "label": "code:bash (curl -X POST -H \"Authorization: Bearer <token>\" http://local)",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L43",
+      "id": "docs_user_codeblock_4",
+      "community": 8,
+      "norm_label": "code:bash (curl -x post -h \"authorization: bearer <token>\" http://local)"
+    },
+    {
+      "label": "Upgrade to Developer Enterprise",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L47",
+      "id": "docs_user_upgrade_to_developer_enterprise",
+      "community": 8,
+      "norm_label": "upgrade to developer enterprise"
+    },
+    {
+      "label": "code:bash (curl -X POST -H \"Authorization: Bearer <token>\" http://local)",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L49",
+      "id": "docs_user_codeblock_5",
+      "community": 8,
+      "norm_label": "code:bash (curl -x post -h \"authorization: bearer <token>\" http://local)"
+    },
+    {
+      "label": "Admin Access",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L53",
+      "id": "docs_user_admin_access",
+      "community": 8,
+      "norm_label": "admin access"
+    },
+    {
+      "label": "code:bash (curl -H \"Authorization: Bearer <token>\" http://localhost:320)",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L55",
+      "id": "docs_user_codeblock_6",
+      "community": 8,
+      "norm_label": "code:bash (curl -h \"authorization: bearer <token>\" http://localhost:320)"
+    },
+    {
+      "label": "Session Management",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L59",
+      "id": "docs_user_session_management",
+      "community": 8,
+      "norm_label": "session management"
+    },
+    {
+      "label": "List All Sessions",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L63",
+      "id": "docs_user_list_all_sessions",
+      "community": 8,
+      "norm_label": "list all sessions"
+    },
+    {
+      "label": "code:bash (curl -H \"Authorization: Bearer <token>\" http://localhost:320)",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L65",
+      "id": "docs_user_codeblock_7",
+      "community": 8,
+      "norm_label": "code:bash (curl -h \"authorization: bearer <token>\" http://localhost:320)"
+    },
+    {
+      "label": "code:json ({)",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L69",
+      "id": "docs_user_codeblock_8",
+      "community": 8,
+      "norm_label": "code:json ({)"
+    },
+    {
+      "label": "Get Current Session",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L92",
+      "id": "docs_user_get_current_session",
+      "community": 8,
+      "norm_label": "get current session"
+    },
+    {
+      "label": "code:bash (curl -H \"Authorization: Bearer <token>\" http://localhost:320)",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L94",
+      "id": "docs_user_codeblock_9",
+      "community": 8,
+      "norm_label": "code:bash (curl -h \"authorization: bearer <token>\" http://localhost:320)"
+    },
+    {
+      "label": "code:json ({)",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L98",
+      "id": "docs_user_codeblock_10",
+      "community": 8,
+      "norm_label": "code:json ({)"
+    },
+    {
+      "label": "Revoke a Session",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L114",
+      "id": "docs_user_revoke_a_session",
+      "community": 8,
+      "norm_label": "revoke a session"
+    },
+    {
+      "label": "code:bash (curl -X DELETE -H \"Authorization: Bearer <token>\" http://loc)",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L116",
+      "id": "docs_user_codeblock_11",
+      "community": 8,
+      "norm_label": "code:bash (curl -x delete -h \"authorization: bearer <token>\" http://loc)"
+    },
+    {
+      "label": "code:json ({)",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L120",
+      "id": "docs_user_codeblock_12",
+      "community": 8,
+      "norm_label": "code:json ({)"
+    },
+    {
+      "label": "Revoke All Sessions",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L127",
+      "id": "docs_user_revoke_all_sessions",
+      "community": 8,
+      "norm_label": "revoke all sessions"
+    },
+    {
+      "label": "code:bash (curl -X POST -H \"Authorization: Bearer <token>\" http://local)",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L129",
+      "id": "docs_user_codeblock_13",
+      "community": 8,
+      "norm_label": "code:bash (curl -x post -h \"authorization: bearer <token>\" http://local)"
+    },
+    {
+      "label": "code:json ({)",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L133",
+      "id": "docs_user_codeblock_14",
+      "community": 8,
+      "norm_label": "code:json ({)"
+    },
+    {
+      "label": "Permission System",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L140",
+      "id": "docs_user_permission_system",
+      "community": 8,
+      "norm_label": "permission system"
+    },
+    {
+      "label": "code:python (Permission.VIEW_PROFILE    # View own profile)",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L144",
+      "id": "docs_user_codeblock_15",
+      "community": 8,
+      "norm_label": "code:python (permission.view_profile    # view own profile)"
+    },
+    {
+      "label": "Workflow",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L156",
+      "id": "docs_user_workflow",
+      "community": 8,
+      "norm_label": "workflow"
+    },
+    {
+      "label": "code:mermaid (graph TD)",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L158",
+      "id": "docs_user_codeblock_16",
+      "community": 8,
+      "norm_label": "code:mermaid (graph td)"
+    },
+    {
+      "label": "License",
+      "file_type": "document",
+      "source_file": "docs/user.md",
+      "source_location": "L177",
+      "id": "docs_user_license",
+      "community": 8,
+      "norm_label": "license"
+    },
+    {
       "label": "test_stocks_cache.py",
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
@@ -3350,7 +4565,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L70",
-      "community": 2,
+      "community": 22,
       "norm_label": "testquerycaching",
       "id": "tests_test_stocks_cache_testquerycaching"
     },
@@ -3359,7 +4574,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L73",
-      "community": 2,
+      "community": 22,
       "norm_label": ".test_cache_manager_has_caches_method()",
       "id": "tests_test_stocks_cache_testquerycaching_test_cache_manager_has_caches_method"
     },
@@ -3368,7 +4583,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L81",
-      "community": 2,
+      "community": 22,
       "norm_label": ".test_querycache_ttl_configuration()",
       "id": "tests_test_stocks_cache_testquerycaching_test_querycache_ttl_configuration"
     },
@@ -3377,7 +4592,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L89",
-      "community": 2,
+      "community": 22,
       "norm_label": ".test_get_cached_stocks_respects_columns_parameter()",
       "id": "tests_test_stocks_cache_testquerycaching_test_get_cached_stocks_respects_columns_parameter"
     },
@@ -3386,7 +4601,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L99",
-      "community": 2,
+      "community": 22,
       "norm_label": ".test_different_queries_not_cached()",
       "id": "tests_test_stocks_cache_testquerycaching_test_different_queries_not_cached"
     },
@@ -3395,7 +4610,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L103",
-      "community": 2,
+      "community": 22,
       "norm_label": ".test_cache_expiry_after_ttl()",
       "id": "tests_test_stocks_cache_testquerycaching_test_cache_expiry_after_ttl"
     },
@@ -3422,7 +4637,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L121",
-      "community": 0,
+      "community": 2,
       "norm_label": "testlazydeserialization",
       "id": "tests_test_stocks_cache_testlazydeserialization"
     },
@@ -3431,7 +4646,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L124",
-      "community": 0,
+      "community": 2,
       "norm_label": ".test_query_manager_has_deserialize_method()",
       "id": "tests_test_stocks_cache_testlazydeserialization_test_query_manager_has_deserialize_method"
     },
@@ -3440,7 +4655,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L135",
-      "community": 0,
+      "community": 2,
       "norm_label": "testqueryoptimization",
       "id": "tests_test_stocks_cache_testqueryoptimization"
     },
@@ -3449,7 +4664,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L138",
-      "community": 0,
+      "community": 2,
       "norm_label": ".test_all_optimizations_present()",
       "id": "tests_test_stocks_cache_testqueryoptimization_test_all_optimizations_present"
     },
@@ -3458,7 +4673,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L153",
-      "community": 0,
+      "community": 2,
       "norm_label": ".test_query_filter_uses_optimization()",
       "id": "tests_test_stocks_cache_testqueryoptimization_test_query_filter_uses_optimization"
     },
@@ -3620,7 +4835,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L71",
-      "community": 2,
+      "community": 22,
       "norm_label": "tests for query result caching",
       "id": "tests_test_stocks_cache_rationale_71"
     },
@@ -3629,7 +4844,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L74",
-      "community": 2,
+      "community": 22,
       "norm_label": "cachemanager should track cached queries",
       "id": "tests_test_stocks_cache_rationale_74"
     },
@@ -3638,7 +4853,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L82",
-      "community": 2,
+      "community": 22,
       "norm_label": "query cache should have configurable ttl",
       "id": "tests_test_stocks_cache_rationale_82"
     },
@@ -3647,7 +4862,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L90",
-      "community": 2,
+      "community": 22,
       "norm_label": "getcachedstocks should support column filtering",
       "id": "tests_test_stocks_cache_rationale_90"
     },
@@ -3656,7 +4871,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L100",
-      "community": 2,
+      "community": 22,
       "norm_label": "different query parameters should not share cache",
       "id": "tests_test_stocks_cache_rationale_100"
     },
@@ -3665,7 +4880,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L104",
-      "community": 2,
+      "community": 22,
       "norm_label": "cache should expire after ttl",
       "id": "tests_test_stocks_cache_rationale_104"
     },
@@ -3692,7 +4907,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L122",
-      "community": 0,
+      "community": 2,
       "norm_label": "tests for lazy json deserialization",
       "id": "tests_test_stocks_cache_rationale_122"
     },
@@ -3701,7 +4916,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L125",
-      "community": 0,
+      "community": 2,
       "norm_label": "query manager should have deserialize method",
       "id": "tests_test_stocks_cache_rationale_125"
     },
@@ -3710,7 +4925,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L136",
-      "community": 0,
+      "community": 2,
       "norm_label": "integration tests for all query optimizations",
       "id": "tests_test_stocks_cache_rationale_136"
     },
@@ -3719,7 +4934,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L139",
-      "community": 0,
+      "community": 2,
       "norm_label": "all optimizations should be implemented",
       "id": "tests_test_stocks_cache_rationale_139"
     },
@@ -3728,7 +4943,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L154",
-      "community": 0,
+      "community": 2,
       "norm_label": "query filter should use ticker index",
       "id": "tests_test_stocks_cache_rationale_154"
     },
@@ -3908,7 +5123,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L73",
-      "community": 2,
+      "community": 22,
       "norm_label": "tests for query result caching",
       "id": "tests_test_stocks_cache_rationale_73"
     },
@@ -3917,7 +5132,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L76",
-      "community": 2,
+      "community": 22,
       "norm_label": "cachemanager should track cached queries",
       "id": "tests_test_stocks_cache_rationale_76"
     },
@@ -3926,7 +5141,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L84",
-      "community": 2,
+      "community": 22,
       "norm_label": "query cache should have configurable ttl",
       "id": "tests_test_stocks_cache_rationale_84"
     },
@@ -3935,7 +5150,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L92",
-      "community": 2,
+      "community": 22,
       "norm_label": "getcachedstocks should support column filtering",
       "id": "tests_test_stocks_cache_rationale_92"
     },
@@ -3944,7 +5159,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L102",
-      "community": 2,
+      "community": 22,
       "norm_label": "different query parameters should not share cache",
       "id": "tests_test_stocks_cache_rationale_102"
     },
@@ -3953,7 +5168,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L106",
-      "community": 2,
+      "community": 22,
       "norm_label": "cache should expire after ttl",
       "id": "tests_test_stocks_cache_rationale_106"
     },
@@ -3980,7 +5195,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L124",
-      "community": 0,
+      "community": 2,
       "norm_label": "tests for lazy json deserialization",
       "id": "tests_test_stocks_cache_rationale_124"
     },
@@ -3989,7 +5204,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L127",
-      "community": 0,
+      "community": 2,
       "norm_label": "query manager should have deserialize method",
       "id": "tests_test_stocks_cache_rationale_127"
     },
@@ -3998,7 +5213,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L138",
-      "community": 0,
+      "community": 2,
       "norm_label": "integration tests for all query optimizations",
       "id": "tests_test_stocks_cache_rationale_138"
     },
@@ -4007,7 +5222,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L141",
-      "community": 0,
+      "community": 2,
       "norm_label": "all optimizations should be implemented",
       "id": "tests_test_stocks_cache_rationale_141"
     },
@@ -4016,7 +5231,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L156",
-      "community": 0,
+      "community": 2,
       "norm_label": "query filter should use ticker index",
       "id": "tests_test_stocks_cache_rationale_156"
     },
@@ -4160,7 +5375,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L83",
-      "community": 2,
+      "community": 22,
       "norm_label": ".test_querycache_ttl_configuration()",
       "id": "tests_test_stocks_cache_testquerycaching_test_queryCache_ttl_configuration"
     },
@@ -4196,7 +5411,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L1",
-      "community": 8,
+      "community": 0,
       "norm_label": "test_stocks_optimization.py",
       "id": "tests_test_stocks_optimization_py"
     },
@@ -4313,7 +5528,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L111",
-      "community": 8,
+      "community": 0,
       "norm_label": "testconnectionpool",
       "id": "tests_test_stocks_optimization_testconnectionpool"
     },
@@ -4322,7 +5537,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L114",
-      "community": 8,
+      "community": 0,
       "norm_label": ".test_stocks_engine_has_pool_configuration()",
       "id": "tests_test_stocks_optimization_testconnectionpool_test_stocks_engine_has_pool_configuration"
     },
@@ -4349,7 +5564,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L137",
-      "community": 8,
+      "community": 0,
       "norm_label": "testqueryoptimization",
       "id": "tests_test_stocks_optimization_testqueryoptimization"
     },
@@ -4358,7 +5573,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L140",
-      "community": 8,
+      "community": 0,
       "norm_label": ".test_all_optimizations_present()",
       "id": "tests_test_stocks_optimization_testqueryoptimization_test_all_optimizations_present"
     },
@@ -4367,7 +5582,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L155",
-      "community": 8,
+      "community": 0,
       "norm_label": ".test_query_filter_uses_optimization()",
       "id": "tests_test_stocks_optimization_testqueryoptimization_test_query_filter_uses_optimization"
     },
@@ -4439,7 +5654,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L301",
-      "community": 8,
+      "community": 0,
       "norm_label": "testfilterbysearchterms",
       "id": "tests_test_stocks_optimization_testfilterbysearchterms"
     },
@@ -4448,7 +5663,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L304",
-      "community": 8,
+      "community": 0,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_optimization_testfilterbysearchterms_test_filter_with_tickerIndex"
     },
@@ -4457,7 +5672,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L310",
-      "community": 8,
+      "community": 0,
       "norm_label": "testqueryperformance",
       "id": "tests_test_stocks_optimization_testqueryperformance"
     },
@@ -4466,7 +5681,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L313",
-      "community": 8,
+      "community": 0,
       "norm_label": ".test_query_response_time_under_1_second()",
       "id": "tests_test_stocks_optimization_testqueryperformance_test_query_response_time_under_1_second"
     },
@@ -4583,7 +5798,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L112",
-      "community": 8,
+      "community": 0,
       "norm_label": "tests for connection pool configuration",
       "id": "tests_test_stocks_optimization_rationale_112"
     },
@@ -4592,7 +5807,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L115",
-      "community": 8,
+      "community": 0,
       "norm_label": "stocks engine should have optimized pool settings",
       "id": "tests_test_stocks_optimization_rationale_115"
     },
@@ -4619,7 +5834,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L138",
-      "community": 8,
+      "community": 0,
       "norm_label": "integration tests for all query optimizations",
       "id": "tests_test_stocks_optimization_rationale_138"
     },
@@ -4628,7 +5843,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L141",
-      "community": 8,
+      "community": 0,
       "norm_label": "all optimizations should be implemented",
       "id": "tests_test_stocks_optimization_rationale_141"
     },
@@ -4637,7 +5852,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L156",
-      "community": 8,
+      "community": 0,
       "norm_label": "query filter should use ticker index",
       "id": "tests_test_stocks_optimization_rationale_156"
     },
@@ -4709,7 +5924,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L302",
-      "community": 8,
+      "community": 0,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_optimization_rationale_302"
     },
@@ -4718,7 +5933,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L305",
-      "community": 8,
+      "community": 0,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_optimization_rationale_305"
     },
@@ -4727,7 +5942,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L311",
-      "community": 8,
+      "community": 0,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_optimization_rationale_311"
     },
@@ -4736,7 +5951,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L314",
-      "community": 8,
+      "community": 0,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_optimization_rationale_314"
     },
@@ -4754,7 +5969,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L173",
-      "community": 8,
+      "community": 0,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_optimization_rationale_173"
     },
@@ -4763,7 +5978,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L176",
-      "community": 8,
+      "community": 0,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_optimization_rationale_176"
     },
@@ -4772,7 +5987,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L182",
-      "community": 8,
+      "community": 0,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_optimization_rationale_182"
     },
@@ -4781,7 +5996,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L185",
-      "community": 8,
+      "community": 0,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_optimization_rationale_185"
     },
@@ -5064,7 +6279,7 @@
       "label": "FastAPI",
       "file_type": "rationale",
       "source_file": "README.md",
-      "community": 0,
+      "community": 17,
       "norm_label": "fastapi",
       "id": "fastapi"
     },
@@ -5208,7 +6423,7 @@
       "label": "Pytest Testing",
       "file_type": "rationale",
       "source_file": "pyproject.toml",
-      "community": 4,
+      "community": 0,
       "norm_label": "pytest testing",
       "id": "pytest"
     },
@@ -10232,6 +11447,56 @@
       "target": "migrations_versions_4a2f1c9e3b5d_user_sessions_py"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "migrations/versions/add_access_token_hash.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "migrations_versions_add_access_token_hash_py",
+      "target": "versions_add_access_token_hash_upgrade",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "migrations/versions/add_access_token_hash.py",
+      "source_location": "L54",
+      "weight": 1.0,
+      "source": "migrations_versions_add_access_token_hash_py",
+      "target": "versions_add_access_token_hash_downgrade",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "migrations/versions/add_access_token_hash.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "versions_add_access_token_hash_rationale_1",
+      "target": "migrations_versions_add_access_token_hash_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "migrations/versions/add_access_token_hash.py",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "versions_add_access_token_hash_rationale_22",
+      "target": "versions_add_access_token_hash_upgrade",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "migrations/versions/add_access_token_hash.py",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "versions_add_access_token_hash_rationale_55",
+      "target": "versions_add_access_token_hash_downgrade",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -11550,6 +12815,1216 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_util_testparseyearinput",
       "target": "tests_test_stocks_util_testparseyearinput_test_parse_year_invalid_non_digit"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AGENTS.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "agents_md",
+      "target": "server_agents_project_overview",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AGENTS.md",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "agents_md",
+      "target": "server_agents_dev_commands",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AGENTS.md",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "agents_md",
+      "target": "server_agents_architecture",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AGENTS.md",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "agents_md",
+      "target": "server_agents_key_quirks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AGENTS.md",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "agents_md",
+      "target": "server_agents_testing",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AGENTS.md",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "agents_md",
+      "target": "server_agents_graphify",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AGENTS.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "server_agents_dev_commands",
+      "target": "server_agents_codeblock_1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "readme_md",
+      "target": "server_readme_mansa_server",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "server_readme_mansa_server",
+      "target": "server_readme_run_with_docker",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "server_readme_mansa_server",
+      "target": "server_readme_environment_setup",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L85",
+      "weight": 1.0,
+      "source": "server_readme_mansa_server",
+      "target": "server_readme_health_check",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L91",
+      "weight": 1.0,
+      "source": "server_readme_mansa_server",
+      "target": "server_readme_license",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "server_readme_run_with_docker",
+      "target": "server_readme_codeblock_1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "server_readme_environment_setup",
+      "target": "server_readme_codeblock_2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L87",
+      "weight": 1.0,
+      "source": "server_readme_health_check",
+      "target": "server_readme_codeblock_3",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "TODO.md",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "todo_md",
+      "target": "server_todo_user_structure_defined_by_string_roles",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "TODO.md",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "server_todo_user_structure_defined_by_string_roles",
+      "target": "server_todo_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "TODO.md",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "server_todo_user_structure_defined_by_string_roles",
+      "target": "server_todo_premium",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "TODO.md",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "server_todo_user_structure_defined_by_string_roles",
+      "target": "server_todo_developer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "TODO.md",
+      "source_location": "L67",
+      "weight": 1.0,
+      "source": "server_todo_user_structure_defined_by_string_roles",
+      "target": "server_todo_stocks_api",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "TODO.md",
+      "source_location": "L70",
+      "weight": 1.0,
+      "source": "server_todo_user_structure_defined_by_string_roles",
+      "target": "server_todo_prometheus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "docs_authentication_md",
+      "target": "docs_authentication_authentication_management",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "docs_authentication_authentication_management",
+      "target": "docs_authentication_usage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "docs_authentication_authentication_management",
+      "target": "docs_authentication_roles_and_permissions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "docs_authentication_authentication_management",
+      "target": "docs_authentication_api_endpoints",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L117",
+      "weight": 1.0,
+      "source": "docs_authentication_authentication_management",
+      "target": "docs_authentication_security_features",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L130",
+      "weight": 1.0,
+      "source": "docs_authentication_authentication_management",
+      "target": "docs_authentication_device_detection",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L144",
+      "weight": 1.0,
+      "source": "docs_authentication_authentication_management",
+      "target": "docs_authentication_session_management",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L154",
+      "weight": 1.0,
+      "source": "docs_authentication_authentication_management",
+      "target": "docs_authentication_workflow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L187",
+      "weight": 1.0,
+      "source": "docs_authentication_authentication_management",
+      "target": "docs_authentication_license",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "docs_authentication_usage",
+      "target": "docs_authentication_codeblock_1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "docs_authentication_api_endpoints",
+      "target": "docs_authentication_health_check",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L57",
+      "weight": 1.0,
+      "source": "docs_authentication_api_endpoints",
+      "target": "docs_authentication_user_registration",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L65",
+      "weight": 1.0,
+      "source": "docs_authentication_api_endpoints",
+      "target": "docs_authentication_user_login",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L77",
+      "weight": 1.0,
+      "source": "docs_authentication_api_endpoints",
+      "target": "docs_authentication_profile_me",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L84",
+      "weight": 1.0,
+      "source": "docs_authentication_api_endpoints",
+      "target": "docs_authentication_logout",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L94",
+      "weight": 1.0,
+      "source": "docs_authentication_api_endpoints",
+      "target": "docs_authentication_google_oauth2_login",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L108",
+      "weight": 1.0,
+      "source": "docs_authentication_api_endpoints",
+      "target": "docs_authentication_google_callback",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L52",
+      "weight": 1.0,
+      "source": "docs_authentication_health_check",
+      "target": "docs_authentication_codeblock_2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L59",
+      "weight": 1.0,
+      "source": "docs_authentication_user_registration",
+      "target": "docs_authentication_codeblock_3",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L67",
+      "weight": 1.0,
+      "source": "docs_authentication_user_login",
+      "target": "docs_authentication_codeblock_4",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L79",
+      "weight": 1.0,
+      "source": "docs_authentication_profile_me",
+      "target": "docs_authentication_codeblock_5",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L86",
+      "weight": 1.0,
+      "source": "docs_authentication_logout",
+      "target": "docs_authentication_codeblock_6",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L98",
+      "weight": 1.0,
+      "source": "docs_authentication_google_oauth2_login",
+      "target": "docs_authentication_codeblock_7",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L104",
+      "weight": 1.0,
+      "source": "docs_authentication_google_oauth2_login",
+      "target": "docs_authentication_codeblock_8",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/authentication.md",
+      "source_location": "L156",
+      "weight": 1.0,
+      "source": "docs_authentication_workflow",
+      "target": "docs_authentication_codeblock_9",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "docs_prometheus_md",
+      "target": "docs_prometheus_prometheus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "docs_prometheus_prometheus",
+      "target": "docs_prometheus_usage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "docs_prometheus_prometheus",
+      "target": "docs_prometheus_workflow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L67",
+      "weight": 1.0,
+      "source": "docs_prometheus_prometheus",
+      "target": "docs_prometheus_api_endpoints",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L74",
+      "weight": 1.0,
+      "source": "docs_prometheus_prometheus",
+      "target": "docs_prometheus_license",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "docs_prometheus_usage",
+      "target": "docs_prometheus_codeblock_1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L51",
+      "weight": 1.0,
+      "source": "docs_prometheus_usage",
+      "target": "docs_prometheus_codeblock_2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/prometheus.md",
+      "source_location": "L57",
+      "weight": 1.0,
+      "source": "docs_prometheus_workflow",
+      "target": "docs_prometheus_codeblock_3",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "docs_scraper_b3_md",
+      "target": "docs_scraper_b3_brazilian_stocks_market_scraper",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "docs_scraper_b3_brazilian_stocks_market_scraper",
+      "target": "docs_scraper_b3_usage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "docs_scraper_b3_brazilian_stocks_market_scraper",
+      "target": "docs_scraper_b3_output_format",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "docs_scraper_b3_brazilian_stocks_market_scraper",
+      "target": "docs_scraper_b3_xang\u00f4",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L131",
+      "weight": 1.0,
+      "source": "docs_scraper_b3_brazilian_stocks_market_scraper",
+      "target": "docs_scraper_b3_license",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "docs_scraper_b3_usage",
+      "target": "docs_scraper_b3_codeblock_1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "docs_scraper_b3_output_format",
+      "target": "docs_scraper_b3_mysql_table_b3_stocks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "docs_scraper_b3_output_format",
+      "target": "docs_scraper_b3_sample_record",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "docs_scraper_b3_sample_record",
+      "target": "docs_scraper_b3_codeblock_2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L60",
+      "weight": 1.0,
+      "source": "docs_scraper_b3_xang\u00f4",
+      "target": "docs_scraper_b3_global_score_function",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L69",
+      "weight": 1.0,
+      "source": "docs_scraper_b3_xang\u00f4",
+      "target": "docs_scraper_b3_engines",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L113",
+      "weight": 1.0,
+      "source": "docs_scraper_b3_xang\u00f4",
+      "target": "docs_scraper_b3_configuration_parameters",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L71",
+      "weight": 1.0,
+      "source": "docs_scraper_b3_engines",
+      "target": "docs_scraper_b3_profit_quality_gate_m_profit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "docs_scraper_b3_engines",
+      "target": "docs_scraper_b3_fundamental_engine_phi",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "docs_scraper_b3_engines",
+      "target": "docs_scraper_b3_risk_quality_engine_omega",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/scraper_b3.md",
+      "source_location": "L101",
+      "weight": 1.0,
+      "source": "docs_scraper_b3_engines",
+      "target": "docs_scraper_b3_constraint_engine_lambda",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "docs_stocks_api_md",
+      "target": "docs_stocks_api_brazilian_stocks_market_api",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "docs_stocks_api_brazilian_stocks_market_api",
+      "target": "docs_stocks_api_usage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "docs_stocks_api_brazilian_stocks_market_api",
+      "target": "docs_stocks_api_api_endpoints",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L90",
+      "weight": 1.0,
+      "source": "docs_stocks_api_brazilian_stocks_market_api",
+      "target": "docs_stocks_api_response_format",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L113",
+      "weight": 1.0,
+      "source": "docs_stocks_api_brazilian_stocks_market_api",
+      "target": "docs_stocks_api_license",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "docs_stocks_api_usage",
+      "target": "docs_stocks_api_codeblock_1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "docs_stocks_api_api_endpoints",
+      "target": "docs_stocks_api_health_check",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "docs_stocks_api_api_endpoints",
+      "target": "docs_stocks_api_api_key_verification",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "docs_stocks_api_api_endpoints",
+      "target": "docs_stocks_api_key_management",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "docs_stocks_api_api_endpoints",
+      "target": "docs_stocks_api_historical_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L72",
+      "weight": 1.0,
+      "source": "docs_stocks_api_api_endpoints",
+      "target": "docs_stocks_api_fundamental_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "docs_stocks_api_health_check",
+      "target": "docs_stocks_api_codeblock_2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "docs_stocks_api_api_key_verification",
+      "target": "docs_stocks_api_codeblock_3",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L47",
+      "weight": 1.0,
+      "source": "docs_stocks_api_key_management",
+      "target": "docs_stocks_api_codeblock_4",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "docs_stocks_api_historical_data",
+      "target": "docs_stocks_api_codeblock_5",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L68",
+      "weight": 1.0,
+      "source": "docs_stocks_api_historical_data",
+      "target": "docs_stocks_api_codeblock_6",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L74",
+      "weight": 1.0,
+      "source": "docs_stocks_api_fundamental_data",
+      "target": "docs_stocks_api_codeblock_7",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L86",
+      "weight": 1.0,
+      "source": "docs_stocks_api_fundamental_data",
+      "target": "docs_stocks_api_codeblock_8",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/stocks_api.md",
+      "source_location": "L94",
+      "weight": 1.0,
+      "source": "docs_stocks_api_response_format",
+      "target": "docs_stocks_api_codeblock_9",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "docs_user_md",
+      "target": "docs_user_user_management",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "docs_user_user_management",
+      "target": "docs_user_roles_and_permissions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "docs_user_user_management",
+      "target": "docs_user_api_endpoints",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L59",
+      "weight": 1.0,
+      "source": "docs_user_user_management",
+      "target": "docs_user_session_management",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L140",
+      "weight": 1.0,
+      "source": "docs_user_user_management",
+      "target": "docs_user_permission_system",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L156",
+      "weight": 1.0,
+      "source": "docs_user_user_management",
+      "target": "docs_user_workflow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L177",
+      "weight": 1.0,
+      "source": "docs_user_user_management",
+      "target": "docs_user_license",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "docs_user_api_endpoints",
+      "target": "docs_user_health_check",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "docs_user_api_endpoints",
+      "target": "docs_user_get_profile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "docs_user_api_endpoints",
+      "target": "docs_user_upgrade_to_developer_starter",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L47",
+      "weight": 1.0,
+      "source": "docs_user_api_endpoints",
+      "target": "docs_user_upgrade_to_developer_enterprise",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "docs_user_api_endpoints",
+      "target": "docs_user_admin_access",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "docs_user_health_check",
+      "target": "docs_user_codeblock_1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "docs_user_get_profile",
+      "target": "docs_user_codeblock_2",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "docs_user_get_profile",
+      "target": "docs_user_codeblock_3",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "docs_user_upgrade_to_developer_starter",
+      "target": "docs_user_codeblock_4",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "docs_user_upgrade_to_developer_enterprise",
+      "target": "docs_user_codeblock_5",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L55",
+      "weight": 1.0,
+      "source": "docs_user_admin_access",
+      "target": "docs_user_codeblock_6",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L63",
+      "weight": 1.0,
+      "source": "docs_user_session_management",
+      "target": "docs_user_list_all_sessions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L92",
+      "weight": 1.0,
+      "source": "docs_user_session_management",
+      "target": "docs_user_get_current_session",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L114",
+      "weight": 1.0,
+      "source": "docs_user_session_management",
+      "target": "docs_user_revoke_a_session",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L127",
+      "weight": 1.0,
+      "source": "docs_user_session_management",
+      "target": "docs_user_revoke_all_sessions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L65",
+      "weight": 1.0,
+      "source": "docs_user_list_all_sessions",
+      "target": "docs_user_codeblock_7",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L69",
+      "weight": 1.0,
+      "source": "docs_user_list_all_sessions",
+      "target": "docs_user_codeblock_8",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L94",
+      "weight": 1.0,
+      "source": "docs_user_get_current_session",
+      "target": "docs_user_codeblock_9",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L98",
+      "weight": 1.0,
+      "source": "docs_user_get_current_session",
+      "target": "docs_user_codeblock_10",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L116",
+      "weight": 1.0,
+      "source": "docs_user_revoke_a_session",
+      "target": "docs_user_codeblock_11",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L120",
+      "weight": 1.0,
+      "source": "docs_user_revoke_a_session",
+      "target": "docs_user_codeblock_12",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L129",
+      "weight": 1.0,
+      "source": "docs_user_revoke_all_sessions",
+      "target": "docs_user_codeblock_13",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L133",
+      "weight": 1.0,
+      "source": "docs_user_revoke_all_sessions",
+      "target": "docs_user_codeblock_14",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L144",
+      "weight": 1.0,
+      "source": "docs_user_permission_system",
+      "target": "docs_user_codeblock_15",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/user.md",
+      "source_location": "L158",
+      "weight": 1.0,
+      "source": "docs_user_workflow",
+      "target": "docs_user_codeblock_16",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -13732,5 +16207,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "f489f05992e61e23eea4e87a5b7ad0c45fc34589"
+  "built_at_commit": "ed7942830f09151e0886ed48adbe14d6987efa56"
 }

@@ -1,5 +1,5 @@
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks
 from contextlib import asynccontextmanager
 import asyncio
 import os
@@ -12,7 +12,7 @@ from main.utils.migrator import runMigrations
 from main.service.authentication_service import AuthenticationService
 from main.service.user_service import UserService
 from main.service.prometheus_service import PrometheusService
-from main.service.scraper_service import ScraperService
+from main.service.scraper_service import ScraperService, runScraper
 from main.service.stocksapi_service import StocksAPIService
 
 logger = logging.getLogger(__name__)
@@ -70,6 +70,14 @@ app = FastAPI(title="Mansa Server", lifespan=lifespan)
 @app.get("/health")
 async def health():
     return {"status": "ok", "message": "Mansa Server is running"}
+
+
+@app.post("/scraper/run")
+async def triggerScraper(background_tasks: BackgroundTasks):
+    if not Config.DEBUG_MODE:
+        return {"status": "error", "message": "Scraper trigger is only available in debug mode"}
+    background_tasks.add_task(runScraper)
+    return {"status": "ok", "message": "Scraper triggered in background (debug mode only)"}
 
 
 if __name__ == "__main__":
