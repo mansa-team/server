@@ -1,16 +1,16 @@
 # Graph Report - server  (2026-06-05)
 
 ## Corpus Check
-- 57 files · ~25,661 words
+- 57 files · ~25,773 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 719 nodes · 957 edges · 49 communities (34 shown, 15 thin omitted)
+- 720 nodes · 958 edges · 57 communities (42 shown, 15 thin omitted)
 - Extraction: 77% EXTRACTED · 23% INFERRED · 0% AMBIGUOUS · INFERRED: 223 edges (avg confidence: 0.7)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ed794283`
+- Built from commit: `54f063bd`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -61,6 +61,14 @@
 - [[_COMMUNITY_Community 46|Community 46]]
 - [[_COMMUNITY_Community 47|Community 47]]
 - [[_COMMUNITY_Community 48|Community 48]]
+- [[_COMMUNITY_Community 49|Community 49]]
+- [[_COMMUNITY_Community 50|Community 50]]
+- [[_COMMUNITY_Community 51|Community 51]]
+- [[_COMMUNITY_Community 52|Community 52]]
+- [[_COMMUNITY_Community 53|Community 53]]
+- [[_COMMUNITY_Community 54|Community 54]]
+- [[_COMMUNITY_Community 55|Community 55]]
+- [[_COMMUNITY_Community 56|Community 56]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `StocksCacheManager` - 59 edges
@@ -94,35 +102,35 @@
 - **Configuration & Database Infrastructure** — config_Config, config_engine, config_stocksEngine [INFERRED]
 - **User Authentication & Authorization** — user_service, authentication, user_roles, permission_system [INFERRED]
 
-## Communities (49 total, 15 thin omitted)
+## Communities (57 total, 15 thin omitted)
 
 ### Community 0 - "Stocks API Controller"
-Cohesion: 0.05
-Nodes (26): Pytest Testing, StocksQueryManager, categorizeColumns(), parseYearInput(), Tests for connection pool configuration, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Query manager should have deserialize method (+18 more)
+Cohesion: 0.17
+Nodes (4): categorizeColumns(), parseYearInput(), TestCategorizeColumns, TestParseYearInput
 
 ### Community 1 - "Authentication Manager"
-Cohesion: 0.08
-Nodes (19): Authentication System, authenticateUser(), AuthenticationManager, createUserAccount(), getGoogleSSO(), createAccessToken(), hashPassword(), verifyPassword() (+11 more)
+Cohesion: 0.07
+Nodes (21): Authentication System, authenticateUser(), AuthenticationManager, createUserAccount(), getGoogleSSO(), createAccessToken(), hashPassword(), verifyAccessToken() (+13 more)
 
 ### Community 2 - "Stocks Cache & Query"
-Cohesion: 0.06
-Nodes (27): Tests for connection pool configuration, Tests for connection pool configuration, Stocks engine should have optimized pool settings, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Tests for lazy JSON deserialization, Query manager should have deserialize method, Query manager should have deserialize method (+19 more)
+Cohesion: 0.22
+Nodes (7): Integration tests for all query optimizations, Integration tests for all query optimizations, All optimizations should be implemented, All optimizations should be implemented, Query filter should use ticker index, Query filter should use ticker index, TestQueryOptimization
 
 ### Community 3 - "Session Management"
-Cohesion: 0.09
-Nodes (8): createSession(), getSessionById(), revokeSession(), SessionManager, validateSession(), UserSession, TestSessionExpiration, TestUserSessionModel
+Cohesion: 0.07
+Nodes (9): createSession(), getSessionById(), revokeSession(), SessionManager, validateSession(), UserSession, Pytest Testing, TestSessionExpiration (+1 more)
 
 ### Community 4 - "SQLAlchemy Models"
 Cohesion: 0.07
 Nodes (8): Base, PrometheusSession, StocksAPIKey, User, createSession(), TestPrometheusSessionModel, TestStocksAPIKeyModel, TestUserModel
 
 ### Community 5 - "Roles & Permissions"
-Cohesion: 0.1
+Cohesion: 0.11
 Nodes (12): BaseSettings, BaseMansaSettings, Config, DiscordSettings, MysqlSettings, PrometheusSettings, ScraperSettings, StocksApiSettings (+4 more)
 
 ### Community 6 - "Configuration & Logging"
-Cohesion: 0.08
-Nodes (6): IntFlag, TestPermission, TestRoles, UserManager, Permission, Roles
+Cohesion: 0.07
+Nodes (7): IntFlag, TestPermission, TestRoles, getCurrentUser(), UserManager, Permission, Roles
 
 ### Community 7 - "Scraper B3"
 Cohesion: 0.1
@@ -141,8 +149,8 @@ Cohesion: 0.16
 Nodes (8): StocksCacheManager, Tests for dynamic ticker index feature, Ticker index should be built when cache is loaded, Ticker index should contain all tickers from cache, Ticker index should be case-insensitive, Looking up ticker should return valid row index, Ticker index should be rebuilt when cache refreshes, TestTickerIndex
 
 ### Community 11 - "User Service"
-Cohesion: 0.11
-Nodes (13): Performance benchmark tests for stocks API, Performance benchmark tests for stocks API, Ticker index lookup should be O(1) - very fast, Ticker index lookup should be O(1) - very fast, Prefix scan should be much slower than index lookup, Prefix scan should be much slower than index lookup, Index lookup should be significantly faster than scan, Index lookup should be significantly faster than scan (+5 more)
+Cohesion: 0.09
+Nodes (15): Performance benchmark tests for stocks API, Performance benchmark tests for stocks API, Ticker index lookup should be O(1) - very fast, Ticker index lookup should be O(1) - very fast, Prefix scan should be much slower than index lookup, Prefix scan should be much slower than index lookup, Index lookup should be significantly faster than scan, Index lookup should be significantly faster than scan (+7 more)
 
 ### Community 12 - "Scraper Service"
 Cohesion: 0.19
@@ -161,8 +169,8 @@ Cohesion: 0.15
 Nodes (16): AuthenticationManager, AuthenticationService, PrometheusChatManager, PrometheusGenerator, PrometheusService, SessionManager, UserManager, UserService (+8 more)
 
 ### Community 17 - "Decorators"
-Cohesion: 0.05
-Nodes (14): verifyAccessToken(), chat(), createSession(), getHistory(), generateKey(), getSessions(), FastAPI, lifespan() (+6 more)
+Cohesion: 0.06
+Nodes (11): chat(), createSession(), getHistory(), generateKey(), FastAPI, lifespan(), createKey(), generateSecureKey() (+3 more)
 
 ### Community 18 - "Responses"
 Cohesion: 0.14
@@ -196,6 +204,10 @@ Nodes (5): Base SQLAlchemy declarative base, PrometheusSession model, StocksAPIK
 Cohesion: 0.83
 Nodes (3): getDatabaseUrl(), runMigrationsOffline(), runMigrationsOnline()
 
+### Community 29 - "Settings"
+Cohesion: 0.22
+Nodes (6): Tests for connection pool configuration, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Query manager should have deserialize method, TestConnectionPool, TestLazyDeserialization
+
 ### Community 30 - "Error Handling"
 Cohesion: 0.67
 Nodes (3): checkMySqlConnection, MySQL Engine (user_db), MySQL Engine (stocks_db)
@@ -220,6 +232,34 @@ Nodes (6): DEVELOPER:, PREMIUM:, Prometheus, STOCKS_API, USER:, User structure d
 Cohesion: 0.33
 Nodes (5): downgrade(), Add accessTokenHash, operatingSystem, lastActivityAt to user_sessions  Revision, Add accessTokenHash, operatingSystem, lastActivityAt, sessionId to user_sessions, Remove columns from user_sessions., upgrade()
 
+### Community 49 - "Community 49"
+Cohesion: 0.29
+Nodes (5): Tests for connection pool configuration, Tests for connection pool configuration, Stocks engine should have optimized pool settings, Stocks engine should have optimized pool settings, TestConnectionPool
+
+### Community 50 - "Community 50"
+Cohesion: 0.33
+Nodes (5): Tests for optimized search filtering, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Filter should use ticker index for O(1) lookup, TestFilterBySearchTerms
+
+### Community 52 - "Community 52"
+Cohesion: 0.33
+Nodes (5): Tests for lazy JSON deserialization, Tests for lazy JSON deserialization, Query manager should have deserialize method, Query manager should have deserialize method, TestLazyDeserialization
+
+### Community 53 - "Community 53"
+Cohesion: 0.33
+Nodes (5): Performance tests for query operations, Performance tests for query operations, Query should respond within 1 second, Query should respond within 1 second, TestQueryPerformance
+
+### Community 54 - "Community 54"
+Cohesion: 0.33
+Nodes (4): Integration tests for all query optimizations, All optimizations should be implemented, Query filter should use ticker index, TestQueryOptimization
+
+### Community 55 - "Community 55"
+Cohesion: 0.33
+Nodes (5): Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, TestFilterBySearchTerms
+
+### Community 56 - "Community 56"
+Cohesion: 0.33
+Nodes (5): Performance tests for query operations, Query should respond within 1 second, Performance tests for query operations, Query should respond within 1 second, TestQueryPerformance
+
 ## Knowledge Gaps
 - **186 isolated node(s):** `Initial migration  Revision ID: 25af7ad931e7 Revises: Create Date: 2026-04-0`, `User sessions table  Revision ID: 4a2f1c9e3b5d Revises: 25af7ad931e7 Create Date`, `Add accessTokenHash, operatingSystem, lastActivityAt to user_sessions  Revision`, `Add accessTokenHash, operatingSystem, lastActivityAt, sessionId to user_sessions`, `Remove columns from user_sessions.` (+181 more)
   These have ≤1 connection - possible missing edges or undocumented components.
@@ -228,11 +268,11 @@ Nodes (5): downgrade(), Add accessTokenHash, operatingSystem, lastActivityAt to 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Pytest Testing` connect `Stocks API Controller` to `Authentication Manager`, `Stocks Cache & Query`, `Session Management`, `SQLAlchemy Models`, `Roles & Permissions`, `Configuration & Logging`?**
+- **Why does `Pytest Testing` connect `Session Management` to `Stocks API Controller`, `Authentication Manager`, `SQLAlchemy Models`, `Configuration & Logging`, `Community 49`, `Settings`?**
   _High betweenness centrality (0.214) - this node is a cross-community bridge._
 - **Why does `FastAPI` connect `Decorators` to `Stocks API Controller`, `Authentication Manager`, `Configuration & Logging`, `Auth Service`, `User Controller`?**
-  _High betweenness centrality (0.174) - this node is a cross-community bridge._
-- **Why does `StocksQueryManager` connect `Stocks API Controller` to `Stocks Cache & Query`, `Prometheus Chat`, `User Service`, `Decorators`, `Responses`, `Enums`, `Prometheus Model`, `MySQL Connectivity`?**
+  _High betweenness centrality (0.175) - this node is a cross-community bridge._
+- **Why does `StocksQueryManager` connect `Community 51` to `Stocks Cache & Query`, `Community 56`, `Prometheus Chat`, `User Service`, `Decorators`, `Community 49`, `Community 50`, `Community 52`, `Community 53`, `MySQL Connectivity`, `Enums`, `Prometheus Model`, `Community 54`, `Responses`, `Community 55`, `Settings`?**
   _High betweenness centrality (0.096) - this node is a cross-community bridge._
 - **Are the 54 inferred relationships involving `StocksCacheManager` (e.g. with `StocksQueryManager` and `TestTickerIndex`) actually correct?**
   _`StocksCacheManager` has 54 INFERRED edges - model-reasoned connections that need verification._

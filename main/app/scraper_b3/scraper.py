@@ -12,6 +12,7 @@ import numpy as np
 import json
 
 import cloudscraper
+import requests
 import re
 
 from sqlalchemy import create_engine, text, QueuePool
@@ -25,6 +26,14 @@ logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 startTime = time.time()
+
+
+def getCurrentSelic():
+    selic = pd.DataFrame(requests.get("https://api.bcb.gov.br/dados/serie/bcdata.sgs.4189/dados?formato=json").json())
+    selic["valor"] = selic["valor"].astype(float)
+    selic["valor medio 10y"] = selic["valor"].rolling(120, min_periods=120).mean().round(2)
+
+    return selic
 
 
 class B3Scraper:
@@ -45,6 +54,8 @@ class B3Scraper:
         adapter = cloudscraper.requests.adapters.HTTPAdapter(pool_connections=100, pool_maxsize=100, max_retries=3)
         self.requests.mount("http://", adapter)
         self.requests.mount("https://", adapter)
+
+        self.selic = getCurrentSelic()
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=3))
     def getInitialData(self):
@@ -385,18 +396,24 @@ class B3Scraper:
             companyLiquidity = df.get("LIQUIDEZ MEDIA DIARIA", 0) or 0
 
             prefix = TICKER[:4]
-            prefixLiquidity = (
-                self.stocksDF.groupby(self.stocksDF.index.str[:4])["LIQUIDEZ MEDIA DIARIA"].sum().get(prefix, 0)
+            prefixLiquidity = (self.stocksDF.groupby(self.stocksDF.index.str[:4])["LIQUIDEZ MEDIA DIARIA"].sum().get(prefix, 0))
+
+            result = calculateInvestingScore(
+                ticker=TICKER,
+                profitsDf=profit10yDF,
+                companyLiquidity=companyLiquidity,
+                prefixLiquidity=prefixLiquidity,
+                selic=self.selic,
             )
 
-            score = calculateInvestingScore(
-                ticker=TICKER, profitsDf=profit10yDF, companyLiquidity=companyLiquidity, prefixLiquidity=prefixLiquidity
-            )
-
+            score = result["score"]
             if score is None or pd.isna(score):
                 newDF["INVESTING SCORE"] = np.nan
             else:
                 newDF["INVESTING SCORE"] = min(max(score, 0), 100)
+
+            for key in ["m_vol", "m_dd", "consistency", "growth"]:
+                newDF[key.upper()] = result[key]
         except Exception as e:
             newDF["INVESTING SCORE"] = np.nan
 

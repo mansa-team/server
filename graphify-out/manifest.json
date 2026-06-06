@@ -5,8 +5,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\run.py": {
-    "mtime": 1778456188.414598,
-    "ast_hash": "5b530fa9d7eb1c36e43c6401d6c037d9",
+    "mtime": 1780710068.9596763,
+    "ast_hash": "e98ce157b0f40d07cc0a4563ea0d075f",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\authentication\\authentication.py": {
@@ -25,8 +25,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\authentication\\session.py": {
-    "mtime": 1778453145.1758962,
-    "ast_hash": "3a298f78519a60f4f89c96e4ce595d36",
+    "mtime": 1780711113.1398208,
+    "ast_hash": "111c39582671f2dba5f3fe9259eec745",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\authentication\\sso.py": {
@@ -50,8 +50,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\scraper_b3\\scraper.py": {
-    "mtime": 1778690855.303574,
-    "ast_hash": "e1fca411cdcbdfeb994591877abf2f27",
+    "mtime": 1780700450.7676396,
+    "ast_hash": "87444a660cc3c979bc260f205bbe4f34",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\scraper_b3\\xango.py": {
@@ -265,8 +265,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\TODO.md": {
-    "mtime": 1779997837.9397266,
-    "ast_hash": "1d1163e46a6698b7ffecce0472dfb892",
+    "mtime": 1780702534.3523679,
+    "ast_hash": "5b09b19c96bbb157ad5d43c2880bfef2",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docs\\authentication.md": {

@@ -268,6 +268,15 @@
       "norm_label": "health()"
     },
     {
+      "label": "triggerScraper()",
+      "file_type": "code",
+      "source_file": "run.py",
+      "source_location": "L76",
+      "id": "server_run_triggerscraper",
+      "community": 17,
+      "norm_label": "triggerscraper()"
+    },
+    {
       "label": "authentication.py",
       "file_type": "code",
       "source_file": "main/app/authentication/authentication.py",
@@ -430,19 +439,10 @@
       "norm_label": "getsessionbyid()"
     },
     {
-      "label": "getSessionByIdSafe()",
-      "file_type": "code",
-      "source_file": "main/app/authentication/session.py",
-      "source_location": "L67",
-      "id": "authentication_session_getsessionbyidsafe",
-      "community": 3,
-      "norm_label": "getsessionbyidsafe()"
-    },
-    {
       "label": "getCurrentSession()",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L71",
+      "source_location": "L67",
       "id": "authentication_session_getcurrentsession",
       "community": 3,
       "norm_label": "getcurrentsession()"
@@ -451,7 +451,7 @@
       "label": "revokeSession()",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L83",
+      "source_location": "L79",
       "id": "authentication_session_revokesession",
       "community": 3,
       "norm_label": "revokesession()"
@@ -460,7 +460,7 @@
       "label": "revokeAllSessions()",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L95",
+      "source_location": "L91",
       "id": "authentication_session_revokeallsessions",
       "community": 3,
       "norm_label": "revokeallsessions()"
@@ -469,7 +469,7 @@
       "label": "updateLastActive()",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L111",
+      "source_location": "L107",
       "id": "authentication_session_updatelastactive",
       "community": 3,
       "norm_label": "updatelastactive()"
@@ -478,7 +478,7 @@
       "label": "cleanupExpiredSessions()",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L121",
+      "source_location": "L117",
       "id": "authentication_session_cleanupexpiredsessions",
       "community": 3,
       "norm_label": "cleanupexpiredsessions()"
@@ -487,7 +487,7 @@
       "label": "validateSession()",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L139",
+      "source_location": "L135",
       "id": "authentication_session_validatesession",
       "community": 3,
       "norm_label": "validatesession()"
@@ -552,7 +552,7 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L40",
       "id": "authentication_util_verifyaccesstoken",
-      "community": 17,
+      "community": 1,
       "norm_label": "verifyaccesstoken()"
     },
     {
@@ -847,7 +847,7 @@
       "label": ".reorderColumns()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L476",
+      "source_location": "L477",
       "id": "scraper_b3_scraper_b3scraper_reordercolumns",
       "community": 7,
       "norm_label": ".reordercolumns()"
@@ -856,7 +856,7 @@
       "label": ".serializeComplexTypes()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L486",
+      "source_location": "L487",
       "id": "scraper_b3_scraper_b3scraper_serializecomplextypes",
       "community": 7,
       "norm_label": ".serializecomplextypes()"
@@ -865,7 +865,7 @@
       "label": ".exportJson()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L507",
+      "source_location": "L508",
       "id": "scraper_b3_scraper_b3scraper_exportjson",
       "community": 7,
       "norm_label": ".exportjson()"
@@ -874,7 +874,7 @@
       "label": ".exportMysql()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L515",
+      "source_location": "L516",
       "id": "scraper_b3_scraper_b3scraper_exportmysql",
       "community": 7,
       "norm_label": ".exportmysql()"
@@ -1002,7 +1002,7 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L15",
       "id": "stocks_api_query_stocksquerymanager",
-      "community": 0,
+      "community": 51,
       "norm_label": "stocksquerymanager"
     },
     {
@@ -1011,7 +1011,7 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L16",
       "id": "stocks_api_query_stocksquerymanager_init",
-      "community": 0,
+      "community": 51,
       "norm_label": ".__init__()"
     },
     {
@@ -1020,7 +1020,7 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L21",
       "id": "stocks_api_query_stocksquerymanager_deserializejsoncolumns",
-      "community": 0,
+      "community": 51,
       "norm_label": ".deserializejsoncolumns()"
     },
     {
@@ -1029,7 +1029,7 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L50",
       "id": "stocks_api_query_stocksquerymanager_filterbysearchterms",
-      "community": 0,
+      "community": 51,
       "norm_label": ".filterbysearchterms()"
     },
     {
@@ -1038,7 +1038,7 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L69",
       "id": "stocks_api_query_stocksquerymanager_queryhistorical",
-      "community": 0,
+      "community": 51,
       "norm_label": ".queryhistorical()"
     },
     {
@@ -1047,7 +1047,7 @@
       "source_file": "main/app/stocks_api/query.py",
       "source_location": "L134",
       "id": "stocks_api_query_stocksquerymanager_queryfundamental",
-      "community": 0,
+      "community": 51,
       "norm_label": ".queryfundamental()"
     },
     {
@@ -1092,7 +1092,7 @@
       "source_file": "main/app/user/user.py",
       "source_location": "L1",
       "id": "main_app_user_user_py",
-      "community": 17,
+      "community": 6,
       "norm_label": "user.py"
     },
     {
@@ -1119,7 +1119,7 @@
       "source_file": "main/app/user/user.py",
       "source_location": "L15",
       "id": "user_user_addroletouser",
-      "community": 17,
+      "community": 6,
       "norm_label": "addroletouser()"
     },
     {
@@ -1128,7 +1128,7 @@
       "source_file": "main/app/user/user.py",
       "source_location": "L29",
       "id": "user_user_getcurrentuser",
-      "community": 17,
+      "community": 6,
       "norm_label": "getcurrentuser()"
     },
     {
@@ -1389,7 +1389,7 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L58",
       "id": "controller_user_controller_getsessions",
-      "community": 17,
+      "community": 1,
       "norm_label": "getsessions()"
     },
     {
@@ -2181,7 +2181,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L1",
       "id": "tests_conftest_py",
-      "community": 0,
+      "community": 3,
       "norm_label": "conftest.py"
     },
     {
@@ -2190,7 +2190,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L15",
       "id": "tests_conftest_dbsession",
-      "community": 0,
+      "community": 3,
       "norm_label": "dbsession()"
     },
     {
@@ -2199,7 +2199,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L27",
       "id": "tests_conftest_sampleuserdata",
-      "community": 0,
+      "community": 3,
       "norm_label": "sampleuserdata()"
     },
     {
@@ -2208,7 +2208,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L38",
       "id": "tests_conftest_sampleapikeydata",
-      "community": 0,
+      "community": 3,
       "norm_label": "sampleapikeydata()"
     },
     {
@@ -2217,7 +2217,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L43",
       "id": "tests_conftest_sampleprometheussessiondata",
-      "community": 0,
+      "community": 3,
       "norm_label": "sampleprometheussessiondata()"
     },
     {
@@ -2415,7 +2415,7 @@
       "source_file": "tests/test_config.py",
       "source_location": "L1",
       "id": "tests_test_config_py",
-      "community": 5,
+      "community": 3,
       "norm_label": "test_config.py"
     },
     {
@@ -2469,7 +2469,7 @@
       "source_file": "tests/test_device.py",
       "source_location": "L1",
       "id": "tests_test_device_py",
-      "community": 0,
+      "community": 3,
       "norm_label": "test_device.py"
     },
     {
@@ -4498,11 +4498,20 @@
       "norm_label": "license"
     },
     {
+      "label": "getSessionByIdSafe()",
+      "file_type": "code",
+      "source_file": "main/app/authentication/session.py",
+      "source_location": "L67",
+      "community": 3,
+      "norm_label": "getsessionbyidsafe()",
+      "id": "authentication_session_getsessionbyidsafe"
+    },
+    {
       "label": "test_stocks_cache.py",
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L1",
-      "community": 2,
+      "community": 49,
       "norm_label": "test_stocks_cache.py",
       "id": "tests_test_stocks_cache_py"
     },
@@ -4619,7 +4628,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L109",
-      "community": 2,
+      "community": 49,
       "norm_label": "testconnectionpool",
       "id": "tests_test_stocks_cache_testconnectionpool"
     },
@@ -4628,7 +4637,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L112",
-      "community": 2,
+      "community": 49,
       "norm_label": ".test_stocks_engine_has_pool_configuration()",
       "id": "tests_test_stocks_cache_testconnectionpool_test_stocks_engine_has_pool_configuration"
     },
@@ -4637,7 +4646,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L121",
-      "community": 2,
+      "community": 52,
       "norm_label": "testlazydeserialization",
       "id": "tests_test_stocks_cache_testlazydeserialization"
     },
@@ -4646,7 +4655,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L124",
-      "community": 2,
+      "community": 52,
       "norm_label": ".test_query_manager_has_deserialize_method()",
       "id": "tests_test_stocks_cache_testlazydeserialization_test_query_manager_has_deserialize_method"
     },
@@ -4736,7 +4745,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L281",
-      "community": 29,
+      "community": 11,
       "norm_label": ".test_cache_initialization_time()",
       "id": "tests_test_stocks_cache_testperformancebenchmarks_test_cache_initialization_time"
     },
@@ -4745,7 +4754,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L299",
-      "community": 2,
+      "community": 50,
       "norm_label": "testfilterbysearchterms",
       "id": "tests_test_stocks_cache_testfilterbysearchterms"
     },
@@ -4754,7 +4763,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L302",
-      "community": 2,
+      "community": 50,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_cache_testfilterbysearchterms_test_filter_with_tickerindex"
     },
@@ -4763,7 +4772,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L308",
-      "community": 2,
+      "community": 53,
       "norm_label": "testqueryperformance",
       "id": "tests_test_stocks_cache_testqueryperformance"
     },
@@ -4772,7 +4781,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L311",
-      "community": 2,
+      "community": 53,
       "norm_label": ".test_query_response_time_under_1_second()",
       "id": "tests_test_stocks_cache_testqueryperformance_test_query_response_time_under_1_second"
     },
@@ -4889,7 +4898,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L110",
-      "community": 2,
+      "community": 49,
       "norm_label": "tests for connection pool configuration",
       "id": "tests_test_stocks_cache_rationale_110"
     },
@@ -4898,7 +4907,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L113",
-      "community": 2,
+      "community": 49,
       "norm_label": "stocks engine should have optimized pool settings",
       "id": "tests_test_stocks_cache_rationale_113"
     },
@@ -4907,7 +4916,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L122",
-      "community": 2,
+      "community": 52,
       "norm_label": "tests for lazy json deserialization",
       "id": "tests_test_stocks_cache_rationale_122"
     },
@@ -4916,7 +4925,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L125",
-      "community": 2,
+      "community": 52,
       "norm_label": "query manager should have deserialize method",
       "id": "tests_test_stocks_cache_rationale_125"
     },
@@ -5006,7 +5015,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L282",
-      "community": 29,
+      "community": 11,
       "norm_label": "cache initialization should complete in reasonable time",
       "id": "tests_test_stocks_cache_rationale_282"
     },
@@ -5015,7 +5024,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L300",
-      "community": 2,
+      "community": 50,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_cache_rationale_300"
     },
@@ -5024,7 +5033,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L303",
-      "community": 2,
+      "community": 50,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_cache_rationale_303"
     },
@@ -5033,7 +5042,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L309",
-      "community": 2,
+      "community": 53,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_cache_rationale_309"
     },
@@ -5042,7 +5051,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L312",
-      "community": 2,
+      "community": 53,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_cache_rationale_312"
     },
@@ -5177,7 +5186,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L112",
-      "community": 2,
+      "community": 49,
       "norm_label": "tests for connection pool configuration",
       "id": "tests_test_stocks_cache_rationale_112"
     },
@@ -5186,7 +5195,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L115",
-      "community": 2,
+      "community": 49,
       "norm_label": "stocks engine should have optimized pool settings",
       "id": "tests_test_stocks_cache_rationale_115"
     },
@@ -5195,7 +5204,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L124",
-      "community": 2,
+      "community": 52,
       "norm_label": "tests for lazy json deserialization",
       "id": "tests_test_stocks_cache_rationale_124"
     },
@@ -5204,7 +5213,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L127",
-      "community": 2,
+      "community": 52,
       "norm_label": "query manager should have deserialize method",
       "id": "tests_test_stocks_cache_rationale_127"
     },
@@ -5294,7 +5303,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L284",
-      "community": 29,
+      "community": 11,
       "norm_label": "cache initialization should complete in reasonable time",
       "id": "tests_test_stocks_cache_rationale_284"
     },
@@ -5303,7 +5312,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L302",
-      "community": 2,
+      "community": 50,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_cache_rationale_302"
     },
@@ -5312,7 +5321,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L305",
-      "community": 2,
+      "community": 50,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_cache_rationale_305"
     },
@@ -5321,7 +5330,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L311",
-      "community": 2,
+      "community": 53,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_cache_rationale_311"
     },
@@ -5330,7 +5339,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L314",
-      "community": 2,
+      "community": 53,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_cache_rationale_314"
     },
@@ -5402,7 +5411,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L304",
-      "community": 2,
+      "community": 50,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_cache_testfilterbysearchterms_test_filter_with_tickerIndex"
     },
@@ -5411,7 +5420,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L1",
-      "community": 0,
+      "community": 29,
       "norm_label": "test_stocks_optimization.py",
       "id": "tests_test_stocks_optimization_py"
     },
@@ -5528,7 +5537,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L111",
-      "community": 0,
+      "community": 29,
       "norm_label": "testconnectionpool",
       "id": "tests_test_stocks_optimization_testconnectionpool"
     },
@@ -5537,7 +5546,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L114",
-      "community": 0,
+      "community": 29,
       "norm_label": ".test_stocks_engine_has_pool_configuration()",
       "id": "tests_test_stocks_optimization_testconnectionpool_test_stocks_engine_has_pool_configuration"
     },
@@ -5546,7 +5555,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L123",
-      "community": 0,
+      "community": 29,
       "norm_label": "testlazydeserialization",
       "id": "tests_test_stocks_optimization_testlazydeserialization"
     },
@@ -5555,7 +5564,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L126",
-      "community": 0,
+      "community": 29,
       "norm_label": ".test_query_manager_has_deserialize_method()",
       "id": "tests_test_stocks_optimization_testlazydeserialization_test_query_manager_has_deserialize_method"
     },
@@ -5564,7 +5573,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L137",
-      "community": 0,
+      "community": 54,
       "norm_label": "testqueryoptimization",
       "id": "tests_test_stocks_optimization_testqueryoptimization"
     },
@@ -5573,7 +5582,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L140",
-      "community": 0,
+      "community": 54,
       "norm_label": ".test_all_optimizations_present()",
       "id": "tests_test_stocks_optimization_testqueryoptimization_test_all_optimizations_present"
     },
@@ -5582,7 +5591,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L155",
-      "community": 0,
+      "community": 54,
       "norm_label": ".test_query_filter_uses_optimization()",
       "id": "tests_test_stocks_optimization_testqueryoptimization_test_query_filter_uses_optimization"
     },
@@ -5654,7 +5663,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L301",
-      "community": 0,
+      "community": 55,
       "norm_label": "testfilterbysearchterms",
       "id": "tests_test_stocks_optimization_testfilterbysearchterms"
     },
@@ -5663,7 +5672,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L304",
-      "community": 0,
+      "community": 55,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_optimization_testfilterbysearchterms_test_filter_with_tickerIndex"
     },
@@ -5672,7 +5681,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L310",
-      "community": 0,
+      "community": 56,
       "norm_label": "testqueryperformance",
       "id": "tests_test_stocks_optimization_testqueryperformance"
     },
@@ -5681,7 +5690,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L313",
-      "community": 0,
+      "community": 56,
       "norm_label": ".test_query_response_time_under_1_second()",
       "id": "tests_test_stocks_optimization_testqueryperformance_test_query_response_time_under_1_second"
     },
@@ -5798,7 +5807,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L112",
-      "community": 0,
+      "community": 29,
       "norm_label": "tests for connection pool configuration",
       "id": "tests_test_stocks_optimization_rationale_112"
     },
@@ -5807,7 +5816,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L115",
-      "community": 0,
+      "community": 29,
       "norm_label": "stocks engine should have optimized pool settings",
       "id": "tests_test_stocks_optimization_rationale_115"
     },
@@ -5816,7 +5825,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L124",
-      "community": 0,
+      "community": 29,
       "norm_label": "tests for lazy json deserialization",
       "id": "tests_test_stocks_optimization_rationale_124"
     },
@@ -5825,7 +5834,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L127",
-      "community": 0,
+      "community": 29,
       "norm_label": "query manager should have deserialize method",
       "id": "tests_test_stocks_optimization_rationale_127"
     },
@@ -5834,7 +5843,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L138",
-      "community": 0,
+      "community": 54,
       "norm_label": "integration tests for all query optimizations",
       "id": "tests_test_stocks_optimization_rationale_138"
     },
@@ -5843,7 +5852,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L141",
-      "community": 0,
+      "community": 54,
       "norm_label": "all optimizations should be implemented",
       "id": "tests_test_stocks_optimization_rationale_141"
     },
@@ -5852,7 +5861,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L156",
-      "community": 0,
+      "community": 54,
       "norm_label": "query filter should use ticker index",
       "id": "tests_test_stocks_optimization_rationale_156"
     },
@@ -5924,7 +5933,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L302",
-      "community": 0,
+      "community": 55,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_optimization_rationale_302"
     },
@@ -5933,7 +5942,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L305",
-      "community": 0,
+      "community": 55,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_optimization_rationale_305"
     },
@@ -5942,7 +5951,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L311",
-      "community": 0,
+      "community": 56,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_optimization_rationale_311"
     },
@@ -5951,7 +5960,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L314",
-      "community": 0,
+      "community": 56,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_optimization_rationale_314"
     },
@@ -5969,7 +5978,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L173",
-      "community": 0,
+      "community": 55,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_optimization_rationale_173"
     },
@@ -5978,7 +5987,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L176",
-      "community": 0,
+      "community": 55,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_optimization_rationale_176"
     },
@@ -5987,7 +5996,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L182",
-      "community": 0,
+      "community": 56,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_optimization_rationale_182"
     },
@@ -5996,7 +6005,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L185",
-      "community": 0,
+      "community": 56,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_optimization_rationale_185"
     },
@@ -6423,7 +6432,7 @@
       "label": "Pytest Testing",
       "file_type": "rationale",
       "source_file": "pyproject.toml",
-      "community": 0,
+      "community": 3,
       "norm_label": "pytest testing",
       "id": "pytest"
     },
@@ -6951,6 +6960,16 @@
       "target": "server_run_health"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "run.py",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "run_py",
+      "target": "server_run_triggerscraper",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -7357,16 +7376,6 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L64",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "main_app_authentication_session_py",
-      "target": "authentication_session_getsessionbyidsafe"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/authentication/session.py",
       "source_location": "L68",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -7422,6 +7431,16 @@
       "confidence_score": 1.0,
       "source": "main_app_authentication_session_py",
       "target": "authentication_session_validatesession"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/authentication/session.py",
+      "source_location": "L64",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "main_app_authentication_session_py",
+      "target": "authentication_session_getsessionbyidsafe"
     },
     {
       "relation": "uses",
@@ -11452,9 +11471,9 @@
       "source_file": "migrations/versions/add_access_token_hash.py",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "migrations_versions_add_access_token_hash_py",
-      "target": "versions_add_access_token_hash_upgrade",
-      "confidence_score": 1.0
+      "target": "versions_add_access_token_hash_upgrade"
     },
     {
       "relation": "contains",
@@ -11462,9 +11481,9 @@
       "source_file": "migrations/versions/add_access_token_hash.py",
       "source_location": "L54",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "migrations_versions_add_access_token_hash_py",
-      "target": "versions_add_access_token_hash_downgrade",
-      "confidence_score": 1.0
+      "target": "versions_add_access_token_hash_downgrade"
     },
     {
       "relation": "rationale_for",
@@ -11472,9 +11491,9 @@
       "source_file": "migrations/versions/add_access_token_hash.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "versions_add_access_token_hash_rationale_1",
-      "target": "migrations_versions_add_access_token_hash_py",
-      "confidence_score": 1.0
+      "target": "migrations_versions_add_access_token_hash_py"
     },
     {
       "relation": "rationale_for",
@@ -11482,9 +11501,9 @@
       "source_file": "migrations/versions/add_access_token_hash.py",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "versions_add_access_token_hash_rationale_22",
-      "target": "versions_add_access_token_hash_upgrade",
-      "confidence_score": 1.0
+      "target": "versions_add_access_token_hash_upgrade"
     },
     {
       "relation": "rationale_for",
@@ -11492,9 +11511,9 @@
       "source_file": "migrations/versions/add_access_token_hash.py",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "versions_add_access_token_hash_rationale_55",
-      "target": "versions_add_access_token_hash_downgrade",
-      "confidence_score": 1.0
+      "target": "versions_add_access_token_hash_downgrade"
     },
     {
       "relation": "imports",
@@ -12822,9 +12841,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "agents_md",
-      "target": "server_agents_project_overview",
-      "confidence_score": 1.0
+      "target": "server_agents_project_overview"
     },
     {
       "relation": "contains",
@@ -12832,9 +12851,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "agents_md",
-      "target": "server_agents_dev_commands",
-      "confidence_score": 1.0
+      "target": "server_agents_dev_commands"
     },
     {
       "relation": "contains",
@@ -12842,9 +12861,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "agents_md",
-      "target": "server_agents_architecture",
-      "confidence_score": 1.0
+      "target": "server_agents_architecture"
     },
     {
       "relation": "contains",
@@ -12852,9 +12871,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "agents_md",
-      "target": "server_agents_key_quirks",
-      "confidence_score": 1.0
+      "target": "server_agents_key_quirks"
     },
     {
       "relation": "contains",
@@ -12862,9 +12881,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L34",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "agents_md",
-      "target": "server_agents_testing",
-      "confidence_score": 1.0
+      "target": "server_agents_testing"
     },
     {
       "relation": "contains",
@@ -12872,9 +12891,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "agents_md",
-      "target": "server_agents_graphify",
-      "confidence_score": 1.0
+      "target": "server_agents_graphify"
     },
     {
       "relation": "contains",
@@ -12882,9 +12901,9 @@
       "source_file": "AGENTS.md",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_agents_dev_commands",
-      "target": "server_agents_codeblock_1",
-      "confidence_score": 1.0
+      "target": "server_agents_codeblock_1"
     },
     {
       "relation": "contains",
@@ -12892,9 +12911,9 @@
       "source_file": "README.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_md",
-      "target": "server_readme_mansa_server",
-      "confidence_score": 1.0
+      "target": "server_readme_mansa_server"
     },
     {
       "relation": "contains",
@@ -12902,9 +12921,9 @@
       "source_file": "README.md",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_readme_mansa_server",
-      "target": "server_readme_run_with_docker",
-      "confidence_score": 1.0
+      "target": "server_readme_run_with_docker"
     },
     {
       "relation": "contains",
@@ -12912,9 +12931,9 @@
       "source_file": "README.md",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_readme_mansa_server",
-      "target": "server_readme_environment_setup",
-      "confidence_score": 1.0
+      "target": "server_readme_environment_setup"
     },
     {
       "relation": "contains",
@@ -12922,9 +12941,9 @@
       "source_file": "README.md",
       "source_location": "L85",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_readme_mansa_server",
-      "target": "server_readme_health_check",
-      "confidence_score": 1.0
+      "target": "server_readme_health_check"
     },
     {
       "relation": "contains",
@@ -12932,9 +12951,9 @@
       "source_file": "README.md",
       "source_location": "L91",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_readme_mansa_server",
-      "target": "server_readme_license",
-      "confidence_score": 1.0
+      "target": "server_readme_license"
     },
     {
       "relation": "contains",
@@ -12942,9 +12961,9 @@
       "source_file": "README.md",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_readme_run_with_docker",
-      "target": "server_readme_codeblock_1",
-      "confidence_score": 1.0
+      "target": "server_readme_codeblock_1"
     },
     {
       "relation": "contains",
@@ -12952,9 +12971,9 @@
       "source_file": "README.md",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_readme_environment_setup",
-      "target": "server_readme_codeblock_2",
-      "confidence_score": 1.0
+      "target": "server_readme_codeblock_2"
     },
     {
       "relation": "contains",
@@ -12962,9 +12981,9 @@
       "source_file": "README.md",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_readme_health_check",
-      "target": "server_readme_codeblock_3",
-      "confidence_score": 1.0
+      "target": "server_readme_codeblock_3"
     },
     {
       "relation": "contains",
@@ -12972,9 +12991,9 @@
       "source_file": "TODO.md",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "todo_md",
-      "target": "server_todo_user_structure_defined_by_string_roles",
-      "confidence_score": 1.0
+      "target": "server_todo_user_structure_defined_by_string_roles"
     },
     {
       "relation": "contains",
@@ -12982,9 +13001,9 @@
       "source_file": "TODO.md",
       "source_location": "L34",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_todo_user_structure_defined_by_string_roles",
-      "target": "server_todo_user",
-      "confidence_score": 1.0
+      "target": "server_todo_user"
     },
     {
       "relation": "contains",
@@ -12992,9 +13011,9 @@
       "source_file": "TODO.md",
       "source_location": "L37",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_todo_user_structure_defined_by_string_roles",
-      "target": "server_todo_premium",
-      "confidence_score": 1.0
+      "target": "server_todo_premium"
     },
     {
       "relation": "contains",
@@ -13002,9 +13021,9 @@
       "source_file": "TODO.md",
       "source_location": "L40",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_todo_user_structure_defined_by_string_roles",
-      "target": "server_todo_developer",
-      "confidence_score": 1.0
+      "target": "server_todo_developer"
     },
     {
       "relation": "contains",
@@ -13012,9 +13031,9 @@
       "source_file": "TODO.md",
       "source_location": "L67",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_todo_user_structure_defined_by_string_roles",
-      "target": "server_todo_stocks_api",
-      "confidence_score": 1.0
+      "target": "server_todo_stocks_api"
     },
     {
       "relation": "contains",
@@ -13022,9 +13041,9 @@
       "source_file": "TODO.md",
       "source_location": "L70",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "server_todo_user_structure_defined_by_string_roles",
-      "target": "server_todo_prometheus",
-      "confidence_score": 1.0
+      "target": "server_todo_prometheus"
     },
     {
       "relation": "contains",
@@ -13032,9 +13051,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_md",
-      "target": "docs_authentication_authentication_management",
-      "confidence_score": 1.0
+      "target": "docs_authentication_authentication_management"
     },
     {
       "relation": "contains",
@@ -13042,9 +13061,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_authentication_management",
-      "target": "docs_authentication_usage",
-      "confidence_score": 1.0
+      "target": "docs_authentication_usage"
     },
     {
       "relation": "contains",
@@ -13052,9 +13071,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L39",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_authentication_management",
-      "target": "docs_authentication_roles_and_permissions",
-      "confidence_score": 1.0
+      "target": "docs_authentication_roles_and_permissions"
     },
     {
       "relation": "contains",
@@ -13062,9 +13081,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_authentication_management",
-      "target": "docs_authentication_api_endpoints",
-      "confidence_score": 1.0
+      "target": "docs_authentication_api_endpoints"
     },
     {
       "relation": "contains",
@@ -13072,9 +13091,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_authentication_management",
-      "target": "docs_authentication_security_features",
-      "confidence_score": 1.0
+      "target": "docs_authentication_security_features"
     },
     {
       "relation": "contains",
@@ -13082,9 +13101,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L130",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_authentication_management",
-      "target": "docs_authentication_device_detection",
-      "confidence_score": 1.0
+      "target": "docs_authentication_device_detection"
     },
     {
       "relation": "contains",
@@ -13092,9 +13111,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L144",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_authentication_management",
-      "target": "docs_authentication_session_management",
-      "confidence_score": 1.0
+      "target": "docs_authentication_session_management"
     },
     {
       "relation": "contains",
@@ -13102,9 +13121,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L154",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_authentication_management",
-      "target": "docs_authentication_workflow",
-      "confidence_score": 1.0
+      "target": "docs_authentication_workflow"
     },
     {
       "relation": "contains",
@@ -13112,9 +13131,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L187",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_authentication_management",
-      "target": "docs_authentication_license",
-      "confidence_score": 1.0
+      "target": "docs_authentication_license"
     },
     {
       "relation": "contains",
@@ -13122,9 +13141,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_usage",
-      "target": "docs_authentication_codeblock_1",
-      "confidence_score": 1.0
+      "target": "docs_authentication_codeblock_1"
     },
     {
       "relation": "contains",
@@ -13132,9 +13151,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_api_endpoints",
-      "target": "docs_authentication_health_check",
-      "confidence_score": 1.0
+      "target": "docs_authentication_health_check"
     },
     {
       "relation": "contains",
@@ -13142,9 +13161,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L57",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_api_endpoints",
-      "target": "docs_authentication_user_registration",
-      "confidence_score": 1.0
+      "target": "docs_authentication_user_registration"
     },
     {
       "relation": "contains",
@@ -13152,9 +13171,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L65",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_api_endpoints",
-      "target": "docs_authentication_user_login",
-      "confidence_score": 1.0
+      "target": "docs_authentication_user_login"
     },
     {
       "relation": "contains",
@@ -13162,9 +13181,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L77",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_api_endpoints",
-      "target": "docs_authentication_profile_me",
-      "confidence_score": 1.0
+      "target": "docs_authentication_profile_me"
     },
     {
       "relation": "contains",
@@ -13172,9 +13191,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L84",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_api_endpoints",
-      "target": "docs_authentication_logout",
-      "confidence_score": 1.0
+      "target": "docs_authentication_logout"
     },
     {
       "relation": "contains",
@@ -13182,9 +13201,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L94",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_api_endpoints",
-      "target": "docs_authentication_google_oauth2_login",
-      "confidence_score": 1.0
+      "target": "docs_authentication_google_oauth2_login"
     },
     {
       "relation": "contains",
@@ -13192,9 +13211,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L108",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_api_endpoints",
-      "target": "docs_authentication_google_callback",
-      "confidence_score": 1.0
+      "target": "docs_authentication_google_callback"
     },
     {
       "relation": "contains",
@@ -13202,9 +13221,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L52",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_health_check",
-      "target": "docs_authentication_codeblock_2",
-      "confidence_score": 1.0
+      "target": "docs_authentication_codeblock_2"
     },
     {
       "relation": "contains",
@@ -13212,9 +13231,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L59",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_user_registration",
-      "target": "docs_authentication_codeblock_3",
-      "confidence_score": 1.0
+      "target": "docs_authentication_codeblock_3"
     },
     {
       "relation": "contains",
@@ -13222,9 +13241,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L67",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_user_login",
-      "target": "docs_authentication_codeblock_4",
-      "confidence_score": 1.0
+      "target": "docs_authentication_codeblock_4"
     },
     {
       "relation": "contains",
@@ -13232,9 +13251,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L79",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_profile_me",
-      "target": "docs_authentication_codeblock_5",
-      "confidence_score": 1.0
+      "target": "docs_authentication_codeblock_5"
     },
     {
       "relation": "contains",
@@ -13242,9 +13261,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L86",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_logout",
-      "target": "docs_authentication_codeblock_6",
-      "confidence_score": 1.0
+      "target": "docs_authentication_codeblock_6"
     },
     {
       "relation": "contains",
@@ -13252,9 +13271,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L98",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_google_oauth2_login",
-      "target": "docs_authentication_codeblock_7",
-      "confidence_score": 1.0
+      "target": "docs_authentication_codeblock_7"
     },
     {
       "relation": "contains",
@@ -13262,9 +13281,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L104",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_google_oauth2_login",
-      "target": "docs_authentication_codeblock_8",
-      "confidence_score": 1.0
+      "target": "docs_authentication_codeblock_8"
     },
     {
       "relation": "contains",
@@ -13272,9 +13291,9 @@
       "source_file": "docs/authentication.md",
       "source_location": "L156",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_authentication_workflow",
-      "target": "docs_authentication_codeblock_9",
-      "confidence_score": 1.0
+      "target": "docs_authentication_codeblock_9"
     },
     {
       "relation": "contains",
@@ -13282,9 +13301,9 @@
       "source_file": "docs/prometheus.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_prometheus_md",
-      "target": "docs_prometheus_prometheus",
-      "confidence_score": 1.0
+      "target": "docs_prometheus_prometheus"
     },
     {
       "relation": "contains",
@@ -13292,9 +13311,9 @@
       "source_file": "docs/prometheus.md",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_prometheus_prometheus",
-      "target": "docs_prometheus_usage",
-      "confidence_score": 1.0
+      "target": "docs_prometheus_usage"
     },
     {
       "relation": "contains",
@@ -13302,9 +13321,9 @@
       "source_file": "docs/prometheus.md",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_prometheus_prometheus",
-      "target": "docs_prometheus_workflow",
-      "confidence_score": 1.0
+      "target": "docs_prometheus_workflow"
     },
     {
       "relation": "contains",
@@ -13312,9 +13331,9 @@
       "source_file": "docs/prometheus.md",
       "source_location": "L67",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_prometheus_prometheus",
-      "target": "docs_prometheus_api_endpoints",
-      "confidence_score": 1.0
+      "target": "docs_prometheus_api_endpoints"
     },
     {
       "relation": "contains",
@@ -13322,9 +13341,9 @@
       "source_file": "docs/prometheus.md",
       "source_location": "L74",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_prometheus_prometheus",
-      "target": "docs_prometheus_license",
-      "confidence_score": 1.0
+      "target": "docs_prometheus_license"
     },
     {
       "relation": "contains",
@@ -13332,9 +13351,9 @@
       "source_file": "docs/prometheus.md",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_prometheus_usage",
-      "target": "docs_prometheus_codeblock_1",
-      "confidence_score": 1.0
+      "target": "docs_prometheus_codeblock_1"
     },
     {
       "relation": "contains",
@@ -13342,9 +13361,9 @@
       "source_file": "docs/prometheus.md",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_prometheus_usage",
-      "target": "docs_prometheus_codeblock_2",
-      "confidence_score": 1.0
+      "target": "docs_prometheus_codeblock_2"
     },
     {
       "relation": "contains",
@@ -13352,9 +13371,9 @@
       "source_file": "docs/prometheus.md",
       "source_location": "L57",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_prometheus_workflow",
-      "target": "docs_prometheus_codeblock_3",
-      "confidence_score": 1.0
+      "target": "docs_prometheus_codeblock_3"
     },
     {
       "relation": "contains",
@@ -13362,9 +13381,9 @@
       "source_file": "docs/scraper_b3.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_scraper_b3_md",
-      "target": "docs_scraper_b3_brazilian_stocks_market_scraper",
-      "confidence_score": 1.0
+      "target": "docs_scraper_b3_brazilian_stocks_market_scraper"
     },
     {
       "relation": "contains",
@@ -13372,9 +13391,9 @@
       "source_file": "docs/scraper_b3.md",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_scraper_b3_brazilian_stocks_market_scraper",
-      "target": "docs_scraper_b3_usage",
-      "confidence_score": 1.0
+      "target": "docs_scraper_b3_usage"
     },
     {
       "relation": "contains",
@@ -13382,9 +13401,9 @@
       "source_file": "docs/scraper_b3.md",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_scraper_b3_brazilian_stocks_market_scraper",
-      "target": "docs_scraper_b3_output_format",
-      "confidence_score": 1.0
+      "target": "docs_scraper_b3_output_format"
     },
     {
       "relation": "contains",
@@ -13392,9 +13411,9 @@
       "source_file": "docs/scraper_b3.md",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_scraper_b3_brazilian_stocks_market_scraper",
-      "target": "docs_scraper_b3_xang\u00f4",
-      "confidence_score": 1.0
+      "target": "docs_scraper_b3_xang\u00f4"
     },
     {
       "relation": "contains",
@@ -13402,9 +13421,9 @@
       "source_file": "docs/scraper_b3.md",
       "source_location": "L131",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_scraper_b3_brazilian_stocks_market_scraper",
-      "target": "docs_scraper_b3_license",
-      "confidence_score": 1.0
+      "target": "docs_scraper_b3_license"
     },
     {
       "relation": "contains",
@@ -13412,9 +13431,9 @@
       "source_file": "docs/scraper_b3.md",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_scraper_b3_usage",
-      "target": "docs_scraper_b3_codeblock_1",
-      "confidence_score": 1.0
+      "target": "docs_scraper_b3_codeblock_1"
     },
     {
       "relation": "contains",
@@ -13422,9 +13441,9 @@
       "source_file": "docs/scraper_b3.md",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_scraper_b3_output_format",
-      "target": "docs_scraper_b3_mysql_table_b3_stocks",
-      "confidence_score": 1.0
+      "target": "docs_scraper_b3_mysql_table_b3_stocks"
     },
     {
       "relation": "contains",
@@ -13432,9 +13451,9 @@
       "source_file": "docs/scraper_b3.md",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_scraper_b3_output_format",
-      "target": "docs_scraper_b3_sample_record",
-      "confidence_score": 1.0
+      "target": "docs_scraper_b3_sample_record"
     },
     {
       "relation": "contains",
@@ -13442,9 +13461,9 @@
       "source_file": "docs/scraper_b3.md",
       "source_location": "L40",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_scraper_b3_sample_record",
-      "target": "docs_scraper_b3_codeblock_2",
-      "confidence_score": 1.0
+      "target": "docs_scraper_b3_codeblock_2"
     },
     {
       "relation": "contains",
@@ -13452,9 +13471,9 @@
       "source_file": "docs/scraper_b3.md",
       "source_location": "L60",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_scraper_b3_xang\u00f4",
-      "target": "docs_scraper_b3_global_score_function",
-      "confidence_score": 1.0
+      "target": "docs_scraper_b3_global_score_function"
     },
     {
       "relation": "contains",
@@ -13462,9 +13481,9 @@
       "source_file": "docs/scraper_b3.md",
       "source_location": "L69",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_scraper_b3_xang\u00f4",
-      "target": "docs_scraper_b3_engines",
-      "confidence_score": 1.0
+      "target": "docs_scraper_b3_engines"
     },
     {
       "relation": "contains",
@@ -13472,9 +13491,9 @@
       "source_file": "docs/scraper_b3.md",
       "source_location": "L113",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_scraper_b3_xang\u00f4",
-      "target": "docs_scraper_b3_configuration_parameters",
-      "confidence_score": 1.0
+      "target": "docs_scraper_b3_configuration_parameters"
     },
     {
       "relation": "contains",
@@ -13482,9 +13501,9 @@
       "source_file": "docs/scraper_b3.md",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_scraper_b3_engines",
-      "target": "docs_scraper_b3_profit_quality_gate_m_profit",
-      "confidence_score": 1.0
+      "target": "docs_scraper_b3_profit_quality_gate_m_profit"
     },
     {
       "relation": "contains",
@@ -13492,9 +13511,9 @@
       "source_file": "docs/scraper_b3.md",
       "source_location": "L76",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_scraper_b3_engines",
-      "target": "docs_scraper_b3_fundamental_engine_phi",
-      "confidence_score": 1.0
+      "target": "docs_scraper_b3_fundamental_engine_phi"
     },
     {
       "relation": "contains",
@@ -13502,9 +13521,9 @@
       "source_file": "docs/scraper_b3.md",
       "source_location": "L89",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_scraper_b3_engines",
-      "target": "docs_scraper_b3_risk_quality_engine_omega",
-      "confidence_score": 1.0
+      "target": "docs_scraper_b3_risk_quality_engine_omega"
     },
     {
       "relation": "contains",
@@ -13512,9 +13531,9 @@
       "source_file": "docs/scraper_b3.md",
       "source_location": "L101",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_scraper_b3_engines",
-      "target": "docs_scraper_b3_constraint_engine_lambda",
-      "confidence_score": 1.0
+      "target": "docs_scraper_b3_constraint_engine_lambda"
     },
     {
       "relation": "contains",
@@ -13522,9 +13541,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_md",
-      "target": "docs_stocks_api_brazilian_stocks_market_api",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_brazilian_stocks_market_api"
     },
     {
       "relation": "contains",
@@ -13532,9 +13551,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_brazilian_stocks_market_api",
-      "target": "docs_stocks_api_usage",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_usage"
     },
     {
       "relation": "contains",
@@ -13542,9 +13561,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_brazilian_stocks_market_api",
-      "target": "docs_stocks_api_api_endpoints",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_api_endpoints"
     },
     {
       "relation": "contains",
@@ -13552,9 +13571,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L90",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_brazilian_stocks_market_api",
-      "target": "docs_stocks_api_response_format",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_response_format"
     },
     {
       "relation": "contains",
@@ -13562,9 +13581,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L113",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_brazilian_stocks_market_api",
-      "target": "docs_stocks_api_license",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_license"
     },
     {
       "relation": "contains",
@@ -13572,9 +13591,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_usage",
-      "target": "docs_stocks_api_codeblock_1",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_codeblock_1"
     },
     {
       "relation": "contains",
@@ -13582,9 +13601,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L34",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_api_endpoints",
-      "target": "docs_stocks_api_health_check",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_health_check"
     },
     {
       "relation": "contains",
@@ -13592,9 +13611,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L40",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_api_endpoints",
-      "target": "docs_stocks_api_api_key_verification",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_api_key_verification"
     },
     {
       "relation": "contains",
@@ -13602,9 +13621,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L45",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_api_endpoints",
-      "target": "docs_stocks_api_key_management",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_key_management"
     },
     {
       "relation": "contains",
@@ -13612,9 +13631,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_api_endpoints",
-      "target": "docs_stocks_api_historical_data",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_historical_data"
     },
     {
       "relation": "contains",
@@ -13622,9 +13641,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L72",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_api_endpoints",
-      "target": "docs_stocks_api_fundamental_data",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_fundamental_data"
     },
     {
       "relation": "contains",
@@ -13632,9 +13651,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L35",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_health_check",
-      "target": "docs_stocks_api_codeblock_2",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_codeblock_2"
     },
     {
       "relation": "contains",
@@ -13642,9 +13661,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L41",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_api_key_verification",
-      "target": "docs_stocks_api_codeblock_3",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_codeblock_3"
     },
     {
       "relation": "contains",
@@ -13652,9 +13671,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L47",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_key_management",
-      "target": "docs_stocks_api_codeblock_4",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_codeblock_4"
     },
     {
       "relation": "contains",
@@ -13662,9 +13681,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_historical_data",
-      "target": "docs_stocks_api_codeblock_5",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_codeblock_5"
     },
     {
       "relation": "contains",
@@ -13672,9 +13691,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L68",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_historical_data",
-      "target": "docs_stocks_api_codeblock_6",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_codeblock_6"
     },
     {
       "relation": "contains",
@@ -13682,9 +13701,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L74",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_fundamental_data",
-      "target": "docs_stocks_api_codeblock_7",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_codeblock_7"
     },
     {
       "relation": "contains",
@@ -13692,9 +13711,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L86",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_fundamental_data",
-      "target": "docs_stocks_api_codeblock_8",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_codeblock_8"
     },
     {
       "relation": "contains",
@@ -13702,9 +13721,9 @@
       "source_file": "docs/stocks_api.md",
       "source_location": "L94",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_stocks_api_response_format",
-      "target": "docs_stocks_api_codeblock_9",
-      "confidence_score": 1.0
+      "target": "docs_stocks_api_codeblock_9"
     },
     {
       "relation": "contains",
@@ -13712,9 +13731,9 @@
       "source_file": "docs/user.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_md",
-      "target": "docs_user_user_management",
-      "confidence_score": 1.0
+      "target": "docs_user_user_management"
     },
     {
       "relation": "contains",
@@ -13722,9 +13741,9 @@
       "source_file": "docs/user.md",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_user_management",
-      "target": "docs_user_roles_and_permissions",
-      "confidence_score": 1.0
+      "target": "docs_user_roles_and_permissions"
     },
     {
       "relation": "contains",
@@ -13732,9 +13751,9 @@
       "source_file": "docs/user.md",
       "source_location": "L17",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_user_management",
-      "target": "docs_user_api_endpoints",
-      "confidence_score": 1.0
+      "target": "docs_user_api_endpoints"
     },
     {
       "relation": "contains",
@@ -13742,9 +13761,9 @@
       "source_file": "docs/user.md",
       "source_location": "L59",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_user_management",
-      "target": "docs_user_session_management",
-      "confidence_score": 1.0
+      "target": "docs_user_session_management"
     },
     {
       "relation": "contains",
@@ -13752,9 +13771,9 @@
       "source_file": "docs/user.md",
       "source_location": "L140",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_user_management",
-      "target": "docs_user_permission_system",
-      "confidence_score": 1.0
+      "target": "docs_user_permission_system"
     },
     {
       "relation": "contains",
@@ -13762,9 +13781,9 @@
       "source_file": "docs/user.md",
       "source_location": "L156",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_user_management",
-      "target": "docs_user_workflow",
-      "confidence_score": 1.0
+      "target": "docs_user_workflow"
     },
     {
       "relation": "contains",
@@ -13772,9 +13791,9 @@
       "source_file": "docs/user.md",
       "source_location": "L177",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_user_management",
-      "target": "docs_user_license",
-      "confidence_score": 1.0
+      "target": "docs_user_license"
     },
     {
       "relation": "contains",
@@ -13782,9 +13801,9 @@
       "source_file": "docs/user.md",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_api_endpoints",
-      "target": "docs_user_health_check",
-      "confidence_score": 1.0
+      "target": "docs_user_health_check"
     },
     {
       "relation": "contains",
@@ -13792,9 +13811,9 @@
       "source_file": "docs/user.md",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_api_endpoints",
-      "target": "docs_user_get_profile",
-      "confidence_score": 1.0
+      "target": "docs_user_get_profile"
     },
     {
       "relation": "contains",
@@ -13802,9 +13821,9 @@
       "source_file": "docs/user.md",
       "source_location": "L41",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_api_endpoints",
-      "target": "docs_user_upgrade_to_developer_starter",
-      "confidence_score": 1.0
+      "target": "docs_user_upgrade_to_developer_starter"
     },
     {
       "relation": "contains",
@@ -13812,9 +13831,9 @@
       "source_file": "docs/user.md",
       "source_location": "L47",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_api_endpoints",
-      "target": "docs_user_upgrade_to_developer_enterprise",
-      "confidence_score": 1.0
+      "target": "docs_user_upgrade_to_developer_enterprise"
     },
     {
       "relation": "contains",
@@ -13822,9 +13841,9 @@
       "source_file": "docs/user.md",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_api_endpoints",
-      "target": "docs_user_admin_access",
-      "confidence_score": 1.0
+      "target": "docs_user_admin_access"
     },
     {
       "relation": "contains",
@@ -13832,9 +13851,9 @@
       "source_file": "docs/user.md",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_health_check",
-      "target": "docs_user_codeblock_1",
-      "confidence_score": 1.0
+      "target": "docs_user_codeblock_1"
     },
     {
       "relation": "contains",
@@ -13842,9 +13861,9 @@
       "source_file": "docs/user.md",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_get_profile",
-      "target": "docs_user_codeblock_2",
-      "confidence_score": 1.0
+      "target": "docs_user_codeblock_2"
     },
     {
       "relation": "contains",
@@ -13852,9 +13871,9 @@
       "source_file": "docs/user.md",
       "source_location": "L31",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_get_profile",
-      "target": "docs_user_codeblock_3",
-      "confidence_score": 1.0
+      "target": "docs_user_codeblock_3"
     },
     {
       "relation": "contains",
@@ -13862,9 +13881,9 @@
       "source_file": "docs/user.md",
       "source_location": "L43",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_upgrade_to_developer_starter",
-      "target": "docs_user_codeblock_4",
-      "confidence_score": 1.0
+      "target": "docs_user_codeblock_4"
     },
     {
       "relation": "contains",
@@ -13872,9 +13891,9 @@
       "source_file": "docs/user.md",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_upgrade_to_developer_enterprise",
-      "target": "docs_user_codeblock_5",
-      "confidence_score": 1.0
+      "target": "docs_user_codeblock_5"
     },
     {
       "relation": "contains",
@@ -13882,9 +13901,9 @@
       "source_file": "docs/user.md",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_admin_access",
-      "target": "docs_user_codeblock_6",
-      "confidence_score": 1.0
+      "target": "docs_user_codeblock_6"
     },
     {
       "relation": "contains",
@@ -13892,9 +13911,9 @@
       "source_file": "docs/user.md",
       "source_location": "L63",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_session_management",
-      "target": "docs_user_list_all_sessions",
-      "confidence_score": 1.0
+      "target": "docs_user_list_all_sessions"
     },
     {
       "relation": "contains",
@@ -13902,9 +13921,9 @@
       "source_file": "docs/user.md",
       "source_location": "L92",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_session_management",
-      "target": "docs_user_get_current_session",
-      "confidence_score": 1.0
+      "target": "docs_user_get_current_session"
     },
     {
       "relation": "contains",
@@ -13912,9 +13931,9 @@
       "source_file": "docs/user.md",
       "source_location": "L114",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_session_management",
-      "target": "docs_user_revoke_a_session",
-      "confidence_score": 1.0
+      "target": "docs_user_revoke_a_session"
     },
     {
       "relation": "contains",
@@ -13922,9 +13941,9 @@
       "source_file": "docs/user.md",
       "source_location": "L127",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_session_management",
-      "target": "docs_user_revoke_all_sessions",
-      "confidence_score": 1.0
+      "target": "docs_user_revoke_all_sessions"
     },
     {
       "relation": "contains",
@@ -13932,9 +13951,9 @@
       "source_file": "docs/user.md",
       "source_location": "L65",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_list_all_sessions",
-      "target": "docs_user_codeblock_7",
-      "confidence_score": 1.0
+      "target": "docs_user_codeblock_7"
     },
     {
       "relation": "contains",
@@ -13942,9 +13961,9 @@
       "source_file": "docs/user.md",
       "source_location": "L69",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_list_all_sessions",
-      "target": "docs_user_codeblock_8",
-      "confidence_score": 1.0
+      "target": "docs_user_codeblock_8"
     },
     {
       "relation": "contains",
@@ -13952,9 +13971,9 @@
       "source_file": "docs/user.md",
       "source_location": "L94",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_get_current_session",
-      "target": "docs_user_codeblock_9",
-      "confidence_score": 1.0
+      "target": "docs_user_codeblock_9"
     },
     {
       "relation": "contains",
@@ -13962,9 +13981,9 @@
       "source_file": "docs/user.md",
       "source_location": "L98",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_get_current_session",
-      "target": "docs_user_codeblock_10",
-      "confidence_score": 1.0
+      "target": "docs_user_codeblock_10"
     },
     {
       "relation": "contains",
@@ -13972,9 +13991,9 @@
       "source_file": "docs/user.md",
       "source_location": "L116",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_revoke_a_session",
-      "target": "docs_user_codeblock_11",
-      "confidence_score": 1.0
+      "target": "docs_user_codeblock_11"
     },
     {
       "relation": "contains",
@@ -13982,9 +14001,9 @@
       "source_file": "docs/user.md",
       "source_location": "L120",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_revoke_a_session",
-      "target": "docs_user_codeblock_12",
-      "confidence_score": 1.0
+      "target": "docs_user_codeblock_12"
     },
     {
       "relation": "contains",
@@ -13992,9 +14011,9 @@
       "source_file": "docs/user.md",
       "source_location": "L129",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_revoke_all_sessions",
-      "target": "docs_user_codeblock_13",
-      "confidence_score": 1.0
+      "target": "docs_user_codeblock_13"
     },
     {
       "relation": "contains",
@@ -14002,9 +14021,9 @@
       "source_file": "docs/user.md",
       "source_location": "L133",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_revoke_all_sessions",
-      "target": "docs_user_codeblock_14",
-      "confidence_score": 1.0
+      "target": "docs_user_codeblock_14"
     },
     {
       "relation": "contains",
@@ -14012,9 +14031,9 @@
       "source_file": "docs/user.md",
       "source_location": "L144",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_permission_system",
-      "target": "docs_user_codeblock_15",
-      "confidence_score": 1.0
+      "target": "docs_user_codeblock_15"
     },
     {
       "relation": "contains",
@@ -14022,9 +14041,9 @@
       "source_file": "docs/user.md",
       "source_location": "L158",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_user_workflow",
-      "target": "docs_user_codeblock_16",
-      "confidence_score": 1.0
+      "target": "docs_user_codeblock_16"
     },
     {
       "relation": "imports",
@@ -16207,5 +16226,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "ed7942830f09151e0886ed48adbe14d6987efa56"
+  "built_at_commit": "54f063bd855df26e0a390d44a109465c0b50e784"
 }
