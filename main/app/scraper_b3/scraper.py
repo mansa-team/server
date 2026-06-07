@@ -15,7 +15,8 @@ import cloudscraper
 import requests
 import re
 
-from sqlalchemy import create_engine, text, QueuePool
+from sqlalchemy import text
+from config import stocksEngine
 
 from tenacity import retry, stop_after_attempt, wait_exponential
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -38,15 +39,7 @@ def getCurrentSelic():
 
 class B3Scraper:
     def __init__(self):
-        self.engine = create_engine(
-            f"mysql+pymysql://{Config.MYSQL['STOCKS_USER']}:{Config.MYSQL['STOCKS_PASSWORD']}@{Config.MYSQL['STOCKS_HOST']}/{Config.MYSQL['STOCKS_DATABASE']}",
-            poolclass=QueuePool,
-            pool_size=20,
-            max_overflow=40,
-            pool_pre_ping=True,
-            echo=False,
-            connect_args={"charset": "utf8mb4"},
-        )
+        self.engine = stocksEngine
         self.currentYear = datetime.now().year
         self.scraperDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -396,7 +389,9 @@ class B3Scraper:
             companyLiquidity = df.get("LIQUIDEZ MEDIA DIARIA", 0) or 0
 
             prefix = TICKER[:4]
-            prefixLiquidity = (self.stocksDF.groupby(self.stocksDF.index.str[:4])["LIQUIDEZ MEDIA DIARIA"].sum().get(prefix, 0))
+            prefixLiquidity = (
+                self.stocksDF.groupby(self.stocksDF.index.str[:4])["LIQUIDEZ MEDIA DIARIA"].sum().get(prefix, 0)
+            )
 
             result = calculateInvestingScore(
                 ticker=TICKER,
