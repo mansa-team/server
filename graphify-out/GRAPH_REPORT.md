@@ -1,16 +1,16 @@
 # Graph Report - server  (2026-06-07)
 
 ## Corpus Check
-- 67 files · ~30,356 words
+- 67 files · ~28,329 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 907 nodes · 1213 edges · 61 communities (43 shown, 18 thin omitted)
+- 917 nodes · 1222 edges · 61 communities (46 shown, 15 thin omitted)
 - Extraction: 78% EXTRACTED · 22% INFERRED · 0% AMBIGUOUS · INFERRED: 267 edges (avg confidence: 0.69)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4c22f28a`
+- Built from commit: `c0260c27`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -105,7 +105,7 @@
 - **Configuration & Database Infrastructure** — config_Config, config_engine, config_stocksEngine [INFERRED]
 - **User Authentication & Authorization** — user_service, authentication, user_roles, permission_system [INFERRED]
 
-## Communities (61 total, 18 thin omitted)
+## Communities (61 total, 15 thin omitted)
 
 ### Community 0 - "Stocks API Controller"
 Cohesion: 0.05
@@ -125,7 +125,7 @@ Nodes (8): createSession(), getSessionById(), revokeSession(), SessionManager, v
 
 ### Community 4 - "SQLAlchemy Models"
 Cohesion: 0.07
-Nodes (8): Base, PrometheusSession, StocksAPIKey, User, createSession(), TestPrometheusSessionModel, TestStocksAPIKeyModel, TestUserModel
+Nodes (7): Base, PrometheusSession, StocksAPIKey, User, TestPrometheusSessionModel, TestStocksAPIKeyModel, TestUserModel
 
 ### Community 5 - "Roles & Permissions"
 Cohesion: 0.06
@@ -166,6 +166,10 @@ Nodes (19): API Key System, B3 Scraper, Fundamental Data, Gemini Model, Historic
 ### Community 14 - "User Controller"
 Cohesion: 0.04
 Nodes (44): Bucket A: Security Fixes (quick wins, 30 min), Bucket B: DB Session Cleanup (medium, 1-2 hrs), Bucket C: Testing (medium, 2-3 hrs), Bucket D: Infrastructure (large, 4+ hrs), Category 1: Database Session Management (HIGH), Category 2: Async/Sync Inconsistencies (MEDIUM), Category 3: Security (HIGH), Category 4: Caching & Memory (MEDIUM) (+36 more)
+
+### Community 15 - "Database Utils"
+Cohesion: 0.14
+Nodes (3): createSession(), PrometheusChatManager, PrometheusGenerator
 
 ### Community 16 - "Validators"
 Cohesion: 0.15
@@ -255,28 +259,36 @@ Nodes (4): lifespan(), checkMySqlConnection(), checkServiceConnection(), runMigr
 Cohesion: 0.32
 Nodes (3): chat(), createSession(), getHistory()
 
+### Community 55 - "Community 55"
+Cohesion: 0.22
+Nodes (3): client(), TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with all routers mounted — no lifespan (no DB/service init).      O
+
 ### Community 56 - "Community 56"
 Cohesion: 0.22
 Nodes (3): generateKey(), createKey(), generateSecureKey()
+
+### Community 59 - "Community 59"
+Cohesion: 0.25
+Nodes (7): computedHash, skillPath, source, sourceType, skills, backend-code-review, version
 
 ### Community 60 - "Community 60"
 Cohesion: 0.33
 Nodes (5): Tests for optimized search filtering, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Filter should use ticker index for O(1) lookup, TestFilterBySearchTerms
 
 ## Knowledge Gaps
-- **237 isolated node(s):** `Inject request_id from ContextVar into every log record.`, `Register exception handlers on the FastAPI app.      Note: HTTPException and R`, `Initial migration  Revision ID: 25af7ad931e7 Revises: Create Date: 2026-04-0`, `User sessions table  Revision ID: 4a2f1c9e3b5d Revises: 25af7ad931e7 Create Date`, `Add accessTokenHash, operatingSystem, lastActivityAt to user_sessions  Revision` (+232 more)
+- **243 isolated node(s):** `version`, `source`, `sourceType`, `skillPath`, `computedHash` (+238 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **18 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **15 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Pytest Testing` connect `Community 50` to `Stocks API Controller`, `Authentication Manager`, `Stocks Cache & Query`, `Session Management`, `SQLAlchemy Models`, `Roles & Permissions`, `Configuration & Logging`, `Scraper Service`, `Community 49`, `Community 55`, `Settings`, `Helpers`?**
-  _High betweenness centrality (0.272) - this node is a cross-community bridge._
-- **Why does `FastAPI` connect `Community 50` to `Stocks API Controller`, `Authentication Manager`, `Roles & Permissions`, `Configuration & Logging`, `Auth Service`, `Community 52`, `Community 54`, `Community 56`, `Community 57`, `Community 58`, `Community 59`, `Settings`?**
-  _High betweenness centrality (0.170) - this node is a cross-community bridge._
+  _High betweenness centrality (0.269) - this node is a cross-community bridge._
+- **Why does `FastAPI` connect `Community 50` to `Stocks API Controller`, `Authentication Manager`, `Roles & Permissions`, `Configuration & Logging`, `Auth Service`, `Community 51`, `Community 52`, `Community 54`, `Community 56`, `Community 57`, `Community 58`, `Settings`?**
+  _High betweenness centrality (0.167) - this node is a cross-community bridge._
 - **Why does `StocksQueryManager` connect `Stocks API Controller` to `Stocks Cache & Query`, `Prometheus Chat`, `User Service`, `Responses`, `Enums`, `Prometheus Model`, `MySQL Connectivity`, `Community 60`?**
-  _High betweenness centrality (0.071) - this node is a cross-community bridge._
+  _High betweenness centrality (0.069) - this node is a cross-community bridge._
 - **Are the 59 inferred relationships involving `StocksCacheManager` (e.g. with `StocksQueryManager` and `TestCacheLRUEviction`) actually correct?**
   _`StocksCacheManager` has 59 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 21 inferred relationships involving `StocksQueryManager` (e.g. with `StocksCacheManager` and `TestTickerIndex`) actually correct?**

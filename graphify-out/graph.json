@@ -277,6 +277,78 @@
       "norm_label": "triggerscraper()"
     },
     {
+      "label": "skills-lock.json",
+      "file_type": "code",
+      "source_file": "skills-lock.json",
+      "source_location": "L1",
+      "id": "skills_lock_json",
+      "community": 59,
+      "norm_label": "skills-lock.json"
+    },
+    {
+      "label": "version",
+      "file_type": "code",
+      "source_file": "skills-lock.json",
+      "source_location": "L2",
+      "id": "server_skills_lock_version",
+      "community": 59,
+      "norm_label": "version"
+    },
+    {
+      "label": "skills",
+      "file_type": "code",
+      "source_file": "skills-lock.json",
+      "source_location": "L3",
+      "id": "server_skills_lock_skills",
+      "community": 59,
+      "norm_label": "skills"
+    },
+    {
+      "label": "backend-code-review",
+      "file_type": "code",
+      "source_file": "skills-lock.json",
+      "source_location": "L4",
+      "id": "server_skills_lock_skills_backend_code_review",
+      "community": 59,
+      "norm_label": "backend-code-review"
+    },
+    {
+      "label": "source",
+      "file_type": "code",
+      "source_file": "skills-lock.json",
+      "source_location": "L5",
+      "id": "server_skills_lock_backend_code_review_source",
+      "community": 59,
+      "norm_label": "source"
+    },
+    {
+      "label": "sourceType",
+      "file_type": "code",
+      "source_file": "skills-lock.json",
+      "source_location": "L6",
+      "id": "server_skills_lock_backend_code_review_sourcetype",
+      "community": 59,
+      "norm_label": "sourcetype"
+    },
+    {
+      "label": "skillPath",
+      "file_type": "code",
+      "source_file": "skills-lock.json",
+      "source_location": "L7",
+      "id": "server_skills_lock_backend_code_review_skillpath",
+      "community": 59,
+      "norm_label": "skillpath"
+    },
+    {
+      "label": "computedHash",
+      "file_type": "code",
+      "source_file": "skills-lock.json",
+      "source_location": "L8",
+      "id": "server_skills_lock_backend_code_review_computedhash",
+      "community": 59,
+      "norm_label": "computedhash"
+    },
+    {
       "label": "authentication.py",
       "file_type": "code",
       "source_file": "main/app/authentication/authentication.py",
@@ -606,7 +678,7 @@
       "source_file": "main/app/prometheus/chat.py",
       "source_location": "L34",
       "id": "prometheus_chat_createsession",
-      "community": 4,
+      "community": 15,
       "norm_label": "createsession()"
     },
     {
@@ -2055,7 +2127,7 @@
       "source_file": "main/utils/pagination.py",
       "source_location": "L1",
       "id": "main_utils_pagination_py",
-      "community": 59,
+      "community": 51,
       "norm_label": "pagination.py"
     },
     {
@@ -2064,7 +2136,7 @@
       "source_file": "main/utils/pagination.py",
       "source_location": "L4",
       "id": "utils_pagination_paginationparams",
-      "community": 59,
+      "community": 51,
       "norm_label": "paginationparams"
     },
     {
@@ -2073,7 +2145,7 @@
       "source_file": "main/utils/pagination.py",
       "source_location": "L5",
       "id": "utils_pagination_paginationparams_init",
-      "community": 59,
+      "community": 51,
       "norm_label": ".__init__()"
     },
     {
@@ -2383,10 +2455,19 @@
       "norm_label": "conftest.py"
     },
     {
+      "label": "_patch_secret_key()",
+      "file_type": "code",
+      "source_file": "tests/conftest.py",
+      "source_location": "L13",
+      "id": "tests_conftest_patch_secret_key",
+      "community": 55,
+      "norm_label": "_patch_secret_key()"
+    },
+    {
       "label": "dbSession()",
       "file_type": "code",
       "source_file": "tests/conftest.py",
-      "source_location": "L15",
+      "source_location": "L23",
       "id": "tests_conftest_dbsession",
       "community": 55,
       "norm_label": "dbsession()"
@@ -2395,7 +2476,7 @@
       "label": "sampleUserData()",
       "file_type": "code",
       "source_file": "tests/conftest.py",
-      "source_location": "L27",
+      "source_location": "L35",
       "id": "tests_conftest_sampleuserdata",
       "community": 55,
       "norm_label": "sampleuserdata()"
@@ -2404,7 +2485,7 @@
       "label": "sampleAPIKeyData()",
       "file_type": "code",
       "source_file": "tests/conftest.py",
-      "source_location": "L38",
+      "source_location": "L46",
       "id": "tests_conftest_sampleapikeydata",
       "community": 55,
       "norm_label": "sampleapikeydata()"
@@ -2413,7 +2494,7 @@
       "label": "samplePrometheusSessionData()",
       "file_type": "code",
       "source_file": "tests/conftest.py",
-      "source_location": "L43",
+      "source_location": "L51",
       "id": "tests_conftest_sampleprometheussessiondata",
       "community": 55,
       "norm_label": "sampleprometheussessiondata()"
@@ -2422,7 +2503,7 @@
       "label": "client()",
       "file_type": "code",
       "source_file": "tests/conftest.py",
-      "source_location": "L48",
+      "source_location": "L56",
       "id": "tests_conftest_client",
       "community": 55,
       "norm_label": "client()"
@@ -2431,8 +2512,8 @@
       "label": "TestClient with all routers mounted \u2014 no lifespan (no DB/service init).      O",
       "file_type": "rationale",
       "source_file": "tests/conftest.py",
-      "source_location": "L49",
-      "id": "tests_conftest_rationale_49",
+      "source_location": "L57",
+      "id": "tests_conftest_rationale_57",
       "community": 55,
       "norm_label": "testclient with all routers mounted \u2014 no lifespan (no db/service init).      o"
     },
@@ -4678,411 +4759,6 @@
       "norm_label": "graphify"
     },
     {
-      "label": "CODE_REVIEW_REPORT.md",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L1",
-      "id": "code_review_report_md",
-      "community": 14,
-      "norm_label": "code_review_report.md"
-    },
-    {
-      "label": "Full Code Review Report",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L1",
-      "id": "server_code_review_report_full_code_review_report",
-      "community": 14,
-      "norm_label": "full code review report"
-    },
-    {
-      "label": "Executive Summary",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L10",
-      "id": "server_code_review_report_executive_summary",
-      "community": 14,
-      "norm_label": "executive summary"
-    },
-    {
-      "label": "Category 1: Database Session Management (HIGH)",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L23",
-      "id": "server_code_review_report_category_1_database_session_management_high",
-      "community": 14,
-      "norm_label": "category 1: database session management (high)"
-    },
-    {
-      "label": "Issue 1.1 \u2014 PrometheusController creates raw DB sessions",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L25",
-      "id": "server_code_review_report_issue_1_1_prometheuscontroller_creates_raw_db_sessions",
-      "community": 14,
-      "norm_label": "issue 1.1 \u2014 prometheuscontroller creates raw db sessions"
-    },
-    {
-      "label": "code:python (# Current (BAD):)",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L29",
-      "id": "server_code_review_report_codeblock_1",
-      "community": 14,
-      "norm_label": "code:python (# current (bad):)"
-    },
-    {
-      "label": "Issue 1.2 \u2014 PrometheusChatManager creates raw DB sessions on every call",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L45",
-      "id": "server_code_review_report_issue_1_2_prometheuschatmanager_creates_raw_db_sessions_on_every_call",
-      "community": 14,
-      "norm_label": "issue 1.2 \u2014 prometheuschatmanager creates raw db sessions on every call"
-    },
-    {
-      "label": "Issue 1.3 \u2014 User controller has duplicate token extraction",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L51",
-      "id": "server_code_review_report_issue_1_3_user_controller_has_duplicate_token_extraction",
-      "community": 14,
-      "norm_label": "issue 1.3 \u2014 user controller has duplicate token extraction"
-    },
-    {
-      "label": "code:python (# Current (BAD):)",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L55",
-      "id": "server_code_review_report_codeblock_2",
-      "community": 14,
-      "norm_label": "code:python (# current (bad):)"
-    },
-    {
-      "label": "Category 2: Async/Sync Inconsistencies (MEDIUM)",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L75",
-      "id": "server_code_review_report_category_2_async_sync_inconsistencies_medium",
-      "community": 14,
-      "norm_label": "category 2: async/sync inconsistencies (medium)"
-    },
-    {
-      "label": "Issue 2.1 \u2014 All route handlers are synchronous",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L77",
-      "id": "server_code_review_report_issue_2_1_all_route_handlers_are_synchronous",
-      "community": 14,
-      "norm_label": "issue 2.1 \u2014 all route handlers are synchronous"
-    },
-    {
-      "label": "Issue 2.2 \u2014 ServiceManager runs uvicorn in daemon threads",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L85",
-      "id": "server_code_review_report_issue_2_2_servicemanager_runs_uvicorn_in_daemon_threads",
-      "community": 14,
-      "norm_label": "issue 2.2 \u2014 servicemanager runs uvicorn in daemon threads"
-    },
-    {
-      "label": "Category 3: Security (HIGH)",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L95",
-      "id": "server_code_review_report_category_3_security_high",
-      "community": 14,
-      "norm_label": "category 3: security (high)"
-    },
-    {
-      "label": "Issue 3.1 \u2014 Hardcoded API key fallback",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L97",
-      "id": "server_code_review_report_issue_3_1_hardcoded_api_key_fallback",
-      "community": 14,
-      "norm_label": "issue 3.1 \u2014 hardcoded api key fallback"
-    },
-    {
-      "label": "code:python (if not stocksKey:)",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L100",
-      "id": "server_code_review_report_codeblock_3",
-      "community": 14,
-      "norm_label": "code:python (if not stockskey:)"
-    },
-    {
-      "label": "Issue 3.2 \u2014 Missing rate limiting on auth endpoints",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L112",
-      "id": "server_code_review_report_issue_3_2_missing_rate_limiting_on_auth_endpoints",
-      "community": 14,
-      "norm_label": "issue 3.2 \u2014 missing rate limiting on auth endpoints"
-    },
-    {
-      "label": "Issue 3.3 \u2014 API key uses `string` import but doesn't use it",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L117",
-      "id": "server_code_review_report_issue_3_3_api_key_uses_string_import_but_doesn_t_use_it",
-      "community": 14,
-      "norm_label": "issue 3.3 \u2014 api key uses `string` import but doesn't use it"
-    },
-    {
-      "label": "Issue 3.4 \u2014 Logout doesn't validate token before revoking",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L122",
-      "id": "server_code_review_report_issue_3_4_logout_doesn_t_validate_token_before_revoking",
-      "community": 14,
-      "norm_label": "issue 3.4 \u2014 logout doesn't validate token before revoking"
-    },
-    {
-      "label": "Category 4: Caching & Memory (MEDIUM)",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L129",
-      "id": "server_code_review_report_category_4_caching_memory_medium",
-      "community": 14,
-      "norm_label": "category 4: caching & memory (medium)"
-    },
-    {
-      "label": "Issue 4.1 \u2014 PrometheusChatManager uses in-memory dict for sessions",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L131",
-      "id": "server_code_review_report_issue_4_1_prometheuschatmanager_uses_in_memory_dict_for_sessions",
-      "community": 14,
-      "norm_label": "issue 4.1 \u2014 prometheuschatmanager uses in-memory dict for sessions"
-    },
-    {
-      "label": "Issue 4.2 \u2014 Scraper cache has no TTL",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L140",
-      "id": "server_code_review_report_issue_4_2_scraper_cache_has_no_ttl",
-      "community": 14,
-      "norm_label": "issue 4.2 \u2014 scraper cache has no ttl"
-    },
-    {
-      "label": "Category 5: Error Handling Gaps (MEDIUM)",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L147",
-      "id": "server_code_review_report_category_5_error_handling_gaps_medium",
-      "community": 14,
-      "norm_label": "category 5: error handling gaps (medium)"
-    },
-    {
-      "label": "Issue 5.1 \u2014 Generic exception handler swallows traceback in production",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L149",
-      "id": "server_code_review_report_issue_5_1_generic_exception_handler_swallows_traceback_in_production",
-      "community": 14,
-      "norm_label": "issue 5.1 \u2014 generic exception handler swallows traceback in production"
-    },
-    {
-      "label": "Issue 5.2 \u2014 DiscordHandler sends only message, not traceback",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L154",
-      "id": "server_code_review_report_issue_5_2_discordhandler_sends_only_message_not_traceback",
-      "community": 14,
-      "norm_label": "issue 5.2 \u2014 discordhandler sends only message, not traceback"
-    },
-    {
-      "label": "Issue 5.3 \u2014 `_build_error_response` ignores `status_code` parameter",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L159",
-      "id": "server_code_review_report_issue_5_3_build_error_response_ignores_status_code_parameter",
-      "community": 14,
-      "norm_label": "issue 5.3 \u2014 `_build_error_response` ignores `status_code` parameter"
-    },
-    {
-      "label": "Category 6: Configuration & Environment (LOW)",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L166",
-      "id": "server_code_review_report_category_6_configuration_environment_low",
-      "community": 14,
-      "norm_label": "category 6: configuration & environment (low)"
-    },
-    {
-      "label": "Issue 6.1 \u2014 Config class uses dict-style access with string keys",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L168",
-      "id": "server_code_review_report_issue_6_1_config_class_uses_dict_style_access_with_string_keys",
-      "community": 14,
-      "norm_label": "issue 6.1 \u2014 config class uses dict-style access with string keys"
-    },
-    {
-      "label": "Issue 6.2 \u2014 `config.py` imports are circular-risk",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L173",
-      "id": "server_code_review_report_issue_6_2_config_py_imports_are_circular_risk",
-      "community": 14,
-      "norm_label": "issue 6.2 \u2014 `config.py` imports are circular-risk"
-    },
-    {
-      "label": "Issue 6.3 \u2014 `database.py` is empty/unused",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L178",
-      "id": "server_code_review_report_issue_6_3_database_py_is_empty_unused",
-      "community": 14,
-      "norm_label": "issue 6.3 \u2014 `database.py` is empty/unused"
-    },
-    {
-      "label": "Category 7: Code Quality (LOW)",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L185",
-      "id": "server_code_review_report_category_7_code_quality_low",
-      "community": 14,
-      "norm_label": "category 7: code quality (low)"
-    },
-    {
-      "label": "Issue 7.1 \u2014 Unused imports",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L187",
-      "id": "server_code_review_report_issue_7_1_unused_imports",
-      "community": 14,
-      "norm_label": "issue 7.1 \u2014 unused imports"
-    },
-    {
-      "label": "Issue 7.2 \u2014 Missing type hints",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L194",
-      "id": "server_code_review_report_issue_7_2_missing_type_hints",
-      "community": 14,
-      "norm_label": "issue 7.2 \u2014 missing type hints"
-    },
-    {
-      "label": "Issue 7.3 \u2014 `UserManager.__init__` does nothing",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L205",
-      "id": "server_code_review_report_issue_7_3_usermanager_init_does_nothing",
-      "community": 14,
-      "norm_label": "issue 7.3 \u2014 `usermanager.__init__` does nothing"
-    },
-    {
-      "label": "Issue 7.4 \u2014 Mixed async/sync in roles.py",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L210",
-      "id": "server_code_review_report_issue_7_4_mixed_async_sync_in_roles_py",
-      "community": 14,
-      "norm_label": "issue 7.4 \u2014 mixed async/sync in roles.py"
-    },
-    {
-      "label": "Category 8: Testing Gaps (MEDIUM)",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L217",
-      "id": "server_code_review_report_category_8_testing_gaps_medium",
-      "community": 14,
-      "norm_label": "category 8: testing gaps (medium)"
-    },
-    {
-      "label": "Issue 8.1 \u2014 No integration tests for full request lifecycle",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L219",
-      "id": "server_code_review_report_issue_8_1_no_integration_tests_for_full_request_lifecycle",
-      "community": 14,
-      "norm_label": "issue 8.1 \u2014 no integration tests for full request lifecycle"
-    },
-    {
-      "label": "Issue 8.2 \u2014 No tests for scraper, stocks query, or cache",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L223",
-      "id": "server_code_review_report_issue_8_2_no_tests_for_scraper_stocks_query_or_cache",
-      "community": 14,
-      "norm_label": "issue 8.2 \u2014 no tests for scraper, stocks query, or cache"
-    },
-    {
-      "label": "Issue 8.3 \u2014 No tests for Google OAuth callback",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L230",
-      "id": "server_code_review_report_issue_8_3_no_tests_for_google_oauth_callback",
-      "community": 14,
-      "norm_label": "issue 8.3 \u2014 no tests for google oauth callback"
-    },
-    {
-      "label": "Issue 8.4 \u2014 No tests for session cleanup",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L234",
-      "id": "server_code_review_report_issue_8_4_no_tests_for_session_cleanup",
-      "community": 14,
-      "norm_label": "issue 8.4 \u2014 no tests for session cleanup"
-    },
-    {
-      "label": "Priority Summary",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L240",
-      "id": "server_code_review_report_priority_summary",
-      "community": 14,
-      "norm_label": "priority summary"
-    },
-    {
-      "label": "Recommended Delegation Buckets",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L261",
-      "id": "server_code_review_report_recommended_delegation_buckets",
-      "community": 14,
-      "norm_label": "recommended delegation buckets"
-    },
-    {
-      "label": "Bucket A: Security Fixes (quick wins, 30 min)",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L263",
-      "id": "server_code_review_report_bucket_a_security_fixes_quick_wins_30_min",
-      "community": 14,
-      "norm_label": "bucket a: security fixes (quick wins, 30 min)"
-    },
-    {
-      "label": "Bucket B: DB Session Cleanup (medium, 1-2 hrs)",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L268",
-      "id": "server_code_review_report_bucket_b_db_session_cleanup_medium_1_2_hrs",
-      "community": 14,
-      "norm_label": "bucket b: db session cleanup (medium, 1-2 hrs)"
-    },
-    {
-      "label": "Bucket C: Testing (medium, 2-3 hrs)",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L273",
-      "id": "server_code_review_report_bucket_c_testing_medium_2_3_hrs",
-      "community": 14,
-      "norm_label": "bucket c: testing (medium, 2-3 hrs)"
-    },
-    {
-      "label": "Bucket D: Infrastructure (large, 4+ hrs)",
-      "file_type": "document",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L279",
-      "id": "server_code_review_report_bucket_d_infrastructure_large_4_hrs",
-      "community": 14,
-      "norm_label": "bucket d: infrastructure (large, 4+ hrs)"
-    },
-    {
       "label": "README.md",
       "file_type": "document",
       "source_file": "README.md",
@@ -6170,6 +5846,420 @@
       "id": "docs_user_license",
       "community": 8,
       "norm_label": "license"
+    },
+    {
+      "label": "TestClient with all routers mounted \u2014 no lifespan (no DB/service init).      O",
+      "file_type": "rationale",
+      "source_file": "tests/conftest.py",
+      "source_location": "L49",
+      "community": 55,
+      "norm_label": "testclient with all routers mounted \u2014 no lifespan (no db/service init).      o",
+      "id": "tests_conftest_rationale_49"
+    },
+    {
+      "label": "CODE_REVIEW_REPORT.md",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L1",
+      "community": 14,
+      "norm_label": "code_review_report.md",
+      "id": "code_review_report_md"
+    },
+    {
+      "label": "Full Code Review Report",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L1",
+      "community": 14,
+      "norm_label": "full code review report",
+      "id": "server_code_review_report_full_code_review_report"
+    },
+    {
+      "label": "Executive Summary",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L10",
+      "community": 14,
+      "norm_label": "executive summary",
+      "id": "server_code_review_report_executive_summary"
+    },
+    {
+      "label": "Category 1: Database Session Management (HIGH)",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L23",
+      "community": 14,
+      "norm_label": "category 1: database session management (high)",
+      "id": "server_code_review_report_category_1_database_session_management_high"
+    },
+    {
+      "label": "Issue 1.1 \u2014 PrometheusController creates raw DB sessions",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L25",
+      "community": 14,
+      "norm_label": "issue 1.1 \u2014 prometheuscontroller creates raw db sessions",
+      "id": "server_code_review_report_issue_1_1_prometheuscontroller_creates_raw_db_sessions"
+    },
+    {
+      "label": "code:python (# Current (BAD):)",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L29",
+      "community": 14,
+      "norm_label": "code:python (# current (bad):)",
+      "id": "server_code_review_report_codeblock_1"
+    },
+    {
+      "label": "Issue 1.2 \u2014 PrometheusChatManager creates raw DB sessions on every call",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L45",
+      "community": 14,
+      "norm_label": "issue 1.2 \u2014 prometheuschatmanager creates raw db sessions on every call",
+      "id": "server_code_review_report_issue_1_2_prometheuschatmanager_creates_raw_db_sessions_on_every_call"
+    },
+    {
+      "label": "Issue 1.3 \u2014 User controller has duplicate token extraction",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L51",
+      "community": 14,
+      "norm_label": "issue 1.3 \u2014 user controller has duplicate token extraction",
+      "id": "server_code_review_report_issue_1_3_user_controller_has_duplicate_token_extraction"
+    },
+    {
+      "label": "code:python (# Current (BAD):)",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L55",
+      "community": 14,
+      "norm_label": "code:python (# current (bad):)",
+      "id": "server_code_review_report_codeblock_2"
+    },
+    {
+      "label": "Category 2: Async/Sync Inconsistencies (MEDIUM)",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L75",
+      "community": 14,
+      "norm_label": "category 2: async/sync inconsistencies (medium)",
+      "id": "server_code_review_report_category_2_async_sync_inconsistencies_medium"
+    },
+    {
+      "label": "Issue 2.1 \u2014 All route handlers are synchronous",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L77",
+      "community": 14,
+      "norm_label": "issue 2.1 \u2014 all route handlers are synchronous",
+      "id": "server_code_review_report_issue_2_1_all_route_handlers_are_synchronous"
+    },
+    {
+      "label": "Issue 2.2 \u2014 ServiceManager runs uvicorn in daemon threads",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L85",
+      "community": 14,
+      "norm_label": "issue 2.2 \u2014 servicemanager runs uvicorn in daemon threads",
+      "id": "server_code_review_report_issue_2_2_servicemanager_runs_uvicorn_in_daemon_threads"
+    },
+    {
+      "label": "Category 3: Security (HIGH)",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L95",
+      "community": 14,
+      "norm_label": "category 3: security (high)",
+      "id": "server_code_review_report_category_3_security_high"
+    },
+    {
+      "label": "Issue 3.1 \u2014 Hardcoded API key fallback",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L97",
+      "community": 14,
+      "norm_label": "issue 3.1 \u2014 hardcoded api key fallback",
+      "id": "server_code_review_report_issue_3_1_hardcoded_api_key_fallback"
+    },
+    {
+      "label": "code:python (if not stocksKey:)",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L100",
+      "community": 14,
+      "norm_label": "code:python (if not stockskey:)",
+      "id": "server_code_review_report_codeblock_3"
+    },
+    {
+      "label": "Issue 3.2 \u2014 Missing rate limiting on auth endpoints",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L112",
+      "community": 14,
+      "norm_label": "issue 3.2 \u2014 missing rate limiting on auth endpoints",
+      "id": "server_code_review_report_issue_3_2_missing_rate_limiting_on_auth_endpoints"
+    },
+    {
+      "label": "Issue 3.3 \u2014 API key uses `string` import but doesn't use it",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L117",
+      "community": 14,
+      "norm_label": "issue 3.3 \u2014 api key uses `string` import but doesn't use it",
+      "id": "server_code_review_report_issue_3_3_api_key_uses_string_import_but_doesn_t_use_it"
+    },
+    {
+      "label": "Issue 3.4 \u2014 Logout doesn't validate token before revoking",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L122",
+      "community": 14,
+      "norm_label": "issue 3.4 \u2014 logout doesn't validate token before revoking",
+      "id": "server_code_review_report_issue_3_4_logout_doesn_t_validate_token_before_revoking"
+    },
+    {
+      "label": "Category 4: Caching & Memory (MEDIUM)",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L129",
+      "community": 14,
+      "norm_label": "category 4: caching & memory (medium)",
+      "id": "server_code_review_report_category_4_caching_memory_medium"
+    },
+    {
+      "label": "Issue 4.1 \u2014 PrometheusChatManager uses in-memory dict for sessions",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L131",
+      "community": 14,
+      "norm_label": "issue 4.1 \u2014 prometheuschatmanager uses in-memory dict for sessions",
+      "id": "server_code_review_report_issue_4_1_prometheuschatmanager_uses_in_memory_dict_for_sessions"
+    },
+    {
+      "label": "Issue 4.2 \u2014 Scraper cache has no TTL",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L140",
+      "community": 14,
+      "norm_label": "issue 4.2 \u2014 scraper cache has no ttl",
+      "id": "server_code_review_report_issue_4_2_scraper_cache_has_no_ttl"
+    },
+    {
+      "label": "Category 5: Error Handling Gaps (MEDIUM)",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L147",
+      "community": 14,
+      "norm_label": "category 5: error handling gaps (medium)",
+      "id": "server_code_review_report_category_5_error_handling_gaps_medium"
+    },
+    {
+      "label": "Issue 5.1 \u2014 Generic exception handler swallows traceback in production",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L149",
+      "community": 14,
+      "norm_label": "issue 5.1 \u2014 generic exception handler swallows traceback in production",
+      "id": "server_code_review_report_issue_5_1_generic_exception_handler_swallows_traceback_in_production"
+    },
+    {
+      "label": "Issue 5.2 \u2014 DiscordHandler sends only message, not traceback",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L154",
+      "community": 14,
+      "norm_label": "issue 5.2 \u2014 discordhandler sends only message, not traceback",
+      "id": "server_code_review_report_issue_5_2_discordhandler_sends_only_message_not_traceback"
+    },
+    {
+      "label": "Issue 5.3 \u2014 `_build_error_response` ignores `status_code` parameter",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L159",
+      "community": 14,
+      "norm_label": "issue 5.3 \u2014 `_build_error_response` ignores `status_code` parameter",
+      "id": "server_code_review_report_issue_5_3_build_error_response_ignores_status_code_parameter"
+    },
+    {
+      "label": "Category 6: Configuration & Environment (LOW)",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L166",
+      "community": 14,
+      "norm_label": "category 6: configuration & environment (low)",
+      "id": "server_code_review_report_category_6_configuration_environment_low"
+    },
+    {
+      "label": "Issue 6.1 \u2014 Config class uses dict-style access with string keys",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L168",
+      "community": 14,
+      "norm_label": "issue 6.1 \u2014 config class uses dict-style access with string keys",
+      "id": "server_code_review_report_issue_6_1_config_class_uses_dict_style_access_with_string_keys"
+    },
+    {
+      "label": "Issue 6.2 \u2014 `config.py` imports are circular-risk",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L173",
+      "community": 14,
+      "norm_label": "issue 6.2 \u2014 `config.py` imports are circular-risk",
+      "id": "server_code_review_report_issue_6_2_config_py_imports_are_circular_risk"
+    },
+    {
+      "label": "Issue 6.3 \u2014 `database.py` is empty/unused",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L178",
+      "community": 14,
+      "norm_label": "issue 6.3 \u2014 `database.py` is empty/unused",
+      "id": "server_code_review_report_issue_6_3_database_py_is_empty_unused"
+    },
+    {
+      "label": "Category 7: Code Quality (LOW)",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L185",
+      "community": 14,
+      "norm_label": "category 7: code quality (low)",
+      "id": "server_code_review_report_category_7_code_quality_low"
+    },
+    {
+      "label": "Issue 7.1 \u2014 Unused imports",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L187",
+      "community": 14,
+      "norm_label": "issue 7.1 \u2014 unused imports",
+      "id": "server_code_review_report_issue_7_1_unused_imports"
+    },
+    {
+      "label": "Issue 7.2 \u2014 Missing type hints",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L194",
+      "community": 14,
+      "norm_label": "issue 7.2 \u2014 missing type hints",
+      "id": "server_code_review_report_issue_7_2_missing_type_hints"
+    },
+    {
+      "label": "Issue 7.3 \u2014 `UserManager.__init__` does nothing",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L205",
+      "community": 14,
+      "norm_label": "issue 7.3 \u2014 `usermanager.__init__` does nothing",
+      "id": "server_code_review_report_issue_7_3_usermanager_init_does_nothing"
+    },
+    {
+      "label": "Issue 7.4 \u2014 Mixed async/sync in roles.py",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L210",
+      "community": 14,
+      "norm_label": "issue 7.4 \u2014 mixed async/sync in roles.py",
+      "id": "server_code_review_report_issue_7_4_mixed_async_sync_in_roles_py"
+    },
+    {
+      "label": "Category 8: Testing Gaps (MEDIUM)",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L217",
+      "community": 14,
+      "norm_label": "category 8: testing gaps (medium)",
+      "id": "server_code_review_report_category_8_testing_gaps_medium"
+    },
+    {
+      "label": "Issue 8.1 \u2014 No integration tests for full request lifecycle",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L219",
+      "community": 14,
+      "norm_label": "issue 8.1 \u2014 no integration tests for full request lifecycle",
+      "id": "server_code_review_report_issue_8_1_no_integration_tests_for_full_request_lifecycle"
+    },
+    {
+      "label": "Issue 8.2 \u2014 No tests for scraper, stocks query, or cache",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L223",
+      "community": 14,
+      "norm_label": "issue 8.2 \u2014 no tests for scraper, stocks query, or cache",
+      "id": "server_code_review_report_issue_8_2_no_tests_for_scraper_stocks_query_or_cache"
+    },
+    {
+      "label": "Issue 8.3 \u2014 No tests for Google OAuth callback",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L230",
+      "community": 14,
+      "norm_label": "issue 8.3 \u2014 no tests for google oauth callback",
+      "id": "server_code_review_report_issue_8_3_no_tests_for_google_oauth_callback"
+    },
+    {
+      "label": "Issue 8.4 \u2014 No tests for session cleanup",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L234",
+      "community": 14,
+      "norm_label": "issue 8.4 \u2014 no tests for session cleanup",
+      "id": "server_code_review_report_issue_8_4_no_tests_for_session_cleanup"
+    },
+    {
+      "label": "Priority Summary",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L240",
+      "community": 14,
+      "norm_label": "priority summary",
+      "id": "server_code_review_report_priority_summary"
+    },
+    {
+      "label": "Recommended Delegation Buckets",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L261",
+      "community": 14,
+      "norm_label": "recommended delegation buckets",
+      "id": "server_code_review_report_recommended_delegation_buckets"
+    },
+    {
+      "label": "Bucket A: Security Fixes (quick wins, 30 min)",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L263",
+      "community": 14,
+      "norm_label": "bucket a: security fixes (quick wins, 30 min)",
+      "id": "server_code_review_report_bucket_a_security_fixes_quick_wins_30_min"
+    },
+    {
+      "label": "Bucket B: DB Session Cleanup (medium, 1-2 hrs)",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L268",
+      "community": 14,
+      "norm_label": "bucket b: db session cleanup (medium, 1-2 hrs)",
+      "id": "server_code_review_report_bucket_b_db_session_cleanup_medium_1_2_hrs"
+    },
+    {
+      "label": "Bucket C: Testing (medium, 2-3 hrs)",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L273",
+      "community": 14,
+      "norm_label": "bucket c: testing (medium, 2-3 hrs)",
+      "id": "server_code_review_report_bucket_c_testing_medium_2_3_hrs"
+    },
+    {
+      "label": "Bucket D: Infrastructure (large, 4+ hrs)",
+      "file_type": "document",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L279",
+      "community": 14,
+      "norm_label": "bucket d: infrastructure (large, 4+ hrs)",
+      "id": "server_code_review_report_bucket_d_infrastructure_large_4_hrs"
     },
     {
       "label": "Register exception handlers on the FastAPI app.      Note: HTTPException and R",
@@ -8684,6 +8774,76 @@
       "weight": 1.0,
       "source": "server_run_lifespan",
       "target": "utils_connectivity_checkserviceconnection"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "skills-lock.json",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "skills_lock_json",
+      "target": "server_skills_lock_version",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "skills-lock.json",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "skills_lock_json",
+      "target": "server_skills_lock_skills",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "skills-lock.json",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "server_skills_lock_skills",
+      "target": "server_skills_lock_skills_backend_code_review",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "skills-lock.json",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "server_skills_lock_skills_backend_code_review",
+      "target": "server_skills_lock_backend_code_review_source",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "skills-lock.json",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "server_skills_lock_skills_backend_code_review",
+      "target": "server_skills_lock_backend_code_review_sourcetype",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "skills-lock.json",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "server_skills_lock_skills_backend_code_review",
+      "target": "server_skills_lock_backend_code_review_skillpath",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "skills-lock.json",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "server_skills_lock_skills_backend_code_review",
+      "target": "server_skills_lock_backend_code_review_computedhash",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -13979,6 +14139,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/conftest.py",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "tests_conftest_py",
+      "target": "tests_conftest_patch_secret_key",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/conftest.py",
       "source_location": "L14",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -14024,6 +14194,16 @@
       "confidence_score": 1.0,
       "source": "tests_conftest_py",
       "target": "tests_conftest_client"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/conftest.py",
+      "source_location": "L57",
+      "weight": 1.0,
+      "source": "tests_conftest_rationale_57",
+      "target": "tests_conftest_client",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -16751,446 +16931,6 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "code_review_report_md",
-      "target": "server_code_review_report_full_code_review_report"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L10",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_full_code_review_report",
-      "target": "server_code_review_report_executive_summary"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L23",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_full_code_review_report",
-      "target": "server_code_review_report_category_1_database_session_management_high"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L75",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_full_code_review_report",
-      "target": "server_code_review_report_category_2_async_sync_inconsistencies_medium"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L95",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_full_code_review_report",
-      "target": "server_code_review_report_category_3_security_high"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L129",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_full_code_review_report",
-      "target": "server_code_review_report_category_4_caching_memory_medium"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L147",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_full_code_review_report",
-      "target": "server_code_review_report_category_5_error_handling_gaps_medium"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L166",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_full_code_review_report",
-      "target": "server_code_review_report_category_6_configuration_environment_low"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L185",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_full_code_review_report",
-      "target": "server_code_review_report_category_7_code_quality_low"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L217",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_full_code_review_report",
-      "target": "server_code_review_report_category_8_testing_gaps_medium"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L240",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_full_code_review_report",
-      "target": "server_code_review_report_priority_summary"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L261",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_full_code_review_report",
-      "target": "server_code_review_report_recommended_delegation_buckets"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L25",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_1_database_session_management_high",
-      "target": "server_code_review_report_issue_1_1_prometheuscontroller_creates_raw_db_sessions"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L45",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_1_database_session_management_high",
-      "target": "server_code_review_report_issue_1_2_prometheuschatmanager_creates_raw_db_sessions_on_every_call"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L51",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_1_database_session_management_high",
-      "target": "server_code_review_report_issue_1_3_user_controller_has_duplicate_token_extraction"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L29",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_issue_1_1_prometheuscontroller_creates_raw_db_sessions",
-      "target": "server_code_review_report_codeblock_1"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L55",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_issue_1_3_user_controller_has_duplicate_token_extraction",
-      "target": "server_code_review_report_codeblock_2"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L77",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_2_async_sync_inconsistencies_medium",
-      "target": "server_code_review_report_issue_2_1_all_route_handlers_are_synchronous"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L85",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_2_async_sync_inconsistencies_medium",
-      "target": "server_code_review_report_issue_2_2_servicemanager_runs_uvicorn_in_daemon_threads"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L97",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_3_security_high",
-      "target": "server_code_review_report_issue_3_1_hardcoded_api_key_fallback"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L112",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_3_security_high",
-      "target": "server_code_review_report_issue_3_2_missing_rate_limiting_on_auth_endpoints"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L117",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_3_security_high",
-      "target": "server_code_review_report_issue_3_3_api_key_uses_string_import_but_doesn_t_use_it"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L122",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_3_security_high",
-      "target": "server_code_review_report_issue_3_4_logout_doesn_t_validate_token_before_revoking"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L100",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_issue_3_1_hardcoded_api_key_fallback",
-      "target": "server_code_review_report_codeblock_3"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L131",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_4_caching_memory_medium",
-      "target": "server_code_review_report_issue_4_1_prometheuschatmanager_uses_in_memory_dict_for_sessions"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L140",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_4_caching_memory_medium",
-      "target": "server_code_review_report_issue_4_2_scraper_cache_has_no_ttl"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L149",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_5_error_handling_gaps_medium",
-      "target": "server_code_review_report_issue_5_1_generic_exception_handler_swallows_traceback_in_production"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L154",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_5_error_handling_gaps_medium",
-      "target": "server_code_review_report_issue_5_2_discordhandler_sends_only_message_not_traceback"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L159",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_5_error_handling_gaps_medium",
-      "target": "server_code_review_report_issue_5_3_build_error_response_ignores_status_code_parameter"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L168",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_6_configuration_environment_low",
-      "target": "server_code_review_report_issue_6_1_config_class_uses_dict_style_access_with_string_keys"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L173",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_6_configuration_environment_low",
-      "target": "server_code_review_report_issue_6_2_config_py_imports_are_circular_risk"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L178",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_6_configuration_environment_low",
-      "target": "server_code_review_report_issue_6_3_database_py_is_empty_unused"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L187",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_7_code_quality_low",
-      "target": "server_code_review_report_issue_7_1_unused_imports"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L194",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_7_code_quality_low",
-      "target": "server_code_review_report_issue_7_2_missing_type_hints"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L205",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_7_code_quality_low",
-      "target": "server_code_review_report_issue_7_3_usermanager_init_does_nothing"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L210",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_7_code_quality_low",
-      "target": "server_code_review_report_issue_7_4_mixed_async_sync_in_roles_py"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L219",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_8_testing_gaps_medium",
-      "target": "server_code_review_report_issue_8_1_no_integration_tests_for_full_request_lifecycle"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L223",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_8_testing_gaps_medium",
-      "target": "server_code_review_report_issue_8_2_no_tests_for_scraper_stocks_query_or_cache"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L230",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_8_testing_gaps_medium",
-      "target": "server_code_review_report_issue_8_3_no_tests_for_google_oauth_callback"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L234",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_category_8_testing_gaps_medium",
-      "target": "server_code_review_report_issue_8_4_no_tests_for_session_cleanup"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L263",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_recommended_delegation_buckets",
-      "target": "server_code_review_report_bucket_a_security_fixes_quick_wins_30_min"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L268",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_recommended_delegation_buckets",
-      "target": "server_code_review_report_bucket_b_db_session_cleanup_medium_1_2_hrs"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L273",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_recommended_delegation_buckets",
-      "target": "server_code_review_report_bucket_c_testing_medium_2_3_hrs"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "CODE_REVIEW_REPORT.md",
-      "source_location": "L279",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_code_review_report_recommended_delegation_buckets",
-      "target": "server_code_review_report_bucket_d_infrastructure_large_4_hrs"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
       "source_file": "README.md",
       "source_location": "L1",
       "weight": 1.0,
@@ -18327,6 +18067,446 @@
       "confidence_score": 1.0,
       "source": "docs_user_workflow",
       "target": "docs_user_codeblock_16"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "code_review_report_md",
+      "target": "server_code_review_report_full_code_review_report"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L10",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_full_code_review_report",
+      "target": "server_code_review_report_executive_summary"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L23",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_full_code_review_report",
+      "target": "server_code_review_report_category_1_database_session_management_high"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L75",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_full_code_review_report",
+      "target": "server_code_review_report_category_2_async_sync_inconsistencies_medium"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L95",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_full_code_review_report",
+      "target": "server_code_review_report_category_3_security_high"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L129",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_full_code_review_report",
+      "target": "server_code_review_report_category_4_caching_memory_medium"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L147",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_full_code_review_report",
+      "target": "server_code_review_report_category_5_error_handling_gaps_medium"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L166",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_full_code_review_report",
+      "target": "server_code_review_report_category_6_configuration_environment_low"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L185",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_full_code_review_report",
+      "target": "server_code_review_report_category_7_code_quality_low"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L217",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_full_code_review_report",
+      "target": "server_code_review_report_category_8_testing_gaps_medium"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L240",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_full_code_review_report",
+      "target": "server_code_review_report_priority_summary"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L261",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_full_code_review_report",
+      "target": "server_code_review_report_recommended_delegation_buckets"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L25",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_1_database_session_management_high",
+      "target": "server_code_review_report_issue_1_1_prometheuscontroller_creates_raw_db_sessions"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L45",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_1_database_session_management_high",
+      "target": "server_code_review_report_issue_1_2_prometheuschatmanager_creates_raw_db_sessions_on_every_call"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L51",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_1_database_session_management_high",
+      "target": "server_code_review_report_issue_1_3_user_controller_has_duplicate_token_extraction"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L29",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_issue_1_1_prometheuscontroller_creates_raw_db_sessions",
+      "target": "server_code_review_report_codeblock_1"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L55",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_issue_1_3_user_controller_has_duplicate_token_extraction",
+      "target": "server_code_review_report_codeblock_2"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L77",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_2_async_sync_inconsistencies_medium",
+      "target": "server_code_review_report_issue_2_1_all_route_handlers_are_synchronous"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L85",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_2_async_sync_inconsistencies_medium",
+      "target": "server_code_review_report_issue_2_2_servicemanager_runs_uvicorn_in_daemon_threads"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L97",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_3_security_high",
+      "target": "server_code_review_report_issue_3_1_hardcoded_api_key_fallback"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L112",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_3_security_high",
+      "target": "server_code_review_report_issue_3_2_missing_rate_limiting_on_auth_endpoints"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L117",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_3_security_high",
+      "target": "server_code_review_report_issue_3_3_api_key_uses_string_import_but_doesn_t_use_it"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L122",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_3_security_high",
+      "target": "server_code_review_report_issue_3_4_logout_doesn_t_validate_token_before_revoking"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L100",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_issue_3_1_hardcoded_api_key_fallback",
+      "target": "server_code_review_report_codeblock_3"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L131",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_4_caching_memory_medium",
+      "target": "server_code_review_report_issue_4_1_prometheuschatmanager_uses_in_memory_dict_for_sessions"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L140",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_4_caching_memory_medium",
+      "target": "server_code_review_report_issue_4_2_scraper_cache_has_no_ttl"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L149",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_5_error_handling_gaps_medium",
+      "target": "server_code_review_report_issue_5_1_generic_exception_handler_swallows_traceback_in_production"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L154",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_5_error_handling_gaps_medium",
+      "target": "server_code_review_report_issue_5_2_discordhandler_sends_only_message_not_traceback"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L159",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_5_error_handling_gaps_medium",
+      "target": "server_code_review_report_issue_5_3_build_error_response_ignores_status_code_parameter"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L168",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_6_configuration_environment_low",
+      "target": "server_code_review_report_issue_6_1_config_class_uses_dict_style_access_with_string_keys"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L173",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_6_configuration_environment_low",
+      "target": "server_code_review_report_issue_6_2_config_py_imports_are_circular_risk"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L178",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_6_configuration_environment_low",
+      "target": "server_code_review_report_issue_6_3_database_py_is_empty_unused"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L187",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_7_code_quality_low",
+      "target": "server_code_review_report_issue_7_1_unused_imports"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L194",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_7_code_quality_low",
+      "target": "server_code_review_report_issue_7_2_missing_type_hints"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L205",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_7_code_quality_low",
+      "target": "server_code_review_report_issue_7_3_usermanager_init_does_nothing"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L210",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_7_code_quality_low",
+      "target": "server_code_review_report_issue_7_4_mixed_async_sync_in_roles_py"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L219",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_8_testing_gaps_medium",
+      "target": "server_code_review_report_issue_8_1_no_integration_tests_for_full_request_lifecycle"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L223",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_8_testing_gaps_medium",
+      "target": "server_code_review_report_issue_8_2_no_tests_for_scraper_stocks_query_or_cache"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L230",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_8_testing_gaps_medium",
+      "target": "server_code_review_report_issue_8_3_no_tests_for_google_oauth_callback"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L234",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_category_8_testing_gaps_medium",
+      "target": "server_code_review_report_issue_8_4_no_tests_for_session_cleanup"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L263",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_recommended_delegation_buckets",
+      "target": "server_code_review_report_bucket_a_security_fixes_quick_wins_30_min"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L268",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_recommended_delegation_buckets",
+      "target": "server_code_review_report_bucket_b_db_session_cleanup_medium_1_2_hrs"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L273",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_recommended_delegation_buckets",
+      "target": "server_code_review_report_bucket_c_testing_medium_2_3_hrs"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CODE_REVIEW_REPORT.md",
+      "source_location": "L279",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_code_review_report_recommended_delegation_buckets",
+      "target": "server_code_review_report_bucket_d_infrastructure_large_4_hrs"
     },
     {
       "relation": "imports",
@@ -20509,5 +20689,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "4c22f28a1490fcb764713e247c27f3a8a168e396"
+  "built_at_commit": "c0260c27b14c1c949857d7443e0f3b0e80b620f0"
 }
