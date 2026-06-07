@@ -1,5 +1,6 @@
 import logging
 import re
+from collections import OrderedDict
 from config import stocksEngine
 
 import threading
@@ -11,6 +12,7 @@ from sqlalchemy.engine import Engine
 logger = logging.getLogger(__name__)
 
 COLUMN_VALIDATOR = re.compile(r"^[A-Z0-9_ ]+$", re.IGNORECASE)
+QUERY_CACHE_MAX_SIZE = 32  # max entries in queryCache before evicting LRU
 
 
 class StocksCacheManager:
@@ -19,7 +21,7 @@ class StocksCacheManager:
         self.cacheLock = cacheLock
         self.STOCKS_CACHE = None
         self.tickerIndex: dict = {}
-        self.queryCache: dict = {}
+        self.queryCache: OrderedDict = OrderedDict()
         self.QUERY_CACHE_TTL = 300  # 5 minutes TTL
 
     def cacheScheduler(self):
@@ -40,7 +42,10 @@ class StocksCacheManager:
             if cacheKey in self.queryCache:
                 cachedData, cached_time = self.queryCache[cacheKey]
                 if now - cached_time < self.QUERY_CACHE_TTL:
+                    self.queryCache.move_to_end(cacheKey)
                     return cachedData
+                else:
+                    del self.queryCache[cacheKey]
 
         try:
             with self.db.connect() as conn:
@@ -49,7 +54,7 @@ class StocksCacheManager:
                     cols = ["TICKER", "NOME", "TIME"] + [
                         c for c in validatedCols if c not in ["TICKER", "NOME", "TIME"]
                     ]
-                    
+
                     quotedCols = [f"`{c}`" for c in cols]
                     query = f"SELECT {','.join(quotedCols)} FROM b3_stocks"
                     df = pd.read_sql(query, conn)
@@ -63,12 +68,18 @@ class StocksCacheManager:
                 with self.cacheLock:
                     self.STOCKS_CACHE = df
 
-                self.queryCache[cacheKey] = (df, now)
+                self.putCache(cacheKey, df, now)
 
                 logger.info(f"Stocks cache updated ({len(df)} records, {len(self.tickerIndex)} tickers)")
 
         except Exception as e:
             logger.error(f"Error updating stocks cache: {str(e)}", exc_info=True)
+
+    def putCache(self, cacheKey, data, now):
+        self.queryCache[cacheKey] = (data, now)
+        self.queryCache.move_to_end(cacheKey)
+        while len(self.queryCache) > QUERY_CACHE_MAX_SIZE:
+            self.queryCache.popitem(last=False)
 
     def clearQueryCache(self):
         self.queryCache.clear()
