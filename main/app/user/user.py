@@ -37,8 +37,8 @@ class UserManager:
             userId = payload.get("userId")
             sessionId = payload.get("sessionId")
 
-            if sessionId:
-                isValid = SessionManager.validateSession(db, sessionId, userId)
+            if sessionId and userId is not None:
+                isValid = SessionManager.validateSession(db, sessionId, int(userId))
                 if not isValid:
                     logger.info(f"Session {sessionId} revoked, logging out user {userId}")
                     raise HTTPException(status_code=401, detail="Session revoked")

@@ -8,6 +8,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from main.models.base import Base
 
+
+@pytest.fixture(autouse=True)
+def _patch_secret_key(monkeypatch):
+    import main.app.authentication.constants as auth_constants
+
+    if not auth_constants.SECRET_KEY:
+        monkeypatch.setattr(auth_constants, "SECRET_KEY", "test-secret-key-not-empty")
+
 TEST_DATABASE_URL = "sqlite:///:memory:"
 
 
