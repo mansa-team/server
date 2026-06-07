@@ -8,6 +8,7 @@ from main.utils.logging_config import limiter
 from main.utils.connectivity import checkMySqlConnection, checkServiceConnection
 from main.utils.service_manager import ServiceManager
 from main.utils.migrator import runMigrations
+from main.utils.request_id import RequestIDMiddleware
 
 from main.service.authentication_service import AuthenticationService
 from main.service.user_service import UserService
@@ -65,6 +66,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Mansa Server", lifespan=lifespan)
+app.add_middleware(RequestIDMiddleware)
 
 
 @app.get("/health")
