@@ -17,7 +17,7 @@ class TestExtractTokenPayload:
         return Request(scope)
 
     def test_missing_token_raises_401(self):
-        from main.app.user.user import extractTokenPayload
+        from main.app.authentication.util import extractTokenPayload
 
         request = self._make_request({})
         with pytest.raises(HTTPException) as exc_info:
@@ -26,7 +26,7 @@ class TestExtractTokenPayload:
         assert exc_info.value.detail == "Session not found"
 
     def test_x_access_token_header_used(self):
-        from main.app.user.user import extractTokenPayload
+        from main.app.authentication.util import extractTokenPayload
 
         mock_payload = {"userId": 1, "sessionId": "abc"}
         request = self._make_request({"X-Access-Token": "valid_token"})
@@ -36,7 +36,7 @@ class TestExtractTokenPayload:
             assert result == mock_payload
 
     def test_authorization_bearer_header_used(self):
-        from main.app.user.user import extractTokenPayload
+        from main.app.authentication.util import extractTokenPayload
 
         mock_payload = {"userId": 2}
         request = self._make_request({"Authorization": "Bearer my_jwt_token"})
@@ -46,7 +46,7 @@ class TestExtractTokenPayload:
             assert result == mock_payload
 
     def test_x_access_token_takes_priority_over_bearer(self):
-        from main.app.user.user import extractTokenPayload
+        from main.app.authentication.util import extractTokenPayload
 
         mock_payload = {"userId": 3}
         request = self._make_request({"X-Access-Token": "primary_token", "Authorization": "Bearer secondary_token"})
@@ -56,7 +56,7 @@ class TestExtractTokenPayload:
             mock_verify.assert_called_once_with("primary_token")
 
     def test_invalid_token_raises_401(self):
-        from main.app.user.user import extractTokenPayload
+        from main.app.authentication.util import extractTokenPayload
 
         request = self._make_request({"X-Access-Token": "bad_token"})
         with patch("main.app.authentication.util.verifyAccessToken", side_effect=Exception("decode error")):
@@ -66,7 +66,7 @@ class TestExtractTokenPayload:
             assert "Invalid Token" in exc_info.value.detail
 
     def test_empty_user_id_raises_401(self):
-        from main.app.user.user import extractTokenPayload
+        from main.app.authentication.util import extractTokenPayload
 
         request = self._make_request({"X-Access-Token": "token"})
         with patch("main.app.authentication.util.verifyAccessToken", return_value={"userId": None}):
@@ -76,7 +76,7 @@ class TestExtractTokenPayload:
 
     def test_empty_bearer_value_raises_401(self):
         """Authorization: Bearer (empty) — no token after Bearer."""
-        from main.app.user.user import extractTokenPayload
+        from main.app.authentication.util import extractTokenPayload
 
         request = self._make_request({"Authorization": "Bearer "})
         with pytest.raises(HTTPException) as exc_info:
@@ -85,7 +85,7 @@ class TestExtractTokenPayload:
 
     def test_non_bearer_auth_header_raises_401(self):
         """Authorization: Basic xxx — not Bearer, so no token found."""
-        from main.app.user.user import extractTokenPayload
+        from main.app.authentication.util import extractTokenPayload
 
         request = self._make_request({"Authorization": "Basic dXNlcjpwYXNz"})
         with pytest.raises(HTTPException) as exc_info:

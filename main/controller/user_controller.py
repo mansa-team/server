@@ -81,7 +81,6 @@ def getSessions(
     sessions = SessionManager.getUserSessions(db, currentUser["userId"])
     activeCount = sum(1 for s in sessions if s.isActive)
 
-    # Apply pagination
     total = len(sessions)
     paginatedSessions = sessions[pagination.offset : pagination.offset + pagination.limit]
 

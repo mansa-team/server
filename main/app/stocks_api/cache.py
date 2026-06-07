@@ -12,7 +12,7 @@ from sqlalchemy.engine import Engine
 logger = logging.getLogger(__name__)
 
 COLUMN_VALIDATOR = re.compile(r"^[A-Z0-9_ ]+$", re.IGNORECASE)
-QUERY_CACHE_MAX_SIZE = 32  # max entries in queryCache before evicting LRU
+QUERY_CACHE_MAX_SIZE = 32
 
 
 class StocksCacheManager:

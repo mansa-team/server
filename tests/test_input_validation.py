@@ -1,4 +1,8 @@
-"""Tests for input validation models (schemas/inputs.py)."""
+"""Tests for input validation via HTTP endpoints.
+
+Validation is now inline via Body(...) parameters in controllers.
+These tests verify validation through the TestClient.
+"""
 
 import pytest
 import sys
@@ -6,101 +10,165 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from pydantic import ValidationError
-from main.schemas.inputs import (
-    RegisterRequest,
-    LoginRequest,
-    UpgradeDeveloperRequest,
-    CreateSessionRequest,
-    UpdateTitleRequest,
-    ChatRequest,
-)
+
+class TestRegisterValidation:
+    """POST /auth/register — validates username, email, password via Body(...)"""
+
+    def test_valid_registration(self, client):
+        response = client.post(
+            "/auth/register",
+            json={"username": "Alice", "email": "alice@example.com", "password": "secret123"},
+        )
+        # Should not be 422 (validation error) — may be 200, 409, or 500 depending on DB
+        assert response.status_code != 422
+
+    def test_username_too_short(self, client):
+        response = client.post(
+            "/auth/register",
+            json={"username": "", "email": "alice@example.com", "password": "secret123"},
+        )
+        assert response.status_code == 422
+
+    def test_username_too_long(self, client):
+        response = client.post(
+            "/auth/register",
+            json={"username": "A" * 101, "email": "alice@example.com", "password": "secret123"},
+        )
+        assert response.status_code == 422
+
+    def test_email_too_short(self, client):
+        response = client.post(
+            "/auth/register",
+            json={"username": "Alice", "email": "a@b", "password": "secret123"},
+        )
+        assert response.status_code == 422
+
+    def test_password_too_short(self, client):
+        response = client.post(
+            "/auth/register",
+            json={"username": "Alice", "email": "alice@example.com", "password": "ab"},
+        )
+        assert response.status_code == 422
 
 
-class TestRegisterRequest:
-    def test_valid(self):
-        r = RegisterRequest(name="Alice", email="alice@example.com", password="secret123")
-        assert r.name == "Alice"
-        assert r.email == "alice@example.com"
+class TestLoginValidation:
+    """POST /auth/login — validates username, password via Body(...)"""
 
-    def test_name_too_short(self):
-        with pytest.raises(ValidationError):
-            RegisterRequest(name="", email="alice@example.com", password="secret123")
+    def test_valid_login_payload(self, client):
+        response = client.post(
+            "/auth/login",
+            json={"username": "Alice", "password": "secret123"},
+        )
+        # Should not be 422 — may be 200 or 401 depending on DB
+        assert response.status_code != 422
 
-    def test_name_too_long(self):
-        with pytest.raises(ValidationError):
-            RegisterRequest(name="A" * 101, email="alice@example.com", password="secret123")
+    def test_username_too_short(self, client):
+        response = client.post(
+            "/auth/login",
+            json={"username": "", "password": "secret123"},
+        )
+        assert response.status_code == 422
 
-    def test_email_too_short(self):
-        with pytest.raises(ValidationError):
-            RegisterRequest(name="Alice", email="a@b", password="secret123")
-
-    def test_password_too_short(self):
-        with pytest.raises(ValidationError):
-            RegisterRequest(name="Alice", email="alice@example.com", password="ab")
-
-
-class TestLoginRequest:
-    def test_valid(self):
-        r = LoginRequest(email="alice@example.com", password="secret123")
-        assert r.email == "alice@example.com"
-
-    def test_email_too_short(self):
-        with pytest.raises(ValidationError):
-            LoginRequest(email="a@b", password="secret123")
-
-    def test_password_too_short(self):
-        with pytest.raises(ValidationError):
-            LoginRequest(email="alice@example.com", password="ab")
+    def test_password_too_short(self, client):
+        response = client.post(
+            "/auth/login",
+            json={"username": "Alice", "password": "ab"},
+        )
+        assert response.status_code == 422
 
 
-class TestUpgradeDeveloperRequest:
-    def test_valid(self):
-        r = UpgradeDeveloperRequest(name="MyApp")
-        assert r.name == "MyApp"
+class TestPrometheusSessionValidation:
+    """POST /prometheus/sessions — validates title via Body(...)"""
 
-    def test_empty_name(self):
-        with pytest.raises(ValidationError):
-            UpgradeDeveloperRequest(name="")
+    def test_valid_create_session(self, client):
+        response = client.post(
+            "/prometheus/sessions",
+            json={"title": "New Chat"},
+            headers={"X-Access-Token": "valid-token"},
+        )
+        # Should not be 422 — may be 200/201 or 401 depending on auth
+        assert response.status_code != 422
 
+    def test_empty_title(self, client):
+        response = client.post(
+            "/prometheus/sessions",
+            json={"title": ""},
+            headers={"X-Access-Token": "valid-token"},
+        )
+        assert response.status_code == 422
 
-class TestCreateSessionRequest:
-    def test_valid(self):
-        r = CreateSessionRequest(title="New Chat")
-        assert r.title == "New Chat"
-
-    def test_empty_title(self):
-        with pytest.raises(ValidationError):
-            CreateSessionRequest(title="")
-
-    def test_title_too_long(self):
-        with pytest.raises(ValidationError):
-            CreateSessionRequest(title="T" * 201)
-
-
-class TestUpdateTitleRequest:
-    def test_valid(self):
-        r = UpdateTitleRequest(title="Updated Title")
-        assert r.title == "Updated Title"
-
-    def test_empty_title(self):
-        with pytest.raises(ValidationError):
-            UpdateTitleRequest(title="")
+    def test_title_too_long(self, client):
+        response = client.post(
+            "/prometheus/sessions",
+            json={"title": "T" * 201},
+            headers={"X-Access-Token": "valid-token"},
+        )
+        assert response.status_code == 422
 
 
-class TestChatRequest:
-    def test_valid(self):
-        r = ChatRequest(text="Hello AI")
-        assert r.text == "Hello AI"
+class TestUpdateTitleValidation:
+    """PUT /prometheus/sessions/{sessionId} — validates title via Body(...)"""
 
-    def test_empty_text(self):
-        with pytest.raises(ValidationError):
-            ChatRequest(text="")
+    def test_empty_title(self, client):
+        response = client.put(
+            "/prometheus/sessions/1",
+            json={"title": ""},
+            headers={"X-Access-Token": "valid-token"},
+        )
+        assert response.status_code == 422
 
-    def test_text_too_long(self):
-        with pytest.raises(ValidationError):
-            ChatRequest(text="X" * 10001)
+    def test_title_too_long(self, client):
+        response = client.put(
+            "/prometheus/sessions/1",
+            json={"title": "T" * 201},
+            headers={"X-Access-Token": "valid-token"},
+        )
+        assert response.status_code == 422
 
-    def test_max_length_boundary(self):
-        r = ChatRequest(text="X" * 10000)
-        assert len(r.text) == 10000
+
+class TestChatValidation:
+    """POST /prometheus/chat — validates text via Body(...)"""
+
+    def test_empty_text(self, client):
+        response = client.post(
+            "/prometheus/chat",
+            json={"text": ""},
+            headers={"X-Access-Token": "valid-token"},
+        )
+        assert response.status_code == 422
+
+    def test_text_too_long(self, client):
+        response = client.post(
+            "/prometheus/chat",
+            json={"text": "X" * 10001},
+            headers={"X-Access-Token": "valid-token"},
+        )
+        assert response.status_code == 422
+
+    def test_max_length_boundary(self, client):
+        response = client.post(
+            "/prometheus/chat",
+            json={"text": "X" * 10000},
+            headers={"X-Access-Token": "valid-token"},
+        )
+        # Should not be 422 — may be other error
+        assert response.status_code != 422
+
+
+class TestMissingBody:
+    """Test that endpoints reject requests with missing required fields."""
+
+    def test_register_missing_username(self, client):
+        response = client.post(
+            "/auth/register",
+            json={"email": "alice@example.com", "password": "secret123"},
+        )
+        assert response.status_code == 422
+
+    def test_register_missing_all(self, client):
+        response = client.post("/auth/register", json={})
+        assert response.status_code == 422
+
+    def test_login_missing_fields(self, client):
+        response = client.post("/auth/login", json={})
+        assert response.status_code == 422

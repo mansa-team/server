@@ -12,7 +12,7 @@ from main.app.authentication.util import createAccessToken
 from main.app.authentication.sso import getGoogleSSO
 from main.app.authentication.constants import COOKIE_NAME, COOKIE_PATH, COOKIE_SAMESITE, TOKEN_EXPIRY_HOURS
 from main.app.authentication.session import SessionManager
-from main.schemas.inputs import RegisterRequest, LoginRequest
+from fastapi import Body
 
 logger = logging.getLogger(__name__)
 
@@ -33,13 +33,15 @@ def health(request: Request):
 def register(
     request: Request,
     response: Response,
-    body: RegisterRequest,
+    username: str = Body(..., min_length=1, max_length=100),
+    email: str = Body(..., min_length=5, max_length=255),
+    password: str = Body(..., min_length=6, max_length=128),
     db: Session = Depends(getSession),
 ):
     try:
-        AuthenticationManager.createUserAccount(db, body.username, body.email, body.password)
+        AuthenticationManager.createUserAccount(db, username, email, password)
 
-        user = AuthenticationManager.authenticateUser(db, body.username, body.password)
+        user = AuthenticationManager.authenticateUser(db, username, password)
         if not user:
             raise HTTPException(status_code=401, detail="Auto-login failed after registration")
 
@@ -74,10 +76,11 @@ def register(
 def login(
     request: Request,
     response: Response,
-    body: LoginRequest,
+    username: str = Body(..., min_length=1, max_length=100),
+    password: str = Body(..., min_length=6, max_length=128),
     db: Session = Depends(getSession),
 ):
-    user = AuthenticationManager.authenticateUser(db, body.username, body.password)
+    user = AuthenticationManager.authenticateUser(db, username, password)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 

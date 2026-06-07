@@ -42,3 +42,37 @@ def sampleAPIKeyData():
 @pytest.fixture
 def samplePrometheusSessionData():
     return {"sessionId": "session_123", "userId": 1, "title": "Test Session", "summary": "Test summary", "history": []}
+
+
+@pytest.fixture
+def client():
+    """TestClient with all routers mounted — no lifespan (no DB/service init).
+
+    Overrides extractTokenPayload dependency so auth-gated endpoints
+    don't block input validation tests.
+    """
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient as _TestClient
+    from main.controller.authentication_controller import router as authRouter
+    from main.controller.user_controller import router as userRouter
+    from main.controller.prometheus_controller import router as prometheusRouter
+    from main.controller.stocksapi_controller import router as stocksRouter
+    from main.utils.errors import register_error_handlers
+
+    testApp = FastAPI()
+    testApp.include_router(authRouter)
+    testApp.include_router(userRouter)
+    testApp.include_router(prometheusRouter)
+    testApp.include_router(stocksRouter)
+    register_error_handlers(testApp)
+
+    # Mock auth dependency so validation tests aren't blocked by 401
+    from main.app.user.user import UserManager
+
+    def _mock_get_current_user():
+        return {"userId": 1, "username": "testuser", "email": "test@example.com", "roles": ["PREMIUM"]}
+
+    testApp.dependency_overrides[UserManager.getCurrentUser] = _mock_get_current_user
+
+    with _TestClient(testApp, raise_server_exceptions=False) as c:
+        yield c
