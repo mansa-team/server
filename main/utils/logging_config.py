@@ -51,7 +51,7 @@ class DiscordHandler(logging.Handler):
 
         MAX_MESSAGE_LENGTH = 2000
         if len(full_text) > MAX_MESSAGE_LENGTH:
-            full_text = full_text[:MAX_MESSAGE_LENGTH - 20] + "\n...[truncated]"
+            full_text = full_text[: MAX_MESSAGE_LENGTH - 20] + "\n...[truncated]"
 
         payload = {"content": full_text}
 
