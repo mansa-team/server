@@ -56,7 +56,7 @@ async def validation_exception_handler(request: Request, exc):
 
 async def generic_exception_handler(request: Request, exc):
     logger = logging.getLogger("main.errors")
-    logger.error(f"Unhandled exception: {exc}", exc_info=True)
+    logger.exception(f"Unhandled exception: {exc}")
     return JSONResponse(
         status_code=500,
         content=_build_error_response(500, "Internal server error"),
