@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from config import getSession
 from main.utils.logging_config import limiter
 
-from fastapi import APIRouter, Response, Body, HTTPException, Request, Depends
+from fastapi import APIRouter, Response, HTTPException, Request, Depends
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
@@ -12,6 +12,7 @@ from main.app.authentication.util import createAccessToken
 from main.app.authentication.sso import getGoogleSSO
 from main.app.authentication.constants import COOKIE_NAME, COOKIE_PATH, COOKIE_SAMESITE, TOKEN_EXPIRY_HOURS
 from main.app.authentication.session import SessionManager
+from main.schemas.inputs import RegisterRequest, LoginRequest
 
 logger = logging.getLogger(__name__)
 
@@ -32,15 +33,13 @@ def health(request: Request):
 def register(
     request: Request,
     response: Response,
-    username: str = Body(..., min_length=3, max_length=50),
-    email: str = Body(..., min_length=5, max_length=100),
-    password: str = Body(..., min_length=6, max_length=100),
+    body: RegisterRequest,
     db: Session = Depends(getSession),
 ):
     try:
-        AuthenticationManager.createUserAccount(db, username, email, password)
+        AuthenticationManager.createUserAccount(db, body.username, body.email, body.password)
 
-        user = AuthenticationManager.authenticateUser(db, username, password)
+        user = AuthenticationManager.authenticateUser(db, body.username, body.password)
         if not user:
             raise HTTPException(status_code=401, detail="Auto-login failed after registration")
 
@@ -75,11 +74,10 @@ def register(
 def login(
     request: Request,
     response: Response,
-    username: str = Body(..., min_length=3, max_length=50),
-    password: str = Body(..., min_length=1),
+    body: LoginRequest,
     db: Session = Depends(getSession),
 ):
-    user = AuthenticationManager.authenticateUser(db, username, password)
+    user = AuthenticationManager.authenticateUser(db, body.username, body.password)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 

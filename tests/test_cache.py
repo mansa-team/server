@@ -29,10 +29,10 @@ class TestCacheLRUEviction:
     def test_lru_eviction_when_over_limit(self):
         mgr = self._make_manager()
         now = time.time()
-        # Use _putCache which triggers eviction
+        # Use putCache which triggers eviction
         for i in range(QUERY_CACHE_MAX_SIZE + 5):
             key = tuple([f"COL_{i}"])
-            mgr._putCache(key, f"data_{i}", now)
+            mgr.putCache(key, f"data_{i}", now)
 
         # Should have evicted the oldest entries
         assert len(mgr.queryCache) == QUERY_CACHE_MAX_SIZE
@@ -52,9 +52,9 @@ class TestCacheLRUEviction:
         now = time.time()
 
         # Add 3 entries
-        mgr._putCache(("A",), "data_a", now)
-        mgr._putCache(("B",), "data_b", now)
-        mgr._putCache(("C",), "data_c", now)
+        mgr.putCache(("A",), "data_a", now)
+        mgr.putCache(("B",), "data_b", now)
+        mgr.putCache(("C",), "data_c", now)
 
         # Access "A" — should move to end
         mgr.queryCache.move_to_end(("A",))
@@ -68,8 +68,8 @@ class TestCacheLRUEviction:
     def test_clear_query_cache(self):
         mgr = self._make_manager()
         now = time.time()
-        mgr._putCache(("A",), "data_a", now)
-        mgr._putCache(("B",), "data_b", now)
+        mgr.putCache(("A",), "data_a", now)
+        mgr.putCache(("B",), "data_b", now)
 
         mgr.clearQueryCache()
         assert len(mgr.queryCache) == 0
@@ -112,7 +112,7 @@ class TestCacheTTLLogic:
     def test_expired_entry_detected(self):
         mgr = self._make_manager()
         old_time = time.time() - 600  # 10 minutes ago (TTL is 300s)
-        mgr._putCache(("TEST",), "data", old_time)
+        mgr.putCache(("TEST",), "data", old_time)
 
         now = time.time()
         cacheKey = ("TEST",)
@@ -123,7 +123,7 @@ class TestCacheTTLLogic:
     def test_fresh_entry_detected(self):
         mgr = self._make_manager()
         now = time.time()
-        mgr._putCache(("TEST",), "data", now)
+        mgr.putCache(("TEST",), "data", now)
 
         cacheKey = ("TEST",)
         cachedData, cached_time = mgr.queryCache[cacheKey]

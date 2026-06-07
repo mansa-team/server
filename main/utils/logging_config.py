@@ -6,6 +6,7 @@ import requests
 from config import Config
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+from main.utils.errors import RequestContextFilter
 
 limiter = Limiter(key_func=get_remote_address)
 logger = logging.getLogger(__name__)
@@ -16,10 +17,16 @@ def setupLogging():
     level = logging.DEBUG if Config.DEBUG_MODE else logging.ERROR
     root.setLevel(level)
 
+    request_filter = RequestContextFilter()
+
     console = logging.StreamHandler()
     console.setFormatter(
-        logging.Formatter("%(asctime)s | %(levelname)-8s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+        logging.Formatter(
+            "%(asctime)s | %(levelname)-8s | %(name)s | [%(request_id)s] %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
     )
+    console.addFilter(request_filter)
     root.addHandler(console)
 
 

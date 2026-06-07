@@ -1,6 +1,7 @@
 import logging
 from config import Config, getSession
 from main.utils.logging_config import limiter
+from main.utils.pagination import PaginationParams
 from main.app.user.user import UserManager
 from sqlalchemy.orm import Session
 
@@ -56,7 +57,10 @@ def testAdminAccess(currentUser: dict = Depends(UserManager.getCurrentUser)):
 
 @router.get("/sessions")
 def getSessions(
-    request: Request, currentUser: dict = Depends(UserManager.getCurrentUser), db: Session = Depends(getSession)
+    request: Request,
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+    db: Session = Depends(getSession),
+    pagination: PaginationParams = Depends(),
 ):
     from main.app.authentication.util import verifyAccessToken
 
@@ -77,6 +81,10 @@ def getSessions(
     sessions = SessionManager.getUserSessions(db, currentUser["userId"])
     activeCount = sum(1 for s in sessions if s.isActive)
 
+    # Apply pagination
+    total = len(sessions)
+    paginatedSessions = sessions[pagination.offset : pagination.offset + pagination.limit]
+
     return {
         "sessions": [
             {
@@ -90,10 +98,12 @@ def getSessions(
                 "isActive": s.isActive,
                 "isCurrent": s.sessionId == currentSessionId if currentSessionId else False,
             }
-            for s in sessions
+            for s in paginatedSessions
         ],
-        "total": len(sessions),
+        "total": total,
         "active": activeCount,
+        "limit": pagination.limit,
+        "offset": pagination.offset,
     }
 
 
