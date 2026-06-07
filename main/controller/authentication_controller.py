@@ -29,7 +29,7 @@ def health(request: Request):
 
 
 @router.post("/register")
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 def register(
     request: Request,
     response: Response,
@@ -72,7 +72,7 @@ def register(
 
 
 @router.post("/login")
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 def login(
     request: Request,
     response: Response,
