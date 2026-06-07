@@ -5,7 +5,6 @@ from fastapi.security import APIKeyHeader
 from sqlalchemy.orm import Session
 
 import secrets
-import string
 
 from main.models import StocksAPIKey
 
@@ -23,8 +22,6 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depend
         stocksKey = db.query(StocksAPIKey).filter(StocksAPIKey.apiKey == apiKey).first()
 
         if not stocksKey:
-            if apiKey == Config.STOCKS_API["KEY"]:
-                return apiKey
             raise HTTPException(status_code=401, detail="Invalid API key")
 
         if stocksKey.isQuotaExceeded():
