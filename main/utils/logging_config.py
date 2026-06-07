@@ -1,6 +1,6 @@
 import logging
+import logging.handlers
 import threading
-from typing import Optional
 import requests
 
 from config import Config
@@ -41,7 +41,19 @@ class DiscordHandler(logging.Handler):
         module = record.name.split(".")[-1]
         message = record.getMessage()
 
-        payload = {"content": f"[{record.levelname}] [{module}] {message}"}
+        exc_text = ""
+        if record.exc_info and record.exc_info[1]:
+            exc_text = logging.Formatter().formatException(record.exc_info)
+
+        full_text = f"[{record.levelname}] [{module}] {message}"
+        if exc_text:
+            full_text += f"\n{exc_text}"
+
+        MAX_MESSAGE_LENGTH = 2000
+        if len(full_text) > MAX_MESSAGE_LENGTH:
+            full_text = full_text[:MAX_MESSAGE_LENGTH - 20] + "\n...[truncated]"
+
+        payload = {"content": full_text}
 
         try:
             threading.Thread(
