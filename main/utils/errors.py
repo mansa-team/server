@@ -1,5 +1,4 @@
 import logging
-import traceback
 from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request
@@ -16,6 +15,7 @@ class ErrorResponse(BaseModel):
     detail: str | None = None
     request_id: str | None = None
     timestamp: str
+    status_code: int
 
 
 class RequestContextFilter(logging.Filter):
@@ -32,6 +32,7 @@ def _build_error_response(status_code: int, error: str, detail: str | None = Non
         detail=detail,
         request_id=request_id_var.get(""),
         timestamp=datetime.now(timezone.utc).isoformat(),
+        status_code=status_code,
     ).model_dump()
 
 

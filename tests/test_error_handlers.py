@@ -53,13 +53,14 @@ def client(app):
 
 class TestErrorResponseModel:
     def test_error_response_structure(self):
-        resp = ErrorResponse(error="test error", timestamp="2024-01-01T00:00:00Z")
+        resp = ErrorResponse(error="test error", timestamp="2024-01-01T00:00:00Z", status_code=500)
         d = resp.model_dump()
         assert d["success"] is False
         assert d["error"] == "test error"
         assert d["detail"] is None
         assert d["request_id"] is None
         assert d["timestamp"] == "2024-01-01T00:00:00Z"
+        assert d["status_code"] == 500
 
     def test_error_response_with_detail_and_request_id(self):
         resp = ErrorResponse(
@@ -67,10 +68,12 @@ class TestErrorResponseModel:
             detail="field X is wrong",
             request_id="req-123",
             timestamp="2024-01-01T00:00:00Z",
+            status_code=422,
         )
         d = resp.model_dump()
         assert d["detail"] == "field X is wrong"
         assert d["request_id"] == "req-123"
+        assert d["status_code"] == 422
 
 
 class TestRequestContextFilter:
