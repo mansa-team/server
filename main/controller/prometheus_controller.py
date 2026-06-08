@@ -19,6 +19,12 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/prometheus", tags=["Prometheus"])
 
 
+def _verify_session_ownership(db: Session, sessionId: str, userId: int):
+    """Verify the user owns the session, raise 403 otherwise."""
+    if not PrometheusChatManager.verifySessionOwnership(db, sessionId, userId):
+        raise HTTPException(status_code=403, detail="Forbidden: You do not own this session")
+
+
 @router.get("/health")
 def health():
     return {"status": "ok", "service": "prometheus"}
@@ -59,8 +65,7 @@ def updateSessionTitle(
     title: str = Body(..., min_length=1, max_length=200, embed=True),
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
 ):
-    if not PrometheusChatManager.verifySessionOwnership(db, sessionId, user["userId"]):
-        raise HTTPException(status_code=403, detail="Forbidden: You do not own this session")
+    _verify_session_ownership(db, sessionId, user["userId"])
 
     success = PrometheusChatManager.updateSessionTitle(db, sessionId, title)
     if not success:
@@ -74,6 +79,7 @@ def getHistory(
     db: Session = Depends(getSession),
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
 ):
+    _verify_session_ownership(db, sessionId, user["userId"])
     session = (
         db.query(PrometheusSession)
         .filter(PrometheusSession.sessionId == sessionId, PrometheusSession.userId == user["userId"])
@@ -81,7 +87,7 @@ def getHistory(
     )
 
     if not session:
-        raise HTTPException(status_code=403, detail="Forbidden: You do not own this session")
+        raise HTTPException(status_code=404, detail="Session not found")
 
     return {"success": True, "history": session.history or []}
 
@@ -100,7 +106,7 @@ def deleteSession(
 
 @router.post("/chat")
 @limiter.limit("5/minute")
-def chat(
+async def chat(
     request: Request,
     db: Session = Depends(getSession),
     text: str = Body(..., min_length=1, max_length=10000, embed=True),
@@ -111,8 +117,7 @@ def chat(
         if not sessionId:
             sessionId = PrometheusChatManager.createSession(db, user["userId"], text[:30] + "...")
         else:
-            if not PrometheusChatManager.verifySessionOwnership(db, sessionId, user["userId"]):
-                raise HTTPException(status_code=403, detail="Forbidden or invalid session")
+            _verify_session_ownership(db, sessionId, user["userId"])
 
         history = PrometheusChatManager.getHistory(db, sessionId, limit=20)
         PrometheusChatManager.saveMessage(db, sessionId, "user", text)
