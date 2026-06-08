@@ -88,22 +88,22 @@ class TestDiscordHandlerThreadPool:
     """Verify that DiscordHandler submits to a bounded executor, not raw threads."""
 
     def test_executor_exists_and_is_bounded(self):
-        """The module-level _discord_executor must exist with max_workers <= 5."""
-        from main.utils.logging_config import _discord_executor
+        """The module-level discordExecutor must exist with max_workers <= 5."""
+        from main.utils.logging_config import discordExecutor
 
-        assert _discord_executor is not None
+        assert discordExecutor is not None
         # ThreadPoolExecutor exposes _max_workers
-        assert _discord_executor._max_workers == 5
+        assert discordExecutor._max_workers == 5
 
     def test_emit_submits_to_executor(self):
-        """DiscordHandler.emit() must use _discord_executor.submit, not Thread.start."""
-        from main.utils.logging_config import _discord_executor
+        """DiscordHandler.emit() must use discordExecutor.submit, not Thread.start."""
+        from main.utils.logging_config import discordExecutor
 
         with patch("main.utils.logging_config.Config") as mock_cfg:
             mock_cfg.DISCORD.ENABLED = True
             mock_cfg.DISCORD.WEBHOOK_URL = "https://discord.example.com/hook"
 
-            with patch.object(_discord_executor, "submit") as mock_submit:
+            with patch.object(discordExecutor, "submit") as mock_submit:
                 import logging
                 from main.utils.logging_config import DiscordHandler
 
@@ -127,13 +127,13 @@ class TestDiscordHandlerThreadPool:
 
     def test_concurrent_emits_do_not_spawn_unbounded_threads(self):
         """Many concurrent emit() calls must not create more threads than max_workers."""
-        from main.utils.logging_config import _discord_executor
+        from main.utils.logging_config import discordExecutor
 
         with patch("main.utils.logging_config.Config") as mock_cfg:
             mock_cfg.DISCORD.ENABLED = True
             mock_cfg.DISCORD.WEBHOOK_URL = "https://discord.example.com/hook"
 
-            with patch.object(_discord_executor, "submit"):
+            with patch.object(discordExecutor, "submit"):
                 import logging
                 from main.utils.logging_config import DiscordHandler
 

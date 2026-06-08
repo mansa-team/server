@@ -49,22 +49,21 @@ class TestStocksCacheManager:
         lock = threading.Lock()
         return StocksCacheManager(mock_engine, lock)
 
-    # --- cacheScheduler (lines 28-35) ------------------------------------
-    @patch("main.app.stocks_api.cache.threading.Thread")
-    def test_cache_scheduler_starts_daemon_thread(self, mock_thread_cls):
+    # --- cacheScheduler (lines 28-32) ------------------------------------
+    @patch("main.app.stocks_api.cache.BackgroundScheduler")
+    def test_cache_scheduler_starts_apscheduler(self, mock_sched_cls):
         from main.app.stocks_api.cache import StocksCacheManager
 
         mock_engine = MagicMock()
         mgr = StocksCacheManager(mock_engine, threading.Lock())
-        mock_thread = MagicMock()
-        mock_thread_cls.return_value = mock_thread
+        mock_sched = MagicMock()
+        mock_sched_cls.return_value = mock_sched
 
         mgr.cacheScheduler()
 
-        mock_thread_cls.assert_called_once()
-        call_kwargs = mock_thread_cls.call_args
-        assert call_kwargs[1]["daemon"] is True
-        mock_thread.start.assert_called_once()
+        mock_sched_cls.assert_called_once()
+        mock_sched.add_job.assert_called_once()
+        mock_sched.start.assert_called_once()
 
     # --- putCache (lines 78-82) ------------------------------------------
     def test_putCache_adds_entry_and_evicts_when_full(self):
@@ -340,20 +339,20 @@ class TestGenerateSecureKey:
     """Tests covering key.py line 44."""
 
     def test_generate_secure_key_length(self):
-        from main.app.stocks_api.key import generateSecureKey, _hash_key
+        from main.app.stocks_api.key import generateSecureKey, hashKey
 
         key = generateSecureKey(32)
         assert isinstance(key, str)
         assert len(key) == 32
 
     def test_generate_secure_key_custom_length(self):
-        from main.app.stocks_api.key import generateSecureKey, _hash_key
+        from main.app.stocks_api.key import generateSecureKey, hashKey
 
         key = generateSecureKey(16)
         assert len(key) == 16
 
     def test_generate_secure_key_unique(self):
-        from main.app.stocks_api.key import generateSecureKey, _hash_key
+        from main.app.stocks_api.key import generateSecureKey, hashKey
 
         keys = {generateSecureKey(32) for _ in range(50)}
         assert len(keys) == 50  # all unique
@@ -380,7 +379,7 @@ class TestCreateKey:
     @patch("main.app.stocks_api.key.Config")
     def test_create_key_existing_user_updates(self, mock_config):
         """Existing key is updated (lines 54-56)."""
-        from main.app.stocks_api.key import createKey, _hash_key
+        from main.app.stocks_api.key import createKey, hashKey
 
         mock_config.STOCKS_API = {"DEFAULT.QUOTA": 150}
         mock_db = MagicMock()
@@ -390,7 +389,7 @@ class TestCreateKey:
         result = createKey(mock_db, userId=1)
         assert isinstance(result, str)
         # The stored key should be the hashed version; the returned key is the raw key
-        assert mock_existing.apiKey == _hash_key(result)
+        assert mock_existing.apiKey == hashKey(result)
         assert mock_existing.requestLimit == 150
         mock_db.commit.assert_called_once()
 
