@@ -17,9 +17,9 @@ def pytest_configure(config):
     os.environ.setdefault("SESSION_SECRET_KEY", "test-session-secret-key-not-for-production")
 
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from main.models.base import Base
+from sqlalchemy import create_engine  # noqa: E402 — must follow pytest_configure
+from sqlalchemy.orm import sessionmaker  # noqa: E402
+from main.models.base import Base  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
