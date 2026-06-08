@@ -340,20 +340,20 @@ class TestGenerateSecureKey:
     """Tests covering key.py line 44."""
 
     def test_generate_secure_key_length(self):
-        from main.app.stocks_api.key import generateSecureKey
+        from main.app.stocks_api.key import generateSecureKey, _hash_key
 
         key = generateSecureKey(32)
         assert isinstance(key, str)
         assert len(key) == 32
 
     def test_generate_secure_key_custom_length(self):
-        from main.app.stocks_api.key import generateSecureKey
+        from main.app.stocks_api.key import generateSecureKey, _hash_key
 
         key = generateSecureKey(16)
         assert len(key) == 16
 
     def test_generate_secure_key_unique(self):
-        from main.app.stocks_api.key import generateSecureKey
+        from main.app.stocks_api.key import generateSecureKey, _hash_key
 
         keys = {generateSecureKey(32) for _ in range(50)}
         assert len(keys) == 50  # all unique
@@ -380,7 +380,7 @@ class TestCreateKey:
     @patch("main.app.stocks_api.key.Config")
     def test_create_key_existing_user_updates(self, mock_config):
         """Existing key is updated (lines 54-56)."""
-        from main.app.stocks_api.key import createKey
+        from main.app.stocks_api.key import createKey, _hash_key
 
         mock_config.STOCKS_API = {"DEFAULT.QUOTA": 150}
         mock_db = MagicMock()
@@ -389,7 +389,8 @@ class TestCreateKey:
 
         result = createKey(mock_db, userId=1)
         assert isinstance(result, str)
-        assert mock_existing.apiKey == result
+        # The stored key should be the hashed version; the returned key is the raw key
+        assert mock_existing.apiKey == _hash_key(result)
         assert mock_existing.requestLimit == 150
         mock_db.commit.assert_called_once()
 
