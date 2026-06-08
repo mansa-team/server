@@ -8,6 +8,7 @@ import time
 import pandas as pd
 import numpy as np
 from sqlalchemy.engine import Engine
+from apscheduler.schedulers.background import BackgroundScheduler
 
 logger = logging.getLogger(__name__)
 
@@ -25,14 +26,10 @@ class StocksCacheManager:
         self.QUERY_CACHE_TTL = 300  # 5 minutes TTL
 
     def cacheScheduler(self):
-        def scheduler():
-            self.getCachedStocks()
-            while True:
-                time.sleep(12 * 60 * 60)  # 12 hours
-                self.getCachedStocks()
-
-        thread = threading.Thread(target=scheduler, daemon=True)
-        thread.start()
+        self.getCachedStocks()
+        scheduler = BackgroundScheduler()
+        scheduler.add_job(self.getCachedStocks, "interval", hours=12)
+        scheduler.start()
 
     def getCachedStocks(self, columns: list[str] | None = None, force_refresh: bool = False):
         cacheKey = tuple(columns) if columns else None
