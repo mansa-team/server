@@ -7,6 +7,8 @@ import uuid
 
 logger = logging.getLogger(__name__)
 
+MAX_HISTORY_MESSAGES = 500
+
 
 class PrometheusChatManager:
     def __init__(self):
@@ -65,6 +67,11 @@ class PrometheusChatManager:
             }
 
             session.history.append(message)
+
+            # Trim unbounded history growth
+            if len(session.history) > MAX_HISTORY_MESSAGES:
+                session.history = session.history[-MAX_HISTORY_MESSAGES:]
+
             flag_modified(session, "history")
 
             session.lastActivity = datetime.now()
