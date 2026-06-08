@@ -67,19 +67,14 @@ def createKey(db: Session, userId: int):
     hashedKey = _hash_key(rawKey)
     quota = Config.STOCKS_API["DEFAULT.QUOTA"]
 
-    try:
-        existingKey = db.query(StocksAPIKey).filter(StocksAPIKey.userId == userId).first()
+    existingKey = db.query(StocksAPIKey).filter(StocksAPIKey.userId == userId).first()
 
-        if existingKey:
-            existingKey.apiKey = hashedKey
-            existingKey.requestLimit = quota
-        else:
-            newKeyObj = StocksAPIKey(apiKey=hashedKey, userId=userId, requestLimit=quota, currentUsage=0)
-            db.add(newKeyObj)
+    if existingKey:
+        existingKey.apiKey = hashedKey
+        existingKey.requestLimit = quota
+    else:
+        newKeyObj = StocksAPIKey(apiKey=hashedKey, userId=userId, requestLimit=quota, currentUsage=0)
+        db.add(newKeyObj)
 
-        db.commit()
-        return rawKey
-
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to create API key")
+    db.commit()
+    return rawKey
