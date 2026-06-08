@@ -19,8 +19,6 @@ class ErrorResponse(BaseModel):
 
 
 class RequestContextFilter(logging.Filter):
-    """Inject request_id from ContextVar into every log record."""
-
     def filter(self, record: logging.LogRecord) -> bool:
         record.request_id = request_id_var.get("")
         return True
@@ -65,12 +63,6 @@ async def generic_exception_handler(request: Request, exc):
 
 
 def register_error_handlers(app: FastAPI):
-    """Register exception handlers on the FastAPI app.
-
-    Note: HTTPException and RequestValidationError handlers are auto-registered
-    by FastAPI when using add_exception_handler. The generic Exception handler
-    must be registered explicitly.
-    """
     from starlette.exceptions import HTTPException as StarletteHTTPException
 
     app.add_exception_handler(StarletteHTTPException, http_exception_handler)
