@@ -1,7 +1,7 @@
 {
   "D:\\Repositories\\server\\ci.ps1": {
-    "mtime": 1780880420.3104022,
-    "ast_hash": "3460980be63506afdfd5fb7f895add60",
+    "mtime": 1780888312.5444477,
+    "ast_hash": "b17f3aea79830f86c4ebcff5af61b3ee",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\config.py": {
@@ -80,8 +80,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\query.py": {
-    "mtime": 1778453145.1830604,
-    "ast_hash": "a6940ded4ce3ffd925cba787f6817e4b",
+    "mtime": 1780913494.185254,
+    "ast_hash": "6db8854e22ec14adbce88636a1e50047",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\util.py": {
@@ -95,8 +95,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\authentication_controller.py": {
-    "mtime": 1780880534.2013664,
-    "ast_hash": "9c356840186e557e369728adea261fc6",
+    "mtime": 1780889010.0934715,
+    "ast_hash": "7591de341099b8ab5b7a8d75772d31a0",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\prometheus_controller.py": {
@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\conftest.py": {
-    "mtime": 1780885548.4558334,
-    "ast_hash": "bad450fe3efd2c209922f876dff1b4fc",
+    "mtime": 1780888904.607291,
+    "ast_hash": "b80fe2d45b6607b3e92d4816aeb29e8f",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_auth_util.py": {
@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_controllers_coverage.py": {
-    "mtime": 1780885548.458613,
-    "ast_hash": "9626aecfcde7de9684b4664e08b0f90a",
+    "mtime": 1780888927.4239106,
+    "ast_hash": "b0e2b5df01446f283c0ee4cf1b1b3201",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_device.py": {
@@ -300,8 +300,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_stocks_api_coverage.py": {
-    "mtime": 1780885548.4570954,
-    "ast_hash": "a84fa88001ffa8d04fb38c0bc05d992a",
+    "mtime": 1780889075.2116404,
+    "ast_hash": "5fcdb104ca507c761ff9d58e2ff6902d",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_stocks_util.py": {
@@ -315,8 +315,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\AGENTS.md": {
-    "mtime": 1778453145.1265776,
-    "ast_hash": "167e589661abc7a55c62ef867b288659",
+    "mtime": 1780888612.0439382,
+    "ast_hash": "0f61369305d82e46ed248c697e4d3027",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docker-compose.yml": {

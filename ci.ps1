@@ -133,3 +133,4 @@ Write-Host ("  Time: {0:N1}s" -f $elapsed) -ForegroundColor Gray
 Write-Host ""
 
 if ($script:failed.Count -gt 0) { exit 1 } else { exit 0 }
+
