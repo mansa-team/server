@@ -1,16 +1,16 @@
 # Graph Report - server  (2026-06-07)
 
 ## Corpus Check
-- 67 files · ~28,329 words
+- 67 files · ~28,348 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 917 nodes · 1222 edges · 61 communities (46 shown, 15 thin omitted)
+- 918 nodes · 1223 edges · 67 communities (50 shown, 17 thin omitted)
 - Extraction: 78% EXTRACTED · 22% INFERRED · 0% AMBIGUOUS · INFERRED: 267 edges (avg confidence: 0.69)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c0260c27`
+- Built from commit: `77da2d64`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -68,10 +68,15 @@
 - [[_COMMUNITY_Community 53|Community 53]]
 - [[_COMMUNITY_Community 54|Community 54]]
 - [[_COMMUNITY_Community 55|Community 55]]
-- [[_COMMUNITY_Community 56|Community 56]]
 - [[_COMMUNITY_Community 57|Community 57]]
 - [[_COMMUNITY_Community 59|Community 59]]
 - [[_COMMUNITY_Community 60|Community 60]]
+- [[_COMMUNITY_Community 61|Community 61]]
+- [[_COMMUNITY_Community 62|Community 62]]
+- [[_COMMUNITY_Community 63|Community 63]]
+- [[_COMMUNITY_Community 64|Community 64]]
+- [[_COMMUNITY_Community 65|Community 65]]
+- [[_COMMUNITY_Community 66|Community 66]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `StocksCacheManager` - 65 edges
@@ -105,11 +110,11 @@
 - **Configuration & Database Infrastructure** — config_Config, config_engine, config_stocksEngine [INFERRED]
 - **User Authentication & Authorization** — user_service, authentication, user_roles, permission_system [INFERRED]
 
-## Communities (61 total, 15 thin omitted)
+## Communities (67 total, 17 thin omitted)
 
 ### Community 0 - "Stocks API Controller"
-Cohesion: 0.05
-Nodes (35): StocksQueryManager, categorizeColumns(), Tests for lazy JSON deserialization, Tests for lazy JSON deserialization, Query manager should have deserialize method, Query manager should have deserialize method, Integration tests for all query optimizations, Integration tests for all query optimizations (+27 more)
+Cohesion: 0.12
+Nodes (12): Tests for connection pool configuration, Stocks engine should have optimized pool settings, Integration tests for all query optimizations, All optimizations should be implemented, Query filter should use ticker index, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Tests for optimized search filtering (+4 more)
 
 ### Community 1 - "Authentication Manager"
 Cohesion: 0.07
@@ -128,7 +133,7 @@ Cohesion: 0.07
 Nodes (7): Base, PrometheusSession, StocksAPIKey, User, TestPrometheusSessionModel, TestStocksAPIKeyModel, TestUserModel
 
 ### Community 5 - "Roles & Permissions"
-Cohesion: 0.06
+Cohesion: 0.07
 Nodes (15): BaseSettings, BaseMansaSettings, Config, DiscordSettings, MysqlSettings, PrometheusSettings, ScraperSettings, StocksApiSettings (+7 more)
 
 ### Community 6 - "Configuration & Logging"
@@ -156,7 +161,7 @@ Cohesion: 0.09
 Nodes (15): Performance benchmark tests for stocks API, Performance benchmark tests for stocks API, Ticker index lookup should be O(1) - very fast, Ticker index lookup should be O(1) - very fast, Prefix scan should be much slower than index lookup, Prefix scan should be much slower than index lookup, Index lookup should be significantly faster than scan, Index lookup should be significantly faster than scan (+7 more)
 
 ### Community 12 - "Scraper Service"
-Cohesion: 0.17
+Cohesion: 0.19
 Nodes (7): detectBrowser(), detectDeviceType(), detectOS(), DeviceInfo, generateFingerprint(), parseUserAgent(), TestDeviceDetection
 
 ### Community 13 - "Auth Service"
@@ -247,10 +252,6 @@ Nodes (5): downgrade(), Add accessTokenHash, operatingSystem, lastActivityAt to 
 Cohesion: 0.12
 Nodes (6): Tests for StocksCacheManager queryCache LRU eviction., Create a StocksCacheManager with a mock DB engine., When columns is None, cache key should be None., TestCacheLRUEviction, TestCacheTTLLogic, TestColumnValidator
 
-### Community 50 - "Community 50"
-Cohesion: 0.24
-Nodes (3): FastAPI, Pytest Testing, Tests for pagination utility (utils/pagination.py).
-
 ### Community 52 - "Community 52"
 Cohesion: 0.25
 Nodes (4): lifespan(), checkMySqlConnection(), checkServiceConnection(), runMigrations()
@@ -260,12 +261,12 @@ Cohesion: 0.32
 Nodes (3): chat(), createSession(), getHistory()
 
 ### Community 55 - "Community 55"
-Cohesion: 0.22
-Nodes (3): client(), TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with all routers mounted — no lifespan (no DB/service init).      O
+Cohesion: 0.2
+Nodes (4): client(), TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with all routers mounted — no lifespan (no DB/service init).      O
 
-### Community 56 - "Community 56"
-Cohesion: 0.22
-Nodes (3): generateKey(), createKey(), generateSecureKey()
+### Community 57 - "Community 57"
+Cohesion: 0.18
+Nodes (4): categorizeColumns(), parseYearInput(), TestCategorizeColumns, TestParseYearInput
 
 ### Community 59 - "Community 59"
 Cohesion: 0.25
@@ -275,19 +276,35 @@ Nodes (7): computedHash, skillPath, source, sourceType, skills, backend-code-rev
 Cohesion: 0.33
 Nodes (5): Tests for optimized search filtering, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Filter should use ticker index for O(1) lookup, TestFilterBySearchTerms
 
+### Community 61 - "Community 61"
+Cohesion: 0.17
+Nodes (9): StocksQueryManager, Tests for lazy JSON deserialization, Tests for lazy JSON deserialization, Query manager should have deserialize method, Query manager should have deserialize method, TestLazyDeserialization, Tests for lazy JSON deserialization, Query manager should have deserialize method (+1 more)
+
+### Community 62 - "Community 62"
+Cohesion: 0.22
+Nodes (7): Integration tests for all query optimizations, Integration tests for all query optimizations, All optimizations should be implemented, All optimizations should be implemented, Query filter should use ticker index, Query filter should use ticker index, TestQueryOptimization
+
+### Community 63 - "Community 63"
+Cohesion: 0.33
+Nodes (5): Performance tests for query operations, Query should respond within 1 second, Performance tests for query operations, Query should respond within 1 second, TestQueryPerformance
+
+### Community 64 - "Community 64"
+Cohesion: 0.5
+Nodes (3): generateKey(), createKey(), generateSecureKey()
+
 ## Knowledge Gaps
-- **243 isolated node(s):** `version`, `source`, `sourceType`, `skillPath`, `computedHash` (+238 more)
+- **244 isolated node(s):** `version`, `source`, `sourceType`, `skillPath`, `computedHash` (+239 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **15 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Pytest Testing` connect `Community 50` to `Stocks API Controller`, `Authentication Manager`, `Stocks Cache & Query`, `Session Management`, `SQLAlchemy Models`, `Roles & Permissions`, `Configuration & Logging`, `Scraper Service`, `Community 49`, `Community 55`, `Settings`, `Helpers`?**
-  _High betweenness centrality (0.269) - this node is a cross-community bridge._
-- **Why does `FastAPI` connect `Community 50` to `Stocks API Controller`, `Authentication Manager`, `Roles & Permissions`, `Configuration & Logging`, `Auth Service`, `Community 51`, `Community 52`, `Community 54`, `Community 56`, `Community 57`, `Community 58`, `Settings`?**
+- **Why does `Pytest Testing` connect `Community 50` to `Stocks API Controller`, `Authentication Manager`, `Community 65`, `Session Management`, `SQLAlchemy Models`, `Stocks Cache & Query`, `Configuration & Logging`, `Community 49`, `Community 55`, `Settings`, `Helpers`?**
+  _High betweenness centrality (0.270) - this node is a cross-community bridge._
+- **Why does `FastAPI` connect `Community 50` to `Community 64`, `Authentication Manager`, `Community 66`, `Community 65`, `Roles & Permissions`, `Configuration & Logging`, `Auth Service`, `Community 52`, `Community 54`, `Community 56`, `Community 57`, `Community 58`, `Settings`?**
   _High betweenness centrality (0.167) - this node is a cross-community bridge._
-- **Why does `StocksQueryManager` connect `Stocks API Controller` to `Stocks Cache & Query`, `Prometheus Chat`, `User Service`, `Responses`, `Enums`, `Prometheus Model`, `MySQL Connectivity`, `Community 60`?**
+- **Why does `StocksQueryManager` connect `Community 61` to `Stocks API Controller`, `Stocks Cache & Query`, `Prometheus Chat`, `User Service`, `Community 50`, `Enums`, `Prometheus Model`, `Responses`, `MySQL Connectivity`, `Community 60`, `Community 62`, `Community 63`?**
   _High betweenness centrality (0.069) - this node is a cross-community bridge._
 - **Are the 59 inferred relationships involving `StocksCacheManager` (e.g. with `StocksQueryManager` and `TestCacheLRUEviction`) actually correct?**
   _`StocksCacheManager` has 59 INFERRED edges - model-reasoned connections that need verification._
