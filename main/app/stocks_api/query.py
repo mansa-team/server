@@ -40,7 +40,7 @@ class StocksQueryManager:
             return obj
 
         for col in df.columns:
-            if col in self.SPECIAL_COLS and df[col].dtype == "object":
+            if col in self.SPECIAL_COLS and pd.api.types.is_string_dtype(df[col]):
                 df[col] = df[col].apply(
                     lambda x: replaceNan(json.loads(x)) if isinstance(x, str) and x.startswith(("{", "[")) else x
                 )
