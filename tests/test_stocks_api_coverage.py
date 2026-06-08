@@ -254,12 +254,15 @@ class TestVerifyAPIKey:
 
     @patch("main.app.stocks_api.key.Config")
     def test_verify_api_key_invalid_key_raises_401(self, mock_config):
-        """When DB returns no matching key (line 25)."""
+        """When atomic UPDATE returns 0 rows and query finds no key -> 401."""
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
 
         mock_config.STOCKS_API = {"KEY.SYSTEM": True}
         mock_db = MagicMock()
+        # Atomic UPDATE returns 0 rows (key not found or quota exceeded)
+        mock_db.execute.return_value.rowcount = 0
+        # Follow-up query confirms key doesn't exist
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
         with pytest.raises(HTTPException) as exc_info:
@@ -268,14 +271,16 @@ class TestVerifyAPIKey:
 
     @patch("main.app.stocks_api.key.Config")
     def test_verify_api_key_quota_exceeded(self, mock_config):
-        """When quota is exceeded (line 28)."""
+        """When atomic UPDATE returns 0 rows and query finds key at limit -> 429."""
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
 
         mock_config.STOCKS_API = {"KEY.SYSTEM": True}
         mock_db = MagicMock()
+        # Atomic UPDATE returns 0 rows (quota exceeded)
+        mock_db.execute.return_value.rowcount = 0
+        # Follow-up query confirms key exists (at quota limit)
         mock_key_obj = MagicMock()
-        mock_key_obj.isQuotaExceeded.return_value = True
         mock_db.query.return_value.filter.return_value.first.return_value = mock_key_obj
 
         with pytest.raises(HTTPException) as exc_info:
@@ -284,18 +289,16 @@ class TestVerifyAPIKey:
 
     @patch("main.app.stocks_api.key.Config")
     def test_verify_api_key_success(self, mock_config):
-        """Happy path: key found, quota OK, increment and commit (lines 30-33)."""
+        """Happy path: atomic UPDATE succeeds, returns key (lines 22-33)."""
         from main.app.stocks_api.key import verifyAPIKey
 
         mock_config.STOCKS_API = {"KEY.SYSTEM": True}
         mock_db = MagicMock()
-        mock_key_obj = MagicMock()
-        mock_key_obj.isQuotaExceeded.return_value = False
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_key_obj
+        # Atomic UPDATE returns 1 row (success)
+        mock_db.execute.return_value.rowcount = 1
 
         result = asyncio.run(verifyAPIKey(apiKey="valid_key", db=mock_db))
         assert result == "valid_key"
-        mock_key_obj.incrementUsage.assert_called_once()
         mock_db.commit.assert_called_once()
 
     @patch("main.app.stocks_api.key.Config")
@@ -306,8 +309,10 @@ class TestVerifyAPIKey:
 
         mock_config.STOCKS_API = {"KEY.SYSTEM": True}
         mock_db = MagicMock()
+        # Atomic UPDATE returns 0 rows (quota exceeded)
+        mock_db.execute.return_value.rowcount = 0
+        # Follow-up query confirms key exists (at quota limit)
         mock_key_obj = MagicMock()
-        mock_key_obj.isQuotaExceeded.return_value = True  # triggers 429
         mock_db.query.return_value.filter.return_value.first.return_value = mock_key_obj
 
         with pytest.raises(HTTPException) as exc_info:
@@ -323,7 +328,7 @@ class TestVerifyAPIKey:
 
         mock_config.STOCKS_API = {"KEY.SYSTEM": True}
         mock_db = MagicMock()
-        mock_db.query.side_effect = Exception("DB connection lost")
+        mock_db.execute.side_effect = Exception("DB connection lost")
 
         with pytest.raises(HTTPException) as exc_info:
             asyncio.run(verifyAPIKey(apiKey="key", db=mock_db))

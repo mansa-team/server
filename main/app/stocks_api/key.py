@@ -2,6 +2,7 @@ from config import Config, getSession
 
 from fastapi import HTTPException, Depends
 from fastapi.security import APIKeyHeader
+from sqlalchemy import update
 from sqlalchemy.orm import Session
 
 import secrets
@@ -19,16 +20,25 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depend
         raise HTTPException(status_code=401, detail="Missing API key")
 
     try:
-        stocksKey = db.query(StocksAPIKey).filter(StocksAPIKey.apiKey == apiKey).first()
-
-        if not stocksKey:
-            raise HTTPException(status_code=401, detail="Invalid API key")
-
-        if stocksKey.isQuotaExceeded():
-            raise HTTPException(status_code=429, detail="quota exceeded")
-
-        stocksKey.incrementUsage()
+        # Atomic check-and-increment: prevents TOCTOU race condition
+        # The UPDATE only succeeds if currentUsage < requestLimit,
+        # ensuring quota is never exceeded even under concurrent requests
+        result = db.execute(
+            update(StocksAPIKey)
+            .where(StocksAPIKey.apiKey == apiKey)
+            .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
+            .values(currentUsage=StocksAPIKey.currentUsage + 1)
+        )
         db.commit()
+
+        if result.rowcount == 0:
+            # Either key doesn't exist or quota is exceeded
+            # Check which case to return the correct error
+            stocksKey = db.query(StocksAPIKey).filter(StocksAPIKey.apiKey == apiKey).first()
+            if not stocksKey:
+                raise HTTPException(status_code=401, detail="Invalid API key")
+            else:
+                raise HTTPException(status_code=429, detail="quota exceeded")
 
         return apiKey
 
