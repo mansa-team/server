@@ -1,7 +1,7 @@
 {
   "D:\\Repositories\\server\\ci.ps1": {
-    "mtime": 1780888312.5444477,
-    "ast_hash": "b17f3aea79830f86c4ebcff5af61b3ee",
+    "mtime": 1780940903.4828467,
+    "ast_hash": "342949e2d0408e253deb27aed009e742",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\config.py": {
@@ -10,8 +10,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\run.py": {
-    "mtime": 1780934409.01065,
-    "ast_hash": "977df86e83d2ebfe1a49b2fc21898909",
+    "mtime": 1780939025.038777,
+    "ast_hash": "758260862d0f226b254de175cfcf5c9f",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\authentication\\authentication.py": {
@@ -254,6 +254,11 @@
     "ast_hash": "a68cfbd497ea5bee718500efafe8fc1f",
     "semantic_hash": ""
   },
+  "D:\\Repositories\\server\\tests\\test_connectivity_coverage.py": {
+    "mtime": 1780940747.1702452,
+    "ast_hash": "fcd218a1ade174b171a14bacb2fca00e",
+    "semantic_hash": ""
+  },
   "D:\\Repositories\\server\\tests\\test_controllers_coverage.py": {
     "mtime": 1780934409.0132234,
     "ast_hash": "4620c2abdcb92aa06262f0b14504cfb6",
@@ -264,14 +269,29 @@
     "ast_hash": "0af2441a9ec5767a11c040dc5c329d7b",
     "semantic_hash": ""
   },
+  "D:\\Repositories\\server\\tests\\test_device_coverage.py": {
+    "mtime": 1780940747.1702452,
+    "ast_hash": "cb1dc09d0e9367368ecbdc9de4f0dcc8",
+    "semantic_hash": ""
+  },
   "D:\\Repositories\\server\\tests\\test_error_handlers.py": {
     "mtime": 1780934409.0148125,
     "ast_hash": "21d637eb4c7ea9b11da1af638cf8258e",
     "semantic_hash": ""
   },
+  "D:\\Repositories\\server\\tests\\test_http_session_coverage.py": {
+    "mtime": 1780940747.1702452,
+    "ast_hash": "bbff97759a9ee3f6dce78b76194d3918",
+    "semantic_hash": ""
+  },
   "D:\\Repositories\\server\\tests\\test_input_validation.py": {
     "mtime": 1780865519.003451,
     "ast_hash": "a8827c3a0289437fd063c8a7c808d3be",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\tests\\test_logging_config_coverage.py": {
+    "mtime": 1780940747.1702452,
+    "ast_hash": "9a142b73f633fed6b98bb4f3f0aac182",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_models.py": {
@@ -304,14 +324,29 @@
     "ast_hash": "7723b39a124b1ac3154a21d837a07fdd",
     "semantic_hash": ""
   },
+  "D:\\Repositories\\server\\tests\\test_roles_coverage.py": {
+    "mtime": 1780940747.1702452,
+    "ast_hash": "29befcccc399cd4fff749a7e12dbee84",
+    "semantic_hash": ""
+  },
   "D:\\Repositories\\server\\tests\\test_sessions.py": {
     "mtime": 1778453145.2192419,
     "ast_hash": "86af039827ca66e5d44d9ee8bf33fefd",
     "semantic_hash": ""
   },
+  "D:\\Repositories\\server\\tests\\test_status_endpoint.py": {
+    "mtime": 1780940747.1702452,
+    "ast_hash": "b8364af8abc0c2e945a64b96a9325af2",
+    "semantic_hash": ""
+  },
   "D:\\Repositories\\server\\tests\\test_stocks_api_coverage.py": {
     "mtime": 1780934805.836471,
     "ast_hash": "e13356a6a447fb5faeff7c8d094d8d14",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\tests\\test_stocks_api_util_coverage.py": {
+    "mtime": 1780940747.1702452,
+    "ast_hash": "5b3d3464abfffc8c11e9c7b11141c81b",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_stocks_util.py": {
@@ -327,11 +362,6 @@
   "D:\\Repositories\\server\\tests\\test_user_deps.py": {
     "mtime": 1780865281.457734,
     "ast_hash": "7c1f5a8e42b1c650ae8887a1bfd658dd",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\1-RS_Mansa.docx.md": {
-    "mtime": 1780935734.1499898,
-    "ast_hash": "59273761175be2ecb5b780b2a5b8a072",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\AGENTS.md": {
