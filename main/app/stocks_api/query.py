@@ -27,25 +27,30 @@ class StocksQueryManager:
 
         df = df.copy()
 
-        def replaceNan(obj):
-            if isinstance(obj, dict):
-                return {k: replaceNan(v) for k, v in obj.items()}
-            elif isinstance(obj, list):
-                return [replaceNan(item) for item in obj]
-            elif isinstance(obj, float):
+        def _clean_value(val):
+            """Replace NaN/NaT with None — non-recursive for common top-level values."""
+            if isinstance(val, float):
                 try:
-                    if math.isnan(obj):
+                    if math.isnan(val):
                         return None
                 except (TypeError, ValueError):
                     pass
-            elif pd.isna(obj):
+            elif pd.isna(val):
                 return None
-            return obj
+            return val
+
+        def _clean_json(obj):
+            """Clean NaN from a JSON-parsed object. Handles dicts and lists efficiently."""
+            if isinstance(obj, dict):
+                return {k: _clean_value(v) for k, v in obj.items()}
+            if isinstance(obj, list):
+                return [_clean_value(item) for item in obj]
+            return _clean_value(obj)
 
         for col in df.columns:
             if col in self.SPECIAL_COLS and pd.api.types.is_string_dtype(df[col]):
                 df[col] = df[col].apply(
-                    lambda x: replaceNan(json.loads(x)) if isinstance(x, str) and x.startswith(("{", "[")) else x
+                    lambda x: _clean_json(json.loads(x)) if isinstance(x, str) and x.startswith(("{", "[")) else x
                 )
 
         return df
