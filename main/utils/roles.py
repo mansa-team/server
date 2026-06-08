@@ -14,6 +14,7 @@ class Permission(IntFlag):
 
     VIEW_DEVELOPER_TAB = auto()
     STARTER_API_ACCESS = auto()
+    GENERATE_API_KEYS = auto()
 
     ENTERPRISE_API_ACCESS = auto()
     EXPORT_BULK_DATA = auto()
