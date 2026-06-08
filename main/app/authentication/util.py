@@ -1,10 +1,14 @@
-from fastapi import HTTPException
+import logging
+
+from fastapi import HTTPException, Request
 from datetime import datetime, timedelta
 from pytz import timezone
 import bcrypt
 import jwt
 
 from main.app.authentication.constants import SECRET_KEY, ALGORITHM, TOKEN_EXPIRY_HOURS
+
+logger = logging.getLogger(__name__)
 
 
 def hashPassword(password: str):
@@ -45,3 +49,27 @@ def verifyAccessToken(token: str) -> dict:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+
+def extractTokenPayload(request: Request) -> dict:
+    token = request.headers.get("X-Access-Token")
+    if not token:
+        authHeader = request.headers.get("Authorization")
+        if authHeader and authHeader.startswith("Bearer "):
+            token = authHeader.split(" ")[1]
+
+    if not token:
+        raise HTTPException(status_code=401, detail="Session not found")
+
+    try:
+        payload = verifyAccessToken(token)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Token verification failed: {e}")
+        raise HTTPException(status_code=401, detail="Invalid Token")
+
+    if payload.get("userId") is None:
+        raise HTTPException(status_code=401, detail="Invalid Token")
+
+    return payload

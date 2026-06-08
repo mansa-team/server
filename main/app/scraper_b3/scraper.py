@@ -12,9 +12,11 @@ import numpy as np
 import json
 
 import cloudscraper
+import requests
 import re
 
-from sqlalchemy import create_engine, text, QueuePool
+from sqlalchemy import text
+from config import stocksEngine
 
 from tenacity import retry, stop_after_attempt, wait_exponential
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -27,17 +29,17 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 startTime = time.time()
 
 
+def getCurrentSelic():
+    selic = pd.DataFrame(requests.get("https://api.bcb.gov.br/dados/serie/bcdata.sgs.4189/dados?formato=json").json())
+    selic["valor"] = selic["valor"].astype(float)
+    selic["valor medio 10y"] = selic["valor"].rolling(120, min_periods=120).mean().round(2)
+
+    return selic
+
+
 class B3Scraper:
     def __init__(self):
-        self.engine = create_engine(
-            f"mysql+pymysql://{Config.MYSQL['STOCKS_USER']}:{Config.MYSQL['STOCKS_PASSWORD']}@{Config.MYSQL['STOCKS_HOST']}/{Config.MYSQL['STOCKS_DATABASE']}",
-            poolclass=QueuePool,
-            pool_size=20,
-            max_overflow=40,
-            pool_pre_ping=True,
-            echo=False,
-            connect_args={"charset": "utf8mb4"},
-        )
+        self.engine = stocksEngine
         self.currentYear = datetime.now().year
         self.scraperDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -45,6 +47,8 @@ class B3Scraper:
         adapter = cloudscraper.requests.adapters.HTTPAdapter(pool_connections=100, pool_maxsize=100, max_retries=3)
         self.requests.mount("http://", adapter)
         self.requests.mount("https://", adapter)
+
+        self.selic = getCurrentSelic()
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=3))
     def getInitialData(self):
@@ -96,7 +100,7 @@ class B3Scraper:
                 "lucros_cagr5": "CAGR LUCROS 5 ANOS",
             }
         )
-        df.dropna(subset=["TICKER", "PRECO", "LIQUIDEZ MEDIA DIARIA", "VALOR DE MERCADO"])
+        df = df.dropna(subset=["TICKER", "PRECO", "LIQUIDEZ MEDIA DIARIA", "VALOR DE MERCADO"])
         df = df.set_index("TICKER")
 
         return df
@@ -389,14 +393,22 @@ class B3Scraper:
                 self.stocksDF.groupby(self.stocksDF.index.str[:4])["LIQUIDEZ MEDIA DIARIA"].sum().get(prefix, 0)
             )
 
-            score = calculateInvestingScore(
-                ticker=TICKER, profitsDf=profit10yDF, companyLiquidity=companyLiquidity, prefixLiquidity=prefixLiquidity
+            result = calculateInvestingScore(
+                ticker=TICKER,
+                profitsDf=profit10yDF,
+                companyLiquidity=companyLiquidity,
+                prefixLiquidity=prefixLiquidity,
+                selic=self.selic,
             )
 
+            score = result["score"]
             if score is None or pd.isna(score):
                 newDF["INVESTING SCORE"] = np.nan
             else:
                 newDF["INVESTING SCORE"] = min(max(score, 0), 100)
+
+            for key in ["m_vol", "m_dd", "consistency", "growth"]:
+                newDF[key.upper()] = result[key]
         except Exception as e:
             newDF["INVESTING SCORE"] = np.nan
 
@@ -410,7 +422,7 @@ class B3Scraper:
             self.historicalDividendYields,
             self.historicalRevenue,
             self.historicalCotationProfits,
-            # self.historicalCotationProfits_Oceans14,
+            self.historicalCotationProfits_Oceans14,
             self.historicalCotations,
             self.tagAlong,
             self.stockNews,
@@ -438,7 +450,6 @@ class B3Scraper:
         stocksDF["TIME"] = pd.to_datetime(self.scraperDate)
         stocksList = stocksDF.index.tolist()
 
-        # Store for access in fundamentalIndicators
         self.stocksDF = stocksDF
 
         processedDfs = []
@@ -467,7 +478,8 @@ class B3Scraper:
         else:
             finalDf = stocksDF.copy()
 
-        finalDf = finalDf.round(2)
+        numericCols = finalDf.select_dtypes(include=[np.number]).columns
+        finalDf[numericCols] = finalDf[numericCols].round(2)
         finalDf = self.reorderColumns(finalDf)
         finalDf = self.serializeComplexTypes(finalDf)
 
@@ -599,27 +611,46 @@ class B3Scraper:
                 if any(pattern in col for pattern in historicalPatterns) and col not in excludeCols
             ]
 
-            for col in historicalCols:
-                mergeSql = f"""
-                UPDATE b3_stocks s
-                INNER JOIN (
-                    SELECT TICKER, `{col}` as VAL
-                    FROM b3_stocks t1
-                    WHERE t1.`{col}` IS NOT NULL
-                      AND t1.TIME < :currentDate
-                      AND t1.TIME = (
-                          SELECT MAX(t2.TIME)
-                          FROM b3_stocks t2
-                          WHERE t2.TICKER = t1.TICKER
-                            AND t2.`{col}` IS NOT NULL
-                            AND t2.TIME < :currentDate
-                      )
-                ) prev ON s.TICKER = prev.TICKER
-                SET s.`{col}` = COALESCE(s.`{col}`, prev.VAL)
-                WHERE s.`{col}` IS NULL
-                  AND s.TIME >= :currentDate;
-                """
-                conn.execute(text(mergeSql), {"currentDate": currentDate})
+            if historicalCols:
+                conn.execute(
+                    text("""
+                    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_prev_historical (
+                        TICKER VARCHAR(20),
+                        COL_NAME VARCHAR(255),
+                        VAL DOUBLE PRECISION,
+                        PRIMARY KEY (TICKER, COL_NAME)
+                    )
+                """)
+                )
+
+                for col in historicalCols:
+                    conn.execute(
+                        text(f"""
+                        INSERT INTO tmp_prev_historical (TICKER, COL_NAME, VAL)
+                        SELECT t1.TICKER, :col, t1.`{col}`
+                        FROM b3_stocks t1
+                        INNER JOIN (
+                            SELECT TICKER, MAX(TIME) AS MAX_TIME
+                            FROM b3_stocks
+                            WHERE `{col}` IS NOT NULL AND TIME < :currentDate
+                            GROUP BY TICKER
+                        ) latest ON t1.TICKER = latest.TICKER AND t1.TIME = latest.MAX_TIME
+                        WHERE t1.`{col}` IS NOT NULL
+                    """),
+                        {"col": col, "currentDate": currentDate},
+                    )
+
+                for col in historicalCols:
+                    mergeSql = f"""
+                    UPDATE b3_stocks s
+                    INNER JOIN tmp_prev_historical prev ON s.TICKER = prev.TICKER AND prev.COL_NAME = :col
+                    SET s.`{col}` = COALESCE(s.`{col}`, prev.VAL)
+                    WHERE s.`{col}` IS NULL
+                      AND s.TIME >= :currentDate;
+                    """
+                    conn.execute(text(mergeSql), {"col": col, "currentDate": currentDate})
+
+                conn.execute(text("DROP TEMPORARY TABLE tmp_prev_historical"))
 
 
 if __name__ == "__main__":

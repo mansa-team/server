@@ -4,9 +4,35 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from main.models.base import Base
+
+def pytest_configure(config):
+    """Set required env vars before test collection.
+
+    config.py eagerly instantiates UserSettings() at import time, which
+    requires JWT_SECRET_KEY and SESSION_SECRET_KEY. These env vars
+    don't exist in CI, so every test that touches config blows up
+    during collection. This hook runs before collection begins.
+    """
+    os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret-key-not-for-production")
+    os.environ.setdefault("SESSION_SECRET_KEY", "test-session-secret-key-not-for-production")
+
+
+from sqlalchemy import create_engine  # noqa: E402 — must follow pytest_configure
+from sqlalchemy.orm import sessionmaker  # noqa: E402
+from main.models.base import Base  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _patch_secret_key(monkeypatch):
+    import main.app.authentication.constants as auth_constants
+
+    if not auth_constants.SECRET_KEY:
+        monkeypatch.setattr(auth_constants, "SECRET_KEY", "test-secret-key-not-empty")
+        # util.py imports SECRET_KEY via `from ... import`, creating a separate binding
+        import main.app.authentication.util as auth_util
+
+        monkeypatch.setattr(auth_util, "SECRET_KEY", "test-secret-key-not-empty")
+
 
 TEST_DATABASE_URL = "sqlite:///:memory:"
 
@@ -19,8 +45,8 @@ def dbSession():
     session = SessionLocal()
     yield session
     session.close()
-    engine.dispose()
     Base.metadata.drop_all(engine)
+    engine.dispose()
 
 
 @pytest.fixture
@@ -42,3 +68,37 @@ def sampleAPIKeyData():
 @pytest.fixture
 def samplePrometheusSessionData():
     return {"sessionId": "session_123", "userId": 1, "title": "Test Session", "summary": "Test summary", "history": []}
+
+
+@pytest.fixture
+def client():
+    """TestClient with all routers mounted — no lifespan (no DB/service init).
+
+    Overrides extractTokenPayload dependency so auth-gated endpoints
+    don't block input validation tests.
+    """
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient as _TestClient
+    from main.controller.authentication_controller import router as authRouter
+    from main.controller.user_controller import router as userRouter
+    from main.controller.prometheus_controller import router as prometheusRouter
+    from main.controller.stocksapi_controller import router as stocksRouter
+    from main.utils.errors import register_error_handlers
+
+    testApp = FastAPI()
+    testApp.include_router(authRouter)
+    testApp.include_router(userRouter)
+    testApp.include_router(prometheusRouter)
+    testApp.include_router(stocksRouter)
+    register_error_handlers(testApp)
+
+    # Mock auth dependency so validation tests aren't blocked by 401
+    from main.app.user.user import UserManager
+
+    def _mock_get_current_user():
+        return {"userId": 1, "username": "testuser", "email": "test@example.com", "roles": ["PREMIUM"]}
+
+    testApp.dependency_overrides[UserManager.getCurrentUser] = _mock_get_current_user
+
+    with _TestClient(testApp, raise_server_exceptions=False) as c:
+        yield c

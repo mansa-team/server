@@ -1,9 +1,9 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from config import getSession
 from main.utils.logging_config import limiter
 
-from fastapi import APIRouter, Response, Body, HTTPException, Request, Depends
+from fastapi import APIRouter, Response, HTTPException, Request, Depends
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
@@ -12,6 +12,7 @@ from main.app.authentication.util import createAccessToken
 from main.app.authentication.sso import getGoogleSSO
 from main.app.authentication.constants import COOKIE_NAME, COOKIE_PATH, COOKIE_SAMESITE, TOKEN_EXPIRY_HOURS
 from main.app.authentication.session import SessionManager
+from fastapi import Body
 
 logger = logging.getLogger(__name__)
 
@@ -28,13 +29,13 @@ def health(request: Request):
 
 
 @router.post("/register")
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 def register(
     request: Request,
     response: Response,
-    username: str = Body(..., min_length=3, max_length=50),
-    email: str = Body(..., min_length=5, max_length=100),
-    password: str = Body(..., min_length=6, max_length=100),
+    username: str = Body(..., min_length=1, max_length=100),
+    email: str = Body(..., min_length=5, max_length=255),
+    password: str = Body(..., min_length=6, max_length=128),
     db: Session = Depends(getSession),
 ):
     try:
@@ -45,7 +46,7 @@ def register(
             raise HTTPException(status_code=401, detail="Auto-login failed after registration")
 
         userAgent = request.headers.get("User-Agent", "")
-        expiresAt = datetime.utcnow() + timedelta(hours=TOKEN_EXPIRY_HOURS)
+        expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
         session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
 
         accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
@@ -71,12 +72,12 @@ def register(
 
 
 @router.post("/login")
-@limiter.limit("5/minute")
+@limiter.limit("10/minute")
 def login(
     request: Request,
     response: Response,
-    username: str = Body(..., min_length=3, max_length=50),
-    password: str = Body(..., min_length=1),
+    username: str = Body(..., min_length=1, max_length=100),
+    password: str = Body(..., min_length=6, max_length=128),
     db: Session = Depends(getSession),
 ):
     user = AuthenticationManager.authenticateUser(db, username, password)
@@ -84,7 +85,7 @@ def login(
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     userAgent = request.headers.get("User-Agent", "")
-    expiresAt = datetime.utcnow() + timedelta(hours=TOKEN_EXPIRY_HOURS)
+    expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
     session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
 
     accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
@@ -176,7 +177,7 @@ async def googleCallback(request: Request, response: Response, state: str = None
             user = AuthenticationManager.authenticateGoogleUser(db, googleId)
 
         userAgent = request.headers.get("User-Agent", "")
-        expiresAt = datetime.utcnow() + timedelta(hours=TOKEN_EXPIRY_HOURS)
+        expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
         session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
 
         accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})

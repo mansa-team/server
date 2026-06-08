@@ -15,9 +15,9 @@ logger = logging.getLogger(__name__)
 
 def removeInactiveSessions():
     db = SessionLocal()
-    thresholdDate = datetime.now(timezone("America/Sao_Paulo")) - timedelta(days=SESSION_EXPIRY_DAYS)
-
     try:
+        thresholdDate = datetime.now(timezone("America/Sao_Paulo")) - timedelta(days=SESSION_EXPIRY_DAYS)
+
         deleted = (
             db.query(UserSession)
             .filter(~UserSession.isActive, UserSession.lastActivityAt < thresholdDate)
@@ -28,13 +28,19 @@ def removeInactiveSessions():
     except Exception as e:
         db.rollback()
         logger.error(f"Error deleting the user_session: {str(e)}", exc_info=True)
+    finally:
+        db.close()
 
 
 def inactiveSessionsScheduler():
     def scheduler():
         while True:
-            time.sleep(12 * 60 * 60)  # 12 hours
-            removeInactiveSessions()
+            try:
+                time.sleep(12 * 60 * 60)  # 12 hours
+                removeInactiveSessions()
+            except Exception as e:
+                logger.error(f"Session cleanup scheduler error: {str(e)}", exc_info=True)
+                time.sleep(60)
 
     thread = threading.Thread(target=scheduler, daemon=True)
     thread.start()

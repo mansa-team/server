@@ -2,9 +2,10 @@ import numpy as np
 import pandas as pd
 
 MIN_YEARS = 10
-CONSISTENCY_WEIGHT = 0.55
+CONSISTENCY_WEIGHT = 0.85
 GROWTH_WEIGHT = 0.75
-GROWTH_THRESHOLD = 0.10
+GROWTH_THRESHOLD_BASELINE = 0.10
+GROWTH_K = 4
 VOLATILITY_THRESHOLD = 0.16
 VOLATILITY_FLOOR = 0.40
 RECOVERY_THRESHOLD = 0.45
@@ -12,24 +13,48 @@ DRAWDOWN_FLOOR = 0.60
 
 
 def calculateInvestingScore(
-    ticker: str, profitsDf: pd.DataFrame, companyLiquidity: float, prefixLiquidity: float | None = None
-) -> float:
+    ticker: str,
+    profitsDf: pd.DataFrame,
+    companyLiquidity: float,
+    prefixLiquidity: float | None = None,
+    selic: pd.DataFrame | None = None,
+) -> dict:
     currentYear = pd.Timestamp.now().year
     years = range(currentYear - 10, currentYear)
     profits10y = profitsDf[profitsDf["YEAR"].isin(years)].sort_values("YEAR", ascending=True)
 
+    nan_result = {
+        "score": np.nan,
+        "m_vol": np.nan,
+        "m_dd": np.nan,
+        "consistency": np.nan,
+        "growth": np.nan,
+    }
+
     if len(profits10y) < MIN_YEARS:
-        return np.nan
+        return nan_result
+
+    # Selic-adjusted growth threshold
+    if selic is not None and len(selic) > 0:
+        selicRate = selic.iloc[-1]["valor"]
+        selicBaseline = selic.iloc[-1]["valor medio 10y"]
+    else:
+        selicRate = 1.0
+        selicBaseline = 1.0
+
+    growthThreshold = (
+        GROWTH_THRESHOLD_BASELINE * (selicBaseline / selicRate) if selicRate > 0 else GROWTH_THRESHOLD_BASELINE
+    )
 
     n = len(profits10y)
     x = np.arange(n).astype(float)
     profitsValues = profits10y["LUCRO LIQUIDO"].astype(float).values.flatten()
 
-    # Growth calculation
+    # Growth calculation (tanh-based)
     mean = np.mean(profitsValues)
     slope = np.polyfit(x, profitsValues, 1)[0]
-    logSlope = np.polyfit(x, np.log(np.maximum(profitsValues, 0) + 1), 1)[0]
-    growth = min(100, max(0, max(slope / mean, np.exp(logSlope) - 1) / GROWTH_THRESHOLD * 100))
+    rawGrowth = slope / mean
+    growth = 50 * (np.tanh(GROWTH_K * (rawGrowth - growthThreshold)) + 1)
 
     # Volatility (mVol)
     pred = np.polyval(np.polyfit(x, profitsValues, 1), x)
@@ -67,4 +92,12 @@ def calculateInvestingScore(
 
     mProfits = 0.5 if (profitsValues <= 0).any() else 1
 
-    return min(100, score * mLiq * mClass * mProfits)
+    finalScore = min(100, score * mLiq * mClass * mProfits)
+
+    return {
+        "score": finalScore,
+        "m_vol": mVol,
+        "m_dd": mDd,
+        "consistency": consistency,
+        "growth": growth,
+    }

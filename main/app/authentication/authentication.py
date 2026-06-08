@@ -4,7 +4,7 @@ from main.utils.roles import Roles
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
-from main.app.authentication.util import *
+from main.app.authentication.util import hashPassword, verifyPassword
 from main.models import User
 
 logger = logging.getLogger(__name__)

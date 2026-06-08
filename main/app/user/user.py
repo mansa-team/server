@@ -1,8 +1,9 @@
 import logging
 from config import getSession
 from main.models import User
-from fastapi import HTTPException, Request, Depends
+from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
+from main.app.authentication.util import extractTokenPayload
 
 logger = logging.getLogger(__name__)
 
@@ -26,29 +27,18 @@ class UserManager:
         return False
 
     @staticmethod
-    def getCurrentUser(request: Request, db: Session = Depends(getSession)):
-        from main.app.authentication.util import verifyAccessToken
+    def getCurrentUser(
+        payload: dict = Depends(extractTokenPayload),
+        db: Session = Depends(getSession),
+    ):
         from main.app.authentication.session import SessionManager
 
-        token = request.headers.get("X-Access-Token")
-        if not token:
-            authHeader = request.headers.get("Authorization")
-            if authHeader and authHeader.startswith("Bearer "):
-                token = authHeader.split(" ")[1]
-
-        if not token:
-            raise HTTPException(status_code=401, detail="Session not found")
-
         try:
-            payload = verifyAccessToken(token)
             userId = payload.get("userId")
             sessionId = payload.get("sessionId")
 
-            if userId is None:
-                raise HTTPException(status_code=401, detail="Invalid Token")
-
-            if sessionId:
-                isValid = SessionManager.validateSession(db, sessionId, userId)
+            if sessionId and userId is not None:
+                isValid = SessionManager.validateSession(db, sessionId, int(userId))
                 if not isValid:
                     logger.info(f"Session {sessionId} revoked, logging out user {userId}")
                     raise HTTPException(status_code=401, detail="Session revoked")
@@ -66,10 +56,7 @@ class UserManager:
             }
 
             if sessionId:
-                try:
-                    result["sessionId"] = sessionId
-                except (ValueError, TypeError):
-                    pass
+                result["sessionId"] = sessionId
 
             return result
 

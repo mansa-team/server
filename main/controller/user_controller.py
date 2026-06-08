@@ -1,11 +1,13 @@
 import logging
 from config import Config, getSession
 from main.utils.logging_config import limiter
+from main.utils.pagination import PaginationParams
 from main.app.user.user import UserManager
 from sqlalchemy.orm import Session
 
 from fastapi import APIRouter, Request, Depends, HTTPException
 from main.app.authentication.session import SessionManager
+from main.app.authentication.util import extractTokenPayload
 
 logger = logging.getLogger(__name__)
 
@@ -56,26 +58,18 @@ def testAdminAccess(currentUser: dict = Depends(UserManager.getCurrentUser)):
 
 @router.get("/sessions")
 def getSessions(
-    request: Request, currentUser: dict = Depends(UserManager.getCurrentUser), db: Session = Depends(getSession)
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+    db: Session = Depends(getSession),
+    pagination: PaginationParams = Depends(),
+    payload: dict = Depends(extractTokenPayload),
 ):
-    from main.app.authentication.util import verifyAccessToken
-
-    token = request.headers.get("X-Access-Token")
-    if not token:
-        authHeader = request.headers.get("Authorization")
-        if authHeader and authHeader.startswith("Bearer "):
-            token = authHeader.split(" ")[1]
-
-    currentSessionId = None
-    if token:
-        try:
-            payload = verifyAccessToken(token)
-            currentSessionId = payload.get("sessionId")
-        except Exception as e:
-            logger.debug(f"Token verification failed: {e}")
+    currentSessionId = payload.get("sessionId")
 
     sessions = SessionManager.getUserSessions(db, currentUser["userId"])
     activeCount = sum(1 for s in sessions if s.isActive)
+
+    total = len(sessions)
+    paginatedSessions = sessions[pagination.offset : pagination.offset + pagination.limit]
 
     return {
         "sessions": [
@@ -90,10 +84,12 @@ def getSessions(
                 "isActive": s.isActive,
                 "isCurrent": s.sessionId == currentSessionId if currentSessionId else False,
             }
-            for s in sessions
+            for s in paginatedSessions
         ],
-        "total": len(sessions),
+        "total": total,
         "active": activeCount,
+        "limit": pagination.limit,
+        "offset": pagination.offset,
     }
 
 

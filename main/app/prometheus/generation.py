@@ -1,5 +1,5 @@
 import logging
-from config import Config, SessionLocal
+from config import Config
 
 import pandas as pd
 import json
@@ -36,7 +36,7 @@ class PrometheusGenerator:
             self.currentYear = now.year
             self.lastYear = self.currentYear - 1
 
-    def executeWorkflow(self, userQuery, history: list | None = None, sessionId: str | None = None):
+    def executeWorkflow(self, userQuery, history: list | None = None, sessionId: str | None = None, db=None):
         self.updateDates()
         logger.info(f"Query: {userQuery}")
         sysPrompt: dict = {}
@@ -53,13 +53,11 @@ class PrometheusGenerator:
         # $ Determine if we should include the session summary for context
         #
         summaryContext = ""
-        if sessionId:
+        if sessionId and db:
             try:
-                db = SessionLocal()
                 session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
                 if session and session.summary:
                     summaryContext = f"{session.summary}"
-                db.close()
             except Exception as e:
                 logger.debug(f"Failed to load session context: {e}")
 
@@ -308,7 +306,7 @@ class PrometheusGenerator:
         sysPrompt["STAGE 3"] = sysPrompt["STAGE 3"].replace("{API_RESPONSE}", apiResponseStr)
 
         response = self.client.models.generate_content(
-            model="gemma-4-31b-it",
+            model="gemma-4-26b-a4b-it",
             contents=requestContext,
             config=types.GenerateContentConfig(
                 system_instruction=sysPrompt["STAGE 3"],
@@ -356,8 +354,8 @@ class PrometheusGenerator:
 
             modelResponse["STAGE 4"] = response.text
 
-            PrometheusChatManager.updateSummary(sessionId, modelResponse["STAGE 4"])
-            PrometheusChatManager.updateSessionTitle(sessionId, modelResponse["STAGE 4"])
+            PrometheusChatManager.updateSummary(db, sessionId, modelResponse["STAGE 4"])
+            PrometheusChatManager.updateSessionTitle(db, sessionId, modelResponse["STAGE 4"])
 
             logger.debug(f"""[PROMETHEUS STAGE 4] \n
                 {modelResponse["STAGE 4"]}""")

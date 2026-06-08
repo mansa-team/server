@@ -64,10 +64,6 @@ class SessionManager:
         return query.first()
 
     @staticmethod
-    def getSessionByIdSafe(db: Session, sessionId: str) -> UserSession | None:
-        return db.query(UserSession).filter(UserSession.sessionId == str(sessionId)).first()
-
-    @staticmethod
     def getCurrentSession(db: Session, userId: int, userAgent: str, request) -> UserSession | None:
         return (
             db.query(UserSession)

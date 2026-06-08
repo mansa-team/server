@@ -1,11 +1,12 @@
 import logging
+import logging.handlers
 import threading
-from typing import Optional
 import requests
 
 from config import Config
 from slowapi import Limiter
 from slowapi.util import get_remote_address
+from main.utils.errors import RequestContextFilter
 
 limiter = Limiter(key_func=get_remote_address)
 logger = logging.getLogger(__name__)
@@ -16,10 +17,16 @@ def setupLogging():
     level = logging.DEBUG if Config.DEBUG_MODE else logging.ERROR
     root.setLevel(level)
 
+    request_filter = RequestContextFilter()
+
     console = logging.StreamHandler()
     console.setFormatter(
-        logging.Formatter("%(asctime)s | %(levelname)-8s | %(name)s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+        logging.Formatter(
+            "%(asctime)s | %(levelname)-8s | %(name)s | [%(request_id)s] %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
     )
+    console.addFilter(request_filter)
     root.addHandler(console)
 
 
@@ -34,7 +41,19 @@ class DiscordHandler(logging.Handler):
         module = record.name.split(".")[-1]
         message = record.getMessage()
 
-        payload = {"content": f"[{record.levelname}] [{module}] {message}"}
+        exc_text = ""
+        if record.exc_info and record.exc_info[1]:
+            exc_text = logging.Formatter().formatException(record.exc_info)
+
+        full_text = f"[{record.levelname}] [{module}] {message}"
+        if exc_text:
+            full_text += f"\n{exc_text}"
+
+        MAX_MESSAGE_LENGTH = 2000
+        if len(full_text) > MAX_MESSAGE_LENGTH:
+            full_text = full_text[: MAX_MESSAGE_LENGTH - 20] + "\n...[truncated]"
+
+        payload = {"content": full_text}
 
         try:
             threading.Thread(

@@ -7,6 +7,14 @@ FastAPI-based stock trading/investing platform focused on Brazilian stocks (B3).
 docker-compose up -d --build   # or `make run`
 docker-compose down         # or `make down`
 
+# Local CI (run before committing — mirrors .github/workflows/ci.yml)
+.\ci.ps1              # all checks: lint, format, mypy, tests+coverage, bandit
+.\ci.ps1 -Lint        # lint + format only
+.\ci.ps1 -Test        # tests + coverage only
+.\ci.ps1 -Fast        # skip mypy + bandit (quick check)
+.\ci.ps1 -Typecheck   # mypy only
+.\ci.ps1 -Security    # bandit only
+
 # Lint & Format (required before commit)
 ruff check . && ruff format .
 
@@ -19,6 +27,17 @@ mypy
 # Coverage report
 coverage html
 ```
+
+### CI Pipeline Order
+Always run `.\ci.ps1` before pushing. It runs these checks in order:
+1. **Ruff Lint** — `ruff check main/ tests/`
+2. **Ruff Format** — `ruff format --check .`
+3. **mypy Typecheck** — `mypy main/`
+4. **Tests + Coverage** — `pytest --cov=main --cov-report=term-missing --cov-report=xml -q`
+5. **Coverage Threshold** — must be ≥ 80%
+6. **Bandit Security** — non-blocking (advisory only)
+
+Exit code: 0 = all passed, 1 = at least one failed. Bandit failures are non-blocking.
 
 ## Architecture
 - **Layers**: Controller → Service → Model
