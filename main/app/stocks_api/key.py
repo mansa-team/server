@@ -3,7 +3,10 @@ from config import Config, getSession
 from fastapi import HTTPException, Depends
 from fastapi.security import APIKeyHeader
 from sqlalchemy import update
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.orm import Session
+
+from typing import cast
 
 import secrets
 import hashlib
@@ -35,7 +38,7 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depend
         )
         db.commit()
 
-        if result.rowcount == 0:
+        if cast(CursorResult, result).rowcount == 0:
             stocksKey = db.query(StocksAPIKey).filter(StocksAPIKey.apiKey == hashedKey).first()
             if not stocksKey:
                 raise HTTPException(status_code=401, detail="Invalid API key")

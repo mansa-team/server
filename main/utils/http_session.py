@@ -1,6 +1,9 @@
 import threading
 import atexit
+import logging
 import requests
+
+logger = logging.getLogger(__name__)
 
 
 local = threading.local()
@@ -17,7 +20,7 @@ def cleanup():
         try:
             local.session.close()
         except Exception:
-            pass
+            logger.debug("Failed to close session during cleanup", exc_info=True)
 
 
 atexit.register(cleanup)
