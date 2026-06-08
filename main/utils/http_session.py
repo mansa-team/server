@@ -1,4 +1,5 @@
 import threading
+import atexit
 import requests
 
 
@@ -16,3 +17,15 @@ def get_session() -> requests.Session:
     if not hasattr(_local, "session"):
         _local.session = requests.Session()
     return _local.session
+
+
+def _cleanup():
+    """Close the main thread's session at interpreter shutdown."""
+    if hasattr(_local, "session"):
+        try:
+            _local.session.close()
+        except Exception:
+            pass
+
+
+atexit.register(_cleanup)
