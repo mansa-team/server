@@ -1,8 +1,7 @@
 import logging
-import time
 from datetime import datetime, timedelta
 from pytz import timezone
-import threading
+from apscheduler.schedulers.background import BackgroundScheduler
 
 from config import SessionLocal
 from main.models.user_session import UserSession
@@ -32,24 +31,23 @@ def removeInactiveSessions():
         db.close()
 
 
-def inactiveSessionsScheduler():
-    def scheduler():
-        while True:
-            try:
-                time.sleep(12 * 60 * 60)  # 12 hours
-                removeInactiveSessions()
-            except Exception as e:
-                logger.error(f"Session cleanup scheduler error: {str(e)}", exc_info=True)
-                time.sleep(60)
-
-    thread = threading.Thread(target=scheduler, daemon=True)
-    thread.start()
+_scheduler = None
 
 
 class UserService:
     @staticmethod
     def initialize(port: int):
+        global _scheduler
         service = ServiceManager.getApp(port)
         service.include_router(userRouter)
 
-    inactiveSessionsScheduler()
+        _scheduler = BackgroundScheduler(timezone=timezone("America/Sao_Paulo"))
+        _scheduler.add_job(
+            removeInactiveSessions,
+            "interval",
+            hours=12,
+            id="cleanup_inactive_sessions",
+            name="Remove inactive sessions",
+        )
+        _scheduler.start()
+        logger.info("Session cleanup scheduler started (every 12h)")
