@@ -70,8 +70,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\key.py": {
-    "mtime": 1780934409.000852,
-    "ast_hash": "7ce15a7e13303386647cebff0881f67a",
+    "mtime": 1780936819.4165876,
+    "ast_hash": "227cf6de2f2ac11402c6aca79790cee8",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\query.py": {
@@ -175,8 +175,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\utils\\http_session.py": {
-    "mtime": 1780934409.0065227,
-    "ast_hash": "ebad419ae0e75f0580a333cf42131aef",
+    "mtime": 1780937100.7961586,
+    "ast_hash": "4c08a50d3bff2b4452fa8484802c3e70",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\utils\\logging_config.py": {
@@ -327,6 +327,11 @@
   "D:\\Repositories\\server\\tests\\test_user_deps.py": {
     "mtime": 1780865281.457734,
     "ast_hash": "7c1f5a8e42b1c650ae8887a1bfd658dd",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\1-RS_Mansa.docx.md": {
+    "mtime": 1780935734.1499898,
+    "ast_hash": "59273761175be2ecb5b780b2a5b8a072",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\AGENTS.md": {
