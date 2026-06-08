@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from starlette.testclient import TestClient
 from fastapi import FastAPI
-from main.utils.request_id import RequestIDMiddleware, request_id_var
+from main.utils.request_id import RequestIDMiddleware, requestIdVar
 
 
 @pytest.fixture
@@ -17,11 +17,11 @@ def app():
 
     @application.get("/test")
     def test_route():
-        return {"request_id": request_id_var.get()}
+        return {"request_id": requestIdVar.get()}
 
     @application.get("/echo")
     def echo_route():
-        return {"id": request_id_var.get()}
+        return {"id": requestIdVar.get()}
 
     return application
 

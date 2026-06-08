@@ -12,9 +12,9 @@ from pydantic import BaseModel, Field
 from main.utils.errors import (
     ErrorResponse,
     RequestContextFilter,
-    register_error_handlers,
+    registerErrorHandlers,
 )
-from main.utils.request_id import RequestIDMiddleware, request_id_var
+from main.utils.request_id import RequestIDMiddleware, requestIdVar
 
 
 class SampleBody(BaseModel):
@@ -25,7 +25,7 @@ class SampleBody(BaseModel):
 def app():
     application = FastAPI()
     application.add_middleware(RequestIDMiddleware)
-    register_error_handlers(application)
+    registerErrorHandlers(application)
 
     @application.get("/ok")
     def ok_route():
@@ -82,7 +82,7 @@ class TestRequestContextFilter:
         record = __import__("logging").LogRecord(
             name="test", level=10, pathname="", lineno=0, msg="test", args=(), exc_info=None
         )
-        request_id_var.set("req-abc")
+        requestIdVar.set("req-abc")
         assert f.filter(record) is True
         assert record.request_id == "req-abc"
 
@@ -91,7 +91,7 @@ class TestRequestContextFilter:
         record = __import__("logging").LogRecord(
             name="test", level=10, pathname="", lineno=0, msg="test", args=(), exc_info=None
         )
-        request_id_var.set("")
+        requestIdVar.set("")
         assert f.filter(record) is True
         assert record.request_id == ""
 

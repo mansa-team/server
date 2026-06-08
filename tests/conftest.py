@@ -83,14 +83,14 @@ def client():
     from main.controller.user_controller import router as userRouter
     from main.controller.prometheus_controller import router as prometheusRouter
     from main.controller.stocksapi_controller import router as stocksRouter
-    from main.utils.errors import register_error_handlers
+    from main.utils.errors import registerErrorHandlers
 
     testApp = FastAPI()
     testApp.include_router(authRouter)
     testApp.include_router(userRouter)
     testApp.include_router(prometheusRouter)
     testApp.include_router(stocksRouter)
-    register_error_handlers(testApp)
+    registerErrorHandlers(testApp)
 
     # Mock auth dependency so validation tests aren't blocked by 401
     from main.app.user.user import UserManager

@@ -14,30 +14,30 @@ import pytest
 
 
 # ---------------------------------------------------------------------------
-# Issue 6 – get_session() thread safety
+# Issue 6 – getSession() thread safety
 # ---------------------------------------------------------------------------
 
 
 class TestGetSession:
-    """Verify that get_session() returns per-thread Session instances."""
+    """Verify that getSession() returns per-thread Session instances."""
 
     def test_same_session_within_same_thread(self):
-        """Calling get_session() twice in the same thread returns the same object."""
-        from main.utils.http_session import get_session
+        """Calling getSession() twice in the same thread returns the same object."""
+        from main.utils.http_session import getSession
 
-        s1 = get_session()
-        s2 = get_session()
-        assert s1 is s2, "get_session() must return the same Session within one thread"
+        s1 = getSession()
+        s2 = getSession()
+        assert s1 is s2, "getSession() must return the same Session within one thread"
 
     def test_different_sessions_in_different_threads(self):
         """Two threads must NOT share a Session object."""
-        from main.utils.http_session import get_session
+        from main.utils.http_session import getSession
 
         # Keep references alive so CPython doesn't reuse memory addresses
         sessions: dict[str, object] = {}
 
         def _capture(name: str):
-            s = get_session()
+            s = getSession()
             sessions[name] = s  # store the object itself, not just id()
 
         t1 = threading.Thread(target=_capture, args=("t1",))
@@ -51,14 +51,14 @@ class TestGetSession:
 
     def test_isolation_under_high_concurrency(self):
         """With 20 concurrent threads, every thread must get its own Session."""
-        from main.utils.http_session import get_session
+        from main.utils.http_session import getSession
 
         sessions: dict[int, object] = {}
         barrier = threading.Barrier(20)
 
         def _capture(idx: int):
             barrier.wait()  # all threads start simultaneously
-            sessions[idx] = get_session()
+            sessions[idx] = getSession()
 
         threads = [threading.Thread(target=_capture, args=(i,)) for i in range(20)]
         for t in threads:
@@ -73,9 +73,9 @@ class TestGetSession:
     def test_session_is_requests_session(self):
         """The returned object must be a real requests.Session."""
         import requests
-        from main.utils.http_session import get_session
+        from main.utils.http_session import getSession
 
-        session = get_session()
+        session = getSession()
         assert isinstance(session, requests.Session)
 
 
@@ -183,11 +183,11 @@ class TestConcurrentHttpProxy:
         results: dict[str, bool] = {}
 
         def _check(name: str):
-            # httpSession.get is actually calling get_session().get
-            # We can verify the session identity through get_session
-            from main.utils.http_session import get_session
+            # httpSession.get is actually calling getSession().get
+            # We can verify the session identity through getSession
+            from main.utils.http_session import getSession
 
-            s = get_session()
+            s = getSession()
             results[name] = isinstance(s, requests.Session)
 
         t1 = threading.Thread(target=_check, args=("t1",))
@@ -200,11 +200,11 @@ class TestConcurrentHttpProxy:
         assert results.get("t1") is True
         assert results.get("t2") is True
 
-    def test_connectivity_uses_get_session(self):
-        """connectivity.checkServiceConnection must call get_session(), not use a global Session."""
+    def test_connectivity_uses_getSession(self):
+        """connectivity.checkServiceConnection must call getSession(), not use a global Session."""
         from main.utils import connectivity
 
-        with patch.object(connectivity, "get_session") as mock_get:
+        with patch.object(connectivity, "getSession") as mock_get:
             mock_session = MagicMock()
             mock_resp = MagicMock()
             mock_resp.status_code = 200

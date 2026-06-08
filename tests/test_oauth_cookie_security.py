@@ -21,11 +21,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 def _make_callback_client():
     """Return (client, app, mock_session) for testing Google callback."""
     from main.controller.authentication_controller import router as authRouter
-    from main.utils.errors import register_error_handlers
+    from main.utils.errors import registerErrorHandlers
 
     app = FastAPI()
     app.include_router(authRouter)
-    register_error_handlers(app)
+    registerErrorHandlers(app)
     mock_session = MagicMock()
     app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
     return _TestClient(app, raise_server_exceptions=False), app, mock_session

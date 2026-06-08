@@ -12,8 +12,8 @@ from main.utils.errors import RequestContextFilter
 limiter = Limiter(key_func=get_remote_address)
 logger = logging.getLogger(__name__)
 
-_discord_executor = ThreadPoolExecutor(max_workers=5, thread_name_prefix="discord-webhook")
-atexit.register(_discord_executor.shutdown, wait=False)
+discordExecutor = ThreadPoolExecutor(max_workers=5, thread_name_prefix="discord-webhook")
+atexit.register(discordExecutor.shutdown, wait=False)
 
 
 def setupLogging():
@@ -21,7 +21,7 @@ def setupLogging():
     level = logging.DEBUG if Config.DEBUG_MODE else logging.ERROR
     root.setLevel(level)
 
-    request_filter = RequestContextFilter()
+    requestFilter = RequestContextFilter()
 
     console = logging.StreamHandler()
     console.setFormatter(
@@ -30,7 +30,7 @@ def setupLogging():
             datefmt="%Y-%m-%d %H:%M:%S",
         )
     )
-    console.addFilter(request_filter)
+    console.addFilter(requestFilter)
     root.addHandler(console)
 
 
@@ -45,22 +45,22 @@ class DiscordHandler(logging.Handler):
         module = record.name.split(".")[-1]
         message = record.getMessage()
 
-        exc_text = ""
+        excText = ""
         if record.exc_info and record.exc_info[1]:
-            exc_text = logging.Formatter().formatException(record.exc_info)
+            excText = logging.Formatter().formatException(record.exc_info)
 
-        full_text = f"[{record.levelname}] [{module}] {message}"
-        if exc_text:
-            full_text += f"\n{exc_text}"
+        fullText = f"[{record.levelname}] [{module}] {message}"
+        if excText:
+            fullText += f"\n{excText}"
 
         MAX_MESSAGE_LENGTH = 2000
-        if len(full_text) > MAX_MESSAGE_LENGTH:
-            full_text = full_text[: MAX_MESSAGE_LENGTH - 20] + "\n...[truncated]"
+        if len(fullText) > MAX_MESSAGE_LENGTH:
+            fullText = fullText[: MAX_MESSAGE_LENGTH - 20] + "\n...[truncated]"
 
-        payload = {"content": full_text}
+        payload = {"content": fullText}
 
         try:
-            _discord_executor.submit(
+            discordExecutor.submit(
                 requests.post,
                 Config.DISCORD.WEBHOOK_URL,
                 json=payload,

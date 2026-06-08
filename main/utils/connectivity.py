@@ -1,14 +1,14 @@
 import logging
 import time
 from requests.exceptions import ConnectionError, Timeout, RequestException
-from main.utils.http_session import get_session
+from main.utils.http_session import getSession
 from sqlalchemy import text
 
 from config import Config, engine, stocksEngine
 
 logger = logging.getLogger(__name__)
 
-# Use thread-safe session (via get_session()) for all HTTP calls.
+# Use thread-safe session (via getSession()) for all HTTP calls.
 
 
 def checkMySqlConnection():
@@ -63,7 +63,7 @@ def checkServiceConnection(service: str):
             prefix = service.lower()
 
         startTime = time.time()
-        response = get_session().get(f"http://{host}:{port}/{prefix}/health", timeout=5)
+        response = getSession().get(f"http://{host}:{port}/{prefix}/health", timeout=5)
         latency = (time.time() - startTime) * 1000
 
         if response.status_code == 200:

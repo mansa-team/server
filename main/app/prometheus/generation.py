@@ -3,7 +3,7 @@ from config import Config
 
 import pandas as pd
 import json
-from main.utils.http_session import get_session
+from main.utils.http_session import getSession
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 
@@ -20,10 +20,10 @@ class _SessionProxy:
     """Thread-safe proxy that delegates to per-thread sessions."""
 
     def get(self, *args, **kwargs):
-        return get_session().get(*args, **kwargs)
+        return getSession().get(*args, **kwargs)
 
     def post(self, *args, **kwargs):
-        return get_session().post(*args, **kwargs)
+        return getSession().post(*args, **kwargs)
 
 
 httpSession = _SessionProxy()
