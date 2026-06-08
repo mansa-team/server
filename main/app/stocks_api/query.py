@@ -40,11 +40,11 @@ class StocksQueryManager:
             return val
 
         def _clean_json(obj):
-            """Clean NaN from a JSON-parsed object. Handles dicts and lists efficiently."""
+            """Clean NaN from a JSON-parsed object. Handles dicts, lists, and nested structures."""
             if isinstance(obj, dict):
-                return {k: _clean_value(v) for k, v in obj.items()}
+                return {k: _clean_json(v) for k, v in obj.items()}
             if isinstance(obj, list):
-                return [_clean_value(item) for item in obj]
+                return [_clean_json(item) for item in obj]
             return _clean_value(obj)
 
         for col in df.columns:

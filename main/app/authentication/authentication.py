@@ -16,26 +16,35 @@ class AuthenticationManager:
         if not password and not googleId:
             raise HTTPException(status_code=400, detail="Account must have either a password.")
 
-        existingUser = db.query(User).filter((User.username == username) | (User.email == email)).first()
+        try:
+            existingUser = db.query(User).filter((User.username == username) | (User.email == email)).first()
 
-        if existingUser:
-            if existingUser.username == username:
-                detail = "Username already taken."
-            else:
-                detail = "Email already registered."
-            raise HTTPException(status_code=400, detail=detail)
+            if existingUser:
+                if existingUser.username == username:
+                    detail = "Username already taken."
+                else:
+                    detail = "Email already registered."
+                raise HTTPException(status_code=400, detail=detail)
 
-        hashedPassword = hashPassword(password) if password else None
+            hashedPassword = hashPassword(password) if password else None
 
-        newUser = User(
-            username=username, email=email, passwordHash=hashedPassword, googleId=googleId, roles=Roles.USER.name
-        )
+            newUser = User(
+                username=username, email=email, passwordHash=hashedPassword, googleId=googleId, roles=Roles.USER.name
+            )
 
-        db.add(newUser)
-        db.commit()
+            db.add(newUser)
+            db.commit()
 
-        logger.info(f"User created: {username} ({email})")
-        return True
+            logger.info(f"User created: {username} ({email})")
+            return True
+
+        except HTTPException:
+            db.rollback()
+            raise
+        except Exception as e:
+            db.rollback()
+            logger.error(f"Error creating user: {str(e)}", exc_info=True)
+            raise HTTPException(status_code=500, detail="Failed to create user")
 
     @staticmethod
     def authenticateGoogleUser(db: Session, googleId: str):
