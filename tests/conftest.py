@@ -20,6 +20,7 @@ def _patch_secret_key(monkeypatch):
 
         monkeypatch.setattr(auth_util, "SECRET_KEY", "test-secret-key-not-empty")
 
+
 TEST_DATABASE_URL = "sqlite:///:memory:"
 
 
