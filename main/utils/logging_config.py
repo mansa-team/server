@@ -1,6 +1,7 @@
 import logging
 import logging.handlers
-import threading
+import atexit
+from concurrent.futures import ThreadPoolExecutor
 import requests
 
 from config import Config
@@ -10,6 +11,9 @@ from main.utils.errors import RequestContextFilter
 
 limiter = Limiter(key_func=get_remote_address)
 logger = logging.getLogger(__name__)
+
+_discord_executor = ThreadPoolExecutor(max_workers=5, thread_name_prefix="discord-webhook")
+atexit.register(_discord_executor.shutdown, wait=False)
 
 
 def setupLogging():
@@ -56,9 +60,12 @@ class DiscordHandler(logging.Handler):
         payload = {"content": full_text}
 
         try:
-            threading.Thread(
-                target=lambda: requests.post(Config.DISCORD.WEBHOOK_URL, json=payload, timeout=5), daemon=True
-            ).start()
+            _discord_executor.submit(
+                requests.post,
+                Config.DISCORD.WEBHOOK_URL,
+                json=payload,
+                timeout=5,
+            )
         except Exception as e:
             logger.debug(f"Discord webhook failed: {e}")
 
