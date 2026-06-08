@@ -2,13 +2,22 @@ from config import Config, getSession
 
 from fastapi import HTTPException, Depends
 from fastapi.security import APIKeyHeader
+from sqlalchemy import update
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.orm import Session
 
+from typing import cast
+
 import secrets
+import hashlib
 
 from main.models import StocksAPIKey
 
 apiKeyHeader = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+
+def hashKey(key: str) -> str:
+    return hashlib.sha256(key.encode()).hexdigest()
 
 
 async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depends(getSession)):
@@ -18,17 +27,23 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depend
     if not apiKey:
         raise HTTPException(status_code=401, detail="Missing API key")
 
+    hashedKey = hashKey(apiKey)
+
     try:
-        stocksKey = db.query(StocksAPIKey).filter(StocksAPIKey.apiKey == apiKey).first()
-
-        if not stocksKey:
-            raise HTTPException(status_code=401, detail="Invalid API key")
-
-        if stocksKey.isQuotaExceeded():
-            raise HTTPException(status_code=429, detail="quota exceeded")
-
-        stocksKey.incrementUsage()
+        result = db.execute(
+            update(StocksAPIKey)
+            .where(StocksAPIKey.apiKey == hashedKey)
+            .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
+            .values(currentUsage=StocksAPIKey.currentUsage + 1)
+        )
         db.commit()
+
+        if cast(CursorResult, result).rowcount == 0:
+            stocksKey = db.query(StocksAPIKey).filter(StocksAPIKey.apiKey == hashedKey).first()
+            if not stocksKey:
+                raise HTTPException(status_code=401, detail="Invalid API key")
+            else:
+                raise HTTPException(status_code=429, detail="quota exceeded")
 
         return apiKey
 
@@ -45,22 +60,23 @@ def generateSecureKey(length: int = 32) -> str:
 
 
 def createKey(db: Session, userId: int):
-    newKey = generateSecureKey(32)
+    rawKey = generateSecureKey(32)
+    hashedKey = hashKey(rawKey)
     quota = Config.STOCKS_API["DEFAULT.QUOTA"]
 
     try:
         existingKey = db.query(StocksAPIKey).filter(StocksAPIKey.userId == userId).first()
 
         if existingKey:
-            existingKey.apiKey = newKey
+            existingKey.apiKey = hashedKey
             existingKey.requestLimit = quota
         else:
-            newKeyObj = StocksAPIKey(apiKey=newKey, userId=userId, requestLimit=quota, currentUsage=0)
+            newKeyObj = StocksAPIKey(apiKey=hashedKey, userId=userId, requestLimit=quota, currentUsage=0)
             db.add(newKeyObj)
 
         db.commit()
-        return newKey
+        return rawKey
 
-    except Exception as e:
+    except Exception:
         db.rollback()
         raise HTTPException(status_code=500, detail="Failed to create API key")

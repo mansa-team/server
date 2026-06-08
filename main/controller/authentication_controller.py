@@ -10,7 +10,13 @@ from sqlalchemy.orm import Session
 from main.app.authentication.authentication import AuthenticationManager
 from main.app.authentication.util import createAccessToken
 from main.app.authentication.sso import getGoogleSSO
-from main.app.authentication.constants import COOKIE_NAME, COOKIE_PATH, COOKIE_SAMESITE, TOKEN_EXPIRY_HOURS
+from main.app.authentication.constants import (
+    COOKIE_NAME,
+    COOKIE_ACCESS_NAME,
+    COOKIE_PATH,
+    COOKIE_SAMESITE,
+    TOKEN_EXPIRY_HOURS,
+)
 from main.app.authentication.session import SessionManager
 from fastapi import Body
 
@@ -187,10 +193,17 @@ async def googleCallback(request: Request, response: Response, state: str = None
             key=COOKIE_NAME, value=accessToken, httponly=True, secure=isSecure, samesite="none", path="/"
         )
 
+        response.set_cookie(
+            key=COOKIE_ACCESS_NAME, value=accessToken, httponly=False, secure=isSecure, samesite="none", path="/"
+        )
+
         if state:
-            response = RedirectResponse(url=f"{state}?token={accessToken}")
+            response = RedirectResponse(url=state)
             response.set_cookie(
                 key=COOKIE_NAME, value=accessToken, httponly=True, secure=isSecure, samesite="none", path="/"
+            )
+            response.set_cookie(
+                key=COOKIE_ACCESS_NAME, value=accessToken, httponly=False, secure=isSecure, samesite="none", path="/"
             )
             return response
 

@@ -7,6 +7,9 @@ import json
 
 from main.app.stocks_api.cache import stocksCache
 from main.app.stocks_api.util import categorizeColumns, parseYearInput
+import logging
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from main.app.stocks_api.cache import StocksCacheManager
@@ -24,25 +27,28 @@ class StocksQueryManager:
 
         df = df.copy()
 
-        def replaceNan(obj):
-            if isinstance(obj, dict):
-                return {k: replaceNan(v) for k, v in obj.items()}
-            elif isinstance(obj, list):
-                return [replaceNan(item) for item in obj]
-            elif isinstance(obj, float):
+        def cleanValue(val):
+            if isinstance(val, float):
                 try:
-                    if math.isnan(obj):
+                    if math.isnan(val):
                         return None
                 except (TypeError, ValueError):
                     pass
-            elif pd.isna(obj):
+            elif pd.isna(val):
                 return None
-            return obj
+            return val
+
+        def cleanJSON(obj):
+            if isinstance(obj, dict):
+                return {k: cleanJSON(v) for k, v in obj.items()}
+            if isinstance(obj, list):
+                return [cleanJSON(item) for item in obj]
+            return cleanValue(obj)
 
         for col in df.columns:
             if col in self.SPECIAL_COLS and pd.api.types.is_string_dtype(df[col]):
                 df[col] = df[col].apply(
-                    lambda x: replaceNan(json.loads(x)) if isinstance(x, str) and x.startswith(("{", "[")) else x
+                    lambda x: cleanJSON(json.loads(x)) if isinstance(x, str) and x.startswith(("{", "[")) else x
                 )
 
         return df
@@ -129,7 +135,8 @@ class StocksQueryManager:
                 "data": df.to_dict(orient="records"),
             }
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Cached historical error: {str(e)}")
+            logger.exception("Cached historical query failed")
+            raise HTTPException(status_code=500, detail="Internal server error while processing historical data")
 
     def queryFundamental(
         self,
@@ -173,7 +180,8 @@ class StocksQueryManager:
                             targetDate = pd.to_datetime(dateRange[0]).date()
                             df = df[timeCol.dt.date == targetDate]
                     except Exception as e:
-                        raise HTTPException(status_code=400, detail=f"Data format error (YYYY-MM-DD): {str(e)}")
+                        logger.exception("Date parsing failed")
+                        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
                 df["TIME"] = timeCol.dt.strftime("%Y-%m-%d")
                 df = df.sort_values(by="TIME", ascending=False)
@@ -199,7 +207,8 @@ class StocksQueryManager:
                 "data": df.to_dict(orient="records"),
             }
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Cached fundamental error: {str(e)}")
+            logger.exception("Cached fundamental query failed")
+            raise HTTPException(status_code=500, detail="Internal server error while processing fundamental data")
 
 
 stocksQuery = StocksQueryManager(stocksCache)

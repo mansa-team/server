@@ -134,6 +134,7 @@ engine = create_engine(
     pool_size=20,
     max_overflow=40,
     pool_pre_ping=True,
+    pool_recycle=3600,
     echo=False,
     connect_args={"charset": "utf8mb4"},
 )
@@ -144,6 +145,7 @@ stocksEngine = create_engine(
     pool_size=20,
     max_overflow=40,
     pool_pre_ping=True,
+    pool_recycle=3600,
     echo=False,
     connect_args={"charset": "utf8mb4"},
 )

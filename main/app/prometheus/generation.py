@@ -3,7 +3,7 @@ from config import Config
 
 import pandas as pd
 import json
-from requests import Session
+from main.utils.http_session import getSession
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 
@@ -15,7 +15,18 @@ from main.app.prometheus.chat import PrometheusChatManager
 
 logger = logging.getLogger(__name__)
 
-httpSession = Session()
+
+class _SessionProxy:
+    """Thread-safe proxy that delegates to per-thread sessions."""
+
+    def get(self, *args, **kwargs):
+        return getSession().get(*args, **kwargs)
+
+    def post(self, *args, **kwargs):
+        return getSession().post(*args, **kwargs)
+
+
+httpSession = _SessionProxy()
 
 
 class PrometheusGenerator:

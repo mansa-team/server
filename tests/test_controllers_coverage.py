@@ -23,12 +23,12 @@ def _make_auth_client():
     """Return (client, app) with auth + user routers and mocked getSession."""
     from main.controller.authentication_controller import router as authRouter
     from main.controller.user_controller import router as userRouter
-    from main.utils.errors import register_error_handlers
+    from main.utils.errors import registerErrorHandlers
 
     app = FastAPI()
     app.include_router(authRouter)
     app.include_router(userRouter)
-    register_error_handlers(app)
+    registerErrorHandlers(app)
 
     mock_session = MagicMock()
     app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
@@ -38,12 +38,12 @@ def _make_auth_client():
 def _make_user_client(mock_current_user=None):
     """Return (client, app) with user router and mocked deps."""
     from main.controller.user_controller import router as userRouter
-    from main.utils.errors import register_error_handlers
+    from main.utils.errors import registerErrorHandlers
     from main.app.user.user import UserManager
 
     app = FastAPI()
     app.include_router(userRouter)
-    register_error_handlers(app)
+    registerErrorHandlers(app)
 
     mock_session = MagicMock()
     app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
@@ -57,13 +57,13 @@ def _make_user_client(mock_current_user=None):
 def _make_prometheus_client(mock_current_user=None, mock_permission_user=None):
     """Return (client, app) with prometheus router and mocked deps."""
     from main.controller.prometheus_controller import router as promRouter
-    from main.utils.errors import register_error_handlers
+    from main.utils.errors import registerErrorHandlers
     from main.utils.roles import Roles, Permission
     from main.app.user.user import UserManager
 
     app = FastAPI()
     app.include_router(promRouter)
-    register_error_handlers(app)
+    registerErrorHandlers(app)
 
     mock_session = MagicMock()
     app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
@@ -79,12 +79,12 @@ def _make_prometheus_client(mock_current_user=None, mock_permission_user=None):
 def _make_stocksapi_client(mock_current_user=None, mock_api_key=None):
     """Return (client, app) with stocks router and mocked deps."""
     from main.controller.stocksapi_controller import router as stocksRouter
-    from main.utils.errors import register_error_handlers
+    from main.utils.errors import registerErrorHandlers
     from main.app.user.user import UserManager
 
     app = FastAPI()
     app.include_router(stocksRouter)
-    register_error_handlers(app)
+    registerErrorHandlers(app)
 
     mock_session = MagicMock()
     app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
@@ -149,11 +149,11 @@ class TestRegisterEndpoint:
 
     def _make_register_client(self):
         from main.controller.authentication_controller import router as authRouter
-        from main.utils.errors import register_error_handlers
+        from main.utils.errors import registerErrorHandlers
 
         app = FastAPI()
         app.include_router(authRouter)
-        register_error_handlers(app)
+        registerErrorHandlers(app)
         mock_session = MagicMock()
         app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
         return _TestClient(app, raise_server_exceptions=False), mock_session
@@ -229,11 +229,11 @@ class TestLoginEndpoint:
 
     def _make_login_client(self):
         from main.controller.authentication_controller import router as authRouter
-        from main.utils.errors import register_error_handlers
+        from main.utils.errors import registerErrorHandlers
 
         app = FastAPI()
         app.include_router(authRouter)
-        register_error_handlers(app)
+        registerErrorHandlers(app)
         mock_session = MagicMock()
         app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
         return _TestClient(app, raise_server_exceptions=False)
@@ -282,11 +282,11 @@ class TestLogoutEndpoint:
 
     def _make_logout_client(self):
         from main.controller.authentication_controller import router as authRouter
-        from main.utils.errors import register_error_handlers
+        from main.utils.errors import registerErrorHandlers
 
         app = FastAPI()
         app.include_router(authRouter)
-        register_error_handlers(app)
+        registerErrorHandlers(app)
         mock_session = MagicMock()
         app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
         return _TestClient(app, raise_server_exceptions=False), mock_session
@@ -426,11 +426,11 @@ class TestGoogleCallback:
 
     def _make_callback_client(self):
         from main.controller.authentication_controller import router as authRouter
-        from main.utils.errors import register_error_handlers
+        from main.utils.errors import registerErrorHandlers
 
         app = FastAPI()
         app.include_router(authRouter)
-        register_error_handlers(app)
+        registerErrorHandlers(app)
         mock_session = MagicMock()
         app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
         return _TestClient(app, raise_server_exceptions=False), mock_session
@@ -676,13 +676,13 @@ class TestGetSessions:
         mock_session_2.createdAt = None
 
         from main.controller.user_controller import router as userRouter
-        from main.utils.errors import register_error_handlers
+        from main.utils.errors import registerErrorHandlers
         from main.app.user.user import UserManager
         from main.app.authentication.util import extractTokenPayload
 
         app = FastAPI()
         app.include_router(userRouter)
-        register_error_handlers(app)
+        registerErrorHandlers(app)
         mock_db = MagicMock()
         app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_db
         app.dependency_overrides[UserManager.getCurrentUser] = lambda: {
@@ -723,12 +723,12 @@ class TestGetCurrentSession:
             mock_sm.getCurrentSession.return_value = mock_session
 
             from main.controller.user_controller import router as userRouter
-            from main.utils.errors import register_error_handlers
+            from main.utils.errors import registerErrorHandlers
             from main.app.user.user import UserManager
 
             app = FastAPI()
             app.include_router(userRouter)
-            register_error_handlers(app)
+            registerErrorHandlers(app)
             app.dependency_overrides[UserManager.getCurrentUser] = lambda: {
                 "userId": 1,
                 "username": "alice",
@@ -746,12 +746,12 @@ class TestGetCurrentSession:
             mock_sm.getCurrentSession.return_value = None
 
             from main.controller.user_controller import router as userRouter
-            from main.utils.errors import register_error_handlers
+            from main.utils.errors import registerErrorHandlers
             from main.app.user.user import UserManager
 
             app = FastAPI()
             app.include_router(userRouter)
-            register_error_handlers(app)
+            registerErrorHandlers(app)
             app.dependency_overrides[UserManager.getCurrentUser] = lambda: {
                 "userId": 1,
                 "username": "alice",
@@ -776,12 +776,12 @@ class TestRevokeSession:
             mock_sm.revokeSession.return_value = True
 
             from main.controller.user_controller import router as userRouter
-            from main.utils.errors import register_error_handlers
+            from main.utils.errors import registerErrorHandlers
             from main.app.user.user import UserManager
 
             app = FastAPI()
             app.include_router(userRouter)
-            register_error_handlers(app)
+            registerErrorHandlers(app)
             app.dependency_overrides[UserManager.getCurrentUser] = lambda: {
                 "userId": 1,
                 "username": "alice",
@@ -799,12 +799,12 @@ class TestRevokeSession:
             mock_sm.getSessionById.return_value = None
 
             from main.controller.user_controller import router as userRouter
-            from main.utils.errors import register_error_handlers
+            from main.utils.errors import registerErrorHandlers
             from main.app.user.user import UserManager
 
             app = FastAPI()
             app.include_router(userRouter)
-            register_error_handlers(app)
+            registerErrorHandlers(app)
             app.dependency_overrides[UserManager.getCurrentUser] = lambda: {
                 "userId": 1,
                 "username": "alice",
@@ -824,12 +824,12 @@ class TestRevokeSession:
             mock_sm.revokeSession.return_value = False
 
             from main.controller.user_controller import router as userRouter
-            from main.utils.errors import register_error_handlers
+            from main.utils.errors import registerErrorHandlers
             from main.app.user.user import UserManager
 
             app = FastAPI()
             app.include_router(userRouter)
-            register_error_handlers(app)
+            registerErrorHandlers(app)
             app.dependency_overrides[UserManager.getCurrentUser] = lambda: {
                 "userId": 1,
                 "username": "alice",
@@ -850,12 +850,12 @@ class TestRevokeAllSessions:
             mock_sm.revokeAllSessions.return_value = 3
 
             from main.controller.user_controller import router as userRouter
-            from main.utils.errors import register_error_handlers
+            from main.utils.errors import registerErrorHandlers
             from main.app.user.user import UserManager
 
             app = FastAPI()
             app.include_router(userRouter)
-            register_error_handlers(app)
+            registerErrorHandlers(app)
             app.dependency_overrides[UserManager.getCurrentUser] = lambda: {
                 "userId": 1,
                 "username": "alice",
@@ -969,10 +969,10 @@ class TestPrometheusGetHistory:
 
         app = FastAPI()
         from main.controller.prometheus_controller import router as promRouter
-        from main.utils.errors import register_error_handlers
+        from main.utils.errors import registerErrorHandlers
 
         app.include_router(promRouter)
-        register_error_handlers(app)
+        registerErrorHandlers(app)
         mock_db = MagicMock()
         app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_db
         app.dependency_overrides[UserManager.getCurrentUser] = lambda: {
@@ -1005,10 +1005,10 @@ class TestPrometheusGetHistory:
 
         app = FastAPI()
         from main.controller.prometheus_controller import router as promRouter
-        from main.utils.errors import register_error_handlers
+        from main.utils.errors import registerErrorHandlers
 
         app.include_router(promRouter)
-        register_error_handlers(app)
+        registerErrorHandlers(app)
         mock_db = MagicMock()
         app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_db
         app.dependency_overrides[UserManager.getCurrentUser] = lambda: {
@@ -1084,10 +1084,10 @@ class TestPrometheusChat:
 
         app = FastAPI()
         from main.controller.prometheus_controller import router as promRouter
-        from main.utils.errors import register_error_handlers
+        from main.utils.errors import registerErrorHandlers
 
         app.include_router(promRouter)
-        register_error_handlers(app)
+        registerErrorHandlers(app)
         mock_db = MagicMock()
         app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_db
         app.dependency_overrides[UserManager.getCurrentUser] = lambda: {
@@ -1126,10 +1126,10 @@ class TestPrometheusChat:
 
         app = FastAPI()
         from main.controller.prometheus_controller import router as promRouter
-        from main.utils.errors import register_error_handlers
+        from main.utils.errors import registerErrorHandlers
 
         app.include_router(promRouter)
-        register_error_handlers(app)
+        registerErrorHandlers(app)
         mock_db = MagicMock()
         app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_db
         app.dependency_overrides[UserManager.getCurrentUser] = lambda: {

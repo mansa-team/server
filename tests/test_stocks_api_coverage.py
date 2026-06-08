@@ -49,22 +49,21 @@ class TestStocksCacheManager:
         lock = threading.Lock()
         return StocksCacheManager(mock_engine, lock)
 
-    # --- cacheScheduler (lines 28-35) ------------------------------------
-    @patch("main.app.stocks_api.cache.threading.Thread")
-    def test_cache_scheduler_starts_daemon_thread(self, mock_thread_cls):
+    # --- cacheScheduler (lines 28-32) ------------------------------------
+    @patch("main.app.stocks_api.cache.BackgroundScheduler")
+    def test_cache_scheduler_starts_apscheduler(self, mock_sched_cls):
         from main.app.stocks_api.cache import StocksCacheManager
 
         mock_engine = MagicMock()
         mgr = StocksCacheManager(mock_engine, threading.Lock())
-        mock_thread = MagicMock()
-        mock_thread_cls.return_value = mock_thread
+        mock_sched = MagicMock()
+        mock_sched_cls.return_value = mock_sched
 
         mgr.cacheScheduler()
 
-        mock_thread_cls.assert_called_once()
-        call_kwargs = mock_thread_cls.call_args
-        assert call_kwargs[1]["daemon"] is True
-        mock_thread.start.assert_called_once()
+        mock_sched_cls.assert_called_once()
+        mock_sched.add_job.assert_called_once()
+        mock_sched.start.assert_called_once()
 
     # --- putCache (lines 78-82) ------------------------------------------
     def test_putCache_adds_entry_and_evicts_when_full(self):
@@ -254,12 +253,15 @@ class TestVerifyAPIKey:
 
     @patch("main.app.stocks_api.key.Config")
     def test_verify_api_key_invalid_key_raises_401(self, mock_config):
-        """When DB returns no matching key (line 25)."""
+        """When atomic UPDATE returns 0 rows and query finds no key -> 401."""
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
 
         mock_config.STOCKS_API = {"KEY.SYSTEM": True}
         mock_db = MagicMock()
+        # Atomic UPDATE returns 0 rows (key not found or quota exceeded)
+        mock_db.execute.return_value.rowcount = 0
+        # Follow-up query confirms key doesn't exist
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
         with pytest.raises(HTTPException) as exc_info:
@@ -268,14 +270,16 @@ class TestVerifyAPIKey:
 
     @patch("main.app.stocks_api.key.Config")
     def test_verify_api_key_quota_exceeded(self, mock_config):
-        """When quota is exceeded (line 28)."""
+        """When atomic UPDATE returns 0 rows and query finds key at limit -> 429."""
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
 
         mock_config.STOCKS_API = {"KEY.SYSTEM": True}
         mock_db = MagicMock()
+        # Atomic UPDATE returns 0 rows (quota exceeded)
+        mock_db.execute.return_value.rowcount = 0
+        # Follow-up query confirms key exists (at quota limit)
         mock_key_obj = MagicMock()
-        mock_key_obj.isQuotaExceeded.return_value = True
         mock_db.query.return_value.filter.return_value.first.return_value = mock_key_obj
 
         with pytest.raises(HTTPException) as exc_info:
@@ -284,18 +288,16 @@ class TestVerifyAPIKey:
 
     @patch("main.app.stocks_api.key.Config")
     def test_verify_api_key_success(self, mock_config):
-        """Happy path: key found, quota OK, increment and commit (lines 30-33)."""
+        """Happy path: atomic UPDATE succeeds, returns key (lines 22-33)."""
         from main.app.stocks_api.key import verifyAPIKey
 
         mock_config.STOCKS_API = {"KEY.SYSTEM": True}
         mock_db = MagicMock()
-        mock_key_obj = MagicMock()
-        mock_key_obj.isQuotaExceeded.return_value = False
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_key_obj
+        # Atomic UPDATE returns 1 row (success)
+        mock_db.execute.return_value.rowcount = 1
 
         result = asyncio.run(verifyAPIKey(apiKey="valid_key", db=mock_db))
         assert result == "valid_key"
-        mock_key_obj.incrementUsage.assert_called_once()
         mock_db.commit.assert_called_once()
 
     @patch("main.app.stocks_api.key.Config")
@@ -306,8 +308,10 @@ class TestVerifyAPIKey:
 
         mock_config.STOCKS_API = {"KEY.SYSTEM": True}
         mock_db = MagicMock()
+        # Atomic UPDATE returns 0 rows (quota exceeded)
+        mock_db.execute.return_value.rowcount = 0
+        # Follow-up query confirms key exists (at quota limit)
         mock_key_obj = MagicMock()
-        mock_key_obj.isQuotaExceeded.return_value = True  # triggers 429
         mock_db.query.return_value.filter.return_value.first.return_value = mock_key_obj
 
         with pytest.raises(HTTPException) as exc_info:
@@ -323,7 +327,7 @@ class TestVerifyAPIKey:
 
         mock_config.STOCKS_API = {"KEY.SYSTEM": True}
         mock_db = MagicMock()
-        mock_db.query.side_effect = Exception("DB connection lost")
+        mock_db.execute.side_effect = Exception("DB connection lost")
 
         with pytest.raises(HTTPException) as exc_info:
             asyncio.run(verifyAPIKey(apiKey="key", db=mock_db))
@@ -335,20 +339,20 @@ class TestGenerateSecureKey:
     """Tests covering key.py line 44."""
 
     def test_generate_secure_key_length(self):
-        from main.app.stocks_api.key import generateSecureKey
+        from main.app.stocks_api.key import generateSecureKey, hashKey
 
         key = generateSecureKey(32)
         assert isinstance(key, str)
         assert len(key) == 32
 
     def test_generate_secure_key_custom_length(self):
-        from main.app.stocks_api.key import generateSecureKey
+        from main.app.stocks_api.key import generateSecureKey, hashKey
 
         key = generateSecureKey(16)
         assert len(key) == 16
 
     def test_generate_secure_key_unique(self):
-        from main.app.stocks_api.key import generateSecureKey
+        from main.app.stocks_api.key import generateSecureKey, hashKey
 
         keys = {generateSecureKey(32) for _ in range(50)}
         assert len(keys) == 50  # all unique
@@ -375,7 +379,7 @@ class TestCreateKey:
     @patch("main.app.stocks_api.key.Config")
     def test_create_key_existing_user_updates(self, mock_config):
         """Existing key is updated (lines 54-56)."""
-        from main.app.stocks_api.key import createKey
+        from main.app.stocks_api.key import createKey, hashKey
 
         mock_config.STOCKS_API = {"DEFAULT.QUOTA": 150}
         mock_db = MagicMock()
@@ -384,7 +388,8 @@ class TestCreateKey:
 
         result = createKey(mock_db, userId=1)
         assert isinstance(result, str)
-        assert mock_existing.apiKey == result
+        # The stored key should be the hashed version; the returned key is the raw key
+        assert mock_existing.apiKey == hashKey(result)
         assert mock_existing.requestLimit == 150
         mock_db.commit.assert_called_once()
 

@@ -9,9 +9,6 @@ logger = logging.getLogger(__name__)
 
 
 class UserManager:
-    def __init__(self):
-        pass
-
     @staticmethod
     def addRoleToUser(db: Session, userId: int, role: str):
         user = db.query(User).filter(User.userId == userId).first()

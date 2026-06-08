@@ -1,6 +1,6 @@
 import logging
 import os
-from config import Config, LOCALHOST_ADDRESSES
+from config import Config
 from main.utils.logging_config import limiter
 
 import threading

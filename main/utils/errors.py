@@ -6,7 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from main.utils.request_id import request_id_var
+from main.utils.request_id import requestIdVar
 
 
 class ErrorResponse(BaseModel):
@@ -19,31 +19,29 @@ class ErrorResponse(BaseModel):
 
 
 class RequestContextFilter(logging.Filter):
-    """Inject request_id from ContextVar into every log record."""
-
     def filter(self, record: logging.LogRecord) -> bool:
-        record.request_id = request_id_var.get("")
+        record.request_id = requestIdVar.get("")
         return True
 
 
-def _build_error_response(status_code: int, error: str, detail: str | None = None) -> dict:
+def _buildErrorResponse(statusCode: int, error: str, detail: str | None = None) -> dict:
     return ErrorResponse(
         error=error,
         detail=detail,
-        request_id=request_id_var.get(""),
+        request_id=requestIdVar.get(""),
         timestamp=datetime.now(timezone.utc).isoformat(),
-        status_code=status_code,
+        status_code=statusCode,
     ).model_dump()
 
 
-async def http_exception_handler(request: Request, exc):
+async def httpExceptionHandler(request: Request, exc):
     return JSONResponse(
         status_code=exc.status_code,
-        content=_build_error_response(exc.status_code, str(exc.detail)),
+        content=_buildErrorResponse(exc.status_code, str(exc.detail)),
     )
 
 
-async def validation_exception_handler(request: Request, exc):
+async def validationExceptionHandler(request: Request, exc):
     errors = []
     for error in exc.errors():
         loc = " -> ".join(str(part) for part in error.get("loc", []))
@@ -51,28 +49,22 @@ async def validation_exception_handler(request: Request, exc):
 
     return JSONResponse(
         status_code=422,
-        content=_build_error_response(422, "Validation error", detail=str(errors)),
+        content=_buildErrorResponse(422, "Validation error", detail=str(errors)),
     )
 
 
-async def generic_exception_handler(request: Request, exc):
+async def genericExceptionHandler(request: Request, exc):
     logger = logging.getLogger("main.errors")
     logger.exception(f"Unhandled exception: {exc}")
     return JSONResponse(
         status_code=500,
-        content=_build_error_response(500, "Internal server error"),
+        content=_buildErrorResponse(500, "Internal server error"),
     )
 
 
-def register_error_handlers(app: FastAPI):
-    """Register exception handlers on the FastAPI app.
-
-    Note: HTTPException and RequestValidationError handlers are auto-registered
-    by FastAPI when using add_exception_handler. The generic Exception handler
-    must be registered explicitly.
-    """
+def registerErrorHandlers(app: FastAPI):
     from starlette.exceptions import HTTPException as StarletteHTTPException
 
-    app.add_exception_handler(StarletteHTTPException, http_exception_handler)
-    app.add_exception_handler(RequestValidationError, validation_exception_handler)
-    app.add_exception_handler(Exception, generic_exception_handler)
+    app.add_exception_handler(StarletteHTTPException, httpExceptionHandler)
+    app.add_exception_handler(RequestValidationError, validationExceptionHandler)
+    app.add_exception_handler(Exception, genericExceptionHandler)
