@@ -4,6 +4,19 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+
+def pytest_configure(config):
+    """Set required env vars before test collection.
+
+    config.py eagerly instantiates UserSettings() at import time, which
+    requires JWT_SECRET_KEY and SESSION_SECRET_KEY. These env vars
+    don't exist in CI, so every test that touches config blows up
+    during collection. This hook runs before collection begins.
+    """
+    os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret-key-not-for-production")
+    os.environ.setdefault("SESSION_SECRET_KEY", "test-session-secret-key-not-for-production")
+
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from main.models.base import Base
