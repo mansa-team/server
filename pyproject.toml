@@ -9,7 +9,7 @@ filterwarnings = [
 
 [tool.coverage.run]
 source = ["main"]
-omit = ["*/tests/*", "*/migrations/*", "*/__pycache__/*", "run.py"]
+omit = ["*/tests/*", "*/migrations/*", "*/__pycache__/*", "run.py", "*/scraper_b3/*"]
 
 [tool.coverage.report]
 exclude_lines = [

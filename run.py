@@ -1,10 +1,10 @@
 import logging
+from datetime import datetime
 from fastapi import FastAPI, BackgroundTasks
 from contextlib import asynccontextmanager
 import asyncio
-import os
+
 from config import Config, LOCALHOST_ADDRESSES
-from main.utils.logging_config import limiter
 from main.utils.connectivity import checkMySqlConnection, checkServiceConnection
 from main.utils.service_manager import ServiceManager
 from main.utils.migrator import runMigrations
@@ -18,6 +18,7 @@ from main.service.scraper_service import ScraperService, runScraper
 from main.service.stocksapi_service import StocksAPIService
 
 logger = logging.getLogger(__name__)
+appStartTime = datetime.now()
 
 
 @asynccontextmanager
@@ -74,6 +75,47 @@ registerErrorHandlers(app)
 @app.get("/health")
 async def health():
     return {"status": "ok", "message": "Mansa Server is running"}
+
+
+@app.get("/status")
+async def status():
+    uptime = datetime.now() - appStartTime
+    hours, remainder = divmod(int(uptime.total_seconds()), 3600)
+    minutes, seconds = divmod(remainder, 60)
+    days, hours = divmod(hours, 24)
+
+    services = {}
+    serviceConfigs = [
+        ("authentication", Config.USER),
+        ("user", Config.USER),
+        ("stocks_api", Config.STOCKS_API),
+        ("prometheus", Config.PROMETHEUS),
+    ]
+
+    for name, config in serviceConfigs:
+        if not config["ENABLED"]:
+            services[name] = {"status": "disabled"}
+            continue
+
+        isLocal = config["HOST"] in LOCALHOST_ADDRESSES
+        services[name] = {
+            "status": "running",
+            "port": config["PORT"],
+            "type": "local" if isLocal else "remote",
+        }
+        if not isLocal:
+            services[name]["host"] = config["HOST"]
+
+    if Config.SCRAPER["ENABLED"]:
+        services["scraper"] = {"status": "running", "type": "local"}
+    else:
+        services["scraper"] = {"status": "disabled"}
+
+    return {
+        "status": "healthy",
+        "uptime": f"{days}d {hours}h {minutes}m {seconds}s",
+        "services": services,
+    }
 
 
 @app.post("/scraper/run")
