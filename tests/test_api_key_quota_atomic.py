@@ -13,7 +13,7 @@ from sqlalchemy.orm import sessionmaker
 
 from main.models.base import Base
 from main.models.stocksapi_key import StocksAPIKey
-from main.app.stocks_api.key import verifyAPIKey
+from main.app.stocks_api.key import verifyAPIKey, _hash_key
 
 
 @pytest.fixture
@@ -32,7 +32,7 @@ def dbSession():
 @pytest.fixture
 def sampleKeyData():
     """Sample API key data for tests."""
-    return {"apiKey": "test_key_12345", "userId": 1, "requestLimit": 100, "currentUsage": 0}
+    return {"apiKey": _hash_key("test_key_12345"), "userId": 1, "requestLimit": 100, "currentUsage": 0}
 
 
 class TestAtomicQuotaIncrement:
@@ -53,7 +53,7 @@ class TestAtomicQuotaIncrement:
 
             result = dbSession.execute(
                 update(StocksAPIKey)
-                .where(StocksAPIKey.apiKey == "test_key_12345")
+                .where(StocksAPIKey.apiKey == _hash_key("test_key_12345"))
                 .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
                 .values(currentUsage=StocksAPIKey.currentUsage + 1)
             )
@@ -76,7 +76,7 @@ class TestAtomicQuotaIncrement:
         # First request should succeed (99 -> 100)
         result1 = dbSession.execute(
             update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == "test_key_12345")
+            .where(StocksAPIKey.apiKey == _hash_key("test_key_12345"))
             .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
             .values(currentUsage=StocksAPIKey.currentUsage + 1)
         )
@@ -89,7 +89,7 @@ class TestAtomicQuotaIncrement:
         # Second request should fail (100 is not < 100)
         result2 = dbSession.execute(
             update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == "test_key_12345")
+            .where(StocksAPIKey.apiKey == _hash_key("test_key_12345"))
             .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
             .values(currentUsage=StocksAPIKey.currentUsage + 1)
         )
@@ -118,7 +118,7 @@ class TestAtomicQuotaIncrement:
         # Both should succeed because 98 < 100 and 99 < 100
         result1 = dbSession.execute(
             update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == "test_key_12345")
+            .where(StocksAPIKey.apiKey == _hash_key("test_key_12345"))
             .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
             .values(currentUsage=StocksAPIKey.currentUsage + 1)
         )
@@ -126,7 +126,7 @@ class TestAtomicQuotaIncrement:
 
         result2 = dbSession.execute(
             update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == "test_key_12345")
+            .where(StocksAPIKey.apiKey == _hash_key("test_key_12345"))
             .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
             .values(currentUsage=StocksAPIKey.currentUsage + 1)
         )
@@ -151,7 +151,7 @@ class TestAtomicQuotaIncrement:
         # Request should fail (100 is not < 100)
         result = dbSession.execute(
             update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == "test_key_12345")
+            .where(StocksAPIKey.apiKey == _hash_key("test_key_12345"))
             .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
             .values(currentUsage=StocksAPIKey.currentUsage + 1)
         )
@@ -221,7 +221,7 @@ class TestAtomicQuotaIncrement:
 
         result = dbSession.execute(
             update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == "test_key_12345")
+            .where(StocksAPIKey.apiKey == _hash_key("test_key_12345"))
             .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
             .values(currentUsage=StocksAPIKey.currentUsage + 1)
         )
