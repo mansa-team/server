@@ -31,23 +31,23 @@ def removeInactiveSessions():
         db.close()
 
 
-_scheduler = None
+scheduler = None
 
 
 class UserService:
     @staticmethod
     def initialize(port: int):
-        global _scheduler
+        global scheduler
         service = ServiceManager.getApp(port)
         service.include_router(userRouter)
 
-        _scheduler = BackgroundScheduler(timezone=timezone("America/Sao_Paulo"))
-        _scheduler.add_job(
+        scheduler = BackgroundScheduler(timezone=timezone("America/Sao_Paulo"))
+        scheduler.add_job(
             removeInactiveSessions,
             "interval",
             hours=12,
             id="cleanup_inactive_sessions",
             name="Remove inactive sessions",
         )
-        _scheduler.start()
+        scheduler.start()
         logger.info("Session cleanup scheduler started (every 12h)")

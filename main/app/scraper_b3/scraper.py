@@ -403,14 +403,14 @@ class B3Scraper:
 
             score = result["score"]
             if score is None or pd.isna(score):
-                newDF["INVESTING SCORE"] = np.nan
+                newDF["XANGO INVESTING SCORE"] = np.nan
             else:
-                newDF["INVESTING SCORE"] = min(max(score, 0), 100)
+                newDF["XANGO INVESTING SCORE"] = min(max(score, 0), 100)
 
             for key in ["m_vol", "m_dd", "consistency", "growth"]:
-                newDF[key.upper()] = result[key]
+                newDF[f"XANGO {key.upper()}"] = result[key]
         except Exception as e:
-            newDF["INVESTING SCORE"] = np.nan
+            newDF["XANGO INVESTING SCORE"] = np.nan
 
         return pd.DataFrame([newDF]).set_index("TICKER")
 

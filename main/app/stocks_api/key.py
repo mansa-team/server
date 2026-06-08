@@ -13,8 +13,7 @@ from main.models import StocksAPIKey
 apiKeyHeader = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
-def _hash_key(key: str) -> str:
-    """Return SHA-256 hex digest of the given key."""
+def hashKey(key: str) -> str:
     return hashlib.sha256(key.encode()).hexdigest()
 
 
@@ -25,12 +24,9 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depend
     if not apiKey:
         raise HTTPException(status_code=401, detail="Missing API key")
 
-    hashedKey = _hash_key(apiKey)
+    hashedKey = hashKey(apiKey)
 
     try:
-        # Atomic check-and-increment: prevents TOCTOU race condition
-        # The UPDATE only succeeds if currentUsage < requestLimit,
-        # ensuring quota is never exceeded even under concurrent requests
         result = db.execute(
             update(StocksAPIKey)
             .where(StocksAPIKey.apiKey == hashedKey)
@@ -40,8 +36,6 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depend
         db.commit()
 
         if result.rowcount == 0:
-            # Either key doesn't exist or quota is exceeded
-            # Check which case to return the correct error
             stocksKey = db.query(StocksAPIKey).filter(StocksAPIKey.apiKey == hashedKey).first()
             if not stocksKey:
                 raise HTTPException(status_code=401, detail="Invalid API key")
@@ -64,7 +58,7 @@ def generateSecureKey(length: int = 32) -> str:
 
 def createKey(db: Session, userId: int):
     rawKey = generateSecureKey(32)
-    hashedKey = _hash_key(rawKey)
+    hashedKey = hashKey(rawKey)
     quota = Config.STOCKS_API["DEFAULT.QUOTA"]
 
     try:

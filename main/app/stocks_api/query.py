@@ -27,8 +27,7 @@ class StocksQueryManager:
 
         df = df.copy()
 
-        def _clean_value(val):
-            """Replace NaN/NaT with None — non-recursive for common top-level values."""
+        def cleanValue(val):
             if isinstance(val, float):
                 try:
                     if math.isnan(val):
@@ -39,18 +38,17 @@ class StocksQueryManager:
                 return None
             return val
 
-        def _clean_json(obj):
-            """Clean NaN from a JSON-parsed object. Handles dicts, lists, and nested structures."""
+        def cleanJSON(obj):
             if isinstance(obj, dict):
-                return {k: _clean_json(v) for k, v in obj.items()}
+                return {k: cleanJSON(v) for k, v in obj.items()}
             if isinstance(obj, list):
-                return [_clean_json(item) for item in obj]
-            return _clean_value(obj)
+                return [cleanJSON(item) for item in obj]
+            return cleanValue(obj)
 
         for col in df.columns:
             if col in self.SPECIAL_COLS and pd.api.types.is_string_dtype(df[col]):
                 df[col] = df[col].apply(
-                    lambda x: _clean_json(json.loads(x)) if isinstance(x, str) and x.startswith(("{", "[")) else x
+                    lambda x: cleanJSON(json.loads(x)) if isinstance(x, str) and x.startswith(("{", "[")) else x
                 )
 
         return df

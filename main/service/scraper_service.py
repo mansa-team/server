@@ -9,16 +9,16 @@ from main.app.scraper_b3.scraper import B3Scraper
 
 logger = logging.getLogger(__name__)
 
-_scraperStartTime = None
+scraperStartTime = None
 
 
 def runScraper():
-    global _scraperStartTime
-    _scraperStartTime = time.time()
+    global scraperStartTime
+    scraperStartTime = time.time()
     try:
         scraper = B3Scraper()
         scraper.scrapeStocks()
-        elapsed = time.time() - _scraperStartTime if _scraperStartTime else 0
+        elapsed = time.time() - scraperStartTime if scraperStartTime else 0
         logger.info(f"Scraper execution completed. Time: {elapsed:.0f}s")
     except Exception as e:
         logger.error(f"Scraper Exception: {e}")
