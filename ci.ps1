@@ -1,26 +1,29 @@
 <#
 .SYNOPSIS
-    Local CI replica - runs the same checks as .github/workflows/ci.yml
+    Local CI replica with auto-fix support
 .DESCRIPTION
-    Runs: Ruff lint, Ruff format check, mypy, pytest + coverage, bandit security scan.
-    Exits non-zero if any required check fails (bandit is advisory only).
+    Runs: Ruff lint, Ruff format, mypy, pytest + coverage, bandit security scan.
+    Auto-fixes formatting and lint issues before checking. Exits non-zero if any required check fails.
 .USAGE
-    .\ci.ps1              # run all checks
-    .\ci.ps1 -Lint        # lint only
+    .\ci.ps1              # run all checks (auto-fix first)
+    .\ci.ps1 -Lint        # lint only (auto-fix)
     .\ci.ps1 -Test        # tests only
     .\ci.ps1 -Fast        # skip bandit + mypy
+    .\ci.ps1 -NoFix       # check only, no auto-fix
 #>
 param(
     [switch]$Lint,
     [switch]$Typecheck,
     [switch]$Test,
     [switch]$Security,
-    [switch]$Fast
+    [switch]$Fast,
+    [switch]$NoFix
 )
 
 $ErrorActionPreference = "Continue"
 $script:failed = @()
 $script:passed = @()
+$script:fixed = @()
 
 function Write-Step {
     param([string]$label)
@@ -40,6 +43,12 @@ function Write-Fail {
     param([string]$label)
     Write-Host "  FAIL  $label" -ForegroundColor Red
     $script:failed += $label
+}
+
+function Write-Fix {
+    param([string]$label)
+    Write-Host "  FIXED  $label" -ForegroundColor Yellow
+    $script:fixed += $label
 }
 
 function Run-Check {
@@ -65,6 +74,36 @@ $runAll = -not ($Lint -or $Typecheck -or $Test -or $Security)
 $startTime = Get-Date
 Write-Host "CI Replica - $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')" -ForegroundColor White
 if ($Fast) { Write-Host "  (Fast mode: skipping mypy + bandit)" -ForegroundColor Yellow }
+if ($NoFix) { Write-Host "  (NoFix mode: check only, no auto-fix)" -ForegroundColor Yellow }
+
+# --- Auto-fix phase ---
+if (-not $NoFix -and -not $Test) {
+    Write-Step "Auto-fix"
+
+    # ruff check --fix: auto-fix safe lint issues (unused imports, etc.)
+    $lintBefore = & ruff check main/ tests/ 2>&1 | Measure-Object -Line
+    & ruff check --fix main/ tests/ 2>&1 | Out-Null
+    $lintAfter = & ruff check main/ tests/ 2>&1 | Measure-Object -Line
+    if ($lintBefore.Lines -gt $lintAfter.Lines) {
+        $fixed = $lintBefore.Lines - $lintAfter.Lines
+        Write-Host "  ruff check --fix: auto-fixed $fixed lint issue(s)" -ForegroundColor Yellow
+    } else {
+        Write-Host "  ruff check --fix: no changes needed" -ForegroundColor Gray
+    }
+
+    # ruff format: auto-format all files (not just check)
+    $fmtBefore = & ruff format --check . 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        & ruff format . 2>&1 | Out-Null
+        Write-Host "  ruff format: reformatted files" -ForegroundColor Yellow
+    } else {
+        Write-Host "  ruff format: already formatted" -ForegroundColor Gray
+    }
+
+    Write-Host ""
+}
+
+# --- Check phase ---
 
 # 1. Ruff lint
 if ($runAll -or $Lint) {
@@ -81,7 +120,18 @@ if ($runAll -or $Typecheck) {
     if ($Fast) {
         Write-Step "mypy (skipped in fast mode)"
     } else {
-        Run-Check "mypy Typecheck" "mypy main/"
+        # Run mypy with --no-error-summary for cleaner output
+        # mypy doesn't have an auto-fix mode, but we show clear errors
+        Write-Step "mypy Typecheck"
+        $mypyOutput = & mypy main/ 2>&1
+        $mypyExit = $LASTEXITCODE
+        if ($mypyOutput) { $mypyOutput | ForEach-Object { Write-Host "  $_" } }
+        if ($mypyExit -eq 0) {
+            Write-Pass "mypy Typecheck"
+        } else {
+            Write-Fail "mypy Typecheck"
+            Write-Host "  Tip: mypy errors need manual fixes. Run 'mypy main/' to see details." -ForegroundColor Yellow
+        }
     }
 }
 
@@ -122,6 +172,10 @@ Write-Host ""
 Write-Host "========================================"
 Write-Host " SUMMARY"
 Write-Host "========================================"
+if ($script:fixed.Count -gt 0) {
+    Write-Host "  Auto-fixed: $($script:fixed.Count)" -ForegroundColor Yellow
+    foreach ($f in $script:fixed) { Write-Host "    - $f" -ForegroundColor Yellow }
+}
 Write-Host "  Passed: $($script:passed.Count)" -ForegroundColor Green
 if ($script:failed.Count -gt 0) {
     Write-Host "  Failed: $($script:failed.Count)" -ForegroundColor Red
@@ -133,4 +187,3 @@ Write-Host ("  Time: {0:N1}s" -f $elapsed) -ForegroundColor Gray
 Write-Host ""
 
 if ($script:failed.Count -gt 0) { exit 1 } else { exit 0 }
-
