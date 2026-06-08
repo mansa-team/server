@@ -8,7 +8,7 @@ import pytest
 import sys
 import os
 from unittest.mock import patch, MagicMock, AsyncMock, PropertyMock
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, Request
 from fastapi.testclient import TestClient as _TestClient
 from fastapi.responses import RedirectResponse
@@ -1445,7 +1445,7 @@ class TestVerifyAccessToken:
         from main.app.authentication.constants import SECRET_KEY, ALGORITHM
         from main.app.authentication.util import verifyAccessToken
 
-        expired_payload = {"userId": "1", "exp": datetime.utcnow() - timedelta(hours=1)}
+        expired_payload = {"userId": "1", "exp": datetime.now(timezone.utc) - timedelta(hours=1)}
         token = pyjwt.encode(expired_payload, SECRET_KEY, algorithm=ALGORITHM)
 
         from fastapi import HTTPException

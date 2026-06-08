@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from config import getSession
 from main.utils.logging_config import limiter
 
@@ -46,7 +46,7 @@ def register(
             raise HTTPException(status_code=401, detail="Auto-login failed after registration")
 
         userAgent = request.headers.get("User-Agent", "")
-        expiresAt = datetime.utcnow() + timedelta(hours=TOKEN_EXPIRY_HOURS)
+        expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
         session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
 
         accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
@@ -85,7 +85,7 @@ def login(
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     userAgent = request.headers.get("User-Agent", "")
-    expiresAt = datetime.utcnow() + timedelta(hours=TOKEN_EXPIRY_HOURS)
+    expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
     session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
 
     accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
@@ -177,7 +177,7 @@ async def googleCallback(request: Request, response: Response, state: str = None
             user = AuthenticationManager.authenticateGoogleUser(db, googleId)
 
         userAgent = request.headers.get("User-Agent", "")
-        expiresAt = datetime.utcnow() + timedelta(hours=TOKEN_EXPIRY_HOURS)
+        expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
         session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
 
         accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})

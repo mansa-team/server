@@ -236,7 +236,7 @@ class TestVerifyAPIKey:
         mock_config.STOCKS_API = {"KEY.SYSTEM": False}
         mock_db = MagicMock()
 
-        result = asyncio.get_event_loop().run_until_complete(verifyAPIKey(apiKey=None, db=mock_db))
+        result = asyncio.run(verifyAPIKey(apiKey=None, db=mock_db))
         assert result is None
 
     @patch("main.app.stocks_api.key.Config")
@@ -249,7 +249,7 @@ class TestVerifyAPIKey:
         mock_db = MagicMock()
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.get_event_loop().run_until_complete(verifyAPIKey(apiKey=None, db=mock_db))
+            asyncio.run(verifyAPIKey(apiKey=None, db=mock_db))
         assert exc_info.value.status_code == 401
 
     @patch("main.app.stocks_api.key.Config")
@@ -263,7 +263,7 @@ class TestVerifyAPIKey:
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.get_event_loop().run_until_complete(verifyAPIKey(apiKey="bad_key", db=mock_db))
+            asyncio.run(verifyAPIKey(apiKey="bad_key", db=mock_db))
         assert exc_info.value.status_code == 401
 
     @patch("main.app.stocks_api.key.Config")
@@ -279,7 +279,7 @@ class TestVerifyAPIKey:
         mock_db.query.return_value.filter.return_value.first.return_value = mock_key_obj
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.get_event_loop().run_until_complete(verifyAPIKey(apiKey="valid_key", db=mock_db))
+            asyncio.run(verifyAPIKey(apiKey="valid_key", db=mock_db))
         assert exc_info.value.status_code == 429
 
     @patch("main.app.stocks_api.key.Config")
@@ -293,7 +293,7 @@ class TestVerifyAPIKey:
         mock_key_obj.isQuotaExceeded.return_value = False
         mock_db.query.return_value.filter.return_value.first.return_value = mock_key_obj
 
-        result = asyncio.get_event_loop().run_until_complete(verifyAPIKey(apiKey="valid_key", db=mock_db))
+        result = asyncio.run(verifyAPIKey(apiKey="valid_key", db=mock_db))
         assert result == "valid_key"
         mock_key_obj.incrementUsage.assert_called_once()
         mock_db.commit.assert_called_once()
@@ -311,7 +311,7 @@ class TestVerifyAPIKey:
         mock_db.query.return_value.filter.return_value.first.return_value = mock_key_obj
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.get_event_loop().run_until_complete(verifyAPIKey(apiKey="key", db=mock_db))
+            asyncio.run(verifyAPIKey(apiKey="key", db=mock_db))
         assert exc_info.value.status_code == 429
         mock_db.rollback.assert_called_once()
 
@@ -326,7 +326,7 @@ class TestVerifyAPIKey:
         mock_db.query.side_effect = Exception("DB connection lost")
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.get_event_loop().run_until_complete(verifyAPIKey(apiKey="key", db=mock_db))
+            asyncio.run(verifyAPIKey(apiKey="key", db=mock_db))
         assert exc_info.value.status_code == 500
         mock_db.rollback.assert_called_once()
 

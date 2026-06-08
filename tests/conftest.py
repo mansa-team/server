@@ -45,8 +45,8 @@ def dbSession():
     session = SessionLocal()
     yield session
     session.close()
-    engine.dispose()
     Base.metadata.drop_all(engine)
+    engine.dispose()
 
 
 @pytest.fixture
