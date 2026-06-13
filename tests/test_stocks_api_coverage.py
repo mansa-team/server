@@ -522,6 +522,48 @@ class TestDeserializeJsonColumns:
         # The replaceNan function is never called
         assert result is not None
 
+    def test_deserialize_mixed_string_none_parses_json(self):
+        """Regression: is_string_dtype fails when column has strings + None (pandas 2.x).
+
+        When querying ALL tickers (no search), many have None in SPECIAL_COLS.
+        Before the fix, is_string_dtype returned False for mixed string/None columns,
+        causing JSON parsing to be skipped entirely.
+        """
+        mgr = self._make_manager()
+        json_str = json.dumps([{"DATA": "01-12-2016", "PRECO": 14.92}])
+        df = pd.DataFrame({
+            "COTACAO 10Y PADRAO": [json_str, None],
+            "TICKER": ["AALR3", "VALE3"],
+        })
+        result = mgr.deserializeJsonColumns(df)
+        # Row with JSON string should be parsed into a list of dicts
+        assert isinstance(result["COTACAO 10Y PADRAO"].iloc[0], list)
+        assert result["COTACAO 10Y PADRAO"].iloc[0][0]["DATA"] == "01-12-2016"
+        # Row with None should stay None
+        assert result["COTACAO 10Y PADRAO"].iloc[1] is None
+
+    def test_deserialize_multiple_special_cols_with_none(self):
+        """All four SPECIAL_COLS should parse correctly when mixed with None."""
+        mgr = self._make_manager()
+        json_cotacao = json.dumps([{"DATA": "30-01-2017", "PRECO": 14.03}])
+        json_noticias = json.dumps({"titulo": "test", "data": "2026-01-01"})
+        df = pd.DataFrame({
+            "COTACAO 10Y PADRAO": [json_cotacao, None],
+            "COTACAO 10Y AJUSTADA": [None, json_cotacao],
+            "NOTICIAS": [json_noticias, None],
+            "HISTORICO DIVIDENDOS": [None, json_cotacao],
+            "TICKER": ["AALR3", "VALE3"],
+        })
+        result = mgr.deserializeJsonColumns(df)
+        # Each SPECIAL_COL with data should be parsed
+        assert isinstance(result["COTACAO 10Y PADRAO"].iloc[0], list)
+        assert isinstance(result["COTACAO 10Y AJUSTADA"].iloc[1], list)
+        assert isinstance(result["NOTICIAS"].iloc[0], dict)
+        assert isinstance(result["HISTORICO DIVIDENDOS"].iloc[1], list)
+        # None values should remain None
+        assert result["COTACAO 10Y PADRAO"].iloc[1] is None
+        assert result["NOTICIAS"].iloc[1] is None
+
 
 class TestFilterBySearchTerms:
     """Tests covering query.py lines 50-67."""

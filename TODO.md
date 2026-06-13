@@ -1,4 +1,7 @@
 - [ ] Use Google's GenAI native tool calling to improve the Prometheus model and make space for integration with the Thoth system.
+- [ ] Implement a real Agentic loop system inside Prometheus, for multi-step reasoning and increased problem solving skills, instead of a one-shot reasoning and data analysis task
+- [ ] Improved per-session memory system
+- [ ] Figure out how to make a decent multi-session memory system without breaking massive performance impacts (google turboquant vec / table with memory scores and ranking)
 - [ ] Make my own code_execution sandbox for appropriate mathematical output using Prometheus, with support for sklearn, skfolio and multiple data science packages that would not be possible with the standard code_execution tool from Google
 
 - [ ] Github OAuth

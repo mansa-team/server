@@ -46,7 +46,7 @@ class StocksQueryManager:
             return cleanValue(obj)
 
         for col in df.columns:
-            if col in self.SPECIAL_COLS and pd.api.types.is_string_dtype(df[col]):
+            if col in self.SPECIAL_COLS and df[col].dtype == "object":
                 df[col] = df[col].apply(
                     lambda x: cleanJSON(json.loads(x)) if isinstance(x, str) and x.startswith(("{", "[")) else x
                 )
