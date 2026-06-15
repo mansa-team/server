@@ -7,7 +7,7 @@ import threading
 import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, ORJSONResponse
+from fastapi.responses import JSONResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
@@ -27,7 +27,7 @@ class ServiceManager:
             if port in cls._instances:
                 return cls._instances[port]
 
-            app = FastAPI(title=f"Mansa Service {port}", default_response_class=ORJSONResponse)
+            app = FastAPI(title=f"Mansa Service {port}")
             app.state.limiter = limiter
 
             @app.exception_handler(RateLimitExceeded)
