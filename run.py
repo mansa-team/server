@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 from fastapi import FastAPI, BackgroundTasks
+from fastapi.responses import ORJSONResponse
 from contextlib import asynccontextmanager
 import asyncio
 
@@ -67,7 +68,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Mansa Server", lifespan=lifespan)
+app = FastAPI(title="Mansa Server", lifespan=lifespan, default_response_class=ORJSONResponse)
 app.add_middleware(RequestIDMiddleware)
 registerErrorHandlers(app)
 

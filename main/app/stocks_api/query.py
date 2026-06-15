@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 import pandas as pd
 import numpy as np
 import json
+import orjson
 
 from main.app.stocks_api.cache import stocksCache
 from main.app.stocks_api.util import categorizeColumns, parseYearInput
@@ -45,10 +46,16 @@ class StocksQueryManager:
                 return [cleanJSON(item) for item in obj]
             return cleanValue(obj)
 
+        def parseJSON(x):
+            try:
+                return orjson.loads(x)
+            except (ValueError, TypeError):
+                return json.loads(x)
+
         for col in df.columns:
             if col in self.SPECIAL_COLS and df[col].dtype == "object":
                 df[col] = df[col].apply(
-                    lambda x: cleanJSON(json.loads(x)) if isinstance(x, str) and x.startswith(("{", "[")) else x
+                    lambda x: cleanJSON(parseJSON(x)) if isinstance(x, str) and x.startswith(("{", "[")) else x
                 )
 
         return df
