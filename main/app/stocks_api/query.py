@@ -12,6 +12,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
+def sanitizeNanValues(obj):
+    if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
+        return None
+    if isinstance(obj, dict):
+        return {k: sanitizeNanValues(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [sanitizeNanValues(item) for item in obj]
+    return obj
+
+
 if TYPE_CHECKING:
     from main.app.stocks_api.cache import StocksCacheManager
 
@@ -139,7 +150,7 @@ class StocksQueryManager:
                 "dates": [yearStart, yearEnd],
                 "type": "historical",
                 "count": len(df),
-                "data": df.to_dict(orient="records"),
+                "data": sanitizeNanValues(df.to_dict(orient="records")),
             }
         except Exception as e:
             logger.exception("Cached historical query failed")
@@ -211,7 +222,7 @@ class StocksQueryManager:
                 "dates": dates,
                 "type": "fundamental",
                 "count": len(df),
-                "data": df.to_dict(orient="records"),
+                "data": sanitizeNanValues(df.to_dict(orient="records")),
             }
         except Exception as e:
             logger.exception("Cached fundamental query failed")
