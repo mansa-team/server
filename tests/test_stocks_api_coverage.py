@@ -714,12 +714,17 @@ class TestQueryHistorical:
         assert len(tickers) == len(set(tickers))
 
     def test_historical_exception_returns_500(self):
-        """If an unexpected exception occurs (line 132)."""
+        """If an unexpected exception occurs in queryHistorical."""
         mgr = self._make_manager(cache_df=pd.DataFrame())
-        # Force copy() to raise
-        mock_df = MagicMock()
-        mock_df.copy.side_effect = Exception("copy failed")
-        mgr.cacheManager.STOCKS_CACHE = mock_df
+
+        class _ExplodingDf:
+            """A dummy cache object that raises on .columns access."""
+
+            @property
+            def columns(self):
+                raise Exception("simulated failure")
+
+        mgr.cacheManager.STOCKS_CACHE = _ExplodingDf()
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
@@ -860,10 +865,15 @@ class TestQueryFundamental:
 
     def test_fundamental_exception_returns_500(self):
         mgr = self._make_manager(cache_df=pd.DataFrame())
-        # Force copy() to raise
-        mock_df = MagicMock()
-        mock_df.copy.side_effect = Exception("copy failed")
-        mgr.cacheManager.STOCKS_CACHE = mock_df
+
+        class _ExplodingDf:
+            """A dummy cache object that raises on .columns access."""
+
+            @property
+            def columns(self):
+                raise Exception("simulated failure")
+
+        mgr.cacheManager.STOCKS_CACHE = _ExplodingDf()
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:

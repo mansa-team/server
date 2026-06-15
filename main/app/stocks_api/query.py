@@ -102,7 +102,7 @@ class StocksQueryManager:
             raise HTTPException(status_code=503, detail="Cache not initialized")
 
         try:
-            df = self.cacheManager.STOCKS_CACHE.copy()
+            df = self.cacheManager.STOCKS_CACHE
             availableColumns = df.columns.tolist()
             availableColumnsSet = set(availableColumns)
             historicalFields, _ = categorizeColumns(availableColumns)
@@ -168,7 +168,7 @@ class StocksQueryManager:
             raise HTTPException(status_code=503, detail="Cache not initialized")
 
         try:
-            df = self.cacheManager.STOCKS_CACHE.copy()
+            df = self.cacheManager.STOCKS_CACHE
             availableColumns = df.columns.tolist()
             availableColumnsSet = set(availableColumns)
             _, fundamentalCols = categorizeColumns(availableColumns)
