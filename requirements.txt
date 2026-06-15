@@ -8,7 +8,6 @@ pydantic_settings
 alembic
 
 # SCRAPER-B3
-scikit-learn
 cloudscraper
 tenacity
 apscheduler
@@ -17,7 +16,8 @@ lxml
 
 # STOCKS-API
 fastapi
-uvicorn
+uvicorn[standard]
+orjson
 requests
 
 # PROMETHEUS
