@@ -1,5 +1,6 @@
 import logging
 from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from config import getSession
 
@@ -32,7 +33,8 @@ def getHistorical(
     limit: int = Query(None, ge=1, le=1000),
     apiKey: str = Depends(verifyAPIKey),
 ):
-    return stocksQuery.queryHistorical(search, fields, dates, orderBy, limit)
+    result = stocksQuery.queryHistorical(search, fields, dates, orderBy, limit)
+    return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
 
 
 @router.get("/fundamental")
@@ -44,7 +46,8 @@ def getFundamental(
     limit: int = Query(None, ge=1, le=1000),
     apiKey: str = Depends(verifyAPIKey),
 ):
-    return stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
+    result = stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
+    return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
 
 
 @router.get("/key/generate")
