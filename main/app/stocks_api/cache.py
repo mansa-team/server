@@ -85,7 +85,6 @@ class StocksCacheManager:
                     df = pd.read_sql("SELECT * FROM b3_stocks", conn)
 
                 df = df.replace({np.nan: None, np.inf: None, -np.inf: None})
-
                 df = optimizeDtypes(df)
 
                 self.tickerIndex = {str(ticker).upper(): idx for idx, ticker in enumerate(df["TICKER"])}

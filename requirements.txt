@@ -16,7 +16,8 @@ lxml
 
 # STOCKS-API
 fastapi
-uvicorn[standard]
+uvicorn
+pyarrow
 orjson
 requests
 

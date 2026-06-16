@@ -12,6 +12,7 @@
 
 - [ ] Add a framework to quickly debug the scraper over time
 
+- [ ] Move the stocks_api to a SQLite/DuckDB based cache instead of a dataframe based cache
 #
 
 - [ ] Ma'at: Stock Picking algorithm designed to help build wallets for the users based on their profile and provide insights in the stocks page, such as its grade and recommended signal (Buy, Hold or Sell) based on Value Investing fundamentals
