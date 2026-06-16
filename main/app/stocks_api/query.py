@@ -83,12 +83,12 @@ class StocksQueryManager:
                 valid_indices.append(self.cacheManager.tickerIndex[term])
 
         if valid_indices:
-            return df.iloc[valid_indices]
+            return df.iloc[valid_indices].copy()
 
         mask = pd.Series([False] * len(df), index=df.index)
         for term in searchTerms:
             mask |= df["TICKER"].str.upper().str.startswith(term)
-        return df[mask]
+        return df[mask].copy()
 
     def queryHistorical(
         self,
@@ -193,10 +193,10 @@ class StocksQueryManager:
                             startDate = pd.to_datetime(dateRange[0]).date()
                             endDate = pd.to_datetime(dateRange[1]).date()
                             mask = (timeCol.dt.date >= startDate) & (timeCol.dt.date <= endDate)
-                            df = df[mask]
+                            df = df[mask].copy()
                         elif len(dateRange) == 1:
                             targetDate = pd.to_datetime(dateRange[0]).date()
-                            df = df[timeCol.dt.date == targetDate]
+                            df = df[timeCol.dt.date == targetDate].copy()
                     except Exception as e:
                         logger.exception("Date parsing failed")
                         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
