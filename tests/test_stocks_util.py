@@ -4,7 +4,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from main.app.stocks_api.util import categorizeColumns, parseYearInput
+from main.app.stocks_api.util import categorizeColumns, parseDateRange
 import pandas as pd
 from fastapi import HTTPException
 
@@ -50,37 +50,50 @@ class TestCategorizeColumns:
         assert len(fundamental) == 0
 
 
-class TestParseYearInput:
+class TestParseDateRange:
     def test_parse_year_single(self):
-        start, end = parseYearInput("2020")
-        assert start == 2020
-        assert end == 2020
+        start, end = parseDateRange("2020")
+        assert start.year == 2020
+        assert start.month == 1
+        assert start.day == 1
+        assert end.year == 2020
+        assert end.month == 12
+        assert end.day == 31
 
     def test_parse_year_range(self):
-        start, end = parseYearInput("2020,2023")
-        assert start == 2020
-        assert end == 2023
+        start, end = parseDateRange("2020,2023")
+        assert start.year == 2020
+        assert end.year == 2023
 
     def test_parse_year_none(self):
-        start, end = parseYearInput(None)
+        start, end = parseDateRange(None)
         assert start is None
         assert end is None
 
     def test_parse_year_empty_string(self):
-        start, end = parseYearInput("")
+        start, end = parseDateRange("")
         assert start is None
         assert end is None
 
-    def test_parse_year_with_spaces(self):
-        start, end = parseYearInput("2020 , 2023")
-        assert start == 2020
-        assert end == 2023
+    def test_parse_month(self):
+        start, end = parseDateRange("2026-06")
+        assert start.month == 6
+        assert start.day == 1
+        assert end.month == 6
+        assert end.day == 30
 
-    def test_parse_year_invalid_format(self):
+    def test_parse_full_date(self):
+        start, end = parseDateRange("2026-06-15")
+        assert start == end
+
+    def test_parse_two_values(self):
+        start, end = parseDateRange("2020-03,2023-09")
+        assert start.year == 2020
+        assert start.month == 3
+        assert end.year == 2023
+        assert end.month == 9
+
+    def test_parse_three_values_raises(self):
         with pytest.raises(HTTPException) as exc:
-            parseYearInput("2020,2021,2022")
+            parseDateRange("2020,2021,2022")
         assert exc.value.status_code == 400
-
-    def test_parse_year_invalid_non_digit(self):
-        with pytest.raises(ValueError):
-            parseYearInput("abc")

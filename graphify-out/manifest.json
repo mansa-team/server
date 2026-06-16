@@ -1,7 +1,7 @@
 {
   "D:\\Repositories\\server\\ci.ps1": {
-    "mtime": 1780940903.4828467,
-    "ast_hash": "342949e2d0408e253deb27aed009e742",
+    "mtime": 1781577081.5511785,
+    "ast_hash": "15d0716e706e3b84ad409efb247b485d",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\config.py": {
@@ -55,7 +55,7 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\scraper_b3\\scraper.py": {
-    "mtime": 1780934408.9993098,
+    "mtime": 1781577076.989694,
     "ast_hash": "225046f4d6ceb4100914091e56420be3",
     "semantic_hash": ""
   },
@@ -75,8 +75,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\query.py": {
-    "mtime": 1781555222.292827,
-    "ast_hash": "70a82d7c4c799415c9e0bf4e0d06a860",
+    "mtime": 1781602433.7850378,
+    "ast_hash": "105c6b3ee31df8798d148a35a9837fed",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\util.py": {
@@ -380,8 +380,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\requirements.txt": {
-    "mtime": 1781555222.292827,
-    "ast_hash": "60ef43656768f0c712dfe5e2c0f5baeb",
+    "mtime": 1781575341.1014569,
+    "ast_hash": "33c7443404b0c65d795554a6fa1f4a59",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\TODO.md": {

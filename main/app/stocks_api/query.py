@@ -7,7 +7,7 @@ import json
 import orjson
 
 from main.app.stocks_api.cache import stocksCache
-from main.app.stocks_api.util import categorizeColumns, parseYearInput
+from main.app.stocks_api.util import categorizeColumns, parseDateRange
 import logging
 
 logger = logging.getLogger(__name__)
@@ -66,7 +66,9 @@ class StocksQueryManager:
         for col in df.columns:
             if col in self.SPECIAL_COLS and (df[col].dtype == "object" or pd.api.types.is_string_dtype(df[col])):
                 df[col] = df[col].apply(
-                    lambda x: cleanJSON(parseJSON(x)) if isinstance(x, str) and x.startswith(("{", "[")) else cleanValue(x)
+                    lambda x: (
+                        cleanJSON(parseJSON(x)) if isinstance(x, str) and x.startswith(("{", "[")) else cleanValue(x)
+                    )
                 )
 
         return df
@@ -118,7 +120,11 @@ class StocksQueryManager:
             )
 
             availableYears = sorted(set(year for field in fieldList for year in historicalFields[field]))
-            yearStart, yearEnd = parseYearInput(dates) if dates else (availableYears[0], availableYears[-1])
+            if dates:
+                startDate, endDate = parseDateRange(dates)
+                yearStart, yearEnd = startDate.year, endDate.year
+            else:
+                yearStart, yearEnd = availableYears[0], availableYears[-1]
 
             cols = ["TICKER", "NOME"] + [
                 f"{field} {year}"
@@ -188,20 +194,13 @@ class StocksQueryManager:
 
                 if dates:
                     try:
-                        dateRange = [d.strip() for d in dates.split(",")]
-                        if len(dateRange) == 2:
-                            startDate = pd.to_datetime(dateRange[0]).date()
-                            endDate = pd.to_datetime(dateRange[1]).date()
-                            mask = (timeCol.dt.date >= startDate) & (timeCol.dt.date <= endDate)
-                            df = df[mask]
-                        elif len(dateRange) == 1:
-                            targetDate = pd.to_datetime(dateRange[0]).date()
-                            df = df[timeCol.dt.date == targetDate]
+                        startDate, endDate = parseDateRange(dates)
+                        mask = (timeCol.dt.date >= startDate) & (timeCol.dt.date <= endDate)
+                        df = df[mask]
                     except Exception as e:
                         logger.exception("Date parsing failed")
                         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
-
-                # Sort by datetime without mutating the TIME column
+                    
                 sortIdx = timeCol.loc[df.index].sort_values(ascending=False).index
                 df = df.loc[sortIdx]
 
