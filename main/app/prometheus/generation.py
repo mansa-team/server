@@ -16,9 +16,7 @@ from main.app.prometheus.chat import PrometheusChatManager
 logger = logging.getLogger(__name__)
 
 
-class _SessionProxy:
-    """Thread-safe proxy that delegates to per-thread sessions."""
-
+class SessionProxy:
     def get(self, *args, **kwargs):
         return getSession().get(*args, **kwargs)
 
@@ -26,7 +24,7 @@ class _SessionProxy:
         return getSession().post(*args, **kwargs)
 
 
-httpSession = _SessionProxy()
+httpSession = SessionProxy()
 
 
 class PrometheusGenerator:

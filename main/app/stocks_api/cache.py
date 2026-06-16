@@ -2,6 +2,7 @@ import logging
 import re
 from collections import OrderedDict
 from config import stocksEngine
+import orjson
 
 import threading
 import time
@@ -14,6 +15,31 @@ logger = logging.getLogger(__name__)
 
 COLUMN_VALIDATOR = re.compile(r"^[A-Z0-9_ ]+$", re.IGNORECASE)
 QUERY_CACHE_MAX_SIZE = 32
+
+CATEGORY_COLS = frozenset(["TICKER", "NOME"])
+
+
+def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+
+    for col in CATEGORY_COLS:
+        if col in df.columns:
+            df[col] = df[col].astype("category")
+
+    for col in df.select_dtypes(include=["float64"]).columns:
+        df[col] = pd.to_numeric(df[col], downcast="float")
+
+        if df[col].isna().any():
+            df[col] = df[col].where(df[col].notna(), other=None)
+
+    try:
+        for col in df.select_dtypes(include=["object"]).columns:
+            if col not in CATEGORY_COLS and df[col].notna().all():
+                df[col] = df[col].astype("string[pyarrow]")
+    except Exception as e:
+        logger.debug(f"Arrow string optimization skipped: {e}")
+
+    return df
 
 
 class StocksCacheManager:
@@ -59,6 +85,7 @@ class StocksCacheManager:
                     df = pd.read_sql("SELECT * FROM b3_stocks", conn)
 
                 df = df.replace({np.nan: None, np.inf: None, -np.inf: None})
+                df = optimizeDtypes(df)
 
                 self.tickerIndex = {str(ticker).upper(): idx for idx, ticker in enumerate(df["TICKER"])}
 

@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 from fastapi import HTTPException
-from main.app.stocks_api.util import categorizeColumns, parseYearInput, normalizeColumns
+from main.app.stocks_api.util import categorizeColumns, parseDateRange, normalizeColumns
 
 
 class TestCategorizeColumns:
@@ -40,26 +40,47 @@ class TestCategorizeColumns:
         assert fund == ["VOLUME"]
 
 
-class TestParseYearInput:
+class TestParseDateRange:
     def test_empty_string(self):
-        assert parseYearInput("") == (None, None)
+        assert parseDateRange("") == (None, None)
 
     def test_none(self):
-        assert parseYearInput(None) == (None, None)
+        assert parseDateRange(None) == (None, None)
 
     def test_single_year(self):
-        assert parseYearInput("2023") == (2023, 2023)
+        start, end = parseDateRange("2023")
+        assert start.year == 2023
+        assert start.month == 1
+        assert start.day == 1
+        assert end.year == 2023
+        assert end.month == 12
+        assert end.day == 31
 
     def test_year_range(self):
-        assert parseYearInput("2022,2024") == (2022, 2024)
+        start, end = parseDateRange("2022,2024")
+        assert start.year == 2022
+        assert end.year == 2024
 
     def test_spaces(self):
-        assert parseYearInput(" 2022 , 2024 ") == (2022, 2024)
+        start, end = parseDateRange(" 2022 , 2024 ")
+        assert start.year == 2022
+        assert end.year == 2024
 
-    def test_three_years_raises(self):
+    def test_three_values_raises(self):
         with pytest.raises(HTTPException) as exc_info:
-            parseYearInput("2022,2023,2024")
+            parseDateRange("2022,2023,2024")
         assert exc_info.value.status_code == 400
+
+    def test_month_start(self):
+        start, end = parseDateRange("2026-06")
+        assert start.month == 6
+        assert start.day == 1
+        assert end.month == 6
+        assert end.day == 30
+
+    def test_full_date(self):
+        start, end = parseDateRange("2026-06-15")
+        assert start == end
 
 
 class TestNormalizeColumns:
