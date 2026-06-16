@@ -66,7 +66,7 @@ class StocksQueryManager:
         for col in df.columns:
             if col in self.SPECIAL_COLS and (df[col].dtype == "object" or pd.api.types.is_string_dtype(df[col])):
                 df[col] = df[col].apply(
-                    lambda x: cleanJSON(parseJSON(x)) if isinstance(x, str) and x.startswith(("{", "[")) else x
+                    lambda x: cleanJSON(parseJSON(x)) if isinstance(x, str) and x.startswith(("{", "[")) else cleanValue(x)
                 )
 
         return df
@@ -83,12 +83,12 @@ class StocksQueryManager:
                 valid_indices.append(self.cacheManager.tickerIndex[term])
 
         if valid_indices:
-            return df.iloc[valid_indices].copy()
+            return df.iloc[valid_indices]
 
         mask = pd.Series([False] * len(df), index=df.index)
         for term in searchTerms:
             mask |= df["TICKER"].str.upper().str.startswith(term)
-        return df[mask].copy()
+        return df[mask]
 
     def queryHistorical(
         self,
@@ -193,16 +193,17 @@ class StocksQueryManager:
                             startDate = pd.to_datetime(dateRange[0]).date()
                             endDate = pd.to_datetime(dateRange[1]).date()
                             mask = (timeCol.dt.date >= startDate) & (timeCol.dt.date <= endDate)
-                            df = df[mask].copy()
+                            df = df[mask]
                         elif len(dateRange) == 1:
                             targetDate = pd.to_datetime(dateRange[0]).date()
-                            df = df[timeCol.dt.date == targetDate].copy()
+                            df = df[timeCol.dt.date == targetDate]
                     except Exception as e:
                         logger.exception("Date parsing failed")
                         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
-                df["TIME"] = timeCol.dt.strftime("%Y-%m-%d")
-                df = df.sort_values(by="TIME", ascending=False)
+                # Sort by datetime without mutating the TIME column
+                sortIdx = timeCol.loc[df.index].sort_values(ascending=False).index
+                df = df.loc[sortIdx]
 
             if not search or search.strip() == "":
                 df = df.drop_duplicates(subset=["TICKER"], keep="first")
