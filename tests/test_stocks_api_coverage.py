@@ -166,7 +166,7 @@ class TestStocksCacheManager:
             mgr.getCachedStocks(columns=["PRECO", ""])
             mock_read.assert_called_once()
 
-    # --- getCachedStocks: NaN/inf replacement (line 64) -------------------
+    # --- getCachedStocks: NaN preserved (sanitizeNanValues handles at serialization) ---
     def test_getCachedStocks_replaces_nan_inf(self):
         mgr = self._make_manager()
         mock_conn = MagicMock()
@@ -176,7 +176,8 @@ class TestStocksCacheManager:
         with patch("main.app.stocks_api.cache.pd.read_sql", return_value=df):
             mgr.getCachedStocks(columns=["VAL"])
             assert mgr.STOCKS_CACHE is not None
-            assert mgr.STOCKS_CACHE["VAL"].iloc[0] is None
+            # NaN is kept in cache; sanitizeNanValues converts to None at serialization
+            assert pd.isna(mgr.STOCKS_CACHE["VAL"].iloc[0])
 
     # --- getCachedStocks: tickerIndex built (line 66) ---------------------
     def test_getCachedStocks_builds_ticker_index(self):
@@ -196,7 +197,7 @@ class TestStocksCacheManager:
         # Should not raise, just log
         mgr.getCachedStocks(columns=["PRECO"])
 
-    # --- getCachedStocks: columns with inf -------------------------------
+    # --- getCachedStocks: inf preserved (sanitizeNanValues handles at serialization) ---
     def test_getCachedStocks_replaces_inf(self):
         mgr = self._make_manager()
         mock_conn = MagicMock()
@@ -206,7 +207,7 @@ class TestStocksCacheManager:
         with patch("main.app.stocks_api.cache.pd.read_sql", return_value=df):
             mgr.getCachedStocks(columns=["VAL"])
             assert mgr.STOCKS_CACHE is not None
-            assert mgr.STOCKS_CACHE["VAL"].iloc[0] is None
+            assert pd.isna(mgr.STOCKS_CACHE["VAL"].iloc[0]) or np.isinf(mgr.STOCKS_CACHE["VAL"].iloc[0])
 
     def test_getCachedStocks_replaces_neg_inf(self):
         mgr = self._make_manager()
@@ -217,7 +218,7 @@ class TestStocksCacheManager:
         with patch("main.app.stocks_api.cache.pd.read_sql", return_value=df):
             mgr.getCachedStocks(columns=["VAL"])
             assert mgr.STOCKS_CACHE is not None
-            assert mgr.STOCKS_CACHE["VAL"].iloc[0] is None
+            assert pd.isna(mgr.STOCKS_CACHE["VAL"].iloc[0]) or np.isinf(mgr.STOCKS_CACHE["VAL"].iloc[0])
 
 
 # ===========================================================================
