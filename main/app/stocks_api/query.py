@@ -20,6 +20,12 @@ def sanitizeNanValues(obj):
         return {k: sanitizeNanValues(v) for k, v in obj.items()}
     if isinstance(obj, list):
         return [sanitizeNanValues(item) for item in obj]
+    if isinstance(obj, pd.Timestamp):
+        return obj.isoformat()
+    if obj is pd.NaT:
+        return None
+    if obj is pd.NA:
+        return None
     return obj
 
 
@@ -195,14 +201,23 @@ class StocksQueryManager:
                 if dates:
                     try:
                         startDate, endDate = parseDateRange(dates)
-                        mask = (timeCol.dt.date >= startDate) & (timeCol.dt.date <= endDate)
+                        isRange = "," in dates
+                        if isRange:
+                            mask = (timeCol.dt.date >= startDate) & (timeCol.dt.date <= endDate)
+                        else:
+                            targetTs = pd.Timestamp(endDate)
+                            diffs = (timeCol - targetTs).abs()
+                            minDiff = diffs.min()
+                            mask = diffs <= minDiff
                         df = df[mask]
+                        timeCol = timeCol.loc[df.index]
                     except Exception as e:
                         logger.exception("Date parsing failed")
                         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
-                    
-                sortIdx = timeCol.loc[df.index].sort_values(ascending=False).index
+
+                sortIdx = timeCol.sort_values(ascending=False).index
                 df = df.loc[sortIdx]
+                df["TIME"] = timeCol.sort_values(ascending=False).dt.strftime("%Y-%m-%d")
 
             if not search or search.strip() == "":
                 df = df.drop_duplicates(subset=["TICKER"], keep="first")
