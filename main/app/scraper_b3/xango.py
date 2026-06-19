@@ -83,6 +83,11 @@ def calculateInvestingScore(
     mDd = min(1, mDd)
 
     base = growth * GROWTH_WEIGHT + consistency * CONSISTENCY_WEIGHT
+
+    g_elig = 0.5 * (np.tanh((growth - 50) / 5) + 1)
+    c_elig = 0.5 * (np.tanh((consistency - 80) / 3) + 1)
+    base *= 1.0 + 0.20 * g_elig * c_elig
+    
     score = min(100, max(0, base * mVol * mDd))
 
     totalLiq = prefixLiquidity if prefixLiquidity else companyLiquidity
