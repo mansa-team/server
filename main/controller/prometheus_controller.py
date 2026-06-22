@@ -2,12 +2,11 @@ import logging
 from config import getSession
 from main.utils.logging_config import limiter
 from main.utils.roles import Roles, Permission
-from main.utils.pagination import PaginationParams
 
 from sqlalchemy.orm import Session
 from main.models.prometheus import PrometheusSession
 
-from fastapi import APIRouter, Depends, Request, HTTPException
+from fastapi import APIRouter, Depends, Request, HTTPException, Query
 import time
 
 from main.app.prometheus.generation import PrometheusGenerator
@@ -19,8 +18,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/prometheus", tags=["Prometheus"])
 
 
-def _verify_session_ownership(db: Session, sessionId: str, userId: int):
-    """Verify the user owns the session, raise 403 otherwise."""
+def verifySessionOwnsership(db: Session, sessionId: str, userId: int):
     if not PrometheusChatManager.verifySessionOwnership(db, sessionId, userId):
         raise HTTPException(status_code=403, detail="Forbidden: You do not own this session")
 
@@ -34,17 +32,18 @@ def health():
 def getSessions(
     db: Session = Depends(getSession),
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
-    pagination: PaginationParams = Depends(),
+    limit: int = Query(20, ge=1, le=100, description="Number of items per page"),
+    offset: int = Query(0, ge=0, description="Number of items to skip"),
 ):
     sessions = PrometheusChatManager.getUserSessions(db, user["userId"])
     total = len(sessions)
-    paginatedSessions = sessions[pagination.offset : pagination.offset + pagination.limit]
+    paginatedSessions = sessions[offset : offset + limit]
     return {
         "success": True,
         "sessions": paginatedSessions,
         "total": total,
-        "limit": pagination.limit,
-        "offset": pagination.offset,
+        "limit": limit,
+        "offset": offset,
     }
 
 
@@ -65,7 +64,7 @@ def updateSessionTitle(
     title: str = Body(..., min_length=1, max_length=200, embed=True),
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
 ):
-    _verify_session_ownership(db, sessionId, user["userId"])
+    verifySessionOwnsership(db, sessionId, user["userId"])
 
     success = PrometheusChatManager.updateSessionTitle(db, sessionId, title)
     if not success:
@@ -79,7 +78,7 @@ def getHistory(
     db: Session = Depends(getSession),
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
 ):
-    _verify_session_ownership(db, sessionId, user["userId"])
+    verifySessionOwnsership(db, sessionId, user["userId"])
     session = (
         db.query(PrometheusSession)
         .filter(PrometheusSession.sessionId == sessionId, PrometheusSession.userId == user["userId"])
@@ -113,21 +112,14 @@ async def chat(
     sessionId: str = None,
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
 ):
-    try:
-        if not sessionId:
-            sessionId = PrometheusChatManager.createSession(db, user["userId"], text[:30] + "...")
-        else:
-            _verify_session_ownership(db, sessionId, user["userId"])
+    if not sessionId:
+        sessionId = PrometheusChatManager.createSession(db, user["userId"], text[:30] + "...")
+    else:
+        verifySessionOwnsership(db, sessionId, user["userId"])
 
-        history = PrometheusChatManager.getHistory(db, sessionId, limit=20)
-        PrometheusChatManager.saveMessage(db, sessionId, "user", text)
-        aiResponse = PrometheusGenerator.executeWorkflow(text, history=history, sessionId=sessionId, db=db)
-        PrometheusChatManager.saveMessage(db, sessionId, "assistant", aiResponse)
+    history = PrometheusChatManager.getHistory(db, sessionId, limit=20)
+    PrometheusChatManager.saveMessage(db, sessionId, "user", text)
+    aiResponse = PrometheusGenerator.executeWorkflow(text, history=history, sessionId=sessionId, db=db)
+    PrometheusChatManager.saveMessage(db, sessionId, "assistant", aiResponse)
 
-        return {"success": True, "response": aiResponse, "sessionId": sessionId, "timestamp": str(time.time())}
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error("Chat execution error", exc_info=True)
-        return {"success": False, "error": str(e), "timestamp": str(time.time())}
+    return {"success": True, "response": aiResponse, "sessionId": sessionId, "timestamp": str(time.time())}

@@ -1,10 +1,9 @@
 import logging
 from config import getSession
-from main.utils.pagination import PaginationParams
 from main.app.user.user import UserManager
 from sqlalchemy.orm import Session
 
-from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends, HTTPException, Query
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import extractTokenPayload
 
@@ -59,7 +58,8 @@ def testAdminAccess(currentUser: dict = Depends(UserManager.getCurrentUser)):
 def getSessions(
     currentUser: dict = Depends(UserManager.getCurrentUser),
     db: Session = Depends(getSession),
-    pagination: PaginationParams = Depends(),
+    limit: int = Query(20, ge=1, le=100, description="Number of items per page"),
+    offset: int = Query(0, ge=0, description="Number of items to skip"),
     payload: dict = Depends(extractTokenPayload),
 ):
     currentSessionId = payload.get("sessionId")
@@ -68,7 +68,7 @@ def getSessions(
     activeCount = sum(1 for s in sessions if s.isActive)
 
     total = len(sessions)
-    paginatedSessions = sessions[pagination.offset : pagination.offset + pagination.limit]
+    paginatedSessions = sessions[offset : offset + limit]
 
     return {
         "sessions": [
@@ -87,8 +87,8 @@ def getSessions(
         ],
         "total": total,
         "active": activeCount,
-        "limit": pagination.limit,
-        "offset": pagination.offset,
+        "limit": limit,
+        "offset": offset,
     }
 
 

@@ -16,7 +16,7 @@ class StocksAPIKey(Base):
     currentUsage: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     lastReset: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.current_timestamp(), nullable=False)
 
-    user = relationship("User", back_populates="stocksapiKeys")
+    user = relationship("User")
 
     def isQuotaExceeded(self) -> bool:
         return self.currentUsage >= self.requestLimit

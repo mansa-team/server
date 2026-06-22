@@ -19,11 +19,6 @@ def health():
     return {"status": "ok", "service": "stocksapi"}
 
 
-@router.get("/key")
-def apiKeyTest(apiKey: str = Depends(verifyAPIKey)):
-    return {"message": "API", "secured": True}
-
-
 @router.get("/historical")
 def getHistorical(
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -57,10 +52,6 @@ def generateKey(currentUser: dict = Depends(UserManager.getCurrentUser), db: Ses
             status_code=403, detail="You do not have permission to generate API keys. Update to a Developer account."
         )
 
-    try:
-        userId = currentUser.get("userId")
-        newKey = createKey(db, userId)
-        return {"message": "Key successfully generated", "apiKey": newKey, "owner": currentUser.get("username")}
-    except Exception as e:
-        logger.error("Failed to generate API key", exc_info=True)
-        raise HTTPException(status_code=500, detail="Failed to generate API key")
+    userId = currentUser.get("userId")
+    newKey = createKey(db, userId)
+    return {"message": "Key successfully generated", "apiKey": newKey, "owner": currentUser.get("username")}

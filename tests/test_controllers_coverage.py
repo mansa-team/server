@@ -1112,7 +1112,7 @@ class TestPrometheusChat:
             assert resp.status_code == 403
 
     def test_chat_generic_exception(self):
-        """Covers line 125, 126-128: generic Exception in chat."""
+        """Generic Exception in chat propagates to FastAPI's default 500 handler."""
         with (
             patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm,
             patch("main.controller.prometheus_controller.PrometheusGenerator") as mock_gen,
@@ -1123,10 +1123,7 @@ class TestPrometheusChat:
 
             client, _, _ = _make_prometheus_client()
             resp = client.post("/prometheus/chat", json={"text": "crash"})
-            assert resp.status_code == 200
-            data = resp.json()
-            assert data["success"] is False
-            assert "Gemini API down" in data["error"]
+            assert resp.status_code == 500
 
 
 # =========================================================================
@@ -1144,17 +1141,6 @@ class TestStocksApiHealth:
         resp = client.get("/stocks/health")
         assert resp.status_code == 200
         assert resp.json()["status"] == "ok"
-
-
-class TestStocksApiKeyTest:
-    """Covers line 23: GET /stocks/key."""
-
-    def test_api_key_valid(self):
-        """Covers line 23: valid API key returns secured=True."""
-        client, _, _ = _make_stocksapi_client(mock_api_key="valid-key-123")
-        resp = client.get("/stocks/key")
-        assert resp.status_code == 200
-        assert resp.json()["secured"] is True
 
 
 class TestStocksApiHistorical:

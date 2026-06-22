@@ -14,7 +14,6 @@ class User(Base):
     roles = Column(Text, nullable=True, default="USER")
     createdAt = Column(TIMESTAMP, server_default=func.current_timestamp(), nullable=False)
 
-    stocksapiKeys = relationship("StocksAPIKey", back_populates="user", cascade="all, delete-orphan", uselist=False)
     sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
 
     def getRolesList(self):

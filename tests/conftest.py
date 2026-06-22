@@ -1,8 +1,12 @@
 import pytest
 import sys
 import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
+from main.models.base import Base
 
 
 def pytest_configure(config):
@@ -15,11 +19,6 @@ def pytest_configure(config):
     """
     os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret-key-not-for-production")
     os.environ.setdefault("SESSION_SECRET_KEY", "test-session-secret-key-not-for-production")
-
-
-from sqlalchemy import create_engine  # noqa: E402 — must follow pytest_configure
-from sqlalchemy.orm import sessionmaker  # noqa: E402
-from main.models.base import Base  # noqa: E402
 
 
 @pytest.fixture(autouse=True)
