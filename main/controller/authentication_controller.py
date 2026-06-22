@@ -29,11 +29,7 @@ def isSecureScheme(request: Request) -> bool:
     return request.url.scheme == "https" if request.url.scheme else False
 
 
-def _issueSessionCookies(response, request, db, user, *, oauth: bool = False) -> str:
-    """Create session + access token, set the auth cookie(s). Returns the access token.
-
-    oauth=True uses samesite='none', path='/' (cross-site OAuth redirects).
-    """
+def issueSessionCookie(response, request, db, user, *, oauth: bool = False) -> str:
     userAgent = request.headers.get("User-Agent", "")
     expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
     session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
@@ -82,7 +78,7 @@ def register(
         if not user:
             raise HTTPException(status_code=401, detail="Auto-login failed after registration")
 
-        accessToken = _issueSessionCookies(response, request, db, user)
+        accessToken = issueSessionCookie(response, request, db, user)
 
         return {"message": "success", "accessToken": accessToken, "tokenType": "bearer", "user": user}
     except HTTPException:
@@ -108,7 +104,7 @@ def login(
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    accessToken = _issueSessionCookies(response, request, db, user)
+    accessToken = issueSessionCookie(response, request, db, user)
 
     return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
 
@@ -187,10 +183,10 @@ async def googleCallback(request: Request, response: Response, state: str = None
 
         if state:
             response = RedirectResponse(url=state)
-            _issueSessionCookies(response, request, db, user, oauth=True)
+            issueSessionCookie(response, request, db, user, oauth=True)
             return response
 
-        accessToken = _issueSessionCookies(response, request, db, user, oauth=True)
+        accessToken = issueSessionCookie(response, request, db, user, oauth=True)
         logger.info("--- Google Callback End ---")
         return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
 
