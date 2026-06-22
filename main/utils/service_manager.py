@@ -1,5 +1,4 @@
 import logging
-import os
 from config import Config
 from main.utils.logging_config import limiter
 

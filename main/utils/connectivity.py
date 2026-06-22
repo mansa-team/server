@@ -8,8 +8,6 @@ from config import Config, engine, stocksEngine
 
 logger = logging.getLogger(__name__)
 
-# Use thread-safe session (via getSession()) for all HTTP calls.
-
 
 def checkMySqlConnection():
     stocksDb = False

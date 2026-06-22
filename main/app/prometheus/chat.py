@@ -11,9 +11,6 @@ MAX_HISTORY_MESSAGES = 500
 
 
 class PrometheusChatManager:
-    def __init__(self):
-        pass
-
     @classmethod
     def getUserSessions(cls, db: Session, userId: int):
         sessions = (

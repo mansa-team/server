@@ -8,25 +8,10 @@ import asyncio
 import pytest
 from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import update
 
-from main.models.base import Base
 from main.models.stocksapi_key import StocksAPIKey
 from main.app.stocks_api.key import verifyAPIKey, hashKey
-
-
-@pytest.fixture
-def dbSession():
-    """Create an in-memory SQLite database for testing."""
-    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
-    Base.metadata.create_all(engine)
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    session = SessionLocal()
-    yield session
-    session.close()
-    Base.metadata.drop_all(engine)
-    engine.dispose()
 
 
 @pytest.fixture

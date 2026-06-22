@@ -340,20 +340,20 @@ class TestGenerateSecureKey:
     """Tests covering key.py line 44."""
 
     def test_generate_secure_key_length(self):
-        from main.app.stocks_api.key import generateSecureKey, hashKey
+        from main.app.stocks_api.key import generateSecureKey
 
         key = generateSecureKey(32)
         assert isinstance(key, str)
         assert len(key) == 32
 
     def test_generate_secure_key_custom_length(self):
-        from main.app.stocks_api.key import generateSecureKey, hashKey
+        from main.app.stocks_api.key import generateSecureKey
 
         key = generateSecureKey(16)
         assert len(key) == 16
 
     def test_generate_secure_key_unique(self):
-        from main.app.stocks_api.key import generateSecureKey, hashKey
+        from main.app.stocks_api.key import generateSecureKey
 
         keys = {generateSecureKey(32) for _ in range(50)}
         assert len(keys) == 50  # all unique

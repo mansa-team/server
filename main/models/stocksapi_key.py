@@ -18,9 +18,6 @@ class StocksAPIKey(Base):
 
     user = relationship("User", back_populates="stocksapiKeys")
 
-    def __repr__(self):
-        return f"<StocksAPIKey(apiKey='{self.apiKey[:8]}...', userId={self.userId}, usage={self.currentUsage}/{self.requestLimit})>"
-
     def isQuotaExceeded(self) -> bool:
         return self.currentUsage >= self.requestLimit
 

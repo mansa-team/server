@@ -6,10 +6,6 @@ from unittest.mock import patch, MagicMock
 
 
 class TestGetSession:
-    def test_creates_new_session(self):
-        import main.utils.http_session as mod
-        # Reset thread-local
-
     def test_returns_same_session(self):
         from main.utils.http_session import getSession
 

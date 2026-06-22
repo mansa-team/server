@@ -1,9 +1,9 @@
-"""Tests for main/app/stocks_api/util.py — covers normalizeColumns and edge cases."""
+"""Tests for main/app/stocks_api/util.py."""
 
 import pandas as pd
 import pytest
 from fastapi import HTTPException
-from main.app.stocks_api.util import categorizeColumns, parseDateRange, normalizeColumns
+from main.app.stocks_api.util import categorizeColumns, parseDateRange
 
 
 class TestCategorizeColumns:
@@ -81,30 +81,3 @@ class TestParseDateRange:
     def test_full_date(self):
         start, end = parseDateRange("2026-06-15")
         assert start == end
-
-
-class TestNormalizeColumns:
-    def test_reorder_columns(self):
-        df = pd.DataFrame({"C": [1], "A": [2], "B": [3]})
-        result = normalizeColumns(df, ["A", "B", "C"])
-        assert list(result.columns) == ["A", "B", "C"]
-
-    def test_partial_order(self):
-        df = pd.DataFrame({"C": [1], "A": [2], "B": [3]})
-        result = normalizeColumns(df, ["B"])
-        assert list(result.columns) == ["B", "A", "C"]
-
-    def test_missing_columns_ignored(self):
-        df = pd.DataFrame({"A": [1], "B": [2]})
-        result = normalizeColumns(df, ["A", "Z", "B"])
-        assert list(result.columns) == ["A", "B"]
-
-    def test_empty_order(self):
-        df = pd.DataFrame({"B": [1], "A": [2]})
-        result = normalizeColumns(df, [])
-        assert list(result.columns) == ["A", "B"]
-
-    def test_remaining_sorted(self):
-        df = pd.DataFrame({"Z": [1], "M": [2], "A": [3], "B": [4]})
-        result = normalizeColumns(df, ["B"])
-        assert list(result.columns) == ["B", "A", "M", "Z"]

@@ -1,6 +1,5 @@
 import logging
-from config import Config, getSession
-from main.utils.logging_config import limiter
+from config import getSession
 from main.utils.pagination import PaginationParams
 from main.app.user.user import UserManager
 from sqlalchemy.orm import Session
@@ -98,7 +97,7 @@ def getCurrentSession(
     request: Request, currentUser: dict = Depends(UserManager.getCurrentUser), db: Session = Depends(getSession)
 ):
     userAgent = request.headers.get("User-Agent", "")
-    session = SessionManager.getCurrentSession(db, currentUser["userId"], userAgent, request)
+    session = SessionManager.getCurrentSession(db, currentUser["userId"])
 
     if not session:
         raise HTTPException(status_code=404, detail="Current session not found")

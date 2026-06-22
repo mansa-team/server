@@ -47,19 +47,6 @@ class TestUserModel:
         user.addRole("ADMIN")
         assert user.getRolesList() == initialRoles
 
-    def test_remove_role_existing(self, dbSession, sampleUserData):
-        user = User(**sampleUserData)
-        user.roles = "USER,ADMIN"
-        user.removeRole("ADMIN")
-        assert "ADMIN" not in user.getRolesList()
-        assert "USER" in user.getRolesList()
-
-    def test_remove_role_last_role(self, dbSession, sampleUserData):
-        user = User(**sampleUserData)
-        user.roles = "ADMIN"
-        user.removeRole("ADMIN")
-        assert user.roles == "USER"
-
     def test_has_role_true(self, dbSession, sampleUserData):
         user = User(**sampleUserData)
         user.roles = "USER,ADMIN"

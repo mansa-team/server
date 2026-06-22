@@ -24,12 +24,6 @@ def categorizeColumns(columns: list) -> tuple:
     return dict(historicalFields), fundamentalCols
 
 
-def normalizeColumns(data: pd.DataFrame, order: list) -> pd.DataFrame:
-    existingOrder = [col for col in order if col in data.columns]
-    remaining = sorted(col for col in data.columns if col not in existingOrder)
-    return data[existingOrder + remaining]
-
-
 def parseDateStart(dateStr: str) -> date:
     dateStr = dateStr.strip()
     if re.match(r"^\d{4}$", dateStr):
