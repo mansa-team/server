@@ -8,7 +8,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from main.app.authentication.authentication import AuthenticationManager
-from main.app.authentication.util import createAccessToken
+from main.app.authentication.util import createAccessToken, verifyAccessToken
 from main.app.authentication.sso import getGoogleSSO
 from main.app.authentication.constants import (
     COOKIE_NAME,
@@ -27,6 +27,37 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 def isSecureScheme(request: Request) -> bool:
     return request.url.scheme == "https" if request.url.scheme else False
+
+
+def _issueSessionCookies(response, request, db, user, *, oauth: bool = False) -> str:
+    """Create session + access token, set the auth cookie(s). Returns the access token.
+
+    oauth=True uses samesite='none', path='/' (cross-site OAuth redirects).
+    """
+    userAgent = request.headers.get("User-Agent", "")
+    expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
+    session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
+    accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
+
+    if oauth:
+        isSecure = isSecureScheme(request)
+        response.set_cookie(
+            key=COOKIE_NAME, value=accessToken, httponly=True, secure=isSecure, samesite="none", path="/"
+        )
+        response.set_cookie(
+            key=COOKIE_ACCESS_NAME, value=accessToken, httponly=False, secure=isSecure, samesite="none", path="/"
+        )
+    else:
+        useCookieSecure = isSecureScheme(request)
+        response.set_cookie(
+            key=COOKIE_NAME,
+            value=accessToken,
+            httponly=True,
+            secure=useCookieSecure,
+            samesite=COOKIE_SAMESITE,
+            path=COOKIE_PATH,
+        )
+    return accessToken
 
 
 @router.get("/health")
@@ -51,20 +82,7 @@ def register(
         if not user:
             raise HTTPException(status_code=401, detail="Auto-login failed after registration")
 
-        userAgent = request.headers.get("User-Agent", "")
-        expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
-        session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
-
-        accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
-        useCookieSecure = isSecureScheme(request)
-        response.set_cookie(
-            key=COOKIE_NAME,
-            value=accessToken,
-            httponly=True,
-            secure=useCookieSecure,
-            samesite=COOKIE_SAMESITE,
-            path=COOKIE_PATH,
-        )
+        accessToken = _issueSessionCookies(response, request, db, user)
 
         return {"message": "success", "accessToken": accessToken, "tokenType": "bearer", "user": user}
     except HTTPException:
@@ -90,28 +108,13 @@ def login(
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    userAgent = request.headers.get("User-Agent", "")
-    expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
-    session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
-
-    accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
-    useCookieSecure = isSecureScheme(request)
-    response.set_cookie(
-        key=COOKIE_NAME,
-        value=accessToken,
-        httponly=True,
-        secure=useCookieSecure,
-        samesite=COOKIE_SAMESITE,
-        path=COOKIE_PATH,
-    )
+    accessToken = _issueSessionCookies(response, request, db, user)
 
     return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
 
 
 @router.post("/logout")
 def logout(request: Request, response: Response, db: Session = Depends(getSession)):
-    from main.app.authentication.util import verifyAccessToken
-
     token = request.headers.get("X-Access-Token")
     if not token:
         authHeader = request.headers.get("Authorization")
@@ -182,31 +185,12 @@ async def googleCallback(request: Request, response: Response, state: str = None
             AuthenticationManager.createUserAccount(db, username=username, email=email, googleId=googleId)
             user = AuthenticationManager.authenticateGoogleUser(db, googleId)
 
-        userAgent = request.headers.get("User-Agent", "")
-        expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
-        session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
-
-        accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
-        isSecure = isSecureScheme(request)
-
-        response.set_cookie(
-            key=COOKIE_NAME, value=accessToken, httponly=True, secure=isSecure, samesite="none", path="/"
-        )
-
-        response.set_cookie(
-            key=COOKIE_ACCESS_NAME, value=accessToken, httponly=False, secure=isSecure, samesite="none", path="/"
-        )
-
         if state:
             response = RedirectResponse(url=state)
-            response.set_cookie(
-                key=COOKIE_NAME, value=accessToken, httponly=True, secure=isSecure, samesite="none", path="/"
-            )
-            response.set_cookie(
-                key=COOKIE_ACCESS_NAME, value=accessToken, httponly=False, secure=isSecure, samesite="none", path="/"
-            )
+            _issueSessionCookies(response, request, db, user, oauth=True)
             return response
 
+        accessToken = _issueSessionCookies(response, request, db, user, oauth=True)
         logger.info("--- Google Callback End ---")
         return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
 

@@ -58,7 +58,6 @@ def _make_prometheus_client(mock_current_user=None, mock_permission_user=None):
     """Return (client, app) with prometheus router and mocked deps."""
     from main.controller.prometheus_controller import router as promRouter
     from main.utils.errors import registerErrorHandlers
-    from main.utils.roles import Roles, Permission
     from main.app.user.user import UserManager
 
     app = FastAPI()
@@ -69,9 +68,9 @@ def _make_prometheus_client(mock_current_user=None, mock_permission_user=None):
     app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
 
     user = mock_current_user or {"userId": 1, "username": "testuser", "roles": ["PREMIUM"]}
-    # Override both the general user dep and the permission checker
+    # ponytail: per-call Roles.requirePermission returns a fresh callable;
+    # override key never matches the actual dep, so the line is a no-op. Skip.
     app.dependency_overrides[UserManager.getCurrentUser] = lambda: user
-    app.dependency_overrides[Roles.requirePermission(Permission.USE_PROMETHEUS)] = lambda: user
 
     return _TestClient(app, raise_server_exceptions=False), app, mock_session
 
@@ -147,23 +146,12 @@ class TestHealthEndpoint:
 class TestRegisterEndpoint:
     """Covers lines 44-54, 63, 66-71: register success, ValueError, generic Exception."""
 
-    def _make_register_client(self):
-        from main.controller.authentication_controller import router as authRouter
-        from main.utils.errors import registerErrorHandlers
-
-        app = FastAPI()
-        app.include_router(authRouter)
-        registerErrorHandlers(app)
-        mock_session = MagicMock()
-        app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
-        return _TestClient(app, raise_server_exceptions=False), mock_session
-
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.createAccessToken")
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_register_success(self, mock_auth_mgr, mock_create_token, mock_session_mgr):
         """Covers lines 44-54, 63: successful registration + auto-login."""
-        client, _ = self._make_register_client()
+        client, _, _ = _make_auth_client()
 
         mock_auth_mgr.createUserAccount.return_value = True
         mock_auth_mgr.authenticateUser.return_value = {"userId": 1, "username": "alice", "roles": ["USER"]}
@@ -189,7 +177,7 @@ class TestRegisterEndpoint:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_register_auto_login_fails(self, mock_auth_mgr):
         """Covers line 46: auto-login fails after registration."""
-        client, _ = self._make_register_client()
+        client, _, _ = _make_auth_client()
         mock_auth_mgr.createUserAccount.return_value = True
         mock_auth_mgr.authenticateUser.return_value = None
 
@@ -202,7 +190,7 @@ class TestRegisterEndpoint:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_register_value_error(self, mock_auth_mgr):
         """Covers lines 66-68: ValueError during registration."""
-        client, _ = self._make_register_client()
+        client, _, _ = _make_auth_client()
         mock_auth_mgr.createUserAccount.side_effect = ValueError("Invalid input")
 
         response = client.post(
@@ -214,7 +202,7 @@ class TestRegisterEndpoint:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_register_generic_exception(self, mock_auth_mgr):
         """Covers lines 69-71: generic Exception during registration."""
-        client, _ = self._make_register_client()
+        client, _, _ = _make_auth_client()
         mock_auth_mgr.createUserAccount.side_effect = RuntimeError("DB error")
 
         response = client.post(
@@ -227,23 +215,12 @@ class TestRegisterEndpoint:
 class TestLoginEndpoint:
     """Covers lines 87-93, 102: login success and failure paths."""
 
-    def _make_login_client(self):
-        from main.controller.authentication_controller import router as authRouter
-        from main.utils.errors import registerErrorHandlers
-
-        app = FastAPI()
-        app.include_router(authRouter)
-        registerErrorHandlers(app)
-        mock_session = MagicMock()
-        app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
-        return _TestClient(app, raise_server_exceptions=False)
-
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.createAccessToken")
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_login_success(self, mock_auth_mgr, mock_create_token, mock_session_mgr):
         """Covers lines 87-93, 102: successful login."""
-        client = self._make_login_client()
+        client, _, _ = _make_auth_client()
         mock_auth_mgr.authenticateUser.return_value = {"userId": 1, "username": "bob", "roles": ["USER"]}
 
         mock_session = MagicMock()
@@ -265,7 +242,7 @@ class TestLoginEndpoint:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_login_wrong_credentials(self, mock_auth_mgr):
         """Covers line 85: authenticateUser returns None."""
-        client = self._make_login_client()
+        client, _, _ = _make_auth_client()
         mock_auth_mgr.authenticateUser.return_value = None
 
         response = client.post(
@@ -280,23 +257,12 @@ class TestLoginEndpoint:
 class TestLogoutEndpoint:
     """Covers lines 107, 109-130, 133: logout token extraction and revocation."""
 
-    def _make_logout_client(self):
-        from main.controller.authentication_controller import router as authRouter
-        from main.utils.errors import registerErrorHandlers
-
-        app = FastAPI()
-        app.include_router(authRouter)
-        registerErrorHandlers(app)
-        mock_session = MagicMock()
-        app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
-        return _TestClient(app, raise_server_exceptions=False), mock_session
-
     @patch("main.controller.authentication_controller.isSecureScheme", return_value=False)
     @patch("main.controller.authentication_controller.SessionManager")
-    @patch("main.app.authentication.util.verifyAccessToken")
+    @patch("main.controller.authentication_controller.verifyAccessToken")
     def test_logout_with_x_access_token(self, mock_verify, mock_session_mgr, mock_secure):
         """Covers lines 109, 115-125: logout with X-Access-Token header."""
-        client, _ = self._make_logout_client()
+        client, _, _ = _make_auth_client()
         mock_verify.return_value = {"userId": 1, "sessionId": "123"}
         mock_session_mgr.revokeSession.return_value = True
 
@@ -310,10 +276,10 @@ class TestLogoutEndpoint:
 
     @patch("main.controller.authentication_controller.isSecureScheme", return_value=False)
     @patch("main.controller.authentication_controller.SessionManager")
-    @patch("main.app.authentication.util.verifyAccessToken")
+    @patch("main.controller.authentication_controller.verifyAccessToken")
     def test_logout_with_bearer_header(self, mock_verify, mock_session_mgr, mock_secure):
         """Covers lines 111-113: token extracted from Authorization Bearer header."""
-        client, _ = self._make_logout_client()
+        client, _, _ = _make_auth_client()
         mock_verify.return_value = {"userId": 1, "sessionId": "456"}
         mock_session_mgr.revokeSession.return_value = True
 
@@ -325,10 +291,10 @@ class TestLogoutEndpoint:
 
     @patch("main.controller.authentication_controller.isSecureScheme", return_value=False)
     @patch("main.controller.authentication_controller.SessionManager")
-    @patch("main.app.authentication.util.verifyAccessToken")
+    @patch("main.controller.authentication_controller.verifyAccessToken")
     def test_logout_with_invalid_session_id(self, mock_verify, mock_session_mgr, mock_secure):
         """Covers lines 122-124: sessionId is not a valid int, ValueError caught."""
-        client, _ = self._make_logout_client()
+        client, _, _ = _make_auth_client()
         mock_verify.return_value = {"userId": 1, "sessionId": "not-a-number"}
 
         response = client.post(
@@ -342,7 +308,7 @@ class TestLogoutEndpoint:
     @patch("main.app.authentication.util.verifyAccessToken")
     def test_logout_with_verification_error(self, mock_verify, mock_secure):
         """Covers lines 126-128: verifyAccessToken raises Exception."""
-        client, _ = self._make_logout_client()
+        client, _, _ = _make_auth_client()
         mock_verify.side_effect = Exception("token expired")
 
         response = client.post(
@@ -354,7 +320,7 @@ class TestLogoutEndpoint:
     @patch("main.controller.authentication_controller.isSecureScheme", return_value=False)
     def test_logout_without_token(self, mock_secure):
         """Covers lines 109-113: no token provided at all."""
-        client, _ = self._make_logout_client()
+        client, _, _ = _make_auth_client()
 
         response = client.post("/auth/logout")
         assert response.status_code == 200
@@ -362,10 +328,10 @@ class TestLogoutEndpoint:
 
     @patch("main.controller.authentication_controller.isSecureScheme", return_value=False)
     @patch("main.controller.authentication_controller.SessionManager")
-    @patch("main.app.authentication.util.verifyAccessToken")
+    @patch("main.controller.authentication_controller.verifyAccessToken")
     def test_logout_with_missing_user_and_session(self, mock_verify, mock_session_mgr, mock_secure):
         """Covers line 120: userId or sessionId missing from payload."""
-        client, _ = self._make_logout_client()
+        client, _, _ = _make_auth_client()
         mock_verify.return_value = {"userId": None, "sessionId": None}
 
         response = client.post(
@@ -424,24 +390,13 @@ class TestGoogleLogin:
 class TestGoogleCallback:
     """Covers lines 155-156, 158, 160-168, 170-177, 179-184, 186, 190-204: googleCallback."""
 
-    def _make_callback_client(self):
-        from main.controller.authentication_controller import router as authRouter
-        from main.utils.errors import registerErrorHandlers
-
-        app = FastAPI()
-        app.include_router(authRouter)
-        registerErrorHandlers(app)
-        mock_session = MagicMock()
-        app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
-        return _TestClient(app, raise_server_exceptions=False), mock_session
-
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.createAccessToken")
     @patch("main.controller.authentication_controller.getGoogleSSO")
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_callback_new_user(self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr):
         """Covers lines 160-168, 170-177, 179-184, 186, 197-198: new Google user."""
-        client, _ = self._make_callback_client()
+        client, _, _ = _make_auth_client()
 
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
@@ -476,7 +431,7 @@ class TestGoogleCallback:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_callback_existing_user(self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr):
         """Covers lines 164, 171-173: existing Google user, no new account created."""
-        client, _ = self._make_callback_client()
+        client, _, _ = _make_auth_client()
 
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
@@ -502,7 +457,7 @@ class TestGoogleCallback:
     @patch("main.controller.authentication_controller.getGoogleSSO")
     def test_callback_no_user_info(self, mock_get_sso):
         """Covers line 165: verify_and_process returns None."""
-        client, _ = self._make_callback_client()
+        client, _, _ = _make_auth_client()
 
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
@@ -519,7 +474,7 @@ class TestGoogleCallback:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_callback_with_state_redirect(self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr):
         """Covers lines 190-195: state param triggers RedirectResponse."""
-        client, _ = self._make_callback_client()
+        client, _, _ = _make_auth_client()
 
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
@@ -548,7 +503,7 @@ class TestGoogleCallback:
     @patch("main.controller.authentication_controller.getGoogleSSO")
     def test_callback_generic_exception(self, mock_get_sso):
         """Covers lines 202-204: generic Exception in callback."""
-        client, _ = self._make_callback_client()
+        client, _, _ = _make_auth_client()
 
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
