@@ -1118,13 +1118,6 @@ class TestQueryCotations:
         result = mgr.queryCotations(adjusted=False)
         assert result["dates"] is None
 
-    # --- orderBy & limit ---
-    def test_cotations_with_limit(self):
-        df = self._make_cotations_df()  # 4 rows, 2 unique tickers
-        mgr = self._make_manager(cache_df=df)
-        result = mgr.queryCotations(adjusted=False, limit=1)
-        assert result["count"] == 1
-
     # --- default search ---
     def test_cotations_default_search_all(self):
         df = self._make_cotations_df()

@@ -8,11 +8,6 @@ import numpy as np
 import json
 import orjson
 
-try:
-    import yfinance as yf
-except ImportError:
-    yf = None  # type: ignore[assignment]
-
 from main.app.stocks_api.cache import stocksCache
 from main.app.stocks_api.util import categorizeColumns, parseDateRange
 import logging
@@ -42,8 +37,7 @@ if TYPE_CHECKING:
     from main.app.stocks_api.cache import StocksCacheManager
 
 
-def _parseCotationDate(dataStr):
-    """Parse DD-MM-YYYY from COTACAO 10Y JSON DATA field. ponytail: stdlib datetime only."""
+def parseCotationDates(dataStr):
     if not dataStr or not isinstance(dataStr, str):
         return None
     try:
@@ -52,17 +46,13 @@ def _parseCotationDate(dataStr):
         return None
 
 
-def _filterCotationByDate(entries, startDate, endDate):
-    """Filter COTACAO 10Y JSON entries by their inner DATA field (DD-MM-YYYY)."""
-    if not isinstance(entries, list) or not startDate or not endDate:
+def filterCotationData(entries, startDate, endDate):
+    if not isinstance(entries, list) or not entries or not startDate or not endDate:
         return entries
-    result = []
-    for entry in entries:
-        if isinstance(entry, dict):
-            d = _parseCotationDate(entry.get("DATA"))
-            if d and startDate <= d <= endDate:
-                result.append(entry)
-    return result
+    df = pd.DataFrame(entries)
+    dates = pd.to_datetime(df["DATA"], format="%d-%m-%Y", errors="coerce")
+    mask = (dates.dt.date >= startDate) & (dates.dt.date <= endDate)
+    return df[mask].to_dict(orient="records")
 
 
 class StocksQueryManager:
@@ -278,10 +268,7 @@ class StocksQueryManager:
     def queryCotations(
         self,
         search: str | None = None,
-        fields: str | None = None,  # ponytail: accepted for API consistency, unused (adjusted controls column)
         dates: str | None = None,
-        orderBy: str | None = None,
-        limit: int | None = None,
         adjusted: bool = False,
     ):
         if self.cacheManager.STOCKS_CACHE is None:
@@ -305,7 +292,6 @@ class StocksQueryManager:
             if search:
                 df = self.filterBySearchTerms(df, search)
 
-            # Most recent row per TICKER (like /fundamental uses .iloc[0])
             if "TIME" in df.columns:
                 df = df.sort_values(by="TIME", ascending=False)
             df = df.drop_duplicates(subset=["TICKER"], keep="first")
@@ -314,18 +300,11 @@ class StocksQueryManager:
             df = df[[c for c in cols if c in df.columns]]
             df = self.deserializeJsonColumns(df)
 
-            # `dates` filters the INNER JSON DATA field, not the outer rows
             startDate, endDate = parseDateRange(dates)
             if startDate and endDate and targetCol in df.columns:
                 df[targetCol] = df[targetCol].apply(
-                    lambda entries: _filterCotationByDate(entries, startDate, endDate)
+                    lambda entries: filterCotationData(entries, startDate, endDate)
                 )
-
-            if orderBy and orderBy in df.columns:
-                df = df.sort_values(by=orderBy, ascending=False)
-
-            if limit:
-                df = df.head(limit)
 
             return {
                 "search": search or "all",
@@ -340,51 +319,5 @@ class StocksQueryManager:
         except Exception:
             logger.exception("Cached cotations query failed")
             raise HTTPException(status_code=500, detail="Internal server error while processing cotations data")
-
-    def queryRealtimeCotation(self, search: str | None = None):
-        """Fetch live prices for B3 tickers via yfinance.
-
-        B3 tickers must match `^[A-Z]{4}\\d{1,2}$` (e.g., PETR4, VALE3).
-        yfinance uses `.SA` suffix for Brazilian stocks (e.g., PETR4.SA).
-        """
-        if yf is None:
-            raise HTTPException(status_code=503, detail="yfinance package not installed")
-
-        if not search or not search.strip():
-            raise HTTPException(status_code=400, detail="search parameter required (B3 tickers, e.g., PETR4)")
-
-        tickers = [t.strip().upper() for t in search.split(",") if t.strip()]
-        invalid = [t for t in tickers if not B3_TICKER_PATTERN.match(t)]
-        if invalid:
-            raise HTTPException(status_code=400, detail=f"Invalid B3 ticker(s): {', '.join(invalid)}")
-
-        try:
-            data = []
-            for ticker in tickers:
-                stock = yf.Ticker(f"{ticker}.SA").fast_info
-                price = stock.get("last_price")
-                prev = stock.get("previous_close")
-                change_pct = ((price - prev) / prev) if (price is not None and prev not in (None, 0)) else None
-                data.append(
-                    {
-                        "ticker": ticker,
-                        "price": price,
-                        "previous_close": prev,
-                        "change_pct": change_pct,
-                        "currency": stock.get("currency"),
-                    }
-                )
-            return {
-                "search": search,
-                "type": "realtime-cotation",
-                "count": len(data),
-                "data": data,
-            }
-        except HTTPException:
-            raise
-        except Exception:
-            logger.exception("Realtime cotation query failed")
-            raise HTTPException(status_code=500, detail="Internal server error while fetching realtime data")
-
-
+        
 stocksQuery = StocksQueryManager(stocksCache)
