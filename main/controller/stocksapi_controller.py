@@ -45,6 +45,30 @@ def getFundamental(
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
 
 
+@router.get("/cotations")
+def getCotations(
+    search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
+    fields: str = Query(None, max_length=200, pattern=r"^[A-Z0-9,\s]*$"),
+    dates: str = Query(None, max_length=50),
+    orderBy: str = Query(None),
+    limit: int = Query(None, ge=1, le=1000),
+    adjusted: bool = Query(False),
+    apiKey: str = Depends(verifyAPIKey),
+):
+    result = stocksQuery.queryCotations(search, fields, dates, orderBy, limit, adjusted)
+    return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
+
+
+@router.get("/realtime-cotation")
+def getRealtimeCotation(
+    search: str = Query(..., max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
+    apiKey: str = Depends(verifyAPIKey),
+):
+    result = stocksQuery.queryRealtimeCotation(search)
+    # Short cache: realtime data changes minute-to-minute
+    return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=60"})
+
+
 @router.get("/key/generate")
 def generateKey(currentUser: dict = Depends(UserManager.getCurrentUser), db: Session = Depends(getSession)):
     if not Roles.checkAccess(currentUser.get("roles", []), Permission.GENERATE_API_KEYS):
