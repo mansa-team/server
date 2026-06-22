@@ -105,15 +105,11 @@ class TestStocksAPIKeyModel:
 
     def test_needs_reset_true_expired(self, dbSession, sampleAPIKeyData):
         key = StocksAPIKey(**sampleAPIKeyData)
-        from datetime import timedelta
-
         key.lastReset = datetime.now() - timedelta(days=31)
         assert key.needsReset(30) is True
 
     def test_needs_reset_false_recent(self, dbSession, sampleAPIKeyData):
         key = StocksAPIKey(**sampleAPIKeyData)
-        from datetime import timedelta
-
         key.lastReset = datetime.now() - timedelta(days=5)
         assert key.needsReset(30) is False
 
@@ -169,4 +165,4 @@ class TestPrometheusSessionModel:
         dbSession.add(session)
         dbSession.commit()
 
-        assert session.history == [] or session.history is None
+        assert session.history == []

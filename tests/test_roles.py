@@ -1,9 +1,3 @@
-import pytest
-import sys
-import os
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-
 from main.utils.roles import Permission, Roles
 
 
