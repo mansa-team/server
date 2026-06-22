@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import Field, AliasChoices
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import create_engine, QueuePool
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker
 
 
 def applyIPv4Force():
@@ -22,12 +22,7 @@ applyIPv4Force()
 
 class BaseMansaSettings(BaseSettings):
     def get(self, item, default=None):
-        try:
-            return self[item]
-        except KeyError:
-            return default
-        except AttributeError:
-            return default
+        return getattr(self, item, default)
 
 
 class MysqlSettings(BaseMansaSettings):
@@ -43,9 +38,6 @@ class MysqlSettings(BaseMansaSettings):
     STOCKS_DATABASE: Optional[str] = Field(default=None, validation_alias=AliasChoices("STOCKS_MYSQL_DATABASE"))
     STOCKS_PORT: int = Field(default=3306, validation_alias=AliasChoices("STOCKS_MYSQL_PORT"))
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-
-    def __getitem__(self, item):
-        return getattr(self, item)
 
 
 class UserSettings(BaseMansaSettings):
@@ -129,7 +121,7 @@ class Config:
 LOCALHOST_ADDRESSES = ["localhost", "127.0.0.1", "0.0.0.0", "None", "host.docker.internal", None]
 
 engine = create_engine(
-    f"mysql+pymysql://{Config.MYSQL['USER_USER']}:{Config.MYSQL['USER_PASSWORD']}@{Config.MYSQL['USER_HOST']}/{Config.MYSQL['USER_DATABASE']}",
+    f"mysql+pymysql://{Config.MYSQL.USER_USER}:{Config.MYSQL.USER_PASSWORD}@{Config.MYSQL.USER_HOST}/{Config.MYSQL.USER_DATABASE}",
     poolclass=QueuePool,
     pool_size=20,
     max_overflow=40,
@@ -140,7 +132,7 @@ engine = create_engine(
 )
 
 stocksEngine = create_engine(
-    f"mysql+pymysql://{Config.MYSQL['STOCKS_USER']}:{Config.MYSQL['STOCKS_PASSWORD']}@{Config.MYSQL['STOCKS_HOST']}/{Config.MYSQL['STOCKS_DATABASE']}",
+    f"mysql+pymysql://{Config.MYSQL.STOCKS_USER}:{Config.MYSQL.STOCKS_PASSWORD}@{Config.MYSQL.STOCKS_HOST}/{Config.MYSQL.STOCKS_DATABASE}",
     poolclass=QueuePool,
     pool_size=20,
     max_overflow=40,
@@ -151,20 +143,10 @@ stocksEngine = create_engine(
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-StocksSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=stocksEngine)
-ScopedSession = scoped_session(SessionLocal)
 
 
 def getSession():
     db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-def getStocksSession():
-    db = StocksSessionLocal()
     try:
         yield db
     finally:

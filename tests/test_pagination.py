@@ -1,4 +1,4 @@
-"""Tests for pagination utility (utils/pagination.py)."""
+"""Tests for inline pagination params (used in user + prometheus controllers)."""
 
 import pytest
 import sys
@@ -6,9 +6,8 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Query
 from starlette.testclient import TestClient
-from main.utils.pagination import PaginationParams
 
 
 @pytest.fixture
@@ -16,14 +15,17 @@ def app():
     application = FastAPI()
 
     @application.get("/items")
-    def list_items(pagination: PaginationParams = Depends()):
-        all_items = list(range(100))  # 100 fake items
-        page = all_items[pagination.offset : pagination.offset + pagination.limit]
+    def list_items(
+        limit: int = Query(20, ge=1, le=100, description="Number of items per page"),
+        offset: int = Query(0, ge=0, description="Number of items to skip"),
+    ):
+        all_items = list(range(100))
+        page = all_items[offset : offset + limit]
         return {
             "items": page,
             "total": len(all_items),
-            "limit": pagination.limit,
-            "offset": pagination.offset,
+            "limit": limit,
+            "offset": offset,
         }
 
     return application
@@ -34,13 +36,13 @@ def client(app):
     return TestClient(app)
 
 
-class TestPaginationParams:
+class TestInlinePagination:
     def test_defaults(self, client):
         response = client.get("/items")
         body = response.json()
         assert response.status_code == 200
-        assert body["limit"] == 20  # default
-        assert body["offset"] == 0  # default
+        assert body["limit"] == 20
+        assert body["offset"] == 0
         assert len(body["items"]) == 20
 
     def test_custom_limit(self, client):
@@ -54,7 +56,7 @@ class TestPaginationParams:
         body = response.json()
         assert body["offset"] == 10
         assert len(body["items"]) == 20
-        assert body["items"][0] == 10  # first item after skipping 10
+        assert body["items"][0] == 10
 
     def test_limit_and_offset(self, client):
         response = client.get("/items?limit=10&offset=50")

@@ -11,7 +11,6 @@ import pytest
 import sys
 import os
 import json
-import uuid
 from unittest.mock import patch, MagicMock, AsyncMock
 from datetime import datetime, timedelta
 from pytz import timezone
@@ -67,10 +66,10 @@ class TestPrometheusGeneratorExecuteWorkflow:
 
         return PrometheusGenerator()
 
-    @patch("main.app.prometheus.generation.httpSession")
+    @patch("main.app.prometheus.generation.getSession")
     @patch("main.app.prometheus.generation.Config")
     @patch("main.app.prometheus.generation.genai")
-    def test_execute_workflow_basic_no_history(self, mock_genai, mock_config, mock_http):
+    def test_execute_workflow_basic_no_history(self, mock_genai, mock_config, mock_getSession):
         """Stage 1 + Stage 2 + Stage 3, no history, no sessionId."""
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
         mock_config.DEBUG_MODE = True
@@ -103,7 +102,7 @@ class TestPrometheusGeneratorExecuteWorkflow:
         mock_http_resp = MagicMock()
         mock_http_resp.status_code = 200
         mock_http_resp.json.return_value = {"data": [{"P/L": 8.5, "TICKER": "PETR4"}]}
-        mock_http.get.return_value = mock_http_resp
+        mock_getSession.return_value.get.return_value = mock_http_resp
 
         from main.app.prometheus.generation import PrometheusGenerator
 
@@ -112,10 +111,10 @@ class TestPrometheusGeneratorExecuteWorkflow:
         result = gen.executeWorkflow("Qual o P/L de PETR4?")
         assert result == "Final analysis of PETR4"
 
-    @patch("main.app.prometheus.generation.httpSession")
+    @patch("main.app.prometheus.generation.getSession")
     @patch("main.app.prometheus.generation.Config")
     @patch("main.app.prometheus.generation.genai")
-    def test_execute_workflow_with_history(self, mock_genai, mock_config, mock_http):
+    def test_execute_workflow_with_history(self, mock_genai, mock_config, mock_getSession):
         """Test history formatting (lines 48-49, 159-162)."""
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
         mock_config.DEBUG_MODE = True
@@ -138,11 +137,11 @@ class TestPrometheusGeneratorExecuteWorkflow:
         result = gen.executeWorkflow("oi", history=history)
         assert result == "No data found"
 
-    @patch("main.app.prometheus.generation.httpSession")
+    @patch("main.app.prometheus.generation.getSession")
     @patch("main.app.prometheus.generation.Config")
     @patch("main.app.prometheus.generation.genai")
     @patch("main.app.prometheus.generation.PrometheusSession")
-    def test_execute_workflow_with_session_summary(self, mock_session_model, mock_genai, mock_config, mock_http):
+    def test_execute_workflow_with_session_summary(self, mock_session_model, mock_genai, mock_config, mock_getSession):
         """Stage 0: sessionId+db summary loading (lines 55-62)."""
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
         mock_config.DEBUG_MODE = True
@@ -169,11 +168,11 @@ class TestPrometheusGeneratorExecuteWorkflow:
         result = gen.executeWorkflow("oi", sessionId="sess-123", db=mock_db)
         assert result == "Response"
 
-    @patch("main.app.prometheus.generation.httpSession")
+    @patch("main.app.prometheus.generation.getSession")
     @patch("main.app.prometheus.generation.Config")
     @patch("main.app.prometheus.generation.genai")
     @patch("main.app.prometheus.generation.PrometheusSession")
-    def test_execute_workflow_session_db_exception(self, mock_session_model, mock_genai, mock_config, mock_http):
+    def test_execute_workflow_session_db_exception(self, mock_session_model, mock_genai, mock_config, mock_getSession):
         """Stage 0: exception loading session (line 62)."""
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
         mock_config.DEBUG_MODE = True
@@ -197,10 +196,10 @@ class TestPrometheusGeneratorExecuteWorkflow:
         result = gen.executeWorkflow("oi", sessionId="sess-123", db=mock_db)
         assert result == "Response"
 
-    @patch("main.app.prometheus.generation.httpSession")
+    @patch("main.app.prometheus.generation.getSession")
     @patch("main.app.prometheus.generation.Config")
     @patch("main.app.prometheus.generation.genai")
-    def test_execute_workflow_global_request_with_api_key(self, mock_genai, mock_config, mock_http):
+    def test_execute_workflow_global_request_with_api_key(self, mock_genai, mock_config, mock_getSession):
         """Global request resolution with KEY_SYSTEM=True (lines 180-209)."""
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
         mock_config.DEBUG_MODE = True
@@ -238,7 +237,7 @@ class TestPrometheusGeneratorExecuteWorkflow:
         mock_stock_resp.status_code = 200
         mock_stock_resp.json.return_value = {"data": [{"INVESTING SCORE": 9.0}]}
 
-        mock_http.get.side_effect = [mock_global_resp, mock_stock_resp]
+        mock_getSession.return_value.get.side_effect = [mock_global_resp, mock_stock_resp]
 
         from main.app.prometheus.generation import PrometheusGenerator
 
@@ -246,10 +245,10 @@ class TestPrometheusGeneratorExecuteWorkflow:
         result = gen.executeWorkflow("Melhores ações")
         assert result == "Global analysis"
 
-    @patch("main.app.prometheus.generation.httpSession")
+    @patch("main.app.prometheus.generation.getSession")
     @patch("main.app.prometheus.generation.Config")
     @patch("main.app.prometheus.generation.genai")
-    def test_execute_workflow_global_request_api_error(self, mock_genai, mock_config, mock_http):
+    def test_execute_workflow_global_request_api_error(self, mock_genai, mock_config, mock_getSession):
         """Global request API error (lines 208-209)."""
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
         mock_config.DEBUG_MODE = True
@@ -276,7 +275,7 @@ class TestPrometheusGeneratorExecuteWorkflow:
         stage3_resp.text = "Fallback analysis"
         mock_client.models.generate_content.side_effect = [stage1_resp, stage3_resp]
 
-        mock_http.get.side_effect = Exception("Connection refused")
+        mock_getSession.return_value.get.side_effect = Exception("Connection refused")
 
         from main.app.prometheus.generation import PrometheusGenerator
 
@@ -284,10 +283,10 @@ class TestPrometheusGeneratorExecuteWorkflow:
         result = gen.executeWorkflow("Melhores ações")
         assert result == "Fallback analysis"
 
-    @patch("main.app.prometheus.generation.httpSession")
+    @patch("main.app.prometheus.generation.getSession")
     @patch("main.app.prometheus.generation.Config")
     @patch("main.app.prometheus.generation.genai")
-    def test_fetch_stock_data_exception(self, mock_genai, mock_config, mock_http):
+    def test_fetch_stock_data_exception(self, mock_genai, mock_config, mock_getSession):
         """fetchStockData exception path (lines 223-225)."""
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
         mock_config.DEBUG_MODE = True
@@ -312,7 +311,7 @@ class TestPrometheusGeneratorExecuteWorkflow:
         stage3_resp.text = "Response after error"
         mock_client.models.generate_content.side_effect = [stage1_resp, stage3_resp]
 
-        mock_http.get.side_effect = Exception("Timeout")
+        mock_getSession.return_value.get.side_effect = Exception("Timeout")
 
         from main.app.prometheus.generation import PrometheusGenerator
 
@@ -320,10 +319,10 @@ class TestPrometheusGeneratorExecuteWorkflow:
         result = gen.executeWorkflow("P/L de PETR4")
         assert result == "Response after error"
 
-    @patch("main.app.prometheus.generation.httpSession")
+    @patch("main.app.prometheus.generation.getSession")
     @patch("main.app.prometheus.generation.Config")
     @patch("main.app.prometheus.generation.genai")
-    def test_fetch_stock_data_non_200(self, mock_genai, mock_config, mock_http):
+    def test_fetch_stock_data_non_200(self, mock_genai, mock_config, mock_getSession):
         """fetchStockData non-200 status (line 222)."""
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
         mock_config.DEBUG_MODE = True
@@ -350,7 +349,7 @@ class TestPrometheusGeneratorExecuteWorkflow:
 
         mock_resp = MagicMock()
         mock_resp.status_code = 500
-        mock_http.get.return_value = mock_resp
+        mock_getSession.return_value.get.return_value = mock_resp
 
         from main.app.prometheus.generation import PrometheusGenerator
 
@@ -359,10 +358,10 @@ class TestPrometheusGeneratorExecuteWorkflow:
         assert result == "Response"
 
     @patch("main.app.prometheus.generation.PrometheusChatManager")
-    @patch("main.app.prometheus.generation.httpSession")
+    @patch("main.app.prometheus.generation.getSession")
     @patch("main.app.prometheus.generation.Config")
     @patch("main.app.prometheus.generation.genai")
-    def test_execute_workflow_stage4_summary_update(self, mock_genai, mock_config, mock_http, mock_chat):
+    def test_execute_workflow_stage4_summary_update(self, mock_genai, mock_config, mock_getSession, mock_chat):
         """Stage 4: summary update when len(history) % 10 == 0 (lines 325-363)."""
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
         mock_config.DEBUG_MODE = True
@@ -391,10 +390,10 @@ class TestPrometheusGeneratorExecuteWorkflow:
         mock_chat.updateSummary.assert_called_once()
         mock_chat.updateSessionTitle.assert_called_once()
 
-    @patch("main.app.prometheus.generation.httpSession")
+    @patch("main.app.prometheus.generation.getSession")
     @patch("main.app.prometheus.generation.Config")
     @patch("main.app.prometheus.generation.genai")
-    def test_execute_workflow_global_request_status_not_200(self, mock_genai, mock_config, mock_http):
+    def test_execute_workflow_global_request_status_not_200(self, mock_genai, mock_config, mock_getSession):
         """Global request with non-200 status (line 201-203 skipped)."""
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
         mock_config.DEBUG_MODE = True
@@ -423,7 +422,7 @@ class TestPrometheusGeneratorExecuteWorkflow:
 
         mock_global_resp = MagicMock()
         mock_global_resp.status_code = 403  # Not 200
-        mock_http.get.return_value = mock_global_resp
+        mock_getSession.return_value.get.return_value = mock_global_resp
 
         from main.app.prometheus.generation import PrometheusGenerator
 
@@ -935,7 +934,7 @@ class TestSessionManager:
 
         mock_db = MagicMock()
 
-        result = SessionManager.getCurrentSession(mock_db, userId=1, userAgent="Chrome", request=MagicMock())
+        result = SessionManager.getCurrentSession(mock_db, userId=1)
 
         mock_db.query.return_value.filter.return_value.order_by.return_value.first.assert_called_once()
 

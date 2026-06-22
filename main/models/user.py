@@ -14,11 +14,7 @@ class User(Base):
     roles = Column(Text, nullable=True, default="USER")
     createdAt = Column(TIMESTAMP, server_default=func.current_timestamp(), nullable=False)
 
-    stocksapiKeys = relationship("StocksAPIKey", back_populates="user", cascade="all, delete-orphan", uselist=False)
     sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
-
-    def __repr__(self):
-        return f"<User(userId={self.userId}, username='{self.username}', email='{self.email}')>"
 
     def getRolesList(self):
         if not self.roles:
@@ -32,14 +28,6 @@ class User(Base):
         if role not in currentRoles:
             currentRoles.append(role)
             self.roles = ",".join(currentRoles)
-
-    def removeRole(self, role: str):
-        if hasattr(role, "name"):
-            role = str(role.name)
-        currentRoles = self.getRolesList()
-        if role in currentRoles:
-            currentRoles.remove(role)
-            self.roles = ",".join(currentRoles) if currentRoles else "USER"
 
     def hasRole(self, role: str) -> bool:
         if hasattr(role, "name"):

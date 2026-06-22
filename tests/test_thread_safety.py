@@ -168,25 +168,21 @@ class TestDiscordHandlerThreadPool:
 
 
 # ---------------------------------------------------------------------------
-# Integration: concurrent HTTP via proxy
+# Integration: concurrent HTTP via getSession
 # ---------------------------------------------------------------------------
 
 
-class TestConcurrentHttpProxy:
-    """Verify _SessionProxy delegates to thread-local sessions under concurrency."""
+class TestConcurrentGetSession:
+    """Verify getSession returns thread-local sessions under concurrency."""
 
-    def test_proxy_returns_thread_local_sessions(self):
-        """The _SessionProxy in generation.py must give each thread its own Session."""
-        from main.app.prometheus.generation import httpSession
+    def test_getSession_returns_thread_local_sessions(self):
+        """getSession() must give each thread its own Session."""
+        from main.utils.http_session import getSession
         import requests
 
         results: dict[str, bool] = {}
 
         def _check(name: str):
-            # httpSession.get is actually calling getSession().get
-            # We can verify the session identity through getSession
-            from main.utils.http_session import getSession
-
             s = getSession()
             results[name] = isinstance(s, requests.Session)
 

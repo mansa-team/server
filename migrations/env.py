@@ -24,7 +24,7 @@ targetMetadata = Base.metadata
 
 
 def getDatabaseUrl() -> str:
-    return f"mysql+pymysql://{Config.MYSQL['USER_USER']}:{Config.MYSQL['USER_PASSWORD']}@{Config.MYSQL['USER_HOST']}/{Config.MYSQL['USER_DATABASE']}"
+    return f"mysql+pymysql://{Config.MYSQL.USER_USER}:{Config.MYSQL.USER_PASSWORD}@{Config.MYSQL.USER_HOST}/{Config.MYSQL.USER_DATABASE}"
 
 
 def runMigrationsOffline() -> None:

@@ -16,17 +16,6 @@ from main.app.prometheus.chat import PrometheusChatManager
 logger = logging.getLogger(__name__)
 
 
-class SessionProxy:
-    def get(self, *args, **kwargs):
-        return getSession().get(*args, **kwargs)
-
-    def post(self, *args, **kwargs):
-        return getSession().post(*args, **kwargs)
-
-
-httpSession = SessionProxy()
-
-
 class PrometheusGenerator:
     def __init__(self):
         self.client = genai.Client(api_key=Config.PROMETHEUS["GEMINI_API.KEY"])
@@ -200,7 +189,7 @@ class PrometheusGenerator:
                     "orderBy": globalReq.get("order_by"),
                     "limit": globalReq.get("limit"),
                 }
-                syncRes = httpSession.get(
+                syncRes = getSession().get(
                     f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/fundamental",
                     params=params,
                     headers=headers,
@@ -227,7 +216,7 @@ class PrometheusGenerator:
             }
             try:
                 url = f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/{req['type']}"
-                res = httpSession.get(url, params=params, headers=headers, timeout=20)
+                res = getSession().get(url, params=params, headers=headers, timeout=20)
                 return res.json().get("data", []) if res.status_code == 200 else []
             except Exception as e:
                 logger.error(f"API error ({req['type']}): {e}", exc_info=True)
@@ -319,7 +308,6 @@ class PrometheusGenerator:
             contents=requestContext,
             config=types.GenerateContentConfig(
                 system_instruction=sysPrompt["STAGE 3"],
-                # tools=[types.Tool(google_search=types.GoogleSearch())]
             ),
         )
 

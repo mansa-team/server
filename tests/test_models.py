@@ -47,19 +47,6 @@ class TestUserModel:
         user.addRole("ADMIN")
         assert user.getRolesList() == initialRoles
 
-    def test_remove_role_existing(self, dbSession, sampleUserData):
-        user = User(**sampleUserData)
-        user.roles = "USER,ADMIN"
-        user.removeRole("ADMIN")
-        assert "ADMIN" not in user.getRolesList()
-        assert "USER" in user.getRolesList()
-
-    def test_remove_role_last_role(self, dbSession, sampleUserData):
-        user = User(**sampleUserData)
-        user.roles = "ADMIN"
-        user.removeRole("ADMIN")
-        assert user.roles == "USER"
-
     def test_has_role_true(self, dbSession, sampleUserData):
         user = User(**sampleUserData)
         user.roles = "USER,ADMIN"
@@ -118,15 +105,11 @@ class TestStocksAPIKeyModel:
 
     def test_needs_reset_true_expired(self, dbSession, sampleAPIKeyData):
         key = StocksAPIKey(**sampleAPIKeyData)
-        from datetime import timedelta
-
         key.lastReset = datetime.now() - timedelta(days=31)
         assert key.needsReset(30) is True
 
     def test_needs_reset_false_recent(self, dbSession, sampleAPIKeyData):
         key = StocksAPIKey(**sampleAPIKeyData)
-        from datetime import timedelta
-
         key.lastReset = datetime.now() - timedelta(days=5)
         assert key.needsReset(30) is False
 
@@ -182,4 +165,4 @@ class TestPrometheusSessionModel:
         dbSession.add(session)
         dbSession.commit()
 
-        assert session.history == [] or session.history is None
+        assert session.history == []

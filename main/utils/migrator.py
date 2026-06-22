@@ -1,7 +1,6 @@
 import logging
 import subprocess  # nosec: B404
 import os
-import sys
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +30,3 @@ def runMigrations():
 
     except Exception as e:
         logger.error(f"Failed to execute migrations: {e}")
-
-
-if __name__ == "__main__":
-    runMigrations()

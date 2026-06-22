@@ -57,7 +57,7 @@ class AuthenticationManager:
             return None
 
         except Exception as e:
-            logger.error(f"Error authenticating Google user: {str(e)}", exc_info=True)
+            logger.debug(f"Error authenticating Google user: {str(e)}", exc_info=True)
             return None
 
     @staticmethod
@@ -71,5 +71,5 @@ class AuthenticationManager:
             return None
 
         except Exception as e:
-            logger.error(f"Error authenticating user: {str(e)}", exc_info=True)
+            logger.debug(f"Error authenticating user: {str(e)}", exc_info=True)
             return None
