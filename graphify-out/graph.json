@@ -264,7 +264,7 @@
       "source_file": "config.py",
       "source_location": "L111",
       "id": "server_config_config",
-      "community": 135,
+      "community": 65,
       "norm_label": "config"
     },
     {
@@ -282,7 +282,7 @@
       "source_file": "run.py",
       "source_location": "L1",
       "id": "run_py",
-      "community": 130,
+      "community": 1,
       "norm_label": "run.py"
     },
     {
@@ -291,7 +291,7 @@
       "source_file": "run.py",
       "source_location": "L26",
       "id": "server_run_lifespan",
-      "community": 72,
+      "community": 1,
       "norm_label": "lifespan()"
     },
     {
@@ -300,7 +300,7 @@
       "source_file": "run.py",
       "source_location": "L77",
       "id": "server_run_health",
-      "community": 130,
+      "community": 1,
       "norm_label": "health()"
     },
     {
@@ -309,7 +309,7 @@
       "source_file": "run.py",
       "source_location": "L82",
       "id": "server_run_status",
-      "community": 130,
+      "community": 1,
       "norm_label": "status()"
     },
     {
@@ -318,7 +318,7 @@
       "source_file": "run.py",
       "source_location": "L123",
       "id": "server_run_triggerscraper",
-      "community": 130,
+      "community": 1,
       "norm_label": "triggerscraper()"
     },
     {
@@ -363,7 +363,7 @@
       "source_file": "main/app/authentication/authentication.py",
       "source_location": "L64",
       "id": "authentication_authentication_authenticateuser",
-      "community": 78,
+      "community": 175,
       "norm_label": "authenticateuser()"
     },
     {
@@ -381,7 +381,7 @@
       "source_file": "main/app/authentication/device.py",
       "source_location": "L1",
       "id": "main_app_authentication_device_py",
-      "community": 163,
+      "community": 12,
       "norm_label": "device.py"
     },
     {
@@ -390,7 +390,7 @@
       "source_file": "main/app/authentication/device.py",
       "source_location": "L8",
       "id": "authentication_device_deviceinfo",
-      "community": 163,
+      "community": 12,
       "norm_label": "deviceinfo"
     },
     {
@@ -399,7 +399,7 @@
       "source_file": "main/app/authentication/device.py",
       "source_location": "L17",
       "id": "authentication_device_parseuseragent",
-      "community": 82,
+      "community": 12,
       "norm_label": "parseuseragent()"
     },
     {
@@ -408,7 +408,7 @@
       "source_file": "main/app/authentication/device.py",
       "source_location": "L46",
       "id": "authentication_device_detectbrowser",
-      "community": 131,
+      "community": 12,
       "norm_label": "detectbrowser()"
     },
     {
@@ -426,7 +426,7 @@
       "source_file": "main/app/authentication/device.py",
       "source_location": "L105",
       "id": "authentication_device_detectdevicetype",
-      "community": 140,
+      "community": 12,
       "norm_label": "detectdevicetype()"
     },
     {
@@ -435,7 +435,7 @@
       "source_file": "main/app/authentication/device.py",
       "source_location": "L128",
       "id": "authentication_device_generatefingerprint",
-      "community": 163,
+      "community": 12,
       "norm_label": "generatefingerprint()"
     },
     {
@@ -543,7 +543,7 @@
       "source_file": "main/app/authentication/sso.py",
       "source_location": "L1",
       "id": "main_app_authentication_sso_py",
-      "community": 7,
+      "community": 212,
       "norm_label": "sso.py"
     },
     {
@@ -552,7 +552,7 @@
       "source_file": "main/app/authentication/sso.py",
       "source_location": "L6",
       "id": "authentication_sso_getgooglesso",
-      "community": 7,
+      "community": 212,
       "norm_label": "getgooglesso()"
     },
     {
@@ -561,7 +561,7 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L1",
       "id": "main_app_authentication_util_py",
-      "community": 7,
+      "community": 143,
       "norm_label": "util.py"
     },
     {
@@ -570,7 +570,7 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L14",
       "id": "authentication_util_hashpassword",
-      "community": 7,
+      "community": 175,
       "norm_label": "hashpassword()"
     },
     {
@@ -579,7 +579,7 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L22",
       "id": "authentication_util_verifypassword",
-      "community": 7,
+      "community": 175,
       "norm_label": "verifypassword()"
     },
     {
@@ -750,7 +750,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L1",
       "id": "main_app_scraper_b3_scraper_py",
-      "community": 146,
+      "community": 65,
       "norm_label": "scraper.py"
     },
     {
@@ -759,7 +759,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L32",
       "id": "scraper_b3_scraper_getcurrentselic",
-      "community": 146,
+      "community": 65,
       "norm_label": "getcurrentselic()"
     },
     {
@@ -768,7 +768,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L40",
       "id": "scraper_b3_scraper_b3scraper",
-      "community": 1,
+      "community": 65,
       "norm_label": "b3scraper"
     },
     {
@@ -777,7 +777,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L41",
       "id": "scraper_b3_scraper_b3scraper_init",
-      "community": 146,
+      "community": 65,
       "norm_label": ".__init__()"
     },
     {
@@ -786,7 +786,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L54",
       "id": "scraper_b3_scraper_getinitialdata",
-      "community": 146,
+      "community": 65,
       "norm_label": "getinitialdata()"
     },
     {
@@ -795,7 +795,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L109",
       "id": "scraper_b3_scraper_historicalrentability",
-      "community": 146,
+      "community": 65,
       "norm_label": "historicalrentability()"
     },
     {
@@ -804,7 +804,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L132",
       "id": "scraper_b3_scraper_historicaldividends",
-      "community": 146,
+      "community": 65,
       "norm_label": "historicaldividends()"
     },
     {
@@ -813,7 +813,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L163",
       "id": "scraper_b3_scraper_historicaldividendyields",
-      "community": 146,
+      "community": 65,
       "norm_label": "historicaldividendyields()"
     },
     {
@@ -822,7 +822,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L191",
       "id": "scraper_b3_scraper_historicalrevenue",
-      "community": 146,
+      "community": 65,
       "norm_label": "historicalrevenue()"
     },
     {
@@ -831,7 +831,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L212",
       "id": "scraper_b3_scraper_historicalcotationprofits",
-      "community": 146,
+      "community": 65,
       "norm_label": "historicalcotationprofits()"
     },
     {
@@ -840,7 +840,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L225",
       "id": "scraper_b3_scraper_b3scraper_historicalcotationprofits_oceans14",
-      "community": 1,
+      "community": 65,
       "norm_label": ".historicalcotationprofits_oceans14()"
     },
     {
@@ -849,7 +849,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L238",
       "id": "scraper_b3_scraper_historicalcotations",
-      "community": 146,
+      "community": 65,
       "norm_label": "historicalcotations()"
     },
     {
@@ -858,7 +858,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L255",
       "id": "scraper_b3_scraper_tagalong",
-      "community": 146,
+      "community": 65,
       "norm_label": "tagalong()"
     },
     {
@@ -867,7 +867,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L276",
       "id": "scraper_b3_scraper_stocknews",
-      "community": 146,
+      "community": 65,
       "norm_label": "stocknews()"
     },
     {
@@ -876,7 +876,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L289",
       "id": "scraper_b3_scraper_b3scraper_fundamentalindicators",
-      "community": 1,
+      "community": 65,
       "norm_label": ".fundamentalindicators()"
     },
     {
@@ -885,7 +885,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L417",
       "id": "scraper_b3_scraper_b3scraper_processticker",
-      "community": 1,
+      "community": 65,
       "norm_label": ".processticker()"
     },
     {
@@ -894,7 +894,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L448",
       "id": "scraper_b3_scraper_b3scraper_scrapestocks",
-      "community": 1,
+      "community": 65,
       "norm_label": ".scrapestocks()"
     },
     {
@@ -903,7 +903,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L489",
       "id": "scraper_b3_scraper_b3scraper_reordercolumns",
-      "community": 1,
+      "community": 65,
       "norm_label": ".reordercolumns()"
     },
     {
@@ -912,7 +912,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L499",
       "id": "scraper_b3_scraper_b3scraper_serializecomplextypes",
-      "community": 1,
+      "community": 65,
       "norm_label": ".serializecomplextypes()"
     },
     {
@@ -921,7 +921,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L520",
       "id": "scraper_b3_scraper_b3scraper_exportjson",
-      "community": 1,
+      "community": 65,
       "norm_label": ".exportjson()"
     },
     {
@@ -930,7 +930,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L528",
       "id": "scraper_b3_scraper_b3scraper_exportmysql",
-      "community": 1,
+      "community": 65,
       "norm_label": ".exportmysql()"
     },
     {
@@ -939,7 +939,7 @@
       "source_file": "main/app/scraper_b3/xango.py",
       "source_location": "L1",
       "id": "main_app_scraper_b3_xango_py",
-      "community": 1,
+      "community": 65,
       "norm_label": "xango.py"
     },
     {
@@ -948,7 +948,7 @@
       "source_file": "main/app/scraper_b3/xango.py",
       "source_location": "L15",
       "id": "scraper_b3_xango_calculateinvestingscore",
-      "community": 1,
+      "community": 65,
       "norm_label": "calculateinvestingscore()"
     },
     {
@@ -1029,7 +1029,7 @@
       "source_file": "main/app/stocks_api/key.py",
       "source_location": "L1",
       "id": "main_app_stocks_api_key_py",
-      "community": 85,
+      "community": 58,
       "norm_label": "key.py"
     },
     {
@@ -1065,7 +1065,7 @@
       "source_file": "main/app/stocks_api/key.py",
       "source_location": "L62",
       "id": "stocks_api_key_createkey",
-      "community": 85,
+      "community": 58,
       "norm_label": "createkey()"
     },
     {
@@ -1081,7 +1081,7 @@
       "label": "sanitizeNanValues()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/query.py",
-      "source_location": "L20",
+      "source_location": "L22",
       "id": "stocks_api_query_sanitizenanvalues",
       "community": 64,
       "norm_label": "sanitizenanvalues()"
@@ -1090,7 +1090,7 @@
       "label": "parseCotationDates()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/query.py",
-      "source_location": "L40",
+      "source_location": "L42",
       "id": "stocks_api_query_parsecotationdates",
       "community": 64,
       "norm_label": "parsecotationdates()"
@@ -1099,16 +1099,16 @@
       "label": "filterCotationColumn()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/query.py",
-      "source_location": "L49",
+      "source_location": "L51",
       "id": "stocks_api_query_filtercotationcolumn",
-      "community": 64,
+      "community": 19,
       "norm_label": "filtercotationcolumn()"
     },
     {
       "label": "StocksQueryManager",
       "file_type": "code",
       "source_file": "main/app/stocks_api/query.py",
-      "source_location": "L78",
+      "source_location": "L80",
       "id": "stocks_api_query_stocksquerymanager",
       "community": 64,
       "norm_label": "stocksquerymanager"
@@ -1117,7 +1117,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/query.py",
-      "source_location": "L79",
+      "source_location": "L81",
       "id": "stocks_api_query_stocksquerymanager_init",
       "community": 64,
       "norm_label": ".__init__()"
@@ -1126,7 +1126,7 @@
       "label": ".deserializeJsonColumns()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/query.py",
-      "source_location": "L84",
+      "source_location": "L86",
       "id": "stocks_api_query_stocksquerymanager_deserializejsoncolumns",
       "community": 64,
       "norm_label": ".deserializejsoncolumns()"
@@ -1135,7 +1135,7 @@
       "label": ".filterBySearchTerms()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/query.py",
-      "source_location": "L124",
+      "source_location": "L126",
       "id": "stocks_api_query_stocksquerymanager_filterbysearchterms",
       "community": 64,
       "norm_label": ".filterbysearchterms()"
@@ -1144,7 +1144,7 @@
       "label": ".queryHistorical()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/query.py",
-      "source_location": "L143",
+      "source_location": "L145",
       "id": "stocks_api_query_stocksquerymanager_queryhistorical",
       "community": 64,
       "norm_label": ".queryhistorical()"
@@ -1153,7 +1153,7 @@
       "label": ".queryFundamental()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/query.py",
-      "source_location": "L215",
+      "source_location": "L217",
       "id": "stocks_api_query_stocksquerymanager_queryfundamental",
       "community": 64,
       "norm_label": ".queryfundamental()"
@@ -1162,10 +1162,19 @@
       "label": ".queryCotations()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/query.py",
-      "source_location": "L293",
+      "source_location": "L295",
       "id": "stocks_api_query_stocksquerymanager_querycotations",
       "community": 64,
       "norm_label": ".querycotations()"
+    },
+    {
+      "label": ".queryLiveCotation()",
+      "file_type": "code",
+      "source_file": "main/app/stocks_api/query.py",
+      "source_location": "L348",
+      "id": "stocks_api_query_stocksquerymanager_querylivecotation",
+      "community": 64,
+      "norm_label": ".querylivecotation()"
     },
     {
       "label": "util.py",
@@ -1254,7 +1263,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L1",
       "id": "main_controller_authentication_controller_py",
-      "community": 7,
+      "community": 131,
       "norm_label": "authentication_controller.py"
     },
     {
@@ -1263,7 +1272,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L28",
       "id": "controller_authentication_controller_issecurescheme",
-      "community": 7,
+      "community": 131,
       "norm_label": "issecurescheme()"
     },
     {
@@ -1272,7 +1281,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L32",
       "id": "controller_authentication_controller_issuesessioncookie",
-      "community": 7,
+      "community": 131,
       "norm_label": "issuesessioncookie()"
     },
     {
@@ -1281,7 +1290,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L60",
       "id": "controller_authentication_controller_health",
-      "community": 7,
+      "community": 131,
       "norm_label": "health()"
     },
     {
@@ -1290,7 +1299,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L66",
       "id": "controller_authentication_controller_register",
-      "community": 7,
+      "community": 131,
       "norm_label": "register()"
     },
     {
@@ -1299,7 +1308,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L96",
       "id": "controller_authentication_controller_login",
-      "community": 7,
+      "community": 131,
       "norm_label": "login()"
     },
     {
@@ -1308,7 +1317,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L113",
       "id": "controller_authentication_controller_logout",
-      "community": 7,
+      "community": 131,
       "norm_label": "logout()"
     },
     {
@@ -1317,7 +1326,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L143",
       "id": "controller_authentication_controller_googlelogin",
-      "community": 7,
+      "community": 212,
       "norm_label": "googlelogin()"
     },
     {
@@ -1326,7 +1335,7 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L159",
       "id": "controller_authentication_controller_googlecallback",
-      "community": 7,
+      "community": 131,
       "norm_label": "googlecallback()"
     },
     {
@@ -1456,12 +1465,21 @@
       "norm_label": "getcotations()"
     },
     {
-      "label": "generateKey()",
+      "label": "getLiveCotation()",
       "file_type": "code",
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L60",
+      "id": "controller_stocksapi_controller_getlivecotation",
+      "community": 80,
+      "norm_label": "getlivecotation()"
+    },
+    {
+      "label": "generateKey()",
+      "file_type": "code",
+      "source_file": "main/controller/stocksapi_controller.py",
+      "source_location": "L68",
       "id": "controller_stocksapi_controller_generatekey",
-      "community": 85,
+      "community": 80,
       "norm_label": "generatekey()"
     },
     {
@@ -1758,7 +1776,7 @@
       "source_file": "main/service/authentication_service.py",
       "source_location": "L1",
       "id": "main_service_authentication_service_py",
-      "community": 135,
+      "community": 65,
       "norm_label": "authentication_service.py"
     },
     {
@@ -1767,7 +1785,7 @@
       "source_file": "main/service/authentication_service.py",
       "source_location": "L10",
       "id": "service_authentication_service_authenticationservice",
-      "community": 135,
+      "community": 65,
       "norm_label": "authenticationservice"
     },
     {
@@ -1776,7 +1794,7 @@
       "source_file": "main/service/authentication_service.py",
       "source_location": "L12",
       "id": "service_authentication_service_initialize",
-      "community": 135,
+      "community": 65,
       "norm_label": "initialize()"
     },
     {
@@ -1812,7 +1830,7 @@
       "source_file": "main/service/scraper_service.py",
       "source_location": "L1",
       "id": "main_service_scraper_service_py",
-      "community": 1,
+      "community": 65,
       "norm_label": "scraper_service.py"
     },
     {
@@ -1821,7 +1839,7 @@
       "source_file": "main/service/scraper_service.py",
       "source_location": "L13",
       "id": "service_scraper_service_runscraper",
-      "community": 1,
+      "community": 65,
       "norm_label": "runscraper()"
     },
     {
@@ -1830,7 +1848,7 @@
       "source_file": "main/service/scraper_service.py",
       "source_location": "L23",
       "id": "service_scraper_service_scraperservice",
-      "community": 1,
+      "community": 65,
       "norm_label": "scraperservice"
     },
     {
@@ -1839,7 +1857,7 @@
       "source_file": "main/service/scraper_service.py",
       "source_location": "L25",
       "id": "service_scraper_service_initialize",
-      "community": 1,
+      "community": 65,
       "norm_label": "initialize()"
     },
     {
@@ -1875,7 +1893,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L1",
       "id": "main_service_user_service_py",
-      "community": 178,
+      "community": 3,
       "norm_label": "user_service.py"
     },
     {
@@ -1884,7 +1902,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L15",
       "id": "service_user_service_removeinactivesessions",
-      "community": 178,
+      "community": 3,
       "norm_label": "removeinactivesessions()"
     },
     {
@@ -1893,7 +1911,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L37",
       "id": "service_user_service_userservice",
-      "community": 178,
+      "community": 3,
       "norm_label": "userservice"
     },
     {
@@ -1902,7 +1920,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L39",
       "id": "service_user_service_initialize",
-      "community": 178,
+      "community": 3,
       "norm_label": "initialize()"
     },
     {
@@ -2019,7 +2037,7 @@
       "source_file": "main/utils/errors.py",
       "source_location": "L65",
       "id": "utils_errors_registererrorhandlers",
-      "community": 63,
+      "community": 55,
       "norm_label": "registererrorhandlers()"
     },
     {
@@ -2028,7 +2046,7 @@
       "source_file": "main/utils/http_session.py",
       "source_location": "L1",
       "id": "main_utils_http_session_py",
-      "community": 72,
+      "community": 82,
       "norm_label": "http_session.py"
     },
     {
@@ -2037,7 +2055,7 @@
       "source_file": "main/utils/http_session.py",
       "source_location": "L8",
       "id": "utils_http_session_getsession",
-      "community": 72,
+      "community": 82,
       "norm_label": "getsession()"
     },
     {
@@ -2091,7 +2109,7 @@
       "source_file": "main/utils/migrator.py",
       "source_location": "L1",
       "id": "main_utils_migrator_py",
-      "community": 72,
+      "community": 1,
       "norm_label": "migrator.py"
     },
     {
@@ -2100,7 +2118,7 @@
       "source_file": "main/utils/migrator.py",
       "source_location": "L8",
       "id": "utils_migrator_runmigrations",
-      "community": 72,
+      "community": 1,
       "norm_label": "runmigrations()"
     },
     {
@@ -2145,7 +2163,7 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L1",
       "id": "main_utils_roles_py",
-      "community": 130,
+      "community": 50,
       "norm_label": "roles.py"
     },
     {
@@ -2172,7 +2190,7 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L30",
       "id": "utils_roles_all",
-      "community": 130,
+      "community": 50,
       "norm_label": "all()"
     },
     {
@@ -2190,7 +2208,7 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L53",
       "id": "utils_roles_checkaccess",
-      "community": 130,
+      "community": 50,
       "norm_label": "checkaccess()"
     },
     {
@@ -2199,7 +2217,7 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L66",
       "id": "utils_roles_requirepermission",
-      "community": 130,
+      "community": 50,
       "norm_label": "requirepermission()"
     },
     {
@@ -2460,7 +2478,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L1",
       "id": "tests_conftest_py",
-      "community": 89,
+      "community": 12,
       "norm_label": "conftest.py"
     },
     {
@@ -2469,7 +2487,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L12",
       "id": "tests_conftest_pytest_configure",
-      "community": 89,
+      "community": 12,
       "norm_label": "pytest_configure()"
     },
     {
@@ -2478,7 +2496,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L25",
       "id": "tests_conftest_patch_secret_key",
-      "community": 89,
+      "community": 12,
       "norm_label": "_patch_secret_key()"
     },
     {
@@ -2487,7 +2505,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L40",
       "id": "tests_conftest_dbsession",
-      "community": 89,
+      "community": 12,
       "norm_label": "dbsession()"
     },
     {
@@ -2496,7 +2514,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L52",
       "id": "tests_conftest_sampleuserdata",
-      "community": 89,
+      "community": 12,
       "norm_label": "sampleuserdata()"
     },
     {
@@ -2505,7 +2523,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L63",
       "id": "tests_conftest_sampleapikeydata",
-      "community": 89,
+      "community": 12,
       "norm_label": "sampleapikeydata()"
     },
     {
@@ -2514,7 +2532,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L68",
       "id": "tests_conftest_sampleprometheussessiondata",
-      "community": 89,
+      "community": 12,
       "norm_label": "sampleprometheussessiondata()"
     },
     {
@@ -2523,7 +2541,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L73",
       "id": "tests_conftest_client",
-      "community": 89,
+      "community": 55,
       "norm_label": "client()"
     },
     {
@@ -2532,7 +2550,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L13",
       "id": "tests_conftest_rationale_13",
-      "community": 89,
+      "community": 12,
       "norm_label": "set required env vars before test collection.      config.py eagerly instantia"
     },
     {
@@ -2541,7 +2559,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L74",
       "id": "tests_conftest_rationale_74",
-      "community": 89,
+      "community": 55,
       "norm_label": "testclient with all routers mounted \u2014 no lifespan (no db/service init).      o"
     },
     {
@@ -2622,7 +2640,7 @@
       "source_file": "tests/test_api_key_quota_atomic.py",
       "source_location": "L164",
       "id": "tests_test_api_key_quota_atomic_testatomicquotaincrement_test_multiple_keys_independent_quotas",
-      "community": 182,
+      "community": 79,
       "norm_label": ".test_multiple_keys_independent_quotas()"
     },
     {
@@ -2766,7 +2784,7 @@
       "source_file": "tests/test_api_key_quota_atomic.py",
       "source_location": "L165",
       "id": "tests_test_api_key_quota_atomic_rationale_165",
-      "community": 182,
+      "community": 79,
       "norm_label": "test that multiple api keys have independent quotas."
     },
     {
@@ -2847,7 +2865,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L14",
       "id": "tests_test_auth_util_testauthutil",
-      "community": 7,
+      "community": 175,
       "norm_label": "testauthutil"
     },
     {
@@ -2856,7 +2874,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L15",
       "id": "tests_test_auth_util_testauthutil_test_hash_password_returns_string",
-      "community": 7,
+      "community": 175,
       "norm_label": ".test_hash_password_returns_string()"
     },
     {
@@ -2865,7 +2883,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L20",
       "id": "tests_test_auth_util_testauthutil_test_hash_password_unique_hashes",
-      "community": 7,
+      "community": 175,
       "norm_label": ".test_hash_password_unique_hashes()"
     },
     {
@@ -2874,7 +2892,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L26",
       "id": "tests_test_auth_util_testauthutil_test_verify_password_correct",
-      "community": 7,
+      "community": 175,
       "norm_label": ".test_verify_password_correct()"
     },
     {
@@ -2883,7 +2901,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L31",
       "id": "tests_test_auth_util_testauthutil_test_verify_password_incorrect",
-      "community": 7,
+      "community": 175,
       "norm_label": ".test_verify_password_incorrect()"
     },
     {
@@ -2892,7 +2910,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L36",
       "id": "tests_test_auth_util_testauthutil_test_verify_password_invalid_hash",
-      "community": 7,
+      "community": 175,
       "norm_label": ".test_verify_password_invalid_hash()"
     },
     {
@@ -2901,7 +2919,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L39",
       "id": "tests_test_auth_util_testauthutil_test_verify_password_empty_password",
-      "community": 7,
+      "community": 175,
       "norm_label": ".test_verify_password_empty_password()"
     },
     {
@@ -3000,7 +3018,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L99",
       "id": "tests_test_auth_util_testauthutiledgecases_test_verify_password_both_none",
-      "community": 7,
+      "community": 175,
       "norm_label": ".test_verify_password_both_none()"
     },
     {
@@ -3216,7 +3234,7 @@
       "source_file": "tests/test_config.py",
       "source_location": "L1",
       "id": "tests_test_config_py",
-      "community": 175,
+      "community": 65,
       "norm_label": "test_config.py"
     },
     {
@@ -3279,7 +3297,7 @@
       "source_file": "tests/test_connectivity_coverage.py",
       "source_location": "L8",
       "id": "tests_test_connectivity_coverage_testcheckmysqlconnection",
-      "community": 72,
+      "community": 171,
       "norm_label": "testcheckmysqlconnection"
     },
     {
@@ -3369,7 +3387,7 @@
       "source_file": "tests/test_connectivity_coverage.py",
       "source_location": "L114",
       "id": "tests_test_connectivity_coverage_testcheckserviceconnection",
-      "community": 72,
+      "community": 146,
       "norm_label": "testcheckserviceconnection"
     },
     {
@@ -3459,7 +3477,7 @@
       "source_file": "tests/test_connectivity_coverage.py",
       "source_location": "L9",
       "id": "tests_test_connectivity_coverage_rationale_9",
-      "community": 72,
+      "community": 171,
       "norm_label": "checkmysqlconnection \u2014 success, errors, engine=none paths."
     },
     {
@@ -3468,7 +3486,7 @@
       "source_file": "tests/test_connectivity_coverage.py",
       "source_location": "L115",
       "id": "tests_test_connectivity_coverage_rationale_115",
-      "community": 72,
+      "community": 146,
       "norm_label": "checkserviceconnection \u2014 success, not found, errors."
     },
     {
@@ -3522,7 +3540,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L105",
       "id": "tests_test_controllers_coverage_testissecurescheme",
-      "community": 7,
+      "community": 131,
       "norm_label": "testissecurescheme"
     },
     {
@@ -3531,7 +3549,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L108",
       "id": "tests_test_controllers_coverage_testissecurescheme_test_is_secure_https",
-      "community": 7,
+      "community": 131,
       "norm_label": ".test_is_secure_https()"
     },
     {
@@ -3540,7 +3558,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L115",
       "id": "tests_test_controllers_coverage_testissecurescheme_test_is_secure_http",
-      "community": 7,
+      "community": 131,
       "norm_label": ".test_is_secure_http()"
     },
     {
@@ -3549,7 +3567,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L122",
       "id": "tests_test_controllers_coverage_testissecurescheme_test_is_secure_no_scheme",
-      "community": 7,
+      "community": 131,
       "norm_label": ".test_is_secure_no_scheme()"
     },
     {
@@ -3576,7 +3594,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L146",
       "id": "tests_test_controllers_coverage_testregisterendpoint",
-      "community": 50,
+      "community": 63,
       "norm_label": "testregisterendpoint"
     },
     {
@@ -3738,7 +3756,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L390",
       "id": "tests_test_controllers_coverage_testgooglecallback",
-      "community": 50,
+      "community": 63,
       "norm_label": "testgooglecallback"
     },
     {
@@ -3900,7 +3918,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L608",
       "id": "tests_test_controllers_coverage_testgetsessions",
-      "community": 210,
+      "community": 89,
       "norm_label": "testgetsessions"
     },
     {
@@ -3909,7 +3927,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L611",
       "id": "tests_test_controllers_coverage_testgetsessions_test_get_sessions",
-      "community": 210,
+      "community": 89,
       "norm_label": ".test_get_sessions()"
     },
     {
@@ -3981,7 +3999,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L799",
       "id": "tests_test_controllers_coverage_testrevokeallsessions",
-      "community": 55,
+      "community": 130,
       "norm_label": "testrevokeallsessions"
     },
     {
@@ -3990,7 +4008,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L802",
       "id": "tests_test_controllers_coverage_testrevokeallsessions_test_revoke_all_sessions",
-      "community": 55,
+      "community": 130,
       "norm_label": ".test_revoke_all_sessions()"
     },
     {
@@ -4089,7 +4107,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L909",
       "id": "tests_test_controllers_coverage_testprometheusgethistory",
-      "community": 180,
+      "community": 55,
       "norm_label": "testprometheusgethistory"
     },
     {
@@ -4098,7 +4116,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L912",
       "id": "tests_test_controllers_coverage_testprometheusgethistory_test_get_history_found",
-      "community": 180,
+      "community": 55,
       "norm_label": ".test_get_history_found()"
     },
     {
@@ -4107,7 +4125,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L956",
       "id": "tests_test_controllers_coverage_testprometheusgethistory_test_get_history_not_found",
-      "community": 180,
+      "community": 55,
       "norm_label": ".test_get_history_not_found()"
     },
     {
@@ -4296,7 +4314,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1237",
       "id": "tests_test_controllers_coverage_testaddroletouser_test_add_role_already_has_role",
-      "community": 75,
+      "community": 108,
       "norm_label": ".test_add_role_already_has_role()"
     },
     {
@@ -4341,7 +4359,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1296",
       "id": "tests_test_controllers_coverage_testgetcurrentuser_test_get_current_user_session_revoked",
-      "community": 75,
+      "community": 108,
       "norm_label": ".test_get_current_user_session_revoked()"
     },
     {
@@ -4431,7 +4449,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1414",
       "id": "tests_test_controllers_coverage_testextracttokenpayloadreraise_test_http_exception_from_verify_propagates",
-      "community": 212,
+      "community": 17,
       "norm_label": ".test_http_exception_from_verify_propagates()"
     },
     {
@@ -4503,7 +4521,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L106",
       "id": "tests_test_controllers_coverage_rationale_106",
-      "community": 7,
+      "community": 131,
       "norm_label": "covers line 23: issecurescheme helper."
     },
     {
@@ -4521,7 +4539,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L147",
       "id": "tests_test_controllers_coverage_rationale_147",
-      "community": 50,
+      "community": 63,
       "norm_label": "covers lines 44-54, 63, 66-71: register success, valueerror, generic exception."
     },
     {
@@ -4683,7 +4701,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L391",
       "id": "tests_test_controllers_coverage_rationale_391",
-      "community": 50,
+      "community": 63,
       "norm_label": "covers lines 155-156, 158, 160-168, 170-177, 179-184, 186, 190-204: googlecallba"
     },
     {
@@ -4773,7 +4791,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L609",
       "id": "tests_test_controllers_coverage_rationale_609",
-      "community": 210,
+      "community": 89,
       "norm_label": "covers lines 66, 68-72, 74: get /user/sessions."
     },
     {
@@ -4782,7 +4800,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L612",
       "id": "tests_test_controllers_coverage_rationale_612",
-      "community": 210,
+      "community": 89,
       "norm_label": "covers lines 66, 68-72, 74: full sessions listing."
     },
     {
@@ -4854,7 +4872,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L800",
       "id": "tests_test_controllers_coverage_rationale_800",
-      "community": 55,
+      "community": 130,
       "norm_label": "covers lines 143, 145, 147-148: post /user/sessions/revoke-all."
     },
     {
@@ -4863,7 +4881,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L803",
       "id": "tests_test_controllers_coverage_rationale_803",
-      "community": 55,
+      "community": 130,
       "norm_label": "covers lines 143, 145, 147-148."
     },
     {
@@ -4935,7 +4953,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L910",
       "id": "tests_test_controllers_coverage_rationale_910",
-      "community": 180,
+      "community": 55,
       "norm_label": "covers lines 77, 83-84, 86: get /prometheus/history/{sessionid}."
     },
     {
@@ -4944,7 +4962,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L913",
       "id": "tests_test_controllers_coverage_rationale_913",
-      "community": 180,
+      "community": 55,
       "norm_label": "covers lines 77, 86: session found with history."
     },
     {
@@ -4953,7 +4971,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L957",
       "id": "tests_test_controllers_coverage_rationale_957",
-      "community": 180,
+      "community": 55,
       "norm_label": "covers lines 83-84: session not found."
     },
     {
@@ -5115,7 +5133,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1238",
       "id": "tests_test_controllers_coverage_rationale_1238",
-      "community": 75,
+      "community": 108,
       "norm_label": "covers line 27: user already has the role."
     },
     {
@@ -5151,7 +5169,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1297",
       "id": "tests_test_controllers_coverage_rationale_1297",
-      "community": 75,
+      "community": 108,
       "norm_label": "covers lines 42-44: session validation fails."
     },
     {
@@ -5232,7 +5250,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1415",
       "id": "tests_test_controllers_coverage_rationale_1415",
-      "community": 212,
+      "community": 17,
       "norm_label": "covers line 67: httpexception raised by verifyaccesstoken is re-raised."
     },
     {
@@ -5250,7 +5268,7 @@
       "source_file": "tests/test_device.py",
       "source_location": "L1",
       "id": "tests_test_device_py",
-      "community": 175,
+      "community": 12,
       "norm_label": "test_device.py"
     },
     {
@@ -5259,7 +5277,7 @@
       "source_file": "tests/test_device.py",
       "source_location": "L10",
       "id": "tests_test_device_testdevicedetection",
-      "community": 82,
+      "community": 12,
       "norm_label": "testdevicedetection"
     },
     {
@@ -5268,7 +5286,7 @@
       "source_file": "tests/test_device.py",
       "source_location": "L11",
       "id": "tests_test_device_testdevicedetection_test_parse_chrome_windows",
-      "community": 82,
+      "community": 12,
       "norm_label": ".test_parse_chrome_windows()"
     },
     {
@@ -5277,7 +5295,7 @@
       "source_file": "tests/test_device.py",
       "source_location": "L20",
       "id": "tests_test_device_testdevicedetection_test_parse_firefox_windows",
-      "community": 82,
+      "community": 12,
       "norm_label": ".test_parse_firefox_windows()"
     },
     {
@@ -5286,7 +5304,7 @@
       "source_file": "tests/test_device.py",
       "source_location": "L28",
       "id": "tests_test_device_testdevicedetection_test_parse_safari_mac",
-      "community": 82,
+      "community": 12,
       "norm_label": ".test_parse_safari_mac()"
     },
     {
@@ -5295,7 +5313,7 @@
       "source_file": "tests/test_device.py",
       "source_location": "L35",
       "id": "tests_test_device_testdevicedetection_test_parse_chrome_android",
-      "community": 82,
+      "community": 12,
       "norm_label": ".test_parse_chrome_android()"
     },
     {
@@ -5304,7 +5322,7 @@
       "source_file": "tests/test_device.py",
       "source_location": "L43",
       "id": "tests_test_device_testdevicedetection_test_parse_safari_iphone",
-      "community": 82,
+      "community": 12,
       "norm_label": ".test_parse_safari_iphone()"
     },
     {
@@ -5313,7 +5331,7 @@
       "source_file": "tests/test_device.py",
       "source_location": "L50",
       "id": "tests_test_device_testdevicedetection_test_parse_edge",
-      "community": 82,
+      "community": 12,
       "norm_label": ".test_parse_edge()"
     },
     {
@@ -5322,7 +5340,7 @@
       "source_file": "tests/test_device.py",
       "source_location": "L56",
       "id": "tests_test_device_testdevicedetection_test_parse_empty_user_agent",
-      "community": 82,
+      "community": 12,
       "norm_label": ".test_parse_empty_user_agent()"
     },
     {
@@ -5331,7 +5349,7 @@
       "source_file": "tests/test_device.py",
       "source_location": "L63",
       "id": "tests_test_device_testdevicedetection_test_parse_none_user_agent",
-      "community": 82,
+      "community": 12,
       "norm_label": ".test_parse_none_user_agent()"
     },
     {
@@ -5340,7 +5358,7 @@
       "source_file": "tests/test_device.py",
       "source_location": "L69",
       "id": "tests_test_device_testdevicedetection_test_generate_fingerprint_consistent",
-      "community": 163,
+      "community": 12,
       "norm_label": ".test_generate_fingerprint_consistent()"
     },
     {
@@ -5349,7 +5367,7 @@
       "source_file": "tests/test_device.py",
       "source_location": "L79",
       "id": "tests_test_device_testdevicedetection_test_generate_fingerprint_different_inputs",
-      "community": 163,
+      "community": 12,
       "norm_label": ".test_generate_fingerprint_different_inputs()"
     },
     {
@@ -5358,7 +5376,7 @@
       "source_file": "tests/test_device.py",
       "source_location": "L85",
       "id": "tests_test_device_testdevicedetection_test_generate_fingerprint_includes_language",
-      "community": 163,
+      "community": 12,
       "norm_label": ".test_generate_fingerprint_includes_language()"
     },
     {
@@ -5367,7 +5385,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L1",
       "id": "tests_test_device_coverage_py",
-      "community": 175,
+      "community": 12,
       "norm_label": "test_device_coverage.py"
     },
     {
@@ -5376,7 +5394,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L14",
       "id": "tests_test_device_coverage_testdetectbrowser",
-      "community": 131,
+      "community": 12,
       "norm_label": "testdetectbrowser"
     },
     {
@@ -5385,7 +5403,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L15",
       "id": "tests_test_device_coverage_testdetectbrowser_test_edge_new",
-      "community": 131,
+      "community": 12,
       "norm_label": ".test_edge_new()"
     },
     {
@@ -5394,7 +5412,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L23",
       "id": "tests_test_device_coverage_testdetectbrowser_test_edge_with_edge_suffix",
-      "community": 131,
+      "community": 12,
       "norm_label": ".test_edge_with_edge_suffix()"
     },
     {
@@ -5403,7 +5421,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L28",
       "id": "tests_test_device_coverage_testdetectbrowser_test_chrome",
-      "community": 131,
+      "community": 12,
       "norm_label": ".test_chrome()"
     },
     {
@@ -5412,7 +5430,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L32",
       "id": "tests_test_device_coverage_testdetectbrowser_test_firefox",
-      "community": 131,
+      "community": 12,
       "norm_label": ".test_firefox()"
     },
     {
@@ -5421,7 +5439,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L36",
       "id": "tests_test_device_coverage_testdetectbrowser_test_firefox_fx_prefix",
-      "community": 131,
+      "community": 12,
       "norm_label": ".test_firefox_fx_prefix()"
     },
     {
@@ -5430,7 +5448,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L43",
       "id": "tests_test_device_coverage_testdetectbrowser_test_safari",
-      "community": 131,
+      "community": 12,
       "norm_label": ".test_safari()"
     },
     {
@@ -5439,7 +5457,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L47",
       "id": "tests_test_device_coverage_testdetectbrowser_test_opera",
-      "community": 131,
+      "community": 12,
       "norm_label": ".test_opera()"
     },
     {
@@ -5448,7 +5466,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L54",
       "id": "tests_test_device_coverage_testdetectbrowser_test_opera_mini",
-      "community": 131,
+      "community": 12,
       "norm_label": ".test_opera_mini()"
     },
     {
@@ -5457,7 +5475,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L59",
       "id": "tests_test_device_coverage_testdetectbrowser_test_brave",
-      "community": 131,
+      "community": 12,
       "norm_label": ".test_brave()"
     },
     {
@@ -5466,7 +5484,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L63",
       "id": "tests_test_device_coverage_testdetectbrowser_test_unknown_browser",
-      "community": 131,
+      "community": 12,
       "norm_label": ".test_unknown_browser()"
     },
     {
@@ -5610,7 +5628,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L139",
       "id": "tests_test_device_coverage_testdetectdevicetype",
-      "community": 140,
+      "community": 12,
       "norm_label": "testdetectdevicetype"
     },
     {
@@ -5619,7 +5637,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L140",
       "id": "tests_test_device_coverage_testdetectdevicetype_test_desktop",
-      "community": 140,
+      "community": 12,
       "norm_label": ".test_desktop()"
     },
     {
@@ -5628,7 +5646,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L143",
       "id": "tests_test_device_coverage_testdetectdevicetype_test_mobile_android",
-      "community": 140,
+      "community": 12,
       "norm_label": ".test_mobile_android()"
     },
     {
@@ -5637,7 +5655,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L146",
       "id": "tests_test_device_coverage_testdetectdevicetype_test_mobile_iphone",
-      "community": 140,
+      "community": 12,
       "norm_label": ".test_mobile_iphone()"
     },
     {
@@ -5646,7 +5664,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L149",
       "id": "tests_test_device_coverage_testdetectdevicetype_test_mobile_ipod",
-      "community": 140,
+      "community": 12,
       "norm_label": ".test_mobile_ipod()"
     },
     {
@@ -5655,7 +5673,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L152",
       "id": "tests_test_device_coverage_testdetectdevicetype_test_mobile_windows_phone",
-      "community": 140,
+      "community": 12,
       "norm_label": ".test_mobile_windows_phone()"
     },
     {
@@ -5664,7 +5682,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L155",
       "id": "tests_test_device_coverage_testdetectdevicetype_test_mobile_blackberry",
-      "community": 140,
+      "community": 12,
       "norm_label": ".test_mobile_blackberry()"
     },
     {
@@ -5673,7 +5691,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L158",
       "id": "tests_test_device_coverage_testdetectdevicetype_test_tablet_ipad",
-      "community": 140,
+      "community": 12,
       "norm_label": ".test_tablet_ipad()"
     },
     {
@@ -5682,7 +5700,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L161",
       "id": "tests_test_device_coverage_testdetectdevicetype_test_tablet_tab",
-      "community": 140,
+      "community": 12,
       "norm_label": ".test_tablet_tab()"
     },
     {
@@ -5691,7 +5709,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L164",
       "id": "tests_test_device_coverage_testdetectdevicetype_test_tablet_sm_t",
-      "community": 140,
+      "community": 12,
       "norm_label": ".test_tablet_sm_t()"
     },
     {
@@ -5700,7 +5718,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L167",
       "id": "tests_test_device_coverage_testdetectdevicetype_test_kindle",
-      "community": 140,
+      "community": 12,
       "norm_label": ".test_kindle()"
     },
     {
@@ -5709,7 +5727,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L171",
       "id": "tests_test_device_coverage_testgeneratefingerprint",
-      "community": 163,
+      "community": 12,
       "norm_label": "testgeneratefingerprint"
     },
     {
@@ -5718,7 +5736,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L172",
       "id": "tests_test_device_coverage_testgeneratefingerprint_test_basic",
-      "community": 163,
+      "community": 12,
       "norm_label": ".test_basic()"
     },
     {
@@ -5727,7 +5745,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L177",
       "id": "tests_test_device_coverage_testgeneratefingerprint_test_with_language",
-      "community": 163,
+      "community": 12,
       "norm_label": ".test_with_language()"
     },
     {
@@ -5736,7 +5754,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L181",
       "id": "tests_test_device_coverage_testgeneratefingerprint_test_different_inputs_different_hash",
-      "community": 163,
+      "community": 12,
       "norm_label": ".test_different_inputs_different_hash()"
     },
     {
@@ -5745,7 +5763,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L187",
       "id": "tests_test_device_coverage_testparseuseragent",
-      "community": 82,
+      "community": 12,
       "norm_label": "testparseuseragent"
     },
     {
@@ -5754,7 +5772,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L188",
       "id": "tests_test_device_coverage_testparseuseragent_test_empty_ua",
-      "community": 82,
+      "community": 12,
       "norm_label": ".test_empty_ua()"
     },
     {
@@ -5763,7 +5781,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L195",
       "id": "tests_test_device_coverage_testparseuseragent_test_none_ua",
-      "community": 82,
+      "community": 12,
       "norm_label": ".test_none_ua()"
     },
     {
@@ -5772,7 +5790,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L200",
       "id": "tests_test_device_coverage_testparseuseragent_test_full_chrome_windows",
-      "community": 82,
+      "community": 12,
       "norm_label": ".test_full_chrome_windows()"
     },
     {
@@ -5781,7 +5799,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L207",
       "id": "tests_test_device_coverage_testparseuseragent_test_full_safari_macos",
-      "community": 82,
+      "community": 12,
       "norm_label": ".test_full_safari_macos()"
     },
     {
@@ -5790,7 +5808,7 @@
       "source_file": "tests/test_device_coverage.py",
       "source_location": "L1",
       "id": "tests_test_device_coverage_rationale_1",
-      "community": 175,
+      "community": 12,
       "norm_label": "tests for main/app/authentication/device.py \u2014 covers all branches."
     },
     {
@@ -5817,7 +5835,7 @@
       "source_file": "tests/test_error_handlers.py",
       "source_location": "L25",
       "id": "tests_test_error_handlers_app",
-      "community": 55,
+      "community": 29,
       "norm_label": "app()"
     },
     {
@@ -5997,7 +6015,7 @@
       "source_file": "tests/test_http_session_coverage.py",
       "source_location": "L1",
       "id": "tests_test_http_session_coverage_py",
-      "community": 72,
+      "community": 140,
       "norm_label": "test_http_session_coverage.py"
     },
     {
@@ -6006,7 +6024,7 @@
       "source_file": "tests/test_http_session_coverage.py",
       "source_location": "L8",
       "id": "tests_test_http_session_coverage_testgetsession",
-      "community": 72,
+      "community": 140,
       "norm_label": "testgetsession"
     },
     {
@@ -6015,7 +6033,7 @@
       "source_file": "tests/test_http_session_coverage.py",
       "source_location": "L9",
       "id": "tests_test_http_session_coverage_testgetsession_test_returns_same_session",
-      "community": 72,
+      "community": 140,
       "norm_label": ".test_returns_same_session()"
     },
     {
@@ -6024,7 +6042,7 @@
       "source_file": "tests/test_http_session_coverage.py",
       "source_location": "L16",
       "id": "tests_test_http_session_coverage_testgetsession_test_returns_requests_session",
-      "community": 72,
+      "community": 140,
       "norm_label": ".test_returns_requests_session()"
     },
     {
@@ -6033,7 +6051,7 @@
       "source_file": "tests/test_http_session_coverage.py",
       "source_location": "L1",
       "id": "tests_test_http_session_coverage_rationale_1",
-      "community": 72,
+      "community": 140,
       "norm_label": "tests for main/utils/http_session.py \u2014 covers all branches."
     },
     {
@@ -6915,7 +6933,7 @@
       "source_file": "tests/test_pagination.py",
       "source_location": "L1",
       "id": "tests_test_pagination_py",
-      "community": 74,
+      "community": 180,
       "norm_label": "test_pagination.py"
     },
     {
@@ -6924,7 +6942,7 @@
       "source_file": "tests/test_pagination.py",
       "source_location": "L14",
       "id": "tests_test_pagination_app",
-      "community": 74,
+      "community": 180,
       "norm_label": "app()"
     },
     {
@@ -6933,7 +6951,7 @@
       "source_file": "tests/test_pagination.py",
       "source_location": "L35",
       "id": "tests_test_pagination_client",
-      "community": 74,
+      "community": 180,
       "norm_label": "client()"
     },
     {
@@ -7032,7 +7050,7 @@
       "source_file": "tests/test_pagination.py",
       "source_location": "L1",
       "id": "tests_test_pagination_rationale_1",
-      "community": 74,
+      "community": 180,
       "norm_label": "tests for inline pagination params (used in user + prometheus controllers)."
     },
     {
@@ -7698,7 +7716,7 @@
       "source_file": "tests/test_prometheus_auth_coverage.py",
       "source_location": "L1113",
       "id": "tests_test_prometheus_auth_coverage_test_get_google_sso_with_redirect",
-      "community": 7,
+      "community": 212,
       "norm_label": "test_get_google_sso_with_redirect()"
     },
     {
@@ -7707,7 +7725,7 @@
       "source_file": "tests/test_prometheus_auth_coverage.py",
       "source_location": "L1132",
       "id": "tests_test_prometheus_auth_coverage_test_get_google_sso_default_redirect",
-      "community": 7,
+      "community": 212,
       "norm_label": "test_get_google_sso_default_redirect()"
     },
     {
@@ -8175,7 +8193,7 @@
       "source_file": "tests/test_roles_coverage.py",
       "source_location": "L1",
       "id": "tests_test_roles_coverage_py",
-      "community": 84,
+      "community": 180,
       "norm_label": "test_roles_coverage.py"
     },
     {
@@ -8292,7 +8310,7 @@
       "source_file": "tests/test_roles_coverage.py",
       "source_location": "L45",
       "id": "tests_test_roles_coverage_testrequirepermission",
-      "community": 84,
+      "community": 50,
       "norm_label": "testrequirepermission"
     },
     {
@@ -8301,7 +8319,7 @@
       "source_file": "tests/test_roles_coverage.py",
       "source_location": "L46",
       "id": "tests_test_roles_coverage_testrequirepermission_test_raises_403_when_missing",
-      "community": 84,
+      "community": 50,
       "norm_label": ".test_raises_403_when_missing()"
     },
     {
@@ -8310,7 +8328,7 @@
       "source_file": "tests/test_roles_coverage.py",
       "source_location": "L64",
       "id": "tests_test_roles_coverage_testrequirepermission_test_passes_when_has_permission",
-      "community": 84,
+      "community": 50,
       "norm_label": ".test_passes_when_has_permission()"
     },
     {
@@ -8337,7 +8355,7 @@
       "source_file": "tests/test_roles_coverage.py",
       "source_location": "L92",
       "id": "tests_test_roles_coverage_testroleshierarchy",
-      "community": 84,
+      "community": 180,
       "norm_label": "testroleshierarchy"
     },
     {
@@ -8346,7 +8364,7 @@
       "source_file": "tests/test_roles_coverage.py",
       "source_location": "L93",
       "id": "tests_test_roles_coverage_testroleshierarchy_test_premium_includes_user",
-      "community": 84,
+      "community": 180,
       "norm_label": ".test_premium_includes_user()"
     },
     {
@@ -8355,7 +8373,7 @@
       "source_file": "tests/test_roles_coverage.py",
       "source_location": "L96",
       "id": "tests_test_roles_coverage_testroleshierarchy_test_enterprise_includes_starter",
-      "community": 84,
+      "community": 180,
       "norm_label": ".test_enterprise_includes_starter()"
     },
     {
@@ -8364,7 +8382,7 @@
       "source_file": "tests/test_roles_coverage.py",
       "source_location": "L99",
       "id": "tests_test_roles_coverage_testroleshierarchy_test_admin_includes_all",
-      "community": 84,
+      "community": 180,
       "norm_label": ".test_admin_includes_all()"
     },
     {
@@ -8373,7 +8391,7 @@
       "source_file": "tests/test_roles_coverage.py",
       "source_location": "L1",
       "id": "tests_test_roles_coverage_rationale_1",
-      "community": 84,
+      "community": 180,
       "norm_label": "tests for main/utils/roles.py \u2014 covers requirepermission and edge cases."
     },
     {
@@ -8931,7 +8949,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L366",
       "id": "tests_test_stocks_api_coverage_test_create_key_new_user",
-      "community": 81,
+      "community": 58,
       "norm_label": "test_create_key_new_user()"
     },
     {
@@ -8949,7 +8967,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L398",
       "id": "tests_test_stocks_api_coverage_test_create_key_exception_rollback",
-      "community": 81,
+      "community": 58,
       "norm_label": "test_create_key_exception_rollback()"
     },
     {
@@ -9075,7 +9093,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L508",
       "id": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_non_nan_float",
-      "community": 211,
+      "community": 57,
       "norm_label": ".test_deserialize_non_nan_float()"
     },
     {
@@ -9120,7 +9138,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L576",
       "id": "tests_test_stocks_api_coverage_testfilterbysearchterms_make_manager",
-      "community": 64,
+      "community": 57,
       "norm_label": "._make_manager()"
     },
     {
@@ -9552,7 +9570,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L985",
       "id": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_excludes_cotacao_10y",
-      "community": 214,
+      "community": 53,
       "norm_label": ".test_fundamental_excludes_cotacao_10y()"
     },
     {
@@ -9588,7 +9606,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1058",
       "id": "tests_test_stocks_api_coverage_testquerycotations_make_manager",
-      "community": 57,
+      "community": 61,
       "norm_label": "._make_manager()"
     },
     {
@@ -9732,43 +9750,133 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1211",
       "id": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_http_route",
-      "community": 61,
+      "community": 55,
       "norm_label": ".test_cotations_http_route()"
+    },
+    {
+      "label": "TestQueryLiveCotation",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1256",
+      "id": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "community": 19,
+      "norm_label": "testquerylivecotation"
+    },
+    {
+      "label": "._make_manager()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1259",
+      "id": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager",
+      "community": 57,
+      "norm_label": "._make_manager()"
+    },
+    {
+      "label": "._mock_b3_response()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1268",
+      "id": "tests_test_stocks_api_coverage_testquerylivecotation_mock_b3_response",
+      "community": 19,
+      "norm_label": "._mock_b3_response()"
+    },
+    {
+      "label": "._patch_session()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1293",
+      "id": "tests_test_stocks_api_coverage_testquerylivecotation_patch_session",
+      "community": 19,
+      "norm_label": "._patch_session()"
+    },
+    {
+      "label": ".test_success_returns_correct_shape()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1304",
+      "id": "tests_test_stocks_api_coverage_testquerylivecotation_test_success_returns_correct_shape",
+      "community": 19,
+      "norm_label": ".test_success_returns_correct_shape()"
+    },
+    {
+      "label": ".test_lowercase_ticker_uppercased()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1321",
+      "id": "tests_test_stocks_api_coverage_testquerylivecotation_test_lowercase_ticker_uppercased",
+      "community": 19,
+      "norm_label": ".test_lowercase_ticker_uppercased()"
+    },
+    {
+      "label": ".test_b3_unavailable_returns_503()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1328",
+      "id": "tests_test_stocks_api_coverage_testquerylivecotation_test_b3_unavailable_returns_503",
+      "community": 19,
+      "norm_label": ".test_b3_unavailable_returns_503()"
+    },
+    {
+      "label": ".test_b3_bad_status_returns_404()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1337",
+      "id": "tests_test_stocks_api_coverage_testquerylivecotation_test_b3_bad_status_returns_404",
+      "community": 19,
+      "norm_label": ".test_b3_bad_status_returns_404()"
+    },
+    {
+      "label": ".test_http_route_returns_200()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1347",
+      "id": "tests_test_stocks_api_coverage_testquerylivecotation_test_http_route_returns_200",
+      "community": 19,
+      "norm_label": ".test_http_route_returns_200()"
+    },
+    {
+      "label": ".test_http_route_search_required()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1373",
+      "id": "tests_test_stocks_api_coverage_testquerylivecotation_test_http_route_search_required",
+      "community": 19,
+      "norm_label": ".test_http_route_search_required()"
     },
     {
       "label": ".test_cotations_filter_cotation_column_filters_by_date()",
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L1253",
-      "id": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_filter_cotation_column_filters_by_date",
-      "community": 64,
+      "source_location": "L1419",
+      "id": "tests_test_stocks_api_coverage_testquerylivecotation_test_cotations_filter_cotation_column_filters_by_date",
+      "community": 19,
       "norm_label": ".test_cotations_filter_cotation_column_filters_by_date()"
     },
     {
       "label": ".test_cotations_filter_cotation_column_range()",
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L1269",
-      "id": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_filter_cotation_column_range",
-      "community": 64,
+      "source_location": "L1435",
+      "id": "tests_test_stocks_api_coverage_testquerylivecotation_test_cotations_filter_cotation_column_range",
+      "community": 19,
       "norm_label": ".test_cotations_filter_cotation_column_range()"
     },
     {
       "label": ".test_cotations_filter_cotation_column_handles_non_list()",
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L1286",
-      "id": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_filter_cotation_column_handles_non_list",
-      "community": 64,
+      "source_location": "L1452",
+      "id": "tests_test_stocks_api_coverage_testquerylivecotation_test_cotations_filter_cotation_column_handles_non_list",
+      "community": 19,
       "norm_label": ".test_cotations_filter_cotation_column_handles_non_list()"
     },
     {
       "label": ".test_cotations_search_required()",
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L1297",
-      "id": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_search_required",
-      "community": 213,
+      "source_location": "L1463",
+      "id": "tests_test_stocks_api_coverage_testquerylivecotation_test_cotations_search_required",
+      "community": 19,
       "norm_label": ".test_cotations_search_required()"
     },
     {
@@ -9939,7 +10047,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L509",
       "id": "tests_test_stocks_api_coverage_rationale_509",
-      "community": 211,
+      "community": 57,
       "norm_label": "non-json-dict/list string is left as-is."
     },
     {
@@ -10155,7 +10263,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L986",
       "id": "tests_test_stocks_api_coverage_rationale_986",
-      "community": 214,
+      "community": 53,
       "norm_label": "cotacao 10y padrao and cotacao 10y ajustada belong to /cotations, not /fundament"
     },
     {
@@ -10209,16 +10317,34 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1212",
       "id": "tests_test_stocks_api_coverage_rationale_1212",
-      "community": 61,
+      "community": 55,
       "norm_label": "hit the actual /stocks/cotations http endpoint with adjusted=false."
+    },
+    {
+      "label": "Tests for queryLiveCotation and /stocks/cotations/live.",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1257",
+      "id": "tests_test_stocks_api_coverage_rationale_1257",
+      "community": 19,
+      "norm_label": "tests for querylivecotation and /stocks/cotations/live."
+    },
+    {
+      "label": "GET /stocks/realtime-cotation without search returns 422.",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1396",
+      "id": "tests_test_stocks_api_coverage_rationale_1396",
+      "community": 19,
+      "norm_label": "get /stocks/realtime-cotation without search returns 422."
     },
     {
       "label": "GET /cotations without search returns 422.",
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L1298",
-      "id": "tests_test_stocks_api_coverage_rationale_1298",
-      "community": 213,
+      "source_location": "L1464",
+      "id": "tests_test_stocks_api_coverage_rationale_1464",
+      "community": 19,
       "norm_label": "get /cotations without search returns 422."
     },
     {
@@ -10533,7 +10659,7 @@
       "source_file": "tests/test_thread_safety.py",
       "source_location": "L21",
       "id": "tests_test_thread_safety_testgetsession",
-      "community": 72,
+      "community": 82,
       "norm_label": "testgetsession"
     },
     {
@@ -10542,7 +10668,7 @@
       "source_file": "tests/test_thread_safety.py",
       "source_location": "L24",
       "id": "tests_test_thread_safety_testgetsession_test_same_session_within_same_thread",
-      "community": 72,
+      "community": 82,
       "norm_label": ".test_same_session_within_same_thread()"
     },
     {
@@ -10551,7 +10677,7 @@
       "source_file": "tests/test_thread_safety.py",
       "source_location": "L32",
       "id": "tests_test_thread_safety_testgetsession_test_different_sessions_in_different_threads",
-      "community": 72,
+      "community": 82,
       "norm_label": ".test_different_sessions_in_different_threads()"
     },
     {
@@ -10560,7 +10686,7 @@
       "source_file": "tests/test_thread_safety.py",
       "source_location": "L52",
       "id": "tests_test_thread_safety_testgetsession_test_isolation_under_high_concurrency",
-      "community": 72,
+      "community": 82,
       "norm_label": ".test_isolation_under_high_concurrency()"
     },
     {
@@ -10569,7 +10695,7 @@
       "source_file": "tests/test_thread_safety.py",
       "source_location": "L73",
       "id": "tests_test_thread_safety_testgetsession_test_session_is_requests_session",
-      "community": 72,
+      "community": 82,
       "norm_label": ".test_session_is_requests_session()"
     },
     {
@@ -10650,7 +10776,7 @@
       "source_file": "tests/test_thread_safety.py",
       "source_location": "L22",
       "id": "tests_test_thread_safety_rationale_22",
-      "community": 72,
+      "community": 82,
       "norm_label": "verify that getsession() returns per-thread session instances."
     },
     {
@@ -10659,7 +10785,7 @@
       "source_file": "tests/test_thread_safety.py",
       "source_location": "L25",
       "id": "tests_test_thread_safety_rationale_25",
-      "community": 72,
+      "community": 82,
       "norm_label": "calling getsession() twice in the same thread returns the same object."
     },
     {
@@ -10668,7 +10794,7 @@
       "source_file": "tests/test_thread_safety.py",
       "source_location": "L33",
       "id": "tests_test_thread_safety_rationale_33",
-      "community": 72,
+      "community": 82,
       "norm_label": "two threads must not share a session object."
     },
     {
@@ -10677,7 +10803,7 @@
       "source_file": "tests/test_thread_safety.py",
       "source_location": "L53",
       "id": "tests_test_thread_safety_rationale_53",
-      "community": 72,
+      "community": 82,
       "norm_label": "with 20 concurrent threads, every thread must get its own session."
     },
     {
@@ -10686,7 +10812,7 @@
       "source_file": "tests/test_thread_safety.py",
       "source_location": "L74",
       "id": "tests_test_thread_safety_rationale_74",
-      "community": 72,
+      "community": 82,
       "norm_label": "the returned object must be a real requests.session."
     },
     {
@@ -10758,7 +10884,7 @@
       "source_file": "tests/test_user_deps.py",
       "source_location": "L1",
       "id": "tests_test_user_deps_py",
-      "community": 130,
+      "community": 17,
       "norm_label": "test_user_deps.py"
     },
     {
@@ -11062,7 +11188,7 @@
       "label": "User structure defined by string roles:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L34",
+      "source_location": "L36",
       "id": "server_todo_user_structure_defined_by_string_roles",
       "community": 47,
       "norm_label": "user structure defined by string roles:"
@@ -11071,7 +11197,7 @@
       "label": "USER:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L43",
+      "source_location": "L45",
       "id": "server_todo_user",
       "community": 47,
       "norm_label": "user:"
@@ -11080,7 +11206,7 @@
       "label": "PREMIUM:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L46",
+      "source_location": "L48",
       "id": "server_todo_premium",
       "community": 47,
       "norm_label": "premium:"
@@ -11089,7 +11215,7 @@
       "label": "DEVELOPER:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L49",
+      "source_location": "L51",
       "id": "server_todo_developer",
       "community": 47,
       "norm_label": "developer:"
@@ -11098,7 +11224,7 @@
       "label": "STOCKS_API",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L76",
+      "source_location": "L78",
       "id": "server_todo_stocks_api",
       "community": 47,
       "norm_label": "stocks_api"
@@ -11107,7 +11233,7 @@
       "label": "Prometheus",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L79",
+      "source_location": "L81",
       "id": "server_todo_prometheus",
       "community": 47,
       "norm_label": "prometheus"
@@ -12058,6 +12184,87 @@
       "norm_label": "license"
     },
     {
+      "label": "cotations.py",
+      "file_type": "code",
+      "source_file": "cotations.py",
+      "source_location": "L1",
+      "community": 214,
+      "norm_label": "cotations.py",
+      "id": "cotations_py"
+    },
+    {
+      "label": "queryLiveCotations()",
+      "file_type": "code",
+      "source_file": "cotations.py",
+      "source_location": "L5",
+      "community": 214,
+      "norm_label": "querylivecotations()",
+      "id": "server_cotations_querylivecotations"
+    },
+    {
+      "label": "GET /stocks/realtime-cotation without search returns 422.",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1388",
+      "community": 19,
+      "norm_label": "get /stocks/realtime-cotation without search returns 422.",
+      "id": "tests_test_stocks_api_coverage_rationale_1388"
+    },
+    {
+      "label": "GET /cotations without search returns 422.",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1456",
+      "community": 19,
+      "norm_label": "get /cotations without search returns 422.",
+      "id": "tests_test_stocks_api_coverage_rationale_1456"
+    },
+    {
+      "label": ".test_cotations_filter_cotation_column_filters_by_date()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1253",
+      "community": 19,
+      "norm_label": ".test_cotations_filter_cotation_column_filters_by_date()",
+      "id": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_filter_cotation_column_filters_by_date"
+    },
+    {
+      "label": ".test_cotations_filter_cotation_column_range()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1269",
+      "community": 19,
+      "norm_label": ".test_cotations_filter_cotation_column_range()",
+      "id": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_filter_cotation_column_range"
+    },
+    {
+      "label": ".test_cotations_filter_cotation_column_handles_non_list()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1286",
+      "community": 19,
+      "norm_label": ".test_cotations_filter_cotation_column_handles_non_list()",
+      "id": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_filter_cotation_column_handles_non_list"
+    },
+    {
+      "label": ".test_cotations_search_required()",
+      "file_type": "code",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1297",
+      "community": 55,
+      "norm_label": ".test_cotations_search_required()",
+      "id": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_search_required"
+    },
+    {
+      "label": "GET /cotations without search returns 422.",
+      "file_type": "rationale",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1298",
+      "community": 55,
+      "norm_label": "get /cotations without search returns 422.",
+      "id": "tests_test_stocks_api_coverage_rationale_1298"
+    },
+    {
       "label": "Tests for queryCotations and /stocks/cotations.",
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
@@ -12098,7 +12305,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1210",
-      "community": 61,
+      "community": 55,
       "norm_label": "hit the actual /stocks/cotations http endpoint with adjusted=false.",
       "id": "tests_test_stocks_api_coverage_rationale_1210"
     },
@@ -12107,7 +12314,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1288",
-      "community": 213,
+      "community": 55,
       "norm_label": "get /cotations without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1288"
     },
@@ -12134,7 +12341,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L885",
-      "community": 173,
+      "community": 87,
       "norm_label": "search.strip() == '' should still dedup (line 181).",
       "id": "tests_test_stocks_api_coverage_rationale_885"
     },
@@ -12197,7 +12404,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L976",
-      "community": 214,
+      "community": 53,
       "norm_label": "cotacao 10y padrao and cotacao 10y ajustada belong to /cotations, not /fundament",
       "id": "tests_test_stocks_api_coverage_rationale_976"
     },
@@ -12251,7 +12458,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1191",
-      "community": 61,
+      "community": 55,
       "norm_label": "hit the actual /stocks/cotations http endpoint with adjusted=false.",
       "id": "tests_test_stocks_api_coverage_rationale_1191"
     },
@@ -12791,7 +12998,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1170",
-      "community": 61,
+      "community": 55,
       "norm_label": "hit the actual /stocks/cotations http endpoint with adjusted=false.",
       "id": "tests_test_stocks_api_coverage_rationale_1170"
     },
@@ -12836,7 +13043,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1141",
-      "community": 61,
+      "community": 55,
       "norm_label": "hit the actual /stocks/cotations http endpoint with adjusted=false.",
       "id": "tests_test_stocks_api_coverage_rationale_1141"
     },
@@ -12917,7 +13124,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1148",
-      "community": 61,
+      "community": 55,
       "norm_label": "hit the actual /stocks/cotations http endpoint with adjusted=false.",
       "id": "tests_test_stocks_api_coverage_rationale_1148"
     },
@@ -13070,7 +13277,7 @@
       "file_type": "code",
       "source_file": "main/utils/http_session.py",
       "source_location": "L18",
-      "community": 72,
+      "community": 163,
       "norm_label": "cleanup()",
       "id": "utils_http_session_cleanup"
     },
@@ -13079,7 +13286,7 @@
       "file_type": "code",
       "source_file": "main/utils/pagination.py",
       "source_location": "L1",
-      "community": 130,
+      "community": 170,
       "norm_label": "pagination.py",
       "id": "main_utils_pagination_py"
     },
@@ -13088,7 +13295,7 @@
       "file_type": "code",
       "source_file": "main/utils/pagination.py",
       "source_location": "L4",
-      "community": 130,
+      "community": 170,
       "norm_label": "paginationparams",
       "id": "utils_pagination_paginationparams"
     },
@@ -13097,7 +13304,7 @@
       "file_type": "code",
       "source_file": "main/utils/pagination.py",
       "source_location": "L5",
-      "community": 130,
+      "community": 170,
       "norm_label": ".__init__()",
       "id": "utils_pagination_paginationparams_init"
     },
@@ -13106,7 +13313,7 @@
       "file_type": "rationale",
       "source_file": "tests/conftest.py",
       "source_location": "L9",
-      "community": 89,
+      "community": 12,
       "norm_label": "set required env vars before test collection.      config.py eagerly instantia",
       "id": "tests_conftest_rationale_9"
     },
@@ -13115,7 +13322,7 @@
       "file_type": "rationale",
       "source_file": "tests/conftest.py",
       "source_location": "L75",
-      "community": 89,
+      "community": 55,
       "norm_label": "testclient with all routers mounted \u2014 no lifespan (no db/service init).      o",
       "id": "tests_conftest_rationale_75"
     },
@@ -13205,7 +13412,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_api_key_quota_atomic.py",
       "source_location": "L180",
-      "community": 182,
+      "community": 79,
       "norm_label": "test that multiple api keys have independent quotas.",
       "id": "tests_test_api_key_quota_atomic_rationale_180"
     },
@@ -13322,7 +13529,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L107",
-      "community": 7,
+      "community": 131,
       "norm_label": "covers line 23: issecurescheme helper.",
       "id": "tests_test_controllers_coverage_rationale_107"
     },
@@ -13340,7 +13547,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L148",
-      "community": 50,
+      "community": 63,
       "norm_label": "covers lines 44-54, 63, 66-71: register success, valueerror, generic exception.",
       "id": "tests_test_controllers_coverage_rationale_148"
     },
@@ -13475,7 +13682,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L425",
-      "community": 50,
+      "community": 63,
       "norm_label": "covers lines 155-156, 158, 160-168, 170-177, 179-184, 186, 190-204: googlecallba",
       "id": "tests_test_controllers_coverage_rationale_425"
     },
@@ -13556,7 +13763,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L654",
-      "community": 210,
+      "community": 89,
       "norm_label": "covers lines 66, 68-72, 74: get /user/sessions.",
       "id": "tests_test_controllers_coverage_rationale_654"
     },
@@ -13565,7 +13772,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L657",
-      "community": 210,
+      "community": 89,
       "norm_label": "covers lines 66, 68-72, 74: full sessions listing.",
       "id": "tests_test_controllers_coverage_rationale_657"
     },
@@ -13637,7 +13844,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L845",
-      "community": 55,
+      "community": 130,
       "norm_label": "covers lines 143, 145, 147-148: post /user/sessions/revoke-all.",
       "id": "tests_test_controllers_coverage_rationale_845"
     },
@@ -13646,7 +13853,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L848",
-      "community": 55,
+      "community": 130,
       "norm_label": "covers lines 143, 145, 147-148.",
       "id": "tests_test_controllers_coverage_rationale_848"
     },
@@ -13718,7 +13925,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L955",
-      "community": 180,
+      "community": 55,
       "norm_label": "covers lines 77, 83-84, 86: get /prometheus/history/{sessionid}.",
       "id": "tests_test_controllers_coverage_rationale_955"
     },
@@ -13727,7 +13934,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L958",
-      "community": 180,
+      "community": 55,
       "norm_label": "covers lines 77, 86: session found with history.",
       "id": "tests_test_controllers_coverage_rationale_958"
     },
@@ -13736,7 +13943,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1002",
-      "community": 180,
+      "community": 55,
       "norm_label": "covers lines 83-84: session not found.",
       "id": "tests_test_controllers_coverage_rationale_1002"
     },
@@ -13943,7 +14150,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1356",
-      "community": 75,
+      "community": 108,
       "norm_label": "covers lines 42-44: session validation fails.",
       "id": "tests_test_controllers_coverage_rationale_1356"
     },
@@ -14024,7 +14231,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1474",
-      "community": 212,
+      "community": 17,
       "norm_label": "covers line 67: httpexception raised by verifyaccesstoken is re-raised.",
       "id": "tests_test_controllers_coverage_rationale_1474"
     },
@@ -14042,7 +14249,7 @@
       "file_type": "code",
       "source_file": "tests/test_http_session_coverage.py",
       "source_location": "L9",
-      "community": 72,
+      "community": 140,
       "norm_label": ".test_creates_new_session()",
       "id": "tests_test_http_session_coverage_testgetsession_test_creates_new_session"
     },
@@ -14051,7 +14258,7 @@
       "file_type": "code",
       "source_file": "tests/test_http_session_coverage.py",
       "source_location": "L28",
-      "community": 72,
+      "community": 163,
       "norm_label": "testcleanup",
       "id": "tests_test_http_session_coverage_testcleanup"
     },
@@ -14060,7 +14267,7 @@
       "file_type": "code",
       "source_file": "tests/test_http_session_coverage.py",
       "source_location": "L29",
-      "community": 72,
+      "community": 163,
       "norm_label": ".test_cleanup_closes_session()",
       "id": "tests_test_http_session_coverage_testcleanup_test_cleanup_closes_session"
     },
@@ -14069,7 +14276,7 @@
       "file_type": "code",
       "source_file": "tests/test_http_session_coverage.py",
       "source_location": "L37",
-      "community": 72,
+      "community": 163,
       "norm_label": ".test_cleanup_no_session()",
       "id": "tests_test_http_session_coverage_testcleanup_test_cleanup_no_session"
     },
@@ -14078,7 +14285,7 @@
       "file_type": "code",
       "source_file": "tests/test_http_session_coverage.py",
       "source_location": "L46",
-      "community": 72,
+      "community": 163,
       "norm_label": ".test_cleanup_exception_during_close()",
       "id": "tests_test_http_session_coverage_testcleanup_test_cleanup_exception_during_close"
     },
@@ -14636,7 +14843,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L508",
-      "community": 211,
+      "community": 57,
       "norm_label": "non-json-dict/list string is left as-is.",
       "id": "tests_test_stocks_api_coverage_rationale_508"
     },
@@ -15131,7 +15338,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L874",
-      "community": 87,
+      "community": 141,
       "norm_label": "search.strip() == '' should still dedup (line 181).",
       "id": "tests_test_stocks_api_coverage_rationale_874"
     },
@@ -15347,7 +15554,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_connectivity_coverage.py",
       "source_location": "L8",
-      "community": 72,
+      "community": 171,
       "norm_label": "checkmysqlconnection \u2014 success, errors, engine=none paths.",
       "id": "tests_test_connectivity_coverage_rationale_8"
     },
@@ -15356,7 +15563,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_connectivity_coverage.py",
       "source_location": "L105",
-      "community": 72,
+      "community": 146,
       "norm_label": "checkserviceconnection \u2014 success, not found, errors.",
       "id": "tests_test_connectivity_coverage_rationale_105"
     },
@@ -15734,7 +15941,7 @@
       "file_type": "code",
       "source_file": "main/utils/http_session.py",
       "source_location": "L9",
-      "community": 72,
+      "community": 82,
       "norm_label": "get_session()",
       "id": "utils_http_session_get_session"
     },
@@ -15743,7 +15950,7 @@
       "file_type": "rationale",
       "source_file": "main/utils/http_session.py",
       "source_location": "L10",
-      "community": 72,
+      "community": 82,
       "norm_label": "return a requests.session for the current thread.      sessions are created la",
       "id": "utils_http_session_rationale_10"
     },
@@ -15752,7 +15959,7 @@
       "file_type": "rationale",
       "source_file": "main/utils/http_session.py",
       "source_location": "L23",
-      "community": 72,
+      "community": 163,
       "norm_label": "close the main thread's session at interpreter shutdown.",
       "id": "utils_http_session_rationale_23"
     },
@@ -16157,7 +16364,7 @@
       "file_type": "rationale",
       "source_file": "main/utils/http_session.py",
       "source_location": "L9",
-      "community": 72,
+      "community": 82,
       "norm_label": "return a requests.session for the current thread.      sessions are created la",
       "id": "utils_http_session_rationale_9"
     },
@@ -16184,7 +16391,7 @@
       "file_type": "code",
       "source_file": "main/service/user_service.py",
       "source_location": "L35",
-      "community": 178,
+      "community": 3,
       "norm_label": "inactivesessionsscheduler()",
       "id": "service_user_service_inactivesessionsscheduler"
     },
@@ -16634,7 +16841,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L503",
-      "community": 211,
+      "community": 57,
       "norm_label": "non-json-dict/list string is left as-is.",
       "id": "tests_test_stocks_api_coverage_rationale_503"
     },
@@ -16796,7 +17003,7 @@
       "file_type": "rationale",
       "source_file": "tests/conftest.py",
       "source_location": "L62",
-      "community": 89,
+      "community": 55,
       "norm_label": "testclient with all routers mounted \u2014 no lifespan (no db/service init).      o",
       "id": "tests_conftest_rationale_62"
     },
@@ -16805,7 +17012,7 @@
       "file_type": "rationale",
       "source_file": "tests/conftest.py",
       "source_location": "L61",
-      "community": 89,
+      "community": 55,
       "norm_label": "testclient with all routers mounted \u2014 no lifespan (no db/service init).      o",
       "id": "tests_conftest_rationale_61"
     },
@@ -16814,7 +17021,7 @@
       "file_type": "rationale",
       "source_file": "tests/conftest.py",
       "source_location": "L57",
-      "community": 89,
+      "community": 55,
       "norm_label": "testclient with all routers mounted \u2014 no lifespan (no db/service init).      o",
       "id": "tests_conftest_rationale_57"
     },
@@ -16823,7 +17030,7 @@
       "file_type": "rationale",
       "source_file": "tests/conftest.py",
       "source_location": "L49",
-      "community": 89,
+      "community": 55,
       "norm_label": "testclient with all routers mounted \u2014 no lifespan (no db/service init).      o",
       "id": "tests_conftest_rationale_49"
     },
@@ -17390,7 +17597,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L121",
-      "community": 2,
+      "community": 211,
       "norm_label": "testlazydeserialization",
       "id": "tests_test_stocks_cache_testlazydeserialization"
     },
@@ -17399,7 +17606,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L124",
-      "community": 2,
+      "community": 211,
       "norm_label": ".test_query_manager_has_deserialize_method()",
       "id": "tests_test_stocks_cache_testlazydeserialization_test_query_manager_has_deserialize_method"
     },
@@ -17498,7 +17705,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L299",
-      "community": 171,
+      "community": 2,
       "norm_label": "testfilterbysearchterms",
       "id": "tests_test_stocks_cache_testfilterbysearchterms"
     },
@@ -17507,7 +17714,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L302",
-      "community": 171,
+      "community": 2,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_cache_testfilterbysearchterms_test_filter_with_tickerindex"
     },
@@ -17660,7 +17867,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L122",
-      "community": 2,
+      "community": 211,
       "norm_label": "tests for lazy json deserialization",
       "id": "tests_test_stocks_cache_rationale_122"
     },
@@ -17669,7 +17876,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L125",
-      "community": 2,
+      "community": 211,
       "norm_label": "query manager should have deserialize method",
       "id": "tests_test_stocks_cache_rationale_125"
     },
@@ -17768,7 +17975,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L300",
-      "community": 171,
+      "community": 2,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_cache_rationale_300"
     },
@@ -17777,7 +17984,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L303",
-      "community": 171,
+      "community": 2,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_cache_rationale_303"
     },
@@ -17948,7 +18155,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L124",
-      "community": 2,
+      "community": 211,
       "norm_label": "tests for lazy json deserialization",
       "id": "tests_test_stocks_cache_rationale_124"
     },
@@ -17957,7 +18164,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L127",
-      "community": 2,
+      "community": 211,
       "norm_label": "query manager should have deserialize method",
       "id": "tests_test_stocks_cache_rationale_127"
     },
@@ -18056,7 +18263,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L302",
-      "community": 171,
+      "community": 2,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_cache_rationale_302"
     },
@@ -18065,7 +18272,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L305",
-      "community": 171,
+      "community": 2,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_cache_rationale_305"
     },
@@ -18155,7 +18362,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L304",
-      "community": 171,
+      "community": 2,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_cache_testfilterbysearchterms_test_filter_with_tickerIndex"
     },
@@ -18173,7 +18380,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L17",
-      "community": 19,
+      "community": 10,
       "norm_label": "testtickerindex",
       "id": "tests_test_stocks_optimization_testtickerindex"
     },
@@ -18182,7 +18389,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L20",
-      "community": 19,
+      "community": 10,
       "norm_label": ".test_tickerindex_built_after_cache_load()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_tickerIndex_built_after_cache_load"
     },
@@ -18191,7 +18398,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L28",
-      "community": 19,
+      "community": 10,
       "norm_label": ".test_tickerindex_contains_all_tickers()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_tickerIndex_contains_all_tickers"
     },
@@ -18200,7 +18407,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L38",
-      "community": 19,
+      "community": 10,
       "norm_label": ".test_tickerindex_case_insensitive()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_tickerIndex_case_insensitive"
     },
@@ -18209,7 +18416,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L47",
-      "community": 19,
+      "community": 10,
       "norm_label": ".test_ticker_lookup_returns_valid_index()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_ticker_lookup_returns_valid_index"
     },
@@ -18218,7 +18425,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L58",
-      "community": 19,
+      "community": 10,
       "norm_label": ".test_tickerindex_rebuilt_on_cache_refresh()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_tickerIndex_rebuilt_on_cache_refresh"
     },
@@ -18443,7 +18650,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L18",
-      "community": 19,
+      "community": 10,
       "norm_label": "tests for dynamic ticker index feature",
       "id": "tests_test_stocks_optimization_rationale_18"
     },
@@ -18452,7 +18659,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L21",
-      "community": 19,
+      "community": 10,
       "norm_label": "ticker index should be built when cache is loaded",
       "id": "tests_test_stocks_optimization_rationale_21"
     },
@@ -18461,7 +18668,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L29",
-      "community": 19,
+      "community": 10,
       "norm_label": "ticker index should contain all tickers from cache",
       "id": "tests_test_stocks_optimization_rationale_29"
     },
@@ -18470,7 +18677,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L39",
-      "community": 19,
+      "community": 10,
       "norm_label": "ticker index should be case-insensitive",
       "id": "tests_test_stocks_optimization_rationale_39"
     },
@@ -18479,7 +18686,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L48",
-      "community": 19,
+      "community": 10,
       "norm_label": "looking up ticker should return valid row index",
       "id": "tests_test_stocks_optimization_rationale_48"
     },
@@ -18488,7 +18695,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L59",
-      "community": 19,
+      "community": 10,
       "norm_label": "ticker index should be rebuilt when cache refreshes",
       "id": "tests_test_stocks_optimization_rationale_59"
     },
@@ -19032,7 +19239,7 @@
       "label": "FastAPI",
       "file_type": "rationale",
       "source_file": "README.md",
-      "community": 130,
+      "community": 180,
       "norm_label": "fastapi",
       "id": "fastapi"
     },
@@ -19072,7 +19279,7 @@
       "label": "Authentication System",
       "file_type": "document",
       "source_file": "docs/authentication.md",
-      "community": 7,
+      "community": 143,
       "norm_label": "authentication system",
       "id": "authentication"
     },
@@ -19080,7 +19287,7 @@
       "label": "JWT Authentication",
       "file_type": "rationale",
       "source_file": "docs/authentication.md",
-      "community": 7,
+      "community": 143,
       "norm_label": "jwt authentication",
       "id": "jwt"
     },
@@ -19088,7 +19295,7 @@
       "label": "Google OAuth",
       "file_type": "rationale",
       "source_file": "docs/authentication.md",
-      "community": 7,
+      "community": 143,
       "norm_label": "google oauth",
       "id": "google_oauth"
     },
@@ -19176,7 +19383,7 @@
       "label": "Pytest Testing",
       "file_type": "rationale",
       "source_file": "pyproject.toml",
-      "community": 175,
+      "community": 12,
       "norm_label": "pytest testing",
       "id": "pytest"
     },
@@ -22555,6 +22762,16 @@
       "target": "stocks_api_cache_stockscachemanager"
     },
     {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1260",
+      "weight": 0.8,
+      "confidence_score": 0.5,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "target": "stocks_api_cache_stockscachemanager"
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -23752,6 +23969,39 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1421",
+      "weight": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_test_cotations_filter_cotation_column_filters_by_date",
+      "target": "stocks_api_query_filtercotationcolumn"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1440",
+      "weight": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_test_cotations_filter_cotation_column_range",
+      "target": "stocks_api_query_filtercotationcolumn"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1449",
+      "weight": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_test_cotations_filter_cotation_column_handles_non_list",
+      "target": "stocks_api_query_filtercotationcolumn"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1240",
       "weight": 1.0,
       "source": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_filter_cotation_column_filters_by_date",
@@ -23838,6 +24088,16 @@
       "confidence_score": 1.0,
       "source": "stocks_api_query_stocksquerymanager",
       "target": "stocks_api_query_stocksquerymanager_querycotations"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/stocks_api/query.py",
+      "source_location": "L348",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "stocks_api_query_stocksquerymanager",
+      "target": "stocks_api_query_stocksquerymanager_querylivecotation"
     },
     {
       "relation": "uses",
@@ -23930,6 +24190,16 @@
       "target": "stocks_api_query_stocksquerymanager"
     },
     {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1261",
+      "weight": 0.8,
+      "confidence_score": 0.5,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "target": "stocks_api_query_stocksquerymanager"
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -23993,6 +24263,17 @@
       "source_location": "L994",
       "weight": 1.0,
       "source": "tests_test_stocks_api_coverage_testquerycotations_make_manager",
+      "target": "stocks_api_query_stocksquerymanager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1266",
+      "weight": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager",
       "target": "stocks_api_query_stocksquerymanager"
     },
     {
@@ -25214,6 +25495,16 @@
       "target": "user_user_usermanager"
     },
     {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1461",
+      "weight": 0.8,
+      "confidence_score": 0.5,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "target": "user_user_usermanager"
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -25695,6 +25986,16 @@
       "confidence_score": 1.0,
       "source": "main_controller_stocksapi_controller_py",
       "target": "controller_stocksapi_controller_getcotations"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/controller/stocksapi_controller.py",
+      "source_location": "L60",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "main_controller_stocksapi_controller_py",
+      "target": "controller_stocksapi_controller_getlivecotation"
     },
     {
       "relation": "contains",
@@ -27848,6 +28149,39 @@
       "source_location": "L1165",
       "weight": 1.0,
       "source": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_http_route",
+      "target": "utils_errors_registererrorhandlers"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1353",
+      "weight": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_test_http_route_returns_200",
+      "target": "utils_errors_registererrorhandlers"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1377",
+      "weight": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_test_http_route_search_required",
+      "target": "utils_errors_registererrorhandlers"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1466",
+      "weight": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_test_cotations_search_required",
       "target": "utils_errors_registererrorhandlers"
     },
     {
@@ -38579,6 +38913,16 @@
       "target": "tests_test_stocks_api_coverage_testquerycotations"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1256",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_py",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation"
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
@@ -39054,6 +39398,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_putcache_adds_entry_and_evicts_when_full",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L70",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_putcache_adds_entry_and_evicts_when_full",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -39066,6 +39421,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_putcache_adds_entry_and_evicts_when_full",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L89",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_clearquerycache_empties_cache",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -39098,6 +39464,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_cache_hit",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L97",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_cache_hit",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -39110,6 +39487,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_cache_hit",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L107",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_cache_hit_expired",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -39142,6 +39530,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_force_refresh",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L127",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_force_refresh",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -39154,6 +39553,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_force_refresh",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L146",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_no_columns",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -39186,6 +39596,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_with_valid_columns",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L160",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_with_valid_columns",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -39198,6 +39619,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_with_valid_columns",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L171",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_replaces_nan_inf",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -39230,6 +39662,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_builds_ticker_index",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L184",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_builds_ticker_index",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -39252,6 +39695,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_exception_logged",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L195",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_exception_logged",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -39274,6 +39728,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_replaces_inf",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L202",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_replaces_inf",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -39286,6 +39751,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_replaces_inf",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L213",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_teststockscachemanager_test_getcachedstocks_replaces_neg_inf",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -39629,6 +40105,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_empty_df",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L428",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_empty_df",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -39641,6 +40128,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_empty_df",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L434",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_returns_copy",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -39673,6 +40171,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_json_dict_in_special_col",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L440",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_json_dict_in_special_col",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -39685,6 +40194,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_json_dict_in_special_col",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L447",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_json_list_in_special_col",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -39717,6 +40237,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_nan_in_dict_replaced",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L454",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_nan_in_dict_replaced",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -39729,6 +40260,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_nan_in_dict_replaced",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L461",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_nan_in_list_replaced",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -39761,6 +40303,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_nested_nan_in_dict",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L469",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_nested_nan_in_dict",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -39773,6 +40326,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_nested_nan_in_dict",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L476",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_non_special_col_not_parsed",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -39805,6 +40369,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_non_string_value_not_parsed",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L483",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_non_string_value_not_parsed",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -39817,6 +40392,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_non_string_value_not_parsed",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L489",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_string_not_json_not_parsed",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -39849,7 +40435,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_float_nan_direct",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -39860,6 +40446,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_495",
       "target": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_float_nan_direct"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L496",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_float_nan_direct",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "calls",
@@ -39901,7 +40498,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_non_nan_float",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -39912,6 +40509,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_509",
       "target": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_non_nan_float"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L510",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_non_nan_float",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "calls",
@@ -39953,7 +40561,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_pd_na_value",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -39964,6 +40572,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_518",
       "target": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_pd_na_value"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L519",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_pd_na_value",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "calls",
@@ -40005,7 +40624,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_mixed_string_none_parses_json",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -40016,6 +40635,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_527",
       "target": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_mixed_string_none_parses_json"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L533",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_mixed_string_none_parses_json",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "calls",
@@ -40047,7 +40677,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_multiple_special_cols_with_none",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -40058,6 +40688,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_549",
       "target": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_multiple_special_cols_with_none"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L550",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_multiple_special_cols_with_none",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "calls",
@@ -40209,6 +40850,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testfilterbysearchterms_test_filter_empty_search_returns_all",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L585",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testfilterbysearchterms_test_filter_empty_search_returns_all",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -40221,6 +40873,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testfilterbysearchterms_test_filter_empty_search_returns_all",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L591",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testfilterbysearchterms_test_filter_ticker_index_hit",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -40253,6 +40916,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testfilterbysearchterms_test_filter_multiple_terms_index",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L599",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testfilterbysearchterms_test_filter_multiple_terms_index",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -40265,6 +40939,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testfilterbysearchterms_test_filter_multiple_terms_index",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L606",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testfilterbysearchterms_test_filter_no_index_match_fallback_to_str",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -40297,6 +40982,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testfilterbysearchterms_test_filter_fallback_multiple_terms",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L614",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testfilterbysearchterms_test_filter_fallback_multiple_terms",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -40309,6 +41005,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testfilterbysearchterms_test_filter_fallback_multiple_terms",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L621",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testfilterbysearchterms_test_filter_case_insensitive",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -40571,6 +41278,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_cache_not_initialized_raises_503",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L642",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_cache_not_initialized_raises_503",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -40583,6 +41301,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_cache_not_initialized_raises_503",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L651",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_basic_historical_query",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -40615,6 +41344,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_search",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L660",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_search",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -40637,7 +41377,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_fields",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -40648,6 +41388,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_667",
       "target": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_fields"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L669",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_fields",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "calls",
@@ -40709,6 +41460,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_dates",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L676",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_dates",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -40721,6 +41483,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_dates",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L682",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_order_by",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -40753,6 +41526,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_limit",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L688",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_limit",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -40775,7 +41559,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_no_historical_fields",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -40786,6 +41570,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_693",
       "target": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_no_historical_fields"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L695",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_no_historical_fields",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "calls",
@@ -40847,6 +41642,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_sorts_by_time",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L705",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_sorts_by_time",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -40859,6 +41665,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_sorts_by_time",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L712",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_deduplicates_by_ticker",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -40891,7 +41708,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_exception_returns_500",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -40902,6 +41719,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_718",
       "target": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_exception_returns_500"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L719",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_exception_returns_500",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "calls",
@@ -40963,7 +41791,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_invalid_dates",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -40974,6 +41802,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_736",
       "target": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_invalid_dates"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L738",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_invalid_dates",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "calls",
@@ -41055,6 +41894,17 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_search_with_no_results",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L746",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_search_with_no_results",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
@@ -41077,7 +41927,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_no_fields_collected",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -41088,6 +41938,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_752",
       "target": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_no_fields_collected"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L754",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_no_fields_collected",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "calls",
@@ -41169,7 +42030,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_date_range",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -41180,6 +42041,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_762",
       "target": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_date_range"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L764",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_date_range",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "calls",
@@ -41261,7 +42133,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_search_multiple_terms_index",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -41272,6 +42144,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_769",
       "target": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_search_multiple_terms_index"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L771",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_search_multiple_terms_index",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "calls",
@@ -41353,7 +42236,7 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_requires_search_fields_or_dates",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -41364,6 +42247,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_777",
       "target": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_requires_search_fields_or_dates"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L779",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_requires_search_fields_or_dates",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "method",
@@ -41910,11 +42804,33 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L801",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_cache_not_initialized_raises_503",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L791",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_cache_not_initialized_raises_503",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L810",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_basic_fundamental_query",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -41932,11 +42848,33 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L818",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_search",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L808",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_search",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L825",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_fields",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -41954,11 +42892,33 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L831",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_date_range",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L821",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_date_range",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L837",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_single_date",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -41976,11 +42936,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L834",
+      "source_location": "L844",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_invalid_date",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -41991,6 +42951,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_842",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_invalid_date"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L834",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_invalid_date",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42067,11 +43038,33 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L853",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_order_by",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L843",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_order_by",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L859",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_limit",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -42089,11 +43082,33 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L866",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_deduplicates_without_search",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L856",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_deduplicates_without_search",
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L873",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_search_no_dedup",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -42111,6 +43126,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L878",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_exception_returns_500",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L868",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -42122,11 +43148,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L888",
+      "source_location": "L898",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_empty_search_string_no_dedup",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42137,6 +43163,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_895",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_empty_search_string_no_dedup"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L888",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_empty_search_string_no_dedup",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42213,11 +43250,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L902",
+      "source_location": "L912",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_no_time_column",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42228,6 +43265,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_904",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_no_time_column"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L902",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_no_time_column",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42304,11 +43352,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L916",
+      "source_location": "L926",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_date_range_two_dates",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42319,6 +43367,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_917",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_date_range_two_dates"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L916",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_date_range_two_dates",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42395,11 +43454,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L923",
+      "source_location": "L933",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_invalid_single_date",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42410,6 +43469,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_931",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_invalid_single_date"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L923",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_invalid_single_date",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42486,11 +43556,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L940",
+      "source_location": "L950",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_fields_not_in_columns",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42501,6 +43571,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_941",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_fields_not_in_columns"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L940",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_fields_not_in_columns",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42577,11 +43658,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L948",
+      "source_location": "L958",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_search_multiple_terms",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42592,6 +43673,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_956",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_search_multiple_terms"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L948",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_search_multiple_terms",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42668,11 +43760,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L956",
+      "source_location": "L966",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_search_fallback_string_match",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42683,6 +43775,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_964",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_search_fallback_string_match"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L956",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_search_fallback_string_match",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42759,11 +43862,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L971",
+      "source_location": "L981",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_dates_one_date",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42774,6 +43877,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_972",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_dates_one_date"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L971",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_dates_one_date",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42850,11 +43964,11 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L994",
+      "source_location": "L1004",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_excludes_cotacao_10y",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42865,6 +43979,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_986",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_excludes_cotacao_10y"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L994",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_excludes_cotacao_10y",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_manager"
     },
     {
       "relation": "rationale_for",
@@ -42895,6 +44020,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_1003",
       "target": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_does_not_mutate_cache_time_dtype"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1037",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_requires_search_fields_or_dates",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
     },
     {
       "relation": "calls",
@@ -43078,6 +44214,16 @@
       "target": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_http_route"
     },
     {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1056",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_rationale_1056",
+      "target": "tests_test_stocks_api_coverage_testquerycotations"
+    },
+    {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
@@ -43116,16 +44262,6 @@
       "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_testquerycotations",
       "target": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_search_required"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L1056",
-      "weight": 1.0,
-      "source": "tests_test_stocks_api_coverage_rationale_1056",
-      "target": "tests_test_stocks_api_coverage_testquerycotations",
-      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -43491,9 +44627,9 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1068",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_1068",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_make_cotations_df",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_api_coverage_testquerycotations_make_cotations_df"
     },
     {
       "relation": "rationale_for",
@@ -43547,14 +44683,58 @@
       "target": "tests_test_stocks_api_coverage_testquerycotations_make_cotations_df"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1085",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_cache_not_initialized_raises_503",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1095",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_adjusted_false_returns_padrao",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1105",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_adjusted_true_returns_ajustada",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1116",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_returns_most_recent_per_ticker",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1114",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_1114",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_returns_most_recent_per_ticker",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_returns_most_recent_per_ticker"
     },
     {
       "relation": "rationale_for",
@@ -43597,14 +44777,25 @@
       "target": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_returns_most_recent_per_ticker"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1128",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_dates_filter_inner_json_data",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1126",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_1126",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_dates_filter_inner_json_data",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_dates_filter_inner_json_data"
     },
     {
       "relation": "rationale_for",
@@ -43647,14 +44838,113 @@
       "target": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_dates_filter_inner_json_data"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1139",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_dates_range_keeps_all_inner_entries",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1147",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_no_dates_keeps_all_inner_entries",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1155",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_with_search_filter",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1164",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_with_search_multiple_terms",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1172",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_missing_column_returns_empty",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1182",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_dates_param_stored",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1188",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_dates_default_none",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1195",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_default_search_all",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1203",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_exception_returns_500",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1212",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_stocks_api_coverage_rationale_1212",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_http_route",
-      "confidence_score": 1.0
+      "target": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_http_route"
     },
     {
       "relation": "rationale_for",
@@ -43707,24 +44997,294 @@
       "target": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_http_route"
     },
     {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1259",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1268",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_mock_b3_response"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1291",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_patch_session"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1302",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_test_success_returns_correct_shape"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1319",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_test_lowercase_ticker_uppercased"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1326",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_test_b3_unavailable_returns_503"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1334",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_test_b3_bad_status_returns_404"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1343",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_test_http_route_returns_200"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1387",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_test_http_route_search_required"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1411",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_test_cotations_filter_cotation_column_filters_by_date"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1427",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_test_cotations_filter_cotation_column_range"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1444",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_test_cotations_filter_cotation_column_handles_non_list"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1455",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_test_cotations_search_required"
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L1298",
+      "source_location": "L1257",
       "weight": 1.0,
-      "source": "tests_test_stocks_api_coverage_rationale_1298",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_search_required",
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_rationale_1257",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1303",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_test_success_returns_correct_shape",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1320",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_test_lowercase_ticker_uppercased",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1328",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_test_b3_unavailable_returns_503",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1336",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_test_b3_bad_status_returns_404",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1297",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_patch_session",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_mock_b3_response"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1304",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_test_success_returns_correct_shape",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_patch_session"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1321",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_test_lowercase_ticker_uppercased",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_patch_session"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1329",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_test_b3_unavailable_returns_503",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_patch_session"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1338",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_test_b3_bad_status_returns_404",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_patch_session"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1358",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_testquerylivecotation_test_http_route_returns_200",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_patch_session"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1396",
+      "weight": 1.0,
+      "source": "tests_test_stocks_api_coverage_rationale_1396",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_test_http_route_search_required",
       "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_stocks_api_coverage.py",
-      "source_location": "L1288",
+      "source_location": "L1388",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_stocks_api_coverage_rationale_1288",
-      "target": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_search_required"
+      "source": "tests_test_stocks_api_coverage_rationale_1388",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_test_http_route_search_required"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1464",
+      "weight": 1.0,
+      "source": "tests_test_stocks_api_coverage_rationale_1464",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_test_cotations_search_required",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1456",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_rationale_1456",
+      "target": "tests_test_stocks_api_coverage_testquerylivecotation_test_cotations_search_required"
     },
     {
       "relation": "imports",
@@ -45892,6 +47452,36 @@
       "confidence_score": 1.0,
       "source": "docs_user_workflow",
       "target": "docs_user_codeblock_16"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "cotations.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "cotations_py",
+      "target": "server_cotations_querylivecotations"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1298",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_rationale_1298",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_search_required"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_stocks_api_coverage.py",
+      "source_location": "L1288",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_stocks_api_coverage_rationale_1288",
+      "target": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_search_required"
     },
     {
       "relation": "contains",
@@ -50876,5 +52466,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "ebb0053df43ea156f3a6dc79c158e91580f6ae57"
+  "built_at_commit": "d841a10c5da58d6cee0b1e5604a9d67dc9a96696"
 }

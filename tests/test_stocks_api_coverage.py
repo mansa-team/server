@@ -1269,23 +1269,25 @@ class TestQueryLiveCotation:
         return {
             "BizSts": {"cd": "OK"},
             "Msg": {"dtTm": "2026-06-23 17:14:19"},
-            "Trad": [{
-                "scty": {
-                    "SctyQtn": {
-                        "opngPric": 44.96,
-                        "minPric": 44.43,
-                        "maxPric": 46.14,
-                        "avrgPric": 45.455,
-                        "curPrc": 45.64,
-                        "prcFlcn": 0.8618785,
+            "Trad": [
+                {
+                    "scty": {
+                        "SctyQtn": {
+                            "opngPric": 44.96,
+                            "minPric": 44.43,
+                            "maxPric": 46.14,
+                            "avrgPric": 45.455,
+                            "curPrc": 45.64,
+                            "prcFlcn": 0.8618785,
+                        },
+                        "mkt": {"nm": "Vista"},
+                        "symb": "WEGE3",
+                        "desc": "WEG         ON  EJ  NM",
+                        "indxCmpnInd": True,
                     },
-                    "mkt": {"nm": "Vista"},
-                    "symb": "WEGE3",
-                    "desc": "WEG         ON  EJ  NM",
-                    "indxCmpnInd": True,
-                },
-                "ttlQty": 22848,
-            }],
+                    "ttlQty": 22848,
+                }
+            ],
         }
 
     def _patch_session(self, response=None, side_effect=None):
@@ -1325,6 +1327,7 @@ class TestQueryLiveCotation:
 
     def test_b3_unavailable_returns_503(self):
         from fastapi import HTTPException
+
         mgr = self._make_manager()
         with self._patch_session(side_effect=Exception("connection refused")):
             with pytest.raises(HTTPException) as exc_info:
@@ -1333,6 +1336,7 @@ class TestQueryLiveCotation:
 
     def test_b3_bad_status_returns_404(self):
         from fastapi import HTTPException
+
         mgr = self._make_manager()
         payload = {"BizSts": {"cd": "ERR"}, "Trad": []}
         with self._patch_session(response=payload):
@@ -1353,7 +1357,9 @@ class TestQueryLiveCotation:
         registerErrorHandlers(testApp)
         testApp.dependency_overrides[verifyAPIKey] = lambda: "ok"
         testApp.dependency_overrides[UserManager.getCurrentUser] = lambda: {
-            "userId": 1, "username": "test", "roles": ["USER"],
+            "userId": 1,
+            "username": "test",
+            "roles": ["USER"],
         }
         with self._patch_session():
             with _TestClient(testApp) as c:
@@ -1377,7 +1383,9 @@ class TestQueryLiveCotation:
         registerErrorHandlers(testApp)
         testApp.dependency_overrides[verifyAPIKey] = lambda: "ok"
         testApp.dependency_overrides[UserManager.getCurrentUser] = lambda: {
-            "userId": 1, "username": "test", "roles": ["USER"],
+            "userId": 1,
+            "username": "test",
+            "roles": ["USER"],
         }
         with _TestClient(testApp) as c:
             resp = c.get("/stocks/cotations/live")

@@ -1,5 +1,5 @@
-- [ ] Add an /cotations endpoint to the STOCKS_API, so the model can query historical prices (with a true or false boolean field to query for the COTACAO 10Y PADRAO or COTACAO 10Y AJUSTADA, also remove them from the /fundamental endpoint)
-- [ ] Use the B3 endpoint for realtime prices /realtime-cotation (or similar)
+- [ ] Make a full overhaul on the test suite
+
 - [ ] Make an MCP for the STOCKS_API so the Google GenAI agent can be executed using the tools inside the MCP
 - [ ] The sandbox will be handled via Docker MicroVMs with an 10 concurrent shared pool (for the MVP)
 - [ ] pandas, numpy, matplotlib, yfinance (maybe) for the installed libs (no need for sklean, skfolio and scipy for now)
