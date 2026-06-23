@@ -59,6 +59,7 @@ def getCotations(
 @router.get("/cotations/live")
 def getLiveCotation(
     search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),
+    apiKey: str = Depends(verifyAPIKey),
 ):
     result = stocksQuery.queryLiveCotation(search)
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=15"})
