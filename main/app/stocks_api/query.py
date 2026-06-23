@@ -1,5 +1,6 @@
 import math
 import re
+from datetime import date, datetime
 from fastapi import HTTPException
 from typing import TYPE_CHECKING
 import pandas as pd
@@ -34,6 +35,15 @@ def sanitizeNanValues(obj):
 
 if TYPE_CHECKING:
     from main.app.stocks_api.cache import StocksCacheManager
+
+
+def parseCotationDates(dataStr):
+    if not dataStr or not isinstance(dataStr, str):
+        return None
+    try:
+        return datetime.strptime(dataStr, "%d-%m-%Y").date()
+    except ValueError:
+        return None
 
 
 def filterCotationColumn(series: pd.Series, startDate, endDate) -> pd.Series:

@@ -643,13 +643,13 @@ class TestQueryHistorical:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            mgr.queryHistorical()
+            mgr.queryHistorical(search="TEST0")
         assert exc_info.value.status_code == 503
 
     def test_basic_historical_query(self):
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
-        result = mgr.queryHistorical()
+        result = mgr.queryHistorical(search="TEST0")
         assert result["type"] == "historical"
         assert result["count"] > 0
         assert "data" in result
@@ -680,13 +680,13 @@ class TestQueryHistorical:
     def test_historical_with_order_by(self):
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
-        result = mgr.queryHistorical(orderBy="PRECO")
+        result = mgr.queryHistorical(search="TEST0", orderBy="PRECO")
         assert result["type"] == "historical"
 
     def test_historical_with_limit(self):
         df = _make_stocks_df(rows=5)
         mgr = self._make_manager(cache_df=df)
-        result = mgr.queryHistorical(limit=2)
+        result = mgr.queryHistorical(search="TEST", limit=2)
         assert result["count"] == 2
 
     def test_historical_no_historical_fields(self):
@@ -696,21 +696,21 @@ class TestQueryHistorical:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            mgr.queryHistorical()
+            mgr.queryHistorical(search="TEST0")
         # The 400 is raised inside try, caught by the outer except -> 500
         assert exc_info.value.status_code == 500
 
     def test_historical_sorts_by_time(self):
         df = _make_stocks_df(rows=3)
         mgr = self._make_manager(cache_df=df)
-        result = mgr.queryHistorical()
+        result = mgr.queryHistorical(search="TEST0")
         assert result["type"] == "historical"
 
     def test_historical_deduplicates_by_ticker(self):
         df = _make_stocks_df(rows=3)
         df = pd.concat([df, df.iloc[[0]]], ignore_index=True)
         mgr = self._make_manager(cache_df=df)
-        result = mgr.queryHistorical()
+        result = mgr.queryHistorical(search="TEST0")
         tickers = [d["TICKER"] for d in result["data"]]
         assert len(tickers) == len(set(tickers))
 
@@ -729,7 +729,7 @@ class TestQueryHistorical:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            mgr.queryHistorical()
+            mgr.queryHistorical(search="TEST0")
         assert exc_info.value.status_code == 500
 
     def test_historical_with_invalid_dates(self):
@@ -773,6 +773,16 @@ class TestQueryHistorical:
         result = mgr.queryHistorical(search="TEST0,TEST2,TEST4")
         assert result["count"] == 3
 
+    def test_historical_requires_search_fields_or_dates(self):
+        """Calling with all None returns 400."""
+        df = _make_stocks_df()
+        mgr = self._make_manager(cache_df=df)
+        from fastapi import HTTPException
+
+        with pytest.raises(HTTPException) as exc_info:
+            mgr.queryHistorical()
+        assert exc_info.value.status_code == 400
+
 
 class TestQueryFundamental:
     """Tests covering query.py lines 142-202."""
@@ -792,13 +802,13 @@ class TestQueryFundamental:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            mgr.queryFundamental()
+            mgr.queryFundamental(search="TEST0")
         assert exc_info.value.status_code == 503
 
     def test_basic_fundamental_query(self):
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
-        result = mgr.queryFundamental()
+        result = mgr.queryFundamental(search="TEST0")
         assert result["type"] == "fundamental"
         assert result["count"] > 0
         assert "data" in result
@@ -841,20 +851,20 @@ class TestQueryFundamental:
     def test_fundamental_with_order_by(self):
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
-        result = mgr.queryFundamental(orderBy="PRECO")
+        result = mgr.queryFundamental(search="TEST0", orderBy="PRECO")
         assert result["type"] == "fundamental"
 
     def test_fundamental_with_limit(self):
         df = _make_stocks_df(rows=5)
         mgr = self._make_manager(cache_df=df)
-        result = mgr.queryFundamental(limit=2)
+        result = mgr.queryFundamental(fields="PRECO", limit=2)
         assert result["count"] == 2
 
     def test_fundamental_deduplicates_without_search(self):
         df = _make_stocks_df(rows=3)
         df = pd.concat([df, df.iloc[[0]]], ignore_index=True)
         mgr = self._make_manager(cache_df=df)
-        result = mgr.queryFundamental()
+        result = mgr.queryFundamental(fields="PRECO")
         tickers = [d["TICKER"] for d in result["data"]]
         assert len(tickers) == len(set(tickers))
 
@@ -878,7 +888,7 @@ class TestQueryFundamental:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            mgr.queryFundamental()
+            mgr.queryFundamental(search="TEST0")
         assert exc_info.value.status_code == 500
 
     def test_fundamental_empty_search_string_no_dedup(self):
@@ -900,7 +910,7 @@ class TestQueryFundamental:
             }
         )
         mgr = self._make_manager(cache_df=df)
-        result = mgr.queryFundamental()
+        result = mgr.queryFundamental(search="TEST0")
         assert result["type"] == "fundamental"
 
     def test_fundamental_date_range_two_dates(self):
@@ -992,7 +1002,7 @@ class TestQueryFundamental:
             }
         )
         mgr = self._make_manager(cache_df=df)
-        result = mgr.queryFundamental()
+        result = mgr.queryFundamental(search="TEST0")
         assert "COTACAO 10Y PADRAO" not in result["fields"]
         assert "COTACAO 10Y AJUSTADA" not in result["fields"]
         for d in result["data"]:
@@ -1017,8 +1027,17 @@ class TestQueryFundamental:
         mgr = StocksQueryManager(cache)
 
         original_dtype = cache.STOCKS_CACHE["TIME"].dtype
-        mgr.queryFundamental()
+        mgr.queryFundamental(search="TEST0")
         assert cache.STOCKS_CACHE["TIME"].dtype == original_dtype
+
+    def test_fundamental_requires_search_fields_or_dates(self):
+        df = _make_stocks_df()
+        mgr = self._make_manager(cache_df=df)
+        from fastapi import HTTPException
+
+        with pytest.raises(HTTPException) as exc_info:
+            mgr.queryFundamental()
+        assert exc_info.value.status_code == 400
 
 
 # ===========================================================================
@@ -1213,12 +1232,12 @@ class TestQueryCotations:
                 "roles": ["USER"],
             }
             with _TestClient(testApp) as c:
-                resp = c.get("/stocks/cotations?adjusted=false&dates=2016-12-02,2016-12-02")
+                resp = c.get("/stocks/cotations?adjusted=false&dates=2016-12-02,2016-12-02&search=TEST0")
                 assert resp.status_code == 200
                 body = resp.json()
                 assert body["type"] == "cotations"
                 assert body["fields"] == ["COTACAO 10Y PADRAO"]
-                assert body["count"] == 2
+                assert body["count"] == 1
                 assert "Cache-Control" in resp.headers
                 for d in body["data"]:
                     assert len(d["COTACAO 10Y PADRAO"]) == 1
@@ -1264,3 +1283,26 @@ class TestQueryCotations:
         assert len(result[1]) == 1
         assert result[2] == "not a list"
         assert result[3] == []
+
+    def test_cotations_search_required(self):
+        """GET /cotations without search returns 422."""
+        from fastapi.testclient import TestClient as _TestClient
+        from fastapi import FastAPI
+        from main.controller.stocksapi_controller import router as stocksRouter
+        from main.utils.errors import registerErrorHandlers
+        from main.app.user.user import UserManager
+        from main.app.stocks_api.key import verifyAPIKey
+
+        testApp = FastAPI()
+        testApp.include_router(stocksRouter)
+        registerErrorHandlers(testApp)
+        testApp.dependency_overrides[verifyAPIKey] = lambda: "ok"
+        testApp.dependency_overrides[UserManager.getCurrentUser] = lambda: {
+            "userId": 1,
+            "username": "test",
+            "roles": ["USER"],
+        }
+        with _TestClient(testApp) as c:
+            resp = c.get("/stocks/cotations")
+            assert resp.status_code == 422
+        testApp.dependency_overrides.clear()
