@@ -47,7 +47,7 @@ def getFundamental(
 
 @router.get("/cotations")
 def getCotations(
-    search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
+    search: str = Query(..., min_length=1, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     dates: str = Query(None, max_length=21),
     adjusted: bool = Query(False),
     apiKey: str = Depends(verifyAPIKey),

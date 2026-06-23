@@ -1017,12 +1017,14 @@ class TestQueryFundamental:
         from main.app.stocks_api.query import StocksQueryManager
 
         cache = MagicMock(spec=StocksCacheManager)
-        cache.STOCKS_CACHE = pd.DataFrame({
-            "TICKER": ["TEST0", "TEST1"],
-            "NOME": ["Empresa 0", "Empresa 1"],
-            "TIME": pd.to_datetime(["2024-01-15", "2024-06-15"]),
-            "PRECO": [10.0, 20.0],
-        })
+        cache.STOCKS_CACHE = pd.DataFrame(
+            {
+                "TICKER": ["TEST0", "TEST1"],
+                "NOME": ["Empresa 0", "Empresa 1"],
+                "TIME": pd.to_datetime(["2024-01-15", "2024-06-15"]),
+                "PRECO": [10.0, 20.0],
+            }
+        )
         cache.tickerIndex = {}
         mgr = StocksQueryManager(cache)
 
@@ -1252,10 +1254,12 @@ class TestQueryCotations:
         from main.app.stocks_api.query import filterCotationColumn
         from datetime import date
 
-        series = pd.Series([
-            [{"DATA": "01-12-2016", "PRECO": 14.92}, {"DATA": "02-12-2016", "PRECO": 15.0}],
-            [{"DATA": "01-06-2017", "PRECO": 16.0}, {"DATA": "02-06-2017", "PRECO": 17.0}],
-        ])
+        series = pd.Series(
+            [
+                [{"DATA": "01-12-2016", "PRECO": 14.92}, {"DATA": "02-12-2016", "PRECO": 15.0}],
+                [{"DATA": "01-06-2017", "PRECO": 16.0}, {"DATA": "02-06-2017", "PRECO": 17.0}],
+            ]
+        )
         result = filterCotationColumn(series, date(2016, 12, 2), date(2016, 12, 2))
         assert len(result) == 2
         assert len(result[0]) == 1
@@ -1266,9 +1270,15 @@ class TestQueryCotations:
         from main.app.stocks_api.query import filterCotationColumn
         from datetime import date
 
-        series = pd.Series([
-            [{"DATA": "01-12-2016", "PRECO": 1}, {"DATA": "02-12-2016", "PRECO": 2}, {"DATA": "03-12-2016", "PRECO": 3}],
-        ])
+        series = pd.Series(
+            [
+                [
+                    {"DATA": "01-12-2016", "PRECO": 1},
+                    {"DATA": "02-12-2016", "PRECO": 2},
+                    {"DATA": "03-12-2016", "PRECO": 3},
+                ],
+            ]
+        )
         result = filterCotationColumn(series, date(2016, 12, 1), date(2016, 12, 2))
         assert len(result[0]) == 2
         assert {e["DATA"] for e in result[0]} == {"01-12-2016", "02-12-2016"}

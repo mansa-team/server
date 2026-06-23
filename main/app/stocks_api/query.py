@@ -148,6 +148,8 @@ class StocksQueryManager:
         orderBy: str | None = None,
         limit: int | None = None,
     ):
+        if not (search or fields or dates):
+            raise HTTPException(status_code=400, detail="at least one of search/fields/dates required")
         if self.cacheManager.STOCKS_CACHE is None:
             raise HTTPException(status_code=503, detail="Cache not initialized")
 
@@ -218,6 +220,8 @@ class StocksQueryManager:
         orderBy: str | None = None,
         limit: int | None = None,
     ):
+        if not (search or fields or dates):
+            raise HTTPException(status_code=400, detail="at least one of search/fields/dates required")
         if self.cacheManager.STOCKS_CACHE is None:
             raise HTTPException(status_code=503, detail="Cache not initialized")
 
@@ -338,5 +342,6 @@ class StocksQueryManager:
         except Exception:
             logger.exception("Cached cotations query failed")
             raise HTTPException(status_code=500, detail="Internal server error while processing cotations data")
-        
+
+
 stocksQuery = StocksQueryManager(stocksCache)
