@@ -972,7 +972,36 @@ class TestQueryFundamental:
         result = mgr.queryFundamental(dates="2024-01-15")
         assert result["count"] == 1
 
+    def test_fundamental_excludes_cotacao_10y(self):
+        """COTACAO 10Y PADRAO and COTACAO 10Y AJUSTADA belong to /cotations, not /fundamental."""
+        df = pd.DataFrame(
+            {
+                "TICKER": ["A", "B"],
+                "NOME": ["X", "Y"],
+                "TIME": pd.to_datetime(["2024-01-15", "2024-06-15"]),
+                "PRECO": [10.0, 15.0],
+                "P/L": [5.0, 8.0],
+                "COTACAO 10Y PADRAO": [
+                    '[{"DATA": "01-12-2016", "PRECO": 14.92}]',
+                    '[{"DATA": "01-12-2016", "PRECO": 12.5}]',
+                ],
+                "COTACAO 10Y AJUSTADA": [
+                    '[{"DATA": "01-12-2016", "PRECO": 12.5}]',
+                    '[{"DATA": "01-12-2016", "PRECO": 10.0}]',
+                ],
+            }
+        )
+        mgr = self._make_manager(cache_df=df)
+        result = mgr.queryFundamental()
+        assert "COTACAO 10Y PADRAO" not in result["fields"]
+        assert "COTACAO 10Y AJUSTADA" not in result["fields"]
+        for d in result["data"]:
+            assert "COTACAO 10Y PADRAO" not in d
+            assert "COTACAO 10Y AJUSTADA" not in d
 
+
+# ===========================================================================
+# Tests for query.py – queryCotations
 # ===========================================================================
 # Tests for query.py – queryCotations
 # Architectural contract:

@@ -212,6 +212,7 @@ class StocksQueryManager:
                 if not fields
                 else [f.strip() for f in fields.split(",") if f.strip() in fundamentalCols]
             )
+            fieldList = [f for f in fieldList if f not in ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA")]
             cols = ["TICKER", "NOME", "TIME"] + [field for field in fieldList if field in availableColumnsSet]
 
             if search:
