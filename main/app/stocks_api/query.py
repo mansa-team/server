@@ -46,13 +46,33 @@ def parseCotationDates(dataStr):
         return None
 
 
-def filterCotationData(entries, startDate, endDate):
-    if not isinstance(entries, list) or not entries or not startDate or not endDate:
-        return entries
-    df = pd.DataFrame(entries)
-    dates = pd.to_datetime(df["DATA"], format="%d-%m-%Y", errors="coerce")
+def filterCotationColumn(series: pd.Series, startDate, endDate) -> pd.Series:
+    if not startDate or not endDate:
+        return series
+
+    rowIndices = []
+    flatEntries = []
+    for rowIdx, entries in enumerate(series):
+        if isinstance(entries, list) and entries:
+            for entry in entries:
+                rowIndices.append(rowIdx)
+                flatEntries.append(entry)
+
+    if not flatEntries:
+        return series
+
+    flatDf = pd.DataFrame(flatEntries)
+    flatDf["_rowIdx"] = rowIndices
+
+    dates = pd.to_datetime(flatDf["DATA"], format="%d-%m-%Y", errors="coerce")
     mask = (dates.dt.date >= startDate) & (dates.dt.date <= endDate)
-    return df[mask].to_dict(orient="records")
+    filtered = flatDf[mask]
+
+    result = [entries if not isinstance(entries, list) else [] for entries in series]
+    for rowIdx, group in filtered.groupby("_rowIdx"):
+        result[int(rowIdx)] = group.drop(columns="_rowIdx").to_dict(orient="records")
+
+    return pd.Series(result, index=series.index)
 
 
 class StocksQueryManager:
@@ -303,9 +323,7 @@ class StocksQueryManager:
 
             startDate, endDate = parseDateRange(dates)
             if startDate and endDate and targetCol in df.columns:
-                df[targetCol] = df[targetCol].apply(
-                    lambda entries: filterCotationData(entries, startDate, endDate)
-                )
+                df[targetCol] = filterCotationColumn(df[targetCol], startDate, endDate)
 
             return {
                 "search": search or "all",

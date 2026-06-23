@@ -999,6 +999,27 @@ class TestQueryFundamental:
             assert "COTACAO 10Y PADRAO" not in d
             assert "COTACAO 10Y AJUSTADA" not in d
 
+    def test_fundamental_does_not_mutate_cache_time_dtype(self):
+        """Regression: queryFundamental must not mutate the shared cache TIME column.
+        Bug at line 243: df["TIME"] = ... on a view of STOCKS_CACHE converted
+        datetime64 -> object strings on first call, breaking /cotations sort."""
+        from main.app.stocks_api.cache import StocksCacheManager
+        from main.app.stocks_api.query import StocksQueryManager
+
+        cache = MagicMock(spec=StocksCacheManager)
+        cache.STOCKS_CACHE = pd.DataFrame({
+            "TICKER": ["TEST0", "TEST1"],
+            "NOME": ["Empresa 0", "Empresa 1"],
+            "TIME": pd.to_datetime(["2024-01-15", "2024-06-15"]),
+            "PRECO": [10.0, 20.0],
+        })
+        cache.tickerIndex = {}
+        mgr = StocksQueryManager(cache)
+
+        original_dtype = cache.STOCKS_CACHE["TIME"].dtype
+        mgr.queryFundamental()
+        assert cache.STOCKS_CACHE["TIME"].dtype == original_dtype
+
 
 # ===========================================================================
 # Tests for query.py – queryCotations
@@ -1206,3 +1227,40 @@ class TestQueryCotations:
         finally:
             stocksQuery.cacheManager.STOCKS_CACHE = original_cache
             stocksQuery.cacheManager.tickerIndex = original_index
+
+    # --- vectorized filterCotationColumn ---------------------------------
+    def test_cotations_filter_cotation_column_filters_by_date(self):
+        from main.app.stocks_api.query import filterCotationColumn
+        from datetime import date
+
+        series = pd.Series([
+            [{"DATA": "01-12-2016", "PRECO": 14.92}, {"DATA": "02-12-2016", "PRECO": 15.0}],
+            [{"DATA": "01-06-2017", "PRECO": 16.0}, {"DATA": "02-06-2017", "PRECO": 17.0}],
+        ])
+        result = filterCotationColumn(series, date(2016, 12, 2), date(2016, 12, 2))
+        assert len(result) == 2
+        assert len(result[0]) == 1
+        assert result[0][0]["DATA"] == "02-12-2016"
+        assert result[1] == []
+
+    def test_cotations_filter_cotation_column_range(self):
+        from main.app.stocks_api.query import filterCotationColumn
+        from datetime import date
+
+        series = pd.Series([
+            [{"DATA": "01-12-2016", "PRECO": 1}, {"DATA": "02-12-2016", "PRECO": 2}, {"DATA": "03-12-2016", "PRECO": 3}],
+        ])
+        result = filterCotationColumn(series, date(2016, 12, 1), date(2016, 12, 2))
+        assert len(result[0]) == 2
+        assert {e["DATA"] for e in result[0]} == {"01-12-2016", "02-12-2016"}
+
+    def test_cotations_filter_cotation_column_handles_non_list(self):
+        from main.app.stocks_api.query import filterCotationColumn
+        from datetime import date
+
+        series = pd.Series([None, [{"DATA": "01-12-2016", "PRECO": 1}], "not a list", []])
+        result = filterCotationColumn(series, date(2016, 12, 1), date(2016, 12, 31))
+        assert result[0] is None
+        assert len(result[1]) == 1
+        assert result[2] == "not a list"
+        assert result[3] == []
