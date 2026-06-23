@@ -5,16 +5,18 @@ from fastapi import HTTPException
 from typing import TYPE_CHECKING
 import pandas as pd
 import numpy as np
+import requests
 import json
 import orjson
 
+from main.utils.http_session import getSession
+
 from main.app.stocks_api.cache import stocksCache
 from main.app.stocks_api.util import categorizeColumns, parseDateRange
+
 import logging
 
 logger = logging.getLogger(__name__)
-
-B3_TICKER_PATTERN = re.compile(r"^[A-Z]{4}\d{1,2}$")
 
 
 def sanitizeNanValues(obj):
@@ -342,6 +344,45 @@ class StocksQueryManager:
         except Exception:
             logger.exception("Cached cotations query failed")
             raise HTTPException(status_code=500, detail="Internal server error while processing cotations data")
+
+    def queryLiveCotation(self, search: str | None = None):
+        try:
+            resp = getSession().get(
+                f"https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/{search.upper()}",
+                timeout=5,
+            )
+            resp.raise_for_status()
+            payload = resp.json()
+        except Exception:
+            raise HTTPException(503, detail="B3 realtime unavailable")
+
+        if payload.get("BizSts", {}).get("cd") != "OK" or not payload.get("Trad"):
+            raise HTTPException(404, detail=f"Ticker {search.upper()} not found")
+
+        dtTm = payload["Msg"]["dtTm"]
+        df = (
+            pd.DataFrame([payload["Trad"][0]["scty"]["SctyQtn"]])
+            .rename(
+                columns={
+                    "opngPric": "PRECO ORIGINAL",
+                    "minPric": "PRECO MINIMO",
+                    "maxPric": "PRECO MAXIMO",
+                    "avrgPric": "PRECO MEDIO",
+                    "curPrc": "PRECO ATUAL",
+                }
+            )
+            .drop(columns={"prcFlcn"})
+        )
+
+        df["TICKER"] = payload["Trad"][0]["scty"]["symb"]
+
+        return {
+            "search": search.upper(),
+            "type": "realtime-cotation",
+            "timestamp": dtTm,
+            "count": len(df),
+            "data": df.to_dict(orient="records"),
+        }
 
 
 stocksQuery = StocksQueryManager(stocksCache)

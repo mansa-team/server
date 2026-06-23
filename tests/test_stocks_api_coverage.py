@@ -1249,6 +1249,164 @@ class TestQueryCotations:
             stocksQuery.cacheManager.STOCKS_CACHE = original_cache
             stocksQuery.cacheManager.tickerIndex = original_index
 
+
+# ===========================================================================
+# Tests for query.py – queryRealtimeCotation
+# ===========================================================================
+class TestQueryLiveCotation:
+    """Tests for queryLiveCotation and /stocks/cotations/live."""
+
+    def _make_manager(self):
+        from main.app.stocks_api.cache import StocksCacheManager
+        from main.app.stocks_api.query import StocksQueryManager
+
+        mock_cache = MagicMock(spec=StocksCacheManager)
+        mock_cache.STOCKS_CACHE = pd.DataFrame()
+        mock_cache.tickerIndex = {}
+        return StocksQueryManager(mock_cache)
+
+    def _mock_b3_response(self):
+        return {
+            "BizSts": {"cd": "OK"},
+            "Msg": {"dtTm": "2026-06-23 17:14:19"},
+            "Trad": [{
+                "scty": {
+                    "SctyQtn": {
+                        "opngPric": 44.96,
+                        "minPric": 44.43,
+                        "maxPric": 46.14,
+                        "avrgPric": 45.455,
+                        "curPrc": 45.64,
+                        "prcFlcn": 0.8618785,
+                    },
+                    "mkt": {"nm": "Vista"},
+                    "symb": "WEGE3",
+                    "desc": "WEG         ON  EJ  NM",
+                    "indxCmpnInd": True,
+                },
+                "ttlQty": 22848,
+            }],
+        }
+
+    def _patch_session(self, response=None, side_effect=None):
+        mock_session = MagicMock()
+        if side_effect:
+            mock_session.get.side_effect = side_effect
+        else:
+            mock_resp = MagicMock()
+            mock_resp.json.return_value = response or self._mock_b3_response()
+            mock_resp.raise_for_status = MagicMock()
+            mock_session.get.return_value = mock_resp
+        return patch("main.app.stocks_api.query.getSession", return_value=mock_session)
+
+    def test_success_returns_correct_shape(self):
+        mgr = self._make_manager()
+        with self._patch_session():
+            result = mgr.queryLiveCotation("WEGE3")
+        assert result["type"] == "realtime-cotation"
+        assert result["search"] == "WEGE3"
+        assert result["count"] == 1
+        assert result["timestamp"] == "2026-06-23 17:14:19"
+        row = result["data"][0]
+        assert row["TICKER"] == "WEGE3"
+        assert row["PRECO ATUAL"] == 45.64
+        assert row["PRECO ORIGINAL"] == 44.96
+        assert row["PRECO MINIMO"] == 44.43
+        assert row["PRECO MAXIMO"] == 46.14
+        assert row["PRECO MEDIO"] == 45.455
+        assert "prcFlcn" not in row
+
+    def test_lowercase_ticker_uppercased(self):
+        mgr = self._make_manager()
+        with self._patch_session():
+            result = mgr.queryLiveCotation("wege3")
+        assert result["search"] == "WEGE3"
+        assert result["data"][0]["TICKER"] == "WEGE3"
+
+    def test_b3_unavailable_returns_503(self):
+        from fastapi import HTTPException
+        mgr = self._make_manager()
+        with self._patch_session(side_effect=Exception("connection refused")):
+            with pytest.raises(HTTPException) as exc_info:
+                mgr.queryLiveCotation("WEGE3")
+        assert exc_info.value.status_code == 503
+
+    def test_b3_bad_status_returns_404(self):
+        from fastapi import HTTPException
+        mgr = self._make_manager()
+        payload = {"BizSts": {"cd": "ERR"}, "Trad": []}
+        with self._patch_session(response=payload):
+            with pytest.raises(HTTPException) as exc_info:
+                mgr.queryLiveCotation("WEGE3")
+        assert exc_info.value.status_code == 404
+
+    def test_http_route_returns_200(self):
+        from fastapi.testclient import TestClient as _TestClient
+        from fastapi import FastAPI
+        from main.controller.stocksapi_controller import router as stocksRouter
+        from main.utils.errors import registerErrorHandlers
+        from main.app.user.user import UserManager
+        from main.app.stocks_api.key import verifyAPIKey
+
+        testApp = FastAPI()
+        testApp.include_router(stocksRouter)
+        registerErrorHandlers(testApp)
+        testApp.dependency_overrides[verifyAPIKey] = lambda: "ok"
+        testApp.dependency_overrides[UserManager.getCurrentUser] = lambda: {
+            "userId": 1, "username": "test", "roles": ["USER"],
+        }
+        with self._patch_session():
+            with _TestClient(testApp) as c:
+                resp = c.get("/stocks/cotations/live?search=WEGE3")
+                assert resp.status_code == 200
+                body = resp.json()
+                assert body["type"] == "realtime-cotation"
+                assert body["data"][0]["TICKER"] == "WEGE3"
+        testApp.dependency_overrides.clear()
+
+    def test_http_route_search_required(self):
+        from fastapi.testclient import TestClient as _TestClient
+        from fastapi import FastAPI
+        from main.controller.stocksapi_controller import router as stocksRouter
+        from main.utils.errors import registerErrorHandlers
+        from main.app.user.user import UserManager
+        from main.app.stocks_api.key import verifyAPIKey
+
+        testApp = FastAPI()
+        testApp.include_router(stocksRouter)
+        registerErrorHandlers(testApp)
+        testApp.dependency_overrides[verifyAPIKey] = lambda: "ok"
+        testApp.dependency_overrides[UserManager.getCurrentUser] = lambda: {
+            "userId": 1, "username": "test", "roles": ["USER"],
+        }
+        with _TestClient(testApp) as c:
+            resp = c.get("/stocks/cotations/live")
+            assert resp.status_code == 422
+        testApp.dependency_overrides.clear()
+
+    def test_http_route_search_required(self):
+        """GET /stocks/realtime-cotation without search returns 422."""
+        from fastapi.testclient import TestClient as _TestClient
+        from fastapi import FastAPI
+        from main.controller.stocksapi_controller import router as stocksRouter
+        from main.utils.errors import registerErrorHandlers
+        from main.app.user.user import UserManager
+        from main.app.stocks_api.key import verifyAPIKey
+
+        testApp = FastAPI()
+        testApp.include_router(stocksRouter)
+        registerErrorHandlers(testApp)
+        testApp.dependency_overrides[verifyAPIKey] = lambda: "ok"
+        testApp.dependency_overrides[UserManager.getCurrentUser] = lambda: {
+            "userId": 1,
+            "username": "test",
+            "roles": ["USER"],
+        }
+        with _TestClient(testApp) as c:
+            resp = c.get("/stocks/cotations/live")
+            assert resp.status_code == 422
+        testApp.dependency_overrides.clear()
+
     # --- vectorized filterCotationColumn ---------------------------------
     def test_cotations_filter_cotation_column_filters_by_date(self):
         from main.app.stocks_api.query import filterCotationColumn

@@ -56,6 +56,14 @@ def getCotations(
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
 
 
+@router.get("/cotations/live")
+def getLiveCotation(
+    search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),
+):
+    result = stocksQuery.queryLiveCotation(search)
+    return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=15"})
+
+
 @router.get("/key/generate")
 def generateKey(currentUser: dict = Depends(UserManager.getCurrentUser), db: Session = Depends(getSession)):
     if not Roles.checkAccess(currentUser.get("roles", []), Permission.GENERATE_API_KEYS):
