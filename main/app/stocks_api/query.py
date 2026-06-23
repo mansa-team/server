@@ -345,7 +345,7 @@ class StocksQueryManager:
             logger.exception("Cached cotations query failed")
             raise HTTPException(status_code=500, detail="Internal server error while processing cotations data")
 
-    def queryLiveCotation(self, search: str | None = None):
+    def queryLiveCotation(self, search: str):
         try:
             resp = getSession().get(
                 f"https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/{search.upper()}",
