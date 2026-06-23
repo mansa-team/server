@@ -1,13 +1,19 @@
 import math
+import re
+from datetime import date, datetime
 from fastapi import HTTPException
 from typing import TYPE_CHECKING
 import pandas as pd
 import numpy as np
+import requests
 import json
 import orjson
 
+from main.utils.http_session import getSession
+
 from main.app.stocks_api.cache import stocksCache
 from main.app.stocks_api.util import categorizeColumns, parseDateRange
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -31,6 +37,44 @@ def sanitizeNanValues(obj):
 
 if TYPE_CHECKING:
     from main.app.stocks_api.cache import StocksCacheManager
+
+
+def parseCotationDates(dataStr):
+    if not dataStr or not isinstance(dataStr, str):
+        return None
+    try:
+        return datetime.strptime(dataStr, "%d-%m-%Y").date()
+    except ValueError:
+        return None
+
+
+def filterCotationColumn(series: pd.Series, startDate, endDate) -> pd.Series:
+    if not startDate or not endDate:
+        return series
+
+    rowIndices = []
+    flatEntries = []
+    for rowIdx, entries in enumerate(series):
+        if isinstance(entries, list) and entries:
+            for entry in entries:
+                rowIndices.append(rowIdx)
+                flatEntries.append(entry)
+
+    if not flatEntries:
+        return series
+
+    flatDf = pd.DataFrame(flatEntries)
+    flatDf["_rowIdx"] = rowIndices
+
+    dates = pd.to_datetime(flatDf["DATA"], format="%d-%m-%Y", errors="coerce")
+    mask = (dates.dt.date >= startDate) & (dates.dt.date <= endDate)
+    filtered = flatDf[mask]
+
+    result = [entries if not isinstance(entries, list) else [] for entries in series]
+    for rowIdx, group in filtered.groupby("_rowIdx"):
+        result[int(rowIdx)] = group.drop(columns="_rowIdx").to_dict(orient="records")
+
+    return pd.Series(result, index=series.index)
 
 
 class StocksQueryManager:
@@ -106,6 +150,8 @@ class StocksQueryManager:
         orderBy: str | None = None,
         limit: int | None = None,
     ):
+        if not (search or fields or dates):
+            raise HTTPException(status_code=400, detail="at least one of search/fields/dates required")
         if self.cacheManager.STOCKS_CACHE is None:
             raise HTTPException(status_code=503, detail="Cache not initialized")
 
@@ -176,6 +222,8 @@ class StocksQueryManager:
         orderBy: str | None = None,
         limit: int | None = None,
     ):
+        if not (search or fields or dates):
+            raise HTTPException(status_code=400, detail="at least one of search/fields/dates required")
         if self.cacheManager.STOCKS_CACHE is None:
             raise HTTPException(status_code=503, detail="Cache not initialized")
 
@@ -190,6 +238,7 @@ class StocksQueryManager:
                 if not fields
                 else [f.strip() for f in fields.split(",") if f.strip() in fundamentalCols]
             )
+            fieldList = [f for f in fieldList if f not in ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA")]
             cols = ["TICKER", "NOME", "TIME"] + [field for field in fieldList if field in availableColumnsSet]
 
             if search:
@@ -242,6 +291,98 @@ class StocksQueryManager:
         except Exception as e:
             logger.exception("Cached fundamental query failed")
             raise HTTPException(status_code=500, detail="Internal server error while processing fundamental data")
+
+    def queryCotations(
+        self,
+        search: str | None = None,
+        dates: str | None = None,
+        adjusted: bool = False,
+    ):
+        if self.cacheManager.STOCKS_CACHE is None:
+            raise HTTPException(status_code=503, detail="Cache not initialized")
+
+        try:
+            df = self.cacheManager.STOCKS_CACHE
+            targetCol = "COTACAO 10Y AJUSTADA" if adjusted else "COTACAO 10Y PADRAO"
+            responseFields = [targetCol]
+
+            if targetCol not in df.columns:
+                return {
+                    "search": search or "all",
+                    "fields": responseFields,
+                    "dates": dates,
+                    "type": "cotations",
+                    "count": 0,
+                    "data": [],
+                }
+
+            if search:
+                df = self.filterBySearchTerms(df, search)
+
+            if "TIME" in df.columns:
+                df = df.sort_values(by="TIME", ascending=False)
+            df = df.drop_duplicates(subset=["TICKER"], keep="first")
+
+            cols = ["TICKER", "NOME", "TIME", targetCol]
+            df = df[[c for c in cols if c in df.columns]]
+            df = self.deserializeJsonColumns(df)
+
+            startDate, endDate = parseDateRange(dates)
+            if startDate and endDate and targetCol in df.columns:
+                df[targetCol] = filterCotationColumn(df[targetCol], startDate, endDate)
+
+            return {
+                "search": search or "all",
+                "fields": responseFields,
+                "dates": dates,
+                "type": "cotations",
+                "count": len(df),
+                "data": sanitizeNanValues(df.to_dict(orient="records")),
+            }
+        except HTTPException:
+            raise
+        except Exception:
+            logger.exception("Cached cotations query failed")
+            raise HTTPException(status_code=500, detail="Internal server error while processing cotations data")
+
+    def queryLiveCotation(self, search: str):
+        try:
+            resp = getSession().get(
+                f"https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/{search.upper()}",
+                timeout=5,
+            )
+            resp.raise_for_status()
+            payload = resp.json()
+        except Exception:
+            raise HTTPException(503, detail="B3 realtime unavailable")
+
+        if payload.get("BizSts", {}).get("cd") != "OK" or not payload.get("Trad"):
+            raise HTTPException(404, detail=f"Ticker {search.upper()} not found")
+
+        dtTm = payload["Msg"]["dtTm"]
+        df = (
+            pd.DataFrame([payload["Trad"][0]["scty"]["SctyQtn"]])
+            .rename(
+                columns={
+                    "opngPric": "PRECO ORIGINAL",
+                    "minPric": "PRECO MINIMO",
+                    "maxPric": "PRECO MAXIMO",
+                    "avrgPric": "PRECO MEDIO",
+                    "curPrc": "PRECO ATUAL",
+                }
+            )
+            .drop(columns={"prcFlcn"})
+        )
+
+        df["TICKER"] = payload["Trad"][0]["scty"]["symb"]
+
+        return {
+            "search": search.upper(),
+            "type": "realtime-cotation",
+            "timestamp": dtTm,
+            "count": len(df),
+            "data": df.to_dict(orient="records"),
+        }
 
 
 stocksQuery = StocksQueryManager(stocksCache)

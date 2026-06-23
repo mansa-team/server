@@ -23,7 +23,7 @@ def health():
 def getHistorical(
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     fields: str = Query(None, max_length=200, pattern=r"^[A-Z0-9,\s]*$"),
-    dates: str = Query(None, max_length=50),
+    dates: str = Query(None, max_length=21),
     orderBy: str = Query(None),
     limit: int = Query(None, ge=1, le=1000),
     apiKey: str = Depends(verifyAPIKey),
@@ -36,13 +36,33 @@ def getHistorical(
 def getFundamental(
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     fields: str = Query(None, max_length=200, pattern=r"^[A-Z0-9,\s]*$"),
-    dates: str = Query(None, max_length=50),
+    dates: str = Query(None, max_length=21),
     orderBy: str = Query(None),
     limit: int = Query(None, ge=1, le=1000),
     apiKey: str = Depends(verifyAPIKey),
 ):
     result = stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
+
+
+@router.get("/cotations")
+def getCotations(
+    search: str = Query(..., min_length=1, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
+    dates: str = Query(None, max_length=21),
+    adjusted: bool = Query(False),
+    apiKey: str = Depends(verifyAPIKey),
+):
+    result = stocksQuery.queryCotations(search, dates, adjusted)
+    return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
+
+
+@router.get("/cotations/live")
+def getLiveCotation(
+    search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),
+    apiKey: str = Depends(verifyAPIKey),
+):
+    result = stocksQuery.queryLiveCotation(search)
+    return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=15"})
 
 
 @router.get("/key/generate")
