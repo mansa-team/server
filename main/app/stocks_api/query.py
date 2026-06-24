@@ -165,11 +165,17 @@ class StocksQueryManager:
                 raise HTTPException(status_code=400, detail="No historical data available in cache")
 
             fieldListAvailable = sorted(historicalFields.keys())
-            fieldList = (
-                fieldListAvailable
-                if not fields
-                else [f.strip() for f in fields.split(",") if f.strip() in fieldListAvailable]
-            )
+            if fields:
+                requested = [f.strip() for f in fields.split(",") if f.strip()]
+                invalid = [f for f in requested if f not in fieldListAvailable]
+                if invalid:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Invalid fields: {invalid}. Use /stocks/fields to discover available names.",
+                    )
+                fieldList = requested
+            else:
+                fieldList = fieldListAvailable
 
             availableYears = sorted(set(year for field in fieldList for year in historicalFields[field]))
             if dates:
@@ -233,12 +239,20 @@ class StocksQueryManager:
             availableColumnsSet = set(availableColumns)
             _, fundamentalCols = categorizeColumns(availableColumns)
 
-            fieldList = (
-                fundamentalCols
-                if not fields
-                else [f.strip() for f in fields.split(",") if f.strip() in fundamentalCols]
-            )
-            fieldList = [f for f in fieldList if f not in ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA")]
+            fundamentalColsFiltered = [
+                c for c in fundamentalCols if c not in ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA")
+            ]
+            if fields:
+                requested = [f.strip() for f in fields.split(",") if f.strip()]
+                invalid = [f for f in requested if f not in fundamentalCols]
+                if invalid:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Invalid fields: {invalid}. Use /stocks/fields to discover available names.",
+                    )
+                fieldList = [f for f in requested if f not in ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA")]
+            else:
+                fieldList = fundamentalColsFiltered
             cols = ["TICKER", "NOME", "TIME"] + [field for field in fieldList if field in availableColumnsSet]
 
             if search:
@@ -253,12 +267,14 @@ class StocksQueryManager:
                         isRange = "," in dates
                         if isRange:
                             mask = (timeCol.dt.date >= startDate) & (timeCol.dt.date <= endDate)
+                            df = df[mask]
                         else:
                             targetTs = pd.Timestamp(endDate)
                             diffs = (timeCol - targetTs).abs()
-                            minDiff = diffs.min()
-                            mask = diffs <= minDiff
-                        df = df[mask]
+                            # Per-ticker: keep closest snapshot for each ticker independently
+                            minDiffPerTicker = diffs.groupby(df["TICKER"]).transform("min")
+                            mask = diffs == minDiffPerTicker
+                            df = df[mask]
                         timeCol = timeCol.loc[df.index]
                     except Exception as e:
                         logger.exception("Date parsing failed")
@@ -288,6 +304,8 @@ class StocksQueryManager:
                 "count": len(df),
                 "data": sanitizeNanValues(df.to_dict(orient="records")),
             }
+        except HTTPException:
+            raise
         except Exception as e:
             logger.exception("Cached fundamental query failed")
             raise HTTPException(status_code=500, detail="Internal server error while processing fundamental data")

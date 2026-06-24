@@ -10,6 +10,7 @@ from collections import OrderedDict
 from unittest.mock import patch, MagicMock, AsyncMock, PropertyMock
 
 import pytest
+from fastapi import HTTPException
 import pandas as pd
 import numpy as np
 
@@ -839,14 +840,14 @@ class TestQueryFundamental:
         assert result["type"] == "fundamental"
 
     def test_fundamental_with_invalid_date(self):
-        """Invalid date -> inner 400 caught by outer except -> 500."""
+        """Invalid date -> inner 400 passes through (not wrapped as 500)."""
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
             mgr.queryFundamental(dates="not-a-date,also-not-a-date")
-        assert exc_info.value.status_code == 500
+        assert exc_info.value.status_code == 400
 
     def test_fundamental_with_order_by(self):
         df = _make_stocks_df()
@@ -928,17 +929,17 @@ class TestQueryFundamental:
         assert result["count"] >= 1
 
     def test_fundamental_with_invalid_single_date(self):
-        """Single invalid date -> inner 400 caught by outer except -> 500."""
+        """Single invalid date -> inner 400 passes through."""
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
             mgr.queryFundamental(dates="not-a-date")
-        assert exc_info.value.status_code == 500
+        assert exc_info.value.status_code == 400
 
     def test_fundamental_fields_not_in_columns(self):
-        """Fields that don't exist in the dataframe are filtered out."""
+        """Invalid fields now raise 400 with actionable error message."""
         df = pd.DataFrame(
             {
                 "TICKER": ["A"],
@@ -948,9 +949,11 @@ class TestQueryFundamental:
             }
         )
         mgr = self._make_manager(cache_df=df)
-        result = mgr.queryFundamental(fields="NONEXISTENT,P/L")
-        # P/L is a fundamental col but not in df columns
-        assert result["type"] == "fundamental"
+        with pytest.raises(HTTPException) as exc_info:
+            mgr.queryFundamental(fields="NONEXISTENT,P/L")
+        assert exc_info.value.status_code == 400
+        assert "NONEXISTENT" in exc_info.value.detail
+        assert "/stocks/fields" in exc_info.value.detail
 
     def test_fundamental_search_multiple_terms(self):
         """Multiple search terms with tickerIndex."""
@@ -969,7 +972,7 @@ class TestQueryFundamental:
         assert result["count"] == 3
 
     def test_fundamental_dates_one_date(self):
-        """len(dateRange) == 1 -> single date filter."""
+        """len(dateRange) == 1 -> per-ticker closest snapshot."""
         df = pd.DataFrame(
             {
                 "TICKER": ["A", "B"],
@@ -980,7 +983,8 @@ class TestQueryFundamental:
         )
         mgr = self._make_manager(cache_df=df)
         result = mgr.queryFundamental(dates="2024-01-15")
-        assert result["count"] == 1
+        # Per-ticker: each gets its closest snapshot (A→2024-01-15, B→2024-06-15)
+        assert result["count"] == 2
 
     def test_fundamental_excludes_cotacao_10y(self):
         """COTACAO 10Y PADRAO and COTACAO 10Y AJUSTADA belong to /cotations, not /fundamental."""
@@ -1208,7 +1212,7 @@ class TestQueryCotations:
         assert exc_info.value.status_code == 500
 
     # --- HTTP integration: /stocks/cotations route (one test, parametrized conceptually) ---
-    def test_cotations_http_route(self):
+    def test_cotations_http_route(self, stocks_http_client):
         """Hit the actual /stocks/cotations HTTP endpoint with adjusted=false."""
         from main.app.stocks_api.query import stocksQuery
 
@@ -1217,34 +1221,16 @@ class TestQueryCotations:
         try:
             stocksQuery.cacheManager.STOCKS_CACHE = self._make_cotations_df()
             stocksQuery.cacheManager.tickerIndex = {"TEST0": 0, "TEST1": 2}
-            from fastapi.testclient import TestClient as _TestClient
-            from fastapi import FastAPI
-            from main.controller.stocksapi_controller import router as stocksRouter
-            from main.utils.errors import registerErrorHandlers
-            from main.app.user.user import UserManager
-            from main.app.stocks_api.key import verifyAPIKey
-
-            testApp = FastAPI()
-            testApp.include_router(stocksRouter)
-            registerErrorHandlers(testApp)
-            testApp.dependency_overrides[verifyAPIKey] = lambda: "ok"
-            testApp.dependency_overrides[UserManager.getCurrentUser] = lambda: {
-                "userId": 1,
-                "username": "test",
-                "roles": ["USER"],
-            }
-            with _TestClient(testApp) as c:
-                resp = c.get("/stocks/cotations?adjusted=false&dates=2016-12-02,2016-12-02&search=TEST0")
-                assert resp.status_code == 200
-                body = resp.json()
-                assert body["type"] == "cotations"
-                assert body["fields"] == ["COTACAO 10Y PADRAO"]
-                assert body["count"] == 1
-                assert "Cache-Control" in resp.headers
-                for d in body["data"]:
-                    assert len(d["COTACAO 10Y PADRAO"]) == 1
-                    assert d["COTACAO 10Y PADRAO"][0]["DATA"] == "02-12-2016"
-            testApp.dependency_overrides.clear()
+            resp = stocks_http_client.get("/stocks/cotations?adjusted=false&dates=2016-12-02,2016-12-02&search=TEST0")
+            assert resp.status_code == 200
+            body = resp.json()
+            assert body["type"] == "cotations"
+            assert body["fields"] == ["COTACAO 10Y PADRAO"]
+            assert body["count"] == 1
+            assert "Cache-Control" in resp.headers
+            for d in body["data"]:
+                assert len(d["COTACAO 10Y PADRAO"]) == 1
+                assert d["COTACAO 10Y PADRAO"][0]["DATA"] == "02-12-2016"
         finally:
             stocksQuery.cacheManager.STOCKS_CACHE = original_cache
             stocksQuery.cacheManager.tickerIndex = original_index
@@ -1344,76 +1330,18 @@ class TestQueryLiveCotation:
                 mgr.queryLiveCotation("WEGE3")
         assert exc_info.value.status_code == 404
 
-    def test_http_route_returns_200(self):
-        from fastapi.testclient import TestClient as _TestClient
-        from fastapi import FastAPI
-        from main.controller.stocksapi_controller import router as stocksRouter
-        from main.utils.errors import registerErrorHandlers
-        from main.app.user.user import UserManager
-        from main.app.stocks_api.key import verifyAPIKey
-
-        testApp = FastAPI()
-        testApp.include_router(stocksRouter)
-        registerErrorHandlers(testApp)
-        testApp.dependency_overrides[verifyAPIKey] = lambda: "ok"
-        testApp.dependency_overrides[UserManager.getCurrentUser] = lambda: {
-            "userId": 1,
-            "username": "test",
-            "roles": ["USER"],
-        }
+    def test_http_route_returns_200(self, stocks_http_client):
         with self._patch_session():
-            with _TestClient(testApp) as c:
-                resp = c.get("/stocks/cotations/live?search=WEGE3")
-                assert resp.status_code == 200
-                body = resp.json()
-                assert body["type"] == "realtime-cotation"
-                assert body["data"][0]["TICKER"] == "WEGE3"
-        testApp.dependency_overrides.clear()
+            resp = stocks_http_client.get("/stocks/cotations/live?search=WEGE3")
+            assert resp.status_code == 200
+            body = resp.json()
+            assert body["type"] == "realtime-cotation"
+            assert body["data"][0]["TICKER"] == "WEGE3"
 
-    def test_http_route_search_required(self):
-        from fastapi.testclient import TestClient as _TestClient
-        from fastapi import FastAPI
-        from main.controller.stocksapi_controller import router as stocksRouter
-        from main.utils.errors import registerErrorHandlers
-        from main.app.user.user import UserManager
-        from main.app.stocks_api.key import verifyAPIKey
-
-        testApp = FastAPI()
-        testApp.include_router(stocksRouter)
-        registerErrorHandlers(testApp)
-        testApp.dependency_overrides[verifyAPIKey] = lambda: "ok"
-        testApp.dependency_overrides[UserManager.getCurrentUser] = lambda: {
-            "userId": 1,
-            "username": "test",
-            "roles": ["USER"],
-        }
-        with _TestClient(testApp) as c:
-            resp = c.get("/stocks/cotations/live")
-            assert resp.status_code == 422
-        testApp.dependency_overrides.clear()
-
-    def test_http_route_search_required(self):
+    def test_http_route_search_required(self, stocks_http_client):
         """GET /stocks/realtime-cotation without search returns 422."""
-        from fastapi.testclient import TestClient as _TestClient
-        from fastapi import FastAPI
-        from main.controller.stocksapi_controller import router as stocksRouter
-        from main.utils.errors import registerErrorHandlers
-        from main.app.user.user import UserManager
-        from main.app.stocks_api.key import verifyAPIKey
-
-        testApp = FastAPI()
-        testApp.include_router(stocksRouter)
-        registerErrorHandlers(testApp)
-        testApp.dependency_overrides[verifyAPIKey] = lambda: "ok"
-        testApp.dependency_overrides[UserManager.getCurrentUser] = lambda: {
-            "userId": 1,
-            "username": "test",
-            "roles": ["USER"],
-        }
-        with _TestClient(testApp) as c:
-            resp = c.get("/stocks/cotations/live")
-            assert resp.status_code == 422
-        testApp.dependency_overrides.clear()
+        resp = stocks_http_client.get("/stocks/cotations/live")
+        assert resp.status_code == 422
 
     # --- vectorized filterCotationColumn ---------------------------------
     def test_cotations_filter_cotation_column_filters_by_date(self):
@@ -1460,25 +1388,7 @@ class TestQueryLiveCotation:
         assert result[2] == "not a list"
         assert result[3] == []
 
-    def test_cotations_search_required(self):
+    def test_cotations_search_required(self, stocks_http_client):
         """GET /cotations without search returns 422."""
-        from fastapi.testclient import TestClient as _TestClient
-        from fastapi import FastAPI
-        from main.controller.stocksapi_controller import router as stocksRouter
-        from main.utils.errors import registerErrorHandlers
-        from main.app.user.user import UserManager
-        from main.app.stocks_api.key import verifyAPIKey
-
-        testApp = FastAPI()
-        testApp.include_router(stocksRouter)
-        registerErrorHandlers(testApp)
-        testApp.dependency_overrides[verifyAPIKey] = lambda: "ok"
-        testApp.dependency_overrides[UserManager.getCurrentUser] = lambda: {
-            "userId": 1,
-            "username": "test",
-            "roles": ["USER"],
-        }
-        with _TestClient(testApp) as c:
-            resp = c.get("/stocks/cotations")
-            assert resp.status_code == 422
-        testApp.dependency_overrides.clear()
+        resp = stocks_http_client.get("/stocks/cotations")
+        assert resp.status_code == 422
