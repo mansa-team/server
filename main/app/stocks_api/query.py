@@ -60,7 +60,7 @@ def filterCotationColumn(series: pd.Series, startDate, endDate) -> pd.Series:
 
 
 class StocksQueryManager:
-    def __init__(self, cacheManager: "StocksCacheManager"):
+    def __init__(self, cacheManager):
         self.cacheManager = cacheManager
 
     SPECIAL_COLS = frozenset(["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"])
@@ -152,6 +152,7 @@ class StocksQueryManager:
             availableYears = sorted(set(year for field in fieldList for year in historicalFields[field]))
             if dates:
                 startDate, endDate = parseDateRange(dates)
+                assert startDate is not None and endDate is not None
                 yearStart, yearEnd = startDate.year, endDate.year
             else:
                 yearStart, yearEnd = availableYears[0], availableYears[-1]
