@@ -56,7 +56,7 @@ def listFields():
 @router.get("/historical")
 def getHistorical(
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
-    fields: str = Query(None, max_length=500, pattern=r"^[A-Z0-9,\s/.-]+$"),
+    fields: str = Query(None, max_length=500, pattern=r"^[A-Za-z0-9,\s/.-]+$"),
     dates: str = Query(None, max_length=21),
     orderBy: str = Query(None),
     limit: int = Query(None, ge=1, le=1000),
@@ -114,7 +114,7 @@ def getHistorical(
 @router.get("/fundamental")
 def getFundamental(
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
-    fields: str = Query(None, max_length=500, pattern=r"^[A-Z0-9,\s/.-]+$"),
+    fields: str = Query(None, max_length=500, pattern=r"^[A-Za-z0-9,\s/.-]+$"),
     dates: str = Query(None, max_length=21),
     orderBy: str = Query(None),
     limit: int = Query(None, ge=1, le=1000),
