@@ -46,9 +46,6 @@ class TestFieldRegexPattern:
 # ---------------------------------------------------------------------------
 
 
-
-
-
 class TestFundamentalFieldValidation:
     """Integration: /stocks/fundamental must accept slash and dot fields."""
 

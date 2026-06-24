@@ -1,7 +1,3 @@
-- [ ] Investigatge the mysterious crashes in the server
-- [ ] Make a full overhaul on the test suite
-
-- [ ] Make an MCP for the STOCKS_API so the Google GenAI agent can be executed using the tools inside the MCP
 - [ ] The sandbox will be handled via Docker MicroVMs with an 10 concurrent shared pool (for the MVP)
 - [ ] pandas, numpy, matplotlib, yfinance (maybe) for the installed libs (no need for sklean, skfolio and scipy for now)
 - [ ] Improved per-session memory system using vectors
@@ -51,7 +47,7 @@
 - Access to the API Key generation, being able to create an API key for his use
     - [ ] **STARTUP (R$ 67/month):**
         - 10k API Calls / Month
-        - Full access to all fundamental data (P/L, P/VP, ROE, DY, Value Investing Score, etc.)
+        - Full access to all fundamental data (P/L, P/VP, ROE, DY, Investing Score, etc.)
         - Complete historical data (10+ years)
         - No custom field selection
         - 1 active API keys
