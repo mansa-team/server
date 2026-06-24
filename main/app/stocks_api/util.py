@@ -24,26 +24,24 @@ def categorizeColumns(columns: list) -> tuple:
     return dict(historicalFields), fundamentalCols
 
 
-def parseDateStart(dateStr: str) -> date:
+def _parse_date(dateStr: str, end: bool = False) -> date:
     dateStr = dateStr.strip()
     if re.match(r"^\d{4}$", dateStr):
-        return date(int(dateStr), 1, 1)
+        return date(int(dateStr), 12, 31) if end else date(int(dateStr), 1, 1)
     if re.match(r"^\d{4}-\d{2}$", dateStr):
-        parts = dateStr.split("-")
-        return date(int(parts[0]), int(parts[1]), 1)
+        y, m = map(int, dateStr.split("-"))
+        if end:
+            return date(y, m, calendar.monthrange(y, m)[1])
+        return date(y, m, 1)
     return pd.to_datetime(dateStr).date()
+
+
+def parseDateStart(dateStr: str) -> date:
+    return _parse_date(dateStr, end=False)
 
 
 def parseDateEnd(dateStr: str) -> date:
-    dateStr = dateStr.strip()
-    if re.match(r"^\d{4}$", dateStr):
-        return date(int(dateStr), 12, 31)
-    if re.match(r"^\d{4}-\d{2}$", dateStr):
-        parts = dateStr.split("-")
-        y, m = int(parts[0]), int(parts[1])
-        lastDay = calendar.monthrange(y, m)[1]
-        return date(y, m, lastDay)
-    return pd.to_datetime(dateStr).date()
+    return _parse_date(dateStr, end=True)
 
 
 def parseDateRange(dates: str | None) -> tuple[date | None, date | None]:

@@ -6,12 +6,10 @@ accepts all valid field names returned by /stocks/fields, including
 import re
 
 import pytest
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
 
 
 # The fixed pattern — allows uppercase, digits, comma, whitespace, /, ., -, :
-FIELDS_PATTERN = r"^[A-Z0-9,\s/.-]+$"
+FIELDS_PATTERN = r"^[A-Za-z0-9,\s/.-]+$"
 
 
 class TestFieldRegexPattern:
@@ -48,68 +46,48 @@ class TestFieldRegexPattern:
 # ---------------------------------------------------------------------------
 
 
-@pytest.fixture()
-def stocks_client():
-    """Minimal TestClient with just the stocks router for validation tests."""
-    from main.controller.stocksapi_controller import router as stocksRouter
-
-    app = FastAPI()
-    app.include_router(stocksRouter)
-
-    # Mock verifyAPIKey so tests aren't blocked by missing API key
-    from main.app.stocks_api.key import verifyAPIKey
-
-    def _mock_verify():
-        return "test-key"
-
-    app.dependency_overrides[verifyAPIKey] = _mock_verify
-
-    with TestClient(app, raise_server_exceptions=False) as c:
-        yield c
-
-
 class TestFundamentalFieldValidation:
     """Integration: /stocks/fundamental must accept slash and dot fields."""
 
-    def test_pslashl_not_422(self, stocks_client):
+    def test_pslashl_not_422(self, stocks_http_client):
         """GET /fundamental?fields=P/L must not return 422 (validation error)."""
-        resp = stocks_client.get("/stocks/fundamental", params={"fields": "P/L"})
+        resp = stocks_http_client.get("/stocks/fundamental", params={"fields": "P/L"})
         assert resp.status_code != 422, f"Got 422: {resp.json()}"
 
-    def test_dot_field_not_422(self, stocks_client):
+    def test_dot_field_not_422(self, stocks_http_client):
         """GET /fundamental?fields=MARG. LIQUIDA must not return 422."""
-        resp = stocks_client.get("/stocks/fundamental", params={"fields": "MARG. LIQUIDA"})
+        resp = stocks_http_client.get("/stocks/fundamental", params={"fields": "MARG. LIQUIDA"})
         assert resp.status_code != 422, f"Got 422: {resp.json()}"
 
-    def test_mixed_fields_not_422(self, stocks_client):
+    def test_mixed_fields_not_422(self, stocks_http_client):
         """GET /fundamental?fields=P/L,ROE,DY must not return 422."""
-        resp = stocks_client.get("/stocks/fundamental", params={"fields": "P/L,ROE,DY"})
+        resp = stocks_http_client.get("/stocks/fundamental", params={"fields": "P/L,ROE,DY"})
         assert resp.status_code != 422, f"Got 422: {resp.json()}"
 
 
 class TestHistoricalFieldValidation:
     """Integration: /stocks/historical must accept slash and dot fields."""
 
-    def test_pslashl_not_422(self, stocks_client):
+    def test_pslashl_not_422(self, stocks_http_client):
         """GET /historical?fields=P/L must not return 422."""
-        resp = stocks_client.get("/stocks/historical", params={"fields": "P/L"})
+        resp = stocks_http_client.get("/stocks/historical", params={"fields": "P/L"})
         assert resp.status_code != 422, f"Got 422: {resp.json()}"
 
-    def test_dot_field_not_422(self, stocks_client):
+    def test_dot_field_not_422(self, stocks_http_client):
         """GET /historical?fields=MARG. LIQUIDA must not return 422."""
-        resp = stocks_client.get("/stocks/historical", params={"fields": "MARG. LIQUIDA"})
+        resp = stocks_http_client.get("/stocks/historical", params={"fields": "MARG. LIQUIDA"})
         assert resp.status_code != 422, f"Got 422: {resp.json()}"
 
-    def test_comma_separated_with_slash_not_422(self, stocks_client):
+    def test_comma_separated_with_slash_not_422(self, stocks_http_client):
         """GET /historical?fields=LUCRO LIQUIDO,P/L must not return 422."""
-        resp = stocks_client.get("/stocks/historical", params={"fields": "LUCRO LIQUIDO,P/L"})
+        resp = stocks_http_client.get("/stocks/historical", params={"fields": "LUCRO LIQUIDO,P/L"})
         assert resp.status_code != 422, f"Got 422: {resp.json()}"
 
 
 class TestFundamentalDateFiltering:
     """Integration: /stocks/fundamental date filter should work per-ticker."""
 
-    def test_single_date_returns_per_ticker_closest(self, stocks_client):
+    def test_single_date_returns_per_ticker_closest(self, stocks_http_client):
         """When tickers have different date coverage, each should get its closest snapshot."""
         import pandas as pd
         from unittest.mock import patch
@@ -129,7 +107,7 @@ class TestFundamentalDateFiltering:
             patch.object(stocksCache, "STOCKS_CACHE", mock_df),
             patch.object(stocksCache, "tickerIndex", {"PETR3": 0, "WEGE3": 2}),
         ):
-            resp = stocks_client.get(
+            resp = stocks_http_client.get(
                 "/stocks/fundamental", params={"search": "PETR3,WEGE3", "dates": "2024-12-31", "fields": "ROE"}
             )
             assert resp.status_code == 200

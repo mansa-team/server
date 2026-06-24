@@ -65,23 +65,23 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\cache.py": {
-    "mtime": 1781724306.2881835,
-    "ast_hash": "7673b7466938555b0291bd4e97c3bf00",
+    "mtime": 1782329180.6940749,
+    "ast_hash": "dd75b6c8f03783414681c27287f112f0",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\key.py": {
-    "mtime": 1780936819.4165876,
-    "ast_hash": "227cf6de2f2ac11402c6aca79790cee8",
+    "mtime": 1782329309.7058985,
+    "ast_hash": "45ede5692dae88f7714a8beb9bed5fbe",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\query.py": {
-    "mtime": 1782327542.289789,
-    "ast_hash": "c8ba2714b2f082b600c3db6b6093c0ad",
+    "mtime": 1782330183.7544138,
+    "ast_hash": "bffc3187f276aacbb72abab515eb12f0",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\util.py": {
-    "mtime": 1782101831.8076253,
-    "ast_hash": "74b143a0e1180e0ed9b2683ac25bb266",
+    "mtime": 1782329180.696074,
+    "ast_hash": "a5ff26fa4273d89f353957507c0708ac",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\user\\user.py": {
@@ -100,8 +100,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\stocksapi_controller.py": {
-    "mtime": 1782326576.9467764,
-    "ast_hash": "d8b162443f8e318bb91e3725d0852ec6",
+    "mtime": 1782329470.3405643,
+    "ast_hash": "ac6b6948c941d6631184d94f1dfa0b53",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\user_controller.py": {
@@ -155,8 +155,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\service\\stocksapi_service.py": {
-    "mtime": 1782325172.2253368,
-    "ast_hash": "b86a2e5b04a63c2d2c7e64854c773c1e",
+    "mtime": 1782328481.0893037,
+    "ast_hash": "faee5ea6ebd58969465b45b66c6a27ea",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\service\\user_service.py": {
@@ -242,11 +242,6 @@
   "D:\\Repositories\\server\\tests\\test_auth_util.py": {
     "mtime": 1778453145.2161841,
     "ast_hash": "f481144d3c37f50c2cf00f9859c66cad",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\tests\\test_cache.py": {
-    "mtime": 1780864659.8955817,
-    "ast_hash": "0ab30a09fe7a0fa2d92357e8b82bdc1a",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_config.py": {
@@ -340,13 +335,13 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_stocks_api_coverage.py": {
-    "mtime": 1782328305.3761256,
-    "ast_hash": "d610b36b7a17e485bea82344ecdf057b",
+    "mtime": 1782329180.6975813,
+    "ast_hash": "d6276834c8ccd10cc1b94ab435f19930",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_stocks_api_fields.py": {
-    "mtime": 1782328199.2355027,
-    "ast_hash": "ff3bfa5bbc69a2e84e74ad814c0c345a",
+    "mtime": 1782329959.2980487,
+    "ast_hash": "0a090411263cfbe9f66ab85a58afa3fe",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_stocks_api_util_coverage.py": {
@@ -395,8 +390,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\TODO.md": {
-    "mtime": 1782250487.5055616,
-    "ast_hash": "cf7b037316a6eca87a7e010bcd0a094f",
+    "mtime": 1782329943.130155,
+    "ast_hash": "81dc9250e11c1723df887569d2e24258",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docs\\authentication.md": {
