@@ -2,6 +2,7 @@
 accepts all valid field names returned by /stocks/fields, including
 `/` (P/L) and `.` (MARG. LIQUIDA).
 """
+
 import re
 
 import pytest
@@ -45,6 +46,7 @@ class TestFieldRegexPattern:
 # ---------------------------------------------------------------------------
 # 2. Integration tests — FastAPI TestClient with validation
 # ---------------------------------------------------------------------------
+
 
 @pytest.fixture()
 def stocks_client():
@@ -114,20 +116,22 @@ class TestFundamentalDateFiltering:
         from main.app.stocks_api.cache import stocksCache
 
         # Mock cache: PETR3 has exact match, WEGE3 only has distant dates
-        mock_df = pd.DataFrame({
-            "TICKER": ["PETR3", "PETR3", "WEGE3", "WEGE3"],
-            "NOME": ["PETROBRAS", "PETROBRAS", "WEG", "WEG"],
-            "TIME": ["2024-12-31", "2025-06-30", "2024-06-30", "2025-06-30"],
-            "ROE": [0.18, 0.20, 0.25, 0.30],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "TICKER": ["PETR3", "PETR3", "WEGE3", "WEGE3"],
+                "NOME": ["PETROBRAS", "PETROBRAS", "WEG", "WEG"],
+                "TIME": ["2024-12-31", "2025-06-30", "2024-06-30", "2025-06-30"],
+                "ROE": [0.18, 0.20, 0.25, 0.30],
+            }
+        )
 
-        with patch.object(stocksCache, "STOCKS_CACHE", mock_df), \
-             patch.object(stocksCache, "tickerIndex", {"PETR3": 0, "WEGE3": 2}):
-            resp = stocks_client.get("/stocks/fundamental", params={
-                "search": "PETR3,WEGE3",
-                "dates": "2024-12-31",
-                "fields": "ROE"
-            })
+        with (
+            patch.object(stocksCache, "STOCKS_CACHE", mock_df),
+            patch.object(stocksCache, "tickerIndex", {"PETR3": 0, "WEGE3": 2}),
+        ):
+            resp = stocks_client.get(
+                "/stocks/fundamental", params={"search": "PETR3,WEGE3", "dates": "2024-12-31", "fields": "ROE"}
+            )
             assert resp.status_code == 200
             data = resp.json()
             # Both tickers should be returned

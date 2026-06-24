@@ -1221,9 +1221,7 @@ class TestQueryCotations:
         try:
             stocksQuery.cacheManager.STOCKS_CACHE = self._make_cotations_df()
             stocksQuery.cacheManager.tickerIndex = {"TEST0": 0, "TEST1": 2}
-            resp = stocks_http_client.get(
-                "/stocks/cotations?adjusted=false&dates=2016-12-02,2016-12-02&search=TEST0"
-            )
+            resp = stocks_http_client.get("/stocks/cotations?adjusted=false&dates=2016-12-02,2016-12-02&search=TEST0")
             assert resp.status_code == 200
             body = resp.json()
             assert body["type"] == "cotations"

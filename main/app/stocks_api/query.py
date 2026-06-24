@@ -239,7 +239,9 @@ class StocksQueryManager:
             availableColumnsSet = set(availableColumns)
             _, fundamentalCols = categorizeColumns(availableColumns)
 
-            fundamentalColsFiltered = [c for c in fundamentalCols if c not in ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA")]
+            fundamentalColsFiltered = [
+                c for c in fundamentalCols if c not in ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA")
+            ]
             if fields:
                 requested = [f.strip() for f in fields.split(",") if f.strip()]
                 invalid = [f for f in requested if f not in fundamentalCols]
