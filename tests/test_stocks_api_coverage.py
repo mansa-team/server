@@ -1212,7 +1212,7 @@ class TestQueryCotations:
         assert exc_info.value.status_code == 500
 
     # --- HTTP integration: /stocks/cotations route (one test, parametrized conceptually) ---
-    def test_cotations_http_route(self):
+    def test_cotations_http_route(self, stocks_http_client):
         """Hit the actual /stocks/cotations HTTP endpoint with adjusted=false."""
         from main.app.stocks_api.query import stocksQuery
 
@@ -1221,34 +1221,18 @@ class TestQueryCotations:
         try:
             stocksQuery.cacheManager.STOCKS_CACHE = self._make_cotations_df()
             stocksQuery.cacheManager.tickerIndex = {"TEST0": 0, "TEST1": 2}
-            from fastapi.testclient import TestClient as _TestClient
-            from fastapi import FastAPI
-            from main.controller.stocksapi_controller import router as stocksRouter
-            from main.utils.errors import registerErrorHandlers
-            from main.app.user.user import UserManager
-            from main.app.stocks_api.key import verifyAPIKey
-
-            testApp = FastAPI()
-            testApp.include_router(stocksRouter)
-            registerErrorHandlers(testApp)
-            testApp.dependency_overrides[verifyAPIKey] = lambda: "ok"
-            testApp.dependency_overrides[UserManager.getCurrentUser] = lambda: {
-                "userId": 1,
-                "username": "test",
-                "roles": ["USER"],
-            }
-            with _TestClient(testApp) as c:
-                resp = c.get("/stocks/cotations?adjusted=false&dates=2016-12-02,2016-12-02&search=TEST0")
-                assert resp.status_code == 200
-                body = resp.json()
-                assert body["type"] == "cotations"
-                assert body["fields"] == ["COTACAO 10Y PADRAO"]
-                assert body["count"] == 1
-                assert "Cache-Control" in resp.headers
-                for d in body["data"]:
-                    assert len(d["COTACAO 10Y PADRAO"]) == 1
-                    assert d["COTACAO 10Y PADRAO"][0]["DATA"] == "02-12-2016"
-            testApp.dependency_overrides.clear()
+            resp = stocks_http_client.get(
+                "/stocks/cotations?adjusted=false&dates=2016-12-02,2016-12-02&search=TEST0"
+            )
+            assert resp.status_code == 200
+            body = resp.json()
+            assert body["type"] == "cotations"
+            assert body["fields"] == ["COTACAO 10Y PADRAO"]
+            assert body["count"] == 1
+            assert "Cache-Control" in resp.headers
+            for d in body["data"]:
+                assert len(d["COTACAO 10Y PADRAO"]) == 1
+                assert d["COTACAO 10Y PADRAO"][0]["DATA"] == "02-12-2016"
         finally:
             stocksQuery.cacheManager.STOCKS_CACHE = original_cache
             stocksQuery.cacheManager.tickerIndex = original_index
@@ -1348,76 +1332,18 @@ class TestQueryLiveCotation:
                 mgr.queryLiveCotation("WEGE3")
         assert exc_info.value.status_code == 404
 
-    def test_http_route_returns_200(self):
-        from fastapi.testclient import TestClient as _TestClient
-        from fastapi import FastAPI
-        from main.controller.stocksapi_controller import router as stocksRouter
-        from main.utils.errors import registerErrorHandlers
-        from main.app.user.user import UserManager
-        from main.app.stocks_api.key import verifyAPIKey
-
-        testApp = FastAPI()
-        testApp.include_router(stocksRouter)
-        registerErrorHandlers(testApp)
-        testApp.dependency_overrides[verifyAPIKey] = lambda: "ok"
-        testApp.dependency_overrides[UserManager.getCurrentUser] = lambda: {
-            "userId": 1,
-            "username": "test",
-            "roles": ["USER"],
-        }
+    def test_http_route_returns_200(self, stocks_http_client):
         with self._patch_session():
-            with _TestClient(testApp) as c:
-                resp = c.get("/stocks/cotations/live?search=WEGE3")
-                assert resp.status_code == 200
-                body = resp.json()
-                assert body["type"] == "realtime-cotation"
-                assert body["data"][0]["TICKER"] == "WEGE3"
-        testApp.dependency_overrides.clear()
+            resp = stocks_http_client.get("/stocks/cotations/live?search=WEGE3")
+            assert resp.status_code == 200
+            body = resp.json()
+            assert body["type"] == "realtime-cotation"
+            assert body["data"][0]["TICKER"] == "WEGE3"
 
-    def test_http_route_search_required(self):
-        from fastapi.testclient import TestClient as _TestClient
-        from fastapi import FastAPI
-        from main.controller.stocksapi_controller import router as stocksRouter
-        from main.utils.errors import registerErrorHandlers
-        from main.app.user.user import UserManager
-        from main.app.stocks_api.key import verifyAPIKey
-
-        testApp = FastAPI()
-        testApp.include_router(stocksRouter)
-        registerErrorHandlers(testApp)
-        testApp.dependency_overrides[verifyAPIKey] = lambda: "ok"
-        testApp.dependency_overrides[UserManager.getCurrentUser] = lambda: {
-            "userId": 1,
-            "username": "test",
-            "roles": ["USER"],
-        }
-        with _TestClient(testApp) as c:
-            resp = c.get("/stocks/cotations/live")
-            assert resp.status_code == 422
-        testApp.dependency_overrides.clear()
-
-    def test_http_route_search_required(self):
+    def test_http_route_search_required(self, stocks_http_client):
         """GET /stocks/realtime-cotation without search returns 422."""
-        from fastapi.testclient import TestClient as _TestClient
-        from fastapi import FastAPI
-        from main.controller.stocksapi_controller import router as stocksRouter
-        from main.utils.errors import registerErrorHandlers
-        from main.app.user.user import UserManager
-        from main.app.stocks_api.key import verifyAPIKey
-
-        testApp = FastAPI()
-        testApp.include_router(stocksRouter)
-        registerErrorHandlers(testApp)
-        testApp.dependency_overrides[verifyAPIKey] = lambda: "ok"
-        testApp.dependency_overrides[UserManager.getCurrentUser] = lambda: {
-            "userId": 1,
-            "username": "test",
-            "roles": ["USER"],
-        }
-        with _TestClient(testApp) as c:
-            resp = c.get("/stocks/cotations/live")
-            assert resp.status_code == 422
-        testApp.dependency_overrides.clear()
+        resp = stocks_http_client.get("/stocks/cotations/live")
+        assert resp.status_code == 422
 
     # --- vectorized filterCotationColumn ---------------------------------
     def test_cotations_filter_cotation_column_filters_by_date(self):
@@ -1464,25 +1390,7 @@ class TestQueryLiveCotation:
         assert result[2] == "not a list"
         assert result[3] == []
 
-    def test_cotations_search_required(self):
+    def test_cotations_search_required(self, stocks_http_client):
         """GET /cotations without search returns 422."""
-        from fastapi.testclient import TestClient as _TestClient
-        from fastapi import FastAPI
-        from main.controller.stocksapi_controller import router as stocksRouter
-        from main.utils.errors import registerErrorHandlers
-        from main.app.user.user import UserManager
-        from main.app.stocks_api.key import verifyAPIKey
-
-        testApp = FastAPI()
-        testApp.include_router(stocksRouter)
-        registerErrorHandlers(testApp)
-        testApp.dependency_overrides[verifyAPIKey] = lambda: "ok"
-        testApp.dependency_overrides[UserManager.getCurrentUser] = lambda: {
-            "userId": 1,
-            "username": "test",
-            "roles": ["USER"],
-        }
-        with _TestClient(testApp) as c:
-            resp = c.get("/stocks/cotations")
-            assert resp.status_code == 422
-        testApp.dependency_overrides.clear()
+        resp = stocks_http_client.get("/stocks/cotations")
+        assert resp.status_code == 422
