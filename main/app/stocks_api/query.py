@@ -1,11 +1,6 @@
 import math
-import re
-from datetime import date, datetime
 from fastapi import HTTPException
-from typing import TYPE_CHECKING
 import pandas as pd
-import numpy as np
-import requests
 import json
 import orjson
 
@@ -33,19 +28,6 @@ def sanitizeNanValues(obj):
     if obj is pd.NA:
         return None
     return obj
-
-
-if TYPE_CHECKING:
-    from main.app.stocks_api.cache import StocksCacheManager
-
-
-def parseCotationDates(dataStr):
-    if not dataStr or not isinstance(dataStr, str):
-        return None
-    try:
-        return datetime.strptime(dataStr, "%d-%m-%Y").date()
-    except ValueError:
-        return None
 
 
 def filterCotationColumn(series: pd.Series, startDate, endDate) -> pd.Series:
@@ -90,15 +72,7 @@ class StocksQueryManager:
         df = df.copy()
 
         def cleanValue(val):
-            if isinstance(val, float):
-                try:
-                    if math.isnan(val):
-                        return None
-                except (TypeError, ValueError):
-                    pass
-            elif pd.isna(val):
-                return None
-            return val
+            return sanitizeNanValues(val)
 
         def cleanJSON(obj):
             if isinstance(obj, dict):
@@ -137,9 +111,7 @@ class StocksQueryManager:
         if valid_indices:
             return df.iloc[valid_indices]
 
-        mask = pd.Series([False] * len(df), index=df.index)
-        for term in searchTerms:
-            mask |= df["TICKER"].str.upper().str.startswith(term)
+        mask = df["TICKER"].str.upper().apply(lambda t: any(t.startswith(term) for term in searchTerms))
         return df[mask]
 
     def queryHistorical(
@@ -271,7 +243,6 @@ class StocksQueryManager:
                         else:
                             targetTs = pd.Timestamp(endDate)
                             diffs = (timeCol - targetTs).abs()
-                            # Per-ticker: keep closest snapshot for each ticker independently
                             minDiffPerTicker = diffs.groupby(df["TICKER"]).transform("min")
                             mask = diffs == minDiffPerTicker
                             df = df[mask]
