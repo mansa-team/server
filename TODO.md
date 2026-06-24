@@ -1,3 +1,4 @@
+- [ ] Investigatge the mysterious crashes in the server
 - [ ] Make a full overhaul on the test suite
 
 - [ ] Make an MCP for the STOCKS_API so the Google GenAI agent can be executed using the tools inside the MCP
