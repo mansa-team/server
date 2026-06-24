@@ -102,3 +102,35 @@ class TestHistoricalFieldValidation:
         """GET /historical?fields=LUCRO LIQUIDO,P/L must not return 422."""
         resp = stocks_client.get("/stocks/historical", params={"fields": "LUCRO LIQUIDO,P/L"})
         assert resp.status_code != 422, f"Got 422: {resp.json()}"
+
+
+class TestFundamentalDateFiltering:
+    """Integration: /stocks/fundamental date filter should work per-ticker."""
+
+    def test_single_date_returns_per_ticker_closest(self, stocks_client):
+        """When tickers have different date coverage, each should get its closest snapshot."""
+        import pandas as pd
+        from unittest.mock import patch
+        from main.app.stocks_api.cache import stocksCache
+
+        # Mock cache: PETR3 has exact match, WEGE3 only has distant dates
+        mock_df = pd.DataFrame({
+            "TICKER": ["PETR3", "PETR3", "WEGE3", "WEGE3"],
+            "NOME": ["PETROBRAS", "PETROBRAS", "WEG", "WEG"],
+            "TIME": ["2024-12-31", "2025-06-30", "2024-06-30", "2025-06-30"],
+            "ROE": [0.18, 0.20, 0.25, 0.30],
+        })
+
+        with patch.object(stocksCache, "STOCKS_CACHE", mock_df), \
+             patch.object(stocksCache, "tickerIndex", {"PETR3": 0, "WEGE3": 2}):
+            resp = stocks_client.get("/stocks/fundamental", params={
+                "search": "PETR3,WEGE3",
+                "dates": "2024-12-31",
+                "fields": "ROE"
+            })
+            assert resp.status_code == 200
+            data = resp.json()
+            # Both tickers should be returned
+            tickers = {item["TICKER"] for item in data["data"]}
+            assert "PETR3" in tickers, "PETR3 should be in results"
+            assert "WEGE3" in tickers, "WEGE3 should be in results (bug: global minDiff excludes it)"

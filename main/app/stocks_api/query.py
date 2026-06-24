@@ -265,12 +265,14 @@ class StocksQueryManager:
                         isRange = "," in dates
                         if isRange:
                             mask = (timeCol.dt.date >= startDate) & (timeCol.dt.date <= endDate)
+                            df = df[mask]
                         else:
                             targetTs = pd.Timestamp(endDate)
                             diffs = (timeCol - targetTs).abs()
-                            minDiff = diffs.min()
-                            mask = diffs <= minDiff
-                        df = df[mask]
+                            # Per-ticker: keep closest snapshot for each ticker independently
+                            minDiffPerTicker = diffs.groupby(df["TICKER"]).transform("min")
+                            mask = diffs == minDiffPerTicker
+                            df = df[mask]
                         timeCol = timeCol.loc[df.index]
                     except Exception as e:
                         logger.exception("Date parsing failed")
@@ -300,6 +302,8 @@ class StocksQueryManager:
                 "count": len(df),
                 "data": sanitizeNanValues(df.to_dict(orient="records")),
             }
+        except HTTPException:
+            raise
         except Exception as e:
             logger.exception("Cached fundamental query failed")
             raise HTTPException(status_code=500, detail="Internal server error while processing fundamental data")

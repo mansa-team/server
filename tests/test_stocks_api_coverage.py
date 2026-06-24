@@ -10,6 +10,7 @@ from collections import OrderedDict
 from unittest.mock import patch, MagicMock, AsyncMock, PropertyMock
 
 import pytest
+from fastapi import HTTPException
 import pandas as pd
 import numpy as np
 
@@ -839,14 +840,14 @@ class TestQueryFundamental:
         assert result["type"] == "fundamental"
 
     def test_fundamental_with_invalid_date(self):
-        """Invalid date -> inner 400 caught by outer except -> 500."""
+        """Invalid date -> inner 400 passes through (not wrapped as 500)."""
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
             mgr.queryFundamental(dates="not-a-date,also-not-a-date")
-        assert exc_info.value.status_code == 500
+        assert exc_info.value.status_code == 400
 
     def test_fundamental_with_order_by(self):
         df = _make_stocks_df()
@@ -928,17 +929,17 @@ class TestQueryFundamental:
         assert result["count"] >= 1
 
     def test_fundamental_with_invalid_single_date(self):
-        """Single invalid date -> inner 400 caught by outer except -> 500."""
+        """Single invalid date -> inner 400 passes through."""
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
             mgr.queryFundamental(dates="not-a-date")
-        assert exc_info.value.status_code == 500
+        assert exc_info.value.status_code == 400
 
     def test_fundamental_fields_not_in_columns(self):
-        """Fields that don't exist in the dataframe are filtered out."""
+        """Invalid fields now raise 400 with actionable error message."""
         df = pd.DataFrame(
             {
                 "TICKER": ["A"],
@@ -948,9 +949,11 @@ class TestQueryFundamental:
             }
         )
         mgr = self._make_manager(cache_df=df)
-        result = mgr.queryFundamental(fields="NONEXISTENT,P/L")
-        # P/L is a fundamental col but not in df columns
-        assert result["type"] == "fundamental"
+        with pytest.raises(HTTPException) as exc_info:
+            mgr.queryFundamental(fields="NONEXISTENT,P/L")
+        assert exc_info.value.status_code == 400
+        assert "NONEXISTENT" in exc_info.value.detail
+        assert "/stocks/fields" in exc_info.value.detail
 
     def test_fundamental_search_multiple_terms(self):
         """Multiple search terms with tickerIndex."""
@@ -969,7 +972,7 @@ class TestQueryFundamental:
         assert result["count"] == 3
 
     def test_fundamental_dates_one_date(self):
-        """len(dateRange) == 1 -> single date filter."""
+        """len(dateRange) == 1 -> per-ticker closest snapshot."""
         df = pd.DataFrame(
             {
                 "TICKER": ["A", "B"],
@@ -980,7 +983,8 @@ class TestQueryFundamental:
         )
         mgr = self._make_manager(cache_df=df)
         result = mgr.queryFundamental(dates="2024-01-15")
-        assert result["count"] == 1
+        # Per-ticker: each gets its closest snapshot (A→2024-01-15, B→2024-06-15)
+        assert result["count"] == 2
 
     def test_fundamental_excludes_cotacao_10y(self):
         """COTACAO 10Y PADRAO and COTACAO 10Y AJUSTADA belong to /cotations, not /fundamental."""
