@@ -9,7 +9,7 @@ import pytest
 
 
 # The fixed pattern — allows uppercase, digits, comma, whitespace, /, ., -, :
-FIELDS_PATTERN = r"^[A-Z0-9,\s/.-]+$"
+FIELDS_PATTERN = r"^[A-Za-z0-9,\s/.-]+$"
 
 
 class TestFieldRegexPattern:
