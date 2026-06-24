@@ -56,7 +56,7 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depend
 
 
 def generateSecureKey(length: int = 32) -> str:
-    return secrets.token_urlsafe(length)[:length]
+    return secrets.token_hex(length // 2)
 
 
 def createKey(db: Session, userId: int):
