@@ -23,6 +23,7 @@ requests
 
 # PROMETHEUS
 fastapi_mcp
+fastmcp
 google-genai
 
 # USER

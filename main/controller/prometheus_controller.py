@@ -9,7 +9,7 @@ from main.models.prometheus import PrometheusSession
 from fastapi import APIRouter, Depends, Request, HTTPException, Query
 import time
 
-from main.app.prometheus.generation import PrometheusGenerator
+from main.app.prometheus.agent import Prometheus
 from main.app.prometheus.chat import PrometheusChatManager
 from fastapi import Body
 
@@ -108,18 +108,15 @@ def deleteSession(
 async def chat(
     request: Request,
     db: Session = Depends(getSession),
-    text: str = Body(..., min_length=1, max_length=10000, embed=True),
+    query: str = Body(..., min_length=1, max_length=10000, embed=True),
     sessionId: str = None,
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
 ):
     if not sessionId:
-        sessionId = PrometheusChatManager.createSession(db, user["userId"], text[:30] + "...")
+        sessionId = PrometheusChatManager.createSession(db, user["userId"], query[:30] + "...")
     else:
         verifySessionOwnsership(db, sessionId, user["userId"])
 
-    history = PrometheusChatManager.getHistory(db, sessionId, limit=20)
-    PrometheusChatManager.saveMessage(db, sessionId, "user", text)
-    aiResponse = PrometheusGenerator.executeWorkflow(text, history=history, sessionId=sessionId, db=db)
-    PrometheusChatManager.saveMessage(db, sessionId, "assistant", aiResponse)
+    response = Prometheus.sendMessage(query, sessionId=sessionId, db=db)
 
-    return {"success": True, "response": aiResponse, "sessionId": sessionId, "timestamp": str(time.time())}
+    return {"success": True, "response": response, "sessionId": sessionId, "timestamp": str(time.time())}

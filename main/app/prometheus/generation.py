@@ -1,7 +1,6 @@
 import logging
 from config import Config
 
-import pandas as pd
 import json
 from main.utils.http_session import getSession
 from concurrent.futures import ThreadPoolExecutor, as_completed
