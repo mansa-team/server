@@ -1,4 +1,3 @@
-- [ ] Searnxg MCP for web search capabilities to the Prometheus Agent
 - [ ] Search queries reranking using a reranker like all-MiniLM-L6-v2
 - [ ] SSE streaming for the chat queries + mdocUI
 
