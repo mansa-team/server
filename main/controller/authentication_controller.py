@@ -36,12 +36,22 @@ def issueSessionCookie(response, request, db, user, *, oauth: bool = False) -> s
     accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
 
     if oauth:
-        isSecure = isSecureScheme(request)
+        useSecure = isSecureScheme(request)
         response.set_cookie(
-            key=COOKIE_NAME, value=accessToken, httponly=True, secure=isSecure, samesite="none", path="/"
+            key=COOKIE_NAME,
+            value=accessToken,
+            httponly=True,
+            secure=useSecure,
+            samesite=COOKIE_SAMESITE,
+            path=COOKIE_PATH,
         )
         response.set_cookie(
-            key=COOKIE_ACCESS_NAME, value=accessToken, httponly=False, secure=isSecure, samesite="none", path="/"
+            key=COOKIE_ACCESS_NAME,
+            value=accessToken,
+            httponly=False,
+            secure=useSecure,
+            samesite=COOKIE_SAMESITE,
+            path=COOKIE_PATH,
         )
     else:
         useCookieSecure = isSecureScheme(request)
@@ -151,14 +161,14 @@ async def googleLogin(request: Request):
 
     googleSSO = getGoogleSSO()
     async with googleSSO:
-        return await googleSSO.get_login_redirect(state=redirectUrl)
+        googleRedirect = await googleSSO.get_login_redirect(state=redirectUrl or None)
+    return googleRedirect
 
 
 @router.get("/callback")
 @limiter.limit("5/minute")
-async def googleCallback(request: Request, response: Response, state: str = None, db: Session = Depends(getSession)):
+async def googleCallback(request: Request, response: Response, db: Session = Depends(getSession)):
     logger.info("--- Google Callback Start ---")
-    logger.info(f"State parameter: {state}")
 
     googleSSO = getGoogleSSO()
 
@@ -181,10 +191,11 @@ async def googleCallback(request: Request, response: Response, state: str = None
             AuthenticationManager.createUserAccount(db, username=username, email=email, googleId=googleId)
             user = AuthenticationManager.authenticateGoogleUser(db, googleId)
 
-        if state:
-            response = RedirectResponse(url=state)
-            issueSessionCookie(response, request, db, user, oauth=True)
-            return response
+        redirectUrl = googleSSO.state or ""
+        if redirectUrl:
+            redirectResponse = RedirectResponse(url=redirectUrl)
+            issueSessionCookie(redirectResponse, request, db, user, oauth=True)
+            return redirectResponse
 
         accessToken = issueSessionCookie(response, request, db, user, oauth=True)
         logger.info("--- Google Callback End ---")
