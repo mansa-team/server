@@ -40,8 +40,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\authentication\\util.py": {
-    "mtime": 1780880534.1911528,
-    "ast_hash": "979bef31c808339afc46d4ff8a7abbda",
+    "mtime": 1782529649.6795459,
+    "ast_hash": "0caabc1c3ef967d229e69e5dca7ec1b2",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\agent.py": {
@@ -95,8 +95,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\authentication_controller.py": {
-    "mtime": 1782146687.7401125,
-    "ast_hash": "39e3fecdfd174bec755332d0ef87765f",
+    "mtime": 1782589097.7135336,
+    "ast_hash": "ea7575b8e15f5edac3e1ee66c8173fcd",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\prometheus_controller.py": {
@@ -145,7 +145,7 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\service\\authentication_service.py": {
-    "mtime": 1778453145.1921997,
+    "mtime": 1782496181.7918553,
     "ast_hash": "e63bf0a5388235a9b2dd08d4d83df9db",
     "semantic_hash": ""
   },
@@ -380,8 +380,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docker-compose.yml": {
-    "mtime": 1778453145.1352868,
-    "ast_hash": "5bc83b669806283b92d37945fa6dd9f9",
+    "mtime": 1782588873.444694,
+    "ast_hash": "92344e26ce1ca45a72cd8e2ce5287547",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\README.md": {
@@ -422,6 +422,11 @@
   "D:\\Repositories\\server\\docs\\user.md": {
     "mtime": 1778453145.1393917,
     "ast_hash": "a747b8dce6f5be90f82ace23efd8961a",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\frontend\\index.html": {
+    "mtime": 1782520164.1829169,
+    "ast_hash": "2b79da5398e0292f55f41aa9187eac65",
     "semantic_hash": ""
   }
 }

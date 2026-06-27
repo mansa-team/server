@@ -1,16 +1,16 @@
-# Graph Report - server  (2026-06-25)
+# Graph Report - server  (2026-06-27)
 
 ## Corpus Check
-- 83 files · ~40,860 words
+- 83 files · ~42,581 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2367 nodes · 3459 edges · 243 communities (122 shown, 121 thin omitted)
+- 2367 nodes · 3459 edges · 243 communities (121 shown, 122 thin omitted)
 - Extraction: 80% EXTRACTED · 20% INFERRED · 0% AMBIGUOUS · INFERRED: 682 edges (avg confidence: 0.68)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d16b859b`
+- Built from commit: `ddab2c90`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -141,6 +141,7 @@
 - [[_COMMUNITY_Community 126|Community 126]]
 - [[_COMMUNITY_Community 127|Community 127]]
 - [[_COMMUNITY_Community 128|Community 128]]
+- [[_COMMUNITY_Community 129|Community 129]]
 - [[_COMMUNITY_Community 130|Community 130]]
 - [[_COMMUNITY_Community 131|Community 131]]
 - [[_COMMUNITY_Community 132|Community 132]]
@@ -285,7 +286,7 @@
 - **Configuration & Database Infrastructure** — config_Config, config_engine, config_stocksEngine [INFERRED]
 - **User Authentication & Authorization** — user_service, authentication, user_roles, permission_system [INFERRED]
 
-## Communities (243 total, 121 thin omitted)
+## Communities (243 total, 122 thin omitted)
 
 ### Community 0 - "Stocks API Controller"
 Cohesion: 0.09
@@ -308,8 +309,8 @@ Cohesion: 0.12
 Nodes (15): **1 Introdução**, **2 Escopo**, **3 Descrição do Projeto**, **5.1 — Autenticação e Gerenciamento de Usuários**, **5.2 — Stocks API — Dados Financeiros**, **5.3 — Prometheus — Chatbot Financeiro com IA**, **5.4 — Scraper B3 — Coleta de Dados**, **5.5 — Thoth — Gestão de Carteiras e Metas** (+7 more)
 
 ### Community 7 - "Scraper B3"
-Cohesion: 0.17
-Nodes (13): getGoogleSSO(), googleCallback(), googleLogin(), isSecureScheme(), issueSessionCookie(), login(), logout(), register() (+5 more)
+Cohesion: 0.25
+Nodes (9): googleCallback(), isSecureScheme(), issueSessionCookie(), login(), logout(), register(), Covers line 23: isSecureScheme helper., Covers line 23: isSecureScheme helper. (+1 more)
 
 ### Community 8 - "User Model"
 Cohesion: 0.06
@@ -569,7 +570,7 @@ Nodes (6): Tests for run.py /status endpoint — covers status response structur
 
 ### Community 87 - "Community 87"
 Cohesion: 0.08
-Nodes (23): search.strip() == '' should still dedup (line 181)., search.strip() == '' should still dedup (line 181)., search.strip() == '' should still dedup (line 181)., DataFrame without TIME column., Invalid date -> inner 400 caught by outer except -> 500., DataFrame without TIME column., DataFrame without TIME column., search.strip() == '' should still dedup (line 181). (+15 more)
+Nodes (23): search.strip() == '' should still dedup (line 181)., search.strip() == '' should still dedup (line 181)., search.strip() == '' should still dedup (line 181)., DataFrame without TIME column., DataFrame without TIME column., DataFrame without TIME column., search.strip() == '' should still dedup (line 181)., search.strip() == '' should still dedup (line 181). (+15 more)
 
 ### Community 88 - "Community 88"
 Cohesion: 0.23
@@ -605,7 +606,7 @@ Nodes (22): verifyAPIKey(), Integration tests for the verifyAPIKey function., Te
 
 ### Community 133 - "Community 133"
 Cohesion: 0.07
-Nodes (25): Two dates in the range, both valid., Two dates in the range, both valid., Two dates in the range, both valid., Search with no index match falls back to string startswith., Search with no index match falls back to string startswith., search.strip() == '' should still dedup (line 181)., Search with no index match falls back to string startswith., Two dates in the range, both valid. (+17 more)
+Nodes (26): Two dates in the range, both valid., Two dates in the range, both valid., Two dates in the range, both valid., Two dates in the range, both valid., Search with no index match falls back to string startswith., Search with no index match falls back to string startswith., search.strip() == '' should still dedup (line 181)., Search with no index match falls back to string startswith. (+18 more)
 
 ### Community 134 - "Community 134"
 Cohesion: 0.13
@@ -628,8 +629,8 @@ Cohesion: 0.16
 Nodes (5): Tests for main/utils/http_session.py — covers all branches., TestCleanup, TestGetSession, cleanup(), Close the main thread's session at interpreter shutdown.
 
 ### Community 141 - "Community 141"
-Cohesion: 0.11
-Nodes (17): Single invalid date -> inner 400 passes through., Single invalid date -> inner 400 caught by outer except -> 500., Single invalid date -> inner 400 caught by outer except -> 500., Single invalid date -> inner 400 caught by outer except -> 500., Invalid fields now raise 400 with actionable error message., Fields that don't exist in the dataframe are filtered out., search.strip() == '' should still dedup (line 181)., Fields that don't exist in the dataframe are filtered out. (+9 more)
+Cohesion: 0.12
+Nodes (16): Single invalid date -> inner 400 passes through., Single invalid date -> inner 400 caught by outer except -> 500., Single invalid date -> inner 400 caught by outer except -> 500., Single invalid date -> inner 400 caught by outer except -> 500., Invalid fields now raise 400 with actionable error message., Fields that don't exist in the dataframe are filtered out., Fields that don't exist in the dataframe are filtered out., Single invalid date -> inner 400 caught by outer except -> 500. (+8 more)
 
 ### Community 144 - "Community 144"
 Cohesion: 0.2
@@ -652,8 +653,8 @@ Cohesion: 0.14
 Nodes (8): Performance benchmark tests for stocks API, Ticker index lookup should be O(1) - very fast, Prefix scan should be much slower than index lookup, Index lookup should be significantly faster than scan, Query cache should avoid recomputation, Column projection should reduce memory and time, Cache initialization should complete in reasonable time, TestPerformanceBenchmarks
 
 ### Community 170 - "Community 170"
-Cohesion: 0.25
-Nodes (6): verifyAccessToken(), getSessions(), Covers lines 48-49: jwt.ExpiredSignatureError., Covers lines 50-51: jwt.InvalidTokenError., Covers lines 48-49: jwt.ExpiredSignatureError., Covers lines 50-51: jwt.InvalidTokenError.
+Cohesion: 0.18
+Nodes (7): verifyAccessToken(), getSessions(), Covers lines 48-49: jwt.ExpiredSignatureError., Covers lines 50-51: jwt.InvalidTokenError., Covers lines 48-49: jwt.ExpiredSignatureError., Covers lines 50-51: jwt.InvalidTokenError., getCurrentUser()
 
 ### Community 172 - "Community 172"
 Cohesion: 0.22
@@ -661,7 +662,7 @@ Nodes (7): Covers lines 114-115, 117-120, 122, 125: POST /prometheus/chat., Cove
 
 ### Community 173 - "Community 173"
 Cohesion: 0.2
-Nodes (9): Invalid date -> inner 400 passes through (not wrapped as 500)., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Two dates in the range, both valid. (+1 more)
+Nodes (9): Invalid date -> inner 400 passes through (not wrapped as 500)., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500. (+1 more)
 
 ### Community 174 - "Community 174"
 Cohesion: 0.4
@@ -688,8 +689,8 @@ Cohesion: 0.4
 Nodes (5): 8. Build Sequence (4 phases, each independently shippable), Phase 0 — Sandbox foundation (1-2 days, no user-facing change), Phase 1 — MCP exposure of STOCKS_API (1 day), Phase 2 — Refactor PROMETHEUS to agentic (3-5 days, the big one), Phase 3 — Hardening (1-2 days, can ship incrementally)
 
 ### Community 180 - "Community 180"
-Cohesion: 0.29
-Nodes (3): FastAPI, getCurrentUser(), PaginationParams
+Cohesion: 0.4
+Nodes (4): getGoogleSSO(), googleLogin(), test_get_google_sso_default_redirect(), test_get_google_sso_with_redirect()
 
 ### Community 181 - "Community 181"
 Cohesion: 0.67
@@ -754,16 +755,16 @@ Nodes (3): Basic fields like ROE must still pass., Basic fields like ROE must st
 ## Knowledge Gaps
 - **985 isolated node(s):** `Discover available field names before querying /historical or /fundamental.`, `Get year-based historical financial data for Brazilian B3 stocks.      Returns`, `Get point-in-time fundamental/valuation data for Brazilian B3 stocks.      Ret`, `Get 10-year daily price history (cotation) for Brazilian B3 stocks.      Retur`, `Get real-time price quotation for a single Brazilian B3 stock.      Returns th` (+980 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **121 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **122 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Pytest Testing` connect `Scraper Service` to `Stocks API Controller`, `Session Management`, `Community 132`, `Configuration & Logging`, `Community 140`, `Database Utils`, `Decorators`, `Settings`, `Helpers`, `Community 49`, `Community 51`, `Community 52`, `Community 182`, `Community 63`, `Community 65`, `Community 71`, `Community 72`, `Community 74`, `Community 81`, `Community 84`, `Community 86`, `Community 88`, `Community 89`, `Community 227`?**
   _High betweenness centrality (0.256) - this node is a cross-community bridge._
-- **Why does `FastAPI` connect `Community 180` to `Community 129`, `Authentication Manager`, `Community 132`, `Scraper B3`, `Community 135`, `Auth Service`, `Decorators`, `Settings`, `Community 50`, `Community 51`, `Community 54`, `Community 182`, `Community 63`, `Community 64`, `Community 72`, `Community 74`, `Community 78`, `Community 80`, `Community 84`, `Community 85`, `Community 88`, `Community 89`, `Community 227`?**
+- **Why does `FastAPI` connect `Community 129` to `Authentication Manager`, `Community 132`, `Scraper B3`, `Community 135`, `Auth Service`, `Decorators`, `Settings`, `Community 170`, `Community 50`, `Community 51`, `Community 54`, `Community 182`, `Community 63`, `Community 64`, `Community 72`, `Community 74`, `Community 78`, `Community 80`, `Community 84`, `Community 85`, `Community 88`, `Community 89`, `Community 227`?**
   _High betweenness centrality (0.140) - this node is a cross-community bridge._
-- **Why does `UserManager` connect `Community 50` to `Scraper B3`, `Enums`, `Community 172`, `Community 180`, `Community 53`, `Community 55`, `Community 57`, `Community 58`, `Community 61`, `Community 63`, `Community 67`, `Community 69`, `Community 73`, `Community 75`, `Community 82`, `Community 211`, `Community 228`, `Community 108`, `Community 126`?**
+- **Why does `UserManager` connect `Community 50` to `Scraper B3`, `Enums`, `Community 170`, `Community 172`, `Community 53`, `Community 55`, `Community 57`, `Community 58`, `Community 61`, `Community 63`, `Community 67`, `Community 69`, `Community 73`, `Community 75`, `Community 82`, `Community 211`, `Community 228`, `Community 108`, `Community 126`?**
   _High betweenness centrality (0.100) - this node is a cross-community bridge._
 - **Are the 72 inferred relationships involving `StocksCacheManager` (e.g. with `TestStocksCacheManager` and `TestVerifyAPIKey`) actually correct?**
   _`StocksCacheManager` has 72 INFERRED edges - model-reasoned connections that need verification._

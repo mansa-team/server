@@ -12,6 +12,15 @@ services:
     volumes:
       - db_data:/var/lib/mysql
 
+  searxng:
+    image: dandehoon/searxng-mcp:latest
+    restart: always
+    ports:
+      - "8888:8888"
+    environment:
+      - SEARXNG_MCP_TRANSPORT=http
+      - SEARXNG_PORT=8888
+      
   api:
     build:
       context: .
@@ -27,6 +36,7 @@ services:
     environment:
       - DEBUG_MODE=TRUE
       - TZ=America/Sao_Paulo
+
     volumes:
       - .:/app
 

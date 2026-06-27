@@ -13,6 +13,7 @@ ci c:
 run r:
 	docker compose down --remove-orphans
 	docker compose up -d --build
+	docker logs -f server-api-1
 
 down d:
 	docker compose down --remove-orphans

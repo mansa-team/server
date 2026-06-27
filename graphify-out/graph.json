@@ -543,7 +543,7 @@
       "source_file": "main/app/authentication/sso.py",
       "source_location": "L1",
       "id": "main_app_authentication_sso_py",
-      "community": 7,
+      "community": 180,
       "norm_label": "sso.py"
     },
     {
@@ -552,7 +552,7 @@
       "source_file": "main/app/authentication/sso.py",
       "source_location": "L6",
       "id": "authentication_sso_getgooglesso",
-      "community": 7,
+      "community": 180,
       "norm_label": "getgooglesso()"
     },
     {
@@ -1254,7 +1254,7 @@
       "source_file": "main/app/user/user.py",
       "source_location": "L1",
       "id": "main_app_user_user_py",
-      "community": 180,
+      "community": 170,
       "norm_label": "user.py"
     },
     {
@@ -1272,7 +1272,7 @@
       "source_file": "main/app/user/user.py",
       "source_location": "L13",
       "id": "user_user_addroletouser",
-      "community": 180,
+      "community": 170,
       "norm_label": "addroletouser()"
     },
     {
@@ -1281,7 +1281,7 @@
       "source_file": "main/app/user/user.py",
       "source_location": "L27",
       "id": "user_user_getcurrentuser",
-      "community": 180,
+      "community": 170,
       "norm_label": "getcurrentuser()"
     },
     {
@@ -1353,14 +1353,14 @@
       "source_file": "main/controller/authentication_controller.py",
       "source_location": "L143",
       "id": "controller_authentication_controller_googlelogin",
-      "community": 7,
+      "community": 180,
       "norm_label": "googlelogin()"
     },
     {
       "label": "googleCallback()",
       "file_type": "code",
       "source_file": "main/controller/authentication_controller.py",
-      "source_location": "L159",
+      "source_location": "L171",
       "id": "controller_authentication_controller_googlecallback",
       "community": 7,
       "norm_label": "googlecallback()"
@@ -7626,7 +7626,7 @@
       "source_file": "tests/test_prometheus_auth_coverage.py",
       "source_location": "L1113",
       "id": "tests_test_prometheus_auth_coverage_test_get_google_sso_with_redirect",
-      "community": 7,
+      "community": 180,
       "norm_label": "test_get_google_sso_with_redirect()"
     },
     {
@@ -7635,7 +7635,7 @@
       "source_file": "tests/test_prometheus_auth_coverage.py",
       "source_location": "L1132",
       "id": "tests_test_prometheus_auth_coverage_test_get_google_sso_default_redirect",
-      "community": 7,
+      "community": 180,
       "norm_label": "test_get_google_sso_default_redirect()"
     },
     {
@@ -10074,7 +10074,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L842",
       "id": "tests_test_stocks_api_coverage_rationale_842",
-      "community": 173,
+      "community": 133,
       "norm_label": "two dates in the range, both valid."
     },
     {
@@ -14276,7 +14276,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L832",
-      "community": 87,
+      "community": 173,
       "norm_label": "invalid date -> inner 400 caught by outer except -> 500.",
       "id": "tests_test_stocks_api_coverage_rationale_832"
     },
@@ -15221,7 +15221,7 @@
       "file_type": "code",
       "source_file": "main/utils/pagination.py",
       "source_location": "L1",
-      "community": 180,
+      "community": 129,
       "norm_label": "pagination.py",
       "id": "main_utils_pagination_py"
     },
@@ -15230,7 +15230,7 @@
       "file_type": "code",
       "source_file": "main/utils/pagination.py",
       "source_location": "L4",
-      "community": 180,
+      "community": 129,
       "norm_label": "paginationparams",
       "id": "utils_pagination_paginationparams"
     },
@@ -15239,7 +15239,7 @@
       "file_type": "code",
       "source_file": "main/utils/pagination.py",
       "source_location": "L5",
-      "community": 180,
+      "community": 129,
       "norm_label": ".__init__()",
       "id": "utils_pagination_paginationparams_init"
     },
@@ -17255,7 +17255,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L874",
-      "community": 141,
+      "community": 87,
       "norm_label": "search.strip() == '' should still dedup (line 181).",
       "id": "tests_test_stocks_api_coverage_rationale_874"
     },
@@ -21111,7 +21111,7 @@
       "label": "FastAPI",
       "file_type": "rationale",
       "source_file": "README.md",
-      "community": 180,
+      "community": 129,
       "norm_label": "fastapi",
       "id": "fastapi"
     },
@@ -21767,9 +21767,9 @@
       "source_file": "main/app/prometheus/agent.py",
       "source_location": "L2",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "prometheus_agent_prometheus",
-      "target": "server_config_config",
-      "confidence_score": 0.5
+      "target": "server_config_config"
     },
     {
       "relation": "uses",
@@ -23610,9 +23610,9 @@
       "source_file": "main/app/prometheus/agent.py",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_prometheus_agent_py",
-      "target": "prometheus_agent_prometheus",
-      "confidence_score": 1.0
+      "target": "prometheus_agent_prometheus"
     },
     {
       "relation": "method",
@@ -23620,9 +23620,9 @@
       "source_file": "main/app/prometheus/agent.py",
       "source_location": "L17",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_agent_prometheus",
-      "target": "prometheus_agent_prometheus_init",
-      "confidence_score": 1.0
+      "target": "prometheus_agent_prometheus_init"
     },
     {
       "relation": "method",
@@ -23630,9 +23630,9 @@
       "source_file": "main/app/prometheus/agent.py",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_agent_prometheus",
-      "target": "prometheus_agent_prometheus_updatedates",
-      "confidence_score": 1.0
+      "target": "prometheus_agent_prometheus_updatedates"
     },
     {
       "relation": "method",
@@ -23640,9 +23640,9 @@
       "source_file": "main/app/prometheus/agent.py",
       "source_location": "L34",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_agent_prometheus",
-      "target": "prometheus_agent_prometheus_sendmessage",
-      "confidence_score": 1.0
+      "target": "prometheus_agent_prometheus_sendmessage"
     },
     {
       "relation": "uses",
@@ -23650,9 +23650,9 @@
       "source_file": "main/app/prometheus/agent.py",
       "source_location": "L11",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "prometheus_agent_prometheus",
-      "target": "prometheus_chat_prometheuschatmanager",
-      "confidence_score": 0.5
+      "target": "prometheus_chat_prometheuschatmanager"
     },
     {
       "relation": "calls",
@@ -23661,9 +23661,9 @@
       "source_file": "main/app/prometheus/agent.py",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_agent_prometheus_init",
-      "target": "prometheus_agent_prometheus_updatedates",
-      "confidence_score": 1.0
+      "target": "prometheus_agent_prometheus_updatedates"
     },
     {
       "relation": "contains",
@@ -56798,5 +56798,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "d16b859bc13ef2be8186b9efba297e0b0fb40b7e"
+  "built_at_commit": "ddab2c90e090bfa003a6a2a30e6f1b2859f84d48"
 }
