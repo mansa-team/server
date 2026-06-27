@@ -45,8 +45,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\agent.py": {
-    "mtime": 1782593160.2113955,
-    "ast_hash": "b2d7955a4631f349b872322e8027fd5d",
+    "mtime": 1782600530.7892087,
+    "ast_hash": "fb079a1c466ca957e480fc953a7f38f4",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\chat.py": {
@@ -95,13 +95,13 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\authentication_controller.py": {
-    "mtime": 1782592317.9995315,
-    "ast_hash": "f7365ac27d49b4fb0b13c8640a731f5f",
+    "mtime": 1782600606.327476,
+    "ast_hash": "1f20db4a2006e1a6fff352c357585b4a",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\prometheus_controller.py": {
-    "mtime": 1782593310.8705502,
-    "ast_hash": "9d098196b4bf6e9f941d4411b4ceea69",
+    "mtime": 1782599177.3318305,
+    "ast_hash": "c383964cc1eece6e0bddcd7d9e303783",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\stocksapi_controller.py": {
@@ -260,8 +260,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_controllers_coverage.py": {
-    "mtime": 1782591816.827052,
-    "ast_hash": "da055b4be16cf4b2c58bf2370049a98c",
+    "mtime": 1782593498.5573745,
+    "ast_hash": "5c60fb8e872698809f57b05854978ab0",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_device.py": {
@@ -390,8 +390,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\requirements.txt": {
-    "mtime": 1782354502.1314154,
-    "ast_hash": "5c616a6cd1b547a7d2ac1e01dccc6520",
+    "mtime": 1782598675.9813328,
+    "ast_hash": "398becfaefd4f0ec964ed636889d1842",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\TODO.md": {

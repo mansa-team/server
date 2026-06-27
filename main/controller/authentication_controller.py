@@ -161,8 +161,7 @@ async def googleLogin(request: Request):
 
     googleSSO = getGoogleSSO()
     async with googleSSO:
-        googleRedirect = await googleSSO.get_login_redirect(state=redirectUrl or None)
-    return googleRedirect
+        return await googleSSO.get_login_redirect(state=redirectUrl or None)
 
 
 @router.get("/callback")

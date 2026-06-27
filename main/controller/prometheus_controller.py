@@ -1,4 +1,5 @@
 import logging
+import asyncio
 from config import getSession
 from main.utils.logging_config import limiter
 from main.utils.roles import Roles, Permission
@@ -117,6 +118,6 @@ async def chat(
     else:
         verifySessionOwnsership(db, sessionId, user["userId"])
 
-    response = Prometheus.sendMessage(query, sessionId=sessionId, db=db)
+    response = await Prometheus().sendMessage(query, sessionId=sessionId, db=db)
 
     return {"success": True, "response": response, "sessionId": sessionId, "timestamp": str(time.time())}

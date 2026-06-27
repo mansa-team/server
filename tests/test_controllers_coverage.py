@@ -401,6 +401,7 @@ class TestGoogleCallback:
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
         mock_sso.__aexit__ = AsyncMock(return_value=False)
+        mock_sso.state = ""  # No state → JSON response, not redirect
 
         mock_user_info = MagicMock()
         mock_user_info.id = "google-123"
@@ -436,6 +437,7 @@ class TestGoogleCallback:
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
         mock_sso.__aexit__ = AsyncMock(return_value=False)
+        mock_sso.state = ""  # No state → JSON response, not redirect
 
         mock_user_info = MagicMock()
         mock_user_info.id = "google-456"
@@ -1018,14 +1020,14 @@ class TestPrometheusChat:
         """Covers lines 111-112: sessionId is None, new session created."""
         with (
             patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm,
-            patch("main.controller.prometheus_controller.PrometheusGenerator") as mock_gen,
+            patch("main.controller.prometheus_controller.Prometheus") as mock_prom,
         ):
             mock_pcm.createSession.return_value = "new-chat-id"
             mock_pcm.getHistory.return_value = []
-            mock_gen.executeWorkflow.return_value = "AI response here"
+            mock_prom.return_value.sendMessage = AsyncMock(return_value="AI response here")
 
             client, _, _ = _make_prometheus_client()
-            resp = client.post("/prometheus/chat", json={"text": "Hello AI"})
+            resp = client.post("/prometheus/chat", json={"query": "Hello AI"})
             assert resp.status_code == 200
             data = resp.json()
             assert data["success"] is True
@@ -1054,7 +1056,7 @@ class TestPrometheusChat:
 
         with (
             patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm,
-            patch("main.controller.prometheus_controller.PrometheusGenerator") as mock_gen,
+            patch("main.controller.prometheus_controller.Prometheus") as mock_prom,
             patch("main.controller.prometheus_controller.Roles") as mock_roles,
         ):
 
@@ -1065,11 +1067,10 @@ class TestPrometheusChat:
 
             mock_pcm.verifySessionOwnership.return_value = True
             mock_pcm.getHistory.return_value = [{"role": "user", "parts": [{"text": "hi"}]}]
-            mock_gen.executeWorkflow.return_value = "Response"
+            mock_prom.return_value.sendMessage = AsyncMock(return_value="Response")
 
             client = _TestClient(app, raise_server_exceptions=False)
-            # sessionId is NOT annotated with Body(...) in the route, so it's a query parameter
-            resp = client.post("/prometheus/chat?sessionId=existing-sid", json={"text": "Follow up"})
+            resp = client.post("/prometheus/chat?sessionId=existing-sid", json={"query": "Follow up"})
             assert resp.status_code == 200
             assert resp.json()["success"] is True
             mock_pcm.verifySessionOwnership.assert_called_once()
@@ -1108,21 +1109,21 @@ class TestPrometheusChat:
 
             client = _TestClient(app, raise_server_exceptions=False)
             # sessionId is a query parameter (not Body-annotated in route)
-            resp = client.post("/prometheus/chat?sessionId=others-sid", json={"text": "Hack"})
+            resp = client.post("/prometheus/chat?sessionId=others-sid", json={"query": "Hack"})
             assert resp.status_code == 403
 
     def test_chat_generic_exception(self):
         """Generic Exception in chat propagates to FastAPI's default 500 handler."""
         with (
             patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm,
-            patch("main.controller.prometheus_controller.PrometheusGenerator") as mock_gen,
+            patch("main.controller.prometheus_controller.Prometheus") as mock_prom,
         ):
             mock_pcm.createSession.return_value = "err-sess"
             mock_pcm.getHistory.return_value = []
-            mock_gen.executeWorkflow.side_effect = RuntimeError("Gemini API down")
+            mock_prom.sendMessage.side_effect = RuntimeError("Gemini API down")
 
             client, _, _ = _make_prometheus_client()
-            resp = client.post("/prometheus/chat", json={"text": "crash"})
+            resp = client.post("/prometheus/chat", json={"query": "crash"})
             assert resp.status_code == 500
 
 

@@ -22,8 +22,8 @@ orjson
 requests
 
 # PROMETHEUS
-fastapi_mcp
 fastmcp
+fastapi_mcp
 google-genai
 
 # USER
