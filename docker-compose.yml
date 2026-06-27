@@ -13,7 +13,11 @@ services:
       - db_data:/var/lib/mysql
 
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      cache_from:
+        - server-api:latest
     restart: always
     ports:
       - "8000:8000"
@@ -23,8 +27,6 @@ services:
     environment:
       - DEBUG_MODE=TRUE
       - TZ=America/Sao_Paulo
-    depends_on:
-      - db
     volumes:
       - .:/app
 
