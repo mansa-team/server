@@ -1074,7 +1074,7 @@ class TestPrometheusChat:
             mock_prom.return_value.sendMessage = AsyncMock(return_value="Response")
 
             client = _TestClient(app, raise_server_exceptions=False)
-            resp = client.post("/prometheus/chat?sessionId=existing-sid", json={"query": "Follow up"})
+            resp = client.post("/prometheus/chat", json={"query": "Follow up", "sessionId": "existing-sid"})
             assert resp.status_code == 200
             assert resp.json()["success"] is True
             mock_pcm.verifySessionOwnership.assert_called_once()
@@ -1112,8 +1112,8 @@ class TestPrometheusChat:
             mock_pcm.verifySessionOwnership.return_value = False
 
             client = _TestClient(app, raise_server_exceptions=False)
-            # sessionId is a query parameter (not Body-annotated in route)
-            resp = client.post("/prometheus/chat?sessionId=others-sid", json={"query": "Hack"})
+            # sessionId is now a Body param (embed=True)
+            resp = client.post("/prometheus/chat", json={"query": "Hack", "sessionId": "others-sid"})
             assert resp.status_code == 403
 
     def test_chat_generic_exception(self):

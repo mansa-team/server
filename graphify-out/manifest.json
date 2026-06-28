@@ -35,7 +35,7 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\authentication\\sso.py": {
-    "mtime": 1778453145.1758962,
+    "mtime": 1782601538.7497394,
     "ast_hash": "81a2a3879aebb5a412f8c344497129e9",
     "semantic_hash": ""
   },
@@ -95,8 +95,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\authentication_controller.py": {
-    "mtime": 1782600606.327476,
-    "ast_hash": "1f20db4a2006e1a6fff352c357585b4a",
+    "mtime": 1782659411.2088554,
+    "ast_hash": "cafa47e947124549b64067c89ff71831",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\prometheus_controller.py": {
@@ -235,8 +235,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\conftest.py": {
-    "mtime": 1782328211.2411828,
-    "ast_hash": "b08553f352d996191dc54644b9334d3c",
+    "mtime": 1782607597.1257257,
+    "ast_hash": "e04353e085b76227dc6f94f0d10ec541",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_api_key_quota_atomic.py": {
@@ -260,8 +260,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_controllers_coverage.py": {
-    "mtime": 1782600886.4216917,
-    "ast_hash": "bd4a663b38d26a19b3f90e10e10b9368",
+    "mtime": 1782621862.3079104,
+    "ast_hash": "95191d13bf76b540ab27551943c6bf63",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_device.py": {
@@ -300,8 +300,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_oauth_cookie_security.py": {
-    "mtime": 1780934409.0148125,
-    "ast_hash": "f8b1b46a46bb5d12798661c5a1b09d64",
+    "mtime": 1782621906.068229,
+    "ast_hash": "6be878470ada4b6c64a3a41680703cbb",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_pagination.py": {
@@ -332,6 +332,11 @@
   "D:\\Repositories\\server\\tests\\test_sessions.py": {
     "mtime": 1782102029.5479734,
     "ast_hash": "824ad36c5e047ddddea2cce1b1ad41ea",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\tests\\test_sso_state_cookie.py": {
+    "mtime": 1782621844.7362719,
+    "ast_hash": "2665cac1dd2f8f541a459944c766706a",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_status_endpoint.py": {
@@ -390,7 +395,7 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\requirements.txt": {
-    "mtime": 1782598675.9813328,
+    "mtime": 1782659658.2224798,
     "ast_hash": "398becfaefd4f0ec964ed636889d1842",
     "semantic_hash": ""
   },
@@ -425,8 +430,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\index.html": {
-    "mtime": 1782601247.956709,
-    "ast_hash": "d13259397ec3ebf01df231f603224d61",
+    "mtime": 1782618749.8816228,
+    "ast_hash": "233efdb5e8af63df1df7b35227c25bdf",
     "semantic_hash": ""
   }
 }

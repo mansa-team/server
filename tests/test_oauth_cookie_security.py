@@ -146,18 +146,9 @@ class TestOAuthCallbackTokenNotInURL:
         # Check cookies were set
         cookies = response.headers.get_list("set-cookie")
 
-        # Find the readable cookie (mansa_token_access)
-        readable_cookie_found = False
-        for cookie in cookies:
-            if "mansa_token_access=" in cookie:
-                # This cookie should NOT be httponly (frontend needs to read it)
-                assert "httponly" not in cookie.lower(), f"Readable cookie should NOT be httponly: {cookie}"
-                readable_cookie_found = True
-                # Verify cookie has the token value
-                assert "jwt-token-3" in cookie, "Token value not found in readable cookie"
-                break
-
-        assert readable_cookie_found, "Readable cookie (mansa_token_access) not found in response"
+        # Only one cookie now (httponly). Token is delivered via fragment (#token=).
+        httponly_cookie_found = any("mansa_token=" in c and "httponly" in c.lower() for c in cookies)
+        assert httponly_cookie_found, "httponly cookie not found in response"
 
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.createAccessToken")
@@ -250,15 +241,13 @@ class TestOAuthCallbackFrontendCompatibility:
         # Verify cookies are set
         cookies = response.headers.get_list("set-cookie")
 
-        # Both cookies should be present
-        has_httponly = any("mansa_token=" in c and "mansa_token_access=" not in c for c in cookies)
-        has_readable = any("mansa_token_access=" in c for c in cookies)
-
+        # Only httponly cookie — token delivered via fragment (#token=), not JS-readable cookie
+        has_httponly = any("mansa_token=" in c for c in cookies)
         assert has_httponly, "httponly cookie not set"
-        assert has_readable, "readable cookie not set - frontend cannot read token"
 
-        # The readable cookie should contain the token
+        # Verify the httponly cookie contains the token
         for cookie in cookies:
-            if "mansa_token_access=" in cookie:
+            if "mansa_token=" in cookie:
+                assert "httponly" in cookie.lower()
                 assert "jwt-token-6" in cookie
                 break

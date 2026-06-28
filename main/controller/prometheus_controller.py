@@ -110,7 +110,7 @@ async def chat(
     request: Request,
     db: Session = Depends(getSession),
     query: str = Body(..., min_length=1, max_length=10000, embed=True),
-    sessionId: str = None,
+    sessionId: str = Body(default=None, embed=True),
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
 ):
     if not sessionId:

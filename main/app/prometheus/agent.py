@@ -9,7 +9,6 @@ from google.genai import types
 from config import Config
 from main.app.prometheus.chat import PrometheusChatManager
 
-# ponytail: google-genai 2.3.0 chokes on bool schemas (additionalProperties: false)
 _original_filter = _mcp._filter_to_supported_schema
 
 
