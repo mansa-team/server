@@ -1,6 +1,4 @@
-- [ ] Search queries reranking using a reranker like all-MiniLM-L6-v2
-- [ ] SSE streaming for the chat queries + mdocUI
-
+- [ ] Add a system prompt
 
 - [ ] The sandbox will be handled via Docker MicroVMs with an 10 concurrent shared pool (for the MVP)
 - [ ] pandas, numpy, matplotlib, yfinance (maybe) for the installed libs (no need for sklean, skfolio and scipy for now)

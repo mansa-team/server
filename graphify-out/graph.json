@@ -676,7 +676,7 @@
       "label": ".streamMessage()",
       "file_type": "code",
       "source_file": "main/app/prometheus/agent.py",
-      "source_location": "L81",
+      "source_location": "L85",
       "id": "prometheus_agent_prometheus_streammessage",
       "community": 171,
       "norm_label": ".streammessage()"
@@ -4134,7 +4134,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1023",
       "id": "tests_test_controllers_coverage_testprometheuschat_test_chat_new_session",
-      "community": 67,
+      "community": 172,
       "norm_label": ".test_chat_new_session()"
     },
     {
@@ -4980,7 +4980,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1024",
       "id": "tests_test_controllers_coverage_rationale_1024",
-      "community": 67,
+      "community": 172,
       "norm_label": "covers lines 111-112: sessionid is none, new session created."
     },
     {
@@ -10362,7 +10362,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L842",
       "id": "tests_test_stocks_api_coverage_rationale_842",
-      "community": 133,
+      "community": 173,
       "norm_label": "two dates in the range, both valid."
     },
     {
@@ -13295,7 +13295,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1020",
-      "community": 67,
+      "community": 172,
       "norm_label": "covers lines 111-112: sessionid is none, new session created.",
       "id": "tests_test_controllers_coverage_rationale_1020"
     },
@@ -13934,7 +13934,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1018",
-      "community": 67,
+      "community": 172,
       "norm_label": "covers lines 111-112: sessionid is none, new session created.",
       "id": "tests_test_controllers_coverage_rationale_1018"
     },
@@ -15815,7 +15815,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L832",
-      "community": 173,
+      "community": 87,
       "norm_label": "invalid date -> inner 400 caught by outer except -> 500.",
       "id": "tests_test_stocks_api_coverage_rationale_832"
     },
@@ -17453,7 +17453,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1063",
-      "community": 67,
+      "community": 172,
       "norm_label": "covers lines 111-112: sessionid is none, new session created.",
       "id": "tests_test_controllers_coverage_rationale_1063"
     },
@@ -25124,9 +25124,9 @@
       "source_file": "main/app/prometheus/agent.py",
       "source_location": "L47",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_prometheus_agent_py",
-      "target": "prometheus_agent_chatsession",
-      "confidence_score": 1.0
+      "target": "prometheus_agent_chatsession"
     },
     {
       "relation": "method",
@@ -25164,9 +25164,9 @@
       "source_file": "main/app/prometheus/agent.py",
       "source_location": "L81",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_agent_prometheus",
-      "target": "prometheus_agent_prometheus_streammessage",
-      "confidence_score": 1.0
+      "target": "prometheus_agent_prometheus_streammessage"
     },
     {
       "relation": "uses",
@@ -25196,9 +25196,9 @@
       "source_file": "main/app/prometheus/agent.py",
       "source_location": "L73",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_agent_prometheus_sendmessage",
-      "target": "prometheus_agent_chatsession",
-      "confidence_score": 1.0
+      "target": "prometheus_agent_chatsession"
     },
     {
       "relation": "calls",
@@ -25207,9 +25207,9 @@
       "source_file": "main/app/prometheus/agent.py",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_agent_prometheus_streammessage",
-      "target": "prometheus_agent_chatsession",
-      "confidence_score": 1.0
+      "target": "prometheus_agent_chatsession"
     },
     {
       "relation": "contains",
@@ -29376,9 +29376,9 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L130",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_controller_prometheus_controller_py",
-      "target": "controller_prometheus_controller_chat_stream",
-      "confidence_score": 1.0
+      "target": "controller_prometheus_controller_chat_stream"
     },
     {
       "relation": "contains",
@@ -29430,9 +29430,9 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L140",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controller_prometheus_controller_chat_stream",
-      "target": "controller_prometheus_controller_verifysessionownsership",
-      "confidence_score": 1.0
+      "target": "controller_prometheus_controller_verifysessionownsership"
     },
     {
       "relation": "calls",
@@ -29452,9 +29452,9 @@
       "source_file": "main/controller/prometheus_controller.py",
       "source_location": "L138",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controller_prometheus_controller_chat_stream",
-      "target": "controller_prometheus_controller_createsession",
-      "confidence_score": 1.0
+      "target": "controller_prometheus_controller_createsession"
     },
     {
       "relation": "calls",
@@ -29617,9 +29617,9 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L66",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controller_stocksapi_controller_rationale_66",
-      "target": "controller_stocksapi_controller_gethistorical",
-      "confidence_score": 1.0
+      "target": "controller_stocksapi_controller_gethistorical"
     },
     {
       "relation": "rationale_for",
@@ -29637,9 +29637,9 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L124",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controller_stocksapi_controller_rationale_124",
-      "target": "controller_stocksapi_controller_getfundamental",
-      "confidence_score": 1.0
+      "target": "controller_stocksapi_controller_getfundamental"
     },
     {
       "relation": "rationale_for",
@@ -29657,9 +29657,9 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L185",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controller_stocksapi_controller_rationale_185",
-      "target": "controller_stocksapi_controller_getcotations",
-      "confidence_score": 1.0
+      "target": "controller_stocksapi_controller_getcotations"
     },
     {
       "relation": "rationale_for",
@@ -29677,9 +29677,9 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L233",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "controller_stocksapi_controller_rationale_233",
-      "target": "controller_stocksapi_controller_getlivecotation",
-      "confidence_score": 1.0
+      "target": "controller_stocksapi_controller_getlivecotation"
     },
     {
       "relation": "rationale_for",
@@ -60038,5 +60038,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "4f42c61b7e2f9488e6faf4a36b0af708689dca59"
+  "built_at_commit": "ca262fc1873f2cbdd0effc135edd528f25bfe5fc"
 }

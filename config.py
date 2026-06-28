@@ -81,7 +81,7 @@ class PrometheusSettings(BaseMansaSettings):
     PORT: int = Field(default=3200, validation_alias=AliasChoices("PROMETHEUS_PORT"))
     GEMINI_API_KEY: str = Field(default="", validation_alias=AliasChoices("GEMINI_API.KEY"))
     SEARXNG_HOST: str = Field(default="localhost", validation_alias=AliasChoices("SEARXNG_HOST"))
-    SEARXNG_PORT: str = Field(default=8888, validation_alias=AliasChoices("SEARXNG_PORT"))
+    SEARXNG_PORT: int = Field(default=8888, validation_alias=AliasChoices("SEARXNG_PORT"))
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     def __getitem__(self, item):
