@@ -19,416 +19,150 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
 # ---------------------------------------------------------------------------
-# PrometheusGenerator (generation.py)
+# Prometheus (agent.py) — covers __init__, updateDates, sendMessage, streamMessage
 # ---------------------------------------------------------------------------
 
 
-class TestPrometheusGeneratorInit:
-    """Cover __init__ and updateDates (lines 22-37)."""
+class TestPrometheusInit:
+    """Cover __init__ and updateDates."""
 
-    @patch("main.app.prometheus.generation.Config")
-    @patch("main.app.prometheus.generation.genai")
+    @patch("main.app.prometheus.agent.Config")
+    @patch("main.app.prometheus.agent.genai")
     def test_init_creates_client_and_updates_dates_debug(self, mock_genai, mock_config):
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "test-key"}
+        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "test-key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
         mock_config.DEBUG_MODE = True
 
-        from main.app.prometheus.generation import PrometheusGenerator
+        from main.app.prometheus.agent import Prometheus
 
-        gen = PrometheusGenerator()
+        gen = Prometheus()
         mock_genai.Client.assert_called_once_with(api_key="test-key")
         assert gen.currentDate == "23/03/2026"
         assert gen.currentISODate == "2026-03-23"
         assert gen.currentYear == 2026
         assert gen.lastYear == 2025
 
-    @patch("main.app.prometheus.generation.Config")
-    @patch("main.app.prometheus.generation.genai")
+    @patch("main.app.prometheus.agent.Config")
+    @patch("main.app.prometheus.agent.genai")
     def test_init_creates_client_and_updates_dates_prod(self, mock_genai, mock_config):
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "test-key"}
+        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "test-key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
         mock_config.DEBUG_MODE = False
 
-        from main.app.prometheus.generation import PrometheusGenerator
+        from main.app.prometheus.agent import Prometheus
 
-        gen = PrometheusGenerator()
+        gen = Prometheus()
         assert gen.currentYear == datetime.now().year
         assert gen.lastYear == gen.currentYear - 1
 
 
-class TestPrometheusGeneratorExecuteWorkflow:
-    """Cover executeWorkflow (lines 39-363)."""
+class TestPrometheusSendMessage:
+    """Cover sendMessage and streamMessage in agent.py."""
 
-    @patch("main.app.prometheus.generation.Config")
-    @patch("main.app.prometheus.generation.genai")
-    def _make_generator(self, mock_genai, mock_config, debug=True):
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "test-key"}
-        mock_config.DEBUG_MODE = debug
-        from main.app.prometheus.generation import PrometheusGenerator
-
-        return PrometheusGenerator()
-
-    @patch("main.app.prometheus.generation.getSession")
-    @patch("main.app.prometheus.generation.Config")
-    @patch("main.app.prometheus.generation.genai")
-    def test_execute_workflow_basic_no_history(self, mock_genai, mock_config, mock_getSession):
-        """Stage 1 + Stage 2 + Stage 3, no history, no sessionId."""
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
+    @pytest.mark.anyio
+    @patch("main.app.prometheus.agent.PrometheusChatManager")
+    @patch("main.app.prometheus.agent.Config")
+    @patch("main.app.prometheus.agent.genai")
+    @patch("main.app.prometheus.agent.Client")
+    async def test_send_message_basic(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
+        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
         mock_config.DEBUG_MODE = True
-        mock_config.STOCKS_API = {"KEY": "", "KEY_SYSTEM": False, "HOST": "localhost", "PORT": 3200}
+        mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
         mock_client = MagicMock()
         mock_genai.Client.return_value = mock_client
+        mock_chat.getHistory.return_value = []
 
-        # Stage 1 response: single ticker request
-        stage1_resp = MagicMock()
-        stage1_resp.text = json.dumps(
-            [
-                {
-                    "search": "PETR4",
-                    "fields": "P/L",
-                    "type": "fundamental",
-                    "date_start": "2026-03-23",
-                    "date_end": "2026-03-23",
-                }
-            ]
-        )
+        # Make MCP Client() behave as async context manager
+        from contextlib import asynccontextmanager
 
-        # Stage 3 response
-        stage3_resp = MagicMock()
-        stage3_resp.text = "Final analysis of PETR4"
+        mock_chat_session = AsyncMock()
+        mock_chat_session.send_message = AsyncMock()
+        mock_chat_session.send_message.return_value = MagicMock(text="Hello from Gemini")
+        mock_client.aio.chats.create.return_value = mock_chat_session
 
-        mock_client.models.generate_content.side_effect = [stage1_resp, stage3_resp]
+        @asynccontextmanager
+        async def fake_chat_session(history):
+            yield mock_chat_session
 
-        # HTTP response for stock data
-        mock_http_resp = MagicMock()
-        mock_http_resp.status_code = 200
-        mock_http_resp.json.return_value = {"data": [{"P/L": 8.5, "TICKER": "PETR4"}]}
-        mock_getSession.return_value.get.return_value = mock_http_resp
+        mock_instance = MagicMock()
+        mock_instance.chatSession = fake_chat_session
+        # We patch Prometheus.__init__ to avoid real MCP Client setup
+        mock_genai.Client.return_value = mock_client
 
-        from main.app.prometheus.generation import PrometheusGenerator
+        from main.app.prometheus.agent import Prometheus
 
-        gen = PrometheusGenerator()
+        gen = Prometheus()
+        gen.chatSession = fake_chat_session
 
-        result = gen.executeWorkflow("Qual o P/L de PETR4?")
-        assert result == "Final analysis of PETR4"
+        db = MagicMock()
+        result = await gen.sendMessage(query="Qual o P/L de PETR4?", sessionId="sess-1", db=db)
+        assert result == "Hello from Gemini"
+        mock_chat.saveMessage.assert_any_call(db, "sess-1", "user", "Qual o P/L de PETR4?")
+        mock_chat.saveMessage.assert_any_call(db, "sess-1", "assistant", "Hello from Gemini")
 
-    @patch("main.app.prometheus.generation.getSession")
-    @patch("main.app.prometheus.generation.Config")
-    @patch("main.app.prometheus.generation.genai")
-    def test_execute_workflow_with_history(self, mock_genai, mock_config, mock_getSession):
-        """Test history formatting (lines 48-49, 159-162)."""
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
+    @pytest.mark.anyio
+    @patch("main.app.prometheus.agent.PrometheusChatManager")
+    @patch("main.app.prometheus.agent.Config")
+    @patch("main.app.prometheus.agent.genai")
+    @patch("main.app.prometheus.agent.Client")
+    async def test_send_message_saves_user_message_on_error(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
+        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
         mock_config.DEBUG_MODE = True
-        mock_config.STOCKS_API = {"KEY": "", "KEY_SYSTEM": False, "HOST": "localhost", "PORT": 3200}
+        mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
         mock_client = MagicMock()
         mock_genai.Client.return_value = mock_client
+        mock_chat.getHistory.return_value = []
 
-        stage1_resp = MagicMock()
-        stage1_resp.text = "[]"
-        stage3_resp = MagicMock()
-        stage3_resp.text = "No data found"
-        mock_client.models.generate_content.side_effect = [stage1_resp, stage3_resp]
+        from contextlib import asynccontextmanager
 
-        from main.app.prometheus.generation import PrometheusGenerator
+        @asynccontextmanager
+        async def failing_chat_session(history):
+            mock_session = AsyncMock()
+            mock_session.send_message = AsyncMock(side_effect=Exception("API error"))
+            yield mock_session
 
-        gen = PrometheusGenerator()
+        from main.app.prometheus.agent import Prometheus
 
-        history = [{"role": "user", "parts": [{"text": "hello"}]}] * 25  # More than 20
-        result = gen.executeWorkflow("oi", history=history)
-        assert result == "No data found"
+        gen = Prometheus()
+        gen.chatSession = failing_chat_session
 
-    @patch("main.app.prometheus.generation.getSession")
-    @patch("main.app.prometheus.generation.Config")
-    @patch("main.app.prometheus.generation.genai")
-    @patch("main.app.prometheus.generation.PrometheusSession")
-    def test_execute_workflow_with_session_summary(self, mock_session_model, mock_genai, mock_config, mock_getSession):
-        """Stage 0: sessionId+db summary loading (lines 55-62)."""
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
+        db = MagicMock()
+        with pytest.raises(Exception, match="API error"):
+            await gen.sendMessage(query="test", sessionId="sess-2", db=db)
+        # finally block still saves user message even when send_message raises
+        mock_chat.saveMessage.assert_called_with(db, "sess-2", "user", "test")
+
+    @pytest.mark.anyio
+    @patch("main.app.prometheus.agent.PrometheusChatManager")
+    @patch("main.app.prometheus.agent.Config")
+    @patch("main.app.prometheus.agent.genai")
+    @patch("main.app.prometheus.agent.Client")
+    async def test_send_message_with_history(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
+        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
         mock_config.DEBUG_MODE = True
-        mock_config.STOCKS_API = {"KEY": "", "KEY_SYSTEM": False, "HOST": "localhost", "PORT": 3200}
+        mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
         mock_client = MagicMock()
         mock_genai.Client.return_value = mock_client
+        mock_chat.getHistory.return_value = [{"role": "user", "parts": [{"text": "prev"}]}]
 
-        stage1_resp = MagicMock()
-        stage1_resp.text = "[]"
-        stage3_resp = MagicMock()
-        stage3_resp.text = "Response"
-        mock_client.models.generate_content.side_effect = [stage1_resp, stage3_resp]
+        from contextlib import asynccontextmanager
 
-        # Mock DB session
-        mock_db = MagicMock()
-        mock_session = MagicMock()
-        mock_session.summary = "Previous discussion about PETR4"
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_session
+        mock_chat_session = AsyncMock()
+        mock_chat_session.send_message = AsyncMock()
+        mock_chat_session.send_message.return_value = MagicMock(text="Reply with history")
 
-        from main.app.prometheus.generation import PrometheusGenerator
+        @asynccontextmanager
+        async def fake_chat_session(history):
+            yield mock_chat_session
 
-        gen = PrometheusGenerator()
-        result = gen.executeWorkflow("oi", sessionId="sess-123", db=mock_db)
-        assert result == "Response"
+        from main.app.prometheus.agent import Prometheus
 
-    @patch("main.app.prometheus.generation.getSession")
-    @patch("main.app.prometheus.generation.Config")
-    @patch("main.app.prometheus.generation.genai")
-    @patch("main.app.prometheus.generation.PrometheusSession")
-    def test_execute_workflow_session_db_exception(self, mock_session_model, mock_genai, mock_config, mock_getSession):
-        """Stage 0: exception loading session (line 62)."""
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
-        mock_config.DEBUG_MODE = True
-        mock_config.STOCKS_API = {"KEY": "", "KEY_SYSTEM": False, "HOST": "localhost", "PORT": 3200}
+        gen = Prometheus()
+        gen.chatSession = fake_chat_session
 
-        mock_client = MagicMock()
-        mock_genai.Client.return_value = mock_client
-
-        stage1_resp = MagicMock()
-        stage1_resp.text = "[]"
-        stage3_resp = MagicMock()
-        stage3_resp.text = "Response"
-        mock_client.models.generate_content.side_effect = [stage1_resp, stage3_resp]
-
-        mock_db = MagicMock()
-        mock_db.query.side_effect = Exception("DB error")
-
-        from main.app.prometheus.generation import PrometheusGenerator
-
-        gen = PrometheusGenerator()
-        result = gen.executeWorkflow("oi", sessionId="sess-123", db=mock_db)
-        assert result == "Response"
-
-    @patch("main.app.prometheus.generation.getSession")
-    @patch("main.app.prometheus.generation.Config")
-    @patch("main.app.prometheus.generation.genai")
-    def test_execute_workflow_global_request_with_api_key(self, mock_genai, mock_config, mock_getSession):
-        """Global request resolution with KEY_SYSTEM=True (lines 180-209)."""
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
-        mock_config.DEBUG_MODE = True
-        mock_config.STOCKS_API = {"KEY": "secret123", "KEY_SYSTEM": True, "HOST": "localhost", "PORT": 3200}
-
-        mock_client = MagicMock()
-        mock_genai.Client.return_value = mock_client
-
-        # Stage 1: global request (empty search, fundamental type)
-        stage1_resp = MagicMock()
-        stage1_resp.text = json.dumps(
-            [
-                {
-                    "search": "",
-                    "fields": "INVESTING SCORE",
-                    "type": "fundamental",
-                    "date_start": "2026-03-23",
-                    "date_end": "2026-03-23",
-                    "order_by": "INVESTING SCORE",
-                    "limit": 10,
-                }
-            ]
-        )
-        stage3_resp = MagicMock()
-        stage3_resp.text = "Global analysis"
-        mock_client.models.generate_content.side_effect = [stage1_resp, stage3_resp]
-
-        # Global tickers API response
-        mock_global_resp = MagicMock()
-        mock_global_resp.status_code = 200
-        mock_global_resp.json.return_value = {"data": [{"TICKER": "PETR4"}, {"TICKER": "VALE3"}]}
-
-        # Stock data response
-        mock_stock_resp = MagicMock()
-        mock_stock_resp.status_code = 200
-        mock_stock_resp.json.return_value = {"data": [{"INVESTING SCORE": 9.0}]}
-
-        mock_getSession.return_value.get.side_effect = [mock_global_resp, mock_stock_resp]
-
-        from main.app.prometheus.generation import PrometheusGenerator
-
-        gen = PrometheusGenerator()
-        result = gen.executeWorkflow("Melhores ações")
-        assert result == "Global analysis"
-
-    @patch("main.app.prometheus.generation.getSession")
-    @patch("main.app.prometheus.generation.Config")
-    @patch("main.app.prometheus.generation.genai")
-    def test_execute_workflow_global_request_api_error(self, mock_genai, mock_config, mock_getSession):
-        """Global request API error (lines 208-209)."""
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
-        mock_config.DEBUG_MODE = True
-        mock_config.STOCKS_API = {"KEY": "", "KEY_SYSTEM": False, "HOST": "localhost", "PORT": 3200}
-
-        mock_client = MagicMock()
-        mock_genai.Client.return_value = mock_client
-
-        stage1_resp = MagicMock()
-        stage1_resp.text = json.dumps(
-            [
-                {
-                    "search": "",
-                    "fields": "INVESTING SCORE",
-                    "type": "fundamental",
-                    "date_start": "2026-03-23",
-                    "date_end": "2026-03-23",
-                    "order_by": "INVESTING SCORE",
-                    "limit": 10,
-                }
-            ]
-        )
-        stage3_resp = MagicMock()
-        stage3_resp.text = "Fallback analysis"
-        mock_client.models.generate_content.side_effect = [stage1_resp, stage3_resp]
-
-        mock_getSession.return_value.get.side_effect = Exception("Connection refused")
-
-        from main.app.prometheus.generation import PrometheusGenerator
-
-        gen = PrometheusGenerator()
-        result = gen.executeWorkflow("Melhores ações")
-        assert result == "Fallback analysis"
-
-    @patch("main.app.prometheus.generation.getSession")
-    @patch("main.app.prometheus.generation.Config")
-    @patch("main.app.prometheus.generation.genai")
-    def test_fetch_stock_data_exception(self, mock_genai, mock_config, mock_getSession):
-        """fetchStockData exception path (lines 223-225)."""
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
-        mock_config.DEBUG_MODE = True
-        mock_config.STOCKS_API = {"KEY": "", "KEY_SYSTEM": False, "HOST": "localhost", "PORT": 3200}
-
-        mock_client = MagicMock()
-        mock_genai.Client.return_value = mock_client
-
-        stage1_resp = MagicMock()
-        stage1_resp.text = json.dumps(
-            [
-                {
-                    "search": "PETR4",
-                    "fields": "P/L",
-                    "type": "fundamental",
-                    "date_start": "2026-03-23",
-                    "date_end": "2026-03-23",
-                }
-            ]
-        )
-        stage3_resp = MagicMock()
-        stage3_resp.text = "Response after error"
-        mock_client.models.generate_content.side_effect = [stage1_resp, stage3_resp]
-
-        mock_getSession.return_value.get.side_effect = Exception("Timeout")
-
-        from main.app.prometheus.generation import PrometheusGenerator
-
-        gen = PrometheusGenerator()
-        result = gen.executeWorkflow("P/L de PETR4")
-        assert result == "Response after error"
-
-    @patch("main.app.prometheus.generation.getSession")
-    @patch("main.app.prometheus.generation.Config")
-    @patch("main.app.prometheus.generation.genai")
-    def test_fetch_stock_data_non_200(self, mock_genai, mock_config, mock_getSession):
-        """fetchStockData non-200 status (line 222)."""
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
-        mock_config.DEBUG_MODE = True
-        mock_config.STOCKS_API = {"KEY": "", "KEY_SYSTEM": False, "HOST": "localhost", "PORT": 3200}
-
-        mock_client = MagicMock()
-        mock_genai.Client.return_value = mock_client
-
-        stage1_resp = MagicMock()
-        stage1_resp.text = json.dumps(
-            [
-                {
-                    "search": "PETR4",
-                    "fields": "P/L",
-                    "type": "fundamental",
-                    "date_start": "2026-03-23",
-                    "date_end": "2026-03-23",
-                }
-            ]
-        )
-        stage3_resp = MagicMock()
-        stage3_resp.text = "Response"
-        mock_client.models.generate_content.side_effect = [stage1_resp, stage3_resp]
-
-        mock_resp = MagicMock()
-        mock_resp.status_code = 500
-        mock_getSession.return_value.get.return_value = mock_resp
-
-        from main.app.prometheus.generation import PrometheusGenerator
-
-        gen = PrometheusGenerator()
-        result = gen.executeWorkflow("P/L de PETR4")
-        assert result == "Response"
-
-    @patch("main.app.prometheus.generation.PrometheusChatManager")
-    @patch("main.app.prometheus.generation.getSession")
-    @patch("main.app.prometheus.generation.Config")
-    @patch("main.app.prometheus.generation.genai")
-    def test_execute_workflow_stage4_summary_update(self, mock_genai, mock_config, mock_getSession, mock_chat):
-        """Stage 4: summary update when len(history) % 10 == 0 (lines 325-363)."""
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
-        mock_config.DEBUG_MODE = True
-        mock_config.STOCKS_API = {"KEY": "", "KEY_SYSTEM": False, "HOST": "localhost", "PORT": 3200}
-
-        mock_client = MagicMock()
-        mock_genai.Client.return_value = mock_client
-
-        stage1_resp = MagicMock()
-        stage1_resp.text = "[]"
-        stage3_resp = MagicMock()
-        stage3_resp.text = "Response"
-        stage4_resp = MagicMock()
-        stage4_resp.text = "Summary headline"
-        mock_client.models.generate_content.side_effect = [stage1_resp, stage3_resp, stage4_resp]
-
-        from main.app.prometheus.generation import PrometheusGenerator
-
-        gen = PrometheusGenerator()
-
-        # History with exactly 10 messages to trigger Stage 4
-        history = [{"role": "user", "parts": [{"text": f"msg{i}"}]} for i in range(10)]
-        result = gen.executeWorkflow("oi", history=history, sessionId="sess-123", db=MagicMock())
-
-        assert result == "Response"
-        mock_chat.updateSummary.assert_called_once()
-        mock_chat.updateSessionTitle.assert_called_once()
-
-    @patch("main.app.prometheus.generation.getSession")
-    @patch("main.app.prometheus.generation.Config")
-    @patch("main.app.prometheus.generation.genai")
-    def test_execute_workflow_global_request_status_not_200(self, mock_genai, mock_config, mock_getSession):
-        """Global request with non-200 status (line 201-203 skipped)."""
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key"}
-        mock_config.DEBUG_MODE = True
-        mock_config.STOCKS_API = {"KEY": "", "KEY_SYSTEM": False, "HOST": "localhost", "PORT": 3200}
-
-        mock_client = MagicMock()
-        mock_genai.Client.return_value = mock_client
-
-        stage1_resp = MagicMock()
-        stage1_resp.text = json.dumps(
-            [
-                {
-                    "search": "",
-                    "fields": "INVESTING SCORE",
-                    "type": "fundamental",
-                    "date_start": "2026-03-23",
-                    "date_end": "2026-03-23",
-                    "order_by": "INVESTING SCORE",
-                    "limit": 10,
-                }
-            ]
-        )
-        stage3_resp = MagicMock()
-        stage3_resp.text = "Analysis"
-        mock_client.models.generate_content.side_effect = [stage1_resp, stage3_resp]
-
-        mock_global_resp = MagicMock()
-        mock_global_resp.status_code = 403  # Not 200
-        mock_getSession.return_value.get.return_value = mock_global_resp
-
-        from main.app.prometheus.generation import PrometheusGenerator
-
-        gen = PrometheusGenerator()
-        result = gen.executeWorkflow("Melhores ações")
-        assert result == "Analysis"
+        result = await gen.sendMessage(query="next", sessionId="sess-3", db=MagicMock())
+        assert result == "Reply with history"
 
 
 # ---------------------------------------------------------------------------
