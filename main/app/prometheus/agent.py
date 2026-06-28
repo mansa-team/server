@@ -1,12 +1,14 @@
+from config import Config
 import logging
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 
-import google.genai._mcp_utils as _mcp
 from fastmcp import Client
 from google import genai
 from google.genai import types
+import google.genai._mcp_utils as _mcp
 
-from config import Config
 from main.app.prometheus.chat import PrometheusChatManager
 
 _original_filter = _mcp._filter_to_supported_schema
@@ -41,10 +43,11 @@ class Prometheus:
             self.currentYear = now.year
             self.lastYear = self.currentYear - 1
 
-    async def sendMessage(self, query: str | None = None, sessionId: str | None = None, db=None):
-        logger.info(f"Query: {query}")
-
-        history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
+    @asynccontextmanager
+    async def chatSession(self, history):
+        systemPrompt = """
+        You're a investments assistant.
+        """
 
         stocks = Client(f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/mcp")
         searxng = Client(f"http://{Config.PROMETHEUS['SEARXNG_HOST']}:{Config.PROMETHEUS['SEARXNG_PORT']}/mcp/")
@@ -53,17 +56,40 @@ class Prometheus:
             for s in [stocks.session, searxng.session]:
                 type(s).__deepcopy__ = lambda self, memo=None: self  # type: ignore[attr-defined]
 
-            chat = self.client.aio.chats.create(
+            yield self.client.aio.chats.create(
                 model="gemini-flash-lite-latest",
                 history=history,
                 config=types.GenerateContentConfig(
+                    system_instruction=systemPrompt,
                     tools=[stocks.session, searxng.session],
                     temperature=0.5,
                 ),
             )
+
+    async def sendMessage(self, query: str | None = None, sessionId: str | None = None, db=None):
+        logger.info(f"Query: {query}")
+        history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
+
+        async with self.chatSession(history) as chat:
             response = await chat.send_message(query)
 
         PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
         PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", response.text)
 
         return response.text
+
+    async def streamMessage(
+        self, query: str | None = None, sessionId: str | None = None, db=None
+    ) -> AsyncIterator[dict]:
+        logger.info(f"Stream query: {query}")
+        history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
+
+        full_text = ""
+        async with self.chatSession(history) as chat:
+            async for chunk in await chat.send_message_stream(query):
+                if hasattr(chunk, "text") and chunk.text:
+                    full_text += chunk.text
+                    yield {"type": "text", "text": chunk.text}
+
+        PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
+        PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", full_text)

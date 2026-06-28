@@ -1,3 +1,4 @@
+import json
 import logging
 import asyncio
 from config import getSession
@@ -8,6 +9,7 @@ from sqlalchemy.orm import Session
 from main.models.prometheus import PrometheusSession
 
 from fastapi import APIRouter, Depends, Request, HTTPException, Query
+from fastapi.responses import StreamingResponse
 import time
 
 from main.app.prometheus.agent import Prometheus
@@ -121,3 +123,29 @@ async def chat(
     response = await Prometheus().sendMessage(query, sessionId=sessionId, db=db)
 
     return {"success": True, "response": response, "sessionId": sessionId, "timestamp": str(time.time())}
+
+
+@router.post("/chat/stream")
+@limiter.limit("5/minute")
+async def chat_stream(
+    request: Request,
+    db: Session = Depends(getSession),
+    query: str = Body(..., min_length=1, max_length=10000, embed=True),
+    sessionId: str = Body(default=None, embed=True),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
+):
+    if not sessionId:
+        sessionId = PrometheusChatManager.createSession(db, user["userId"], query[:30] + "...")
+    else:
+        verifySessionOwnsership(db, sessionId, user["userId"])
+
+    async def eventStream():
+        try:
+            async for event in Prometheus().streamMessage(query, sessionId=sessionId, db=db):
+                yield f"data: {json.dumps(event)}\n\n"
+        except Exception as e:
+            logger.error(f"Stream error: {e}")
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(eventStream(), media_type="text/event-stream")
