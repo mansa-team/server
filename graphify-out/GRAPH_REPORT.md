@@ -1,16 +1,16 @@
 # Graph Report - server  (2026-06-27)
 
 ## Corpus Check
-- 83 files · ~42,599 words
+- 83 files · ~42,586 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2426 nodes · 3517 edges · 254 communities (125 shown, 129 thin omitted)
+- 2426 nodes · 3517 edges · 255 communities (126 shown, 129 thin omitted)
 - Extraction: 81% EXTRACTED · 19% INFERRED · 0% AMBIGUOUS · INFERRED: 682 edges (avg confidence: 0.68)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `f72aef73`
+- Built from commit: `b9d8b1b1`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -263,6 +263,7 @@
 - [[_COMMUNITY_Community 251|Community 251]]
 - [[_COMMUNITY_Community 252|Community 252]]
 - [[_COMMUNITY_Community 253|Community 253]]
+- [[_COMMUNITY_Community 254|Community 254]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `StocksCacheManager` - 78 edges
@@ -296,7 +297,7 @@
 - **Configuration & Database Infrastructure** — config_Config, config_engine, config_stocksEngine [INFERRED]
 - **User Authentication & Authorization** — user_service, authentication, user_roles, permission_system [INFERRED]
 
-## Communities (254 total, 129 thin omitted)
+## Communities (255 total, 129 thin omitted)
 
 ### Community 0 - "Stocks API Controller"
 Cohesion: 0.09
@@ -511,8 +512,8 @@ Cohesion: 0.1
 Nodes (3): Cover all methods in chat.py (lines 11-120)., Cover all methods in chat.py (lines 11-120)., TestPrometheusChatManager
 
 ### Community 71 - "Community 71"
-Cohesion: 0.07
-Nodes (22): Tests for connection pool configuration, Tests for connection pool configuration, Stocks engine should have optimized pool settings, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Tests for lazy JSON deserialization, Query manager should have deserialize method, Query manager should have deserialize method (+14 more)
+Cohesion: 0.11
+Nodes (15): Tests for connection pool configuration, Tests for connection pool configuration, Stocks engine should have optimized pool settings, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Tests for lazy JSON deserialization, Query manager should have deserialize method, Query manager should have deserialize method (+7 more)
 
 ### Community 72 - "Community 72"
 Cohesion: 0.16
@@ -571,8 +572,8 @@ Cohesion: 0.11
 Nodes (6): Tests for run.py /status endpoint — covers status response structure., Create a test client for the status endpoint without running lifespan., Create a test client for the status endpoint without running lifespan., statusClient(), TestScraperTrigger, TestStatusEndpoint
 
 ### Community 87 - "Community 87"
-Cohesion: 0.08
-Nodes (23): search.strip() == '' should still dedup (line 181)., search.strip() == '' should still dedup (line 181)., search.strip() == '' should still dedup (line 181)., DataFrame without TIME column., Invalid date -> inner 400 caught by outer except -> 500., DataFrame without TIME column., DataFrame without TIME column., search.strip() == '' should still dedup (line 181). (+15 more)
+Cohesion: 0.09
+Nodes (22): search.strip() == '' should still dedup (line 181)., search.strip() == '' should still dedup (line 181)., search.strip() == '' should still dedup (line 181)., DataFrame without TIME column., Invalid date -> inner 400 caught by outer except -> 500., DataFrame without TIME column., DataFrame without TIME column., search.strip() == '' should still dedup (line 181). (+14 more)
 
 ### Community 88 - "Community 88"
 Cohesion: 0.23
@@ -608,7 +609,7 @@ Nodes (22): verifyAPIKey(), Integration tests for the verifyAPIKey function., Te
 
 ### Community 133 - "Community 133"
 Cohesion: 0.07
-Nodes (25): Two dates in the range, both valid., Two dates in the range, both valid., Two dates in the range, both valid., Search with no index match falls back to string startswith., Search with no index match falls back to string startswith., search.strip() == '' should still dedup (line 181)., Search with no index match falls back to string startswith., Two dates in the range, both valid. (+17 more)
+Nodes (26): Two dates in the range, both valid., Two dates in the range, both valid., Two dates in the range, both valid., Search with no index match falls back to string startswith., Search with no index match falls back to string startswith., search.strip() == '' should still dedup (line 181)., Search with no index match falls back to string startswith., Two dates in the range, both valid. (+18 more)
 
 ### Community 134 - "Community 134"
 Cohesion: 0.13
@@ -773,6 +774,10 @@ Nodes (3): checkMySqlConnection — success, errors, engine=None paths., checkMy
 ### Community 252 - "Community 252"
 Cohesion: 0.4
 Nodes (5): Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, TestVerifyAPIKey
+
+### Community 254 - "Community 254"
+Cohesion: 0.22
+Nodes (7): Integration tests for all query optimizations, Integration tests for all query optimizations, All optimizations should be implemented, All optimizations should be implemented, Query filter should use ticker index, Query filter should use ticker index, TestQueryOptimization
 
 ## Knowledge Gaps
 - **1041 isolated node(s):** `Discover available field names before querying /historical or /fundamental.`, `Get year-based historical financial data for Brazilian B3 stocks.      Returns`, `Get point-in-time fundamental/valuation data for Brazilian B3 stocks.      Ret`, `Get 10-year daily price history (cotation) for Brazilian B3 stocks.      Retur`, `Get real-time price quotation for a single Brazilian B3 stock.      Returns th` (+1036 more)

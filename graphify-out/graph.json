@@ -11656,7 +11656,7 @@
       "label": "User structure defined by string roles:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L36",
+      "source_location": "L35",
       "id": "server_todo_user_structure_defined_by_string_roles",
       "community": 47,
       "norm_label": "user structure defined by string roles:"
@@ -11665,7 +11665,7 @@
       "label": "USER:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L45",
+      "source_location": "L44",
       "id": "server_todo_user",
       "community": 47,
       "norm_label": "user:"
@@ -11674,7 +11674,7 @@
       "label": "PREMIUM:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L48",
+      "source_location": "L47",
       "id": "server_todo_premium",
       "community": 47,
       "norm_label": "premium:"
@@ -11683,7 +11683,7 @@
       "label": "DEVELOPER:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L51",
+      "source_location": "L50",
       "id": "server_todo_developer",
       "community": 47,
       "norm_label": "developer:"
@@ -11692,7 +11692,7 @@
       "label": "STOCKS_API",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L78",
+      "source_location": "L77",
       "id": "server_todo_stocks_api",
       "community": 47,
       "norm_label": "stocks_api"
@@ -11701,7 +11701,7 @@
       "label": "Prometheus",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L81",
+      "source_location": "L80",
       "id": "server_todo_prometheus",
       "community": 47,
       "norm_label": "prometheus"
@@ -13799,7 +13799,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L905",
-      "community": 87,
+      "community": 133,
       "norm_label": "dataframe without time column.",
       "id": "tests_test_stocks_api_coverage_rationale_905"
     },
@@ -20018,7 +20018,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L135",
-      "community": 71,
+      "community": 254,
       "norm_label": "testqueryoptimization",
       "id": "tests_test_stocks_cache_testqueryoptimization"
     },
@@ -20027,7 +20027,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L138",
-      "community": 71,
+      "community": 254,
       "norm_label": ".test_all_optimizations_present()",
       "id": "tests_test_stocks_cache_testqueryoptimization_test_all_optimizations_present"
     },
@@ -20036,7 +20036,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L153",
-      "community": 71,
+      "community": 254,
       "norm_label": ".test_query_filter_uses_optimization()",
       "id": "tests_test_stocks_cache_testqueryoptimization_test_query_filter_uses_optimization"
     },
@@ -20288,7 +20288,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L136",
-      "community": 71,
+      "community": 254,
       "norm_label": "integration tests for all query optimizations",
       "id": "tests_test_stocks_cache_rationale_136"
     },
@@ -20297,7 +20297,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L139",
-      "community": 71,
+      "community": 254,
       "norm_label": "all optimizations should be implemented",
       "id": "tests_test_stocks_cache_rationale_139"
     },
@@ -20306,7 +20306,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L154",
-      "community": 71,
+      "community": 254,
       "norm_label": "query filter should use ticker index",
       "id": "tests_test_stocks_cache_rationale_154"
     },
@@ -20576,7 +20576,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L138",
-      "community": 71,
+      "community": 254,
       "norm_label": "integration tests for all query optimizations",
       "id": "tests_test_stocks_cache_rationale_138"
     },
@@ -20585,7 +20585,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L141",
-      "community": 71,
+      "community": 254,
       "norm_label": "all optimizations should be implemented",
       "id": "tests_test_stocks_cache_rationale_141"
     },
@@ -20594,7 +20594,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L156",
-      "community": 71,
+      "community": 254,
       "norm_label": "query filter should use ticker index",
       "id": "tests_test_stocks_cache_rationale_156"
     },
@@ -57909,5 +57909,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "f72aef735599bdf3dc0de825abf68127501acc4e"
+  "built_at_commit": "b9d8b1b14f04e935c00a99fcca368947e566c95d"
 }

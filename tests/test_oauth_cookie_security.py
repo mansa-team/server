@@ -1,10 +1,7 @@
-"""Tests for OAuth callback security - JWT token should NOT be in URL.
+"""Tests for OAuth callback security - JWT token should NOT be in URL query params.
 
-Security Issue: After OAuth login, JWT token was appended to URL as query parameter,
-exposing it to browser history, proxies, and server access logs.
-
-Fix: Token should be passed via HTTP-only secure cookie ONLY, not as URL parameter.
-A readable cookie is set for frontend JavaScript compatibility.
+Token goes in URL fragment (#token=...) which browsers don't send to servers.
+Cookies are set on the redirect response directly for same-origin fallback.
 """
 
 import pytest
@@ -71,8 +68,12 @@ class TestOAuthCallbackTokenNotInURL:
         client, _, _ = _make_callback_client()
         _setup_callback_mocks(mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=1)
 
+        # State IS the redirect URL directly — no encoding needed
+        redirect_url = "http://localhost:3000/dashboard"
+
         response = client.get(
-            "/auth/callback?state=http://localhost:3000/dashboard",
+            f"/auth/callback?state={redirect_url}&code=fake-code",
+            cookies={"sso_state": redirect_url},
             follow_redirects=False,
         )
 
@@ -83,13 +84,15 @@ class TestOAuthCallbackTokenNotInURL:
         # Should be a redirect
         assert response.status_code in (307, 302)
 
-        # CRITICAL: Token must NOT be in the redirect URL
-        redirect_url = response.headers.get("location", "")
-        assert "token=" not in redirect_url, f"Security violation: Token found in redirect URL: {redirect_url}"
-        assert "jwt-token-1" not in redirect_url, "JWT token value found in redirect URL"
+        # CRITICAL: Token must NOT be in the query string (server-visible).
+        # Fragment (#token=...) is safe — not sent to servers by browser.
+        location = response.headers.get("location", "")
+        query_part = location.split("#")[0] if "#" in location else location
+        assert "token=" not in query_part, f"Security violation: Token found in query string: {location}"
+        assert "jwt-token-1" not in query_part, "JWT token value found in query string"
 
-        # Should redirect to the original state URL without token parameter
-        assert redirect_url == "http://localhost:3000/dashboard"
+        # Should redirect to the original URL with token in fragment
+        assert location.startswith("http://localhost:3000/dashboard#token=")
 
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.createAccessToken")
@@ -228,8 +231,12 @@ class TestOAuthCallbackFrontendCompatibility:
             mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=6, email="frontend@test.com"
         )
 
+        # State IS the redirect URL directly — no encoding needed
+        redirect_url = "http://localhost:3000/dashboard"
+
         response = client.get(
-            "/auth/callback?state=http://localhost:3000/dashboard",
+            f"/auth/callback?state={redirect_url}&code=fake-code",
+            cookies={"sso_state": redirect_url},
             follow_redirects=False,
         )
 

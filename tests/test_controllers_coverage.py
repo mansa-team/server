@@ -475,7 +475,7 @@ class TestGoogleCallback:
     @patch("main.controller.authentication_controller.getGoogleSSO")
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_callback_with_state_redirect(self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr):
-        """Covers lines 190-195: state param triggers RedirectResponse."""
+        """Covers redirect path: sso_redirect cookie triggers RedirectResponse."""
         client, _, _ = _make_auth_client()
 
         mock_sso = AsyncMock()
@@ -495,8 +495,12 @@ class TestGoogleCallback:
         mock_session_mgr.createSession.return_value = mock_session
         mock_create_token.return_value = ("google-jwt-ghi", timedelta(hours=720))
 
+        # State IS the redirect URL directly (no encoding needed)
+        redirect_url = "http://localhost:3000/dashboard"
+
         response = client.get(
-            "/auth/callback?state=http://localhost:3000/dashboard",
+            f"/auth/callback?state={redirect_url}&code=fake-code",
+            cookies={"sso_state": redirect_url},
             follow_redirects=False,
         )
         # Should be a redirect
