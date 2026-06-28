@@ -772,51 +772,6 @@
       "norm_label": "verifysessionownership()"
     },
     {
-      "label": "generation.py",
-      "file_type": "code",
-      "source_file": "main/app/prometheus/generation.py",
-      "source_location": "L1",
-      "id": "main_app_prometheus_generation_py",
-      "community": 136,
-      "norm_label": "generation.py"
-    },
-    {
-      "label": "PrometheusGenerator",
-      "file_type": "code",
-      "source_file": "main/app/prometheus/generation.py",
-      "source_location": "L18",
-      "id": "prometheus_generation_prometheusgenerator",
-      "community": 15,
-      "norm_label": "prometheusgenerator"
-    },
-    {
-      "label": ".__init__()",
-      "file_type": "code",
-      "source_file": "main/app/prometheus/generation.py",
-      "source_location": "L19",
-      "id": "prometheus_generation_prometheusgenerator_init",
-      "community": 136,
-      "norm_label": ".__init__()"
-    },
-    {
-      "label": ".updateDates()",
-      "file_type": "code",
-      "source_file": "main/app/prometheus/generation.py",
-      "source_location": "L23",
-      "id": "prometheus_generation_prometheusgenerator_updatedates",
-      "community": 136,
-      "norm_label": ".updatedates()"
-    },
-    {
-      "label": ".executeWorkflow()",
-      "file_type": "code",
-      "source_file": "main/app/prometheus/generation.py",
-      "source_location": "L36",
-      "id": "prometheus_generation_prometheusgenerator_executeworkflow",
-      "community": 136,
-      "norm_label": ".executeworkflow()"
-    },
-    {
       "label": "scraper.py",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
@@ -4134,7 +4089,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1023",
       "id": "tests_test_controllers_coverage_testprometheuschat_test_chat_new_session",
-      "community": 172,
+      "community": 67,
       "norm_label": ".test_chat_new_session()"
     },
     {
@@ -4980,7 +4935,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1024",
       "id": "tests_test_controllers_coverage_rationale_1024",
-      "community": 172,
+      "community": 67,
       "norm_label": "covers lines 111-112: sessionid is none, new session created."
     },
     {
@@ -11935,7 +11890,7 @@
       "label": "User structure defined by string roles:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L35",
+      "source_location": "L33",
       "id": "server_todo_user_structure_defined_by_string_roles",
       "community": 47,
       "norm_label": "user structure defined by string roles:"
@@ -11944,7 +11899,7 @@
       "label": "USER:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L44",
+      "source_location": "L42",
       "id": "server_todo_user",
       "community": 47,
       "norm_label": "user:"
@@ -11953,7 +11908,7 @@
       "label": "PREMIUM:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L47",
+      "source_location": "L45",
       "id": "server_todo_premium",
       "community": 47,
       "norm_label": "premium:"
@@ -11962,7 +11917,7 @@
       "label": "DEVELOPER:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L50",
+      "source_location": "L48",
       "id": "server_todo_developer",
       "community": 47,
       "norm_label": "developer:"
@@ -11971,7 +11926,7 @@
       "label": "STOCKS_API",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L77",
+      "source_location": "L75",
       "id": "server_todo_stocks_api",
       "community": 47,
       "norm_label": "stocks_api"
@@ -11980,7 +11935,7 @@
       "label": "Prometheus",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L80",
+      "source_location": "L78",
       "id": "server_todo_prometheus",
       "community": 47,
       "norm_label": "prometheus"
@@ -12931,6 +12886,51 @@
       "norm_label": "license"
     },
     {
+      "label": "generation.py",
+      "file_type": "code",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": "L1",
+      "community": 136,
+      "norm_label": "generation.py",
+      "id": "main_app_prometheus_generation_py"
+    },
+    {
+      "label": "PrometheusGenerator",
+      "file_type": "code",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": "L18",
+      "community": 15,
+      "norm_label": "prometheusgenerator",
+      "id": "prometheus_generation_prometheusgenerator"
+    },
+    {
+      "label": ".__init__()",
+      "file_type": "code",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": "L19",
+      "community": 136,
+      "norm_label": ".__init__()",
+      "id": "prometheus_generation_prometheusgenerator_init"
+    },
+    {
+      "label": ".updateDates()",
+      "file_type": "code",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": "L23",
+      "community": 136,
+      "norm_label": ".updatedates()",
+      "id": "prometheus_generation_prometheusgenerator_updatedates"
+    },
+    {
+      "label": ".executeWorkflow()",
+      "file_type": "code",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": "L36",
+      "community": 136,
+      "norm_label": ".executeworkflow()",
+      "id": "prometheus_generation_prometheusgenerator_executeworkflow"
+    },
+    {
       "label": "Get year-based historical financial data for Brazilian B3 stocks.      Returns",
       "file_type": "rationale",
       "source_file": "main/controller/stocksapi_controller.py",
@@ -13295,7 +13295,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1020",
-      "community": 172,
+      "community": 67,
       "norm_label": "covers lines 111-112: sessionid is none, new session created.",
       "id": "tests_test_controllers_coverage_rationale_1020"
     },
@@ -13934,7 +13934,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1018",
-      "community": 172,
+      "community": 67,
       "norm_label": "covers lines 111-112: sessionid is none, new session created.",
       "id": "tests_test_controllers_coverage_rationale_1018"
     },
@@ -17453,7 +17453,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1063",
-      "community": 172,
+      "community": 67,
       "norm_label": "covers lines 111-112: sessionid is none, new session created.",
       "id": "tests_test_controllers_coverage_rationale_1063"
     },
@@ -23268,16 +23268,6 @@
     {
       "relation": "uses",
       "confidence": "INFERRED",
-      "source_file": "main/app/prometheus/generation.py",
-      "source_location": "L2",
-      "weight": 0.8,
-      "confidence_score": 0.5,
-      "source": "prometheus_generation_prometheusgenerator",
-      "target": "server_config_config"
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L2",
       "weight": 0.8,
@@ -23333,6 +23323,16 @@
       "weight": 0.8,
       "confidence_score": 0.5,
       "source": "tests_test_config_testconfig",
+      "target": "server_config_config"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": "L2",
+      "weight": 0.8,
+      "confidence_score": 0.5,
+      "source": "prometheus_generation_prometheusgenerator",
       "target": "server_config_config"
     },
     {
@@ -25304,16 +25304,6 @@
     {
       "relation": "uses",
       "confidence": "INFERRED",
-      "source_file": "main/app/prometheus/generation.py",
-      "source_location": "L14",
-      "weight": 0.8,
-      "confidence_score": 0.5,
-      "source": "prometheus_generation_prometheusgenerator",
-      "target": "prometheus_chat_prometheuschatmanager"
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
       "source_file": "tests/test_prometheus_auth_coverage.py",
       "source_location": "L650",
       "weight": 0.8,
@@ -25383,6 +25373,16 @@
       "target": "prometheus_chat_prometheuschatmanager"
     },
     {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": "L14",
+      "weight": 0.8,
+      "confidence_score": 0.5,
+      "source": "prometheus_generation_prometheusgenerator",
+      "target": "prometheus_chat_prometheuschatmanager"
+    },
+    {
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "main/app/prometheus/chat.py",
@@ -25412,302 +25412,6 @@
       "weight": 1.0,
       "source": "prometheus_chat_createsession",
       "target": "models_prometheus_prometheussession"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/prometheus/generation.py",
-      "source_location": "L20",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "main_app_prometheus_generation_py",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/prometheus/generation.py",
-      "source_location": "L19",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "main_app_prometheus_generation_py",
-      "target": "prometheus_generation_sessionproxy"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/prometheus/generation.py",
-      "source_location": "L21",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "prometheus_generation_prometheusgenerator",
-      "target": "prometheus_generation_prometheusgenerator_init"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/prometheus/generation.py",
-      "source_location": "L25",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "prometheus_generation_prometheusgenerator",
-      "target": "prometheus_generation_prometheusgenerator_updatedates"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/prometheus/generation.py",
-      "source_location": "L38",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "prometheus_generation_prometheusgenerator",
-      "target": "prometheus_generation_prometheusgenerator_executeworkflow"
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "main/app/prometheus/generation.py",
-      "source_location": "L13",
-      "weight": 0.8,
-      "confidence_score": 0.5,
-      "source": "prometheus_generation_prometheusgenerator",
-      "target": "models_prometheus_prometheussession"
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L428",
-      "weight": 0.8,
-      "confidence_score": 0.5,
-      "source": "tests_test_prometheus_auth_coverage_testprometheusgeneratorinit",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L428",
-      "weight": 0.8,
-      "confidence_score": 0.5,
-      "source": "tests_test_prometheus_auth_coverage_testprometheusgeneratorexecuteworkflow",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L428",
-      "weight": 0.8,
-      "confidence_score": 0.5,
-      "source": "tests_test_prometheus_auth_coverage_testprometheuschatmanager",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L428",
-      "weight": 0.8,
-      "confidence_score": 0.5,
-      "source": "tests_test_prometheus_auth_coverage_testauthenticationmanager",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L428",
-      "weight": 0.8,
-      "confidence_score": 0.5,
-      "source": "tests_test_prometheus_auth_coverage_testsessionmanager",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "uses",
-      "confidence": "INFERRED",
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L428",
-      "weight": 0.8,
-      "confidence_score": 0.5,
-      "source": "tests_test_prometheus_auth_coverage_testsso",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L38",
-      "weight": 1.0,
-      "source": "tests_test_prometheus_auth_coverage_test_init_creates_client_and_updates_dates_debug",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L53",
-      "weight": 1.0,
-      "source": "tests_test_prometheus_auth_coverage_test_init_creates_client_and_updates_dates_prod",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L68",
-      "weight": 1.0,
-      "source": "tests_test_prometheus_auth_coverage_make_generator",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L110",
-      "weight": 1.0,
-      "source": "tests_test_prometheus_auth_coverage_test_execute_workflow_basic_no_history",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L135",
-      "weight": 1.0,
-      "source": "tests_test_prometheus_auth_coverage_test_execute_workflow_with_history",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L168",
-      "weight": 1.0,
-      "source": "tests_test_prometheus_auth_coverage_test_execute_workflow_with_session_summary",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L196",
-      "weight": 1.0,
-      "source": "tests_test_prometheus_auth_coverage_test_execute_workflow_session_db_exception",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L245",
-      "weight": 1.0,
-      "source": "tests_test_prometheus_auth_coverage_test_execute_workflow_global_request_with_api_key",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L283",
-      "weight": 1.0,
-      "source": "tests_test_prometheus_auth_coverage_test_execute_workflow_global_request_api_error",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L319",
-      "weight": 1.0,
-      "source": "tests_test_prometheus_auth_coverage_test_fetch_stock_data_exception",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L357",
-      "weight": 1.0,
-      "source": "tests_test_prometheus_auth_coverage_test_fetch_stock_data_non_200",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L384",
-      "weight": 1.0,
-      "source": "tests_test_prometheus_auth_coverage_test_execute_workflow_stage4_summary_update",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "tests/test_prometheus_auth_coverage.py",
-      "source_location": "L430",
-      "weight": 1.0,
-      "source": "tests_test_prometheus_auth_coverage_test_execute_workflow_global_request_status_not_200",
-      "target": "prometheus_generation_prometheusgenerator"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/prometheus/generation.py",
-      "source_location": "L23",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "prometheus_generation_prometheusgenerator_init",
-      "target": "prometheus_generation_prometheusgenerator_updatedates"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/prometheus/generation.py",
-      "source_location": "L39",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "prometheus_generation_prometheusgenerator_executeworkflow",
-      "target": "prometheus_generation_prometheusgenerator_updatedates"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/prometheus/generation.py",
-      "source_location": "L194",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "prometheus_generation_prometheusgenerator_executeworkflow",
-      "target": "prometheus_generation_sessionproxy_get"
     },
     {
       "relation": "contains",
@@ -29862,6 +29566,16 @@
       "source_location": "L177",
       "weight": 1.0,
       "source": "tests_test_models_testprometheussessionmodel_test_default_history",
+      "target": "models_prometheus_prometheussession"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": "L13",
+      "weight": 0.8,
+      "confidence_score": 0.5,
+      "source": "prometheus_generation_prometheusgenerator",
       "target": "models_prometheus_prometheussession"
     },
     {
@@ -41814,6 +41528,16 @@
       "target": "tests_test_prometheus_auth_coverage_testprometheusgeneratorinit"
     },
     {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L428",
+      "weight": 0.8,
+      "confidence_score": 0.5,
+      "source": "tests_test_prometheus_auth_coverage_testprometheusgeneratorinit",
+      "target": "prometheus_generation_prometheusgenerator"
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_prometheus_auth_coverage.py",
@@ -41822,6 +41546,28 @@
       "confidence_score": 1.0,
       "source": "tests_test_prometheus_auth_coverage_rationale_28",
       "target": "tests_test_prometheus_auth_coverage_testprometheusgeneratorinit"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "tests_test_prometheus_auth_coverage_test_init_creates_client_and_updates_dates_debug",
+      "target": "prometheus_generation_prometheusgenerator"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L53",
+      "weight": 1.0,
+      "source": "tests_test_prometheus_auth_coverage_test_init_creates_client_and_updates_dates_prod",
+      "target": "prometheus_generation_prometheusgenerator"
     },
     {
       "relation": "rationale_for",
@@ -41834,6 +41580,16 @@
       "target": "tests_test_prometheus_auth_coverage_testprometheusgeneratorexecuteworkflow"
     },
     {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L428",
+      "weight": 0.8,
+      "confidence_score": 0.5,
+      "source": "tests_test_prometheus_auth_coverage_testprometheusgeneratorexecuteworkflow",
+      "target": "prometheus_generation_prometheusgenerator"
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_prometheus_auth_coverage.py",
@@ -41842,6 +41598,127 @@
       "confidence_score": 1.0,
       "source": "tests_test_prometheus_auth_coverage_rationale_59",
       "target": "tests_test_prometheus_auth_coverage_testprometheusgeneratorexecuteworkflow"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L68",
+      "weight": 1.0,
+      "source": "tests_test_prometheus_auth_coverage_make_generator",
+      "target": "prometheus_generation_prometheusgenerator"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L110",
+      "weight": 1.0,
+      "source": "tests_test_prometheus_auth_coverage_test_execute_workflow_basic_no_history",
+      "target": "prometheus_generation_prometheusgenerator"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L135",
+      "weight": 1.0,
+      "source": "tests_test_prometheus_auth_coverage_test_execute_workflow_with_history",
+      "target": "prometheus_generation_prometheusgenerator"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L168",
+      "weight": 1.0,
+      "source": "tests_test_prometheus_auth_coverage_test_execute_workflow_with_session_summary",
+      "target": "prometheus_generation_prometheusgenerator"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L196",
+      "weight": 1.0,
+      "source": "tests_test_prometheus_auth_coverage_test_execute_workflow_session_db_exception",
+      "target": "prometheus_generation_prometheusgenerator"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L245",
+      "weight": 1.0,
+      "source": "tests_test_prometheus_auth_coverage_test_execute_workflow_global_request_with_api_key",
+      "target": "prometheus_generation_prometheusgenerator"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L283",
+      "weight": 1.0,
+      "source": "tests_test_prometheus_auth_coverage_test_execute_workflow_global_request_api_error",
+      "target": "prometheus_generation_prometheusgenerator"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L319",
+      "weight": 1.0,
+      "source": "tests_test_prometheus_auth_coverage_test_fetch_stock_data_exception",
+      "target": "prometheus_generation_prometheusgenerator"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L357",
+      "weight": 1.0,
+      "source": "tests_test_prometheus_auth_coverage_test_fetch_stock_data_non_200",
+      "target": "prometheus_generation_prometheusgenerator"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L384",
+      "weight": 1.0,
+      "source": "tests_test_prometheus_auth_coverage_test_execute_workflow_stage4_summary_update",
+      "target": "prometheus_generation_prometheusgenerator"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L430",
+      "weight": 1.0,
+      "source": "tests_test_prometheus_auth_coverage_test_execute_workflow_global_request_status_not_200",
+      "target": "prometheus_generation_prometheusgenerator"
     },
     {
       "relation": "method",
@@ -42034,6 +41911,16 @@
       "target": "tests_test_prometheus_auth_coverage_testprometheuschatmanager"
     },
     {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L428",
+      "weight": 0.8,
+      "confidence_score": 0.5,
+      "source": "tests_test_prometheus_auth_coverage_testprometheuschatmanager",
+      "target": "prometheus_generation_prometheusgenerator"
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_prometheus_auth_coverage.py",
@@ -42152,6 +42039,16 @@
       "confidence_score": 1.0,
       "source": "tests_test_prometheus_auth_coverage_rationale_664",
       "target": "tests_test_prometheus_auth_coverage_testauthenticationmanager"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L428",
+      "weight": 0.8,
+      "confidence_score": 0.5,
+      "source": "tests_test_prometheus_auth_coverage_testauthenticationmanager",
+      "target": "prometheus_generation_prometheusgenerator"
     },
     {
       "relation": "rationale_for",
@@ -42344,6 +42241,16 @@
       "target": "tests_test_prometheus_auth_coverage_testsessionmanager"
     },
     {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L428",
+      "weight": 0.8,
+      "confidence_score": 0.5,
+      "source": "tests_test_prometheus_auth_coverage_testsessionmanager",
+      "target": "prometheus_generation_prometheusgenerator"
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_prometheus_auth_coverage.py",
@@ -42402,6 +42309,16 @@
       "confidence_score": 1.0,
       "source": "tests_test_prometheus_auth_coverage_rationale_1109",
       "target": "tests_test_prometheus_auth_coverage_testsso"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "tests/test_prometheus_auth_coverage.py",
+      "source_location": "L428",
+      "weight": 0.8,
+      "confidence_score": 0.5,
+      "source": "tests_test_prometheus_auth_coverage_testsso",
+      "target": "prometheus_generation_prometheusgenerator"
     },
     {
       "relation": "rationale_for",
@@ -54739,6 +54656,89 @@
       "target": "docs_user_codeblock_16"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": "L20",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "main_app_prometheus_generation_py",
+      "target": "prometheus_generation_prometheusgenerator"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": "L19",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "main_app_prometheus_generation_py",
+      "target": "prometheus_generation_sessionproxy"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_generation_prometheusgenerator",
+      "target": "prometheus_generation_prometheusgenerator_init"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_generation_prometheusgenerator",
+      "target": "prometheus_generation_prometheusgenerator_updatedates"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": "L38",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_generation_prometheusgenerator",
+      "target": "prometheus_generation_prometheusgenerator_executeworkflow"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": "L23",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_generation_prometheusgenerator_init",
+      "target": "prometheus_generation_prometheusgenerator_updatedates"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": "L39",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_generation_prometheusgenerator_executeworkflow",
+      "target": "prometheus_generation_prometheusgenerator_updatedates"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/generation.py",
+      "source_location": "L194",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_generation_prometheusgenerator_executeworkflow",
+      "target": "prometheus_generation_sessionproxy_get"
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -60038,5 +60038,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "ca262fc1873f2cbdd0effc135edd528f25bfe5fc"
+  "built_at_commit": "853434ebaf4ea9897c9c4a464d329a9b46a61478"
 }

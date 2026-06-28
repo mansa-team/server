@@ -5,8 +5,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\config.py": {
-    "mtime": 1782591220.8548646,
-    "ast_hash": "d01eb607ecafb344043d9864905d2c32",
+    "mtime": 1782671391.7212057,
+    "ast_hash": "22b1a169907fd8cc6476d349bbab333a",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\run.py": {
@@ -52,11 +52,6 @@
   "D:\\Repositories\\server\\main\\app\\prometheus\\chat.py": {
     "mtime": 1782101824.983438,
     "ast_hash": "9e15f6f78ab3401b1d4e10c4818eccb6",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\main\\app\\prometheus\\generation.py": {
-    "mtime": 1782356258.3712444,
-    "ast_hash": "a5358bb536ca3f1b63e3ed2e504b7555",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\scraper_b3\\scraper.py": {
@@ -400,8 +395,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\TODO.md": {
-    "mtime": 1782601219.4705603,
-    "ast_hash": "ba236c0437bf7c6dcd44efa88fcc4c3f",
+    "mtime": 1782671470.0273728,
+    "ast_hash": "855e0d124e20743acd703ec01025a9f5",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docs\\authentication.md": {
@@ -432,6 +427,11 @@
   "D:\\Repositories\\server\\frontend\\index.html": {
     "mtime": 1782669183.0326607,
     "ast_hash": "821030e2539face20641e2b4124ee3e2",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\main\\app\\prometheus\\temp.txt": {
+    "mtime": 1782671509.0597186,
+    "ast_hash": "922b4b4aeb04b38ce837a0f221738282",
     "semantic_hash": ""
   }
 }

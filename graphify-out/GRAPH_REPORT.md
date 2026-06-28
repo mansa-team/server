@@ -1,7 +1,7 @@
 # Graph Report - server  (2026-06-28)
 
 ## Corpus Check
-- 84 files · ~43,588 words
+- 83 files · ~42,994 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ca262fc1`
+- Built from commit: `853434eb`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -294,10 +294,10 @@
   tests/test_stocks_api_coverage.py → main/app/stocks_api/cache.py
 - `Prometheus` --uses--> `Config`  [INFERRED]
   main/app/prometheus/agent.py → config.py
-- `PrometheusGenerator` --uses--> `Config`  [INFERRED]
-  main/app/prometheus/generation.py → config.py
 - `B3Scraper` --uses--> `Config`  [INFERRED]
   main/app/scraper_b3/scraper.py → config.py
+- `ScraperService` --uses--> `Config`  [INFERRED]
+  main/service/scraper_service.py → config.py
 
 ## Hyperedges (group relationships)
 - **Authentication Module** — AuthenticationManager, SessionManager, auth_util, auth_constants, getGoogleSSO [INFERRED]
@@ -506,8 +506,8 @@ Cohesion: 0.07
 Nodes (26): Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them)., No historical data columns -> inner 400 caught by outer except -> 500., Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them)., No historical data columns -> inner 400 caught by outer except -> 500., If an unexpected exception occurs in queryHistorical., No historical data columns -> inner 400 caught by outer except -> 500. (+18 more)
 
 ### Community 67 - "Community 67"
-Cohesion: 0.06
-Nodes (29): _make_prometheus_client(), Return (client, app) with prometheus router and mocked deps., Covers lines 33-36: GET /prometheus/sessions., Covers lines 33-36: GET /prometheus/sessions., Covers lines 33-36: GET /prometheus/sessions., Covers line 52: POST /prometheus/sessions., Covers line 52: POST /prometheus/sessions., Covers line 52: POST /prometheus/sessions. (+21 more)
+Cohesion: 0.05
+Nodes (33): _make_prometheus_client(), Covers lines 111-112: sessionId is None, new session created., Covers lines 111-112: sessionId is None, new session created., Covers lines 111-112: sessionId is None, new session created., Covers lines 111-112: sessionId is None, new session created., Return (client, app) with prometheus router and mocked deps., Covers lines 33-36: GET /prometheus/sessions., Covers lines 33-36: GET /prometheus/sessions. (+25 more)
 
 ### Community 68 - "Community 68"
 Cohesion: 0.08
@@ -658,8 +658,8 @@ Cohesion: 0.2
 Nodes (9): Covers lines 45-51: verifyAccessToken with expired and invalid tokens., Covers lines 45-51: verifyAccessToken with expired and invalid tokens., Covers lines 45-51: verifyAccessToken with expired and invalid tokens., Covers lines 50-51: jwt.InvalidTokenError., Covers lines 50-51: jwt.InvalidTokenError., Covers lines 50-51: jwt.InvalidTokenError., Covers lines 45-51: verifyAccessToken with expired and invalid tokens., Covers lines 50-51: jwt.InvalidTokenError. (+1 more)
 
 ### Community 172 - "Community 172"
-Cohesion: 0.08
-Nodes (21): Covers lines 114-115, 117-120, 122, 125: POST /prometheus/chat., Covers lines 114-115, 117-120, 122, 125: POST /prometheus/chat., Covers lines 111-112: sessionId is None, new session created., Covers lines 111-112: sessionId is None, new session created., Covers lines 114-115, 117-120, 122, 125: POST /prometheus/chat., Covers lines 111-112: sessionId is None, new session created., Covers lines 114-115, 117-120, 122: existing session with verified ownership., Covers lines 114-115, 117-120, 122: existing session with verified ownership. (+13 more)
+Cohesion: 0.1
+Nodes (17): Covers lines 114-115, 117-120, 122, 125: POST /prometheus/chat., Covers lines 114-115, 117-120, 122, 125: POST /prometheus/chat., Covers lines 114-115, 117-120, 122, 125: POST /prometheus/chat., Covers lines 114-115, 117-120, 122: existing session with verified ownership., Covers lines 114-115, 117-120, 122: existing session with verified ownership., Covers lines 114-115, 117-120, 122: existing session with verified ownership., Covers lines 114-115, 117-120, 122, 125: POST /prometheus/chat., Covers lines 114-115: session ownership check fails. (+9 more)
 
 ### Community 173 - "Community 173"
 Cohesion: 0.2
@@ -806,11 +806,11 @@ Nodes (3): checkMySqlConnection — success, errors, engine=None paths., checkMy
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Pytest Testing` connect `Scraper Service` to `Stocks API Controller`, `Session Management`, `SQLAlchemy Models`, `Configuration & Logging`, `Prometheus Chat`, `Community 140`, `Database Utils`, `Decorators`, `Settings`, `Helpers`, `Community 49`, `Community 51`, `Community 52`, `Community 182`, `Community 56`, `Community 63`, `Community 65`, `Community 71`, `Community 72`, `Community 86`, `Community 88`, `Community 89`, `Community 93`, `Community 227`, `Community 108`, `Community 247`?**
-  _High betweenness centrality (0.230) - this node is a cross-community bridge._
+  _High betweenness centrality (0.249) - this node is a cross-community bridge._
 - **Why does `FastAPI` connect `Community 108` to `Community 129`, `Authentication Manager`, `Community 135`, `Community 140`, `Auth Service`, `Decorators`, `Settings`, `Community 50`, `Community 51`, `Community 54`, `Community 182`, `Community 56`, `Community 58`, `Community 63`, `Community 78`, `Community 80`, `Community 88`, `Community 89`, `Community 227`, `Community 235`, `Community 239`, `Community 247`?**
-  _High betweenness centrality (0.148) - this node is a cross-community bridge._
+  _High betweenness centrality (0.139) - this node is a cross-community bridge._
 - **Why does `UserManager` connect `Community 50` to `Enums`, `Community 170`, `Community 172`, `Community 180`, `Community 53`, `Community 55`, `Community 56`, `Community 57`, `Community 58`, `Community 61`, `Community 63`, `Community 64`, `Community 67`, `Community 69`, `Community 73`, `Community 75`, `Community 82`, `Community 211`, `Community 228`, `Community 230`, `Community 232`, `Community 239`, `Community 126`?**
-  _High betweenness centrality (0.140) - this node is a cross-community bridge._
+  _High betweenness centrality (0.138) - this node is a cross-community bridge._
 - **Are the 72 inferred relationships involving `StocksCacheManager` (e.g. with `TestStocksCacheManager` and `TestVerifyAPIKey`) actually correct?**
   _`StocksCacheManager` has 72 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 47 inferred relationships involving `UserManager` (e.g. with `SessionManager` and `Permission`) actually correct?**
