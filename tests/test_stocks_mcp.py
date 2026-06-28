@@ -16,13 +16,13 @@ from main.controller.authentication_controller import router as authRouter
 from main.controller.user_controller import router as userRouter
 from main.controller.prometheus_controller import router as prometheusRouter
 
-# Production config: include_operations with correct full IDs
+# Production config: include_operations with custom operation_id names
 STOCKS_MCP_OPS = [
-    "listFields_stocks_fields_get",
-    "getHistorical_stocks_historical_get",
-    "getFundamental_stocks_fundamental_get",
-    "getCotations_stocks_cotations_get",
-    "getLiveCotation_stocks_cotations_live_get",
+    "list_fields",
+    "get_historical",
+    "get_fundamental",
+    "get_cotations",
+    "get_live_price",
 ]
 
 

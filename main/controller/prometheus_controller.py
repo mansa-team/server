@@ -1,4 +1,6 @@
+import json
 import logging
+import asyncio
 from config import getSession
 from main.utils.logging_config import limiter
 from main.utils.roles import Roles, Permission
@@ -7,9 +9,10 @@ from sqlalchemy.orm import Session
 from main.models.prometheus import PrometheusSession
 
 from fastapi import APIRouter, Depends, Request, HTTPException, Query
+from fastapi.responses import StreamingResponse
 import time
 
-from main.app.prometheus.generation import PrometheusGenerator
+from main.app.prometheus.agent import Prometheus
 from main.app.prometheus.chat import PrometheusChatManager
 from fastapi import Body
 
@@ -108,18 +111,42 @@ def deleteSession(
 async def chat(
     request: Request,
     db: Session = Depends(getSession),
-    text: str = Body(..., min_length=1, max_length=10000, embed=True),
-    sessionId: str = None,
+    query: str = Body(..., min_length=1, max_length=10000, embed=True),
+    sessionId: str = Body(default=None, embed=True),
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
 ):
     if not sessionId:
-        sessionId = PrometheusChatManager.createSession(db, user["userId"], text[:30] + "...")
+        sessionId = PrometheusChatManager.createSession(db, user["userId"], query[:30] + "...")
     else:
         verifySessionOwnsership(db, sessionId, user["userId"])
 
-    history = PrometheusChatManager.getHistory(db, sessionId, limit=20)
-    PrometheusChatManager.saveMessage(db, sessionId, "user", text)
-    aiResponse = PrometheusGenerator.executeWorkflow(text, history=history, sessionId=sessionId, db=db)
-    PrometheusChatManager.saveMessage(db, sessionId, "assistant", aiResponse)
+    response = await Prometheus().sendMessage(query, sessionId=sessionId, db=db)
 
-    return {"success": True, "response": aiResponse, "sessionId": sessionId, "timestamp": str(time.time())}
+    return {"success": True, "response": response, "sessionId": sessionId, "timestamp": str(time.time())}
+
+
+@router.post("/chat/stream")
+@limiter.limit("5/minute")
+async def chat_stream(
+    request: Request,
+    db: Session = Depends(getSession),
+    query: str = Body(..., min_length=1, max_length=10000, embed=True),
+    sessionId: str = Body(default=None, embed=True),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
+):
+    if not sessionId:
+        sessionId = PrometheusChatManager.createSession(db, user["userId"], query[:30] + "...")
+    else:
+        verifySessionOwnsership(db, sessionId, user["userId"])
+
+    async def eventStream():
+        yield f"data: {json.dumps({'type': 'session', 'sessionId': sessionId})}\n\n"
+        try:
+            async for event in Prometheus().streamMessage(query, sessionId=sessionId, db=db):
+                yield f"data: {json.dumps(event)}\n\n"
+        except Exception as e:
+            logger.error(f"Stream error: {e}")
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(eventStream(), media_type="text/event-stream")

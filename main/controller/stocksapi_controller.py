@@ -21,7 +21,7 @@ def health():
     return {"status": "ok", "service": "stocksapi"}
 
 
-@router.get("/fields")
+@router.get("/fields", operation_id="list_fields")
 def listFields():
     """Discover available field names before querying /historical or /fundamental.
 
@@ -48,12 +48,13 @@ def listFields():
     3. Pass them to /historical or /fundamental via the `fields` parameter"""
     if stocksCache.STOCKS_CACHE is None:
         raise HTTPException(status_code=503, detail="Cache not initialized")
+
     cols = stocksCache.STOCKS_CACHE.columns.tolist()
     historical, fundamental = categorizeColumns(cols)
     return {"historical": historical, "fundamental": fundamental}
 
 
-@router.get("/historical")
+@router.get("/historical", operation_id="get_historical")
 def getHistorical(
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     fields: str = Query(None, max_length=500, pattern=r"^[A-Za-z0-9,\s/.-]+$"),
@@ -111,7 +112,7 @@ def getHistorical(
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
 
 
-@router.get("/fundamental")
+@router.get("/fundamental", operation_id="get_fundamental")
 def getFundamental(
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     fields: str = Query(None, max_length=500, pattern=r"^[A-Za-z0-9,\s/.-]+$"),
@@ -174,7 +175,7 @@ def getFundamental(
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
 
 
-@router.get("/cotations")
+@router.get("/cotations", operation_id="get_cotations")
 def getCotations(
     search: str = Query(..., min_length=1, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     dates: str = Query(None, max_length=21),
@@ -224,7 +225,7 @@ def getCotations(
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
 
 
-@router.get("/cotations/live")
+@router.get("/cotations/live", operation_id="get_live_price")
 def getLiveCotation(
     search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),
     apiKey: str = Depends(verifyAPIKey),

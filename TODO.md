@@ -1,3 +1,6 @@
+- [ ] Add a system prompt
+- [ ] Support for mdocUI
+  
 - [ ] The sandbox will be handled via Docker MicroVMs with an 10 concurrent shared pool (for the MVP)
 - [ ] pandas, numpy, matplotlib, yfinance (maybe) for the installed libs (no need for sklean, skfolio and scipy for now)
 - [ ] Improved per-session memory system using vectors

@@ -9,6 +9,14 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from main.models.base import Base
 
 
+@pytest.fixture(autouse=True, scope="function")
+def _reset_rate_limiter():
+    """Reset slowapi in-memory rate limiter between every test."""
+    from main.utils.logging_config import limiter
+
+    limiter.reset()
+
+
 def pytest_configure(config):
     """Set required env vars before test collection.
 

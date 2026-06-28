@@ -1,10 +1,7 @@
-"""Tests for OAuth callback security - JWT token should NOT be in URL.
+"""Tests for OAuth callback security - JWT token should NOT be in URL query params.
 
-Security Issue: After OAuth login, JWT token was appended to URL as query parameter,
-exposing it to browser history, proxies, and server access logs.
-
-Fix: Token should be passed via HTTP-only secure cookie ONLY, not as URL parameter.
-A readable cookie is set for frontend JavaScript compatibility.
+Token goes in URL fragment (#token=...) which browsers don't send to servers.
+Cookies are set on the redirect response directly for same-origin fallback.
 """
 
 import pytest
@@ -71,8 +68,12 @@ class TestOAuthCallbackTokenNotInURL:
         client, _, _ = _make_callback_client()
         _setup_callback_mocks(mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=1)
 
+        # State IS the redirect URL directly — no encoding needed
+        redirect_url = "http://localhost:3000/dashboard"
+
+        client.cookies.set("sso_state", redirect_url)
         response = client.get(
-            "/auth/callback?state=http://localhost:3000/dashboard",
+            f"/auth/callback?state={redirect_url}&code=fake-code",
             follow_redirects=False,
         )
 
@@ -83,13 +84,15 @@ class TestOAuthCallbackTokenNotInURL:
         # Should be a redirect
         assert response.status_code in (307, 302)
 
-        # CRITICAL: Token must NOT be in the redirect URL
-        redirect_url = response.headers.get("location", "")
-        assert "token=" not in redirect_url, f"Security violation: Token found in redirect URL: {redirect_url}"
-        assert "jwt-token-1" not in redirect_url, "JWT token value found in redirect URL"
+        # CRITICAL: Token must NOT be in the query string (server-visible).
+        # Fragment (#token=...) is safe — not sent to servers by browser.
+        location = response.headers.get("location", "")
+        query_part = location.split("#")[0] if "#" in location else location
+        assert "token=" not in query_part, f"Security violation: Token found in query string: {location}"
+        assert "jwt-token-1" not in query_part, "JWT token value found in query string"
 
-        # Should redirect to the original state URL without token parameter
-        assert redirect_url == "http://localhost:3000/dashboard"
+        # Should redirect to the original URL with token in fragment
+        assert location.startswith("http://localhost:3000/dashboard#token=")
 
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.createAccessToken")
@@ -143,18 +146,9 @@ class TestOAuthCallbackTokenNotInURL:
         # Check cookies were set
         cookies = response.headers.get_list("set-cookie")
 
-        # Find the readable cookie (mansa_token_access)
-        readable_cookie_found = False
-        for cookie in cookies:
-            if "mansa_token_access=" in cookie:
-                # This cookie should NOT be httponly (frontend needs to read it)
-                assert "httponly" not in cookie.lower(), f"Readable cookie should NOT be httponly: {cookie}"
-                readable_cookie_found = True
-                # Verify cookie has the token value
-                assert "jwt-token-3" in cookie, "Token value not found in readable cookie"
-                break
-
-        assert readable_cookie_found, "Readable cookie (mansa_token_access) not found in response"
+        # Only one cookie now (httponly). Token is delivered via fragment (#token=).
+        httponly_cookie_found = any("mansa_token=" in c and "httponly" in c.lower() for c in cookies)
+        assert httponly_cookie_found, "httponly cookie not found in response"
 
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.createAccessToken")
@@ -228,8 +222,12 @@ class TestOAuthCallbackFrontendCompatibility:
             mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=6, email="frontend@test.com"
         )
 
+        # State IS the redirect URL directly — no encoding needed
+        redirect_url = "http://localhost:3000/dashboard"
+
+        client.cookies.set("sso_state", redirect_url)
         response = client.get(
-            "/auth/callback?state=http://localhost:3000/dashboard",
+            f"/auth/callback?state={redirect_url}&code=fake-code",
             follow_redirects=False,
         )
 
@@ -243,15 +241,13 @@ class TestOAuthCallbackFrontendCompatibility:
         # Verify cookies are set
         cookies = response.headers.get_list("set-cookie")
 
-        # Both cookies should be present
-        has_httponly = any("mansa_token=" in c and "mansa_token_access=" not in c for c in cookies)
-        has_readable = any("mansa_token_access=" in c for c in cookies)
-
+        # Only httponly cookie — token delivered via fragment (#token=), not JS-readable cookie
+        has_httponly = any("mansa_token=" in c for c in cookies)
         assert has_httponly, "httponly cookie not set"
-        assert has_readable, "readable cookie not set - frontend cannot read token"
 
-        # The readable cookie should contain the token
+        # Verify the httponly cookie contains the token
         for cookie in cookies:
-            if "mansa_token_access=" in cookie:
+            if "mansa_token=" in cookie:
+                assert "httponly" in cookie.lower()
                 assert "jwt-token-6" in cookie
                 break

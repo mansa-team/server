@@ -16,11 +16,11 @@ class StocksAPIService:
             service,
             name="Mansa's Stocks API MCP",
             include_operations=[
-                "listFields_stocks_fields_get",
-                "getHistorical_stocks_historical_get",
-                "getFundamental_stocks_fundamental_get",
-                "getCotations_stocks_cotations_get",
-                "getLiveCotation_stocks_cotations_live_get",
+                "list_fields",
+                "get_historical",
+                "get_fundamental",
+                "get_cotations",
+                "get_live_price",
             ],
         )
         mcp.mount_http(service, mount_path="/stocks/mcp")

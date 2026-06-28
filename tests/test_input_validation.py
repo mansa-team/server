@@ -148,7 +148,7 @@ class TestChatValidation:
     def test_max_length_boundary(self, client):
         response = client.post(
             "/prometheus/chat",
-            json={"text": "X" * 10000},
+            json={"query": "X" * 10000},
             headers={"X-Access-Token": "valid-token"},
         )
         # Should not be 422 — may be other error

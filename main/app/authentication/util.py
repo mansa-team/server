@@ -59,6 +59,10 @@ def extractTokenPayload(request: Request) -> dict:
             token = authHeader.split(" ")[1]
 
     if not token:
+        token = request.cookies.get("mansa_token_access")
+        logger.info(f"Cookie fallback: token={'FOUND' if token else 'NONE'}, cookies={list(request.cookies.keys())}")
+
+    if not token:
         raise HTTPException(status_code=401, detail="Session not found")
 
     try:

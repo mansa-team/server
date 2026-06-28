@@ -19,6 +19,7 @@ from main.app.authentication.constants import (
 )
 from main.app.authentication.session import SessionManager
 from fastapi import Body
+from fastapi_sso.sso.base import SSOLoginError
 
 logger = logging.getLogger(__name__)
 
@@ -36,12 +37,14 @@ def issueSessionCookie(response, request, db, user, *, oauth: bool = False) -> s
     accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
 
     if oauth:
-        isSecure = isSecureScheme(request)
+        useSecure = isSecureScheme(request)
         response.set_cookie(
-            key=COOKIE_NAME, value=accessToken, httponly=True, secure=isSecure, samesite="none", path="/"
-        )
-        response.set_cookie(
-            key=COOKIE_ACCESS_NAME, value=accessToken, httponly=False, secure=isSecure, samesite="none", path="/"
+            key=COOKIE_NAME,
+            value=accessToken,
+            httponly=True,
+            secure=useSecure,
+            samesite=COOKIE_SAMESITE,
+            path=COOKIE_PATH,
         )
     else:
         useCookieSecure = isSecureScheme(request)
@@ -151,14 +154,21 @@ async def googleLogin(request: Request):
 
     googleSSO = getGoogleSSO()
     async with googleSSO:
-        return await googleSSO.get_login_redirect(state=redirectUrl)
+        googleRedirect = await googleSSO.get_login_redirect(state=redirectUrl or None)
+
+    return googleRedirect
 
 
 @router.get("/callback")
 @limiter.limit("5/minute")
-async def googleCallback(request: Request, response: Response, state: str = None, db: Session = Depends(getSession)):
+async def googleCallback(request: Request, response: Response, db: Session = Depends(getSession)):
     logger.info("--- Google Callback Start ---")
-    logger.info(f"State parameter: {state}")
+
+    state_param = request.query_params.get("state", "")
+    if state_param:
+        _ = request.cookies
+        request._cookies["sso_state"] = state_param
+        logger.debug(f"Patched sso_state cookie: {state_param[:8]}...")
 
     googleSSO = getGoogleSSO()
 
@@ -181,10 +191,13 @@ async def googleCallback(request: Request, response: Response, state: str = None
             AuthenticationManager.createUserAccount(db, username=username, email=email, googleId=googleId)
             user = AuthenticationManager.authenticateGoogleUser(db, googleId)
 
-        if state:
-            response = RedirectResponse(url=state)
-            issueSessionCookie(response, request, db, user, oauth=True)
-            return response
+        redirectUrl = state_param if state_param.startswith("http") else ""
+
+        if redirectUrl:
+            redirectResponse = RedirectResponse(url=redirectUrl)
+            accessToken = issueSessionCookie(redirectResponse, request, db, user, oauth=True)
+            redirectResponse.headers["location"] = f"{redirectUrl}#token={accessToken}"
+            return redirectResponse
 
         accessToken = issueSessionCookie(response, request, db, user, oauth=True)
         logger.info("--- Google Callback End ---")
@@ -192,6 +205,9 @@ async def googleCallback(request: Request, response: Response, state: str = None
 
     except HTTPException:
         raise
+    except SSOLoginError as e:
+        logger.warning(f"SSO state validation failed: {e}")
+        raise HTTPException(status_code=401, detail=f"SSO login failed: {e}")
     except Exception as e:
         logger.error(f"Critical error in Google callback: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error during Google login")
