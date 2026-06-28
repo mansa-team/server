@@ -71,9 +71,9 @@ class TestOAuthCallbackTokenNotInURL:
         # State IS the redirect URL directly — no encoding needed
         redirect_url = "http://localhost:3000/dashboard"
 
+        client.cookies.set("sso_state", redirect_url)
         response = client.get(
             f"/auth/callback?state={redirect_url}&code=fake-code",
-            cookies={"sso_state": redirect_url},
             follow_redirects=False,
         )
 
@@ -225,9 +225,9 @@ class TestOAuthCallbackFrontendCompatibility:
         # State IS the redirect URL directly — no encoding needed
         redirect_url = "http://localhost:3000/dashboard"
 
+        client.cookies.set("sso_state", redirect_url)
         response = client.get(
             f"/auth/callback?state={redirect_url}&code=fake-code",
-            cookies={"sso_state": redirect_url},
             follow_redirects=False,
         )
 

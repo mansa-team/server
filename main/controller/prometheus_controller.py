@@ -140,6 +140,7 @@ async def chat_stream(
         verifySessionOwnsership(db, sessionId, user["userId"])
 
     async def eventStream():
+        yield f"data: {json.dumps({'type': 'session', 'sessionId': sessionId})}\n\n"
         try:
             async for event in Prometheus().streamMessage(query, sessionId=sessionId, db=db):
                 yield f"data: {json.dumps(event)}\n\n"

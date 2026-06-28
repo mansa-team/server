@@ -147,9 +147,9 @@ class TestCallbackSuccess:
             mock_session_mgr.createSession.return_value = mock_session
 
             client = _TestClient(app, raise_server_exceptions=False)
+            client.cookies.set("sso_state", redirect_url)
             response = client.get(
                 f"/auth/callback?state={redirect_url}&code=fake-auth-code",
-                cookies={"sso_state": redirect_url},
                 follow_redirects=False,
             )
 
@@ -191,9 +191,9 @@ class TestCallbackSuccess:
             mock_session_mgr.createSession.return_value = mock_session
 
             client = _TestClient(app, raise_server_exceptions=False)
+            client.cookies.set("sso_state", state_value)
             response = client.get(
                 f"/auth/callback?state={state_value}&code=fake-auth-code",
-                cookies={"sso_state": state_value},
                 follow_redirects=False,
             )
 
@@ -223,9 +223,9 @@ class TestSSOLoginErrorHandling:
 
         with patch("main.controller.authentication_controller.getGoogleSSO", return_value=mock_sso):
             client = _TestClient(app, raise_server_exceptions=False)
+            client.cookies.set("sso_state", "stale-url-from-prior-session")
             response = client.get(
                 "/auth/callback?state=fresh-url&code=fake-code",
-                cookies={"sso_state": "stale-url-from-prior-session"},
                 follow_redirects=False,
             )
 

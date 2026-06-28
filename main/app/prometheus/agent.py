@@ -70,13 +70,17 @@ class Prometheus:
         logger.info(f"Query: {query}")
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
 
-        async with self.chatSession(history) as chat:
-            response = await chat.send_message(query)
+        response_text = None
+        try:
+            async with self.chatSession(history) as chat:
+                response = await chat.send_message(query)
+                response_text = response.text
+        finally:
+            PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
+            if response_text:
+                PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", response_text)
 
-        PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
-        PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", response.text)
-
-        return response.text
+        return response_text
 
     async def streamMessage(
         self, query: str | None = None, sessionId: str | None = None, db=None
@@ -85,11 +89,12 @@ class Prometheus:
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
 
         full_text = ""
-        async with self.chatSession(history) as chat:
-            async for chunk in await chat.send_message_stream(query):
-                if hasattr(chunk, "text") and chunk.text:
-                    full_text += chunk.text
-                    yield {"type": "text", "text": chunk.text}
-
-        PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
-        PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", full_text)
+        try:
+            async with self.chatSession(history) as chat:
+                async for chunk in await chat.send_message_stream(query):
+                    if hasattr(chunk, "text") and chunk.text:
+                        full_text += chunk.text
+                        yield {"type": "text", "text": chunk.text}
+        finally:
+            PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
+            PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", full_text)
