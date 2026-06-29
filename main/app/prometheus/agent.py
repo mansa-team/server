@@ -2,7 +2,6 @@ from config import Config
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
 
 from fastmcp import Client
 from google import genai
@@ -28,27 +27,80 @@ logger = logging.getLogger(__name__)
 class Prometheus:
     def __init__(self):
         self.client = genai.Client(api_key=Config.PROMETHEUS["GEMINI_API.KEY"])
-        self.updateDates()
 
-    def updateDates(self):
-        if Config.DEBUG_MODE:
-            self.currentDate = "23/03/2026"
-            self.currentISODate = "2026-03-23"
-            self.currentYear = 2026
-            self.lastYear = 2025
-        else:
-            now = datetime.now()
-            self.currentDate = (now - timedelta(days=1)).strftime("%d/%m/%Y")
-            self.currentISODate = (now - timedelta(days=1)).strftime("%Y-%m-%d")
-            self.currentYear = now.year
-            self.lastYear = self.currentYear - 1
+    SYSTEM_PROMPT = """
+        You're a investments assistant for Mansa, a Brazilian stock platform.
+
+        When presenting data, use rich UI tags to make responses visual and scannable.
+
+        ## Available Tags
+
+        ### Stat — single KPI card
+        {% stat %}
+        {"label": "P/L", "value": "5.2x", "change": "-0.3", "trend": "down", "description": "Price to Earnings ratio"}
+        {% /stat %}
+        Props: label (required), value (required), change (optional: "+12%", "-3%"), trend (optional: "up"/"down"), description (optional)
+
+        ### Table — data grid
+        {% table %}
+        {"headers": ["Ticker", "P/L", "ROE"], "rows": [["PETR4", "5.2x", "15%"], ["VALE3", "3.1x", "22%"]], "caption": "Valuation Comparison"}
+        {% /table %}
+        Props: headers (required), rows (required), caption (optional)
+
+        ### Chart — data visualization
+        {% chart %}
+        {"type": "line", "title": "PETR4 Price History", "x": ["Jan", "Feb", "Mar"], "y": [28.5, 29.1, 30.2]}
+        {% /chart %}
+        Types: "bar", "line", "pie", "donut". Props: type (required), x (labels, required), y (values, required), title (optional)
+
+        ### Grid — multi-column layout
+        {% grid %}
+        {"cols": 3, "gap": "md", "items": [1, 2, 3]}
+        {% /grid %}
+        Use with stat cards inside for portfolio snapshots.
+
+        ### Card — bordered container
+        {% card %}
+        {"title": "PETR4 Overview"}
+        ...content inside...
+        {% /card %}
+
+        ### Tabs — tabbed sections
+        {% tabs %}
+        {"labels": ["Overview", "Financials", "Peers"]}
+        {% /tab %}{% tab %}{"label": "Overview"}...{% /tab %}
+        {% /tabs %}
+
+        ### Accordion — collapsible section
+        {% accordion %}
+        {"title": "Methodology", "open": false}
+        ...content inside...
+        {% /accordion %}
+
+        ### Progress — progress bar
+        {% progress %}
+        {"value": 75, "max": 100, "label": "Target Allocation"}
+        {% /progress %}
+
+        ### Divider — separator
+        {% divider /%}
+
+        ## Rules
+        - Use {% stat %} for single metrics (P/L, ROE, DY, current price, market cap)
+        - Use {% table %} when comparing multiple stocks side by side
+        - Use {% chart %} for price history, trends, time series, sector allocation
+        - Use {% grid %} + {% stat %} for dashboard-style multi-metric layouts (3-col grid of stat cards)
+        - Use {% tabs %} to organize multi-view responses (Overview / Financials / Peers)
+        - Use {% accordion %} for methodology notes, risk disclaimers, long explanations
+        - Use {% progress %} for allocation %, portfolio weight vs target
+        - Use {% card %} to group related content with a title
+        - Wrap tag content in valid JSON, no extra text inside tags
+        - You can mix prose and tags freely
+        - Always use tags when presenting structured data — never dump raw JSON
+        """
 
     @asynccontextmanager
     async def chatSession(self, history):
-        systemPrompt = """
-        You're a investments assistant.
-        """
-
         stocks = Client(f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/mcp")
         searxng = Client(f"http://{Config.PROMETHEUS['SEARXNG_HOST']}:{Config.PROMETHEUS['SEARXNG_PORT']}/mcp/")
 
@@ -56,31 +108,63 @@ class Prometheus:
             for s in [stocks.session, searxng.session]:
                 type(s).__deepcopy__ = lambda self, memo=None: self  # type: ignore[attr-defined]
 
-            yield self.client.aio.chats.create(
+            mcpClients = {"stocks": stocks, "searxng": searxng}
+            # Pass sessions directly — SDK auto-discovers tools
+            chat = self.client.aio.chats.create(
                 model="gemini-flash-lite-latest",
                 history=history,
                 config=types.GenerateContentConfig(
-                    system_instruction=systemPrompt,
+                    system_instruction=self.SYSTEM_PROMPT,
                     tools=[stocks.session, searxng.session],
+                    automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
                     temperature=0.5,
                 ),
             )
+            yield chat, mcpClients
+
+    async def executeToolCall(self, functionCall, mcpClients):
+        name = functionCall.name
+        args = functionCall.args or {}
+        logger.info(f"Executing tool call: {name}({args})")
+
+        for client in mcpClients.values():
+            try:
+                mcpResult = await client.session.call_tool(name, args)
+                if getattr(mcpResult, "isError", False):
+                    logger.debug(f"Tool {name} returned error on {client}, trying next client")
+                    continue
+                textParts = []
+                if hasattr(mcpResult, "content") and mcpResult.content:
+                    for block in mcpResult.content:
+                        if hasattr(block, "text"):
+                            textParts.append(block.text)
+                        else:
+                            textParts.append(str(block))
+                response = "\n".join(textParts) if textParts else str(mcpResult)
+                logger.info(f"Tool {name} response length: {len(response)}")
+                return {"result": response}
+            except Exception as e:
+                logger.debug(f"Client {client} failed for {name}: {e}")
+                continue
+
+        logger.warning(f"Tool {name} not found in any MCP client")
+        return {"error": f"Tool '{name}' not available"}
 
     async def sendMessage(self, query: str | None = None, sessionId: str | None = None, db=None):
         logger.info(f"Query: {query}")
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
 
-        response_text = None
+        responseText = None
         try:
-            async with self.chatSession(history) as chat:
+            async with self.chatSession(history) as (chat, mcpClients):
                 response = await chat.send_message(query)
-                response_text = response.text
+                responseText = response.text
         finally:
             PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
-            if response_text:
-                PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", response_text)
+            if responseText:
+                PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", responseText)
 
-        return response_text
+        return responseText
 
     async def streamMessage(
         self, query: str | None = None, sessionId: str | None = None, db=None
@@ -88,13 +172,41 @@ class Prometheus:
         logger.info(f"Stream query: {query}")
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
 
-        full_text = ""
+        fullText = ""
         try:
-            async with self.chatSession(history) as chat:
-                async for chunk in await chat.send_message_stream(query):
-                    if hasattr(chunk, "text") and chunk.text:
-                        full_text += chunk.text
-                        yield {"type": "text", "text": chunk.text}
+            async with self.chatSession(history) as (chat, mcpClients):
+                stream = await chat.send_message_stream(query)
+
+                while True:
+                    functionCalls = []
+
+                    async for chunk in stream:
+                        if hasattr(chunk, "text") and chunk.text:
+                            fullText += chunk.text
+                            yield {"type": "text", "text": chunk.text}
+
+                        if hasattr(chunk, "function_calls") and chunk.function_calls:
+                            fcs = chunk.function_calls
+                            if isinstance(fcs, dict):
+                                functionCalls.extend(fcs.values())
+                            elif isinstance(fcs, (list, tuple)):
+                                functionCalls.extend(fcs)
+
+                    if not functionCalls:
+                        break
+
+                    functionResponses = []
+                    for fc in functionCalls:
+                        logger.info(f"Executing tool: {fc.name}({fc.args})")
+                        result = await self.executeToolCall(fc, mcpClients)
+                        functionResponses.append(
+                            types.Part.from_function_response(
+                                name=fc.name,
+                                response=result,
+                            )
+                        )
+                    stream = await chat.send_message_stream(functionResponses)
         finally:
             PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
-            PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", full_text)
+            if fullText:
+                PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", fullText)

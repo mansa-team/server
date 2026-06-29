@@ -1,6 +1,7 @@
 *.env
 *.xml
 *.html
+frontend/
 b3_stocks.json
 
 *cache/
