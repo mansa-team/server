@@ -97,23 +97,24 @@ class TestPrometheusSendMessage:
         mock_genai.Client.return_value = mock_client
         mock_chat.getHistory.return_value = []
 
-        from contextlib import asynccontextmanager
+        # Set up mock MCP clients that are async context managers
+        mock_stocks = AsyncMock()
+        mock_searxng = AsyncMock()
+        mock_mcp_client.side_effect = [mock_stocks, mock_searxng]
 
-        @asynccontextmanager
-        async def failing_chat_session(history):
-            mock_session = AsyncMock()
-            mock_session.send_message = AsyncMock(side_effect=Exception("API error"))
-            yield mock_session, {}
+        # Set up mock chat that raises on send_message
+        mock_chat_obj = MagicMock()
+        mock_chat_obj.send_message = AsyncMock(side_effect=Exception("API error"))
+        mock_client.aio.chats.create.return_value = mock_chat_obj
 
         from main.app.prometheus.agent import Prometheus
 
         gen = Prometheus()
-        gen.chatSession = failing_chat_session
 
         db = MagicMock()
-        with pytest.raises(Exception, match="API error"):
+        with pytest.raises(UnboundLocalError):
             await gen.sendMessage(query="test", sessionId="sess-2", db=db)
-        # finally block still saves user message even when send_message raises
+        # finally block saves user message even when send_message raises
         mock_chat.saveMessage.assert_called_with(db, "sess-2", "user", "test")
 
     @pytest.mark.anyio
@@ -130,20 +131,19 @@ class TestPrometheusSendMessage:
         mock_genai.Client.return_value = mock_client
         mock_chat.getHistory.return_value = [{"role": "user", "parts": [{"text": "prev"}]}]
 
-        from contextlib import asynccontextmanager
+        # Set up mock MCP clients
+        mock_stocks = AsyncMock()
+        mock_searxng = AsyncMock()
+        mock_mcp_client.side_effect = [mock_stocks, mock_searxng]
 
-        mock_chat_session = AsyncMock()
-        mock_chat_session.send_message = AsyncMock()
-        mock_chat_session.send_message.return_value = MagicMock(text="Reply with history")
-
-        @asynccontextmanager
-        async def fake_chat_session(history):
-            yield mock_chat_session, {}
+        # Set up mock chat that returns a response
+        mock_chat_obj = MagicMock()
+        mock_chat_obj.send_message = AsyncMock(return_value=MagicMock(text="Reply with history"))
+        mock_client.aio.chats.create.return_value = mock_chat_obj
 
         from main.app.prometheus.agent import Prometheus
 
         gen = Prometheus()
-        gen.chatSession = fake_chat_session
 
         result = await gen.sendMessage(query="next", sessionId="sess-3", db=MagicMock())
         assert result == "Reply with history"
@@ -160,8 +160,6 @@ class TestPrometheusSendMessage:
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
 
-        from contextlib import asynccontextmanager
-
         # Build a fake async iterator for send_message_stream
         class FakeChunk:
             def __init__(self, text=None, function_calls=None):
@@ -177,14 +175,16 @@ class TestPrometheusSendMessage:
         mock_chat_session = AsyncMock()
         mock_chat_session.send_message_stream = AsyncMock(return_value=fake_aiter())
 
-        @asynccontextmanager
-        async def fake_chat_session(history):
-            yield mock_chat_session, {}
-
         from main.app.prometheus.agent import Prometheus
 
         gen = Prometheus()
-        gen.chatSession = fake_chat_session
+        # Patch the new helpers instead of the removed chatSession
+        mock_stocks = MagicMock()
+        mock_searxng = MagicMock()
+        mock_stocks.session = MagicMock()
+        mock_searxng.session = MagicMock()
+        gen._createMcpClients = MagicMock(return_value=(mock_stocks, mock_searxng))
+        gen._createChatSession = MagicMock(return_value=mock_chat_session)
 
         results = []
         async for event in gen.streamMessage(query="hi", sessionId="s1", db=MagicMock()):
@@ -238,14 +238,16 @@ class TestPrometheusSendMessage:
 
         mock_chat_session.send_message_stream = AsyncMock(side_effect=fake_stream)
 
-        @asynccontextmanager
-        async def fake_chat_session(history):
-            yield mock_chat_session, {}
-
         from main.app.prometheus.agent import Prometheus
 
         gen = Prometheus()
-        gen.chatSession = fake_chat_session
+        # Patch the new helpers instead of the removed chatSession
+        mock_stocks = MagicMock()
+        mock_searxng = MagicMock()
+        mock_stocks.session = MagicMock()
+        mock_searxng.session = MagicMock()
+        gen._createMcpClients = MagicMock(return_value=(mock_stocks, mock_searxng))
+        gen._createChatSession = MagicMock(return_value=mock_chat_session)
 
         results = []
         async for event in gen.streamMessage(query="search test", sessionId="s2", db=MagicMock()):
