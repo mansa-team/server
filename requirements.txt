@@ -22,6 +22,8 @@ orjson
 requests
 
 # PROMETHEUS
+sentence-transformers
+huggingface-hub
 fastmcp
 fastapi_mcp
 google-genai

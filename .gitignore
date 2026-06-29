@@ -1,7 +1,6 @@
 *.env
 *.xml
 *.html
-frontend/
 b3_stocks.json
 
 *cache/
@@ -13,3 +12,6 @@ node_modules/
 package.json
 package-lock.json
 bun.lock
+
+main/utils/models/*/
+frontend/

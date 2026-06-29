@@ -1,10 +1,10 @@
+- [ ] Improved per-session memory system using vectors
+- [ ] Figure out how to make a decent multi-session memory system without breaking massive performance impacts (google turboquant vec / table with memory scores and ranking)
+- [ ] Make my own Tokenizer
 - [ ] Add a system prompt
-- [ ] Support for mdocUI
   
 - [ ] The sandbox will be handled via Docker MicroVMs with an 10 concurrent shared pool (for the MVP)
 - [ ] pandas, numpy, matplotlib, yfinance (maybe) for the installed libs (no need for sklean, skfolio and scipy for now)
-- [ ] Improved per-session memory system using vectors
-- [ ] Figure out how to make a decent multi-session memory system without breaking massive performance impacts (google turboquant vec / table with memory scores and ranking)
 
 - [ ] Github OAuth
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings
