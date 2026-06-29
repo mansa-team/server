@@ -98,7 +98,30 @@ class Prometheus:
         - You can mix prose and tags freely
         - Always use tags when presenting structured data — never dump raw JSON
         """
-    
+
+    @asynccontextmanager
+    async def openMCPClients(self):
+        stocks = Client(f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/mcp")
+        searxng = Client(f"http://{Config.PROMETHEUS['SEARXNG_HOST']}:{Config.PROMETHEUS['SEARXNG_PORT']}/mcp/")
+        async with stocks, searxng:
+            for s in [stocks.session, searxng.session]:
+                type(s).__deepcopy__ = lambda self, memo=None: self  # type: ignore[attr-defined]
+            yield {"stocks": stocks, "searxng": searxng}, [stocks.session, searxng.session]
+
+    def makeChat(self, sessions, history, *, disable_automatic_function_calling=False):
+        kwargs = dict(
+            system_instruction=self.SYSTEM_PROMPT,
+            tools=sessions,
+            temperature=0.5,
+        )
+        if disable_automatic_function_calling:
+            kwargs["automatic_function_calling"] = types.AutomaticFunctionCallingConfig(disable=True)
+        return self.client.aio.chats.create(
+            model="gemini-flash-lite-latest",
+            history=history,
+            config=types.GenerateContentConfig(**kwargs),
+        )
+
     async def executeToolCall(self, functionCall, mcpClients):
         name = functionCall.name
         args = functionCall.args or {}
@@ -129,32 +152,16 @@ class Prometheus:
 
     async def sendMessage(self, query: str | None = None, sessionId: str | None = None, db=None):
         logger.info(f"Query: {query}")
-
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
 
-        stocks = Client(f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/mcp")
-        searxng = Client(f"http://{Config.PROMETHEUS['SEARXNG_HOST']}:{Config.PROMETHEUS['SEARXNG_PORT']}/mcp/")
+        PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
 
-        try:
-            async with stocks, searxng:
-                for s in [stocks.session, searxng.session]:
-                    type(s).__deepcopy__ = lambda self, memo=None: self  # type: ignore[attr-defined]
+        async with self.openMCPClients() as (clients, sessions):
+            chat = self.makeChat(sessions, history)
+            response = await chat.send_message(query)
 
-                chat = self.client.aio.chats.create(
-                    model="gemini-flash-lite-latest",
-                    history=history,
-                    config=types.GenerateContentConfig(
-                        system_instruction=self.SYSTEM_PROMPT,
-                        tools=[stocks.session, searxng.session],
-                        temperature=0.5,
-                    ),
-                )
-                response = await chat.send_message(query)
-        finally:
-            PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
-            PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", response.text)
-
-            return response.text
+        PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", response.text)
+        return response.text
 
     async def streamMessage(
         self, query: str | None = None, sessionId: str | None = None, db=None
@@ -163,23 +170,8 @@ class Prometheus:
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
 
         fullText = ""
-        stocks = Client(f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/mcp")
-        searxng = Client(f"http://{Config.PROMETHEUS['SEARXNG_HOST']}:{Config.PROMETHEUS['SEARXNG_PORT']}/mcp/")
-        async with stocks, searxng:
-            for s in [stocks.session, searxng.session]:
-                type(s).__deepcopy__ = lambda self, memo=None: self  # type: ignore[attr-defined]
-
-            chat = self.client.aio.chats.create(
-                model="gemini-flash-lite-latest",
-                history=history,
-                config=types.GenerateContentConfig(
-                    system_instruction=self.SYSTEM_PROMPT,
-                    tools=[stocks.session, searxng.session],
-                    automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
-                    temperature=0.5,
-                ),
-            )
-            mcpClients = {"stocks": stocks, "searxng": searxng}
+        async with self.openMCPClients() as (mcpClients, sessions):
+            chat = self.makeChat(sessions, history, disable_automatic_function_calling=True)
 
             try:
                 stream = await chat.send_message_stream(query)

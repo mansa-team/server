@@ -4,6 +4,7 @@ GREEN test: streamMessage works without chatSession — MCP setup is inlined.
 After refactoring, chatSession no longer exists. streamMessage uses
 _createMcpClients() and _createChatSession() helpers instead.
 """
+
 import sys
 import os
 import pytest
@@ -28,9 +29,7 @@ class TestStreamMessageNoChatSession:
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
     @patch("main.app.prometheus.agent.Client")
-    async def test_stream_message_yields_text_chunks(
-        self, mock_mcp_client, mock_genai, mock_config, mock_chat
-    ):
+    async def test_stream_message_yields_text_chunks(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
         """streamMessage yields text chunks via inlined MCP setup."""
         mock_config.PROMETHEUS = {
             "GEMINI_API.KEY": "test-key",
@@ -61,11 +60,10 @@ class TestStreamMessageNoChatSession:
         mock_chat_session.send_message_stream = AsyncMock(return_value=fake_aiter())
 
         gen = Prometheus()
-        # Patch _createChatSession to return our mock
-        with patch.object(gen, "_createChatSession", return_value=mock_chat_session):
-            results = []
-            async for event in gen.streamMessage(query="hi", sessionId="s1", db=MagicMock()):
-                results.append(event)
+        gen.makeChat = MagicMock(return_value=mock_chat_session)
+        results = []
+        async for event in gen.streamMessage(query="hi", sessionId="s1", db=MagicMock()):
+            results.append(event)
 
         assert len(results) == 2
         assert results[0] == {"type": "text", "text": "Hello "}
@@ -76,9 +74,7 @@ class TestStreamMessageNoChatSession:
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
     @patch("main.app.prometheus.agent.Client")
-    async def test_stream_message_does_not_call_chatSession(
-        self, mock_mcp_client, mock_genai, mock_config, mock_chat
-    ):
+    async def test_stream_message_does_not_call_chatSession(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
         """chatSession attribute must not exist — MCP setup is inlined."""
         mock_config.PROMETHEUS = {
             "GEMINI_API.KEY": "test-key",
@@ -146,10 +142,10 @@ class TestStreamMessageNoChatSession:
         mock_chat_session.send_message_stream = AsyncMock(side_effect=fake_stream)
 
         gen = Prometheus()
-        with patch.object(gen, "_createChatSession", return_value=mock_chat_session):
-            results = []
-            async for event in gen.streamMessage(query="search test", sessionId="s2", db=MagicMock()):
-                results.append(event)
+        gen.makeChat = MagicMock(return_value=mock_chat_session)
+        results = []
+        async for event in gen.streamMessage(query="search test", sessionId="s2", db=MagicMock()):
+            results.append(event)
 
         # Should have text from second stream after tool call
         assert any(e.get("text") == "Result: found it" for e in results)

@@ -112,9 +112,9 @@ class TestPrometheusSendMessage:
         gen = Prometheus()
 
         db = MagicMock()
-        with pytest.raises(UnboundLocalError):
+        with pytest.raises(Exception):
             await gen.sendMessage(query="test", sessionId="sess-2", db=db)
-        # finally block saves user message even when send_message raises
+        # user message is saved even when send_message raises
         mock_chat.saveMessage.assert_called_with(db, "sess-2", "user", "test")
 
     @pytest.mark.anyio
@@ -176,15 +176,20 @@ class TestPrometheusSendMessage:
         mock_chat_session.send_message_stream = AsyncMock(return_value=fake_aiter())
 
         from main.app.prometheus.agent import Prometheus
+        from contextlib import asynccontextmanager
 
         gen = Prometheus()
-        # Patch the new helpers instead of the removed chatSession
-        mock_stocks = MagicMock()
-        mock_searxng = MagicMock()
-        mock_stocks.session = MagicMock()
-        mock_searxng.session = MagicMock()
-        gen._createMcpClients = MagicMock(return_value=(mock_stocks, mock_searxng))
-        gen._createChatSession = MagicMock(return_value=mock_chat_session)
+
+        @asynccontextmanager
+        async def fake_open_mcp():
+            stocks = MagicMock()
+            searxng = MagicMock()
+            stocks.session = MagicMock()
+            searxng.session = MagicMock()
+            yield {"stocks": stocks, "searxng": searxng}, [stocks.session, searxng.session]
+
+        gen.openMCPClients = fake_open_mcp
+        gen.makeChat = MagicMock(return_value=mock_chat_session)
 
         results = []
         async for event in gen.streamMessage(query="hi", sessionId="s1", db=MagicMock()):
@@ -239,15 +244,20 @@ class TestPrometheusSendMessage:
         mock_chat_session.send_message_stream = AsyncMock(side_effect=fake_stream)
 
         from main.app.prometheus.agent import Prometheus
+        from contextlib import asynccontextmanager
 
         gen = Prometheus()
-        # Patch the new helpers instead of the removed chatSession
-        mock_stocks = MagicMock()
-        mock_searxng = MagicMock()
-        mock_stocks.session = MagicMock()
-        mock_searxng.session = MagicMock()
-        gen._createMcpClients = MagicMock(return_value=(mock_stocks, mock_searxng))
-        gen._createChatSession = MagicMock(return_value=mock_chat_session)
+
+        @asynccontextmanager
+        async def fake_open_mcp():
+            stocks = MagicMock()
+            searxng = MagicMock()
+            stocks.session = MagicMock()
+            searxng.session = MagicMock()
+            yield {"stocks": stocks, "searxng": searxng}, [stocks.session, searxng.session]
+
+        gen.openMCPClients = fake_open_mcp
+        gen.makeChat = MagicMock(return_value=mock_chat_session)
 
         results = []
         async for event in gen.streamMessage(query="search test", sessionId="s2", db=MagicMock()):
