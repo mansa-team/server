@@ -6,6 +6,8 @@ python_functions = "test_*"
 filterwarnings = [
     "ignore::ResourceWarning",
     "ignore::DeprecationWarning:pydantic",
+    "ignore::UserWarning:google.genai",
+    "ignore::UserWarning:pandas",
 ]
 
 [tool.coverage.run]
