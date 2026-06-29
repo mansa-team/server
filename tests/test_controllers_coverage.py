@@ -293,7 +293,7 @@ class TestLogoutEndpoint:
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.verifyAccessToken")
     def test_logout_with_invalid_session_id(self, mock_verify, mock_session_mgr, mock_secure):
-        """Covers lines 122-124: sessionId is not a valid int, ValueError caught."""
+        """sessionId is a string — revokeSession receives it as-is (str type)."""
         client, _, _ = _make_auth_client()
         mock_verify.return_value = {"userId": 1, "sessionId": "not-a-number"}
 
@@ -302,7 +302,7 @@ class TestLogoutEndpoint:
             headers={"X-Access-Token": "valid-token"},
         )
         assert response.status_code == 200
-        mock_session_mgr.revokeSession.assert_not_called()
+        mock_session_mgr.revokeSession.assert_called_once()
 
     @patch("main.controller.authentication_controller.isSecureScheme", return_value=False)
     @patch("main.app.authentication.util.verifyAccessToken")

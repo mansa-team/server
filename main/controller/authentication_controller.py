@@ -127,7 +127,6 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
             sessionId = payload.get("sessionId")
             if userId and sessionId:
                 try:
-                    sessionId = int(sessionId)
                     SessionManager.revokeSession(db, sessionId, userId)
                 except (ValueError, TypeError):
                     pass
@@ -181,6 +180,9 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
 
         googleId = userInfo.id
         email = userInfo.email
+
+        if not googleId or not email:
+            raise HTTPException(status_code=400, detail="Incomplete user info from Google")
 
         logger.info(f"User identified: {email}")
         user = AuthenticationManager.authenticateGoogleUser(db, googleId)

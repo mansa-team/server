@@ -27,7 +27,7 @@ class User(Base):
         currentRoles = self.getRolesList()
         if role not in currentRoles:
             currentRoles.append(role)
-            self.roles = ",".join(currentRoles)
+            self.roles = ",".join(currentRoles)  # type: ignore[assignment]
 
     def hasRole(self, role: str) -> bool:
         if hasattr(role, "name"):

@@ -65,7 +65,7 @@ class AuthenticationManager:
         try:
             user = db.query(User).filter(User.username == username).first()
 
-            if user and user.passwordHash and verifyPassword(password, user.passwordHash):
+            if user and user.passwordHash and verifyPassword(password, str(user.passwordHash)):
                 logger.info(f"Password Login: {user.username}")
                 return {"userId": user.userId, "username": user.username, "roles": user.getRolesList()}
             return None

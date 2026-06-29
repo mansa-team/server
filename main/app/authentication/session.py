@@ -1,6 +1,7 @@
 import logging
 import secrets
 from datetime import datetime, timedelta
+from typing import Optional
 from pytz import timezone
 import hashlib
 from sqlalchemy.orm import Session
@@ -18,7 +19,7 @@ class SessionManager:
         userId: int,
         userAgent: str,
         request,
-        expiresAt: datetime = None,
+        expiresAt: Optional[datetime] = None,
     ) -> UserSession:
         sessionId = secrets.token_urlsafe(32)
         accessTokenHash = hashlib.sha256(secrets.token_hex(32).encode()).hexdigest()[:64]
@@ -57,7 +58,7 @@ class SessionManager:
         return query.order_by(UserSession.lastActivityAt.desc()).limit(limit).all()
 
     @staticmethod
-    def getSessionById(db: Session, sessionId: str, userId: int = None) -> UserSession | None:
+    def getSessionById(db: Session, sessionId: str, userId: Optional[int] = None) -> UserSession | None:
         query = db.query(UserSession).filter(UserSession.sessionId == str(sessionId))
         if userId:
             query = query.filter(UserSession.userId == userId)
@@ -81,14 +82,14 @@ class SessionManager:
         if not session:
             return False
 
-        session.isActive = False
+        session.isActive = False  # type: ignore[assignment]
         db.commit()
 
         logger.info(f"Revoked session {sessionId} for user {userId}")
         return True
 
     @staticmethod
-    def revokeAllSessions(db: Session, userId: int, exceptSessionId: str = None) -> int:
+    def revokeAllSessions(db: Session, userId: int, exceptSessionId: Optional[str] = None) -> int:
         query = db.query(UserSession).filter(
             UserSession.userId == userId,
             UserSession.isActive,
@@ -109,7 +110,7 @@ class SessionManager:
         if not session:
             return False
 
-        session.lastActivityAt = datetime.now(timezone("America/Sao_Paulo"))
+        session.lastActivityAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
         db.commit()
         return True
 
@@ -147,7 +148,7 @@ class SessionManager:
                 else session.expiresAt
             )
             if expTime < datetime.now(timezone("America/Sao_Paulo")):
-                session.isActive = False
+                session.isActive = False  # type: ignore[assignment]
                 db.commit()
                 return False
 

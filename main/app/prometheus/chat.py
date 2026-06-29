@@ -44,7 +44,7 @@ class PrometheusChatManager:
         if not session:
             return False
 
-        session.title = title
+        session.title = title  # type: ignore[assignment]
         db.commit()
         return True
 
@@ -67,11 +67,11 @@ class PrometheusChatManager:
 
             # Trim unbounded history growth
             if len(session.history) > MAX_HISTORY_MESSAGES:
-                session.history = session.history[-MAX_HISTORY_MESSAGES:]
+                session.history = session.history[-MAX_HISTORY_MESSAGES:]  # type: ignore[assignment]
 
             flag_modified(session, "history")
 
-            session.lastActivity = datetime.now()
+            session.lastActivity = datetime.now()  # type: ignore[assignment]
             db.commit()
         else:
             logger.error(f"Session {sessionId} not found for saveMessage")
@@ -83,7 +83,7 @@ class PrometheusChatManager:
         if not session or not session.history:
             return []
 
-        activeHistory = session.history[-limit:]
+        activeHistory: list = session.history[-limit:]  # type: ignore[assignment]
 
         formattedHistory = []
         for msg in activeHistory:
@@ -96,7 +96,7 @@ class PrometheusChatManager:
     def updateSummary(cls, db: Session, sessionId: str, summary: str):
         session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
         if session:
-            session.summary = summary
+            session.summary = summary  # type: ignore[assignment]
             db.commit()
 
     @classmethod
