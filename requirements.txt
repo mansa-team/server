@@ -12,11 +12,11 @@ cloudscraper
 tenacity
 apscheduler
 pytz
-lxml
 
 # STOCKS-API
 fastapi
 uvicorn
+fastapi_mcp
 pyarrow
 orjson
 requests
@@ -25,7 +25,6 @@ requests
 sentence-transformers
 huggingface-hub
 fastmcp
-fastapi_mcp
 google-genai
 
 # USER

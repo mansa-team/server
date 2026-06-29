@@ -18,6 +18,8 @@
 
 - [ ] Figure out if im able to do the same MicroVM architecture for exposing MetaTrader5 terminals for quick user switch and execution for Ogum
 
+- [ ] Abacate Pay
+
 #
 
 - [ ] Ma'at: Stock Picking algorithm designed to help build wallets for the users based on their profile and provide insights in the stocks page, such as its grade and recommended signal (Buy, Hold or Sell) based on Value Investing fundamentals
