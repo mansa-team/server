@@ -177,7 +177,7 @@ class Prometheus:
                 stream = await chat.send_message_stream(query)
 
                 while True:
-                    functionCalls = []
+                    functionCalls: list = []
 
                     async for chunk in stream:
                         if hasattr(chunk, "text") and chunk.text:
