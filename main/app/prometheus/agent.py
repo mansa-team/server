@@ -1,4 +1,4 @@
-from config import Config, SessionLocal
+from config import Config
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -8,8 +8,9 @@ from google import genai
 from google.genai import types
 import google.genai._mcp_utils as _mcp
 
+from main.models.memory import UserMemory
 from main.app.prometheus.chat import PrometheusChatManager
-from main.app.prometheus.memory import MemoryManager
+from main.app.prometheus.tools import MEMORY_TOOLS, dispatchToolCall
 
 _original_filter = _mcp._filter_to_supported_schema
 
@@ -23,104 +24,6 @@ def _safe_filter(schema):
 _mcp._filter_to_supported_schema = _safe_filter
 
 logger = logging.getLogger(__name__)
-
-
-MEMORY_LABELS = {
-    "preference": "Preferência",
-    "analysis": "Análise",
-    "feedback": "Feedback",
-    "context": "Contexto",
-}
-
-MEMORY_TOOLS = [
-    types.FunctionDeclaration(
-        name="search_memory",
-        description="Search user's saved memories, preferences, and past analysis context.",
-        parameters=types.Schema(
-            type=types.Type.OBJECT,
-            properties={
-                "query": types.Schema(type=types.Type.STRING, description="Search query"),
-                "limit": types.Schema(type=types.Type.INTEGER, description="Max results (default 10)"),
-            },
-            required=["query"],
-        ),
-    ),
-    types.FunctionDeclaration(
-        name="save_memory",
-        description="Store a memory about the user's preferences, analysis results, or feedback. Checks memory limit (5 for free users, 50 for premium).",
-        parameters=types.Schema(
-            type=types.Type.OBJECT,
-            properties={
-                "key": types.Schema(type=types.Type.STRING, description="Short label for the memory"),
-                "value": types.Schema(type=types.Type.STRING, description="Full memory content"),
-                "type": types.Schema(
-                    type=types.Type.STRING,
-                    enum=["preference", "analysis", "feedback", "context"],
-                    description="Type of memory",
-                ),
-            },
-            required=["key", "value", "type"],
-        ),
-    ),
-]
-
-
-def buildSystemPrompt(userId: int | None = None, db=None) -> str:
-    memoryBlock = ""
-    if userId and db:
-        from main.models.memory import UserMemory
-
-        memories = (
-            db.query(UserMemory)
-            .filter(UserMemory.userId == userId)
-            .filter(UserMemory.archivedAt.is_(None))
-            .order_by(UserMemory.relevanceScore.desc())
-            .limit(10)
-            .all()
-        )
-        if memories:
-            lines = [
-                f"- [{MEMORY_LABELS.get(m.memoryType, m.memoryType)}] {m.memoryKey}: {m.memoryValue}" for m in memories
-            ]
-            memoryBlock = "\n".join(lines)
-
-    memoriesSection = f"\n[MEMÓRIAS DO USUÁRIO]\n{memoryBlock}" if memoryBlock else ""
-    return f"{Prometheus.SYSTEM_PROMPT}{memoriesSection}"
-
-
-async def executeMemoryTool(name: str, args: dict, user: dict) -> dict:
-    db = SessionLocal()
-    try:
-        if name == "search_memory":
-            results = MemoryManager.search(
-                db,
-                user["userId"],
-                args["query"],
-                limit=args.get("limit", 10),
-            )
-            return {"memories": results}
-
-        elif name == "save_memory":
-            from main.utils.models.loader import embed
-
-            embedding = embed([args["value"]])[0]
-            result = MemoryManager.upsertMemory(
-                db,
-                user["userId"],
-                key=args["key"],
-                value=args["value"],
-                memoryType=args["type"],
-                source="explicit",
-                embedding=embedding,
-                userRoles=user.get("roles", []),
-            )
-            if result["status"] == "limit_reached":
-                return {"error": f"Memory limit reached ({result['limit']}). Upgrade to premium for 50 memories."}
-            return {"status": result["status"], "memoryId": result["memory"].id}
-
-        return {"error": f"Unknown memory tool: {name}"}
-    finally:
-        db.close()
 
 
 class Prometheus:
@@ -198,6 +101,25 @@ class Prometheus:
         - Always use tags when presenting structured data — never dump raw JSON
         """
 
+    @classmethod
+    def buildSystemPrompt(cls, userId: int | None = None, db=None) -> str:
+        memoryBlock = ""
+        if userId and db:
+            memories = (
+                db.query(UserMemory)
+                .filter(UserMemory.userId == userId)
+                .filter(UserMemory.archivedAt.is_(None))
+                .order_by(UserMemory.relevanceScore.desc())
+                .limit(10)
+                .all()
+            )
+            if memories:
+                lines = [f"- [{m.memoryType}] {m.memoryKey}: {m.memoryValue}" for m in memories]
+                memoryBlock = "\n".join(lines)
+
+        memoriesSection = f"\n[MEMÓRIAS DO USUÁRIO]\n{memoryBlock}" if memoryBlock else ""
+        return f"{cls.SYSTEM_PROMPT}{memoriesSection}"
+
     @asynccontextmanager
     async def openMCPClients(self):
         stocks = Client(f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/mcp")
@@ -223,46 +145,13 @@ class Prometheus:
             config=types.GenerateContentConfig(**kwargs),
         )
 
-    async def executeToolCall(self, functionCall, mcpClients, user=None):
-        name = functionCall.name
-        args = functionCall.args or {}
-        logger.info(f"Executing tool call: {name}({args})")
-
-        if name in ("search_memory", "save_memory") and user:
-            return await executeMemoryTool(name, args, user)
-
-        for client in mcpClients.values():
-            try:
-                mcpResult = await client.session.call_tool(name, args)
-                if getattr(mcpResult, "isError", False):
-                    logger.debug(f"Tool {name} returned error on {client}, trying next client")
-                    continue
-                textParts = []
-                if hasattr(mcpResult, "content") and mcpResult.content:
-                    for block in mcpResult.content:
-                        if hasattr(block, "text"):
-                            textParts.append(block.text)
-                        else:
-                            textParts.append(str(block))
-                response = "\n".join(textParts) if textParts else str(mcpResult)
-                logger.info(f"Tool {name} response length: {len(response)}")
-                return {"result": response}
-            except Exception as e:
-                logger.debug(f"Client {client} failed for {name}: {e}")
-                continue
-
-        logger.warning(f"Tool {name} not found in any MCP client")
-        return {"error": f"Tool '{name}' not available"}
-
     async def sendMessage(
         self, query: str | None = None, sessionId: str | None = None, db=None, user: dict | None = None
     ):
         logger.info(f"Query: {query}")
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
-
         PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
-
-        system_prompt = buildSystemPrompt(user.get("userId") if user else None, db)
+        system_prompt = Prometheus.buildSystemPrompt(user.get("userId") if user else None, db)
 
         async with self.openMCPClients() as (clients, sessions):
             chat = self.makeChat(sessions, history, system_prompt=system_prompt)
@@ -278,7 +167,7 @@ class Prometheus:
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
 
         fullText = ""
-        system_prompt = buildSystemPrompt(user.get("userId") if user else None, db)
+        system_prompt = Prometheus.buildSystemPrompt(user.get("userId") if user else None, db)
 
         async with self.openMCPClients() as (mcpClients, sessions):
             chat = self.makeChat(
@@ -308,8 +197,7 @@ class Prometheus:
 
                     functionResponses = []
                     for fc in functionCalls:
-                        logger.info(f"Executing tool: {fc.name}({fc.args})")
-                        result = await self.executeToolCall(fc, mcpClients, user=user)
+                        result = await dispatchToolCall(fc, mcpClients, user=user)
                         functionResponses.append(
                             types.Part.from_function_response(
                                 name=fc.name,

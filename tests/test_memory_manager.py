@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 from datetime import datetime, timezone
-from main.app.prometheus.memory import MemoryManager, MEMORY_LIMIT_BASIC, MEMORY_LIMIT_EXTENDED
+from main.app.prometheus.memory import PrometheusMemory as MemoryManager, MEMORY_LIMIT_BASIC, MEMORY_LIMIT_EXTENDED
 from main.models.memory import UserMemory
 
 
