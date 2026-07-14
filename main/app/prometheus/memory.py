@@ -7,10 +7,15 @@ from sqlalchemy.orm import Session
 
 from main.models.memory import UserMemory
 from main.utils.roles import Permission, Roles
-from main.utils.vector import batchCosineSimilarity, contentHash
+from main.utils.vector import batchCosineSimilarity, contentHash, getRelevanceScore
 
 MEMORY_LIMIT_BASIC = 5
 MEMORY_LIMIT_EXTENDED = 50
+SAO_PAULO_TZ = pytz.timezone("America/Sao_Paulo")
+
+
+def _now():
+    return datetime.now(SAO_PAULO_TZ)
 
 
 class PrometheusMemory:
@@ -53,8 +58,9 @@ class PrometheusMemory:
             existing.source = source  # type: ignore[assignment]
             existing.contentHash = newHash  # type: ignore[assignment]
             existing.embedding = embedding  # type: ignore[assignment]
-            existing.relevanceScore = min(existing.relevanceScore + 0.1, 1.0)  # type: ignore[arg-type]
+            existing.baseScore = min(existing.baseScore + 0.1, 1.0)  # type: ignore[arg-type]
             existing.accessCount += 1  # type: ignore[assignment]
+            existing.lastAccessedAt = _now()  # type: ignore[assignment]
             db.commit()
             db.refresh(existing)
             return {"status": "updated", "memory": existing}
@@ -73,6 +79,7 @@ class PrometheusMemory:
             source=source,
             embedding=embedding,
             contentHash=contentHash(value),
+            lastAccessedAt=_now(),
         )
         db.add(memory)
         db.commit()
@@ -96,6 +103,7 @@ class PrometheusMemory:
         if not memories:
             return []
 
+        now = _now()
         memoriesWithEmb = [m for m in memories if m.embedding is not None]
         if memoriesWithEmb:
             try:
@@ -114,7 +122,7 @@ class PrometheusMemory:
                             "memoryValue": m.memoryValue,
                             "memoryType": m.memoryType,
                             "score": float(similarities[i]),
-                            "relevanceScore": m.relevanceScore,
+                            "relevanceScore": getRelevanceScore(m, now),
                         }
                     )
                 results.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
@@ -129,12 +137,12 @@ class PrometheusMemory:
         results = (
             db.execute(
                 text("""
-                SELECT id, memoryKey, memoryValue, memoryType, relevanceScore,
+                SELECT id, memoryKey, memoryValue, memoryType, baseScore,
                        MATCH(memoryKey, memoryValue) AGAINST(:query IN BOOLEAN MODE) as score
                 FROM prometheus_memories
                 WHERE userId = :userId
                   AND archivedAt IS NULL
-                ORDER BY score DESC, relevanceScore DESC
+                ORDER BY score DESC, baseScore DESC
                 LIMIT :limit
             """),
                 {"query": query, "userId": userId, "limit": limit},
@@ -143,6 +151,7 @@ class PrometheusMemory:
             .all()
         )
 
+        now = _now()
         return [
             {
                 "id": r["id"],
@@ -150,7 +159,7 @@ class PrometheusMemory:
                 "memoryValue": r["memoryValue"],
                 "memoryType": r["memoryType"],
                 "score": float(r["score"]),
-                "relevanceScore": float(r["relevanceScore"]),
+                "relevanceScore": float(r["baseScore"]),
             }
             for r in results
         ]
@@ -161,18 +170,19 @@ class PrometheusMemory:
             db.query(UserMemory)
             .filter(UserMemory.userId == userId)
             .filter(UserMemory.archivedAt.is_(None))
-            .order_by(UserMemory.relevanceScore.desc())
+            .order_by(UserMemory.baseScore.desc())
             .offset(offset)
             .limit(limit)
             .all()
         )
+        now = _now()
         return [
             {
                 "id": m.id,
                 "memoryKey": m.memoryKey,
                 "memoryValue": m.memoryValue,
                 "memoryType": m.memoryType,
-                "relevanceScore": m.relevanceScore,
+                "relevanceScore": getRelevanceScore(m, now),
                 "accessCount": m.accessCount,
                 "createdAt": m.createdAt.isoformat() if m.createdAt else None,
             }
@@ -184,30 +194,19 @@ class PrometheusMemory:
         memory = db.query(UserMemory).filter(UserMemory.id == memoryId, UserMemory.userId == userId).first()
         if not memory:
             return False
-        memory.archivedAt = datetime.now(pytz.timezone("America/Sao_Paulo"))  # type: ignore[assignment]
+        memory.archivedAt = _now()  # type: ignore[assignment]
         db.commit()
         return True
 
     @classmethod
-    def decayScores(cls, db: Session):
-        threshold = datetime.now(pytz.timezone("America/Sao_Paulo")) - timedelta(days=30)
-        memories = (
-            db.query(UserMemory).filter(UserMemory.updatedAt < threshold).filter(UserMemory.archivedAt.is_(None)).all()
-        )
-        for m in memories:
-            m.relevanceScore *= 0.95  # type: ignore[assignment]
-        db.commit()
-
-    @classmethod
     def archiveDead(cls, db: Session):
-        threshold = datetime.now(pytz.timezone("America/Sao_Paulo")) - timedelta(days=90)
+        threshold = _now() - timedelta(days=180)
         dead = (
             db.query(UserMemory)
-            .filter(UserMemory.relevanceScore < 0.1)
+            .filter(UserMemory.baseScore < 0.1)
             .filter((UserMemory.lastAccessedAt < threshold) | UserMemory.lastAccessedAt.is_(None))
-            .filter(UserMemory.accessCount == 0)
             .all()
         )
         for m in dead:
-            m.archivedAt = datetime.now(pytz.timezone("America/Sao_Paulo"))  # type: ignore[assignment]
+            m.archivedAt = _now()  # type: ignore[assignment]
         db.commit()

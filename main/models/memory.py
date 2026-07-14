@@ -13,7 +13,7 @@ class UserMemory(Base):
     memoryValue = Column(Text, nullable=False)
     memoryType = Column(String(20), default="context")
     source = Column(String(20), default="inferred")
-    relevanceScore = Column(Float, default=1.0)
+    baseScore = Column(Float, default=1.0)
     accessCount = Column(Integer, default=0)
     embedding = Column(VectorType(384))  # type: ignore[var-annotated]
     embeddingModel = Column(String(50), default="all-MiniLM-L6-v2")
@@ -30,6 +30,6 @@ class UserMemory(Base):
 
     __table_args__ = (
         UniqueConstraint("userId", "memoryKey", name="uk_prometheus_memories"),
-        Index("idx_relevance", "userId", "relevanceScore"),
+        Index("idx_relevance", "userId", "baseScore"),
         Index("idx_type", "userId", "memoryType"),
     )

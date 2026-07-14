@@ -1,4 +1,7 @@
 import hashlib
+import math
+from datetime import datetime
+
 import numpy as np
 
 
@@ -16,3 +19,21 @@ def batchCosineSimilarity(query: list[float], matrix: np.ndarray) -> np.ndarray:
 
 def contentHash(text: str) -> str:
     return hashlib.md5(text.encode("utf-8"), usedforsecurity=False).hexdigest()
+
+
+def getRelevanceScore(memory, now: datetime) -> float:
+    """Compute relevance as baseScore * timeDecay(lastAccessedAt).
+
+    Logarithmic decay: recently accessed memories stay high,
+    old memories fade gradually. No cron job needed.
+    """
+    if memory.lastAccessedAt is None:
+        return memory.baseScore
+    lastAccessed = memory.lastAccessedAt
+    # Normalize: strip tzinfo from both so subtraction works (SQLite stores naive)
+    if lastAccessed.tzinfo is not None:
+        lastAccessed = lastAccessed.replace(tzinfo=None)
+    nowNaive = now.replace(tzinfo=None) if now.tzinfo is not None else now
+    days = max((nowNaive - lastAccessed).total_seconds() / 86400, 0)
+    timeFactor = 1.0 / (1.0 + math.log1p(days) * 0.7)
+    return memory.baseScore * timeFactor

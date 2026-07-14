@@ -109,7 +109,7 @@ class Prometheus:
                 db.query(UserMemory)
                 .filter(UserMemory.userId == userId)
                 .filter(UserMemory.archivedAt.is_(None))
-                .order_by(UserMemory.relevanceScore.desc())
+                .order_by(UserMemory.baseScore.desc())
                 .limit(10)
                 .all()
             )
