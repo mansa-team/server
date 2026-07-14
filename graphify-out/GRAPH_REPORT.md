@@ -1,16 +1,16 @@
 # Graph Report - server  (2026-06-29)
 
 ## Corpus Check
-- 105 files · ~80,940 words
+- 95 files · ~45,943 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 3230 nodes · 4361 edges · 311 communities (160 shown, 151 thin omitted)
+- 3231 nodes · 4361 edges · 311 communities (160 shown, 151 thin omitted)
 - Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 700 edges (avg confidence: 0.67)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c59a8a6c`
+- Built from commit: `05e2a97c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -284,7 +284,6 @@
 - [[_COMMUNITY_Community 272|Community 272]]
 - [[_COMMUNITY_Community 273|Community 273]]
 - [[_COMMUNITY_Community 274|Community 274]]
-- [[_COMMUNITY_Community 275|Community 275]]
 - [[_COMMUNITY_Community 276|Community 276]]
 - [[_COMMUNITY_Community 277|Community 277]]
 - [[_COMMUNITY_Community 278|Community 278]]
@@ -565,8 +564,8 @@ Cohesion: 0.09
 Nodes (6): Cover all methods in chat.py (lines 11-120)., Cover all methods in chat.py (lines 11-120)., Cover all methods in chat.py (lines 11-120)., Cover all methods in chat.py (lines 11-120)., Cover all methods in chat.py (lines 11-120)., TestPrometheusChatManager
 
 ### Community 71 - "Community 71"
-Cohesion: 0.11
-Nodes (15): Tests for connection pool configuration, Tests for connection pool configuration, Stocks engine should have optimized pool settings, Stocks engine should have optimized pool settings, Tests for optimized search filtering, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Filter should use ticker index for O(1) lookup (+7 more)
+Cohesion: 0.09
+Nodes (17): Tests for connection pool configuration, Tests for connection pool configuration, Stocks engine should have optimized pool settings, Stocks engine should have optimized pool settings, Integration tests for all query optimizations, Integration tests for all query optimizations, All optimizations should be implemented, All optimizations should be implemented (+9 more)
 
 ### Community 72 - "Community 72"
 Cohesion: 0.1
@@ -833,8 +832,8 @@ Cohesion: 0.33
 Nodes (5): Exercises the tzinfo-is-None branch (line 144-148)., Exercises the tzinfo-is-None branch (line 144-148)., Exercises the tzinfo-is-None branch (line 144-148)., Exercises the tzinfo-is-None branch (line 144-148)., Exercises the tzinfo-is-None branch (line 144-148).
 
 ### Community 247 - "Community 247"
-Cohesion: 0.22
-Nodes (7): Integration tests for all query optimizations, Integration tests for all query optimizations, All optimizations should be implemented, All optimizations should be implemented, Query filter should use ticker index, Query filter should use ticker index, TestQueryOptimization
+Cohesion: 0.33
+Nodes (5): Tests for optimized search filtering, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Filter should use ticker index for O(1) lookup, TestFilterBySearchTerms
 
 ### Community 248 - "Community 248"
 Cohesion: 0.33
@@ -853,8 +852,8 @@ Cohesion: 0.24
 Nodes (6): Dataset, produce_data(), Train script for a single file  Need to set the TPU address first: export XRT_TP, A class that handles the reddit data files, A class that handles one dataset, RedditDataset
 
 ### Community 267 - "Community 267"
-Cohesion: 0.16
-Nodes (16): verifyAPIKey(), Tests to increase coverage for query.py, key.py, and cache.py in stocks_api., Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, test_cache_scheduler_starts_apscheduler(), test_cache_scheduler_starts_daemon_thread() (+8 more)
+Cohesion: 0.11
+Nodes (22): verifyAPIKey(), Tests to increase coverage for query.py, key.py, and cache.py in stocks_api., Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 48-66., Tests covering key.py lines 48-66. (+14 more)
 
 ### Community 269 - "Community 269"
 Cohesion: 0.13
@@ -875,10 +874,6 @@ Nodes (3): Pytest Testing, Tests for main/utils/http_session.py — covers all b
 ### Community 274 - "Community 274"
 Cohesion: 0.33
 Nodes (5): Performance tests for query operations, Query should respond within 1 second, Performance tests for query operations, Query should respond within 1 second, TestQueryPerformance
-
-### Community 275 - "Community 275"
-Cohesion: 0.33
-Nodes (6): Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., TestCreateKey
 
 ### Community 278 - "Community 278"
 Cohesion: 0.4
@@ -965,11 +960,11 @@ Nodes (3): _parse_date(), parseDateEnd(), parseDateStart()
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Pytest Testing` connect `Community 273` to `Community 130`, `Session Management`, `Configuration & Logging`, `Scraper B3`, `Community 267`, `Scraper Service`, `Community 140`, `Community 143`, `Database Utils`, `Settings`, `Helpers`, `Community 287`, `Community 289`, `Community 164`, `Community 49`, `Community 50`, `Community 52`, `Community 182`, `Community 63`, `Community 65`, `Community 71`, `Community 72`, `Community 85`, `Community 88`, `Community 93`, `Community 227`, `Community 236`, `Community 117`, `Community 252`?**
-  _High betweenness centrality (0.152) - this node is a cross-community bridge._
+  _High betweenness centrality (0.154) - this node is a cross-community bridge._
+- **Why does `UserManager` connect `Community 50` to `Community 267`, `Community 269`, `Decorators`, `Enums`, `Community 286`, `Community 296`, `Community 172`, `Community 180`, `Community 53`, `Community 55`, `Community 57`, `Community 58`, `Community 61`, `Community 67`, `Community 69`, `Community 73`, `Community 78`, `Community 228`, `Community 230`, `Community 235`, `Community 108`, `Community 126`?**
+  _High betweenness centrality (0.087) - this node is a cross-community bridge._
 - **Why does `FastAPI` connect `Community 269` to `Community 129`, `Authentication Manager`, `Community 130`, `Community 135`, `Scraper B3`, `Community 267`, `Community 140`, `Auth Service`, `Settings`, `Community 287`, `Community 306`, `Community 50`, `Community 54`, `Community 182`, `Community 58`, `Community 63`, `Community 74`, `Community 78`, `Community 80`, `Community 85`, `Community 88`, `Community 227`, `Community 108`, `Community 252`, `Community 253`?**
-  _High betweenness centrality (0.084) - this node is a cross-community bridge._
-- **Why does `UserManager` connect `Community 50` to `Community 267`, `Community 269`, `Decorators`, `Community 275`, `Enums`, `Community 286`, `Community 296`, `Community 172`, `Community 180`, `Community 53`, `Community 55`, `Community 57`, `Community 58`, `Community 61`, `Community 67`, `Community 69`, `Community 73`, `Community 78`, `Community 228`, `Community 230`, `Community 235`, `Community 108`, `Community 126`?**
-  _High betweenness centrality (0.078) - this node is a cross-community bridge._
+  _High betweenness centrality (0.083) - this node is a cross-community bridge._
 - **Are the 72 inferred relationships involving `StocksCacheManager` (e.g. with `TestStocksCacheManager` and `TestVerifyAPIKey`) actually correct?**
   _`StocksCacheManager` has 72 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 47 inferred relationships involving `UserManager` (e.g. with `SessionManager` and `Permission`) actually correct?**

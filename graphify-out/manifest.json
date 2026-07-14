@@ -254,54 +254,9 @@
     "ast_hash": "d979705bec111772537e2b6a5604ae15",
     "semantic_hash": ""
   },
-  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\config.json": {
-    "mtime": 1782703951.8604076,
-    "ast_hash": "6bb051fcf27f36c20d8045847c7fdb56",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\config_sentence_transformers.json": {
-    "mtime": 1782703951.8403196,
-    "ast_hash": "ad417aea2647e0f7c1f0cbd5ecf8e2ed",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\data_config.json": {
-    "mtime": 1782703951.9296565,
-    "ast_hash": "962fb99508458af19fe2ecad8569a600",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\modules.json": {
-    "mtime": 1782703951.8403196,
-    "ast_hash": "327af49c9bc8f4409a299fec9e3434c0",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\sentence_bert_config.json": {
-    "mtime": 1782703998.4926274,
-    "ast_hash": "8ec2a809597159ff281bf9113c472441",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\special_tokens_map.json": {
-    "mtime": 1782703999.1713765,
-    "ast_hash": "8b3fb1023167bb4ab9d70708eb05f6ec",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\tokenizer.json": {
-    "mtime": 1782704001.246841,
-    "ast_hash": "f540215c85aa2a5d5d5ea440093397a8",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\tokenizer_config.json": {
-    "mtime": 1782704001.6422486,
-    "ast_hash": "0a9aa1a3432247cd4025ffe572ee428a",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\train_script.py": {
-    "mtime": 1782704002.218244,
-    "ast_hash": "b3c75b241935e0698b80f39f0e503037",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\1_Pooling\\config.json": {
-    "mtime": 1782703951.846847,
-    "ast_hash": "e89bd4ac18aef07c3beb5bd83d0a5b58",
+  "D:\\Repositories\\server\\main\\utils\\models\\__init__.py": {
+    "mtime": 1782708689.9179392,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\migrations\\env.py": {
@@ -495,13 +450,13 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\requirements.txt": {
-    "mtime": 1782704651.4674666,
-    "ast_hash": "38b7b04b061ca0ef77f158a5af11310a",
+    "mtime": 1782708880.2202623,
+    "ast_hash": "bc281eeb306573f3411e146fce672584",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\TODO.md": {
-    "mtime": 1782703828.8478699,
-    "ast_hash": "62a83824bf571c9346736d1be5d9f984",
+    "mtime": 1782706823.0498326,
+    "ast_hash": "e08fcda35a17445c81c15f25f35e756f",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docs\\authentication.md": {
@@ -542,16 +497,6 @@
   "D:\\Repositories\\server\\main\\app\\prometheus\\temp.txt": {
     "mtime": 1782691503.0295904,
     "ast_hash": "44407d9bf987159dbce9126da4770607",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\README.md": {
-    "mtime": 1782703951.7834656,
-    "ast_hash": "c9f3bd114fb5ecfb5a31cede0e09a6c0",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\vocab.txt": {
-    "mtime": 1782704002.6679504,
-    "ast_hash": "64800d5d8528ce344256daf115d4965e",
     "semantic_hash": ""
   }
 }

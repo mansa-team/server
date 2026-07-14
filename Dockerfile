@@ -38,4 +38,7 @@ WORKDIR /
 
 COPY . .
 
+# remove in prod, just speeding up testing
+RUN python -c "from main.utils.models.loader import getEmbeddingModel; getEmbeddingModel()"
+
 CMD ["python", "run.py"]
