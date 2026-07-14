@@ -15,4 +15,4 @@ def batchCosineSimilarity(query: list[float], matrix: np.ndarray) -> np.ndarray:
 
 
 def contentHash(text: str) -> str:
-    return hashlib.md5(text.encode("utf-8")).hexdigest()
+    return hashlib.md5(text.encode("utf-8"), usedforsecurity=False).hexdigest()

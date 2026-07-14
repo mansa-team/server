@@ -13,11 +13,7 @@ MEMORY_LIMIT_BASIC = 5
 MEMORY_LIMIT_EXTENDED = 50
 
 
-def _now():
-    return datetime.now(pytz.timezone("America/Sao_Paulo"))
-
-
-class MemoryManager:
+class PrometheusMemory:
     @classmethod
     def getMemoryLimit(cls, userRoles: list[str]) -> int:
         if Roles.checkAccess(userRoles, Permission.PROMETHEUS_EXTENDED_MEMORIES):
@@ -188,13 +184,13 @@ class MemoryManager:
         memory = db.query(UserMemory).filter(UserMemory.id == memoryId, UserMemory.userId == userId).first()
         if not memory:
             return False
-        memory.archivedAt = _now()  # type: ignore[assignment]
+        memory.archivedAt = datetime.now(pytz.timezone("America/Sao_Paulo"))  # type: ignore[assignment]
         db.commit()
         return True
 
     @classmethod
     def decayScores(cls, db: Session):
-        threshold = _now() - timedelta(days=30)
+        threshold = datetime.now(pytz.timezone("America/Sao_Paulo")) - timedelta(days=30)
         memories = (
             db.query(UserMemory).filter(UserMemory.updatedAt < threshold).filter(UserMemory.archivedAt.is_(None)).all()
         )
@@ -204,14 +200,14 @@ class MemoryManager:
 
     @classmethod
     def archiveDead(cls, db: Session):
-        threshold = _now() - timedelta(days=90)
+        threshold = datetime.now(pytz.timezone("America/Sao_Paulo")) - timedelta(days=90)
         dead = (
             db.query(UserMemory)
             .filter(UserMemory.relevanceScore < 0.1)
-            .filter(UserMemory.lastAccessedAt < threshold)
+            .filter((UserMemory.lastAccessedAt < threshold) | UserMemory.lastAccessedAt.is_(None))
             .filter(UserMemory.accessCount == 0)
             .all()
         )
         for m in dead:
-            m.archivedAt = _now()  # type: ignore[assignment]
+            m.archivedAt = datetime.now(pytz.timezone("America/Sao_Paulo"))  # type: ignore[assignment]
         db.commit()
