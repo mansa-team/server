@@ -64,10 +64,11 @@ MEMORY_TOOLS = [
 ]
 
 
-def _buildSystemPrompt(userId: int = None, db=None) -> str:
+def _buildSystemPrompt(userId: int | None = None, db=None) -> str:
     memoryBlock = ""
     if userId and db:
         from main.models.memory import UserMemory
+
         memories = (
             db.query(UserMemory)
             .filter(UserMemory.userId == userId)
@@ -78,8 +79,7 @@ def _buildSystemPrompt(userId: int = None, db=None) -> str:
         )
         if memories:
             lines = [
-                f"- [{MEMORY_LABELS.get(m.memoryType, m.memoryType)}] {m.memoryKey}: {m.memoryValue}"
-                for m in memories
+                f"- [{MEMORY_LABELS.get(m.memoryType, m.memoryType)}] {m.memoryKey}: {m.memoryValue}" for m in memories
             ]
             memoryBlock = "\n".join(lines)
 
@@ -94,16 +94,20 @@ async def _executeMemoryTool(name: str, args: dict, user: dict) -> dict:
     try:
         if name == "search_memory":
             results = MemoryManager.search(
-                db, user["userId"], args["query"],
+                db,
+                user["userId"],
+                args["query"],
                 limit=args.get("limit", 10),
             )
             return {"memories": results}
 
         elif name == "save_memory":
             from main.utils.models.loader import embed
+
             embedding = embed([args["value"]])[0]
             result = MemoryManager.upsertMemory(
-                db, user["userId"],
+                db,
+                user["userId"],
                 key=args["key"],
                 value=args["value"],
                 memoryType=args["type"],
@@ -252,7 +256,7 @@ class Prometheus:
         logger.warning(f"Tool {name} not found in any MCP client")
         return {"error": f"Tool '{name}' not available"}
 
-    async def sendMessage(self, query: str | None = None, sessionId: str | None = None, db=None, user: dict = None):
+    async def sendMessage(self, query: str | None = None, sessionId: str | None = None, db=None, user: dict | None = None):
         logger.info(f"Query: {query}")
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
 
@@ -268,7 +272,7 @@ class Prometheus:
         return response.text
 
     async def streamMessage(
-        self, query: str | None = None, sessionId: str | None = None, db=None, user: dict = None
+        self, query: str | None = None, sessionId: str | None = None, db=None, user: dict | None = None
     ) -> AsyncIterator[dict]:
         logger.info(f"Stream query: {query}")
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
@@ -277,7 +281,9 @@ class Prometheus:
         system_prompt = _buildSystemPrompt(user.get("userId") if user else None, db)
 
         async with self.openMCPClients() as (mcpClients, sessions):
-            chat = self.makeChat(sessions, history, system_prompt=system_prompt, disable_automatic_function_calling=True)
+            chat = self.makeChat(
+                sessions, history, system_prompt=system_prompt, disable_automatic_function_calling=True
+            )
 
             try:
                 stream = await chat.send_message_stream(query)

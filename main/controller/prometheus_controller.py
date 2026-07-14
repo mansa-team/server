@@ -9,7 +9,7 @@ from main.utils.roles import Roles, Permission
 from sqlalchemy.orm import Session
 from main.models.prometheus import PrometheusSession
 
-from fastapi import APIRouter, Depends, Request, HTTPException, Query
+from fastapi import APIRouter, Depends, Request, HTTPException, Query, Body
 from fastapi.responses import StreamingResponse
 import time
 
@@ -154,58 +154,3 @@ async def chat_stream(
             yield "data: [DONE]\n\n"
 
     return StreamingResponse(eventStream(), media_type="text/event-stream")
-
-
-# ── Memory endpoints ──────────────────────────────────────────────────
-
-
-@router.get("/memories")
-def getMemories(
-    db: Session = Depends(getSession),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
-    limit: int = Query(50, ge=1, le=50),
-    offset: int = Query(0, ge=0),
-):
-    from main.app.prometheus.memory import MemoryManager
-
-    memories = MemoryManager.getUserMemories(db, user["userId"], limit, offset)
-    total = MemoryManager.countMemories(db, user["userId"])
-    return {"memories": memories, "total": total}
-
-
-@router.post("/memories")
-def createMemory(
-    db: Session = Depends(getSession),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
-    key: str = Body(..., min_length=1, max_length=100, embed=True),
-    value: str = Body(..., min_length=1, embed=True),
-    memoryType: str = Body("context", embed=True),
-):
-    from main.app.prometheus.memory import MemoryManager
-    from main.utils.models.loader import embed
-
-    embedding = embed([value])[0]
-    result = MemoryManager.upsertMemory(
-        db, user["userId"], key, value, memoryType, "explicit",
-        embedding=embedding, userRoles=user.get("roles", []),
-    )
-    if result["status"] == "limit_reached":
-        raise HTTPException(
-            status_code=403,
-            detail=f"Memory limit reached ({result['limit']}). Upgrade to premium for 50 memories.",
-        )
-    return {"success": True, "status": result["status"], "memoryId": result["memory"].id}
-
-
-@router.delete("/memories/{memoryId}")
-def deleteMemory(
-    memoryId: int,
-    db: Session = Depends(getSession),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
-):
-    from main.app.prometheus.memory import MemoryManager
-
-    deleted = MemoryManager.deleteMemory(db, user["userId"], memoryId)
-    if not deleted:
-        raise HTTPException(status_code=404, detail="Memory not found")
-    return {"success": True, "deleted": True}

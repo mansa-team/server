@@ -1,18 +1,23 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
+
 import numpy as np
+import pytz
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
+
 from main.models.memory import UserMemory
-from main.utils.vector import contentHash, batchCosineSimilarity
-from main.utils.roles import Roles, Permission
+from main.utils.roles import Permission, Roles
+from main.utils.vector import batchCosineSimilarity, contentHash
 
 MEMORY_LIMIT_BASIC = 5
 MEMORY_LIMIT_EXTENDED = 50
 
 
-class MemoryManager:
-    """All memory operations. Stateless class methods."""
+def _now():
+    return datetime.now(pytz.timezone("America/Sao_Paulo"))
 
+
+class MemoryManager:
     @classmethod
     def getMemoryLimit(cls, userRoles: list[str]) -> int:
         if Roles.checkAccess(userRoles, Permission.PROMETHEUS_EXTENDED_MEMORIES):
@@ -38,26 +43,22 @@ class MemoryManager:
         memoryType: str = "context",
         source: str = "inferred",
         embedding=None,
-        userRoles: list[str] = None,
+        userRoles: list[str] | None = None,
     ) -> dict:
-        existing = (
-            db.query(UserMemory)
-            .filter(UserMemory.userId == userId, UserMemory.memoryKey == key)
-            .first()
-        )
+        existing = db.query(UserMemory).filter(UserMemory.userId == userId, UserMemory.memoryKey == key).first()
 
         if existing:
             newHash = contentHash(value)
             if existing.contentHash == newHash:
                 return {"status": "unchanged", "memory": existing}
 
-            existing.memoryValue = value
-            existing.memoryType = memoryType
-            existing.source = source
-            existing.contentHash = newHash
-            existing.embedding = embedding
-            existing.relevanceScore = min(existing.relevanceScore + 0.1, 1.0)
-            existing.accessCount += 1
+            existing.memoryValue = value  # type: ignore[assignment]
+            existing.memoryType = memoryType  # type: ignore[assignment]
+            existing.source = source  # type: ignore[assignment]
+            existing.contentHash = newHash  # type: ignore[assignment]
+            existing.embedding = embedding  # type: ignore[assignment]
+            existing.relevanceScore = min(existing.relevanceScore + 0.1, 1.0)  # type: ignore[arg-type]
+            existing.accessCount += 1  # type: ignore[assignment]
             db.commit()
             db.refresh(existing)
             return {"status": "updated", "memory": existing}
@@ -89,13 +90,9 @@ class MemoryManager:
         userId: int,
         query: str,
         limit: int = 10,
-        memoryType: str = None,
+        memoryType: str | None = None,
     ) -> list[dict]:
-        queryFilter = (
-            db.query(UserMemory)
-            .filter(UserMemory.userId == userId)
-            .filter(UserMemory.archivedAt.is_(None))
-        )
+        queryFilter = db.query(UserMemory).filter(UserMemory.userId == userId).filter(UserMemory.archivedAt.is_(None))
         if memoryType:
             queryFilter = queryFilter.filter(UserMemory.memoryType == memoryType)
 
@@ -103,39 +100,39 @@ class MemoryManager:
         if not memories:
             return []
 
-        # Vector search if embeddings exist
         memoriesWithEmb = [m for m in memories if m.embedding is not None]
         if memoriesWithEmb:
             try:
                 from main.utils.models.loader import embed as _embed
+
                 queryEmbedding = _embed([query])[0]
                 matrix = np.vstack([m.embedding for m in memoriesWithEmb])
                 similarities = batchCosineSimilarity(queryEmbedding, matrix)
 
                 results = []
                 for i, m in enumerate(memoriesWithEmb):
-                    results.append({
-                        "id": m.id,
-                        "memoryKey": m.memoryKey,
-                        "memoryValue": m.memoryValue,
-                        "memoryType": m.memoryType,
-                        "score": float(similarities[i]),
-                        "relevanceScore": m.relevanceScore,
-                    })
-                results.sort(key=lambda x: x["score"], reverse=True)
+                    results.append(
+                        {
+                            "id": m.id,
+                            "memoryKey": m.memoryKey,
+                            "memoryValue": m.memoryValue,
+                            "memoryType": m.memoryType,
+                            "score": float(similarities[i]),
+                            "relevanceScore": m.relevanceScore,
+                        }
+                    )
+                results.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
                 return results[:limit]
             except Exception:
-                pass  # Fall through to FULLTEXT
+                pass
 
-        # FULLTEXT fallback
-        return cls._fulltextSearch(db, userId, query, limit)
+        return cls.fullTextSearch(db, userId, query, limit)
 
     @classmethod
-    def _fulltextSearch(
-        cls, db: Session, userId: int, query: str, limit: int
-    ) -> list[dict]:
-        results = db.execute(
-            text("""
+    def fullTextSearch(cls, db: Session, userId: int, query: str, limit: int) -> list[dict]:
+        results = (
+            db.execute(
+                text("""
                 SELECT id, memoryKey, memoryValue, memoryType, relevanceScore,
                        MATCH(memoryKey, memoryValue) AGAINST(:query IN BOOLEAN MODE) as score
                 FROM prometheus_memories
@@ -144,8 +141,11 @@ class MemoryManager:
                 ORDER BY score DESC, relevanceScore DESC
                 LIMIT :limit
             """),
-            {"query": query, "userId": userId, "limit": limit},
-        ).mappings().all()
+                {"query": query, "userId": userId, "limit": limit},
+            )
+            .mappings()
+            .all()
+        )
 
         return [
             {
@@ -160,9 +160,7 @@ class MemoryManager:
         ]
 
     @classmethod
-    def getUserMemories(
-        cls, db: Session, userId: int, limit: int = 50, offset: int = 0
-    ) -> list[dict]:
+    def getUserMemories(cls, db: Session, userId: int, limit: int = 50, offset: int = 0) -> list[dict]:
         memories = (
             db.query(UserMemory)
             .filter(UserMemory.userId == userId)
@@ -187,34 +185,26 @@ class MemoryManager:
 
     @classmethod
     def deleteMemory(cls, db: Session, userId: int, memoryId: int) -> bool:
-        memory = (
-            db.query(UserMemory)
-            .filter(UserMemory.id == memoryId, UserMemory.userId == userId)
-            .first()
-        )
+        memory = db.query(UserMemory).filter(UserMemory.id == memoryId, UserMemory.userId == userId).first()
         if not memory:
             return False
-        memory.archivedAt = datetime.now(timezone.utc)
+        memory.archivedAt = _now()  # type: ignore[assignment]
         db.commit()
         return True
 
-    # ponytail: decayScores/archiveDead not called yet — add scheduler when needed
     @classmethod
     def decayScores(cls, db: Session):
-        threshold = datetime.now(timezone.utc) - timedelta(days=30)
+        threshold = _now() - timedelta(days=30)
         memories = (
-            db.query(UserMemory)
-            .filter(UserMemory.updatedAt < threshold)
-            .filter(UserMemory.archivedAt.is_(None))
-            .all()
+            db.query(UserMemory).filter(UserMemory.updatedAt < threshold).filter(UserMemory.archivedAt.is_(None)).all()
         )
         for m in memories:
-            m.relevanceScore *= 0.95
+            m.relevanceScore *= 0.95  # type: ignore[assignment]
         db.commit()
 
     @classmethod
     def archiveDead(cls, db: Session):
-        threshold = datetime.now(timezone.utc) - timedelta(days=90)
+        threshold = _now() - timedelta(days=90)
         dead = (
             db.query(UserMemory)
             .filter(UserMemory.relevanceScore < 0.1)
@@ -223,5 +213,5 @@ class MemoryManager:
             .all()
         )
         for m in dead:
-            m.archivedAt = datetime.now(timezone.utc)
+            m.archivedAt = _now()  # type: ignore[assignment]
         db.commit()
