@@ -3,8 +3,6 @@ from sqlalchemy.types import TypeDecorator, LargeBinary
 
 
 class VectorType(TypeDecorator):
-    """Custom SQLAlchemy type for storing float32 embeddings as MySQL BLOB."""
-
     impl = LargeBinary
     cache_ok = True
 

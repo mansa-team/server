@@ -3,7 +3,6 @@ import numpy as np
 
 
 def batchCosineSimilarity(query: list[float], matrix: np.ndarray) -> np.ndarray:
-    """Vectorized cosine similarity: one query against N embeddings."""
     if matrix.shape[0] == 0:
         return np.array([], dtype=np.float32)
     q = np.array(query, dtype=np.float32)
@@ -16,5 +15,4 @@ def batchCosineSimilarity(query: list[float], matrix: np.ndarray) -> np.ndarray:
 
 
 def contentHash(text: str) -> str:
-    """MD5 hash for change detection."""
     return hashlib.md5(text.encode("utf-8")).hexdigest()
