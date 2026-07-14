@@ -16,6 +16,8 @@ class Permission(IntFlag):
     STARTER_API_ACCESS = auto()
     GENERATE_API_KEYS = auto()
 
+    PROMETHEUS_EXTENDED_MEMORIES = auto()
+
     ENTERPRISE_API_ACCESS = auto()
     EXPORT_BULK_DATA = auto()
     REQUEST_CUSTOM_FIELDS = auto()
@@ -34,7 +36,7 @@ class Permission(IntFlag):
 class Roles(IntFlag):
     USER = Permission.VIEW_PROFILE | Permission.USE_THOTH | Permission.USE_MAAT
 
-    PREMIUM = USER | Permission.USE_PROMETHEUS | Permission.USE_OGUM
+    PREMIUM = USER | Permission.USE_PROMETHEUS | Permission.USE_OGUM | Permission.PROMETHEUS_EXTENDED_MEMORIES
 
     DEVELOPER_STARTER = USER | Permission.VIEW_DEVELOPER_TAB | Permission.STARTER_API_ACCESS
 
