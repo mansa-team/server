@@ -1,4 +1,4 @@
-"""create prometheus_memories
+"""create prometheus_memories with baseScore
 
 Revision ID: b1c2d3e4f5a6
 Revises: add_access_token_hash
@@ -14,7 +14,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision: str = "b1c2d3e4f5a6"
-down_revision: Union[str, Sequence[str], None] = "add_access_token_hash"
+down_revision: Union[str, Sequence[str], None] = "9f3b339dde20"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -28,7 +28,7 @@ def upgrade() -> None:
         sa.Column("memoryValue", sa.Text(), nullable=False),
         sa.Column("memoryType", sa.String(length=20), server_default="context", nullable=True),
         sa.Column("source", sa.String(length=20), server_default="inferred", nullable=True),
-        sa.Column("relevanceScore", sa.Float(), server_default="1.0", nullable=True),
+        sa.Column("baseScore", sa.Float(), server_default="1.0", nullable=True),
         sa.Column("accessCount", sa.Integer(), server_default="0", nullable=True),
         sa.Column("embedding", sa.LargeBinary(), nullable=True),
         sa.Column("embeddingModel", sa.String(length=50), server_default="all-MiniLM-L6-v2", nullable=True),
@@ -42,14 +42,20 @@ def upgrade() -> None:
         sa.UniqueConstraint("userId", "memoryKey", name="uk_prometheus_memories"),
     )
     op.create_index("idx_user_id", "prometheus_memories", ["userId"])
-    op.create_index("idx_relevance", "prometheus_memories", ["userId", "relevanceScore"])
+    op.create_index("idx_base_score", "prometheus_memories", ["userId", "baseScore"])
     op.create_index("idx_type", "prometheus_memories", ["userId", "memoryType"])
-    op.create_index("ft_memory", "prometheus_memories", ["memoryKey", "memoryValue"], mysql_fulltext=True)
+    op.execute("ALTER TABLE prometheus_memories ADD FULLTEXT INDEX ft_memory (memoryKey, memoryValue)")
 
 
 def downgrade() -> None:
     op.drop_index("ft_memory", table_name="prometheus_memories")
     op.drop_index("idx_type", table_name="prometheus_memories")
-    op.drop_index("idx_relevance", table_name="prometheus_memories")
+    op.drop_index("idx_base_score", table_name="prometheus_memories")
     op.drop_index("idx_user_id", table_name="prometheus_memories")
     op.drop_table("prometheus_memories")
+
+
+# ponytail: migration ran partially (table created, FULLTEXT index failed).
+# Drop the table so alembic can re-run cleanly.
+def fix_partial() -> None:
+    op.execute("DROP TABLE IF EXISTS prometheus_memories")
