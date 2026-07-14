@@ -9,6 +9,7 @@ from google.genai import types
 import google.genai._mcp_utils as _mcp
 
 from main.app.prometheus.chat import PrometheusChatManager
+from main.app.prometheus.memory import MemoryManager
 
 _original_filter = _mcp._filter_to_supported_schema
 
@@ -64,7 +65,7 @@ MEMORY_TOOLS = [
 ]
 
 
-def _buildSystemPrompt(userId: int | None = None, db=None) -> str:
+def buildSystemPrompt(userId: int | None = None, db=None) -> str:
     memoryBlock = ""
     if userId and db:
         from main.models.memory import UserMemory
@@ -87,9 +88,7 @@ def _buildSystemPrompt(userId: int | None = None, db=None) -> str:
     return f"{Prometheus.SYSTEM_PROMPT}{memoriesSection}"
 
 
-async def _executeMemoryTool(name: str, args: dict, user: dict) -> dict:
-    from main.app.prometheus.memory import MemoryManager
-
+async def executeMemoryTool(name: str, args: dict, user: dict) -> dict:
     db = SessionLocal()
     try:
         if name == "search_memory":
@@ -229,9 +228,8 @@ class Prometheus:
         args = functionCall.args or {}
         logger.info(f"Executing tool call: {name}({args})")
 
-        # Handle memory tools
         if name in ("search_memory", "save_memory") and user:
-            return await _executeMemoryTool(name, args, user)
+            return await executeMemoryTool(name, args, user)
 
         for client in mcpClients.values():
             try:
@@ -256,13 +254,15 @@ class Prometheus:
         logger.warning(f"Tool {name} not found in any MCP client")
         return {"error": f"Tool '{name}' not available"}
 
-    async def sendMessage(self, query: str | None = None, sessionId: str | None = None, db=None, user: dict | None = None):
+    async def sendMessage(
+        self, query: str | None = None, sessionId: str | None = None, db=None, user: dict | None = None
+    ):
         logger.info(f"Query: {query}")
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
 
         PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
 
-        system_prompt = _buildSystemPrompt(user.get("userId") if user else None, db)
+        system_prompt = buildSystemPrompt(user.get("userId") if user else None, db)
 
         async with self.openMCPClients() as (clients, sessions):
             chat = self.makeChat(sessions, history, system_prompt=system_prompt)
@@ -278,7 +278,7 @@ class Prometheus:
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
 
         fullText = ""
-        system_prompt = _buildSystemPrompt(user.get("userId") if user else None, db)
+        system_prompt = buildSystemPrompt(user.get("userId") if user else None, db)
 
         async with self.openMCPClients() as (mcpClients, sessions):
             chat = self.makeChat(
