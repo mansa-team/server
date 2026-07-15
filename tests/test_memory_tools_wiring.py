@@ -16,27 +16,35 @@ from main.app.prometheus.tools import MEMORY_TOOLS, MEMORY_TOOL_NAMES, executeMe
 
 
 class TestMemoryToolsDefinition:
-    """MEMORY_TOOLS must be defined with the right function declarations."""
+    """MEMORY_TOOLS must be defined as a Tool wrapping FunctionDeclarations."""
 
     def test_memory_tools_is_nonempty_list(self):
         assert isinstance(MEMORY_TOOLS, list)
-        assert len(MEMORY_TOOLS) == 2
+        assert len(MEMORY_TOOLS) == 1  # single Tool wrapping both functions
+
+    def test_memory_tools_wrapped_in_tool(self):
+        from google.genai import types
+        assert isinstance(MEMORY_TOOLS[0], types.Tool)
+        assert MEMORY_TOOLS[0].function_declarations is not None
 
     def test_memory_tool_names_match(self):
-        names = {t.name for t in MEMORY_TOOLS}
+        fds = MEMORY_TOOLS[0].function_declarations
+        names = {fd.name for fd in fds}
         assert names == {"search_memory", "save_memory"}
 
     def test_memory_tool_names_constant_matches(self):
         assert MEMORY_TOOL_NAMES == {"search_memory", "save_memory"}
 
     def test_search_memory_has_query_param(self):
-        tool = next(t for t in MEMORY_TOOLS if t.name == "search_memory")
+        fds = MEMORY_TOOLS[0].function_declarations
+        tool = next(fd for fd in fds if fd.name == "search_memory")
         props = tool.parameters.properties
         assert "query" in props
         assert tool.parameters.required == ["query"]
 
     def test_save_memory_has_required_params(self):
-        tool = next(t for t in MEMORY_TOOLS if t.name == "save_memory")
+        fds = MEMORY_TOOLS[0].function_declarations
+        tool = next(fd for fd in fds if fd.name == "save_memory")
         props = tool.parameters.properties
         assert "key" in props
         assert "value" in props
@@ -66,10 +74,17 @@ class TestMakeChatIncludesMemoryTools:
         config_call = mock_types.GenerateContentConfig.call_args
         tools_passed = config_call.kwargs.get("tools") or config_call[1].get("tools")
 
-        tool_names = [t.name for t in tools_passed if hasattr(t, "name")]
-        assert "search_memory" in tool_names, f"search_memory not in tools: {tool_names}"
-        assert "save_memory" in tool_names, f"save_memory not in tools: {tool_names}"
-        assert len(tools_passed) == 4, f"Expected 2 sessions + 2 memory tools, got {len(tools_passed)}"
+        # Collect all function declaration names across all Tool objects
+        all_func_names = []
+        for t in tools_passed:
+            if hasattr(t, "function_declarations") and t.function_declarations:
+                all_func_names.extend(fd.name for fd in t.function_declarations)
+            elif hasattr(t, "name"):
+                all_func_names.append(t.name)
+
+        assert "search_memory" in all_func_names, f"search_memory not in tools: {all_func_names}"
+        assert "save_memory" in all_func_names, f"save_memory not in tools: {all_func_names}"
+        assert len(tools_passed) == 3, f"Expected 2 sessions + 1 Tool(memory), got {len(tools_passed)}"
 
 
 class TestDispatchRoutesMemoryTools:

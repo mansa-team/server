@@ -11,35 +11,39 @@ logger = logging.getLogger(__name__)
 MEMORY_TOOL_NAMES = {"search_memory", "save_memory"}
 
 MEMORY_TOOLS = [
-    types.FunctionDeclaration(
-        name="search_memory",
-        description="Search user's saved memories, preferences, and past analysis context.",
-        parameters=types.Schema(
-            type=types.Type.OBJECT,
-            properties={
-                "query": types.Schema(type=types.Type.STRING, description="Search query"),
-                "limit": types.Schema(type=types.Type.INTEGER, description="Max results (default 10)"),
-            },
-            required=["query"],
-        ),
-    ),
-    types.FunctionDeclaration(
-        name="save_memory",
-        description="Store a memory about the user's preferences, analysis results, or feedback. Checks memory limit (5 for free users, 50 for premium).",
-        parameters=types.Schema(
-            type=types.Type.OBJECT,
-            properties={
-                "key": types.Schema(type=types.Type.STRING, description="Short label for the memory"),
-                "value": types.Schema(type=types.Type.STRING, description="Full memory content"),
-                "type": types.Schema(
-                    type=types.Type.STRING,
-                    enum=["preference", "analysis", "feedback", "context"],
-                    description="Type of memory",
+    types.Tool(
+        function_declarations=[
+            types.FunctionDeclaration(
+                name="search_memory",
+                description="Search user's saved memories, preferences, and past analysis context.",
+                parameters=types.Schema(
+                    type=types.Type.OBJECT,
+                    properties={
+                        "query": types.Schema(type=types.Type.STRING, description="Search query"),
+                        "limit": types.Schema(type=types.Type.INTEGER, description="Max results (default 10)"),
+                    },
+                    required=["query"],
                 ),
-            },
-            required=["key", "value", "type"],
-        ),
-    ),
+            ),
+            types.FunctionDeclaration(
+                name="save_memory",
+                description="Store a memory about the user's preferences, analysis results, or feedback. Checks memory limit (5 for free users, 50 for premium).",
+                parameters=types.Schema(
+                    type=types.Type.OBJECT,
+                    properties={
+                        "key": types.Schema(type=types.Type.STRING, description="Short label for the memory"),
+                        "value": types.Schema(type=types.Type.STRING, description="Full memory content"),
+                        "type": types.Schema(
+                            type=types.Type.STRING,
+                            enum=["preference", "analysis", "feedback", "context"],
+                            description="Type of memory",
+                        ),
+                    },
+                    required=["key", "value", "type"],
+                ),
+            ),
+        ]
+    )
 ]
 
 
