@@ -8,6 +8,7 @@ filterwarnings = [
     "ignore::DeprecationWarning:pydantic",
     "ignore::UserWarning:google.genai",
     "ignore::UserWarning:pandas",
+    "ignore::RuntimeWarning:google.genai",
 ]
 
 [tool.coverage.run]
