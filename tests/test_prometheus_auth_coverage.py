@@ -52,7 +52,7 @@ class TestPrometheusSendMessage:
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
         mock_client = MagicMock()
-        mock_genai.Client.return_value = mock_client
+        mock_genai.Client = MagicMock(return_value=mock_client)
         mock_chat.getHistory.return_value = []
 
         # Make MCP Client() behave as async context manager
@@ -70,7 +70,7 @@ class TestPrometheusSendMessage:
         mock_instance = MagicMock()
         mock_instance.chatSession = fake_chat_session
         # We patch Prometheus.__init__ to avoid real MCP Client setup
-        mock_genai.Client.return_value = mock_client
+        mock_genai.Client = MagicMock(return_value=mock_client)
 
         from main.app.prometheus.agent import Prometheus
 
@@ -94,7 +94,7 @@ class TestPrometheusSendMessage:
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
         mock_client = MagicMock()
-        mock_genai.Client.return_value = mock_client
+        mock_genai.Client = MagicMock(return_value=mock_client)
         mock_chat.getHistory.return_value = []
 
         # Set up mock MCP clients that are async context managers
@@ -128,7 +128,7 @@ class TestPrometheusSendMessage:
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
         mock_client = MagicMock()
-        mock_genai.Client.return_value = mock_client
+        mock_genai.Client = MagicMock(return_value=mock_client)
         mock_chat.getHistory.return_value = [{"role": "user", "parts": [{"text": "prev"}]}]
 
         # Set up mock MCP clients

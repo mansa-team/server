@@ -25,7 +25,7 @@ def getRelevanceScore(memory, now: datetime) -> float:
     if memory.lastAccessedAt is None:
         return memory.baseScore
     lastAccessed = memory.lastAccessedAt
-    
+
     if lastAccessed.tzinfo is not None:
         lastAccessed = lastAccessed.replace(tzinfo=None)
     nowNaive = now.replace(tzinfo=None) if now.tzinfo is not None else now

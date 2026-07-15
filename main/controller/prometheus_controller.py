@@ -1,6 +1,5 @@
 import json
 import logging
-import asyncio
 import traceback
 from config import SessionLocal, getSession
 from main.utils.logging_config import limiter

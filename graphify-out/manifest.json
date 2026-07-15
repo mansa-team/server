@@ -14,14 +14,24 @@
     "ast_hash": "47734c3bcfa3389f9d46a1527510dae1",
     "semantic_hash": ""
   },
+  "D:\\Repositories\\server\\frontend\\test-setup.js": {
+    "mtime": 1784134308.924594,
+    "ast_hash": "c471ffc33ba3a03ab85e430121d628aa",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\frontend\\test-streaming.js": {
+    "mtime": 1784064510.2497716,
+    "ast_hash": "10735705a678211d1f3f704750af9467",
+    "semantic_hash": ""
+  },
   "D:\\Repositories\\server\\frontend\\vite.config.js": {
-    "mtime": 1782673539.3703046,
-    "ast_hash": "74079fc2519cd2c349e38ccb07426583",
+    "mtime": 1784134119.9902983,
+    "ast_hash": "e5d0e3968f69d85be92f6514fb64d19e",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\api.js": {
-    "mtime": 1782673333.3687112,
-    "ast_hash": "311c342327e12a4dd753e578eb40f054",
+    "mtime": 1784063581.3037455,
+    "ast_hash": "1fc90e4a24bac3c7c227c8d7d9367100",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\App.jsx": {
@@ -45,18 +55,33 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\components\\MdocMessage.jsx": {
-    "mtime": 1782680402.4593408,
-    "ast_hash": "5c9e1a3a08d6158a4aef45b811c331f7",
+    "mtime": 1784070004.5929909,
+    "ast_hash": "4dbc7f71e5c5b24133fed233b0e9f427",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\components\\MessageList.jsx": {
-    "mtime": 1782673107.468418,
-    "ast_hash": "91e25e3b4d4eeebf9d21f2328ff950b0",
+    "mtime": 1784066517.5397754,
+    "ast_hash": "74430c6057f67b6663bc254949afd6de",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\components\\SessionSidebar.jsx": {
     "mtime": 1782691503.0038493,
     "ast_hash": "b0f77d9cb37a77549c687b2adb29e6ca",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\frontend\\tests\\api.test.js": {
+    "mtime": 1784134382.937634,
+    "ast_hash": "77c781ae96e140e4c2ab393b8b918d80",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\frontend\\tests\\App.test.jsx": {
+    "mtime": 1784134691.612608,
+    "ast_hash": "1a76b6a12a271a6bee771552e5e6e784",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\frontend\\tests\\MdocMessage.test.jsx": {
+    "mtime": 1784134619.0426993,
+    "ast_hash": "da18795de03c209f424f3eef4e2ac058",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\authentication\\authentication.py": {
@@ -90,13 +115,28 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\agent.py": {
-    "mtime": 1782700707.9726202,
-    "ast_hash": "401890aef3703f86baf26b0f74cf7622",
+    "mtime": 1784062084.5300493,
+    "ast_hash": "29915deb57572d80906f81e7e77b9011",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\chat.py": {
     "mtime": 1782704863.7038453,
     "ast_hash": "906bab445d19b14b20f44488273b0c20",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\main\\app\\prometheus\\memory.py": {
+    "mtime": 1784154452.798133,
+    "ast_hash": "421cbe82bc091cd35546a50a806e5f27",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\main\\app\\prometheus\\tools.py": {
+    "mtime": 1784142890.438789,
+    "ast_hash": "b711f1453b4bcc90430bcfc90718acaa",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\main\\app\\prometheus\\vector.py": {
+    "mtime": 1784154619.9799116,
+    "ast_hash": "d988dea93f00d7812e9f97697ae37711",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\scraper_b3\\scraper.py": {
@@ -120,8 +160,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\query.py": {
-    "mtime": 1782691503.0335903,
-    "ast_hash": "bffc3187f276aacbb72abab515eb12f0",
+    "mtime": 1784154779.3211334,
+    "ast_hash": "07b5bcdb0503a1e65b93811939bab355",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\util.py": {
@@ -140,13 +180,13 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\prometheus_controller.py": {
-    "mtime": 1782697325.9996312,
-    "ast_hash": "0eb2739fae2ffbeb093f8236fe7d1602",
+    "mtime": 1784154567.4326468,
+    "ast_hash": "f195a708fec259db0727f5e5d888067e",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\stocksapi_controller.py": {
-    "mtime": 1782704868.9754517,
-    "ast_hash": "b2f99ea463e4b8c6b26b896ff21ff0de",
+    "mtime": 1784154769.5275948,
+    "ast_hash": "5077e3defa0c547bc8e52130f68cc9c7",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\user_controller.py": {
@@ -157,6 +197,16 @@
   "D:\\Repositories\\server\\main\\models\\base.py": {
     "mtime": 1782691503.0381105,
     "ast_hash": "7dcf1fbc4850b465566daca90de0deb4",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\main\\models\\memory.py": {
+    "mtime": 1784149847.2745922,
+    "ast_hash": "4a662f8777671426ef23b1f9c9c30fc6",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\main\\models\\memory_types.py": {
+    "mtime": 1784002248.273227,
+    "ast_hash": "8a2a39ea5eb68ed6a8db8cd9fee6a111",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\models\\prometheus.py": {
@@ -215,8 +265,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\utils\\errors.py": {
-    "mtime": 1782691503.0451143,
-    "ast_hash": "c698494f02f2a86357efc225ca45d408",
+    "mtime": 1784002213.3436606,
+    "ast_hash": "80cf909470e7de3e5f2ab83d47bae776",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\utils\\http_session.py": {
@@ -240,8 +290,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\utils\\roles.py": {
-    "mtime": 1782691503.048633,
-    "ast_hash": "c2825c6e6028ea6b7d1f3253d2c4ab37",
+    "mtime": 1783996711.0223174,
+    "ast_hash": "53ea35ae067dd20df5bfe29101b594f7",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\utils\\service_manager.py": {
@@ -257,6 +307,31 @@
   "D:\\Repositories\\server\\main\\utils\\models\\__init__.py": {
     "mtime": 1782708689.9179392,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\config.json": {
+    "mtime": 1783997373.51782,
+    "ast_hash": "6bb051fcf27f36c20d8045847c7fdb56",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\config_sentence_transformers.json": {
+    "mtime": 1783997373.5319426,
+    "ast_hash": "ad417aea2647e0f7c1f0cbd5ecf8e2ed",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\data_config.json": {
+    "mtime": 1783997373.5284252,
+    "ast_hash": "962fb99508458af19fe2ecad8569a600",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\modules.json": {
+    "mtime": 1783997373.679831,
+    "ast_hash": "327af49c9bc8f4409a299fec9e3434c0",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\1_Pooling\\config.json": {
+    "mtime": 1783997374.1572433,
+    "ast_hash": "e89bd4ac18aef07c3beb5bd83d0a5b58",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\migrations\\env.py": {
@@ -282,6 +357,16 @@
   "D:\\Repositories\\server\\migrations\\versions\\add_access_token_hash.py": {
     "mtime": 1782691503.052641,
     "ast_hash": "8b284b1987a01828e921712f5c87a703",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\migrations\\versions\\b1c2d3e4f5a6_create_prometheus_memories.py": {
+    "mtime": 1784044064.437858,
+    "ast_hash": "e30a4e930c72c90ca296e324eda3864a",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\migrations\\versions\\c2e4f6a8b0c1_drop_embedding_model_version.py": {
+    "mtime": 1784154619.9799116,
+    "ast_hash": "5ba30486e8a7362e83eecac30f75b409",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\conftest.py": {
@@ -344,6 +429,21 @@
     "ast_hash": "9a142b73f633fed6b98bb4f3f0aac182",
     "semantic_hash": ""
   },
+  "D:\\Repositories\\server\\tests\\test_memory_manager.py": {
+    "mtime": 1784005201.8449767,
+    "ast_hash": "f779143d1d92e5f902c0d4a4bfbf7fa7",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\tests\\test_memory_tools_wiring.py": {
+    "mtime": 1784154619.9799116,
+    "ast_hash": "1a0fc64b7cd360538fb763ae9b575c7e",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\tests\\test_memory_types.py": {
+    "mtime": 1783996744.7570913,
+    "ast_hash": "005c856fd0d836bf76a3e59e6abc6c83",
+    "semantic_hash": ""
+  },
   "D:\\Repositories\\server\\tests\\test_models.py": {
     "mtime": 1782691503.0651662,
     "ast_hash": "3d9f1b735e3eb6f1321314e776edfba7",
@@ -360,8 +460,13 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_prometheus_auth_coverage.py": {
-    "mtime": 1782699533.3312235,
-    "ast_hash": "1306657bcf29eb7e4110d23a2a78207b",
+    "mtime": 1784154914.0730047,
+    "ast_hash": "75cd80ed6a85fa5d57603293566f01f6",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\tests\\test_relevance_score.py": {
+    "mtime": 1784154463.939417,
+    "ast_hash": "8bd7a22e0b0e4bda6cd55bd94eb83672",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_request_id.py": {
@@ -434,6 +539,11 @@
     "ast_hash": "7c1f5a8e42b1c650ae8887a1bfd658dd",
     "semantic_hash": ""
   },
+  "D:\\Repositories\\server\\tests\\test_vector_utils.py": {
+    "mtime": 1784154472.409904,
+    "ast_hash": "aa76181a18455ead3e082363eda1d808",
+    "semantic_hash": ""
+  },
   "D:\\Repositories\\server\\AGENTS.md": {
     "mtime": 1782691502.9893162,
     "ast_hash": "0f61369305d82e46ed248c697e4d3027",
@@ -450,8 +560,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\requirements.txt": {
-    "mtime": 1782708880.2202623,
-    "ast_hash": "bc281eeb306573f3411e146fce672584",
+    "mtime": 1784041305.8743317,
+    "ast_hash": "6bcae4f0413515a439e82e2579978f7f",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\TODO.md": {
@@ -497,6 +607,11 @@
   "D:\\Repositories\\server\\main\\app\\prometheus\\temp.txt": {
     "mtime": 1782691503.0295904,
     "ast_hash": "44407d9bf987159dbce9126da4770607",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\main\\utils\\models\\all-MiniLM-L6-v2\\README.md": {
+    "mtime": 1783997373.8397515,
+    "ast_hash": "c9f3bd114fb5ecfb5a31cede0e09a6c0",
     "semantic_hash": ""
   }
 }

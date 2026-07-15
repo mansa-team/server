@@ -25,5 +25,10 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.add_column("prometheus_memories", sa.Column("embeddingModel", sa.String(length=50), server_default="all-MiniLM-L6-v2", nullable=True))
-    op.add_column("prometheus_memories", sa.Column("embeddingVersion", sa.String(length=20), server_default="1", nullable=True))
+    op.add_column(
+        "prometheus_memories",
+        sa.Column("embeddingModel", sa.String(length=50), server_default="all-MiniLM-L6-v2", nullable=True),
+    )
+    op.add_column(
+        "prometheus_memories", sa.Column("embeddingVersion", sa.String(length=20), server_default="1", nullable=True)
+    )

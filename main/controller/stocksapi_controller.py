@@ -272,6 +272,7 @@ def generateKey(currentUser: dict = Depends(UserManager.getCurrentUser), db: Ses
         )
 
     userId = currentUser.get("userId")
-    assert userId is not None
+    if userId is None:
+        raise HTTPException(status_code=401, detail="User not authenticated")
     newKey = createKey(db, userId)
     return {"message": "Key successfully generated", "apiKey": newKey, "owner": currentUser.get("username")}

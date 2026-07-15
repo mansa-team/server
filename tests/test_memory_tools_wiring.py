@@ -24,6 +24,7 @@ class TestMemoryToolsDefinition:
 
     def test_memory_tools_wrapped_in_tool(self):
         from google.genai import types
+
         assert isinstance(MEMORY_TOOLS[0], types.Tool)
         assert MEMORY_TOOLS[0].function_declarations is not None
 
@@ -136,7 +137,9 @@ class TestDispatchRoutesMemoryTools:
         mock_fc.args = {"ticker": "PETR4"}
 
         mock_client = AsyncMock()
-        mock_client.session.call_tool = AsyncMock(return_value=MagicMock(isError=False, content=[MagicMock(text="28.50")]))
+        mock_client.session.call_tool = AsyncMock(
+            return_value=MagicMock(isError=False, content=[MagicMock(text="28.50")])
+        )
 
         with patch("main.app.prometheus.tools.executeMemoryTool", new_callable=AsyncMock) as mock_exec:
             result = await dispatchToolCall(mock_fc, {"stocks": mock_client}, user={"userId": 1})
