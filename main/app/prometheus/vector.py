@@ -22,15 +22,10 @@ def contentHash(text: str) -> str:
 
 
 def getRelevanceScore(memory, now: datetime) -> float:
-    """Compute relevance as baseScore * timeDecay(lastAccessedAt).
-
-    Logarithmic decay: recently accessed memories stay high,
-    old memories fade gradually. No cron job needed.
-    """
     if memory.lastAccessedAt is None:
         return memory.baseScore
     lastAccessed = memory.lastAccessedAt
-    # Normalize: strip tzinfo from both so subtraction works (SQLite stores naive)
+    
     if lastAccessed.tzinfo is not None:
         lastAccessed = lastAccessed.replace(tzinfo=None)
     nowNaive = now.replace(tzinfo=None) if now.tzinfo is not None else now

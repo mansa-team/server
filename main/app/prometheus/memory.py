@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from main.models.memory import UserMemory
 from main.utils.roles import Permission, Roles
-from main.utils.vector import batchCosineSimilarity, contentHash, getRelevanceScore
+from main.app.prometheus.vector import batchCosineSimilarity, contentHash, getRelevanceScore
 
 MEMORY_LIMIT_BASIC = 5
 MEMORY_LIMIT_EXTENDED = 50

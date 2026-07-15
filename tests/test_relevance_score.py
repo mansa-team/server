@@ -2,7 +2,7 @@ import math
 from datetime import datetime, timedelta
 import pytz
 import pytest
-from main.utils.vector import getRelevanceScore
+from main.app.prometheus.vector import getRelevanceScore
 
 
 SAO_PAULO_TZ = pytz.timezone("America/Sao_Paulo")

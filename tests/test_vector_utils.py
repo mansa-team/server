@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from main.utils.vector import batchCosineSimilarity, contentHash
+from main.app.prometheus.vector import batchCosineSimilarity, contentHash
 
 
 class TestBatchCosineSimilarity:
