@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 import numpy as np
-import pytz
+from pytz import timezone
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 
@@ -11,11 +11,6 @@ from main.utils.vector import batchCosineSimilarity, contentHash, getRelevanceSc
 
 MEMORY_LIMIT_BASIC = 5
 MEMORY_LIMIT_EXTENDED = 50
-SAO_PAULO_TZ = pytz.timezone("America/Sao_Paulo")
-
-
-def _now():
-    return datetime.now(SAO_PAULO_TZ)
 
 
 class PrometheusMemory:
@@ -60,7 +55,7 @@ class PrometheusMemory:
             existing.embedding = embedding  # type: ignore[assignment]
             existing.baseScore = min(existing.baseScore + 0.1, 1.0)  # type: ignore[arg-type]
             existing.accessCount += 1  # type: ignore[assignment]
-            existing.lastAccessedAt = _now()  # type: ignore[assignment]
+            existing.lastAccessedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
             db.commit()
             db.refresh(existing)
             return {"status": "updated", "memory": existing}
@@ -79,7 +74,7 @@ class PrometheusMemory:
             source=source,
             embedding=embedding,
             contentHash=contentHash(value),
-            lastAccessedAt=_now(),
+            lastAccessedAt=datetime.now(timezone("America/Sao_Paulo")),
         )
         db.add(memory)
         db.commit()
@@ -103,7 +98,7 @@ class PrometheusMemory:
         if not memories:
             return []
 
-        now = _now()
+        now = datetime.now(timezone("America/Sao_Paulo"))
         memoriesWithEmb = [m for m in memories if m.embedding is not None]
         if memoriesWithEmb:
             try:
@@ -151,7 +146,7 @@ class PrometheusMemory:
             .all()
         )
 
-        now = _now()
+        now = datetime.now(timezone("America/Sao_Paulo"))
         return [
             {
                 "id": r["id"],
@@ -175,7 +170,7 @@ class PrometheusMemory:
             .limit(limit)
             .all()
         )
-        now = _now()
+        now = datetime.now(timezone("America/Sao_Paulo"))
         return [
             {
                 "id": m.id,
@@ -194,13 +189,13 @@ class PrometheusMemory:
         memory = db.query(UserMemory).filter(UserMemory.id == memoryId, UserMemory.userId == userId).first()
         if not memory:
             return False
-        memory.archivedAt = _now()  # type: ignore[assignment]
+        memory.archivedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
         db.commit()
         return True
 
     @classmethod
     def archiveDead(cls, db: Session):
-        threshold = _now() - timedelta(days=180)
+        threshold = datetime.now(timezone("America/Sao_Paulo")) - timedelta(days=180)
         dead = (
             db.query(UserMemory)
             .filter(UserMemory.baseScore < 0.1)
@@ -208,5 +203,5 @@ class PrometheusMemory:
             .all()
         )
         for m in dead:
-            m.archivedAt = _now()  # type: ignore[assignment]
+            m.archivedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
         db.commit()

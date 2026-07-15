@@ -15,8 +15,8 @@ pytz
 
 # STOCKS-API
 fastapi
-uvicorn
 fastapi_mcp
+uvicorn
 pyarrow
 orjson
 requests
