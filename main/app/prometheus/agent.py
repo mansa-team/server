@@ -238,7 +238,7 @@ class Prometheus:
                     if state.has_changed():
                         stateContext = state.to_context()
                         functionResponses.append(
-                            types.Part.from_text(f"\n[HARNESS STATE]\n{stateContext}\n[/HARNESS STATE]")
+                            types.Part.from_text(text=f"\n[HARNESS STATE]\n{stateContext}\n[/HARNESS STATE]")
                         )
                         state.reset_changed()
 

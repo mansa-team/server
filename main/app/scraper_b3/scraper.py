@@ -30,7 +30,9 @@ startTime = time.time()
 
 
 def getCurrentSelic():
-    selic = pd.DataFrame(requests.get("https://api.bcb.gov.br/dados/serie/bcdata.sgs.4189/dados?formato=json").json())
+    selic = pd.DataFrame(
+        requests.get("https://api.bcb.gov.br/dados/serie/bcdata.sgs.4189/dados?formato=json", timeout=30).json()
+    )
     selic["valor"] = selic["valor"].astype(float)
     selic["valor medio 10y"] = selic["valor"].rolling(120, min_periods=120).mean().round(2)
 

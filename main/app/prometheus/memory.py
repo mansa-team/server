@@ -1,3 +1,4 @@
+import logging
 import unicodedata
 from datetime import datetime
 
@@ -9,6 +10,8 @@ from sqlalchemy.orm import Session
 from main.models.memory import UserMemory
 from main.utils.roles import Permission, Roles
 from main.app.prometheus.vector import batchCosineSimilarity, contentHash, getRelevanceScore, embed
+
+logger = logging.getLogger(__name__)
 
 MEMORY_LIMIT_BASIC = 50
 MEMORY_LIMIT_EXTENDED = 250
@@ -26,7 +29,7 @@ def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8
     newTokens = normalizeKey(newKey)
 
     for m in existing:
-        existingTokens = normalizeKey(m.memoryKey)
+        existingTokens = normalizeKey(str(m.memoryKey))
         union = newTokens | existingTokens
 
         if not union:
@@ -36,7 +39,7 @@ def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8
 
         if similarity > threshold:
             return m
-        
+
     return None
 
 
@@ -166,8 +169,8 @@ class PrometheusMemory:
                 results.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
 
                 return results[:limit]
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning(f"Embedding search failed, falling back to full-text: {e}")
 
         return cls.fullTextSearch(db, userId, query, limit)
 
@@ -233,7 +236,7 @@ class PrometheusMemory:
 
         if not memory:
             return False
-        
+
         memory.archivedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
 
         db.commit()

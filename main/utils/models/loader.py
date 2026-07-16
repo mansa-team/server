@@ -14,7 +14,10 @@ def getEmbeddingModel() -> SentenceTransformer:
     if model is None:
         if not (MODEL_DIR / "model.safetensors").exists():
             snapshot_download(
-                MODEL_ID, local_dir=str(MODEL_DIR), ignore_patterns=["*.bin", "*.h5", "*.ot", "*.onnx", "*.openvino*"]
+                MODEL_ID,
+                local_dir=str(MODEL_DIR),
+                revision="main",
+                ignore_patterns=["*.bin", "*.h5", "*.ot", "*.onnx", "*.openvino*"],
             )
         model = SentenceTransformer(str(MODEL_DIR))
     return model

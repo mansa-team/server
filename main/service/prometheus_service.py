@@ -32,6 +32,7 @@ def memoryMaintenance(db: Session | None = None):
     if ownSession:
         db = SessionLocal()
     try:
+        assert db is not None
         nowNaive = datetime.now(timezone("America/Sao_Paulo")).replace(tzinfo=None)
 
         active = db.query(UserMemory).filter(UserMemory.archivedAt.is_(None)).all()
@@ -42,7 +43,7 @@ def memoryMaintenance(db: Session | None = None):
         archived = 0
 
         for m in active:
-            factor = DECAY_FACTORS.get(m.memoryType, DEFAULT_DECAY_FACTOR)
+            factor = DECAY_FACTORS.get(str(m.memoryType), DEFAULT_DECAY_FACTOR)
             m.baseScore = m.baseScore * factor  # type: ignore[assignment]
 
             lastAccessed = m.lastAccessedAt
@@ -68,7 +69,7 @@ def memoryMaintenance(db: Session | None = None):
     except Exception as e:
         logger.error(f"Memory maintenance exception: {e}")
     finally:
-        if ownSession:
+        if ownSession and db is not None:
             db.close()
 
 
