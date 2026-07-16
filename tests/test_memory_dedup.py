@@ -10,27 +10,17 @@ def _create_memory(db, key="petrobras preferencia", value="original value"):
 
 
 def _count_memories(db):
-    return (
-        db.query(UserMemory)
-        .filter(UserMemory.userId == USER_ID, UserMemory.archivedAt.is_(None))
-        .count()
-    )
+    return db.query(UserMemory).filter(UserMemory.userId == USER_ID, UserMemory.archivedAt.is_(None)).count()
 
 
 def _get_memory(db):
-    return (
-        db.query(UserMemory)
-        .filter(UserMemory.userId == USER_ID, UserMemory.archivedAt.is_(None))
-        .first()
-    )
+    return db.query(UserMemory).filter(UserMemory.userId == USER_ID, UserMemory.archivedAt.is_(None)).first()
 
 
 class TestExactSameKeyUpdates:
     def test_exact_same_key_updates(self, dbSession):
         _create_memory(dbSession, key="petrobras_preferencia", value="v1")
-        result = PrometheusMemory.upsertMemory(
-            dbSession, USER_ID, "petrobras_preferencia", "v2"
-        )
+        result = PrometheusMemory.upsertMemory(dbSession, USER_ID, "petrobras_preferencia", "v2")
         assert result["status"] == "updated"
         assert result["memory"].memoryValue == "v2"
 
@@ -39,9 +29,7 @@ class TestSimilarKeyMerges:
     def test_similar_key_merges(self, dbSession):
         """Keys with Jaccard > 0.8 should merge."""
         _create_memory(dbSession, key="petrobras_preferencia", value="v1")
-        result = PrometheusMemory.upsertMemory(
-            dbSession, USER_ID, "petrobras preferencia", "v2"
-        )
+        result = PrometheusMemory.upsertMemory(dbSession, USER_ID, "petrobras preferencia", "v2")
         assert result["status"] == "merged"
         assert result["memory"].memoryValue == "v2"
         assert _count_memories(dbSession) == 1
@@ -51,9 +39,7 @@ class TestDifferentKeysNoMerge:
     def test_different_keys_no_merge(self, dbSession):
         """Keys with low similarity should not merge."""
         _create_memory(dbSession, key="petrobras", value="v1")
-        result = PrometheusMemory.upsertMemory(
-            dbSession, USER_ID, "vale", "v2"
-        )
+        result = PrometheusMemory.upsertMemory(dbSession, USER_ID, "vale", "v2")
         assert result["status"] == "created"
         assert _count_memories(dbSession) == 2
 
@@ -63,9 +49,7 @@ class TestMergeBoostsScore:
         _create_memory(dbSession, key="petrobras_preferencia", value="v1")
         initial_score = _get_memory(dbSession).baseScore
 
-        PrometheusMemory.upsertMemory(
-            dbSession, USER_ID, "petrobras preferencia", "v2"
-        )
+        PrometheusMemory.upsertMemory(dbSession, USER_ID, "petrobras preferencia", "v2")
         assert _get_memory(dbSession).baseScore == min(initial_score + 0.1, 1.0)
 
 
@@ -74,9 +58,7 @@ class TestMergeIncrementsAccess:
         _create_memory(dbSession, key="petrobras_preferencia", value="v1")
         initial_access = _get_memory(dbSession).accessCount
 
-        PrometheusMemory.upsertMemory(
-            dbSession, USER_ID, "petrobras preferencia", "v2"
-        )
+        PrometheusMemory.upsertMemory(dbSession, USER_ID, "petrobras preferencia", "v2")
         assert _get_memory(dbSession).accessCount == initial_access + 1
 
 

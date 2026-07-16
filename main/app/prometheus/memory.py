@@ -10,31 +10,33 @@ from main.models.memory import UserMemory
 from main.utils.roles import Permission, Roles
 from main.app.prometheus.vector import batchCosineSimilarity, contentHash, getRelevanceScore, embed
 
-MEMORY_LIMIT_BASIC = 5
-MEMORY_LIMIT_EXTENDED = 50
+MEMORY_LIMIT_BASIC = 50
+MEMORY_LIMIT_EXTENDED = 250
 
 
 def normalizeKey(key: str) -> set[str]:
     normalized = key.lower().replace("_", " ")
     normalized = "".join(c for c in unicodedata.normalize("NFKD", normalized) if not unicodedata.combining(c))
+
     return set(normalized.split())
 
 
 def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8) -> UserMemory | None:
-    existing = (
-        db.query(UserMemory)
-        .filter(UserMemory.userId == userId, UserMemory.archivedAt.is_(None))
-        .all()
-    )
+    existing = db.query(UserMemory).filter(UserMemory.userId == userId, UserMemory.archivedAt.is_(None)).all()
     newTokens = normalizeKey(newKey)
+
     for m in existing:
         existingTokens = normalizeKey(m.memoryKey)
         union = newTokens | existingTokens
+
         if not union:
             continue
+
         similarity = len(newTokens & existingTokens) / len(union)
+
         if similarity > threshold:
             return m
+        
     return None
 
 
@@ -81,8 +83,10 @@ class PrometheusMemory:
             existing.baseScore = min(existing.baseScore + 0.1, 1.0)  # type: ignore[arg-type]
             existing.accessCount += 1  # type: ignore[assignment]
             existing.lastAccessedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
+
             db.commit()
             db.refresh(existing)
+
             return {"status": "updated", "memory": existing}
 
         similar = findSimilarKey(db, userId, key)
@@ -95,8 +99,10 @@ class PrometheusMemory:
             similar.baseScore = min(similar.baseScore + 0.1, 1.0)  # type: ignore[arg-type]
             similar.accessCount += 1  # type: ignore[assignment]
             similar.lastAccessedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
+
             db.commit()
             db.refresh(similar)
+
             return {"status": "merged", "memory": similar}
 
         if userRoles:
@@ -130,6 +136,7 @@ class PrometheusMemory:
         memoryType: str | None = None,
     ) -> list[dict]:
         queryFilter = db.query(UserMemory).filter(UserMemory.userId == userId).filter(UserMemory.archivedAt.is_(None))
+
         if memoryType:
             queryFilter = queryFilter.filter(UserMemory.memoryType == memoryType)
 
@@ -157,6 +164,7 @@ class PrometheusMemory:
                         }
                     )
                 results.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
+
                 return results[:limit]
             except Exception:
                 pass
@@ -182,7 +190,6 @@ class PrometheusMemory:
             .all()
         )
 
-        now = datetime.now(timezone("America/Sao_Paulo"))
         return [
             {
                 "id": r["id"],
@@ -223,8 +230,12 @@ class PrometheusMemory:
     @classmethod
     def deleteMemory(cls, db: Session, userId: int, memoryId: int) -> bool:
         memory = db.query(UserMemory).filter(UserMemory.id == memoryId, UserMemory.userId == userId).first()
+
         if not memory:
             return False
+        
         memory.archivedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
+
         db.commit()
+
         return True
