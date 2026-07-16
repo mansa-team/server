@@ -74,7 +74,7 @@ def getSessions(
         "sessions": [
             {
                 "sessionId": s.sessionId,
-                "deviceName": s.getDeviceName(),
+                "deviceName": SessionManager.getDeviceName(s),
                 "browser": s.browser,
                 "os": s.operatingSystem,
                 "deviceType": s.deviceType,
@@ -104,7 +104,7 @@ def getCurrentSession(
 
     return {
         "sessionId": session.sessionId,
-        "deviceName": session.getDeviceName(),
+        "deviceName": SessionManager.getDeviceName(session),
         "browser": session.browser,
         "os": session.operatingSystem,
         "deviceType": session.deviceType,

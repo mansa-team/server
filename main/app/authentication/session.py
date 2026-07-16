@@ -14,6 +14,14 @@ logger = logging.getLogger(__name__)
 
 class SessionManager:
     @staticmethod
+    def getDeviceName(session) -> str:
+        if session.browser and session.operatingSystem:
+            return f"{session.browser} on {session.operatingSystem}"
+        elif session.accessTokenHash:
+            return f"Device {session.accessTokenHash[:8]}"
+        return "Unknown Device"
+
+    @staticmethod
     def createSession(
         db: Session,
         userId: int,

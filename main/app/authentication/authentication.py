@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
 from main.app.authentication.util import hashPassword, verifyPassword
+from main.app.user.user import UserManager
 from main.models import User
 
 logger = logging.getLogger(__name__)
@@ -53,7 +54,7 @@ class AuthenticationManager:
 
             if user:
                 logger.info(f"Google Login: {user.username}")
-                return {"userId": user.userId, "username": user.username, "roles": user.getRolesList()}
+                return {"userId": user.userId, "username": user.username, "roles": UserManager.getRolesList(user)}
             return None
 
         except Exception as e:
@@ -67,7 +68,7 @@ class AuthenticationManager:
 
             if user and user.passwordHash and verifyPassword(password, str(user.passwordHash)):
                 logger.info(f"Password Login: {user.username}")
-                return {"userId": user.userId, "username": user.username, "roles": user.getRolesList()}
+                return {"userId": user.userId, "username": user.username, "roles": UserManager.getRolesList(user)}
             return None
 
         except Exception as e:

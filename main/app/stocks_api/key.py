@@ -8,12 +8,54 @@ from sqlalchemy.orm import Session
 
 from typing import cast
 
+from datetime import datetime
+from pytz import timezone
+
 import secrets
 import hashlib
 
 from main.models import StocksAPIKey
 
 apiKeyHeader = APIKeyHeader(name="X-API-Key", auto_error=False)
+
+
+def isQuotaExceeded(key: StocksAPIKey) -> bool:
+    return key.currentUsage >= key.requestLimit
+
+
+def needsReset(key: StocksAPIKey, resetDays: int) -> bool:
+    if not key.lastReset:
+        return True
+    now = datetime.now(timezone("America/Sao_Paulo"))
+    lastResetTime = (
+        key.lastReset.replace(tzinfo=timezone("America/Sao_Paulo")) if key.lastReset.tzinfo is None else key.lastReset
+    )
+    daysSinceReset = (now - lastResetTime).days
+    return daysSinceReset >= resetDays
+
+
+def resetQuota(key: StocksAPIKey):
+    key.currentUsage = 0
+    key.lastReset = datetime.now(timezone("America/Sao_Paulo"))
+
+
+def incrementUsage(key: StocksAPIKey):
+    key.currentUsage += 1
+
+
+def getRemainingQuota(key: StocksAPIKey) -> int:
+    return max(0, key.requestLimit - key.currentUsage)
+
+
+def keyToDict(key: StocksAPIKey) -> dict:
+    return {
+        "apiKey": key.apiKey,
+        "userId": key.userId,
+        "requestLimit": key.requestLimit,
+        "currentUsage": key.currentUsage,
+        "remainingQuota": getRemainingQuota(key),
+        "lastReset": key.lastReset.isoformat() if key.lastReset else None,
+    }
 
 
 def hashKey(key: str) -> str:

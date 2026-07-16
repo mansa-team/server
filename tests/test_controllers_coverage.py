@@ -1227,7 +1227,7 @@ class TestAddRoleToUser:
         mock_db = MagicMock()
         mock_user = MagicMock()
         mock_user.userId = 1
-        mock_user.hasRole.return_value = False
+        mock_user.roles = "USER"
 
         mock_db.query.return_value.filter.return_value.first.return_value = mock_user
 
@@ -1236,14 +1236,14 @@ class TestAddRoleToUser:
         result = UserManager.addRoleToUser(mock_db, 1, "DEVELOPER_STARTER")
 
         assert result is True
-        mock_user.addRole.assert_called_once_with("DEVELOPER_STARTER")
+        assert "DEVELOPER_STARTER" in mock_user.roles
         mock_db.commit.assert_called_once()
 
     def test_add_role_already_has_role(self):
         """Covers line 27: user already has the role."""
         mock_db = MagicMock()
         mock_user = MagicMock()
-        mock_user.hasRole.return_value = True
+        mock_user.roles = "USER,ADMIN"
 
         mock_db.query.return_value.filter.return_value.first.return_value = mock_user
 
@@ -1252,7 +1252,6 @@ class TestAddRoleToUser:
         result = UserManager.addRoleToUser(mock_db, 1, "ADMIN")
 
         assert result is False
-        mock_user.addRole.assert_not_called()
 
     def test_add_role_user_not_found(self):
         """Covers lines 19-20: user not found raises 404."""
