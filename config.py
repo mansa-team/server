@@ -44,7 +44,7 @@ class UserSettings(BaseMansaSettings):
     ENABLED: bool = Field(default=True, validation_alias=AliasChoices("USER_ENABLED"))
     HOST: str = Field(default="localhost", validation_alias=AliasChoices("USER_HOST"))
     PORT: int = Field(default=3200, validation_alias=AliasChoices("USER_PORT"))
-    JWT_SECRET_KEY: str = Field(default="", validation_alias=AliasChoices("JWT_SECRET_KEY"))
+    JWT_SECRET_KEY: str = Field(default=..., validation_alias=AliasChoices("JWT_SECRET_KEY"))
     SESSION_SECRET_KEY: str = Field(default="", validation_alias=AliasChoices("SESSION_SECRET_KEY"))
     GOOGLE_CLIENT_ID: str = Field(default="", validation_alias=AliasChoices("GOOGLE_CLIENT.ID"))
     GOOGLE_CLIENT_SECRET: str = Field(default="", validation_alias=AliasChoices("GOOGLE_CLIENT.SECRET"))

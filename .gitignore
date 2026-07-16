@@ -1,6 +1,7 @@
 *.env
 *.xml
 *.html
+.coverage
 b3_stocks.json
 
 *cache/

@@ -98,7 +98,6 @@ class PrometheusMemory:
         if not memories:
             return []
 
-        now = datetime.now(timezone("America/Sao_Paulo"))
         memoriesWithEmb = [m for m in memories if m.embedding is not None]
         if memoriesWithEmb:
             try:
@@ -117,7 +116,7 @@ class PrometheusMemory:
                             "memoryValue": m.memoryValue,
                             "memoryType": m.memoryType,
                             "score": float(similarities[i]),
-                            "relevanceScore": getRelevanceScore(m, now),
+                            "relevanceScore": getRelevanceScore(m, datetime.now(timezone("America/Sao_Paulo"))),
                         }
                     )
                 results.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
@@ -170,14 +169,14 @@ class PrometheusMemory:
             .limit(limit)
             .all()
         )
-        now = datetime.now(timezone("America/Sao_Paulo"))
+
         return [
             {
                 "id": m.id,
                 "memoryKey": m.memoryKey,
                 "memoryValue": m.memoryValue,
                 "memoryType": m.memoryType,
-                "relevanceScore": getRelevanceScore(m, now),
+                "relevanceScore": getRelevanceScore(m, datetime.now(timezone("America/Sao_Paulo"))),
                 "accessCount": m.accessCount,
                 "createdAt": m.createdAt.isoformat() if m.createdAt else None,
             }
@@ -192,4 +191,3 @@ class PrometheusMemory:
         memory.archivedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
         db.commit()
         return True
-    
