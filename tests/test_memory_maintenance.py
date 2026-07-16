@@ -7,6 +7,7 @@ from main.app.prometheus.memory import PrometheusMemory as MemoryManager
 from main.service.prometheus_service import (
     memoryMaintenance,
     DECAY_FACTOR,
+    DECAY_FACTORS,
     ARCHIVE_SCORE_THRESHOLD,
     ARCHIVE_DAYS_THRESHOLD,
 )
@@ -48,20 +49,20 @@ class TestDecay:
         oldScore = mem.baseScore
         memoryMaintenance(dbSession)
         dbSession.refresh(mem)
-        assert mem.baseScore == pytest.approx(oldScore * DECAY_FACTOR, abs=1e-6)
+        assert mem.baseScore == pytest.approx(oldScore * DECAY_FACTORS["context"], abs=1e-6)
 
     def test_zero_access_count_still_decays(self, dbSession, create_memories):
         """Decay applies to ALL active memories, not just accessed ones."""
         mem = create_memories(1, "k1", baseScore=0.8, daysOld=60, accessCount=0)
         memoryMaintenance(dbSession)
         dbSession.refresh(mem)
-        assert mem.baseScore == pytest.approx(0.8 * DECAY_FACTOR, abs=1e-6)
+        assert mem.baseScore == pytest.approx(0.8 * DECAY_FACTORS["context"], abs=1e-6)
 
     def test_high_score_decays_proportionally(self, dbSession, create_memories):
         mem = create_memories(1, "k1", baseScore=0.5, daysOld=30, accessCount=2)
         memoryMaintenance(dbSession)
         dbSession.refresh(mem)
-        assert mem.baseScore == pytest.approx(0.5 * DECAY_FACTOR, abs=1e-6)
+        assert mem.baseScore == pytest.approx(0.5 * DECAY_FACTORS["context"], abs=1e-6)
 
     def test_very_low_score_stays_above_zero(self, dbSession, create_memories):
         """baseScore should never reach exactly 0 from decay alone."""
@@ -76,8 +77,8 @@ class TestDecay:
         memoryMaintenance(dbSession)
         dbSession.refresh(m1)
         dbSession.refresh(m2)
-        assert m1.baseScore == pytest.approx(1.0 * DECAY_FACTOR, abs=1e-6)
-        assert m2.baseScore == pytest.approx(0.9 * DECAY_FACTOR, abs=1e-6)
+        assert m1.baseScore == pytest.approx(1.0 * DECAY_FACTORS["context"], abs=1e-6)
+        assert m2.baseScore == pytest.approx(0.9 * DECAY_FACTORS["context"], abs=1e-6)
 
 
 class TestArchive:
@@ -132,16 +133,16 @@ class TestArchive:
 class TestDecayAndArchiveTogether:
     def test_decay_then_archive_check(self, dbSession, create_memories):
         """Decay happens first, then archive check with new scores."""
-        # 0.11 * 0.95 = 0.1045 — above threshold → NOT archived
-        mem = create_memories(1, "k1", baseScore=0.11, daysOld=100, accessCount=0)
+        # 0.12 * 0.90 = 0.108 — above threshold → NOT archived
+        mem = create_memories(1, "k1", baseScore=0.12, daysOld=100, accessCount=0)
         memoryMaintenance(dbSession)
         dbSession.refresh(mem)
         assert mem.archivedAt is None
-        assert mem.baseScore == pytest.approx(0.11 * DECAY_FACTOR, abs=1e-6)
+        assert mem.baseScore == pytest.approx(0.12 * DECAY_FACTORS["context"], abs=1e-6)
 
     def test_score_above_threshold_after_decay_not_archived(self, dbSession, create_memories):
-        """Score that decays to >= threshold stays alive. 0.11 * 0.95 = 0.1045 >= 0.1."""
-        mem = create_memories(1, "k1", baseScore=0.11, daysOld=100, accessCount=0)
+        """Score that decays to >= threshold stays alive. 0.12 * 0.90 = 0.108 >= 0.1."""
+        mem = create_memories(1, "k1", baseScore=0.12, daysOld=100, accessCount=0)
         memoryMaintenance(dbSession)
         dbSession.refresh(mem)
         assert mem.archivedAt is None

@@ -15,13 +15,22 @@ from main.models.memory import UserMemory
 
 logger = logging.getLogger(__name__)
 
-DECAY_FACTOR = 0.95
+DECAY_FACTORS = {
+    "preference": 0.99,  # sticky — decays slowly
+    "analysis": 0.95,  # medium — decays normally
+    "feedback": 0.97,  # medium-sticky
+    "context": 0.90,  # ephemeral — decays fast
+}
+DEFAULT_DECAY_FACTOR = 0.95
+DECAY_FACTOR = DEFAULT_DECAY_FACTOR  # backward-compat alias
 ARCHIVE_SCORE_THRESHOLD = 0.1
 ARCHIVE_DAYS_THRESHOLD = 90
 
 
-def memoryMaintenance():
-    db = SessionLocal()
+def memoryMaintenance(db: Session | None = None):
+    ownSession = db is None
+    if ownSession:
+        db = SessionLocal()
     try:
         nowNaive = datetime.now(timezone("America/Sao_Paulo")).replace(tzinfo=None)
 
@@ -33,7 +42,8 @@ def memoryMaintenance():
         archived = 0
 
         for m in active:
-            m.baseScore = m.baseScore * DECAY_FACTOR  # type: ignore[assignment]
+            factor = DECAY_FACTORS.get(m.memoryType, DEFAULT_DECAY_FACTOR)
+            m.baseScore = m.baseScore * factor  # type: ignore[assignment]
 
             lastAccessed = m.lastAccessedAt
             if lastAccessed is not None:
@@ -53,10 +63,13 @@ def memoryMaintenance():
                 archived += 1
             else:
                 decayed += 1
+
+        db.commit()
     except Exception as e:
         logger.error(f"Memory maintenance exception: {e}")
     finally:
-        db.close()
+        if ownSession:
+            db.close()
 
 
 class PrometheusService:
