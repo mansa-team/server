@@ -1,19 +1,24 @@
 from pathlib import Path
 from sentence_transformers import SentenceTransformer
-from huggingface_hub import snapshot_download
 
-MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 MODELS_DIR = Path(__file__).resolve().parent
-MODEL_DIR = MODELS_DIR / MODEL_NAME.split("/")[-1]
+MODEL_DIR = MODELS_DIR / "all-MiniLM-L6-v2"
+MODEL_ID = "sentence-transformers/all-MiniLM-L6-v2"
 
 model: SentenceTransformer | None = None
+
+
+def _downloadModel():
+    from huggingface_hub import snapshot_download
+
+    snapshot_download(MODEL_ID, local_dir=str(MODEL_DIR), ignore_patterns=["*.bin", "*.h5", "*.ot", "*.onnx", "*.openvino*"])
 
 
 def getEmbeddingModel() -> SentenceTransformer:
     global model
     if model is None:
-        if not (MODEL_DIR / "config.json").exists():
-            snapshot_download(MODEL_NAME, local_dir=str(MODEL_DIR))
+        if not (MODEL_DIR / "model.safetensors").exists():
+            _downloadModel()
         model = SentenceTransformer(str(MODEL_DIR))
     return model
 
