@@ -1,3 +1,4 @@
+import unicodedata
 from datetime import datetime
 
 import numpy as np
@@ -11,6 +12,30 @@ from main.app.prometheus.vector import batchCosineSimilarity, contentHash, getRe
 
 MEMORY_LIMIT_BASIC = 5
 MEMORY_LIMIT_EXTENDED = 50
+
+
+def _normalize_key(key: str) -> set[str]:
+    normalized = key.lower().replace("_", " ")
+    normalized = "".join(c for c in unicodedata.normalize("NFKD", normalized) if not unicodedata.combining(c))
+    return set(normalized.split())
+
+
+def _findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8) -> UserMemory | None:
+    existing = (
+        db.query(UserMemory)
+        .filter(UserMemory.userId == userId, UserMemory.archivedAt.is_(None))
+        .all()
+    )
+    newTokens = _normalize_key(newKey)
+    for m in existing:
+        existingTokens = _normalize_key(m.memoryKey)
+        union = newTokens | existingTokens
+        if not union:
+            continue
+        similarity = len(newTokens & existingTokens) / len(union)
+        if similarity > threshold:
+            return m
+    return None
 
 
 class PrometheusMemory:
@@ -59,6 +84,20 @@ class PrometheusMemory:
             db.commit()
             db.refresh(existing)
             return {"status": "updated", "memory": existing}
+
+        similar = _findSimilarKey(db, userId, key)
+        if similar:
+            similar.memoryValue = value  # type: ignore[assignment]
+            similar.memoryType = memoryType  # type: ignore[assignment]
+            similar.source = source  # type: ignore[assignment]
+            similar.contentHash = contentHash(value)  # type: ignore[assignment]
+            similar.embedding = embedding  # type: ignore[assignment]
+            similar.baseScore = min(similar.baseScore + 0.1, 1.0)  # type: ignore[arg-type]
+            similar.accessCount += 1  # type: ignore[assignment]
+            similar.lastAccessedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
+            db.commit()
+            db.refresh(similar)
+            return {"status": "merged", "memory": similar}
 
         if userRoles:
             limit = cls.getMemoryLimit(userRoles)
