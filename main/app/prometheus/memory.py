@@ -14,21 +14,21 @@ MEMORY_LIMIT_BASIC = 5
 MEMORY_LIMIT_EXTENDED = 50
 
 
-def _normalize_key(key: str) -> set[str]:
+def normalizeKey(key: str) -> set[str]:
     normalized = key.lower().replace("_", " ")
     normalized = "".join(c for c in unicodedata.normalize("NFKD", normalized) if not unicodedata.combining(c))
     return set(normalized.split())
 
 
-def _findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8) -> UserMemory | None:
+def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8) -> UserMemory | None:
     existing = (
         db.query(UserMemory)
         .filter(UserMemory.userId == userId, UserMemory.archivedAt.is_(None))
         .all()
     )
-    newTokens = _normalize_key(newKey)
+    newTokens = normalizeKey(newKey)
     for m in existing:
-        existingTokens = _normalize_key(m.memoryKey)
+        existingTokens = normalizeKey(m.memoryKey)
         union = newTokens | existingTokens
         if not union:
             continue
@@ -85,7 +85,7 @@ class PrometheusMemory:
             db.refresh(existing)
             return {"status": "updated", "memory": existing}
 
-        similar = _findSimilarKey(db, userId, key)
+        similar = findSimilarKey(db, userId, key)
         if similar:
             similar.memoryValue = value  # type: ignore[assignment]
             similar.memoryType = memoryType  # type: ignore[assignment]

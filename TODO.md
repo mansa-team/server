@@ -1,5 +1,3 @@
-- [ ] Improved per-session memory system using vectors
-- [ ] Figure out how to make a decent multi-session memory system without breaking massive performance impacts (google turboquant vec / table with memory scores and ranking)
 - [ ] Make my own Tokenizer
 - [ ] Add a system prompt
   

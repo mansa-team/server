@@ -30,8 +30,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\api.js": {
-    "mtime": 1784219442.2461,
-    "ast_hash": "3da788056c42ca477ec58e9728fd7aa5",
+    "mtime": 1784226355.8503823,
+    "ast_hash": "d41bfc7c0751fb0dcc920c9cc160f3ba",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\App.jsx": {
@@ -125,18 +125,18 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\memory.py": {
-    "mtime": 1784222977.363551,
-    "ast_hash": "bdf27e60822c7f767d6a44040558ff7c",
+    "mtime": 1784226609.4527895,
+    "ast_hash": "c560f9c2d4cd92904631c1afb2ed9c99",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\tools.py": {
-    "mtime": 1784142890.438789,
-    "ast_hash": "b711f1453b4bcc90430bcfc90718acaa",
+    "mtime": 1784225647.8815482,
+    "ast_hash": "e783ea106421009472de85d577b8179b",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\vector.py": {
-    "mtime": 1784154619.9799116,
-    "ast_hash": "d988dea93f00d7812e9f97697ae37711",
+    "mtime": 1784225580.3212,
+    "ast_hash": "e53f9444fa2e3df870c768dea8f7ede6",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\scraper_b3\\scraper.py": {
@@ -240,8 +240,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\service\\prometheus_service.py": {
-    "mtime": 1782704366.1678457,
-    "ast_hash": "3d5ff21ae4705d0ccd55c0f8d6216f94",
+    "mtime": 1784226560.4305556,
+    "ast_hash": "962260f54fcb025b8ab4523376b3a344",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\service\\scraper_service.py": {
@@ -300,8 +300,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\utils\\models\\loader.py": {
-    "mtime": 1784222990.9619634,
-    "ast_hash": "6da19967f975daa6bb5c199d038f33c5",
+    "mtime": 1784225556.1895516,
+    "ast_hash": "600d7f2941d7f35f0848202ae48eb5e3",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\utils\\models\\__init__.py": {
@@ -449,6 +449,16 @@
     "ast_hash": "9a142b73f633fed6b98bb4f3f0aac182",
     "semantic_hash": ""
   },
+  "D:\\Repositories\\server\\tests\\test_memory_dedup.py": {
+    "mtime": 1784226702.6711526,
+    "ast_hash": "829e2c6463de9689f6cde7b0c6c9d5d1",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\tests\\test_memory_maintenance.py": {
+    "mtime": 1784226409.7664876,
+    "ast_hash": "21e97c4a6189afd98a780fe83003d172",
+    "semantic_hash": ""
+  },
   "D:\\Repositories\\server\\tests\\test_memory_manager.py": {
     "mtime": 1784005201.8449767,
     "ast_hash": "f779143d1d92e5f902c0d4a4bfbf7fa7",
@@ -554,6 +564,11 @@
     "ast_hash": "99e56b46cb7947a1bebdb3d680c02721",
     "semantic_hash": ""
   },
+  "D:\\Repositories\\server\\tests\\test_type_aware_decay.py": {
+    "mtime": 1784226560.4305556,
+    "ast_hash": "31afcb0661931171ec4beb5d2cda3372",
+    "semantic_hash": ""
+  },
   "D:\\Repositories\\server\\tests\\test_user_deps.py": {
     "mtime": 1782691503.0756903,
     "ast_hash": "7c1f5a8e42b1c650ae8887a1bfd658dd",
@@ -567,11 +582,6 @@
   "D:\\Repositories\\server\\AGENTS.md": {
     "mtime": 1782691502.9893162,
     "ast_hash": "0f61369305d82e46ed248c697e4d3027",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\CODE_REVIEW_REPORT.md": {
-    "mtime": 1784161572.7214458,
-    "ast_hash": "5a8de18baab9857b908d087c69decf09",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docker-compose.yml": {
@@ -590,8 +600,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\TODO.md": {
-    "mtime": 1782706823.0498326,
-    "ast_hash": "e08fcda35a17445c81c15f25f35e756f",
+    "mtime": 1784226438.2976112,
+    "ast_hash": "759c89ef159462c032051377c6adfe10",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docs\\authentication.md": {
