@@ -3,10 +3,7 @@ import pytest
 from main.app.prometheus.tools import (
     search_memory,
     save_memory,
-    MEMORY_TOOLS,
-    MEMORY_TOOL_NAMES,
-    executeMemoryTool,
-    dispatchToolCall,
+    TOOL_REGISTRY,
 )
 
 
@@ -44,10 +41,23 @@ class TestMemoryToolFunctions:
         assert "type" in hints
 
     def test_memory_tools_is_list_of_callables(self):
-        assert isinstance(MEMORY_TOOLS, list)
-        assert len(MEMORY_TOOLS) == 2
-        for tool in MEMORY_TOOLS:
-            assert callable(tool)
+        assert isinstance(TOOL_REGISTRY, dict)
+        assert len(TOOL_REGISTRY) == 2
+        for name, fn in TOOL_REGISTRY.items():
+            assert callable(fn)
 
     def test_memory_tool_names_unchanged(self):
-        assert MEMORY_TOOL_NAMES == {"search_memory", "save_memory"}
+        assert set(TOOL_REGISTRY.keys()) == {"search_memory", "save_memory"}
+
+
+class TestToolRegistry:
+    def test_registry_contains_memory_tools(self):
+        assert "search_memory" in TOOL_REGISTRY
+        assert "save_memory" in TOOL_REGISTRY
+
+    def test_registry_values_are_callable(self):
+        for name, fn in TOOL_REGISTRY.items():
+            assert callable(fn), f"{name} is not callable"
+
+    def test_registry_matches_tool_names(self):
+        assert set(TOOL_REGISTRY.keys()) == {"search_memory", "save_memory"}

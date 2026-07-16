@@ -1,6 +1,5 @@
 import logging
-
-from google.genai import types
+from typing import Any
 
 from config import SessionLocal
 from main.app.prometheus.memory import PrometheusMemory
@@ -8,81 +7,82 @@ from main.app.prometheus.vector import embed
 
 logger = logging.getLogger(__name__)
 
-MEMORY_TOOL_NAMES = {"search_memory", "save_memory"}
 
-
-def search_memory(query: str, limit: int = 10) -> str:
+async def search_memory(query: str, limit: int = 10, user: dict | None = None, **_) -> dict:
     """Search user's saved memories, preferences, and past analysis context.
 
     Use this to recall what the user has previously discussed, their preferences,
-    or past analysis results before starting a new analysis. Returns memories
-    ranked by relevance score.
+    or past analysis results before starting a new analysis.
 
     Args:
         query: Search query — keywords or phrase to find in saved memories
         limit: Maximum number of memories to return (default 10)
     """
-    pass
+    if not user:
+        return {"error": "Authentication required"}
 
-
-def save_memory(key: str, value: str, type: str) -> str:
-    """Store a memory about the user's preferences, analysis results, or feedback.
-
-    Checks memory limit (5 for free users, 50 for premium). Use this to remember
-    important findings, user preferences, or analysis conclusions across sessions.
-
-    Args:
-        key: Short label for the memory (e.g., "PETR4 valuation偏好")
-        value: Full memory content with details
-        type: Type of memory — one of: preference, analysis, feedback, context
-    """
-    pass
-
-
-# SDK auto-generates FunctionDeclarations from these functions
-MEMORY_TOOLS = [search_memory, save_memory]
-
-
-async def executeMemoryTool(name: str, args: dict, user: dict) -> dict:
     db = SessionLocal()
     try:
-        if name == "search_memory":
-            results = PrometheusMemory.search(
-                db,
-                user["userId"],
-                args["query"],
-                limit=args.get("limit", 10),
-            )
-            return {"memories": results}
-
-        elif name == "save_memory":
-            embedding = embed([args["value"]])[0]
-            result = PrometheusMemory.upsertMemory(
-                db,
-                user["userId"],
-                key=args["key"],
-                value=args["value"],
-                memoryType=args["type"],
-                source="explicit",
-                embedding=embedding,
-                userRoles=user.get("roles", []),
-            )
-            if result["status"] == "limit_reached":
-                return {"error": f"Memory limit reached ({result['limit']}). Upgrade to premium for 50 memories."}
-            return {"status": result["status"], "memoryId": result["memory"].id}
-
-        return {"error": f"Unknown memory tool: {name}"}
+        results = PrometheusMemory.search(
+            db,
+            user["userId"],
+            query,
+            limit=limit,
+        )
+        return {"memories": results}
     finally:
         db.close()
 
 
+async def save_memory(key: str, value: str, type: str, user: dict | None = None, **_) -> dict:
+    """Store a memory about the user's preferences, analysis results, or feedback.
+
+    Checks memory limit (50 for free users, 250 for premium). Use this to remember
+    important findings, user preferences, or analysis conclusions across sessions.
+
+    Args:
+        key: Short label for the memory (e.g., "PETR4 valuation")
+        value: Full memory content with details
+        type: Type of memory — one of: preference, analysis, feedback, context
+    """
+    if not user:
+        return {"error": "Authentication required"}
+
+    db = SessionLocal()
+    try:
+        embedding = embed([value])[0]
+        result = PrometheusMemory.upsertMemory(
+            db,
+            user["userId"],
+            key=key,
+            value=value,
+            memoryType=type,
+            source="explicit",
+            embedding=embedding,
+            userRoles=user.get("roles", []),
+        )
+        if result["status"] == "limit_reached":
+            return {"error": f"Memory limit reached ({result['limit']}). Upgrade to premium for more memories."}
+        return {"status": result["status"], "memoryId": result["memory"].id}
+    finally:
+        db.close()
+
+
+TOOL_REGISTRY: dict[str, Any] = {
+    "search_memory": search_memory,
+    "save_memory": save_memory,
+}
+
+
 async def dispatchToolCall(functionCall, mcpClients, user=None) -> dict:
     name = functionCall.name
-    args = functionCall.args or {}
+    args = dict(functionCall.args or {})
     logger.info(f"Executing tool call: {name}({args})")
 
-    if name in MEMORY_TOOL_NAMES and user:
-        return await executeMemoryTool(name, args, user)
+    if name in TOOL_REGISTRY:
+        fn = TOOL_REGISTRY[name]
+        args["user"] = user
+        return await fn(**args)
 
     for client in mcpClients.values():
         try:
@@ -95,7 +95,7 @@ async def dispatchToolCall(functionCall, mcpClients, user=None) -> dict:
                     textParts.append(block.text if hasattr(block, "text") else str(block))
             return {"result": "\n".join(textParts) if textParts else str(mcpResult)}
         except Exception as e:
-            logger.debug(f"Client {client} failed for {name}: {e}")
+            logger.debug(f"MCP client failed for {name}: {e}")
             continue
 
     return {"error": f"Tool '{name}' not available"}

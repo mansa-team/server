@@ -10,7 +10,7 @@ import google.genai._mcp_utils as _mcp
 
 from main.models.memory import UserMemory
 from main.app.prometheus.chat import PrometheusChatManager
-from main.app.prometheus.tools import MEMORY_TOOLS, dispatchToolCall
+from main.app.prometheus.tools import TOOL_REGISTRY, dispatchToolCall
 
 _original_filter = _mcp._filter_to_supported_schema
 
@@ -124,6 +124,7 @@ class Prometheus:
     async def openMCPClients(self):
         stocks = Client(f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/mcp")
         searxng = Client(f"http://{Config.PROMETHEUS['SEARXNG_HOST']}:{Config.PROMETHEUS['SEARXNG_PORT']}/mcp/")
+
         async with stocks, searxng:
             for s in [stocks.session, searxng.session]:
                 type(s).__deepcopy__ = lambda self, memo=None: self  # type: ignore[attr-defined]
@@ -131,14 +132,17 @@ class Prometheus:
 
     def makeChat(self, sessions, history, *, system_prompt=None, disable_automatic_function_calling=False):
         prompt = system_prompt or self.SYSTEM_PROMPT
-        all_tools = list(sessions) + MEMORY_TOOLS
+        all_tools = list(sessions) + list(TOOL_REGISTRY.values())
+
         kwargs = dict(
             system_instruction=prompt,
             tools=all_tools,
             temperature=0.5,
         )
+
         if disable_automatic_function_calling:
             kwargs["automatic_function_calling"] = types.AutomaticFunctionCallingConfig(disable=True)
+
         return self.client.aio.chats.create(
             model="gemini-flash-lite-latest",
             history=history,
