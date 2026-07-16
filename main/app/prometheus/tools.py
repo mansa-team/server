@@ -9,10 +9,10 @@ logger = logging.getLogger(__name__)
 
 
 async def search_memory(query: str, limit: int = 10, user: dict | None = None, **_) -> dict:
-    """Search user's saved memories, preferences, and past analysis context.
+    """
+    Search user's saved memories, preferences, and past analysis context.
 
-    Use this to recall what the user has previously discussed, their preferences,
-    or past analysis results before starting a new analysis.
+    Use this to recall what the user has previously discussed, their preferences, or past analysis results before starting a new analysis.
 
     Args:
         query: Search query — keywords or phrase to find in saved memories
@@ -35,10 +35,10 @@ async def search_memory(query: str, limit: int = 10, user: dict | None = None, *
 
 
 async def save_memory(key: str, value: str, type: str, user: dict | None = None, **_) -> dict:
-    """Store a memory about the user's preferences, analysis results, or feedback.
-
-    Checks memory limit (50 for free users, 250 for premium). Use this to remember
-    important findings, user preferences, or analysis conclusions across sessions.
+    """
+    Store a memory about the user's preferences, analysis results, or feedback.
+    
+    Use this to remember important findings, user preferences, or analysis conclusions across sessions.
 
     Args:
         key: Short label for the memory (e.g., "PETR4 valuation")
