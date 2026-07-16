@@ -5,6 +5,8 @@ RED: These tests should fail if memory tools are not properly attached.
 GREEN: All pass when wiring is correct.
 """
 
+import inspect
+
 import pytest
 import sys
 import os
@@ -12,45 +14,38 @@ from unittest.mock import patch, MagicMock, AsyncMock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from main.app.prometheus.tools import MEMORY_TOOLS, MEMORY_TOOL_NAMES, executeMemoryTool, dispatchToolCall
+from main.app.prometheus.tools import MEMORY_TOOLS, MEMORY_TOOL_NAMES, executeMemoryTool, dispatchToolCall, search_memory, save_memory
 
 
 class TestMemoryToolsDefinition:
-    """MEMORY_TOOLS must be defined as a Tool wrapping FunctionDeclarations."""
+    """MEMORY_TOOLS must be a list of callables with proper signatures."""
 
     def test_memory_tools_is_nonempty_list(self):
         assert isinstance(MEMORY_TOOLS, list)
-        assert len(MEMORY_TOOLS) == 1  # single Tool wrapping both functions
+        assert len(MEMORY_TOOLS) == 2  # two functions, SDK auto-generates declarations
 
-    def test_memory_tools_wrapped_in_tool(self):
-        from google.genai import types
-
-        assert isinstance(MEMORY_TOOLS[0], types.Tool)
-        assert MEMORY_TOOLS[0].function_declarations is not None
+    def test_memory_tools_are_callables(self):
+        for tool in MEMORY_TOOLS:
+            assert callable(tool)
 
     def test_memory_tool_names_match(self):
-        fds = MEMORY_TOOLS[0].function_declarations
-        names = {fd.name for fd in fds}
+        names = {tool.__name__ for tool in MEMORY_TOOLS}
         assert names == {"search_memory", "save_memory"}
 
     def test_memory_tool_names_constant_matches(self):
         assert MEMORY_TOOL_NAMES == {"search_memory", "save_memory"}
 
     def test_search_memory_has_query_param(self):
-        fds = MEMORY_TOOLS[0].function_declarations
-        tool = next(fd for fd in fds if fd.name == "search_memory")
-        props = tool.parameters.properties
-        assert "query" in props
-        assert tool.parameters.required == ["query"]
+        sig = inspect.signature(search_memory)
+        params = list(sig.parameters.keys())
+        assert "query" in params
 
     def test_save_memory_has_required_params(self):
-        fds = MEMORY_TOOLS[0].function_declarations
-        tool = next(fd for fd in fds if fd.name == "save_memory")
-        props = tool.parameters.properties
-        assert "key" in props
-        assert "value" in props
-        assert "type" in props
-        assert set(tool.parameters.required) == {"key", "value", "type"}
+        sig = inspect.signature(save_memory)
+        params = list(sig.parameters.keys())
+        assert "key" in params
+        assert "value" in params
+        assert "type" in params
 
 
 class TestMakeChatIncludesMemoryTools:
@@ -75,17 +70,19 @@ class TestMakeChatIncludesMemoryTools:
         config_call = mock_types.GenerateContentConfig.call_args
         tools_passed = config_call.kwargs.get("tools") or config_call[1].get("tools")
 
-        # Collect all function declaration names across all Tool objects
+        # Collect all tool names — functions have __name__, Tool objects have function_declarations
         all_func_names = []
         for t in tools_passed:
             if hasattr(t, "function_declarations") and t.function_declarations:
                 all_func_names.extend(fd.name for fd in t.function_declarations)
+            elif hasattr(t, "__name__"):
+                all_func_names.append(t.__name__)
             elif hasattr(t, "name"):
                 all_func_names.append(t.name)
 
         assert "search_memory" in all_func_names, f"search_memory not in tools: {all_func_names}"
         assert "save_memory" in all_func_names, f"save_memory not in tools: {all_func_names}"
-        assert len(tools_passed) == 3, f"Expected 2 sessions + 1 Tool(memory), got {len(tools_passed)}"
+        assert len(tools_passed) == 4, f"Expected 2 sessions + 2 memory functions, got {len(tools_passed)}"
 
 
 class TestDispatchRoutesMemoryTools:

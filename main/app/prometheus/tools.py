@@ -10,41 +10,37 @@ logger = logging.getLogger(__name__)
 
 MEMORY_TOOL_NAMES = {"search_memory", "save_memory"}
 
-MEMORY_TOOLS = [
-    types.Tool(
-        function_declarations=[
-            types.FunctionDeclaration(
-                name="search_memory",
-                description="Search user's saved memories, preferences, and past analysis context.",
-                parameters=types.Schema(
-                    type=types.Type.OBJECT,
-                    properties={
-                        "query": types.Schema(type=types.Type.STRING, description="Search query"),
-                        "limit": types.Schema(type=types.Type.INTEGER, description="Max results (default 10)"),
-                    },
-                    required=["query"],
-                ),
-            ),
-            types.FunctionDeclaration(
-                name="save_memory",
-                description="Store a memory about the user's preferences, analysis results, or feedback. Checks memory limit (5 for free users, 50 for premium).",
-                parameters=types.Schema(
-                    type=types.Type.OBJECT,
-                    properties={
-                        "key": types.Schema(type=types.Type.STRING, description="Short label for the memory"),
-                        "value": types.Schema(type=types.Type.STRING, description="Full memory content"),
-                        "type": types.Schema(
-                            type=types.Type.STRING,
-                            enum=["preference", "analysis", "feedback", "context"],
-                            description="Type of memory",
-                        ),
-                    },
-                    required=["key", "value", "type"],
-                ),
-            ),
-        ]
-    )
-]
+
+def search_memory(query: str, limit: int = 10) -> str:
+    """Search user's saved memories, preferences, and past analysis context.
+
+    Use this to recall what the user has previously discussed, their preferences,
+    or past analysis results before starting a new analysis. Returns memories
+    ranked by relevance score.
+
+    Args:
+        query: Search query — keywords or phrase to find in saved memories
+        limit: Maximum number of memories to return (default 10)
+    """
+    pass
+
+
+def save_memory(key: str, value: str, type: str) -> str:
+    """Store a memory about the user's preferences, analysis results, or feedback.
+
+    Checks memory limit (5 for free users, 50 for premium). Use this to remember
+    important findings, user preferences, or analysis conclusions across sessions.
+
+    Args:
+        key: Short label for the memory (e.g., "PETR4 valuation偏好")
+        value: Full memory content with details
+        type: Type of memory — one of: preference, analysis, feedback, context
+    """
+    pass
+
+
+# SDK auto-generates FunctionDeclarations from these functions
+MEMORY_TOOLS = [search_memory, save_memory]
 
 
 async def executeMemoryTool(name: str, args: dict, user: dict) -> dict:
