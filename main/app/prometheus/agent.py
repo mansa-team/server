@@ -11,6 +11,7 @@ import google.genai._mcp_utils as _mcp
 from main.models.memory import UserMemory
 from main.app.prometheus.chat import PrometheusChatManager
 from main.app.prometheus.tools import TOOL_REGISTRY, dispatchToolCall
+from main.app.prometheus.state import HarnessState
 
 _original_filter = _mcp._filter_to_supported_schema
 
@@ -102,7 +103,7 @@ class Prometheus:
         """
 
     @classmethod
-    def buildSystemPrompt(cls, userId: int | None = None, db=None) -> str:
+    def buildSystemPrompt(cls, userId: int | None = None, db=None, state: HarnessState | None = None) -> str:
         memoryBlock = ""
         if userId and db:
             memories = (
@@ -118,7 +119,12 @@ class Prometheus:
                 memoryBlock = "\n".join(lines)
 
         memoriesSection = f"\n[MEMÓRIAS DO USUÁRIO]\n{memoryBlock}" if memoryBlock else ""
-        return f"{cls.SYSTEM_PROMPT}{memoriesSection}"
+
+        stateSection = ""
+        if state and state.to_context():
+            stateSection = f"\n[HARNESS STATE]\n{state.to_context()}\n[/HARNESS STATE]"
+
+        return f"{cls.SYSTEM_PROMPT}{memoriesSection}{stateSection}"
 
     @asynccontextmanager
     async def openMCPClients(self):
@@ -155,7 +161,9 @@ class Prometheus:
         logger.info(f"Query: {query}")
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
         PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
-        system_prompt = Prometheus.buildSystemPrompt(user.get("userId") if user else None, db)
+
+        state = HarnessState()
+        system_prompt = Prometheus.buildSystemPrompt(user.get("userId") if user else None, db, state=state)
 
         async with self.openMCPClients() as (clients, sessions):
             chat = self.makeChat(sessions, history, system_prompt=system_prompt)
@@ -171,7 +179,8 @@ class Prometheus:
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
 
         fullText = ""
-        system_prompt = Prometheus.buildSystemPrompt(user.get("userId") if user else None, db)
+        state = HarnessState()
+        system_prompt = Prometheus.buildSystemPrompt(user.get("userId") if user else None, db, state=state)
 
         async with self.openMCPClients() as (mcpClients, sessions):
             chat = self.makeChat(
@@ -201,13 +210,22 @@ class Prometheus:
 
                     functionResponses = []
                     for fc in functionCalls:
-                        result = await dispatchToolCall(fc, mcpClients, user=user)
+                        result = await dispatchToolCall(fc, mcpClients, user=user, state=state)
                         functionResponses.append(
                             types.Part.from_function_response(
                                 name=fc.name,
                                 response=result,
                             )
                         )
+
+                    # Inject state into context if changed
+                    if state.has_changed():
+                        stateContext = state.to_context()
+                        functionResponses.append(
+                            types.Part.from_text(f"\n[HARNESS STATE]\n{stateContext}\n[/HARNESS STATE]")
+                        )
+                        state.reset_changed()
+
                     stream = await chat.send_message_stream(functionResponses)
             finally:
                 PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
