@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from main.models.memory_types import VectorType
+from main.models.types import VectorType
 
 
 class TestVectorType:
