@@ -36,6 +36,10 @@ def issueSessionCookie(response, request, db, user) -> str:
     session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
     accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
 
+    # Set domain so cookie works across ports in dev (API:3200 → frontend:5173)
+    hostname = request.url.hostname or "localhost"
+    cookieDomain = "localhost" if hostname in ("localhost", "127.0.0.1") else hostname
+
     response.set_cookie(
         key=COOKIE_NAME,
         value=accessToken,
@@ -43,6 +47,7 @@ def issueSessionCookie(response, request, db, user) -> str:
         secure=isSecureScheme(request),
         samesite=COOKIE_SAMESITE,
         path=COOKIE_PATH,
+        domain=cookieDomain,
     )
     return accessToken
 
