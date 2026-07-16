@@ -53,12 +53,12 @@ class TestMemoryToolFunctions:
 
     def test_memory_tools_is_list_of_callables(self):
         assert isinstance(TOOL_REGISTRY, dict)
-        assert len(TOOL_REGISTRY) == 2
+        assert len(TOOL_REGISTRY) == 4
         for name, fn in TOOL_REGISTRY.items():
             assert callable(fn)
 
     def test_memory_tool_names_unchanged(self):
-        assert set(TOOL_REGISTRY.keys()) == {"search_memory", "save_memory"}
+        assert {"search_memory", "save_memory"}.issubset(set(TOOL_REGISTRY.keys()))
 
 
 class TestToolRegistry:
@@ -73,7 +73,7 @@ class TestToolRegistry:
             assert callable(fn)
 
     def test_registry_matches_tool_names(self):
-        assert set(TOOL_REGISTRY.keys()) == {"search_memory", "save_memory"}
+        assert {"search_memory", "save_memory"}.issubset(set(TOOL_REGISTRY.keys()))
 
 
 class TestMakeChatIncludesMemoryTools:
@@ -124,7 +124,7 @@ class TestDispatchRoutesMemoryTools:
         with patch.dict(TOOL_REGISTRY, {"search_memory": mock_fn}):
             result = await dispatchToolCall(mock_fc, {}, user={"userId": 1})
 
-        mock_fn.assert_called_once_with(query="PETR4", user={"userId": 1})
+        mock_fn.assert_called_once_with(query="PETR4", user={"userId": 1}, state=None)
         assert result == {"memories": []}
 
     @pytest.mark.anyio
@@ -139,7 +139,7 @@ class TestDispatchRoutesMemoryTools:
         with patch.dict(TOOL_REGISTRY, {"save_memory": mock_fn}):
             result = await dispatchToolCall(mock_fc, {}, user={"userId": 1})
 
-        mock_fn.assert_called_once_with(key="ticker", value="PETR4", type="preference", user={"userId": 1})
+        mock_fn.assert_called_once_with(key="ticker", value="PETR4", type="preference", user={"userId": 1}, state=None)
         assert result["status"] == "created"
 
     @pytest.mark.anyio

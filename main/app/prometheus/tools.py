@@ -9,9 +9,11 @@ from main.app.prometheus.vector import embed
 logger = logging.getLogger(__name__)
 
 
+#
+# memory
+#
 async def search_memory(query: str, limit: int = 10, user: dict | None = None, **_) -> dict:
-    """
-    Search user's saved memories, preferences, and past analysis context.
+    """Search user's saved memories, preferences, and past analysis context.
 
     Use this to recall what the user has previously discussed, their preferences, or past analysis results before starting a new analysis.
 
@@ -36,8 +38,7 @@ async def search_memory(query: str, limit: int = 10, user: dict | None = None, *
 
 
 async def save_memory(key: str, value: str, type: str, user: dict | None = None, **_) -> dict:
-    """
-    Store a memory about the user's preferences, analysis results, or feedback.
+    """Store a memory about the user's preferences, analysis results, or feedback.
 
     Use this to remember important findings, user preferences, or analysis conclusions across sessions.
 
@@ -69,25 +70,24 @@ async def save_memory(key: str, value: str, type: str, user: dict | None = None,
         db.close()
 
 
-TOOL_REGISTRY: dict[str, Any] = {
-    "search_memory": search_memory,
-    "save_memory": save_memory,
-}
-
-STATE_TOOL_NAMES = {"get_state", "set_state"}
-
-
-def get_state(key: str = "") -> str:
+#
+# harness state
+#
+async def get_state(key: str = "", state: HarnessState | None = None, **_) -> dict:
     """Retrieve values from the harness state. Use this to recall intermediate results,
     analysis progress, or user preferences stored during this session.
 
     Args:
         key: Optional key to retrieve. If empty, returns all state.
     """
-    pass
+    if not state:
+        return {"error": "State not available"}
+    if key:
+        return {key: state.get(key)}
+    return state.to_dict()
 
 
-def set_state(key: str, value: str) -> str:
+async def set_state(key: str, value: str, state: HarnessState | None = None, **_) -> dict:
     """Store a value in the harness state for this session. Use this to save
     intermediate analysis results, track progress, or remember user preferences.
 
@@ -95,24 +95,18 @@ def set_state(key: str, value: str) -> str:
         key: State key (e.g., "current_step", "petr4_pe_ratio")
         value: Value to store (will be converted to string)
     """
-    pass
+    if not state:
+        return {"error": "State not available"}
+    state.set(key, value)
+    return {"status": "ok", "key": key}
 
 
-STATE_TOOLS = [get_state, set_state]
-
-
-async def executeStateTool(name: str, args: dict, state: HarnessState) -> dict:
-    if name == "get_state":
-        key = args.get("key", "")
-        if key:
-            return {key: state.get(key)}
-        return state.to_dict()
-
-    if name == "set_state":
-        state.set(args["key"], args["value"])
-        return {"status": "ok", "key": args["key"]}
-
-    return {"error": f"Unknown state tool: {name}"}
+TOOL_REGISTRY: dict[str, Any] = {
+    "search_memory": search_memory,
+    "save_memory": save_memory,
+    "get_state": get_state,
+    "set_state": set_state,
+}
 
 
 async def dispatchToolCall(functionCall, mcpClients, user=None, state=None) -> dict:
@@ -123,10 +117,8 @@ async def dispatchToolCall(functionCall, mcpClients, user=None, state=None) -> d
     if name in TOOL_REGISTRY:
         fn = TOOL_REGISTRY[name]
         args["user"] = user
+        args["state"] = state
         return await fn(**args)
-
-    if name in STATE_TOOL_NAMES and state:
-        return await executeStateTool(name, args, state)
 
     for client in mcpClients.values():
         try:
