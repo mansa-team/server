@@ -1,4 +1,4 @@
-from main.app.prometheus.memory import PrometheusMemory, _findSimilarKey
+from main.app.prometheus.memory import PrometheusMemory, findSimilarKey
 from main.models.memory import UserMemory
 
 
