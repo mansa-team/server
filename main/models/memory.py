@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text, Float, DateTime, UniqueConstraint, Index, func
 from sqlalchemy.orm import relationship
 from main.models.base import Base
-from main.models.memory_types import VectorType
+from main.models.types import VectorType
 
 
 class UserMemory(Base):
