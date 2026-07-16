@@ -175,3 +175,22 @@ class TestStreamMessageStateIntegration:
                         call_kwargs = mock_dispatch.call_args
                         assert "state" in call_kwargs.kwargs
                         assert isinstance(call_kwargs.kwargs["state"], HarnessState)
+
+
+class TestSystemPromptStateInstructions:
+    def test_system_prompt_has_harness_state_section(self):
+        """System prompt should instruct LLM about harness state usage."""
+        from main.app.prometheus.agent import Prometheus
+
+        prompt = Prometheus.SYSTEM_PROMPT
+        assert "Harness State" in prompt or "harness state" in prompt.lower()
+        assert "set_state" in prompt
+        assert "get_state" in prompt
+
+    def test_system_prompt_has_memory_sync_section(self):
+        """System prompt should instruct LLM about memory vs state."""
+        from main.app.prometheus.agent import Prometheus
+
+        prompt = Prometheus.SYSTEM_PROMPT
+        assert "Memory Sync" in prompt or "memory sync" in prompt.lower()
+        assert "save_memory" in prompt

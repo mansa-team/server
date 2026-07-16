@@ -100,6 +100,22 @@ class Prometheus:
         - Wrap tag content in valid JSON, no extra text inside tags
         - You can mix prose and tags freely
         - Always use tags when presenting structured data — never dump raw JSON
+
+        ## Harness State
+        You have access to an in-memory state that persists across tool calls within this conversation.
+        Use set_state to save important values: intermediate results, analysis progress, user preferences.
+        Use get_state to recall values you saved earlier.
+
+        Guidelines:
+        - At the start of a multi-step analysis, save the user's goal: set_state("goal", "...")
+        - After each major data fetch, save the result: set_state("petr4_fundamental", "...")
+        - Track your progress: set_state("step", "3/8 computing correlation")
+        - Before responding, check if you have saved context to recall
+
+        ## Memory Sync
+        After completing a complex analysis or when you learn something important about the user,
+        call save_memory to persist it across sessions. This is separate from the harness state —
+        state is temporary (this request only), memory is permanent (all sessions).
         """
 
     @classmethod
