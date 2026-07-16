@@ -3,6 +3,7 @@ from typing import Any
 
 from config import SessionLocal
 from main.app.prometheus.memory import PrometheusMemory
+from main.app.prometheus.state import HarnessState
 from main.app.prometheus.vector import embed
 
 logger = logging.getLogger(__name__)
@@ -37,7 +38,7 @@ async def search_memory(query: str, limit: int = 10, user: dict | None = None, *
 async def save_memory(key: str, value: str, type: str, user: dict | None = None, **_) -> dict:
     """
     Store a memory about the user's preferences, analysis results, or feedback.
-    
+
     Use this to remember important findings, user preferences, or analysis conclusions across sessions.
 
     Args:
@@ -73,8 +74,48 @@ TOOL_REGISTRY: dict[str, Any] = {
     "save_memory": save_memory,
 }
 
+STATE_TOOL_NAMES = {"get_state", "set_state"}
 
-async def dispatchToolCall(functionCall, mcpClients, user=None) -> dict:
+
+def get_state(key: str = "") -> str:
+    """Retrieve values from the harness state. Use this to recall intermediate results,
+    analysis progress, or user preferences stored during this session.
+
+    Args:
+        key: Optional key to retrieve. If empty, returns all state.
+    """
+    pass
+
+
+def set_state(key: str, value: str) -> str:
+    """Store a value in the harness state for this session. Use this to save
+    intermediate analysis results, track progress, or remember user preferences.
+
+    Args:
+        key: State key (e.g., "current_step", "petr4_pe_ratio")
+        value: Value to store (will be converted to string)
+    """
+    pass
+
+
+STATE_TOOLS = [get_state, set_state]
+
+
+async def executeStateTool(name: str, args: dict, state: HarnessState) -> dict:
+    if name == "get_state":
+        key = args.get("key", "")
+        if key:
+            return {key: state.get(key)}
+        return state.to_dict()
+
+    if name == "set_state":
+        state.set(args["key"], args["value"])
+        return {"status": "ok", "key": args["key"]}
+
+    return {"error": f"Unknown state tool: {name}"}
+
+
+async def dispatchToolCall(functionCall, mcpClients, user=None, state=None) -> dict:
     name = functionCall.name
     args = dict(functionCall.args or {})
     logger.info(f"Executing tool call: {name}({args})")
@@ -83,6 +124,9 @@ async def dispatchToolCall(functionCall, mcpClients, user=None) -> dict:
         fn = TOOL_REGISTRY[name]
         args["user"] = user
         return await fn(**args)
+
+    if name in STATE_TOOL_NAMES and state:
+        return await executeStateTool(name, args, state)
 
     for client in mcpClients.values():
         try:
