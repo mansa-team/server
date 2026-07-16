@@ -4,7 +4,7 @@ from google.genai import types
 
 from config import SessionLocal
 from main.app.prometheus.memory import PrometheusMemory
-from main.utils.models.loader import embed
+from main.app.prometheus.vector import embed
 
 logger = logging.getLogger(__name__)
 

@@ -1,16 +1,16 @@
 # Graph Report - server  (2026-07-16)
 
 ## Corpus Check
-- 123 files · ~86,244 words
+- 123 files · ~86,243 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 3665 nodes · 4968 edges · 361 communities (188 shown, 173 thin omitted)
+- 3665 nodes · 4968 edges · 361 communities (187 shown, 174 thin omitted)
 - Extraction: 83% EXTRACTED · 17% INFERRED · 0% AMBIGUOUS · INFERRED: 849 edges (avg confidence: 0.68)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4d2a7e74`
+- Built from commit: `a5fa2111`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -400,7 +400,7 @@
 - **Configuration & Database Infrastructure** — config_Config, config_engine, config_stocksEngine [INFERRED]
 - **User Authentication & Authorization** — user_service, authentication, user_roles, permission_system [INFERRED]
 
-## Communities (361 total, 173 thin omitted)
+## Communities (361 total, 174 thin omitted)
 
 ### Community 0 - "Stocks API Controller"
 Cohesion: 0.16
@@ -611,8 +611,8 @@ Cohesion: 0.09
 Nodes (6): Cover all methods in chat.py (lines 11-120)., Cover all methods in chat.py (lines 11-120)., Cover all methods in chat.py (lines 11-120)., Cover all methods in chat.py (lines 11-120)., Cover all methods in chat.py (lines 11-120)., TestPrometheusChatManager
 
 ### Community 71 - "Community 71"
-Cohesion: 0.17
-Nodes (7): Tests for dynamic ticker index feature, Ticker index should be built when cache is loaded, Ticker index should contain all tickers from cache, Ticker index should be case-insensitive, Looking up ticker should return valid row index, Ticker index should be rebuilt when cache refreshes, TestTickerIndex
+Cohesion: 0.29
+Nodes (6): dbSession(), Tests for atomic API key quota enforcement (race condition fix).  Verifies tha, Sample API key data for tests., Create an in-memory SQLite database for testing., Sample API key data for tests., sampleKeyData()
 
 ### Community 72 - "Community 72"
 Cohesion: 0.16
@@ -667,8 +667,8 @@ Cohesion: 0.09
 Nodes (5): Tests for main/utils/roles.py — covers requirePermission and edge cases., TestCheckAccess, TestPermissionAll, TestRequirePermission, TestRolesHierarchy
 
 ### Community 85 - "Community 85"
-Cohesion: 0.08
-Nodes (26): generateKey(), createKey(), _hash_key(), hashKey(), Return SHA-256 hex digest of the given key., Test that concurrent requests are properly serialized at DB level.          Th, Test edge case: request exactly at quota limit., Test edge case: request exactly at quota limit. (+18 more)
+Cohesion: 0.11
+Nodes (21): generateKey(), createKey(), _hash_key(), hashKey(), Return SHA-256 hex digest of the given key., Test that concurrent requests are properly serialized at DB level.          Th, Test edge case: request exactly at quota limit., Test edge case: request exactly at quota limit. (+13 more)
 
 ### Community 86 - "Community 86"
 Cohesion: 0.11
@@ -771,8 +771,8 @@ Cohesion: 0.27
 Nodes (9): batchCosineSimilarity(), Empty matrix → empty array., Single row matches cosine_similarity., Multiple rows ranked correctly., Zero query → all zeros., TestBatchCosineSimilarity, batch_cosine_similarity(), batchCosineSimilarity() (+1 more)
 
 ### Community 171 - "Community 171"
-Cohesion: 0.13
-Nodes (12): _filterCotationByDate(), filterCotationData(), _parseCotationDate(), Fetch live prices for B3 tickers via yfinance.          B3 tickers must match, Parse DD-MM-YYYY from COTACAO 10Y JSON DATA field. ponytail: stdlib datetime onl, Filter COTACAO 10Y JSON entries by their inner DATA field (DD-MM-YYYY)., sanitizeNanValues(), StocksQueryManager (+4 more)
+Cohesion: 0.11
+Nodes (15): _filterCotationByDate(), filterCotationData(), _parseCotationDate(), Fetch live prices for B3 tickers via yfinance.          B3 tickers must match, Parse DD-MM-YYYY from COTACAO 10Y JSON DATA field. ponytail: stdlib datetime onl, Filter COTACAO 10Y JSON entries by their inner DATA field (DD-MM-YYYY)., sanitizeNanValues(), StocksQueryManager (+7 more)
 
 ### Community 172 - "Community 172"
 Cohesion: 0.08
@@ -815,8 +815,8 @@ Cohesion: 0.13
 Nodes (13): Covers lines 95-98: session deleted., Covers lines 96-97: session not found., Covers lines 96-97: session not found., Covers lines 96-97: session not found., Covers lines 95-98: DELETE /prometheus/sessions/{sessionId}., Covers lines 95-98: session deleted., Covers lines 96-97: session not found., Covers lines 95-98: DELETE /prometheus/sessions/{sessionId}. (+5 more)
 
 ### Community 210 - "Community 210"
-Cohesion: 0.13
-Nodes (10): optimizeDtypes(), Get cached stocks data with optional column filtering., StocksCacheManager, Tests for dynamic ticker index feature, Ticker index should be built when cache is loaded, Ticker index should contain all tickers from cache, Ticker index should be case-insensitive, Looking up ticker should return valid row index (+2 more)
+Cohesion: 0.08
+Nodes (17): optimizeDtypes(), Get cached stocks data with optional column filtering., StocksCacheManager, Tests for dynamic ticker index feature, Ticker index should be built when cache is loaded, Ticker index should contain all tickers from cache, Ticker index should be case-insensitive, Looking up ticker should return valid row index (+9 more)
 
 ### Community 212 - "Community 212"
 Cohesion: 0.14
@@ -907,8 +907,8 @@ Cohesion: 0.24
 Nodes (6): Dataset, produce_data(), Train script for a single file  Need to set the TPU address first: export XRT_TP, A class that handles the reddit data files, A class that handles one dataset, RedditDataset
 
 ### Community 267 - "Community 267"
-Cohesion: 0.11
-Nodes (14): dbSession(), Tests for atomic API key quota enforcement (race condition fix).  Verifies tha, Create an in-memory SQLite database for testing., Integration tests for the verifyAPIKey function., Test successful API key verification., Integration tests for the verifyAPIKey function., Test API key verification when quota is exceeded., Test API key verification with invalid key. (+6 more)
+Cohesion: 0.14
+Nodes (11): Integration tests for the verifyAPIKey function., Test successful API key verification., Integration tests for the verifyAPIKey function., Test API key verification when quota is exceeded., Test API key verification with invalid key., Test API key verification with missing key., Test API key verification with invalid key., Test that API key system can be disabled. (+3 more)
 
 ### Community 269 - "Community 269"
 Cohesion: 0.19
@@ -996,7 +996,7 @@ Nodes (9): Covers lines 45-51: verifyAccessToken with expired and invalid tokens
 
 ### Community 301 - "Community 301"
 Cohesion: 0.11
-Nodes (15): Tests for connection pool configuration, Tests for connection pool configuration, Stocks engine should have optimized pool settings, Stocks engine should have optimized pool settings, Tests for optimized search filtering, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Filter should use ticker index for O(1) lookup (+7 more)
+Nodes (15): Tests for connection pool configuration, Tests for connection pool configuration, Stocks engine should have optimized pool settings, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Tests for lazy JSON deserialization, Query manager should have deserialize method, Query manager should have deserialize method (+7 more)
 
 ### Community 302 - "Community 302"
 Cohesion: 0.33
@@ -1020,7 +1020,7 @@ Nodes (5): Covers line 18: GET /stocks/health., Covers line 18: GET /stocks/heal
 
 ### Community 311 - "Community 311"
 Cohesion: 0.33
-Nodes (5): Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, TestFilterBySearchTerms
+Nodes (5): Performance tests for query operations, Performance tests for query operations, Query should respond within 1 second, Query should respond within 1 second, TestQueryPerformance
 
 ### Community 313 - "Community 313"
 Cohesion: 0.33
@@ -1046,10 +1046,6 @@ Nodes (3): parseYearInput(), TestParseYearInput, TestParseYearInput
 Cohesion: 0.2
 Nodes (4): B3Scraper, calculateInvestingScore(), runScraper(), ScraperService
 
-### Community 334 - "Community 334"
-Cohesion: 0.33
-Nodes (5): Tests for lazy JSON deserialization, Tests for lazy JSON deserialization, Query manager should have deserialize method, Query manager should have deserialize method, TestLazyDeserialization
-
 ### Community 335 - "Community 335"
 Cohesion: 0.13
 Nodes (19): verifyAPIKey(), Tests to increase coverage for query.py, key.py, and cache.py in stocks_api., Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., test_cache_scheduler_starts_apscheduler() (+11 more)
@@ -1071,8 +1067,8 @@ Cohesion: 0.4
 Nodes (5): Category 8: Testing Gaps (MEDIUM), Issue 8.1 — No integration tests for full request lifecycle, Issue 8.2 — No tests for scraper, stocks query, or cache, Issue 8.3 — No tests for Google OAuth callback, Issue 8.4 — No tests for session cleanup
 
 ### Community 342 - "Community 342"
-Cohesion: 0.1
-Nodes (15): Tests for connection pool configuration, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Query manager should have deserialize method, Integration tests for all query optimizations, All optimizations should be implemented, Query filter should use ticker index, Performance tests for query operations (+7 more)
+Cohesion: 0.09
+Nodes (17): Tests for connection pool configuration, Stocks engine should have optimized pool settings, Integration tests for all query optimizations, All optimizations should be implemented, Query filter should use ticker index, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Performance tests for query operations (+9 more)
 
 ### Community 343 - "Community 343"
 Cohesion: 0.5
@@ -1121,16 +1117,16 @@ Nodes (3): checkMySqlConnection — success, errors, engine=None paths., checkMy
 ## Knowledge Gaps
 - **1914 isolated node(s):** `localStorageMock`, `chunkSizes`, `{ session, accumulated, lineCount, chunkIdx }`, `evilChunks`, `lines` (+1909 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **173 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **174 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Pytest Testing` connect `Community 247` to `Stocks API Controller`, `Session Management`, `Scraper B3`, `Community 135`, `Community 267`, `Community 140`, `Database Utils`, `Decorators`, `Community 277`, `Settings`, `Helpers`, `Community 287`, `Community 295`, `Community 301`, `Community 49`, `Community 52`, `Community 56`, `Community 63`, `Community 64`, `Community 65`, `Community 72`, `Community 335`, `Community 336`, `Community 84`, `Community 86`, `Community 342`, `Community 88`, `Community 346`, `Community 93`, `Community 227`, `Community 108`, `Community 236`, `Community 252`?**
-  _High betweenness centrality (0.137) - this node is a cross-community bridge._
+- **Why does `Pytest Testing` connect `Community 247` to `Stocks API Controller`, `Session Management`, `Scraper B3`, `Community 135`, `Community 140`, `Database Utils`, `Decorators`, `Community 277`, `Settings`, `Helpers`, `Community 287`, `Community 295`, `Community 301`, `Community 49`, `Community 52`, `Community 56`, `Community 63`, `Community 64`, `Community 65`, `Community 71`, `Community 72`, `Community 335`, `Community 336`, `Community 84`, `Community 86`, `Community 342`, `Community 88`, `Community 346`, `Community 93`, `Community 227`, `Community 108`, `Community 236`, `Community 252`?**
+  _High betweenness centrality (0.134) - this node is a cross-community bridge._
 - **Why does `UserManager` connect `Community 50` to `SQLAlchemy Models`, `Community 143`, `Decorators`, `Enums`, `Community 278`, `Community 172`, `Community 300`, `Community 174`, `Community 180`, `Community 308`, `Community 182`, `Community 55`, `Community 56`, `Community 57`, `Community 58`, `Community 53`, `Community 61`, `Community 63`, `Community 64`, `Community 67`, `Community 69`, `Community 73`, `Community 74`, `Community 78`, `Community 79`, `Community 335`, `Community 347`, `Community 228`, `Community 230`, `Community 126`?**
-  _High betweenness centrality (0.102) - this node is a cross-community bridge._
-- **Why does `FastAPI` connect `Community 236` to `Authentication Manager`, `Scraper B3`, `Community 267`, `Community 140`, `Auth Service`, `Community 272`, `Settings`, `Community 286`, `Community 171`, `Community 174`, `Community 54`, `Community 56`, `Community 63`, `Community 74`, `Community 335`, `Community 80`, `Community 336`, `Community 84`, `Community 85`, `Community 88`, `Community 345`, `Community 346`, `Community 351`, `Community 227`, `Community 108`?**
+  _High betweenness centrality (0.106) - this node is a cross-community bridge._
+- **Why does `FastAPI` connect `Community 236` to `Authentication Manager`, `Scraper B3`, `Community 140`, `Auth Service`, `Community 272`, `Settings`, `Community 286`, `Community 171`, `Community 174`, `Community 54`, `Community 56`, `Community 63`, `Community 71`, `Community 74`, `Community 335`, `Community 80`, `Community 336`, `Community 84`, `Community 85`, `Community 88`, `Community 345`, `Community 346`, `Community 351`, `Community 227`, `Community 108`?**
   _High betweenness centrality (0.061) - this node is a cross-community bridge._
 - **Are the 72 inferred relationships involving `StocksCacheManager` (e.g. with `TestStocksCacheManager` and `TestVerifyAPIKey`) actually correct?**
   _`StocksCacheManager` has 72 INFERRED edges - model-reasoned connections that need verification._

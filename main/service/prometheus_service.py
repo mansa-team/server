@@ -1,6 +1,62 @@
+import logging
+
+from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime
+from pytz import timezone
+
+from config import SessionLocal
 from main.utils.service_manager import ServiceManager
 from main.controller.prometheus_controller import router as prometheusRouter
 from main.utils.models.loader import getEmbeddingModel
+
+from sqlalchemy.orm import Session
+from main.models.memory import UserMemory
+
+
+logger = logging.getLogger(__name__)
+
+DECAY_FACTOR = 0.95
+ARCHIVE_SCORE_THRESHOLD = 0.1
+ARCHIVE_DAYS_THRESHOLD = 90
+
+
+def memoryMaintenance():
+    db = SessionLocal()
+    try:
+        nowNaive = datetime.now(timezone("America/Sao_Paulo")).replace(tzinfo=None)
+
+        active = db.query(UserMemory).filter(UserMemory.archivedAt.is_(None)).all()
+        if not active:
+            return
+
+        decayed = 0
+        archived = 0
+
+        for m in active:
+            m.baseScore = m.baseScore * DECAY_FACTOR  # type: ignore[assignment]
+
+            lastAccessed = m.lastAccessedAt
+            if lastAccessed is not None:
+                if lastAccessed.tzinfo is not None:
+                    lastAccessed = lastAccessed.replace(tzinfo=None)
+                daysSinceAccess = (nowNaive - lastAccessed).total_seconds() / 86400
+            else:
+                createdNaive = m.createdAt.replace(tzinfo=None) if m.createdAt.tzinfo else m.createdAt
+                daysSinceAccess = (nowNaive - createdNaive).total_seconds() / 86400
+
+            if (
+                m.baseScore < ARCHIVE_SCORE_THRESHOLD
+                and m.accessCount == 0
+                and daysSinceAccess > ARCHIVE_DAYS_THRESHOLD
+            ):
+                m.archivedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
+                archived += 1
+            else:
+                decayed += 1
+    except Exception as e:
+        logger.error(f"Memory maintenance exception: {e}")
+    finally:
+        db.close()
 
 
 class PrometheusService:
@@ -10,3 +66,14 @@ class PrometheusService:
         service.include_router(prometheusRouter)
 
         getEmbeddingModel()
+
+        scheduler = BackgroundScheduler(timezone=timezone("America/Sao_Paulo"))
+        scheduler.add_job(
+            memoryMaintenance,
+            "interval",
+            hours=24,
+            timezone=timezone("America/Sao_Paulo"),
+            id="memory_maintenance",
+            name="Memory Maintenance",
+        )
+        scheduler.start()

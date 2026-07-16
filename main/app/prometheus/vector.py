@@ -4,6 +4,12 @@ from datetime import datetime
 
 import numpy as np
 
+from main.utils.models.loader import getEmbeddingModel
+
+
+def embed(texts: list[str]) -> list[list[float]]:
+    return getEmbeddingModel().encode(texts).tolist()
+
 
 def batchCosineSimilarity(query: list[float], matrix: np.ndarray) -> np.ndarray:
     if matrix.shape[0] == 0:

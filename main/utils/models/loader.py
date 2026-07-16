@@ -18,7 +18,3 @@ def getEmbeddingModel() -> SentenceTransformer:
             )
         model = SentenceTransformer(str(MODEL_DIR))
     return model
-
-
-def embed(texts: list[str]) -> list[list[float]]:
-    return getEmbeddingModel().encode(texts).tolist()
