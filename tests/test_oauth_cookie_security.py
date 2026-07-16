@@ -1,7 +1,6 @@
-"""Tests for OAuth callback security - JWT token should NOT be in URL query params.
+"""Tests for OAuth callback security - JWT token should NOT be in URL.
 
-Token goes in URL fragment (#token=...) which browsers don't send to servers.
-Cookies are set on the redirect response directly for same-origin fallback.
+Token is delivered via HttpOnly cookie only. No token in URL fragment or query params.
 """
 
 import pytest
@@ -64,11 +63,10 @@ class TestOAuthCallbackTokenNotInURL:
     def test_callback_with_state_redirect_no_token_in_url(
         self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr
     ):
-        """RED TEST: Token should NOT appear in redirect URL query parameters."""
+        """Token must NOT appear in redirect URL — cookie only."""
         client, _, _ = _make_callback_client()
         _setup_callback_mocks(mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=1)
 
-        # State IS the redirect URL directly — no encoding needed
         redirect_url = "http://localhost:3000/dashboard"
 
         client.cookies.set("sso_state", redirect_url)
@@ -77,22 +75,19 @@ class TestOAuthCallbackTokenNotInURL:
             follow_redirects=False,
         )
 
-        # Handle rate limiting in test environment
         if response.status_code == 429:
             pytest.skip("Rate limited in test environment")
 
-        # Should be a redirect
         assert response.status_code in (307, 302)
 
-        # CRITICAL: Token must NOT be in the query string (server-visible).
-        # Fragment (#token=...) is safe — not sent to servers by browser.
         location = response.headers.get("location", "")
-        query_part = location.split("#")[0] if "#" in location else location
-        assert "token=" not in query_part, f"Security violation: Token found in query string: {location}"
-        assert "jwt-token-1" not in query_part, "JWT token value found in query string"
+        # Token must NOT be anywhere in the URL
+        assert "#token=" not in location, f"Token leaked in URL fragment: {location}"
+        assert "token=" not in location.split("?")[1] if "?" in location else True, f"Token leaked in query: {location}"
+        assert "jwt-token-1" not in location, "JWT token value found in redirect URL"
 
-        # Should redirect to the original URL with token in fragment
-        assert location.startswith("http://localhost:3000/dashboard#token=")
+        # Should redirect to the original URL cleanly
+        assert location == "http://localhost:3000/dashboard"
 
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.createAccessToken")
@@ -107,14 +102,11 @@ class TestOAuthCallbackTokenNotInURL:
 
         response = client.get("/auth/callback", follow_redirects=False)
 
-        # Handle rate limiting in test environment
         if response.status_code == 429:
             pytest.skip("Rate limited in test environment")
 
-        # Check cookies were set
         cookies = response.headers.get_list("set-cookie")
 
-        # Find the httponly cookie (mansa_token)
         httponly_cookie_found = False
         for cookie in cookies:
             if "mansa_token=" in cookie and "mansa_token_access=" not in cookie:
@@ -128,47 +120,19 @@ class TestOAuthCallbackTokenNotInURL:
     @patch("main.controller.authentication_controller.createAccessToken")
     @patch("main.controller.authentication_controller.getGoogleSSO")
     @patch("main.controller.authentication_controller.AuthenticationManager")
-    def test_callback_sets_readable_cookie_for_frontend(
-        self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr
-    ):
-        """A readable cookie must be set for frontend JavaScript to access."""
-        client, _, _ = _make_callback_client()
-        _setup_callback_mocks(
-            mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=3, email="frontend@gmail.com"
-        )
-
-        response = client.get("/auth/callback", follow_redirects=False)
-
-        # Handle rate limiting in test environment
-        if response.status_code == 429:
-            pytest.skip("Rate limited in test environment")
-
-        # Check cookies were set
-        cookies = response.headers.get_list("set-cookie")
-
-        # Only one cookie now (httponly). Token is delivered via fragment (#token=).
-        httponly_cookie_found = any("mansa_token=" in c and "httponly" in c.lower() for c in cookies)
-        assert httponly_cookie_found, "httponly cookie not found in response"
-
-    @patch("main.controller.authentication_controller.SessionManager")
-    @patch("main.controller.authentication_controller.createAccessToken")
-    @patch("main.controller.authentication_controller.getGoogleSSO")
-    @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_callback_cookies_have_secure_flag(self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr):
-        """Both cookies should have secure flag (HTTPS only)."""
+        """Cookie should have secure flag (HTTPS only)."""
         client, _, _ = _make_callback_client()
         _setup_callback_mocks(
             mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=4, email="secure@gmail.com"
         )
 
-        # Use HTTPS scheme to test secure flag
         response = client.get(
             "/auth/callback",
             follow_redirects=False,
             headers={"X-Forwarded-Proto": "https"},
         )
 
-        # Handle rate limiting in test environment
         if response.status_code == 429:
             pytest.skip("Rate limited in test environment")
 
@@ -176,9 +140,7 @@ class TestOAuthCallbackTokenNotInURL:
 
         for cookie in cookies:
             if "mansa_token" in cookie:
-                # Note: In test environment, secure flag behavior depends on scheme
-                # The important thing is that the cookie is set
-                pass
+                pass  # Cookie is set
 
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.createAccessToken")
@@ -195,11 +157,9 @@ class TestOAuthCallbackTokenNotInURL:
 
         response = client.get("/auth/callback", follow_redirects=False)
 
-        # Handle rate limiting in test environment
         if response.status_code == 429:
             pytest.skip("Rate limited in test environment")
 
-        # Should return JSON response (not redirect)
         assert response.status_code == 200
         data = response.json()
         assert data["accessToken"] == "jwt-token-5"
@@ -207,22 +167,19 @@ class TestOAuthCallbackTokenNotInURL:
 
 
 class TestOAuthCallbackFrontendCompatibility:
-    """Verify frontend can still get token after OAuth redirect."""
+    """Verify frontend can still auth after OAuth redirect via cookie."""
 
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.createAccessToken")
     @patch("main.controller.authentication_controller.getGoogleSSO")
     @patch("main.controller.authentication_controller.AuthenticationManager")
-    def test_frontend_can_read_token_from_cookie(
-        self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr
-    ):
-        """Frontend JavaScript should be able to read token from readable cookie."""
+    def test_frontend_gets_token_from_cookie(self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr):
+        """After OAuth redirect, httponly cookie contains the token."""
         client, _, _ = _make_callback_client()
         _setup_callback_mocks(
             mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=6, email="frontend@test.com"
         )
 
-        # State IS the redirect URL directly — no encoding needed
         redirect_url = "http://localhost:3000/dashboard"
 
         client.cookies.set("sso_state", redirect_url)
@@ -231,23 +188,42 @@ class TestOAuthCallbackFrontendCompatibility:
             follow_redirects=False,
         )
 
-        # Handle rate limiting in test environment
         if response.status_code == 429:
             pytest.skip("Rate limited in test environment")
 
-        # Verify redirect happens
         assert response.status_code in (307, 302)
 
-        # Verify cookies are set
+        # Verify httponly cookie contains the token
         cookies = response.headers.get_list("set-cookie")
-
-        # Only httponly cookie — token delivered via fragment (#token=), not JS-readable cookie
-        has_httponly = any("mansa_token=" in c for c in cookies)
-        assert has_httponly, "httponly cookie not set"
-
-        # Verify the httponly cookie contains the token
         for cookie in cookies:
             if "mansa_token=" in cookie:
                 assert "httponly" in cookie.lower()
                 assert "jwt-token-6" in cookie
                 break
+        else:
+            pytest.fail("Cookie not set after OAuth redirect")
+
+    @patch("main.controller.authentication_controller.SessionManager")
+    @patch("main.controller.authentication_controller.createAccessToken")
+    @patch("main.controller.authentication_controller.getGoogleSSO")
+    @patch("main.controller.authentication_controller.AuthenticationManager")
+    def test_open_redirect_blocked(self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr):
+        """Non-localhost redirect URLs must be rejected."""
+        client, _, _ = _make_callback_client()
+        _setup_callback_mocks(mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=7)
+
+        evil_url = "http://evil.com/steal"
+
+        client.cookies.set("sso_state", evil_url)
+        response = client.get(
+            f"/auth/callback?state={evil_url}&code=fake-code",
+            follow_redirects=False,
+        )
+
+        if response.status_code == 429:
+            pytest.skip("Rate limited in test environment")
+
+        # Should NOT redirect to evil URL — falls through to JSON response
+        assert response.status_code == 200
+        data = response.json()
+        assert "accessToken" in data
