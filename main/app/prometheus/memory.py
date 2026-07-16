@@ -192,16 +192,4 @@ class PrometheusMemory:
         memory.archivedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
         db.commit()
         return True
-
-    @classmethod
-    def archiveDead(cls, db: Session):
-        threshold = datetime.now(timezone("America/Sao_Paulo")) - timedelta(days=180)
-        dead = (
-            db.query(UserMemory)
-            .filter(UserMemory.baseScore < 0.1)
-            .filter((UserMemory.lastAccessedAt < threshold) | UserMemory.lastAccessedAt.is_(None))
-            .all()
-        )
-        for m in dead:
-            m.archivedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
-        db.commit()
+    
