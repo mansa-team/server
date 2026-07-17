@@ -1,16 +1,16 @@
 # Graph Report - server  (2026-07-16)
 
 ## Corpus Check
-- 134 files · ~103,873 words
+- 144 files · ~112,617 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4063 nodes · 5521 edges · 392 communities (222 shown, 170 thin omitted)
-- Extraction: 82% EXTRACTED · 18% INFERRED · 0% AMBIGUOUS · INFERRED: 974 edges (avg confidence: 0.68)
+- 4339 nodes · 5931 edges · 404 communities (219 shown, 185 thin omitted)
+- Extraction: 82% EXTRACTED · 18% INFERRED · 0% AMBIGUOUS · INFERRED: 1057 edges (avg confidence: 0.68)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `995d60d8`
+- Built from commit: `dc126dc9`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -392,35 +392,47 @@
 - [[_COMMUNITY_Community 384|Community 384]]
 - [[_COMMUNITY_Community 385|Community 385]]
 - [[_COMMUNITY_Community 386|Community 386]]
-- [[_COMMUNITY_Community 387|Community 387]]
 - [[_COMMUNITY_Community 388|Community 388]]
 - [[_COMMUNITY_Community 389|Community 389]]
-- [[_COMMUNITY_Community 390|Community 390]]
-- [[_COMMUNITY_Community 395|Community 395]]
+- [[_COMMUNITY_Community 393|Community 393]]
+- [[_COMMUNITY_Community 398|Community 398]]
+- [[_COMMUNITY_Community 399|Community 399]]
+- [[_COMMUNITY_Community 402|Community 402]]
+- [[_COMMUNITY_Community 405|Community 405]]
+- [[_COMMUNITY_Community 406|Community 406]]
+- [[_COMMUNITY_Community 407|Community 407]]
+- [[_COMMUNITY_Community 408|Community 408]]
+- [[_COMMUNITY_Community 409|Community 409]]
+- [[_COMMUNITY_Community 410|Community 410]]
+- [[_COMMUNITY_Community 411|Community 411]]
+- [[_COMMUNITY_Community 412|Community 412]]
+- [[_COMMUNITY_Community 413|Community 413]]
+- [[_COMMUNITY_Community 414|Community 414]]
+- [[_COMMUNITY_Community 415|Community 415]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `vocab` - 456 edges
 2. `StocksCacheManager` - 78 edges
-3. `UserManager` - 55 edges
-4. `Permission` - 50 edges
-5. `StocksQueryManager` - 47 edges
-6. `Roles` - 45 edges
-7. `HarnessState` - 44 edges
-8. `Pytest Testing` - 44 edges
+3. `HarnessState` - 61 edges
+4. `UserManager` - 55 edges
+5. `Permission` - 50 edges
+6. `Pytest Testing` - 49 edges
+7. `StocksQueryManager` - 47 edges
+8. `Roles` - 45 edges
 9. `TestQueryFundamental` - 38 edges
 10. `StocksAPIKey` - 34 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `cache()` --calls--> `ResultCache`  [INFERRED]
+  tests/test_cache.py → main/app/prometheus/cache.py
+- `TestCheckCache` --uses--> `HarnessState`  [INFERRED]
+  tests/test_sandbox_tools.py → main/app/prometheus/state.py
+- `TestDispatchToolCallSandbox` --uses--> `HarnessState`  [INFERRED]
+  tests/test_sandbox_tools.py → main/app/prometheus/state.py
 - `TestGetState` --uses--> `HarnessState`  [INFERRED]
   tests/test_state_tools.py → main/app/prometheus/state.py
 - `TestSetState` --uses--> `HarnessState`  [INFERRED]
   tests/test_state_tools.py → main/app/prometheus/state.py
-- `TestStateDispatch` --uses--> `HarnessState`  [INFERRED]
-  tests/test_state_tools.py → main/app/prometheus/state.py
-- `TestExecuteStateTool` --uses--> `HarnessState`  [INFERRED]
-  tests/test_state_tools.py → main/app/prometheus/state.py
-- `test_cache_scheduler_starts_apscheduler()` --calls--> `StocksCacheManager`  [INFERRED]
-  tests/test_stocks_api_coverage.py → main/app/stocks_api/cache.py
 
 ## Hyperedges (group relationships)
 - **Authentication Module** — AuthenticationManager, SessionManager, auth_util, auth_constants, getGoogleSSO [INFERRED]
@@ -430,7 +442,7 @@
 - **Configuration & Database Infrastructure** — config_Config, config_engine, config_stocksEngine [INFERRED]
 - **User Authentication & Authorization** — user_service, authentication, user_roles, permission_system [INFERRED]
 
-## Communities (392 total, 170 thin omitted)
+## Communities (404 total, 185 thin omitted)
 
 ### Community 0 - "Stocks API Controller"
 Cohesion: 0.16
@@ -445,8 +457,8 @@ Cohesion: 0.29
 Nodes (7): Integration: /stocks/fundamental date filter should work per-ticker., Integration: /stocks/fundamental date filter should work per-ticker., When tickers have different date coverage, each should get its closest snapshot., When tickers have different date coverage, each should get its closest snapshot., Integration: /stocks/fundamental date filter should work per-ticker., When tickers have different date coverage, each should get its closest snapshot., TestFundamentalDateFiltering
 
 ### Community 3 - "Session Management"
-Cohesion: 0.08
-Nodes (7): createSession(), getSessionById(), revokeSession(), validateSession(), UserSession, TestSessionExpiration, TestUserSessionModel
+Cohesion: 0.14
+Nodes (3): UserSession, TestSessionExpiration, TestUserSessionModel
 
 ### Community 5 - "Roles & Permissions"
 Cohesion: 0.12
@@ -557,12 +569,12 @@ Cohesion: 0.33
 Nodes (5): downgrade(), Add accessTokenHash, operatingSystem, lastActivityAt to user_sessions  Revision, Add accessTokenHash, operatingSystem, lastActivityAt, sessionId to user_sessions, Remove columns from user_sessions., upgrade()
 
 ### Community 49 - "Community 49"
-Cohesion: 0.12
-Nodes (6): Tests for StocksCacheManager queryCache LRU eviction., Create a StocksCacheManager with a mock DB engine., When columns is None, cache key should be None., TestCacheLRUEviction, TestCacheTTLLogic, TestColumnValidator
+Cohesion: 0.21
+Nodes (7): ResultCache — SHA256-keyed file-based cache for computed results., File-based cache keyed by SHA256 of code.      Stores results as JSON under:, Return cached result dict or None if miss., Store result with timestamp., Delete all cached results for a session., Check if a result exists for the given code., ResultCache
 
 ### Community 50 - "Community 50"
 Cohesion: 0.05
-Nodes (45): IntFlag, Covers line 18: GET /stocks/health., Covers line 18: GET /stocks/health., Covers line 18: GET /stocks/health., Covers line 18: GET /stocks/health., Covers line 23: GET /stocks/key., Covers line 28: GET /auth/health., Covers line 28: GET /auth/health. (+37 more)
+Nodes (38): AuthenticationManager, IntFlag, Covers line 18: GET /stocks/health., Covers line 18: GET /stocks/health., Covers line 18: GET /stocks/health., Covers line 18: GET /stocks/health., Covers line 23: GET /stocks/key., Covers line 28: GET /auth/health. (+30 more)
 
 ### Community 51 - "Community 51"
 Cohesion: 0.19
@@ -573,23 +585,23 @@ Cohesion: 0.08
 Nodes (27): Tests for main/utils/logging_config.py — covers DiscordHandler branches., test_discord_disabled(), test_discord_no_webhook(), test_exception_in_submit(), test_level_below_error(), test_message_truncation(), test_setup_discord_handler_disabled(), test_setup_discord_handler_enabled() (+19 more)
 
 ### Community 53 - "Community 53"
-Cohesion: 0.06
-Nodes (23): _make_stocks_df(), Return a small DataFrame with the columns the query module expects., Return a small DataFrame with the columns the query module expects., Tests covering query.py lines 77-132., Tests covering query.py lines 77-132., Tests covering query.py lines 77-132., Tests covering query.py lines 77-132., Tests covering query.py lines 77-132. (+15 more)
+Cohesion: 0.08
+Nodes (19): _make_stocks_df(), Return a small DataFrame with the columns the query module expects., Return a small DataFrame with the columns the query module expects., Calling with all None returns 400., Tests covering query.py lines 142-202., Tests covering query.py lines 142-202., Tests covering query.py lines 142-202., Tests covering query.py lines 142-202. (+11 more)
 
 ### Community 54 - "Community 54"
-Cohesion: 0.19
-Nodes (9): chat(), chat_stream(), createSession(), getHistory(), Verify the user owns the session, raise 403 otherwise., Verify the user owns the session, raise 403 otherwise., updateSessionTitle(), _verify_session_ownership() (+1 more)
+Cohesion: 0.05
+Nodes (40): chat(), chat_stream(), create_memory(), createMemory(), createSession(), getHistory(), Verify the user owns the session, raise 403 otherwise., Verify the user owns the session, raise 403 otherwise. (+32 more)
 
 ### Community 55 - "Community 55"
-Cohesion: 0.09
-Nodes (21): Covers lines 126-136: DELETE /user/sessions/{sessionId}., Covers lines 126-136: DELETE /user/sessions/{sessionId}., Covers lines 126, 131, 135-136., Covers lines 126, 131, 135-136., Covers lines 126-136: DELETE /user/sessions/{sessionId}., Covers lines 126, 131, 135-136., Covers lines 127-129: session not found., Covers lines 127-129: session not found. (+13 more)
+Cohesion: 0.06
+Nodes (34): Covers lines 83-84: session not found., Covers lines 126-136: DELETE /user/sessions/{sessionId}., Covers lines 126-136: DELETE /user/sessions/{sessionId}., Covers lines 126, 131, 135-136., Covers lines 126, 131, 135-136., Covers lines 126-136: DELETE /user/sessions/{sessionId}., Covers lines 126, 131, 135-136., Covers lines 127-129: session not found. (+26 more)
 
 ### Community 56 - "Community 56"
-Cohesion: 0.15
-Nodes (17): UserMemory, PrometheusMemory, _count_memories(), _create_memory(), _get_memory(), Keys with Jaccard > 0.8 should merge., Keys with low similarity should not merge., Keys with low similarity should not merge. (+9 more)
+Cohesion: 0.05
+Nodes (43): UserMemory, MemoryManager, PrometheusMemory, All memory operations. Stateless class methods., _count_memories(), _create_memory(), _get_memory(), Keys with Jaccard > 0.8 should merge. (+35 more)
 
 ### Community 57 - "Community 57"
-Cohesion: 0.07
+Cohesion: 0.08
 Nodes (23): Tests covering query.py lines 22-48., Tests covering query.py lines 22-48., Tests covering query.py lines 22-48., Tests covering query.py lines 22-48., Tests covering query.py lines 22-48., Tests covering cache.py lines 28-76., Tests covering cache.py lines 28-76., Regression: is_string_dtype fails when column has strings + None (pandas 2.x). (+15 more)
 
 ### Community 58 - "Community 58"
@@ -613,24 +625,24 @@ Cohesion: 0.07
 Nodes (28): 10. Insecure SessionMiddleware Configuration, 11. HTTPException in Business Logic, 12. Controllers Contain Business Logic, 13. `service/` Layer Misleading, 14. Session Not Revoked on Logout with Invalid Token, 15. Unbounded ThreadPoolExecutor Per Request, 16. Full DataFrame Copy Per API Request, 17. Unbounded Chat History Growth (+20 more)
 
 ### Community 63 - "Community 63"
-Cohesion: 0.14
-Nodes (23): _make_auth_client(), Tests to cover uncovered lines across controllers, UserManager, and auth util., Return (client, app) with auth + user routers and mocked getSession., test_callback_existing_user(), test_callback_generic_exception(), test_callback_new_user(), test_callback_no_user_info(), test_callback_with_state_redirect() (+15 more)
+Cohesion: 0.09
+Nodes (35): _make_auth_client(), Tests to cover uncovered lines across controllers, UserManager, and auth util., Covers lines 44-54, 63, 66-71: register success, ValueError, generic Exception., Covers lines 44-54, 63, 66-71: register success, ValueError, generic Exception., Covers lines 87-93, 102: login success and failure paths., Covers lines 87-93, 102: login success and failure paths., Return (client, app) with auth + user routers and mocked getSession., Covers lines 107, 109-130, 133: logout token extraction and revocation. (+27 more)
 
 ### Community 64 - "Community 64"
-Cohesion: 0.17
-Nodes (7): Tests for dynamic ticker index feature, Ticker index should be built when cache is loaded, Ticker index should contain all tickers from cache, Ticker index should be case-insensitive, Looking up ticker should return valid row index, Ticker index should be rebuilt when cache refreshes, TestTickerIndex
+Cohesion: 0.09
+Nodes (10): Fetch live prices for B3 tickers via yfinance.          B3 tickers must match, StocksQueryManager, Tests covering query.py lines 77-132., Tests covering query.py lines 77-132., Tests covering query.py lines 77-132., Tests covering query.py lines 77-132., Tests covering query.py lines 77-132., Tests covering query.py lines 77-132. (+2 more)
 
 ### Community 65 - "Community 65"
-Cohesion: 0.13
-Nodes (9): BaseSettings, BaseMansaSettings, DiscordSettings, MysqlSettings, PrometheusSettings, ScraperSettings, StocksApiSettings, UserSettings (+1 more)
+Cohesion: 0.17
+Nodes (5): BaseSettings, BaseMansaSettings, DiscordSettings, MysqlSettings, UserSettings
 
 ### Community 66 - "Community 66"
 Cohesion: 0.07
-Nodes (27): No historical data columns -> inner 400 caught by outer except -> 500., No historical data columns -> inner 400 caught by outer except -> 500., If an unexpected exception occurs in queryHistorical., No historical data columns -> inner 400 caught by outer except -> 500., No historical data columns -> inner 400 caught by outer except -> 500., If an unexpected exception occurs (line 132)., If an unexpected exception occurs (line 132)., Historical query with a year range. (+19 more)
+Nodes (26): Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them)., No historical data columns -> inner 400 caught by outer except -> 500., Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them)., No historical data columns -> inner 400 caught by outer except -> 500., If an unexpected exception occurs in queryHistorical., No historical data columns -> inner 400 caught by outer except -> 500. (+18 more)
 
 ### Community 67 - "Community 67"
-Cohesion: 0.08
-Nodes (24): _make_prometheus_client(), Return (client, app) with prometheus router and mocked deps., Covers lines 33-36: GET /prometheus/sessions., Covers lines 33-36: GET /prometheus/sessions., Covers lines 33-36: GET /prometheus/sessions., Covers lines 62-63, 65-68: PUT /prometheus/sessions/{sessionId}., Covers lines 62-63, 65-68: PUT /prometheus/sessions/{sessionId}., Covers lines 65-68: title updated successfully. (+16 more)
+Cohesion: 0.05
+Nodes (33): _make_prometheus_client(), Generic Exception in chat propagates to FastAPI's default 500 handler., Generic Exception in chat propagates to FastAPI's default 500 handler., Generic Exception in chat propagates to FastAPI's default 500 handler., Covers line 125, 126-128: generic Exception in chat., Return (client, app) with prometheus router and mocked deps., Covers lines 33-36: GET /prometheus/sessions., Covers lines 33-36: GET /prometheus/sessions. (+25 more)
 
 ### Community 68 - "Community 68"
 Cohesion: 0.1
@@ -649,8 +661,8 @@ Cohesion: 0.29
 Nodes (6): dbSession(), Tests for atomic API key quota enforcement (race condition fix).  Verifies tha, Sample API key data for tests., Create an in-memory SQLite database for testing., Sample API key data for tests., sampleKeyData()
 
 ### Community 72 - "Community 72"
-Cohesion: 0.16
-Nodes (20): Tests for main/utils/connectivity.py — covers all branches., test_both_engines_ok(), test_connection_error(), test_generic_exception(), test_non_200_status(), test_non_stocks_prefix(), test_request_exception(), test_service_not_found() (+12 more)
+Cohesion: 0.05
+Nodes (42): lifespan(), Tests for main/utils/connectivity.py — covers all branches., checkServiceConnection — success, not found, errors., checkServiceConnection — success, not found, errors., checkMySqlConnection — success, errors, engine=None paths., checkMySqlConnection — success, errors, engine=None paths., test_both_engines_ok(), test_connection_error() (+34 more)
 
 ### Community 73 - "Community 73"
 Cohesion: 0.1
@@ -658,7 +670,7 @@ Nodes (17): _make_user_client(), Return (client, app) with user router and mocke
 
 ### Community 74 - "Community 74"
 Cohesion: 0.17
-Nodes (13): getGoogleSSO(), googleCallback(), googleLogin(), isSecureScheme(), issueSessionCookie(), login(), logout(), register() (+5 more)
+Nodes (14): getGoogleSSO(), createAccessToken(), googleCallback(), googleLogin(), isSecureScheme(), issueSessionCookie(), login(), logout() (+6 more)
 
 ### Community 75 - "Community 75"
 Cohesion: 0.14
@@ -673,11 +685,11 @@ Cohesion: 0.12
 Nodes (6): Cover all methods in authentication.py (lines 13-75)., Cover all methods in authentication.py (lines 13-75)., Cover all methods in authentication.py (lines 13-75)., Cover all methods in authentication.py (lines 13-75)., Cover all methods in authentication.py (lines 13-75)., TestAuthenticationManager
 
 ### Community 78 - "Community 78"
-Cohesion: 0.15
-Nodes (18): AuthenticationManager, SessionManager, PrometheusChatManager, Cover getGoogleSSO (lines 6-14)., Cover getGoogleSSO (lines 6-14)., Cover __init__ and updateDates., Cover __init__ and updateDates (lines 22-37)., Cover sendMessage and streamMessage in agent.py. (+10 more)
+Cohesion: 0.14
+Nodes (17): SessionManager, PrometheusChatManager, Cover getGoogleSSO (lines 6-14)., Cover getGoogleSSO (lines 6-14)., Cover __init__ and updateDates., Cover __init__ and updateDates (lines 22-37)., Cover sendMessage and streamMessage in agent.py., Cover sendMessage and streamMessage in agent.py. (+9 more)
 
 ### Community 79 - "Community 79"
-Cohesion: 0.12
+Cohesion: 0.13
 Nodes (8): StocksAPIKey, getRemainingQuota(), incrementUsage(), isQuotaExceeded(), keyToDict(), needsReset(), resetQuota(), TestStocksAPIKeyModel
 
 ### Community 80 - "Community 80"
@@ -701,16 +713,16 @@ Cohesion: 0.09
 Nodes (5): Tests for main/utils/roles.py — covers requirePermission and edge cases., TestCheckAccess, TestPermissionAll, TestRequirePermission, TestRolesHierarchy
 
 ### Community 85 - "Community 85"
-Cohesion: 0.11
-Nodes (20): createKey(), _hash_key(), hashKey(), Return SHA-256 hex digest of the given key., Test that concurrent requests are properly serialized at DB level.          Th, Test edge case: request exactly at quota limit., Test edge case: request exactly at quota limit., Test that invalid API key returns zero rows affected. (+12 more)
+Cohesion: 0.1
+Nodes (22): createKey(), _hash_key(), hashKey(), Return SHA-256 hex digest of the given key., Test that concurrent requests are properly serialized at DB level.          Th, Test edge case: request exactly at quota limit., Test edge case: request exactly at quota limit., Test that invalid API key returns zero rows affected. (+14 more)
 
 ### Community 86 - "Community 86"
-Cohesion: 0.1
-Nodes (6): B3Scraper, getCurrentSelic(), getInitialData(), calculateInvestingScore(), runScraper(), ScraperService
+Cohesion: 0.2
+Nodes (4): B3Scraper, calculateInvestingScore(), runScraper(), ScraperService
 
 ### Community 87 - "Community 87"
-Cohesion: 0.11
-Nodes (17): Multiple search terms with tickerIndex., Multiple search terms with tickerIndex., Multiple search terms with tickerIndex., Search with no index match falls back to string startswith., Search with no index match falls back to string startswith., Search with no index match falls back to string startswith., Multiple search terms with tickerIndex., Multiple search terms with tickerIndex. (+9 more)
+Cohesion: 0.08
+Nodes (23): search.strip() == '' should still dedup (line 181)., search.strip() == '' should still dedup (line 181)., search.strip() == '' should still dedup (line 181)., DataFrame without TIME column., Invalid date -> inner 400 caught by outer except -> 500., DataFrame without TIME column., DataFrame without TIME column., search.strip() == '' should still dedup (line 181). (+15 more)
 
 ### Community 88 - "Community 88"
 Cohesion: 0.12
@@ -725,36 +737,36 @@ Cohesion: 0.11
 Nodes (6): Tests for run.py /status endpoint — covers status response structure., Create a test client for the status endpoint without running lifespan., Create a test client for the status endpoint without running lifespan., statusClient(), TestScraperTrigger, TestStatusEndpoint
 
 ### Community 108 - "Community 108"
-Cohesion: 0.18
-Nodes (5): createAccessToken(), hashPassword(), verifyPassword(), TestAuthUtil, TestAuthUtilEdgeCases
+Cohesion: 0.14
+Nodes (7): Authentication System, hashPassword(), verifyPassword(), Google OAuth, JWT Authentication, TestAuthUtil, TestAuthUtilEdgeCases
 
 ### Community 117 - "Community 117"
-Cohesion: 0.12
-Nodes (11): MemoryManager, All memory operations. Stateless class methods., Soft-deletes a memory., Returns False for non-existent memory., Cannot delete another user's memory., FULLTEXT search finds matching memories (MySQL only)., Counts only non-archived memories., Archived memories not counted. (+3 more)
+Cohesion: 0.11
+Nodes (33): _base_url(), baseUrl(), checkpoint(), create(), destroy(), execute(), SandboxManager — on-demand CubeSandbox (E2B-compatible) microVM manager.  Lifecy, Thin async wrapper around the CubeSandbox/E2B HTTP API.      All methods are sta (+25 more)
 
 ### Community 126 - "Community 126"
-Cohesion: 0.2
-Nodes (9): Covers lines 143, 145, 147-148: POST /user/sessions/revoke-all., Covers lines 143, 145, 147-148: POST /user/sessions/revoke-all., Covers lines 143, 145, 147-148., Covers lines 143, 145, 147-148., Covers lines 143, 145, 147-148: POST /user/sessions/revoke-all., Covers lines 143, 145, 147-148., Covers lines 143, 145, 147-148: POST /user/sessions/revoke-all., Covers lines 143, 145, 147-148. (+1 more)
+Cohesion: 0.13
+Nodes (13): Covers lines 100-104, 106: GET /user/sessions/current., Covers lines 100-104, 106: GET /user/sessions/current., Covers lines 100-104, 106: session found., Covers lines 100-104, 106: session found., Covers lines 100-104, 106: GET /user/sessions/current., Covers lines 100-104, 106: session found., Covers line 104: session not found., Covers line 104: session not found. (+5 more)
 
 ### Community 129 - "Community 129"
 Cohesion: 0.21
 Nodes (8): Identical vectors → score 1.0., Orthogonal vectors → score 0.0., Opposite vectors → score -1.0., Zero vector → score 0.0., Partially overlapping vectors., TestCosineSimilarity, cosine_similarity(), Single-pair cosine similarity.
 
 ### Community 130 - "Community 130"
-Cohesion: 0.12
-Nodes (16): extractTokenPayload(), Covers line 67: extractTokenPayload re-raises HTTPException from verifyAccessTok, Covers line 67: extractTokenPayload re-raises HTTPException from verifyAccessTok, Covers line 67: HTTPException raised by verifyAccessToken is re-raised., Covers line 67: extractTokenPayload re-raises HTTPException from verifyAccessTok, Covers line 67: extractTokenPayload re-raises HTTPException from verifyAccessTok, Covers line 67: HTTPException raised by verifyAccessToken is re-raised., Covers line 67: HTTPException raised by verifyAccessToken is re-raised. (+8 more)
+Cohesion: 0.28
+Nodes (6): extractTokenPayload(), Tests for extractTokenPayload — the standalone token extraction dependency., Create a mock Starlette Request with given headers., Authorization: Bearer (empty) — no token after Bearer., Authorization: Basic xxx — not Bearer, so no token found., TestExtractTokenPayload
 
 ### Community 131 - "Community 131"
 Cohesion: 0.33
 Nodes (5): replaceNan handles direct float NaN values (line 34)., replaceNan handles direct float NaN values (line 34)., replaceNan handles direct float NaN values (line 34)., replaceNan handles direct float NaN values (line 34)., replaceNan handles direct float NaN values (line 34).
 
 ### Community 132 - "Community 132"
-Cohesion: 0.1
-Nodes (15): create_memories(), Decay happens first, then archive check with new scores., Decay happens first, then archive check with new scores., Score that decays to >= threshold stays alive. 0.11 * 0.95 = 0.1045 >= 0.1., Score that decays to >= threshold stays alive. 0.12 * 0.90 = 0.108 >= 0.1., 89 days with low score → not archived (need > 90)., 89 days with low score → not archived (need > 90)., Helper to create memories with controlled baseScore, lastAccessedAt, accessCount (+7 more)
+Cohesion: 0.06
+Nodes (31): memoryMaintenance(), create_memories(), Zero access but score still above threshold → not archived., Even with low score, if accessed → not archived., Even with low score, if accessed → not archived., Already archived memories are skipped., Already archived memories are skipped., Decay happens first, then archive check with new scores. (+23 more)
 
 ### Community 133 - "Community 133"
-Cohesion: 0.05
-Nodes (40): Invalid date -> inner 400 passes through (not wrapped as 500)., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., search.strip() == '' should still dedup (line 181)., search.strip() == '' should still dedup (line 181)., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500. (+32 more)
+Cohesion: 0.07
+Nodes (25): Two dates in the range, both valid., Two dates in the range, both valid., Two dates in the range, both valid., Search with no index match falls back to string startswith., Search with no index match falls back to string startswith., search.strip() == '' should still dedup (line 181)., Search with no index match falls back to string startswith., Two dates in the range, both valid. (+17 more)
 
 ### Community 134 - "Community 134"
 Cohesion: 0.13
@@ -801,8 +813,8 @@ Cohesion: 0.22
 Nodes (7): GET /historical?fields=LUCRO LIQUIDO,P/L must not return 422., GET /historical?fields=LUCRO LIQUIDO,P/L must not return 422., GET /fundamental?fields=P/L,ROE,DY must not return 422., GET /fundamental?fields=P/L,ROE,DY must not return 422., GET /historical?fields=LUCRO LIQUIDO,P/L must not return 422., GET /fundamental?fields=P/L,ROE,DY must not return 422., GET /historical?fields=LUCRO LIQUIDO,P/L must not return 422.
 
 ### Community 164 - "Community 164"
-Cohesion: 0.11
-Nodes (16): Covers lines 34, 36-38, 40-44, 46, 48-49, 51, 58-59, 61, 63-67: UserManager.getC, Covers lines 34, 36-38, 40-44, 46, 48-49, 51, 58-59, 61, 63-67: UserManager.getC, Covers lines 34, 36-38, 40-44, 46, 48-49, 51, 58-59, 61, 63-67: UserManager.getC, Covers lines 34, 36-38, 40-44, 46, 48-49, 51, 58-59, 61, 63-67: UserManager.getC, Covers lines 48-49: user not in DB., Covers lines 48-49: user not in DB., Covers lines 48-49: user not in DB., Covers lines 48-49: user not in DB. (+8 more)
+Cohesion: 0.12
+Nodes (16): verifyAccessToken(), getSessions(), Covers lines 45-51: verifyAccessToken with expired and invalid tokens., Covers lines 45-51: verifyAccessToken with expired and invalid tokens., Covers lines 48-49: jwt.ExpiredSignatureError., Covers lines 45-51: verifyAccessToken with expired and invalid tokens., Covers lines 45-51: verifyAccessToken with expired and invalid tokens., Covers lines 48-49: jwt.ExpiredSignatureError. (+8 more)
 
 ### Community 170 - "Community 170"
 Cohesion: 0.27
@@ -813,8 +825,8 @@ Cohesion: 0.06
 Nodes (35): code:python (class PrometheusSettings(BaseMansaSettings):), code:python (from main.app.prometheus.agent import Prometheus), code:python (from main.app.prometheus.sandbox import SandboxManager), code:python (def makeChat(self, sessions, history, *, system_prompt=None,), code:python (async def sendMessage(self, query=None, sessionId=None, db=N), code:python (async def streamMessage(self, query=None, sessionId=None, db), code:bash (git add main/app/prometheus/agent.py), code:dockerfile (FROM python:3.11-slim) (+27 more)
 
 ### Community 172 - "Community 172"
-Cohesion: 0.08
-Nodes (21): Covers lines 114-115, 117-120, 122, 125: POST /prometheus/chat., Covers lines 114-115, 117-120, 122, 125: POST /prometheus/chat., Covers lines 111-112: sessionId is None, new session created., Covers lines 111-112: sessionId is None, new session created., Covers lines 114-115, 117-120, 122, 125: POST /prometheus/chat., Covers lines 111-112: sessionId is None, new session created., Covers lines 114-115, 117-120, 122: existing session with verified ownership., Covers lines 114-115, 117-120, 122: existing session with verified ownership. (+13 more)
+Cohesion: 0.1
+Nodes (17): Covers lines 114-115, 117-120, 122, 125: POST /prometheus/chat., Covers lines 114-115, 117-120, 122, 125: POST /prometheus/chat., Covers lines 111-112: sessionId is None, new session created., Covers lines 111-112: sessionId is None, new session created., Covers lines 114-115, 117-120, 122, 125: POST /prometheus/chat., Covers lines 111-112: sessionId is None, new session created., Covers lines 114-115, 117-120, 122: existing session with verified ownership., Covers lines 114-115, 117-120, 122: existing session with verified ownership. (+9 more)
 
 ### Community 173 - "Community 173"
 Cohesion: 0.1
@@ -825,8 +837,8 @@ Cohesion: 0.57
 Nodes (6): addRole(), addRoleToUser(), getCurrentUser(), getRolesList(), hasRole(), toDict()
 
 ### Community 175 - "Community 175"
-Cohesion: 0.12
-Nodes (11): Zero access but score still above threshold → not archived., Even with low score, if accessed → not archived., Even with low score, if accessed → not archived., Already archived memories are skipped., Already archived memories are skipped., Score below threshold + accessCount=0 + 90+ days → archived., Score below threshold + accessCount=0 + 90+ days → archived., Low score but accessed recently → not archived. (+3 more)
+Cohesion: 0.11
+Nodes (12): ToolContext — bundles all dependencies for tool execution.  Replace passing user, Single dependency bundle for tool execution.      Created once per request in ag, Extract userId from user dict if not explicitly set., ToolContext, Unit tests for ToolContext dataclass., Dataclass equality works out of the box., Explicit userId takes precedence over user dict., Two contexts share no mutable defaults. (+4 more)
 
 ### Community 176 - "Community 176"
 Cohesion: 0.33
@@ -836,13 +848,13 @@ Nodes (5): downgrade(), drop unused user sessions columns  Revision ID: 9f3b339d
 Cohesion: 0.33
 Nodes (6): 4.1 Sandbox Technology Landscape, 4.2 Instant Startup Patterns, 4.3 Cost & Scaling Math, 4.4 Anthropic Containment Patterns, 4.5 Hybrid Library Policy, 4. Background Research
 
+### Community 178 - "Community 178"
+Cohesion: 0.11
+Nodes (8): cache(), Tests for ResultCache., Tests for StocksCacheManager queryCache LRU eviction., Create a StocksCacheManager with a mock DB engine., When columns is None, cache key should be None., TestCacheLRUEviction, TestCacheTTLLogic, TestColumnValidator
+
 ### Community 179 - "Community 179"
 Cohesion: 0.4
 Nodes (5): 8. Build Sequence (4 phases, each independently shippable), Phase 0 — Sandbox foundation (1-2 days, no user-facing change), Phase 1 — MCP exposure of STOCKS_API (1 day), Phase 2 — Refactor PROMETHEUS to agentic (3-5 days, the big one), Phase 3 — Hardening (1-2 days, can ship incrementally)
-
-### Community 180 - "Community 180"
-Cohesion: 0.13
-Nodes (13): Covers lines 83-84: session not found., Covers lines 77, 83-84, 86: GET /prometheus/history/{sessionId}., Covers lines 77, 83-84, 86: GET /prometheus/history/{sessionId}., Covers lines 77, 86: session found with history., Covers lines 77, 86: session found with history., Covers lines 77, 83-84, 86: GET /prometheus/history/{sessionId}., Covers lines 77, 86: session found with history., Covers lines 77, 83-84, 86: GET /prometheus/history/{sessionId}. (+5 more)
 
 ### Community 181 - "Community 181"
 Cohesion: 0.67
@@ -857,8 +869,8 @@ Cohesion: 0.13
 Nodes (10): optimizeDtypes(), Get cached stocks data with optional column filtering., StocksCacheManager, Tests for dynamic ticker index feature, Ticker index should be built when cache is loaded, Ticker index should contain all tickers from cache, Ticker index should be case-insensitive, Looking up ticker should return valid row index (+2 more)
 
 ### Community 211 - "Community 211"
-Cohesion: 0.14
-Nodes (9): Verify that getSession() returns per-thread Session instances., Calling getSession() twice in the same thread returns the same object., Two threads must NOT share a Session object., With 20 concurrent threads, every thread must get its own Session., The returned object must be a real requests.Session., TestGetSession, get_session(), Return a requests.Session for the current thread.      Sessions are created la (+1 more)
+Cohesion: 0.13
+Nodes (5): Config, AuthenticationService, StocksAPIService, UserService, ServiceManager
 
 ### Community 212 - "Community 212"
 Cohesion: 0.14
@@ -869,8 +881,8 @@ Cohesion: 0.33
 Nodes (6): Integration: /stocks/historical must accept slash and dot fields., GET /historical?fields=P/L must not return 422., Integration: /stocks/historical must accept slash and dot fields., GET /historical?fields=P/L must not return 422., When tickers have different date coverage, each should get its closest snapshot., TestHistoricalFieldValidation
 
 ### Community 215 - "Community 215"
-Cohesion: 0.13
-Nodes (13): Covers lines 95-98: session deleted., Covers lines 96-97: session not found., Covers lines 96-97: session not found., Covers lines 96-97: session not found., Covers lines 95-98: DELETE /prometheus/sessions/{sessionId}., Covers lines 95-98: session deleted., Covers lines 96-97: session not found., Covers lines 95-98: DELETE /prometheus/sessions/{sessionId}. (+5 more)
+Cohesion: 0.19
+Nodes (11): _build_system_prompt(), buildSystemPrompt(), chatSession(), _execute_memory_tool(), executeMemoryTool(), _get_memory_tools(), openMCPClients(), Prometheus (+3 more)
 
 ### Community 216 - "Community 216"
 Cohesion: 0.22
@@ -881,8 +893,8 @@ Cohesion: 0.2
 Nodes (10): Tests for stocks API field validation — verifies the fields parameter accepts a, Integration: /stocks/fundamental must accept slash and dot fields., Minimal TestClient with just the stocks router for validation tests., GET /fundamental?fields=P/L must not return 422 (validation error)., GET /fundamental?fields=P/L must not return 422 (validation error)., Integration: /stocks/fundamental must accept slash and dot fields., GET /fundamental?fields=P/L must not return 422 (validation error)., GET /historical?fields=P/L must not return 422. (+2 more)
 
 ### Community 228 - "Community 228"
-Cohesion: 0.09
-Nodes (17): client(), pytest_configure(), TestClient with all routers mounted — no lifespan (no DB/service init).      O, Set required env vars before test collection.      config.py eagerly instantia, Reset slowapi in-memory rate limiter between every test., Set required env vars before test collection.      config.py eagerly instantia, TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with all routers mounted — no lifespan (no DB/service init).      O (+9 more)
+Cohesion: 0.17
+Nodes (6): pytest_configure(), Set required env vars before test collection.      config.py eagerly instantia, Reset slowapi in-memory rate limiter between every test., Set required env vars before test collection.      config.py eagerly instantia, Set required env vars before test collection.      config.py eagerly instantia, _reset_rate_limiter()
 
 ### Community 229 - "Community 229"
 Cohesion: 0.5
@@ -897,8 +909,8 @@ Cohesion: 0.5
 Nodes (3): Pattern must reject potential injection — no angle brackets., Pattern must reject potential injection — no angle brackets., Pattern must reject potential injection — no angle brackets.
 
 ### Community 232 - "Community 232"
-Cohesion: 0.13
-Nodes (13): Covers lines 100-104, 106: GET /user/sessions/current., Covers lines 100-104, 106: GET /user/sessions/current., Covers lines 100-104, 106: session found., Covers lines 100-104, 106: session found., Covers lines 100-104, 106: GET /user/sessions/current., Covers lines 100-104, 106: session found., Covers line 104: session not found., Covers line 104: session not found. (+5 more)
+Cohesion: 0.18
+Nodes (11): client(), TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with stocks router + verifyAPIKey + getCurrentUser overrides., TestClient with all routers mounted — no lifespan (no DB/service init).      O (+3 more)
 
 ### Community 233 - "Community 233"
 Cohesion: 0.29
@@ -924,9 +936,13 @@ Nodes (3): Basic fields like ROE must still pass., Basic fields like ROE must st
 Cohesion: 0.14
 Nodes (13): cls_token, do_basic_tokenize, do_lower_case, mask_token, model_max_length, name_or_path, never_split, pad_token (+5 more)
 
+### Community 239 - "Community 239"
+Cohesion: 0.18
+Nodes (11): code:yaml (volumes:), code:bash (git add config.py docker-compose.yml), code:python (import pytest), code:python (import logging), code:bash (git add main/app/prometheus/sandbox.py tests/test_sandbox.py), code:python (class PrometheusSettings(BaseMansaSettings):), code:yaml (environment:), code:yaml (sandbox:) (+3 more)
+
 ### Community 247 - "Community 247"
-Cohesion: 0.28
-Nodes (7): create_memory(), createMemory(), _downloadModel(), embed(), getEmbeddingModel(), initialize(), PrometheusService
+Cohesion: 0.21
+Nodes (12): code:python (import inspect), code:python (from main.app.prometheus.sandbox import SandboxManager), code:python (TOOL_REGISTRY: dict[str, Any] = {), code:python (## Code Sandbox (On-Demand)), code:bash (git add main/app/prometheus/agent.py), code:dockerfile (FROM python:3.11-slim), code:bash (git add Dockerfile.sandbox), Phase 6: Agent Integration (All Layers) (+4 more)
 
 ### Community 248 - "Community 248"
 Cohesion: 0.33
@@ -945,36 +961,36 @@ Cohesion: 0.24
 Nodes (6): Dataset, produce_data(), Train script for a single file  Need to set the TPU address first: export XRT_TP, A class that handles the reddit data files, A class that handles one dataset, RedditDataset
 
 ### Community 267 - "Community 267"
-Cohesion: 0.09
-Nodes (24): verifyAPIKey(), Integration tests for the verifyAPIKey function., Test successful API key verification., Integration tests for the verifyAPIKey function., Test API key verification when quota is exceeded., Test API key verification with invalid key., Test API key verification with missing key., Test API key verification with invalid key. (+16 more)
+Cohesion: 0.08
+Nodes (27): verifyAPIKey(), Integration tests for the verifyAPIKey function., Test successful API key verification., Integration tests for the verifyAPIKey function., Test API key verification when quota is exceeded., Test API key verification with invalid key., Test API key verification with missing key., Test API key verification with invalid key. (+19 more)
 
 ### Community 269 - "Community 269"
-Cohesion: 0.19
-Nodes (11): _build_system_prompt(), buildSystemPrompt(), chatSession(), _execute_memory_tool(), executeMemoryTool(), _get_memory_tools(), openMCPClients(), Prometheus (+3 more)
+Cohesion: 0.13
+Nodes (13): Covers lines 95-98: session deleted., Covers lines 96-97: session not found., Covers lines 96-97: session not found., Covers lines 96-97: session not found., Covers lines 95-98: DELETE /prometheus/sessions/{sessionId}., Covers lines 95-98: session deleted., Covers lines 96-97: session not found., Covers lines 95-98: DELETE /prometheus/sessions/{sessionId}. (+5 more)
+
+### Community 271 - "Community 271"
+Cohesion: 0.2
+Nodes (9): Covers lines 143, 145, 147-148: POST /user/sessions/revoke-all., Covers lines 143, 145, 147-148: POST /user/sessions/revoke-all., Covers lines 143, 145, 147-148., Covers lines 143, 145, 147-148., Covers lines 143, 145, 147-148: POST /user/sessions/revoke-all., Covers lines 143, 145, 147-148., Covers lines 143, 145, 147-148: POST /user/sessions/revoke-all., Covers lines 143, 145, 147-148. (+1 more)
 
 ### Community 272 - "Community 272"
-Cohesion: 0.11
-Nodes (7): Thread-safe proxy that delegates to per-thread sessions., SessionProxy, Config, AuthenticationService, StocksAPIService, UserService, ServiceManager
-
-### Community 273 - "Community 273"
-Cohesion: 0.47
-Nodes (3): TestCleanup, cleanup(), Close the main thread's session at interpreter shutdown.
+Cohesion: 0.2
+Nodes (3): MEMORY_TOOLS must be defined as a Tool wrapping FunctionDeclarations., MEMORY_TOOLS must be a list of callables with proper signatures., TestMemoryToolsDefinition
 
 ### Community 274 - "Community 274"
-Cohesion: 0.15
-Nodes (7): Creates a new memory., Updates existing memory when value changes., Returns unchanged when value is identical., Rejects new memory when limit reached., No role check when user_roles not provided., Stores embedding alongside memory., TestUpsertMemory
+Cohesion: 0.33
+Nodes (5): Exercises the tzinfo-is-None branch (line 144-148)., Exercises the tzinfo-is-None branch (line 144-148)., Exercises the tzinfo-is-None branch (line 144-148)., Exercises the tzinfo-is-None branch (line 144-148)., Exercises the tzinfo-is-None branch (line 144-148).
 
 ### Community 276 - "Community 276"
 Cohesion: 0.22
 Nodes (8): Code Review Report — Mansa Server, LATER (P2 — when touching these files), NOW (P0 — fix before next release), Overall Score: 58/100, P2 — Nice to Have (27 items), Priority Matrix, SOON (P1 — fix within 2 weeks), What Works Well
 
 ### Community 277 - "Community 277"
-Cohesion: 0.06
-Nodes (28): Fetch live prices for B3 tickers via yfinance.          B3 tickers must match, StocksQueryManager, Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., TestCreateKey (+20 more)
+Cohesion: 0.2
+Nodes (4): createSession(), getSessionById(), revokeSession(), validateSession()
 
 ### Community 278 - "Community 278"
-Cohesion: 0.36
-Nodes (4): memoryMaintenance(), _create(), After 10 cycles, preference (0.99^10) > context (0.90^10)., TestTypeAwareDecay
+Cohesion: 0.14
+Nodes (13): code:python (import pytest), code:python (import logging), code:bash (git add main/app/prometheus/state.py tests/test_harness_stat), File Map, Global Constraints, Phase 1: HarnessState (In-Memory Agent Scratchpad), Prometheus Harness — Master Implementation Plan (v2: CubeSandbox + On-Demand), Relationship to Existing Systems (+5 more)
 
 ### Community 279 - "Community 279"
 Cohesion: 0.22
@@ -985,16 +1001,16 @@ Cohesion: 0.22
 Nodes (9): id, ids, tokens, special_tokens, id, ids, tokens, [CLS] (+1 more)
 
 ### Community 281 - "Community 281"
-Cohesion: 0.18
-Nodes (5): System prompt should instruct LLM about harness state usage., System prompt should instruct LLM about memory vs state., TestSendMessageStateIntegration, TestStreamMessageStateIntegration, TestSystemPromptStateInstructions
+Cohesion: 0.14
+Nodes (8): System prompt should instruct LLM about harness state usage., System prompt should instruct LLM about harness state usage., System prompt should instruct LLM about memory vs state., System prompt should instruct LLM about memory vs state., System prompt should instruct LLM about memory vs state., TestSendMessageStateIntegration, TestStreamMessageStateIntegration, TestSystemPromptStateInstructions
 
 ### Community 286 - "Community 286"
 Cohesion: 0.22
 Nodes (8): code:python (SYSTEM_PROMPT = """), code:bash (git add main/app/prometheus/agent.py), File Map, Global Constraints, How This Compares to ComputerUse, Prometheus Harness Architecture — Observable Loops, Sandbox Execution, Persistent States, Summary, Task 8: System Prompt — Teach LLM About Sandbox
 
 ### Community 287 - "Community 287"
-Cohesion: 0.18
-Nodes (6): test_stream_message_yields_text_chunks(), FakeChunk, GREEN test: streamMessage works without chatSession — MCP setup is inlined.  Aft, streamMessage inlines MCP setup — chatSession no longer exists., streamMessage inlines MCP setup — chatSession no longer exists., TestStreamMessageNoChatSession
+Cohesion: 0.15
+Nodes (7): Pytest Testing, test_stream_message_yields_text_chunks(), FakeChunk, GREEN test: streamMessage works without chatSession — MCP setup is inlined.  Aft, streamMessage inlines MCP setup — chatSession no longer exists., streamMessage inlines MCP setup — chatSession no longer exists., TestStreamMessageNoChatSession
 
 ### Community 288 - "Community 288"
 Cohesion: 0.25
@@ -1033,12 +1049,12 @@ Cohesion: 0.4
 Nodes (5): model, continuing_subword_prefix, max_input_chars_per_word, type, unk_token
 
 ### Community 300 - "Community 300"
-Cohesion: 0.12
-Nodes (16): verifyAccessToken(), getSessions(), Covers lines 45-51: verifyAccessToken with expired and invalid tokens., Covers lines 45-51: verifyAccessToken with expired and invalid tokens., Covers lines 48-49: jwt.ExpiredSignatureError., Covers lines 45-51: verifyAccessToken with expired and invalid tokens., Covers lines 45-51: verifyAccessToken with expired and invalid tokens., Covers lines 48-49: jwt.ExpiredSignatureError. (+8 more)
+Cohesion: 0.17
+Nodes (7): Tests for dynamic ticker index feature, Ticker index should be built when cache is loaded, Ticker index should contain all tickers from cache, Ticker index should be case-insensitive, Looking up ticker should return valid row index, Ticker index should be rebuilt when cache refreshes, TestTickerIndex
 
 ### Community 301 - "Community 301"
-Cohesion: 0.11
-Nodes (15): Tests for connection pool configuration, Tests for connection pool configuration, Stocks engine should have optimized pool settings, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Tests for lazy JSON deserialization, Query manager should have deserialize method, Query manager should have deserialize method (+7 more)
+Cohesion: 0.2
+Nodes (9): Invalid date -> inner 400 passes through (not wrapped as 500)., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Two dates in the range, both valid. (+1 more)
 
 ### Community 302 - "Community 302"
 Cohesion: 0.33
@@ -1046,7 +1062,7 @@ Nodes (6): API Design (6), Architecture (8), Frontend (7), P1 — Should Fix, Se
 
 ### Community 303 - "Community 303"
 Cohesion: 0.14
-Nodes (19): executeMemoryTool(), executeStateTool(), get_state(), Retrieve values from the harness state. Use this to recall intermediate results,, Retrieve values from the harness state. Use this to recall intermediate results,, Store a value in the harness state for this session. Use this to save     interm, set_state(), test_dispatch_get_state() (+11 more)
+Nodes (19): executeStateTool(), get_state(), Retrieve values from the harness state. Use this to recall intermediate results,, Retrieve values from the harness state. Use this to recall intermediate results,, Retrieve values from the harness state. Use this to recall intermediate results,, Store a value in the harness state for this session. Use this to save     interm, Store a value in the harness state for this session. Use this to save     inter, set_state() (+11 more)
 
 ### Community 304 - "Community 304"
 Cohesion: 0.5
@@ -1061,44 +1077,44 @@ Cohesion: 0.33
 Nodes (6): Category 1: Database Session Management (HIGH), code:python (# Current (BAD):), code:python (# Current (BAD):), Issue 1.1 — PrometheusController creates raw DB sessions, Issue 1.2 — PrometheusChatManager creates raw DB sessions on every call, Issue 1.3 — User controller has duplicate token extraction
 
 ### Community 308 - "Community 308"
-Cohesion: 0.12
-Nodes (13): dispatchToolCall(), TDD tests: verify memory tools are wired into the Prometheus agent.  RED: These, MEMORY_TOOLS must be defined as a Tool wrapping FunctionDeclarations., MEMORY_TOOLS must be a list of callables with proper signatures., test_memory_tool_skipped_without_user(), test_non_memory_tool_not_routed_to_executeMemoryTool(), test_non_registry_tool_not_routed(), test_save_memory_routed_to_executeMemoryTool() (+5 more)
+Cohesion: 0.1
+Nodes (23): dispatchToolCall(), TDD tests: verify memory tools are wired into the Prometheus agent.  RED: Thes, dispatchToolCall must route memory tool names via TOOL_REGISTRY., makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., dispatchToolCall must route memory tool names to executeMemoryTool. (+15 more)
 
 ### Community 311 - "Community 311"
-Cohesion: 0.1
-Nodes (9): HarnessState, Retrieve a value from state. Returns default if key not found., Return a copy of the current state., Format state as a string for injection into the LLM context., Check if state changed since last reset., Reset the changed flag. Returns the previous state., Clear all state data., In-memory state dict that persists across loop iterations within a single reques (+1 more)
+Cohesion: 0.07
+Nodes (15): HarnessState, Retrieve a value from state. Returns default if key not found., Return a copy of the current state., Format state as a string for injection into the LLM context., Check if state changed since last reset., Reset the changed flag. Returns the previous state., Clear all state data., In-memory state dict that persists across loop iterations within a single reques (+7 more)
 
 ### Community 313 - "Community 313"
-Cohesion: 0.18
-Nodes (6): System prompt should include state context when provided., System prompt should not include state section when empty., State section should appear after memories section., All state entries should appear in the prompt., System prompt should work without state parameter., TestBuildSystemPromptState
+Cohesion: 0.08
+Nodes (13): LoopEvent, LoopEvent model for observable agent loops., LoopLogger, LoopLogger — batched event logging for observable agent loops., Queue events during a loop, flush to DB at end., Log a generic event with optional metadata., Log a tool invocation., Log end of a turn with timing. (+5 more)
 
 ### Community 314 - "Community 314"
 Cohesion: 0.33
 Nodes (6): Category 3: Security (HIGH), code:python (if not stocksKey:), Issue 3.1 — Hardcoded API key fallback, Issue 3.2 — Missing rate limiting on auth endpoints, Issue 3.3 — API key uses `string` import but doesn't use it, Issue 3.4 — Logout doesn't validate token before revoking
 
 ### Community 318 - "Community 318"
-Cohesion: 0.13
-Nodes (3): Pytest Testing, TestMemoryToolFunctions, TestToolRegistry
+Cohesion: 0.07
+Nodes (7): Store a value in state. Marks state as changed for context injection., Verify the actual async tool functions have correct signatures., TOOL_REGISTRY pattern must work correctly., TestMemoryToolFunctions, TestToolRegistry, TestMemoryToolFunctions, TestToolRegistry
 
 ### Community 329 - "Community 329"
 Cohesion: 0.33
 Nodes (6): code:python (import pytest), code:python (from main.app.prometheus.sandbox import SandboxManager), code:python (def makeChat(self, sessions, history, *, system_prompt=None,), code:python (async def streamMessage(self, query=None, sessionId=None, db), code:bash (git add main/app/prometheus/agent.py tests/test_harness.py), Task 6: Agent Integration — Sandbox Lifecycle + Loop Events in Stream Loop
 
 ### Community 331 - "Community 331"
-Cohesion: 0.33
-Nodes (5): Tests for optimized search filtering, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Filter should use ticker index for O(1) lookup, TestFilterBySearchTerms
+Cohesion: 0.09
+Nodes (17): Tests for connection pool configuration, Tests for connection pool configuration, Stocks engine should have optimized pool settings, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Tests for lazy JSON deserialization, Query manager should have deserialize method, Query manager should have deserialize method (+9 more)
 
 ### Community 332 - "Community 332"
-Cohesion: 0.33
-Nodes (5): Exercises the tzinfo-is-None branch (line 144-148)., Exercises the tzinfo-is-None branch (line 144-148)., Exercises the tzinfo-is-None branch (line 144-148)., Exercises the tzinfo-is-None branch (line 144-148)., Exercises the tzinfo-is-None branch (line 144-148).
+Cohesion: 0.05
+Nodes (33): Covers line 27: user already has the role., Covers line 27: user already has the role., Covers line 27: user already has the role., Covers lines 34, 36-38, 40-44, 46, 48-49, 51, 58-59, 61, 63-67: UserManager.getC, Covers lines 34, 36-38, 40-44, 46, 48-49, 51, 58-59, 61, 63-67: UserManager.getC, Covers lines 34, 36-38, 40-44, 46, 48-49, 51, 58-59, 61, 63-67: UserManager.getC, Covers lines 34, 36-38, 40-44, 46, 48-49, 51, 58-59, 61, 63-67: UserManager.getC, Covers lines 36-38, 40-44, 46, 48-49, 51, 58-59, 61: successful user retrieval. (+25 more)
 
 ### Community 333 - "Community 333"
-Cohesion: 0.25
-Nodes (4): Authentication System, Google OAuth, JWT Authentication, TestSessionExpiryConfig
+Cohesion: 0.22
+Nodes (8): Historical query with a year range., Historical query with a year range., Historical query with a year range., Historical query with a year range., Historical query with a year range., Historical query with a year range., Historical query with a year range., Historical query with a year range.
 
 ### Community 335 - "Community 335"
-Cohesion: 0.18
-Nodes (9): Covers lines 36-38, 40-44, 46, 48-49, 51, 58-59, 61: successful user retrieval., Covers lines 36-38, 40-44, 46, 48-49, 51, 58-59, 61: successful user retrieval., Covers lines 36-38, 40-44, 46, 48-49, 51, 58-59, 61: successful user retrieval., Covers lines 36-38, 40-44, 46, 48-49, 51, 58-59, 61: successful user retrieval., Covers lines 65-67: unexpected exception., Covers lines 65-67: unexpected exception., Covers lines 65-67: unexpected exception., Covers lines 65-67: unexpected exception. (+1 more)
+Cohesion: 0.2
+Nodes (10): Covers line 67: extractTokenPayload re-raises HTTPException from verifyAccessTok, Covers line 67: extractTokenPayload re-raises HTTPException from verifyAccessTok, Covers line 67: HTTPException raised by verifyAccessToken is re-raised., Covers line 67: extractTokenPayload re-raises HTTPException from verifyAccessTok, Covers line 67: extractTokenPayload re-raises HTTPException from verifyAccessTok, Covers line 67: HTTPException raised by verifyAccessToken is re-raised., Covers line 67: HTTPException raised by verifyAccessToken is re-raised., Covers line 67: extractTokenPayload re-raises HTTPException from verifyAccessTok (+2 more)
 
 ### Community 336 - "Community 336"
 Cohesion: 0.18
@@ -1137,20 +1153,20 @@ Cohesion: 0.4
 Nodes (5): code:python (# Sandbox), code:yaml (environment:), code:yaml (sandbox:), code:bash (git add config.py docker-compose.yml), Task 1: Config — Add Sandbox + Workspace Settings
 
 ### Community 347 - "Community 347"
-Cohesion: 0.33
-Nodes (6): makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., TestMakeChatIncludesMemoryTools
+Cohesion: 0.25
+Nodes (7): code:python (async def dispatchToolCall(), code:bash (git add main/app/prometheus/tools.py tests/test_sandbox_tool), code:python (import pytest), code:python (from main.app.prometheus.tools import TOOL_REGISTRY, dispatc), code:python (def makeChat(self, sessions, history, *, system_prompt=None,), code:bash (git add main/app/prometheus/agent.py tests/test_agent_sandbo), Task 8: Agent Integration — On-Demand Sandbox + Premium Gating
 
 ### Community 348 - "Community 348"
 Cohesion: 0.33
 Nodes (5): pd.NA is not a string, so lambda returns it unchanged., pd.NA is not a string, so lambda returns it unchanged., pd.NA is not a string, so lambda returns it unchanged., pd.NA is not a string, so lambda returns it unchanged., pd.NA is not a string, so lambda returns it unchanged.
 
 ### Community 349 - "Community 349"
-Cohesion: 0.22
-Nodes (7): Integration tests for all query optimizations, Integration tests for all query optimizations, All optimizations should be implemented, All optimizations should be implemented, Query filter should use ticker index, Query filter should use ticker index, TestQueryOptimization
+Cohesion: 0.1
+Nodes (15): Tests for connection pool configuration, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Query manager should have deserialize method, Integration tests for all query optimizations, All optimizations should be implemented, Query filter should use ticker index, Performance tests for query operations (+7 more)
 
 ### Community 350 - "Community 350"
 Cohesion: 0.33
-Nodes (6): dispatchToolCall must route memory tool names via TOOL_REGISTRY., dispatchToolCall must route memory tool names to executeMemoryTool., dispatchToolCall must route memory tool names to executeMemoryTool., dispatchToolCall must route memory tool names to executeMemoryTool., dispatchToolCall must route memory tool names to executeMemoryTool., TestDispatchRoutesMemoryTools
+Nodes (6): Architecture, code:block1 (User: "Analyze PETR4 vs VALE3 correlation over 5 years"), code:block2 (Request Start:), code:block3 (Session 1 (premium user):), CubeCoW Checkpoint Persistence, On-Demand Sandbox Lifecycle
 
 ### Community 351 - "Community 351"
 Cohesion: 0.5
@@ -1173,16 +1189,16 @@ Cohesion: 0.5
 Nodes (4): code:tsx (import React from "react";), code:tsx (import { SandboxArtifactList } from "./SandboxArtifact";), code:bash (git add frontend/src/components/SandboxArtifact.tsx), Task 9: Frontend — SandboxArtifact Component
 
 ### Community 362 - "Community 362"
-Cohesion: 0.67
-Nodes (3): checkServiceConnection — success, not found, errors., checkServiceConnection — success, not found, errors., TestCheckServiceConnection
+Cohesion: 0.33
+Nodes (6): code:python (import pytest), code:python (from datetime import datetime, timezone), code:python (import logging), code:bash (git add main/models/harness.py main/app/prometheus/events.py), Phase 5: Observable Loop (Batched), Task 6: LoopEvent Model + LoopLogger
 
 ### Community 363 - "Community 363"
 Cohesion: 0.22
 Nodes (3): parseYearInput(), TestParseYearInput, TestParseYearInput
 
 ### Community 364 - "Community 364"
-Cohesion: 0.4
-Nodes (4): COTACAO 10Y PADRAO and COTACAO 10Y AJUSTADA belong to /cotations, not /fundament, COTACAO 10Y PADRAO and COTACAO 10Y AJUSTADA belong to /cotations, not /fundament, COTACAO 10Y PADRAO and COTACAO 10Y AJUSTADA belong to /cotations, not /fundament, COTACAO 10Y PADRAO and COTACAO 10Y AJUSTADA belong to /cotations, not /fundament
+Cohesion: 0.15
+Nodes (4): authenticateUser(), createUserAccount(), FastAPI, PaginationParams
 
 ### Community 365 - "Community 365"
 Cohesion: 0.2
@@ -1193,16 +1209,16 @@ Cohesion: 0.2
 Nodes (10): code:python (import logging), code:bash (git add main/app/prometheus/sandbox.py tests/test_sandbox.py), code:python (class PrometheusSettings(BaseMansaSettings):), code:yaml (environment:), code:yaml (sandbox:), code:bash (git add config.py docker-compose.yml), code:python (import pytest), Phase 2: Sandbox Execution (+2 more)
 
 ### Community 367 - "Community 367"
-Cohesion: 0.2
-Nodes (8): Covers line 27: user already has the role., Covers line 27: user already has the role., Covers line 27: user already has the role., Covers lines 42-44: session validation fails., Covers lines 42-44: session validation fails., Covers lines 42-44: session validation fails., Covers lines 42-44: session validation fails., Covers lines 42-44: session validation fails.
+Cohesion: 0.33
+Nodes (5): Non-JSON-dict/list string is left as-is., Non-JSON-dict/list string is left as-is., Non-JSON-dict/list string is left as-is., Non-JSON-dict/list string is left as-is., Non-JSON-dict/list string is left as-is.
 
 ### Community 368 - "Community 368"
-Cohesion: 0.11
-Nodes (5): Store a value in state. Marks state as changed for context injection., Verify the actual async tool functions have correct signatures., TOOL_REGISTRY pattern must work correctly., TestMemoryToolFunctions, TestToolRegistry
+Cohesion: 0.33
+Nodes (5): Performance tests for query operations, Performance tests for query operations, Query should respond within 1 second, Query should respond within 1 second, TestQueryPerformance
 
 ### Community 369 - "Community 369"
-Cohesion: 0.67
-Nodes (3): checkMySqlConnection — success, errors, engine=None paths., checkMySqlConnection — success, errors, engine=None paths., TestCheckMySqlConnection
+Cohesion: 0.13
+Nodes (5): test_dispatch_execute_code_no_sandbox(), test_dispatch_execute_code_routes_to_registry(), TestCheckCache, TestDispatchToolCallSandbox, TestSandboxToolDefinitions
 
 ### Community 370 - "Community 370"
 Cohesion: 0.25
@@ -1217,12 +1233,12 @@ Cohesion: 0.33
 Nodes (6): code:python (import pytest), code:python (from datetime import datetime, timezone), code:python (import logging), code:bash (git add main/models/harness.py main/app/prometheus/events.py), Phase 5: Observable Loop (Batched), Task 6: LoopEvent Model + LoopLogger
 
 ### Community 376 - "Community 376"
-Cohesion: 0.25
-Nodes (4): authenticateUser(), createUserAccount(), FastAPI, PaginationParams
+Cohesion: 0.33
+Nodes (5): Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, TestFilterBySearchTerms
 
 ### Community 377 - "Community 377"
-Cohesion: 0.25
-Nodes (7): Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them).
+Cohesion: 0.83
+Nodes (3): _parse_date(), parseDateEnd(), parseDateStart()
 
 ### Community 378 - "Community 378"
 Cohesion: 0.4
@@ -1236,17 +1252,9 @@ Nodes (5): code:python (import pytest), code:python (import logging), code:bash 
 Cohesion: 0.4
 Nodes (5): code:python (import pytest), code:python (import logging), code:bash (git add main/app/prometheus/state.py tests/test_state.py), Phase 1: HarnessState (In-Memory Agent Scratchpad), Task 1: HarnessState Class
 
-### Community 381 - "Community 381"
-Cohesion: 0.29
-Nodes (6): Store a memory about the user's preferences, analysis results, or feedback., Store a memory about the user's preferences, analysis results, or feedback., Store a memory about the user's preferences, analysis results, or feedback., Store a memory about the user's preferences, analysis results, or feedback., save_memory(), embed()
-
-### Community 382 - "Community 382"
-Cohesion: 0.29
-Nodes (4): Returns paginated memories., Offset and limit work., Archived memories excluded., TestGetUserMemories
-
 ### Community 383 - "Community 383"
-Cohesion: 0.29
-Nodes (4): Non-extended role gets basic limit., Premium user gets extended limit., Admin gets extended limit (has all permissions)., TestGetMemoryLimit
+Cohesion: 0.28
+Nodes (3): ScraperSettings, StocksApiSettings, TestConfig
 
 ### Community 384 - "Community 384"
 Cohesion: 0.24
@@ -1254,51 +1262,43 @@ Nodes (6): _filterCotationByDate(), filterCotationData(), _parseCotationDate(), 
 
 ### Community 385 - "Community 385"
 Cohesion: 0.33
-Nodes (5): Covers lines 37-38, 46, 51, 58 (sessionId is None): skips session validation., Covers lines 37-38, 46, 51, 58 (sessionId is None): skips session validation., Covers lines 37-38, 46, 51, 58 (sessionId is None): skips session validation., Covers lines 37-38, 46, 51, 58 (sessionId is None): skips session validation., Covers lines 37-38, 46, 51, 58 (sessionId is None): skips session validation.
+Nodes (5): Tests for optimized search filtering, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Filter should use ticker index for O(1) lookup, TestFilterBySearchTerms
 
 ### Community 386 - "Community 386"
-Cohesion: 0.33
-Nodes (5): Covers line 52: POST /prometheus/sessions., Covers line 52: POST /prometheus/sessions., Covers line 52: POST /prometheus/sessions., Covers line 52: POST /prometheus/sessions., TestPrometheusCreateSession
-
-### Community 387 - "Community 387"
-Cohesion: 0.33
-Nodes (5): Non-JSON-dict/list string is left as-is., Non-JSON-dict/list string is left as-is., Non-JSON-dict/list string is left as-is., Non-JSON-dict/list string is left as-is., Non-JSON-dict/list string is left as-is.
+Cohesion: 0.4
+Nodes (5): code:python (import pytest), code:python (import hashlib), code:bash (git add main/app/prometheus/cache.py tests/test_cache.py), Phase 3: Result Cache, Task 4: ResultCache — SHA256-Keyed Computed Results
 
 ### Community 388 - "Community 388"
-Cohesion: 0.4
-Nodes (5): Search user's saved memories, preferences, and past analysis context.      Use t, Search user's saved memories, preferences, and past analysis context.      Use t, Search user's saved memories, preferences, and past analysis context.      Use t, Search user's saved memories, preferences, and past analysis context.      Use t, search_memory()
+Cohesion: 0.38
+Nodes (7): code:python (import pytest), code:python (from __future__ import annotations), code:bash (git add main/app/prometheus/context.py tests/test_context.py), Phase 4: ToolContext (Bundled Dispatch Dependencies), Phase 4: ToolContext (Replace God Function), Task 5: ToolContext — Dataclass for Agent Use, Task 5: ToolContext — Single Dispatch Object
 
 ### Community 389 - "Community 389"
 Cohesion: 0.33
 Nodes (3): normalizeColumns(), Tests for main/app/stocks_api/util.py., TestNormalizeColumns
 
-### Community 390 - "Community 390"
-Cohesion: 0.4
-Nodes (5): Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, TestVerifyAPIKey
-
-### Community 395 - "Community 395"
-Cohesion: 0.83
-Nodes (3): _parse_date(), parseDateEnd(), parseDateStart()
+### Community 393 - "Community 393"
+Cohesion: 0.33
+Nodes (6): Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., TestCreateKey
 
 ## Knowledge Gaps
-- **2100 isolated node(s):** `localStorageMock`, `chunkSizes`, `{ session, accumulated, lineCount, chunkIdx }`, `evilChunks`, `lines` (+2095 more)
+- **2186 isolated node(s):** `localStorageMock`, `chunkSizes`, `{ session, accumulated, lineCount, chunkIdx }`, `evilChunks`, `lines` (+2181 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **170 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **185 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Pytest Testing` connect `Community 318` to `Stocks API Controller`, `Community 130`, `Session Management`, `Community 132`, `Community 389`, `Configuration & Logging`, `Scraper B3`, `Community 135`, `Community 267`, `Scraper Service`, `Community 140`, `Community 271`, `Community 143`, `Database Utils`, `Decorators`, `Community 277`, `Community 278`, `Community 281`, `Settings`, `Helpers`, `Community 287`, `Community 301`, `Community 303`, `Community 49`, `Community 52`, `Community 308`, `Community 63`, `Community 65`, `Community 71`, `Community 72`, `Community 333`, `Community 84`, `Community 88`, `Community 93`, `Community 227`, `Community 228`, `Community 372`, `Community 117`, `Community 252`?**
-  _High betweenness centrality (0.159) - this node is a cross-community bridge._
-- **Why does `UserManager` connect `Community 50` to `Community 386`, `Community 130`, `SQLAlchemy Models`, `Community 390`, `Community 143`, `Decorators`, `Enums`, `Community 277`, `Community 164`, `Community 172`, `Community 300`, `Community 174`, `Community 180`, `Community 53`, `Community 182`, `Community 55`, `Community 57`, `Community 58`, `Community 61`, `Community 67`, `Community 69`, `Community 73`, `Community 74`, `Community 78`, `Community 79`, `Community 215`, `Community 230`, `Community 232`, `Community 126`?**
-  _High betweenness centrality (0.072) - this node is a cross-community bridge._
-- **Why does `FastAPI` connect `Community 376` to `Community 384`, `Authentication Manager`, `Community 130`, `Community 389`, `Scraper B3`, `Community 395`, `Community 140`, `Community 267`, `Auth Service`, `Community 272`, `Settings`, `Community 174`, `Community 50`, `Community 54`, `Community 63`, `Community 71`, `Community 74`, `Community 80`, `Community 84`, `Community 85`, `Community 88`, `Community 345`, `Community 227`, `Community 108`, `Community 239`, `Community 372`?**
-  _High betweenness centrality (0.060) - this node is a cross-community bridge._
+- **Why does `Pytest Testing` connect `Community 287` to `Stocks API Controller`, `Session Management`, `Community 132`, `Community 389`, `Configuration & Logging`, `Scraper B3`, `Community 135`, `Community 267`, `Scraper Service`, `Community 140`, `Community 398`, `Community 399`, `Community 143`, `Database Utils`, `Decorators`, `Community 281`, `Settings`, `Helpers`, `Community 303`, `Community 175`, `Community 178`, `Community 52`, `Community 308`, `Community 56`, `Community 318`, `Community 63`, `Community 71`, `Community 72`, `Community 331`, `Community 84`, `Community 88`, `Community 93`, `Community 349`, `Community 227`, `Community 228`, `Community 108`, `Community 364`, `Community 369`, `Community 372`, `Community 117`, `Community 252`, `Community 383`?**
+  _High betweenness centrality (0.188) - this node is a cross-community bridge._
+- **Why does `FastAPI` connect `Community 364` to `Community 384`, `Authentication Manager`, `Community 389`, `Scraper B3`, `Community 267`, `Community 140`, `Auth Service`, `Settings`, `Community 174`, `Community 50`, `Community 54`, `Community 63`, `Community 71`, `Community 74`, `Community 79`, `Community 80`, `Community 211`, `Community 84`, `Community 88`, `Community 345`, `Community 227`, `Community 108`, `Community 372`, `Community 377`?**
+  _High betweenness centrality (0.079) - this node is a cross-community bridge._
+- **Why does `UserManager` connect `Community 50` to `SQLAlchemy Models`, `Community 393`, `Community 267`, `Community 269`, `Community 271`, `Community 143`, `Decorators`, `Enums`, `Community 164`, `Community 172`, `Community 174`, `Community 53`, `Community 182`, `Community 55`, `Community 56`, `Community 57`, `Community 58`, `Community 61`, `Community 63`, `Community 64`, `Community 67`, `Community 69`, `Community 73`, `Community 74`, `Community 332`, `Community 78`, `Community 335`, `Community 79`, `Community 230`, `Community 126`?**
+  _High betweenness centrality (0.061) - this node is a cross-community bridge._
 - **Are the 72 inferred relationships involving `StocksCacheManager` (e.g. with `TestStocksCacheManager` and `TestVerifyAPIKey`) actually correct?**
   _`StocksCacheManager` has 72 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 51 inferred relationships involving `HarnessState` (e.g. with `Prometheus` and `TestAgentSandboxIntegration`) actually correct?**
+  _`HarnessState` has 51 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 53 inferred relationships involving `UserManager` (e.g. with `AuthenticationManager` and `SessionManager`) actually correct?**
   _`UserManager` has 53 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 48 inferred relationships involving `Permission` (e.g. with `PrometheusMemory` and `UserManager`) actually correct?**
   _`Permission` has 48 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 38 inferred relationships involving `StocksQueryManager` (e.g. with `TestStocksCacheManager` and `TestVerifyAPIKey`) actually correct?**
-  _`StocksQueryManager` has 38 INFERRED edges - model-reasoned connections that need verification._

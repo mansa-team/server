@@ -1,10 +1,43 @@
 import inspect
 import pytest
 from main.app.prometheus.tools import (
+    get_state,
     search_memory,
     save_memory,
+    set_state,
     TOOL_REGISTRY,
 )
+
+
+# --- Gemini auto-function-calling compatibility ---
+# Gemini introspects function signatures to build JSON schemas.
+# Complex types (custom classes, Optional[Obj]) cause parse errors.
+# All injected deps (state, user) must go in **_.
+
+GEMINI_SAFE_TYPES = (str, int, float, bool, list, dict, type(None))
+
+
+def _assert_gemini_safe(fn):
+    """Assert a tool function has only Gemini-compatible parameter types."""
+    sig = inspect.signature(fn)
+    for name, param in sig.parameters.items():
+        if name.startswith("_") or param.kind == inspect.Parameter.VAR_KEYWORD:
+            continue  # **_ or **kwargs — not exposed to Gemini
+        if param.annotation is inspect.Parameter.empty:
+            continue  # no annotation = safe
+        # Allow simple types, unions of simple types, and Optional[simple]
+        ann = param.annotation
+        origin = getattr(ann, "__origin__", None)
+        if origin is not None:
+            # typing.Union, typing.Optional, etc — check inner args
+            args = getattr(ann, "__args__", ())
+            for a in args:
+                assert a in GEMINI_SAFE_TYPES or a is type(None), f"{fn.__name__}({name}): type {a!r} not Gemini-safe"
+        else:
+            assert ann in GEMINI_SAFE_TYPES, f"{fn.__name__}({name}): type {ann!r} not Gemini-safe"
+
+
+# --- Memory tool tests ---
 
 
 class TestMemoryToolFunctions:
@@ -48,6 +81,72 @@ class TestMemoryToolFunctions:
 
     def test_memory_tool_names_unchanged(self):
         assert {"search_memory", "save_memory"}.issubset(set(TOOL_REGISTRY.keys()))
+
+
+# --- State tool tests ---
+
+
+class TestStateToolFunctions:
+    def test_get_state_has_docstring(self):
+        assert get_state.__doc__ is not None
+
+    def test_set_state_has_docstring(self):
+        assert set_state.__doc__ is not None
+
+    def test_get_state_signature(self):
+        sig = inspect.signature(get_state)
+        params = list(sig.parameters.keys())
+        assert "key" in params
+
+    def test_set_state_signature(self):
+        sig = inspect.signature(set_state)
+        params = list(sig.parameters.keys())
+        assert "key" in params
+        assert "value" in params
+
+    def test_get_state_gemini_safe(self):
+        _assert_gemini_safe(get_state)
+
+    def test_set_state_gemini_safe(self):
+        _assert_gemini_safe(set_state)
+
+    @pytest.mark.asyncio
+    async def test_get_state_no_state_returns_error(self):
+        result = await get_state()
+        assert "error" in result
+
+    @pytest.mark.asyncio
+    async def test_set_state_no_state_returns_error(self):
+        result = await set_state(key="k", value="v")
+        assert "error" in result
+
+
+# --- Gemini compatibility for ALL tools ---
+
+
+class TestGeminiCompatibility:
+    """Every function in TOOL_REGISTRY must have Gemini-safe signatures.
+    Custom classes (HarnessState, etc.) must NOT appear in parameter types —
+    they go in **_ and are injected by dispatchToolCall."""
+
+    @pytest.mark.parametrize("name,fn", list(TOOL_REGISTRY.items()))
+    def test_tool_has_gemini_safe_signature(self, name, fn):
+        _assert_gemini_safe(fn)
+
+    def test_no_harnessstate_in_any_signature(self):
+        """Regression: HarnessState must never leak into tool signatures."""
+        for name, fn in TOOL_REGISTRY.items():
+            hints = inspect.get_annotations(fn)
+            for param, hint in hints.items():
+                # Check inner args of Union/Optional types
+                args = getattr(hint, "__args__", (hint,))
+                for a in args:
+                    assert "HarnessState" not in getattr(a, "__name__", str(a)), (
+                        f"{name}({param}): HarnessState leaked into signature"
+                    )
+
+
+# --- Registry tests ---
 
 
 class TestToolRegistry:

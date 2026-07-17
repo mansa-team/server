@@ -9,10 +9,8 @@ import google.genai._mcp_utils as _mcp
 
 from config import Config
 from main.models.memory import UserMemory
-from main.app.prometheus.cache import ResultCache
 from main.app.prometheus.chat import PrometheusChatManager
 from main.app.prometheus.events import LoopLogger
-from main.app.prometheus.sandbox import SandboxManager
 from main.app.prometheus.state import HarnessState
 from main.app.prometheus.tools import TOOL_REGISTRY, dispatchToolCall
 
@@ -99,25 +97,6 @@ Use with stat cards inside for portfolio snapshots.
 - You can mix prose and tags freely
 - Always use tags when presenting structured data — never dump raw JSON
 
-## Code Sandbox (On-Demand)
-You have access to an isolated Python sandbox for quantitative analysis.
-The sandbox is created automatically when you first call execute_code.
-
-Use execute_code for: statistical analysis, DCF models, correlation matrices,
-Monte Carlo simulations, custom charts, data transformations.
-
-Access stock data via MCP tools (get_fundamental, get_historical, get_cotations)
-before running sandbox code — pass the data as variables in your code.
-
-Libraries available: pandas, numpy, scipy, plotly, matplotlib, requests.
-Save charts to /tmp/ as .html (plotly) or .png (matplotlib).
-Always print() key findings so they appear in stdout.
-
-## Result Cache
-Before executing expensive code, check the cache with check_cache(code_hash).
-If hit, use the cached result instead of re-executing.
-The cache is automatic — same code + same inputs = cache hit.
-
 ## Harness State
 You have access to an in-memory state that persists across tool calls within this conversation.
 Use set_state to save important values: intermediate results, analysis progress, user preferences.
@@ -172,9 +151,8 @@ class Prometheus:
             yield {"stocks": stocks, "searxng": searxng}, [stocks.session, searxng.session]
 
     def makeChat(self, sessions, history, *, system_prompt=None, disable_automatic_function_calling=False):
-        prompt = system_prompt or SYSTEM_PROMPT
         all_tools = list(sessions) + list(TOOL_REGISTRY.values())
-        kwargs = dict(system_instruction=prompt, tools=all_tools, temperature=0.5)
+        kwargs = dict(system_instruction=system_prompt, tools=all_tools, temperature=0.5)
         if disable_automatic_function_calling:
             kwargs["automatic_function_calling"] = types.AutomaticFunctionCallingConfig(disable=True)
         return self.client.aio.chats.create(
@@ -183,8 +161,8 @@ class Prometheus:
 
     async def sendMessage(self, query=None, sessionId=None, db=None, user=None):
         logger.info(f"Query: {query}")
-        history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
         PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
+        history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
         system_prompt = Prometheus.buildSystemPrompt(user.get("userId") if user else None, db)
 
         async with self.openMCPClients() as (clients, sessions):
@@ -198,8 +176,6 @@ class Prometheus:
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
         state = HarnessState()
         loop = LoopLogger(history)
-        cache = ResultCache(workspaceRoot=Config.PROMETHEUS.get("WORKSPACE_ROOT", "/tmp/prometheus-workspace"))
-        sandbox_id = None
 
         system_prompt = Prometheus.buildSystemPrompt(user.get("userId") if user else None, db, state=state)
 
@@ -214,7 +190,7 @@ class Prometheus:
 
                 while True:
                     chunks_text = ""
-                    function_calls = []
+                    function_calls: list = []
                     async for chunk in stream:
                         if hasattr(chunk, "text") and chunk.text:
                             chunks_text += chunk.text
@@ -235,27 +211,13 @@ class Prometheus:
                         tools_used.append(fc.name)
                         loop.emit_tool_call(fc.name, fc.args or {}, turnNumber=turn)
 
-                        if fc.name == "execute_code" and sandbox_id is None:
-                            try:
-                                sandbox_id = await SandboxManager.create(user.get("userId", 0), str(sessionId))
-                            except Exception as e:
-                                logger.warning(f"Sandbox creation failed: {e}")
-                                responses.append(
-                                    types.Part.from_function_response(
-                                        name=fc.name, response={"error": "Sandbox unavailable."}
-                                    )
-                                )
-                                continue
-
-                        result = await dispatchToolCall(
-                            fc, mcpClients, user=user, state=state, sandbox_id=sandbox_id, cache=cache
-                        )
+                        result = await dispatchToolCall(fc, mcpClients, user=user, state=state)
                         loop.emit_tool_result(fc.name, result, turnNumber=turn)
                         responses.append(types.Part.from_function_response(name=fc.name, response=result))
 
                     if state.has_changed():
                         responses.append(
-                            types.Part.from_text(f"\n[HARNESS STATE]\n{state.to_context()}\n[/HARNESS STATE]")
+                            types.Part.from_text(text=f"\n[HARNESS STATE]\n{state.to_context()}\n[/HARNESS STATE]")
                         )
                         state.reset_changed()
 
@@ -271,10 +233,4 @@ class Prometheus:
             if fullText:
                 PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", fullText)
         finally:
-            if sandbox_id:
-                try:
-                    await SandboxManager.checkpoint(sandbox_id, f"session-{sessionId}")
-                    await SandboxManager.destroy(sandbox_id)
-                except Exception as e:
-                    logger.warning(f"Sandbox cleanup failed: {e}")
             loop.flush()

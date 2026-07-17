@@ -25,25 +25,27 @@ class TestStateToolFunctions:
         sig = inspect.signature(get_state)
         params = list(sig.parameters.keys())
         assert "key" in params
-        assert "state" in params
+        # state goes in **_ for Gemini compatibility — not in explicit params
+        assert "state" not in params
 
     def test_set_state_signature(self):
         sig = inspect.signature(set_state)
         params = list(sig.parameters.keys())
         assert "key" in params
         assert "value" in params
-        assert "state" in params
+        assert "state" not in params
 
     def test_get_state_has_type_hints(self):
         hints = inspect.get_annotations(get_state)
         assert "key" in hints
-        assert "state" in hints
+        # state is injected via **_, no annotation needed
+        assert "state" not in hints
 
     def test_set_state_has_type_hints(self):
         hints = inspect.get_annotations(set_state)
         assert "key" in hints
         assert "value" in hints
-        assert "state" in hints
+        assert "state" not in hints
 
     def test_state_tools_in_registry(self):
         assert "get_state" in TOOL_REGISTRY

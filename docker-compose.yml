@@ -40,17 +40,5 @@ services:
     volumes:
       - .:/app
 
-  sandbox:
-    build:
-      context: .
-      dockerfile: Dockerfile.sandbox
-    restart: always
-    ports:
-      - "${SANDBOX_PORT:-8080}:8080"
-    volumes:
-      - workspace_data:/workspace
-
-
 volumes:
   db_data:
-  workspace_data:
