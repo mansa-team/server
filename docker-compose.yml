@@ -41,15 +41,12 @@ services:
       - .:/app
 
   sandbox:
-    image: e2b-dev/envd:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.sandbox
     restart: always
     ports:
       - "${SANDBOX_PORT:-8080}:8080"
-    environment:
-      - SANDBOX_HOST=${SANDBOX_HOST:-localhost}
-      - SANDBOX_PORT=8080
-      - SANDBOX_TEMPLATE=${SANDBOX_TEMPLATE:-python-data-science}
-      - WORKSPACE_ROOT=${WORKSPACE_ROOT:-/workspace}
     volumes:
       - workspace_data:/workspace
 

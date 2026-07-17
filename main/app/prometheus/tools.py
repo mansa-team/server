@@ -103,7 +103,7 @@ async def set_state(key: str, value: str, state: HarnessState | None = None, **_
 
 
 #
-# sandbox tools
+# sandbox
 #
 async def execute_code(code: str, timeout: int = 30, *, sandbox_id: str | None = None, cache=None, **kwargs) -> dict:
     """Execute Python code in an isolated sandbox. Use for quantitative analysis,
@@ -116,7 +116,6 @@ async def execute_code(code: str, timeout: int = 30, *, sandbox_id: str | None =
     if not sandbox_id:
         return {"error": "Sandbox not available. This feature requires a premium subscription."}
 
-    # Check cache first
     if cache:
         code_hash = cache.compute_hash(code)
         cached = cache.get(code_hash)
@@ -126,7 +125,6 @@ async def execute_code(code: str, timeout: int = 30, *, sandbox_id: str | None =
 
     result = await SandboxManager.execute(sandbox_id, code, timeout)
 
-    # Cache the result
     output = {
         "stdout": result.get("stdout", ""),
         "stderr": result.get("stderr", ""),
@@ -148,6 +146,20 @@ async def read_sandbox_file(path: str, *, sandbox_id: str | None = None, **kwarg
         return {"error": "Sandbox not available"}
     content = await SandboxManager.read_file(sandbox_id, path)
     return {"content": content}
+
+
+async def upload_to_sandbox(path: str, content: str, *, sandbox_id: str | None = None, **kwargs) -> dict:
+    """Upload a file to the sandbox filesystem. Use this to push data files
+    (CSV, JSON, etc.) into the sandbox before running analysis code.
+
+    Args:
+        path: Absolute path where the file will be written in the sandbox
+        content: File content as a string (encode binary as base64)
+    """
+    if not sandbox_id:
+        return {"error": "Sandbox not available"}
+    ok = await SandboxManager.upload_file(sandbox_id, path, content.encode("utf-8"))
+    return {"success": ok}
 
 
 async def check_cache(code_hash: str, *, cache=None, **kwargs) -> dict:
@@ -172,6 +184,7 @@ TOOL_REGISTRY: dict[str, Any] = {
     "set_state": set_state,
     "execute_code": execute_code,
     "read_sandbox_file": read_sandbox_file,
+    "upload_to_sandbox": upload_to_sandbox,
     "check_cache": check_cache,
 }
 
