@@ -12,6 +12,9 @@ from main.models.memory import UserMemory
 from main.app.prometheus.chat import PrometheusChatManager
 from main.app.prometheus.tools import TOOL_REGISTRY, dispatchToolCall
 from main.app.prometheus.state import HarnessState
+from main.app.prometheus.cache import ResultCache
+from main.app.prometheus.events import LoopLogger
+from main.app.prometheus.sandbox import SandboxManager
 
 _original_filter = _mcp._filter_to_supported_schema
 
@@ -196,54 +199,119 @@ class Prometheus:
 
         fullText = ""
         state = HarnessState()
+        loop = LoopLogger(db)
+        cache = ResultCache(workspaceRoot=Config.PROMETHEUS.get("WORKSPACE_ROOT", "/tmp/prometheus-workspace"))
+
+        # On-demand sandbox: created ONLY when LLM calls execute_code
+        is_premium = user and user.get("isPremium", False)
+        sandbox_id = None
+
         system_prompt = Prometheus.buildSystemPrompt(user.get("userId") if user else None, db, state=state)
 
-        async with self.openMCPClients() as (mcpClients, sessions):
-            chat = self.makeChat(
-                sessions, history, system_prompt=system_prompt, disable_automatic_function_calling=True
-            )
+        try:
+            loop.emit("turn_start", {"query": str(query)}, turnNumber=0)
 
-            try:
-                stream = await chat.send_message_stream(query)
+            async with self.openMCPClients() as (mcpClients, sessions):
+                chat = self.makeChat(
+                    sessions,
+                    history,
+                    system_prompt=system_prompt,
+                    disable_automatic_function_calling=True,
+                )
 
-                while True:
-                    functionCalls: list = []
+                try:
+                    stream = await chat.send_message_stream(query)
+                    turnNumber = 0
 
-                    async for chunk in stream:
-                        if hasattr(chunk, "text") and chunk.text:
-                            fullText += chunk.text
-                            yield {"type": "text", "text": chunk.text}
+                    while True:
+                        functionCalls: list = []
+                        toolsUsed: list = []
+                        turnStartMs = __import__("time").time() * 1000
 
-                        if hasattr(chunk, "function_calls") and chunk.function_calls:
-                            fcs = chunk.function_calls
-                            if isinstance(fcs, dict):
-                                functionCalls.extend(fcs.values())
-                            elif isinstance(fcs, (list, tuple)):
-                                functionCalls.extend(fcs)
+                        async for chunk in stream:
+                            if hasattr(chunk, "text") and chunk.text:
+                                fullText += chunk.text
+                                yield {"type": "text", "text": chunk.text}
 
-                    if not functionCalls:
-                        break
+                            if hasattr(chunk, "function_calls") and chunk.function_calls:
+                                fcs = chunk.function_calls
+                                if isinstance(fcs, dict):
+                                    functionCalls.extend(fcs.values())
+                                elif isinstance(fcs, (list, tuple)):
+                                    functionCalls.extend(fcs)
 
-                    functionResponses = []
-                    for fc in functionCalls:
-                        result = await dispatchToolCall(fc, mcpClients, user=user, state=state)
-                        functionResponses.append(
-                            types.Part.from_function_response(
-                                name=fc.name,
-                                response=result,
+                        if not functionCalls:
+                            break
+
+                        functionResponses = []
+                        for fc in functionCalls:
+                            toolsUsed.append(fc.name)
+                            toolStartMs = __import__("time").time() * 1000
+                            loop.emit_tool_call(fc.name, fc.args or {}, turnNumber=turnNumber)
+
+                            # On-demand sandbox creation: only when LLM calls execute_code
+                            if fc.name == "execute_code" and sandbox_id is None:
+                                if is_premium:
+                                    try:
+                                        sandbox_id = await SandboxManager.create(user.get("userId", 0), str(sessionId))
+                                        logger.info(f"On-demand sandbox created: {sandbox_id}")
+                                    except Exception as e:
+                                        logger.warning(f"Sandbox creation failed: {e}")
+                                        result = {"error": "Sandbox unavailable. Running in chat-only mode."}
+                                        functionResponses.append(
+                                            types.Part.from_function_response(name=fc.name, response=result)
+                                        )
+                                        continue
+                                else:
+                                    result = {"error": "Sandbox requires premium subscription. Upgrade to run code."}
+                                    functionResponses.append(
+                                        types.Part.from_function_response(name=fc.name, response=result)
+                                    )
+                                    continue
+
+                            result = await dispatchToolCall(
+                                fc,
+                                mcpClients,
+                                user=user,
+                                state=state,
+                                sandbox_id=sandbox_id,
+                                cache=cache,
                             )
-                        )
 
-                    # Inject state into context if changed
-                    if state.has_changed():
-                        stateContext = state.to_context()
-                        functionResponses.append(
-                            types.Part.from_text(text=f"\n[HARNESS STATE]\n{stateContext}\n[/HARNESS STATE]")
-                        )
-                        state.reset_changed()
+                            toolDuration = int(__import__("time").time() * 1000 - toolStartMs)
+                            loop.emit_tool_result(fc.name, result, turnNumber=turnNumber)
 
-                    stream = await chat.send_message_stream(functionResponses)
-            finally:
-                PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
-                if fullText:
-                    PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", fullText)
+                            functionResponses.append(types.Part.from_function_response(name=fc.name, response=result))
+
+                        # Inject state if changed
+                        if state.has_changed():
+                            stateContext = state.to_context()
+                            functionResponses.append(
+                                types.Part.from_text(f"\n[HARNESS STATE]\n{stateContext}\n[/HARNESS STATE]")
+                            )
+                            state.reset_changed()
+
+                        turnDuration = int(__import__("time").time() * 1000 - turnStartMs)
+                        loop.emit_turn_end(
+                            turnNumber=turnNumber,
+                            durationMs=turnDuration,
+                            toolsUsed=toolsUsed,
+                        )
+                        turnNumber += 1
+
+                        stream = await chat.send_message_stream(functionResponses)
+                finally:
+                    PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
+                    if fullText:
+                        PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", fullText)
+        finally:
+            # Cleanup: destroy sandbox, take checkpoint for premium users
+            if sandbox_id:
+                try:
+                    if is_premium:
+                        await SandboxManager.checkpoint(sandbox_id, f"session-{sessionId}")
+                        logger.info(f"Checkpoint taken for sandbox {sandbox_id}")
+                    await SandboxManager.destroy(sandbox_id)
+                except Exception as e:
+                    logger.warning(f"Sandbox cleanup failed: {e}")
+            loop.flush()
