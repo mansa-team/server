@@ -271,7 +271,7 @@ class Prometheus:
                 try:
                     files = await SandboxManager.syncWorkspace(sandbox_id)
                     if files:
-                        SandboxManager._saveBackup(user.get("userId", 0), files)
+                        await SandboxManager._saveBackup(user.get("userId", 0), files)
                         logger.info("Synced %d files for user %d", len(files), user.get("userId", 0))
                 except Exception as e:
                     logger.warning("Sandbox sync failed: %s", e)

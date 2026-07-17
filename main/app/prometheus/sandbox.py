@@ -52,10 +52,11 @@ class SandboxManager:
             if mapping:
                 client = _getClient()
                 try:
-                    sandbox = await client.get(mapping.sandboxId)
+                    sandbox_id_str: str = str(mapping.sandboxId)
+                    sandbox = await client.get(sandbox_id_str)
                     await sandbox.extend_ttl(SANDBOX_TTL_RENEW)
-                    logger.info("Reused sandbox %s for user %d", mapping.sandboxId, userId)
-                    return mapping.sandboxId
+                    logger.info("Reused sandbox %s for user %d", sandbox_id_str, userId)
+                    return sandbox_id_str
                 except Exception:
                     # Sandbox is dead — clean up stale mapping, fall through to create
                     logger.info("Sandbox %s dead for user %d, respawning", mapping.sandboxId, userId)
