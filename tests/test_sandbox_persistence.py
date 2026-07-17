@@ -1,5 +1,26 @@
 import pytest
+from unittest.mock import AsyncMock, MagicMock, patch
 from main.models.sandbox import PrometheusSandbox
+from main.app.prometheus.sandbox import SandboxManager
+
+
+def _mock_forgevm(mock_cls):
+    """Wire up mock forgevm AsyncClient that returns sandbox with all methods."""
+    mock_client = AsyncMock()
+    mock_sandbox = AsyncMock()
+    mock_sandbox.id = "sb-mock-123"
+    mock_sandbox.exec = AsyncMock(return_value=MagicMock(stdout="Hello\n", stderr=""))
+    mock_sandbox.read_file = AsyncMock(return_value="file contents")
+    mock_sandbox.write_file = AsyncMock()
+    mock_sandbox.list_files = AsyncMock(return_value=[{"path": "/workspace/data.csv", "size": 100, "is_dir": False}])
+    mock_sandbox.destroy = AsyncMock()
+    mock_sandbox.extend_ttl = AsyncMock()
+    mock_sandbox.glob_files = AsyncMock(return_value=[])
+    mock_client.spawn = AsyncMock(return_value=mock_sandbox)
+    mock_client.get = AsyncMock(return_value=mock_sandbox)
+    mock_client.close = AsyncMock()
+    mock_cls.return_value = mock_client
+    return mock_client, mock_sandbox
 
 
 class TestPrometheusSandboxModel:
@@ -34,3 +55,84 @@ class TestPrometheusSandboxModel:
         existing = dbSession.query(PrometheusSandbox).filter_by(userId=1).first()
         assert existing is not None
         assert existing.sandboxId == "sb-a"
+
+
+class TestSandboxPersistence:
+    @pytest.mark.asyncio
+    @patch("main.app.prometheus.sandbox._getClient")
+    async def test_get_or_create_creates_new_when_no_existing(self, mock_get_client, dbSession):
+        mock_client, mock_sandbox = _mock_forgevm(mock_get_client)
+        result = await SandboxManager.getOrCreate(userId=1, db=dbSession)
+        assert result == "sb-mock-123"
+        mock_client.spawn.assert_called_once()
+        # Verify mapping stored in DB
+        mapping = dbSession.query(PrometheusSandbox).filter_by(userId=1).first()
+        assert mapping is not None
+        assert mapping.sandboxId == "sb-mock-123"
+
+    @pytest.mark.asyncio
+    @patch("main.app.prometheus.sandbox._getClient")
+    async def test_get_or_create_reuses_existing(self, mock_get_client, dbSession):
+        # Pre-create a mapping
+        existing = PrometheusSandbox(userId=1, sandboxId="sb-existing", workspacePath="/data/workspaces/1")
+        dbSession.add(existing)
+        dbSession.commit()
+
+        mock_client, mock_sandbox = _mock_forgevm(mock_get_client)
+        result = await SandboxManager.getOrCreate(userId=1, db=dbSession)
+        # Sandbox alive → extend_ttl called, returns existing sandboxId
+        mock_sandbox.extend_ttl.assert_called_once()
+        assert result == "sb-existing"
+        mock_client.spawn.assert_not_called()
+
+    @pytest.mark.asyncio
+    @patch("main.app.prometheus.sandbox._getClient")
+    async def test_get_or_create_respawns_when_dead(self, mock_get_client, dbSession):
+        # Pre-create a mapping for a dead sandbox
+        existing = PrometheusSandbox(userId=1, sandboxId="sb-dead", workspacePath="/data/workspaces/1")
+        dbSession.add(existing)
+        dbSession.commit()
+
+        # client.get raises → sandbox is dead
+        mock_client = AsyncMock()
+        mock_client.get = AsyncMock(side_effect=Exception("sandbox not found"))
+        mock_sandbox = AsyncMock()
+        mock_sandbox.id = "sb-new-456"
+        mock_client.spawn = AsyncMock(return_value=mock_sandbox)
+        mock_client.close = AsyncMock()
+        mock_get_client.return_value = mock_client
+
+        result = await SandboxManager.getOrCreate(userId=1, db=dbSession)
+        assert result == "sb-new-456"
+        mock_client.spawn.assert_called_once()
+        # Verify mapping updated
+        mapping = dbSession.query(PrometheusSandbox).filter_by(userId=1).first()
+        assert mapping.sandboxId == "sb-new-456"
+
+    @pytest.mark.asyncio
+    @patch("main.app.prometheus.sandbox._getClient")
+    async def test_sync_workspace(self, mock_get_client, dbSession):
+        mock_client, mock_sandbox = _mock_forgevm(mock_get_client)
+        mock_sandbox.glob_files = AsyncMock(return_value=["/workspace/data.csv", "/workspace/main.py"])
+
+        def _read(p):
+            return f"content of {p}"
+
+        mock_sandbox.read_file = AsyncMock(side_effect=_read)
+
+        result = await SandboxManager.syncWorkspace("sb-mock-123")
+        assert isinstance(result, dict)
+        assert result["/workspace/data.csv"] == "content of /workspace/data.csv"
+        assert result["/workspace/main.py"] == "content of /workspace/main.py"
+        mock_sandbox.read_file.assert_any_call("/workspace/data.csv")
+        mock_sandbox.read_file.assert_any_call("/workspace/main.py")
+
+    @pytest.mark.asyncio
+    @patch("main.app.prometheus.sandbox._getClient")
+    async def test_restore_workspace(self, mock_get_client, dbSession):
+        mock_client, mock_sandbox = _mock_forgevm(mock_get_client)
+        files = {"/workspace/a.py": "print('a')", "/workspace/b.py": "print('b')"}
+        await SandboxManager.restoreWorkspace("sb-mock-123", files)
+        assert mock_sandbox.write_file.call_count == 2
+        mock_sandbox.write_file.assert_any_call("/workspace/a.py", "print('a')")
+        mock_sandbox.write_file.assert_any_call("/workspace/b.py", "print('b')")
