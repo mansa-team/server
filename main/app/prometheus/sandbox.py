@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 FORGEVM_URL = Config.PROMETHEUS.get("FORGEVM_URL", "http://forgevm:7423")
 WORKSPACE_ROOT = Config.PROMETHEUS.get("WORKSPACE_ROOT", "/data/workspaces")
-SANDBOX_IMAGE = Config.PROMETHEUS.get("SANDBOX_IMAGE", "python:3.12-slim")
+SANDBOX_IMAGE = Config.PROMETHEUS.get("SANDBOX_IMAGE", "sandbox-python:latest")
 SANDBOX_MEMORY_MB = Config.PROMETHEUS.get("SANDBOX_MEMORY_MB", 512)
 SANDBOX_CPUS = Config.PROMETHEUS.get("SANDBOX_CPUS", 1)
 SANDBOX_TTL_MINUTES = Config.PROMETHEUS.get("SANDBOX_TTL_MINUTES", 15)

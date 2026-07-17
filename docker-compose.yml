@@ -37,7 +37,7 @@ services:
       - DEBUG_MODE=TRUE
       - TZ=America/Sao_Paulo
       - FORGEVM_URL=http://forgevm:7423
-      - SANDBOX_IMAGE=python:3.12-slim
+      - SANDBOX_IMAGE=sandbox-python:latest
       - WORKSPACE_ROOT=/data/workspaces
 
     volumes:
