@@ -1,5 +1,5 @@
 from main.app.prometheus.memory import PrometheusMemory, findSimilarKey
-from main.models.memory import UserMemory
+from main.models.memory import PrometheusMemory
 
 
 USER_ID = 1
@@ -10,11 +10,11 @@ def _create_memory(db, key="petrobras preferencia", value="original value"):
 
 
 def _count_memories(db):
-    return db.query(UserMemory).filter(UserMemory.userId == USER_ID, UserMemory.archivedAt.is_(None)).count()
+    return db.query(PrometheusMemory).filter(PrometheusMemory.userId == USER_ID, PrometheusMemory.archivedAt.is_(None)).count()
 
 
 def _get_memory(db):
-    return db.query(UserMemory).filter(UserMemory.userId == USER_ID, UserMemory.archivedAt.is_(None)).first()
+    return db.query(PrometheusMemory).filter(PrometheusMemory.userId == USER_ID, PrometheusMemory.archivedAt.is_(None)).first()
 
 
 class TestExactSameKeyUpdates:

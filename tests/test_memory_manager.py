@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 from datetime import datetime, timezone
 from main.app.prometheus.memory import PrometheusMemory as MemoryManager, MEMORY_LIMIT_BASIC, MEMORY_LIMIT_EXTENDED
-from main.models.memory import UserMemory
+from main.models.memory import PrometheusMemory
 
 
 class TestGetMemoryLimit:
@@ -86,7 +86,7 @@ class TestCountMemories:
     def test_excludes_archived(self, dbSession):
         MemoryManager.upsertMemory(dbSession, 1, "k1", "v1")
         MemoryManager.upsertMemory(dbSession, 1, "k2", "v2")
-        mem = dbSession.query(UserMemory).filter(UserMemory.memoryKey == "k1").first()
+        mem = dbSession.query(PrometheusMemory).filter(PrometheusMemory.memoryKey == "k1").first()
         mem.archivedAt = datetime.now(timezone.utc)
         dbSession.commit()
         assert MemoryManager.countMemories(dbSession, 1) == 1
@@ -115,7 +115,7 @@ class TestGetUserMemories:
     def test_excludes_archived(self, dbSession):
         MemoryManager.upsertMemory(dbSession, 1, "k1", "v1")
         MemoryManager.upsertMemory(dbSession, 1, "k2", "v2")
-        mem = dbSession.query(UserMemory).filter(UserMemory.memoryKey == "k1").first()
+        mem = dbSession.query(PrometheusMemory).filter(PrometheusMemory.memoryKey == "k1").first()
         mem.archivedAt = datetime.now(timezone.utc)
         dbSession.commit()
         result = MemoryManager.getUserMemories(dbSession, 1)

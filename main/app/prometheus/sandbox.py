@@ -25,6 +25,8 @@ def getClient() -> AsyncClient:
 
 def hostPath(userId: int, sandboxPath: str) -> Path:
     rel = sandboxPath.lstrip("/")
+    if rel == "workspace":
+        return Path(WORKSPACE_ROOT) / str(userId)
     if rel.startswith("workspace/"):
         rel = rel[len("workspace/") :]
     return Path(WORKSPACE_ROOT) / str(userId) / rel

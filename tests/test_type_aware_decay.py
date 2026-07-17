@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from pytz import timezone
 
 from main.service.prometheus_service import memoryMaintenance, DECAY_FACTORS, DEFAULT_DECAY_FACTOR
-from main.models.memory import UserMemory
+from main.models.memory import PrometheusMemory
 
 BRT = timezone("America/Sao_Paulo")
 
@@ -11,7 +11,7 @@ BRT = timezone("America/Sao_Paulo")
 def _create(dbSession, userId, key, memoryType, baseScore=1.0, daysOld=30):
     now = datetime.now(BRT)
     lastAccessed = now - timedelta(days=daysOld)
-    mem = UserMemory(
+    mem = PrometheusMemory(
         userId=userId,
         memoryKey=key,
         memoryValue=f"value_{key}",

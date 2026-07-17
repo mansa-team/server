@@ -8,7 +8,7 @@ from google.genai import types
 import google.genai._mcp_utils as _mcp
 
 from config import Config
-from main.models.memory import UserMemory
+from main.models.memory import PrometheusMemory
 from main.app.prometheus.chat import PrometheusChatManager
 from main.app.prometheus.events import LoopLogger
 from main.app.prometheus.sandbox import SandboxManager
@@ -143,10 +143,10 @@ class Prometheus:
         memoryBlock = ""
         if userId and db:
             memories = (
-                db.query(UserMemory)
-                .filter(UserMemory.userId == userId)
-                .filter(UserMemory.archivedAt.is_(None))
-                .order_by(UserMemory.baseScore.desc())
+                db.query(PrometheusMemory)
+                .filter(PrometheusMemory.userId == userId)
+                .filter(PrometheusMemory.archivedAt.is_(None))
+                .order_by(PrometheusMemory.baseScore.desc())
                 .limit(10)
                 .all()
             )
