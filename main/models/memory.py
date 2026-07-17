@@ -4,7 +4,7 @@ from main.models.base import Base
 from main.models.types import VectorType
 
 
-class UserMemory(Base):
+class PrometheusMemory(Base):
     __tablename__ = "prometheus_memories"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -23,7 +23,7 @@ class UserMemory(Base):
     archivedAt = Column(DateTime, nullable=True)
 
     user = relationship(
-        "User", backref="memories", foreign_keys=[userId], primaryjoin="UserMemory.userId == User.userId"
+        "User", backref="memories", foreign_keys=[userId], primaryjoin="PrometheusMemory.userId == User.userId"
     )
 
     __table_args__ = (

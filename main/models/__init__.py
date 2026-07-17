@@ -3,5 +3,6 @@ from main.models.user_session import UserSession
 from main.models.stocksapi_key import StocksAPIKey
 from main.models.prometheus import PrometheusSession
 from main.models.sandbox import PrometheusSandbox
+from main.models.memory import PrometheusMemory
 
-__all__ = ["User", "UserSession", "StocksAPIKey", "PrometheusSession", "PrometheusSandbox"]
+__all__ = ["User", "UserSession", "StocksAPIKey", "PrometheusSession", "PrometheusSandbox", "PrometheusMemory"]

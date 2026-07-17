@@ -7,7 +7,7 @@ from pytz import timezone
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 
-from main.models.memory import UserMemory
+from main.models.memory import PrometheusMemory
 from main.utils.roles import Permission, Roles
 from main.app.prometheus.vector import batchCosineSimilarity, contentHash, getRelevanceScore, embed
 
@@ -24,8 +24,8 @@ def normalizeKey(key: str) -> set[str]:
     return set(normalized.split())
 
 
-def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8) -> UserMemory | None:
-    existing = db.query(UserMemory).filter(UserMemory.userId == userId, UserMemory.archivedAt.is_(None)).all()
+def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8) -> PrometheusMemory | None:
+    existing = db.query(PrometheusMemory).filter(PrometheusMemory.userId == userId, PrometheusMemory.archivedAt.is_(None)).all()
     newTokens = normalizeKey(newKey)
 
     for m in existing:
@@ -53,9 +53,9 @@ class PrometheusMemory:
     @classmethod
     def countMemories(cls, db: Session, userId: int) -> int:
         return (
-            db.query(func.count(UserMemory.id))
-            .filter(UserMemory.userId == userId)
-            .filter(UserMemory.archivedAt.is_(None))
+            db.query(func.count(PrometheusMemory.id))
+            .filter(PrometheusMemory.userId == userId)
+            .filter(PrometheusMemory.archivedAt.is_(None))
             .scalar()
         )
 
@@ -71,7 +71,7 @@ class PrometheusMemory:
         embedding=None,
         userRoles: list[str] | None = None,
     ) -> dict:
-        existing = db.query(UserMemory).filter(UserMemory.userId == userId, UserMemory.memoryKey == key).first()
+        existing = db.query(PrometheusMemory).filter(PrometheusMemory.userId == userId, PrometheusMemory.memoryKey == key).first()
 
         if existing:
             newHash = contentHash(value)
@@ -114,7 +114,7 @@ class PrometheusMemory:
             if current >= limit:
                 return {"status": "limit_reached", "limit": limit, "current": current}
 
-        memory = UserMemory(
+        memory = PrometheusMemory(
             userId=userId,
             memoryKey=key,
             memoryValue=value,
@@ -138,10 +138,10 @@ class PrometheusMemory:
         limit: int = 10,
         memoryType: str | None = None,
     ) -> list[dict]:
-        queryFilter = db.query(UserMemory).filter(UserMemory.userId == userId).filter(UserMemory.archivedAt.is_(None))
+        queryFilter = db.query(PrometheusMemory).filter(PrometheusMemory.userId == userId).filter(PrometheusMemory.archivedAt.is_(None))
 
         if memoryType:
-            queryFilter = queryFilter.filter(UserMemory.memoryType == memoryType)
+            queryFilter = queryFilter.filter(PrometheusMemory.memoryType == memoryType)
 
         memories = queryFilter.all()
         if not memories:
@@ -208,10 +208,10 @@ class PrometheusMemory:
     @classmethod
     def getUserMemories(cls, db: Session, userId: int, limit: int = 50, offset: int = 0) -> list[dict]:
         memories = (
-            db.query(UserMemory)
-            .filter(UserMemory.userId == userId)
-            .filter(UserMemory.archivedAt.is_(None))
-            .order_by(UserMemory.baseScore.desc())
+            db.query(PrometheusMemory)
+            .filter(PrometheusMemory.userId == userId)
+            .filter(PrometheusMemory.archivedAt.is_(None))
+            .order_by(PrometheusMemory.baseScore.desc())
             .offset(offset)
             .limit(limit)
             .all()
@@ -232,7 +232,7 @@ class PrometheusMemory:
 
     @classmethod
     def deleteMemory(cls, db: Session, userId: int, memoryId: int) -> bool:
-        memory = db.query(UserMemory).filter(UserMemory.id == memoryId, UserMemory.userId == userId).first()
+        memory = db.query(PrometheusMemory).filter(PrometheusMemory.id == memoryId, PrometheusMemory.userId == userId).first()
 
         if not memory:
             return False
