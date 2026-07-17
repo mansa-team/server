@@ -3,6 +3,7 @@ from typing import Any
 
 from config import SessionLocal
 from main.app.prometheus.memory import PrometheusMemory
+from main.app.prometheus.sandbox import SandboxManager
 from main.app.prometheus.state import HarnessState
 from main.app.prometheus.vector import embed
 
@@ -101,15 +102,88 @@ async def set_state(key: str, value: str, state: HarnessState | None = None, **_
     return {"status": "ok", "key": key}
 
 
+#
+# sandbox tools
+#
+async def execute_code(code: str, timeout: int = 30, *, sandbox_id: str | None = None, cache=None, **kwargs) -> dict:
+    """Execute Python code in an isolated sandbox. Use for quantitative analysis,
+    statistical models, custom charts, and data transformations.
+
+    Args:
+        code: Python code to execute
+        timeout: Maximum execution time in seconds (default 30)
+    """
+    if not sandbox_id:
+        return {"error": "Sandbox not available. This feature requires a premium subscription."}
+
+    # Check cache first
+    if cache:
+        code_hash = cache.compute_hash(code)
+        cached = cache.get(code_hash)
+        if cached:
+            cached["cached"] = True
+            return cached
+
+    result = await SandboxManager.execute(sandbox_id, code, timeout)
+
+    # Cache the result
+    output = {
+        "stdout": result.get("stdout", ""),
+        "stderr": result.get("stderr", ""),
+    }
+    if cache:
+        code_hash = cache.compute_hash(code)
+        cache.set(code_hash, output)
+
+    return output
+
+
+async def read_sandbox_file(path: str, *, sandbox_id: str | None = None, **kwargs) -> dict:
+    """Read a file from the sandbox filesystem.
+
+    Args:
+        path: Absolute path to the file in the sandbox
+    """
+    if not sandbox_id:
+        return {"error": "Sandbox not available"}
+    content = await SandboxManager.read_file(sandbox_id, path)
+    return {"content": content}
+
+
+async def check_cache(code_hash: str, *, cache=None, **kwargs) -> dict:
+    """Check if a computed result exists in the cache. Use before executing
+    expensive code to avoid redundant computation.
+
+    Args:
+        code_hash: SHA256 hash of the code to check
+    """
+    if not cache:
+        return {"error": "Cache not available"}
+    cached = cache.get(code_hash)
+    if cached:
+        return {"hit": True, "result": cached}
+    return {"hit": False}
+
+
 TOOL_REGISTRY: dict[str, Any] = {
     "search_memory": search_memory,
     "save_memory": save_memory,
     "get_state": get_state,
     "set_state": set_state,
+    "execute_code": execute_code,
+    "read_sandbox_file": read_sandbox_file,
+    "check_cache": check_cache,
 }
 
 
-async def dispatchToolCall(functionCall, mcpClients, user=None, state=None) -> dict:
+async def dispatchToolCall(
+    functionCall,
+    mcpClients,
+    user=None,
+    state=None,
+    sandbox_id: str | None = None,
+    cache=None,
+) -> dict:
     name = functionCall.name
     args = dict(functionCall.args or {})
     logger.info(f"Executing tool call: {name}({args})")
@@ -118,6 +192,8 @@ async def dispatchToolCall(functionCall, mcpClients, user=None, state=None) -> d
         fn = TOOL_REGISTRY[name]
         args["user"] = user
         args["state"] = state
+        args["sandbox_id"] = sandbox_id
+        args["cache"] = cache
         return await fn(**args)
 
     for client in mcpClients.values():

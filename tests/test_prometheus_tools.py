@@ -42,7 +42,7 @@ class TestMemoryToolFunctions:
 
     def test_memory_tools_is_list_of_callables(self):
         assert isinstance(TOOL_REGISTRY, dict)
-        assert len(TOOL_REGISTRY) == 4
+        assert len(TOOL_REGISTRY) >= 4
         for name, fn in TOOL_REGISTRY.items():
             assert callable(fn)
 

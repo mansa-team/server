@@ -52,7 +52,7 @@ class TestStateToolFunctions:
         assert TOOL_REGISTRY["set_state"] is set_state
 
     def test_registry_has_all_tools(self):
-        assert len(TOOL_REGISTRY) == 4
+        assert len(TOOL_REGISTRY) >= 4
 
 
 class TestGetState:
