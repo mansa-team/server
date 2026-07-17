@@ -231,11 +231,11 @@ class Prometheus:
                         tools_used.append(fc.name)
                         loop.emit_tool_call(fc.name, fc.args or {}, turnNumber=turn)
 
-                        # On-demand sandbox creation
+                        # On-demand sandbox creation (persistent lifecycle)
                         if fc.name == "execute_code" and sandbox_id is None:
                             try:
-                                sandbox_id = await SandboxManager.create(user.get("userId", 0))
-                                logger.info("On-demand sandbox created: %s", sandbox_id)
+                                sandbox_id = await SandboxManager.getOrCreate(user.get("userId", 0), db)
+                                logger.info("Sandbox ready: %s", sandbox_id)
                             except Exception as e:
                                 logger.warning("Sandbox creation failed: %s", e)
                                 responses.append(
@@ -269,7 +269,10 @@ class Prometheus:
         finally:
             if sandbox_id:
                 try:
-                    await SandboxManager.destroy(sandbox_id)
+                    files = await SandboxManager.syncWorkspace(sandbox_id)
+                    if files:
+                        SandboxManager._saveBackup(user.get("userId", 0), files)
+                        logger.info("Synced %d files for user %d", len(files), user.get("userId", 0))
                 except Exception as e:
-                    logger.warning("Sandbox cleanup failed: %s", e)
+                    logger.warning("Sandbox sync failed: %s", e)
             loop.flush()
