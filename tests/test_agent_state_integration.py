@@ -46,7 +46,8 @@ class TestBuildSystemPromptState:
 
 class TestSendMessageStateIntegration:
     @pytest.mark.anyio
-    async def test_send_message_creates_harness_state(self):
+    @patch("main.app.prometheus.agent.genai.Client")
+    async def test_send_message_creates_harness_state(self, mock_client_cls):
         """sendMessage should create a HarnessState and pass it to buildSystemPrompt."""
         prometheus = Prometheus()
         prometheus.client = MagicMock()
@@ -79,7 +80,8 @@ class TestSendMessageStateIntegration:
 
 class TestStreamMessageStateIntegration:
     @pytest.mark.anyio
-    async def test_stream_message_creates_harness_state(self):
+    @patch("main.app.prometheus.agent.genai.Client")
+    async def test_stream_message_creates_harness_state(self, mock_client_cls):
         """streamMessage should create a HarnessState and pass it to buildSystemPrompt."""
         prometheus = Prometheus()
         prometheus.client = MagicMock()
@@ -118,7 +120,8 @@ class TestStreamMessageStateIntegration:
                     assert isinstance(call_kwargs.kwargs["state"], HarnessState)
 
     @pytest.mark.anyio
-    async def test_stream_message_passes_state_to_dispatch(self):
+    @patch("main.app.prometheus.agent.genai.Client")
+    async def test_stream_message_passes_state_to_dispatch(self, mock_client_cls):
         """streamMessage should pass state to dispatchToolCall."""
         prometheus = Prometheus()
         prometheus.client = MagicMock()
