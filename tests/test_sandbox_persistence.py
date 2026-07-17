@@ -136,3 +136,47 @@ class TestSandboxPersistence:
         assert mock_sandbox.write_file.call_count == 2
         mock_sandbox.write_file.assert_any_call("/workspace/a.py", "print('a')")
         mock_sandbox.write_file.assert_any_call("/workspace/b.py", "print('b')")
+
+
+class TestSandboxCleanup:
+    @pytest.mark.asyncio
+    @patch("main.app.prometheus.sandbox_cleanup._getClient")
+    async def test_cleanup_removes_dead_mappings(self, mock_get_client, dbSession):
+        """Mappings for dead sandboxes are removed."""
+        from main.app.prometheus.sandbox_cleanup import cleanup_expired_sandboxes
+
+        dead = PrometheusSandbox(userId=99, sandboxId="sb-dead-old", workspacePath="/data/workspaces/99")
+        dbSession.add(dead)
+        dbSession.commit()
+
+        mock_client = AsyncMock()
+        mock_client.get = AsyncMock(side_effect=Exception("not found"))
+        mock_client.close = AsyncMock()
+        mock_get_client.return_value = mock_client
+
+        cleaned = await cleanup_expired_sandboxes(db=dbSession)
+        assert cleaned >= 1
+        remaining = dbSession.query(PrometheusSandbox).filter_by(userId=99).first()
+        assert remaining is None
+
+    @pytest.mark.asyncio
+    @patch("main.app.prometheus.sandbox_cleanup._getClient")
+    async def test_cleanup_keeps_alive_sandboxes(self, mock_get_client, dbSession):
+        """Mappings for alive sandboxes are kept."""
+        from main.app.prometheus.sandbox_cleanup import cleanup_expired_sandboxes
+
+        alive = PrometheusSandbox(userId=1, sandboxId="sb-alive", workspacePath="/data/workspaces/1")
+        dbSession.add(alive)
+        dbSession.commit()
+
+        mock_client = AsyncMock()
+        mock_sandbox = AsyncMock()
+        mock_sandbox.extend_ttl = AsyncMock()
+        mock_client.get = AsyncMock(return_value=mock_sandbox)
+        mock_client.close = AsyncMock()
+        mock_get_client.return_value = mock_client
+
+        cleaned = await cleanup_expired_sandboxes(db=dbSession)
+        assert cleaned == 0
+        remaining = dbSession.query(PrometheusSandbox).filter_by(userId=1).first()
+        assert remaining is not None
