@@ -1,0 +1,24 @@
+server:
+  host: "0.0.0.0"
+  port: 7423
+
+providers:
+  default: "docker"
+  docker:
+    enabled: true
+    runtime: "runc"
+    network_mode: "none"
+    read_only_rootfs: false
+
+defaults:
+  ttl: "30m"
+  image: "python:3.12-slim"
+  memory_mb: 512
+  vcpus: 1
+
+auth:
+  enabled: false
+
+logging:
+  level: "info"
+  format: "json"

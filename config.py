@@ -82,6 +82,12 @@ class PrometheusSettings(BaseMansaSettings):
     GEMINI_API_KEY: str = Field(default="", validation_alias=AliasChoices("GEMINI_API.KEY"))
     SEARXNG_HOST: str = Field(default="localhost", validation_alias=AliasChoices("SEARXNG_HOST"))
     SEARXNG_PORT: int = Field(default=8888, validation_alias=AliasChoices("SEARXNG_PORT"))
+    FORGEVM_URL: str = Field(default="http://forgevm:7423", validation_alias=AliasChoices("FORGEVM_URL"))
+    WORKSPACE_ROOT: str = Field(default="/data/workspaces", validation_alias=AliasChoices("WORKSPACE_ROOT"))
+    SANDBOX_IMAGE: str = Field(default="python:3.12-slim", validation_alias=AliasChoices("SANDBOX_IMAGE"))
+    SANDBOX_MEMORY_MB: int = Field(default=2048, validation_alias=AliasChoices("SANDBOX_MEMORY_MB"))
+    SANDBOX_CPUS: int = Field(default=2, validation_alias=AliasChoices("SANDBOX_CPUS"))
+    SANDBOX_TTL_MINUTES: int = Field(default=30, validation_alias=AliasChoices("SANDBOX_TTL_MINUTES"))
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     def __getitem__(self, item):

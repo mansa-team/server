@@ -1,0 +1,12 @@
+FROM golang:1.25-bookworm AS builder
+RUN git clone --depth 1 https://github.com/DohaerisAI/forgevm.git /forgevm
+WORKDIR /forgevm
+RUN go build -o /forgevm-bin ./cmd/forgevm && go build -o /forgevm-agent-bin ./cmd/forgevm-agent
+
+FROM debian:bookworm-slim
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
+COPY --from=builder /forgevm-bin /usr/local/bin/forgevm
+COPY --from=builder /forgevm-agent-bin /bin/forgevm-agent
+EXPOSE 7423
+ENTRYPOINT ["forgevm"]
+CMD ["serve"]

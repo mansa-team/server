@@ -3,6 +3,7 @@ from typing import Any
 
 from config import SessionLocal
 from main.app.prometheus.memory import PrometheusMemory
+from main.app.prometheus.sandbox import SandboxManager
 from main.app.prometheus.vector import embed
 
 logger = logging.getLogger(__name__)
@@ -103,12 +104,78 @@ async def set_state(key: str, value: str, **_) -> dict:
     state.set(key, value)
     return {"status": "ok", "key": key}
 
+#
+# sandbox
+#
+async def execute_code(code: str, timeout: int = 30, **_) -> dict:
+    """Execute Python code in an isolated sandbox. Use for quantitative analysis,
+    statistical models, custom charts, and data transformations.
+
+    Args:
+        code: Python code to execute
+        timeout: Maximum execution time in seconds (default 30)
+    """
+    sandbox_id = _.get("sandbox_id")
+    if not sandbox_id:
+        return {"error": "Sandbox not available. This feature requires a premium subscription."}
+
+    result = await SandboxManager.execute(sandbox_id, code, timeout=timeout)
+    return {
+        "stdout": result.get("stdout", ""),
+        "stderr": result.get("stderr", ""),
+    }
+
+
+async def read_file(path: str, **_) -> dict:
+    """Read a file from the sandbox filesystem.
+
+    Args:
+        path: Absolute path to the file in the sandbox (e.g., /workspace/results.json)
+    """
+    sandbox_id = _.get("sandbox_id")
+    if not sandbox_id:
+        return {"error": "Sandbox not available"}
+    content = await SandboxManager.read_file(sandbox_id, path)
+    return {"content": content}
+
+
+async def write_file(path: str, content: str, **_) -> dict:
+    """Write a file to the sandbox filesystem. Use this to push data files
+    (CSV, JSON, scripts) into the sandbox before running analysis code.
+
+    Args:
+        path: Absolute path where the file will be written (e.g., /workspace/analyze.py)
+        content: File content as a string
+    """
+    sandbox_id = _.get("sandbox_id")
+    if not sandbox_id:
+        return {"error": "Sandbox not available"}
+    ok = await SandboxManager.write_file(sandbox_id, path, content)
+    return {"success": ok}
+
+
+async def list_files(path: str = "/workspace", **_) -> dict:
+    """List files in a sandbox directory. Use to explore the workspace
+    and find previously created files.
+
+    Args:
+        path: Directory path to list (default: /workspace)
+    """
+    sandbox_id = _.get("sandbox_id")
+    if not sandbox_id:
+        return {"error": "Sandbox not available"}
+    return await SandboxManager.list_files(sandbox_id, path)
+
 
 TOOL_REGISTRY: dict[str, Any] = {
     "search_memory": search_memory,
     "save_memory": save_memory,
     "get_state": get_state,
     "set_state": set_state,
+    "execute_code": execute_code,
+    "read_file": read_file,
+    "write_file": write_file,
+    "list_files": list_files,
 }
 
 
@@ -117,6 +184,7 @@ async def dispatchToolCall(
     mcpClients,
     user=None,
     state=None,
+    sandbox_id: str | None = None,
 ) -> dict:
     name = functionCall.name
     args = dict(functionCall.args or {})
@@ -126,6 +194,7 @@ async def dispatchToolCall(
         fn = TOOL_REGISTRY[name]
         args["user"] = user
         args["state"] = state
+        args["sandbox_id"] = sandbox_id
         return await fn(**args)
 
     for client in mcpClients.values():

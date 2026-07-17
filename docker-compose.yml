@@ -36,9 +36,29 @@ services:
     environment:
       - DEBUG_MODE=TRUE
       - TZ=America/Sao_Paulo
+      - FORGEVM_URL=http://forgevm:7423
+      - SANDBOX_IMAGE=python:3.12-slim
 
     volumes:
       - .:/app
 
+  forgevm:
+    build:
+      context: .
+      dockerfile: Dockerfile.forgevm
+    restart: always
+    ports:
+      - "7423:7423"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - forgevm-data:/data
+      - workspaces:/data/workspaces
+      - ./forgevm.yaml:/forgevm.yaml
+    environment:
+      - FORGEVM_DATABASE_PATH=/data/forgevm.db
+      - FORGEVM_LOGGING_LEVEL=info
+
 volumes:
   db_data:
+  forgevm-data:
+  workspaces:

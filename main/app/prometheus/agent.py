@@ -11,6 +11,7 @@ from config import Config
 from main.models.memory import UserMemory
 from main.app.prometheus.chat import PrometheusChatManager
 from main.app.prometheus.events import LoopLogger
+from main.app.prometheus.sandbox import SandboxManager
 from main.app.prometheus.state import HarnessState
 from main.app.prometheus.tools import TOOL_REGISTRY, dispatchToolCall
 
@@ -28,7 +29,7 @@ _mcp._filter_to_supported_schema = _safe_filter
 logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """
-You're a investments assistant for Mansa, a Brazilian stock platform.
+You're Prometheus, a investments assistant for Mansa, a Brazilian stock platform.
 
 When presenting data, use rich UI tags to make responses visual and scannable.
 
@@ -112,6 +113,24 @@ Guidelines:
 After completing a complex analysis or when you learn something important about the user,
 call save_memory to persist it across sessions. This is separate from the harness state —
 state is temporary (this request only), memory is permanent (all sessions).
+
+## Code Sandbox (On-Demand)
+You have access to an isolated Python sandbox for quantitative analysis.
+The sandbox is created automatically when you first call execute_code.
+
+Use execute_code for: statistical analysis, DCF models, correlation matrices,
+Monte Carlo simulations, custom charts, data transformations.
+
+Use write_file to push data files (CSV, JSON) into the sandbox before running code.
+Use read_file to read results from the sandbox.
+Use list_files to explore the workspace.
+
+Access stock data via MCP tools (get_fundamental, get_historical, get_cotations)
+before running sandbox code — pass the data as variables in your code.
+
+Libraries available: pandas, numpy, scipy, plotly, matplotlib, requests.
+Save charts to /workspace/ as .html (plotly) or .png (matplotlib).
+Always print() key findings so they appear in stdout.
 """
 
 
@@ -176,6 +195,7 @@ class Prometheus:
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
         state = HarnessState()
         loop = LoopLogger(history)
+        sandbox_id = None
 
         system_prompt = Prometheus.buildSystemPrompt(user.get("userId") if user else None, db, state=state)
 
@@ -211,7 +231,21 @@ class Prometheus:
                         tools_used.append(fc.name)
                         loop.emit_tool_call(fc.name, fc.args or {}, turnNumber=turn)
 
-                        result = await dispatchToolCall(fc, mcpClients, user=user, state=state)
+                        # On-demand sandbox creation
+                        if fc.name == "execute_code" and sandbox_id is None:
+                            try:
+                                sandbox_id = await SandboxManager.create(user.get("userId", 0))
+                                logger.info("On-demand sandbox created: %s", sandbox_id)
+                            except Exception as e:
+                                logger.warning("Sandbox creation failed: %s", e)
+                                responses.append(
+                                    types.Part.from_function_response(
+                                        name=fc.name, response={"error": "Sandbox unavailable."}
+                                    )
+                                )
+                                continue
+
+                        result = await dispatchToolCall(fc, mcpClients, user=user, state=state, sandbox_id=sandbox_id)
                         loop.emit_tool_result(fc.name, result, turnNumber=turn)
                         responses.append(types.Part.from_function_response(name=fc.name, response=result))
 
@@ -233,4 +267,9 @@ class Prometheus:
             if fullText:
                 PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", fullText)
         finally:
+            if sandbox_id:
+                try:
+                    await SandboxManager.destroy(sandbox_id)
+                except Exception as e:
+                    logger.warning("Sandbox cleanup failed: %s", e)
             loop.flush()

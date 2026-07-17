@@ -124,7 +124,7 @@ class TestDispatchRoutesMemoryTools:
         with patch.dict(TOOL_REGISTRY, {"search_memory": mock_fn}):
             result = await dispatchToolCall(mock_fc, {}, user={"userId": 1})
 
-        mock_fn.assert_called_once_with(query="PETR4", user={"userId": 1}, state=None)
+        mock_fn.assert_called_once_with(query="PETR4", user={"userId": 1}, state=None, sandbox_id=None)
         assert result == {"memories": []}
 
     @pytest.mark.anyio
@@ -139,7 +139,9 @@ class TestDispatchRoutesMemoryTools:
         with patch.dict(TOOL_REGISTRY, {"save_memory": mock_fn}):
             result = await dispatchToolCall(mock_fc, {}, user={"userId": 1})
 
-        mock_fn.assert_called_once_with(key="ticker", value="PETR4", type="preference", user={"userId": 1}, state=None)
+        mock_fn.assert_called_once_with(
+            key="ticker", value="PETR4", type="preference", user={"userId": 1}, state=None, sandbox_id=None
+        )
         assert result["status"] == "created"
 
     @pytest.mark.anyio
