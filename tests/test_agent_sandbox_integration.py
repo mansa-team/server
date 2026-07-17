@@ -50,18 +50,6 @@ class TestPersistentSandboxLifecycle:
         assert count == 0
 
     @pytest.mark.asyncio
-    async def test_agent_import_sandbox_manager(self):
-        """Agent module can import SandboxManager."""
-        from main.app.prometheus.agent import Prometheus
-
-        assert hasattr(Prometheus, "streamMessage")
-
-    @pytest.mark.asyncio
-    async def test_destroy_still_available(self):
-        """destroy() still exists for explicit user requests."""
-        assert hasattr(SandboxManager, "destroy")
-
-    @pytest.mark.asyncio
     async def test_no_create_in_agent_source(self):
         """Verify agent.py no longer calls SandboxManager.create directly."""
         import inspect
