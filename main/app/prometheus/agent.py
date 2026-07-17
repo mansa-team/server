@@ -219,7 +219,7 @@ class Prometheus:
 
         fullText = ""
         state = HarnessState()
-        loop = LoopLogger(db)
+        loop = LoopLogger(history)
         cache = ResultCache(workspaceRoot=Config.PROMETHEUS.get("WORKSPACE_ROOT", "/tmp/prometheus-workspace"))
 
         # On-demand sandbox: created ONLY when LLM calls execute_code
@@ -229,8 +229,6 @@ class Prometheus:
         system_prompt = Prometheus.buildSystemPrompt(user.get("userId") if user else None, db, state=state)
 
         try:
-            loop.emit("turn_start", {"query": str(query)}, turnNumber=0)
-
             async with self.openMCPClients() as (mcpClients, sessions):
                 chat = self.makeChat(
                     sessions,

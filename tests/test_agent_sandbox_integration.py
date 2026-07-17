@@ -85,7 +85,7 @@ class TestAgentSandboxIntegration:
             async for chunk in p.streamMessage(query="hi", sessionId="s1", db=db, user=user):
                 chunks.append(chunk)
 
-            MockLoop.assert_called_once_with(db)
+            MockLoop.assert_called_once_with([])
             MockCache.assert_called_once()
             mock_loop.flush.assert_called_once()
 
