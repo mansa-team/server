@@ -1,0 +1,13 @@
+FROM python:3.11-slim
+
+RUN pip install --no-cache-dir \
+    pandas numpy scipy scikit-learn \
+    plotly matplotlib seaborn \
+    statsmodels \
+    requests httpx \
+    openpyxl xlrd \
+    beautifulsoup4 \
+    sympy
+
+RUN mkdir -p /tmp
+WORKDIR /workspace
