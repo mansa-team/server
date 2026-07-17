@@ -1,6 +1,6 @@
 import logging
 
-from main.app.prometheus.sandbox import _getClient
+from main.app.prometheus.sandbox import getClient
 from main.models.sandbox import PrometheusSandbox
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ async def cleanup_expired_sandboxes(db=None):
         mappings = db.query(PrometheusSandbox).all()
         cleaned = 0
         for mapping in mappings:
-            client = _getClient()
+            client = getClient()
             try:
                 await client.get(mapping.sandboxId)
             except Exception:

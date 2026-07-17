@@ -178,19 +178,6 @@ class Prometheus:
             model="gemini-flash-lite-latest", history=history, config=types.GenerateContentConfig(**kwargs)
         )
 
-    async def sendMessage(self, query=None, sessionId=None, db=None, user=None):
-        logger.info(f"Query: {query}")
-        PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
-        history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
-        system_prompt = Prometheus.buildSystemPrompt(user.get("userId") if user else None, db)
-
-        async with self.openMCPClients() as (clients, sessions):
-            chat = self.makeChat(sessions, history, system_prompt=system_prompt)
-            response = await chat.send_message(query)
-
-        PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", response.text)
-        return response.text
-
     async def streamMessage(self, query=None, sessionId=None, db=None, user=None) -> AsyncIterator[dict]:
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
         state = HarnessState()
@@ -231,7 +218,6 @@ class Prometheus:
                         tools_used.append(fc.name)
                         loop.emit_tool_call(fc.name, fc.args or {}, turnNumber=turn)
 
-                        # On-demand sandbox creation (persistent lifecycle)
                         if fc.name == "execute_code" and sandbox_id is None:
                             try:
                                 sandbox_id = await SandboxManager.getOrCreate(user.get("userId", 0), db)
@@ -267,12 +253,4 @@ class Prometheus:
             if fullText:
                 PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", fullText)
         finally:
-            if sandbox_id:
-                try:
-                    files = await SandboxManager.syncWorkspace(sandbox_id)
-                    if files:
-                        await SandboxManager._saveBackup(user.get("userId", 0), files)
-                        logger.info("Synced %d files for user %d", len(files), user.get("userId", 0))
-                except Exception as e:
-                    logger.warning("Sandbox sync failed: %s", e)
             loop.flush()

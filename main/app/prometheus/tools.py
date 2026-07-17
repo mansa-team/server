@@ -117,10 +117,26 @@ async def execute_code(code: str, timeout: int = 30, **_) -> dict:
         timeout: Maximum execution time in seconds (default 30)
     """
     sandbox_id = _.get("sandbox_id")
+    userId = _.get("userId", 0)
     if not sandbox_id:
         return {"error": "Sandbox not available. This feature requires a premium subscription."}
 
+    try:
+        count = await SandboxManager.syncToSandbox(sandbox_id, userId)
+        if count:
+            logger.info("Synced %d files to sandbox for user %d", count, userId)
+    except Exception as e:
+        logger.warning("Pre-exec sync failed: %s", e)
+
     result = await SandboxManager.execute(sandbox_id, code, timeout=timeout)
+
+    try:
+        count = await SandboxManager.syncFromSandbox(sandbox_id, userId)
+        if count:
+            logger.info("Synced %d files from sandbox for user %d", count, userId)
+    except Exception as e:
+        logger.warning("Post-exec sync failed: %s", e)
+
     return {
         "stdout": result.get("stdout", ""),
         "stderr": result.get("stderr", ""),
@@ -128,44 +144,37 @@ async def execute_code(code: str, timeout: int = 30, **_) -> dict:
 
 
 async def read_file(path: str, **_) -> dict:
-    """Read a file from the sandbox filesystem.
+    """Read a file from the workspace.
 
     Args:
-        path: Absolute path to the file in the sandbox (e.g., /workspace/results.json)
+        path: Path to the file (e.g., /workspace/results.json or results.json)
     """
-    sandbox_id = _.get("sandbox_id")
-    if not sandbox_id:
-        return {"error": "Sandbox not available"}
-    content = await SandboxManager.read_file(sandbox_id, path)
+    userId = _.get("userId", 0)
+    content = SandboxManager.read_file(userId, path)
     return {"content": content}
 
 
 async def write_file(path: str, content: str, **_) -> dict:
-    """Write a file to the sandbox filesystem. Use this to push data files
-    (CSV, JSON, scripts) into the sandbox before running analysis code.
+    """Write a file to the workspace. Use this to save data files
+    (CSV, JSON, scripts) for analysis.
 
     Args:
-        path: Absolute path where the file will be written (e.g., /workspace/analyze.py)
+        path: Path where the file will be written (e.g., /workspace/analyze.py)
         content: File content as a string
     """
-    sandbox_id = _.get("sandbox_id")
-    if not sandbox_id:
-        return {"error": "Sandbox not available"}
-    ok = await SandboxManager.write_file(sandbox_id, path, content)
+    userId = _.get("userId", 0)
+    ok = SandboxManager.write_file(userId, path, content)
     return {"success": ok}
 
 
 async def list_files(path: str = "/workspace", **_) -> dict:
-    """List files in a sandbox directory. Use to explore the workspace
-    and find previously created files.
+    """List files in the workspace directory.
 
     Args:
         path: Directory path to list (default: /workspace)
     """
-    sandbox_id = _.get("sandbox_id")
-    if not sandbox_id:
-        return {"error": "Sandbox not available"}
-    return await SandboxManager.list_files(sandbox_id, path)
+    userId = _.get("userId", 0)
+    return SandboxManager.list_files(userId, path)
 
 
 TOOL_REGISTRY: dict[str, Any] = {
@@ -196,6 +205,7 @@ async def dispatchToolCall(
         args["user"] = user
         args["state"] = state
         args["sandbox_id"] = sandbox_id
+        args["userId"] = user.get("userId", 0) if user else 0
         return await fn(**args)
 
     for client in mcpClients.values():

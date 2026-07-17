@@ -8,65 +8,56 @@ from main.app.prometheus.sandbox import SandboxManager
 
 
 class TestPersistentSandboxLifecycle:
-    """Verify the agent uses getOrCreate + sync instead of create + destroy."""
+    """Verify the agent uses getOrCreate + syncToSandbox/syncFromSandbox."""
 
     @pytest.mark.asyncio
     @patch("main.app.prometheus.sandbox.SandboxManager.getOrCreate")
-    @patch("main.app.prometheus.sandbox.SandboxManager.syncWorkspace")
-    @patch("main.app.prometheus.sandbox.SandboxManager._saveBackup")
-    async def test_stream_persists_sandbox(self, mock_save, mock_sync, mock_get_or_create):
+    @patch("main.app.prometheus.sandbox.SandboxManager.syncToSandbox")
+    @patch("main.app.prometheus.sandbox.SandboxManager.syncFromSandbox")
+    async def test_stream_persists_sandbox(self, mock_sync_from, mock_sync_to, mock_get_or_create):
         """streamMessage uses getOrCreate instead of create, syncs on finish."""
         mock_get_or_create.return_value = "sb-persistent-123"
-        mock_sync.return_value = {"/workspace/data.csv": "content"}
+        mock_sync_to.return_value = 2
+        mock_sync_from.return_value = 2
 
         # Verify the API surface exists
         assert hasattr(SandboxManager, "getOrCreate")
-        assert hasattr(SandboxManager, "syncWorkspace")
-        assert hasattr(SandboxManager, "_saveBackup")
+        assert hasattr(SandboxManager, "syncToSandbox")
+        assert hasattr(SandboxManager, "syncFromSandbox")
 
         # Simulate what the agent does
         sandbox_id = await SandboxManager.getOrCreate(42, db=None)
         assert sandbox_id == "sb-persistent-123"
         mock_get_or_create.assert_called_once_with(42, db=None)
 
-        files = await SandboxManager.syncWorkspace(sandbox_id)
-        assert files == {"/workspace/data.csv": "content"}
+        count = await SandboxManager.syncToSandbox(sandbox_id, userId=42)
+        assert count == 2
 
-        await SandboxManager._saveBackup(42, files)
-        mock_save.assert_called_once_with(42, {"/workspace/data.csv": "content"})
+        count = await SandboxManager.syncFromSandbox(sandbox_id, userId=42)
+        assert count == 2
 
     @pytest.mark.asyncio
     @patch("main.app.prometheus.sandbox.SandboxManager.getOrCreate")
-    @patch("main.app.prometheus.sandbox.SandboxManager.syncWorkspace")
-    @patch("main.app.prometheus.sandbox.SandboxManager._saveBackup")
-    async def test_sync_empty_workspace_skips_save(self, mock_save, mock_sync, mock_get_or_create):
-        """When syncWorkspace returns empty dict, _saveBackup is not called."""
+    @patch("main.app.prometheus.sandbox.SandboxManager.syncToSandbox")
+    async def test_sync_empty_workspace_skips_push(self, mock_sync_to, mock_get_or_create):
+        """When host workspace is empty, syncToSandbox returns 0."""
         mock_get_or_create.return_value = "sb-empty"
-        mock_sync.return_value = {}
+        mock_sync_to.return_value = 0
 
         sandbox_id = await SandboxManager.getOrCreate(99, db=None)
-        files = await SandboxManager.syncWorkspace(sandbox_id)
+        count = await SandboxManager.syncToSandbox(sandbox_id, userId=99)
 
-        # Agent logic: only save if files is truthy
-        if files:
-            await SandboxManager._saveBackup(99, files)
-
-        mock_save.assert_not_called()
+        assert count == 0
 
     @pytest.mark.asyncio
-    @patch("main.app.prometheus.sandbox.SandboxManager.syncWorkspace", new_callable=AsyncMock)
-    @patch("main.app.prometheus.sandbox.SandboxManager._saveBackup", new_callable=AsyncMock)
-    async def test_agent_import_sandbox_manager(self, mock_save, mock_sync):
+    async def test_agent_import_sandbox_manager(self):
         """Agent module can import SandboxManager."""
         from main.app.prometheus.agent import Prometheus
 
         assert hasattr(Prometheus, "streamMessage")
 
     @pytest.mark.asyncio
-    @patch("main.app.prometheus.sandbox.SandboxManager.getOrCreate", new_callable=AsyncMock)
-    @patch("main.app.prometheus.sandbox.SandboxManager.syncWorkspace", new_callable=AsyncMock)
-    @patch("main.app.prometheus.sandbox.SandboxManager._saveBackup", new_callable=AsyncMock)
-    async def test_destroy_still_available(self, mock_save, mock_sync, mock_get_or_create):
+    async def test_destroy_still_available(self):
         """destroy() still exists for explicit user requests."""
         assert hasattr(SandboxManager, "destroy")
 
