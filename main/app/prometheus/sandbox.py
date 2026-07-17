@@ -48,9 +48,9 @@ class SandboxManager:
                 vcpus=SANDBOX_CPUS,
                 ttl=f"{SANDBOX_TTL_MINUTES}m",
             )
-            sandbox_id = sandbox.id  # type: ignore[attr-defined]
-            logger.info("Sandbox created: %s for user %d", sandbox_id, userId)
-            return sandbox_id
+            sandboxId = sandbox.id  # type: ignore[attr-defined]
+            logger.info("Sandbox created: %s for user %d", sandboxId, userId)
+            return sandboxId
         finally:
             await client.close()
 
@@ -71,19 +71,19 @@ class SandboxManager:
                     db.delete(mapping)
                     db.commit()
 
-        sandbox_id = await SandboxManager.create(userId)
+        sandboxId = await SandboxManager.create(userId)
 
         if db:
-            workspace_path = os.path.join(WORKSPACE_ROOT, str(userId))
+            wsPath = os.path.join(WORKSPACE_ROOT, str(userId))
             new_mapping = PrometheusSandbox(
                 userId=userId,
-                sandboxId=sandbox_id,
-                workspacePath=workspace_path,
+                sandboxId=sandboxId,
+                workspacePath=wsPath,
             )
             db.add(new_mapping)
             db.commit()
 
-        return sandbox_id
+        return sandboxId
 
     @staticmethod
     def read_file(userId: int, path: str) -> str:
@@ -108,10 +108,7 @@ class SandboxManager:
         host = hostPath(userId, path)
         if not host.exists():
             return {"entries": []}
-        entries = []
-        for item in sorted(host.rglob("*")):
-            if item.is_file():
-                entries.append(str(sandboxPath(item, userId)))
+        entries = [str(sandboxPath(item, userId)) for item in sorted(host.rglob("*")) if item.is_file()]
         return {"entries": entries}
 
     @staticmethod
@@ -126,8 +123,8 @@ class SandboxManager:
             count = 0
             for item in workspace.rglob("*"):
                 if item.is_file():
-                    sandbox_p = f"/workspace/{item.relative_to(workspace)}"
-                    await sandbox.write_file(sandbox_p, item.read_text(encoding="utf-8"))
+                    sandboxFilePath = f"/workspace/{item.relative_to(workspace)}"
+                    await sandbox.write_file(sandboxFilePath, item.read_text(encoding="utf-8"))
                     count += 1
             return count
         finally:

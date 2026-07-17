@@ -116,22 +116,22 @@ async def execute_code(code: str, timeout: int = 30, **_) -> dict:
         code: Python code to execute
         timeout: Maximum execution time in seconds (default 30)
     """
-    sandbox_id = _.get("sandbox_id")
+    sandboxId = _.get("sandbox_id")
     userId = _.get("userId", 0)
-    if not sandbox_id:
+    if not sandboxId:
         return {"error": "Sandbox not available. This feature requires a premium subscription."}
 
     try:
-        count = await SandboxManager.syncToSandbox(sandbox_id, userId)
+        count = await SandboxManager.syncToSandbox(sandboxId, userId)
         if count:
             logger.info("Synced %d files to sandbox for user %d", count, userId)
     except Exception as e:
         logger.warning("Pre-exec sync failed: %s", e)
 
-    result = await SandboxManager.execute(sandbox_id, code, timeout=timeout)
+    result = await SandboxManager.execute(sandboxId, code, timeout=timeout)
 
     try:
-        count = await SandboxManager.syncFromSandbox(sandbox_id, userId)
+        count = await SandboxManager.syncFromSandbox(sandboxId, userId)
         if count:
             logger.info("Synced %d files from sandbox for user %d", count, userId)
     except Exception as e:
