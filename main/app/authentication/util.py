@@ -6,7 +6,7 @@ from pytz import timezone
 import bcrypt
 import jwt
 
-from main.app.authentication.constants import SECRET_KEY, ALGORITHM, TOKEN_EXPIRY_HOURS
+from main.app.authentication.constants import SECRET_KEY, ALGORITHM, TOKEN_EXPIRY_HOURS, COOKIE_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ def extractTokenPayload(request: Request) -> dict:
             token = authHeader.split(" ")[1]
 
     if not token:
-        token = request.cookies.get("mansa_token_access")
+        token = request.cookies.get(COOKIE_NAME)
         logger.info(f"Cookie fallback: token={'FOUND' if token else 'NONE'}, cookies={list(request.cookies.keys())}")
 
     if not token:

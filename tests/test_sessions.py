@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from main.models.user_session import UserSession
+from main.app.authentication.session import SessionManager
 from main.app.authentication.constants import SESSION_EXPIRY_DAYS
 
 
@@ -19,7 +20,7 @@ class TestUserSessionModel:
             isActive=True,
         )
 
-        name = session.getDeviceName()
+        name = SessionManager.getDeviceName(session)
 
         assert name == "Chrome on Windows"
 
@@ -31,7 +32,7 @@ class TestUserSessionModel:
             isActive=True,
         )
 
-        name = session.getDeviceName()
+        name = SessionManager.getDeviceName(session)
 
         assert name == "Device abc123de"
 
@@ -44,7 +45,7 @@ class TestUserSessionModel:
             isActive=True,
         )
 
-        name = session.getDeviceName()
+        name = SessionManager.getDeviceName(session)
 
         assert name == "Unknown Device"
 
@@ -58,7 +59,7 @@ class TestUserSessionModel:
             isActive=True,
         )
 
-        name = session.getDeviceName()
+        name = SessionManager.getDeviceName(session)
 
         assert name == "Unknown Device"
 

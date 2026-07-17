@@ -2,10 +2,9 @@
 
 The state parameter carries the frontend redirect URL opaquely through
 Google's OAuth flow. /auth/google passes it via get_login_redirect(state=url).
-/auth/callback patches the sso_state cookie so fastapi-sso verification succeeds.
+/callback patches the sso_state cookie so fastapi-sso verification succeeds.
 
-The callback uses state_param directly as the redirect URL — no encoding needed.
-Token is passed in the URL fragment (#token=...) for cross-origin safety.
+Token is delivered via HttpOnly cookie only — not in URL fragment.
 """
 
 import pytest
@@ -105,17 +104,16 @@ class TestGoogleEndpointSetsState:
                 follow_redirects=False,
             )
 
-        # Response should not set sso_redirect cookie
         cookies = response.headers.get_list("set-cookie")
         for cookie in cookies:
             assert "sso_redirect" not in cookie
 
 
 class TestCallbackSuccess:
-    """Verify callback uses state param directly as redirect URL."""
+    """Verify callback redirects cleanly — token in cookie only."""
 
     def test_redirects_to_url_in_state(self):
-        """On success, redirect to URL from state param."""
+        """On success, redirect to URL from state param — no token in URL."""
         app = _build_app()
         mock_session = MagicMock()
         _override_session(app, mock_session)
@@ -156,10 +154,10 @@ class TestCallbackSuccess:
         assert response.status_code in (307, 302, 303)
         location = response.headers.get("location", "")
         assert "localhost:3000/prometheus" in location
-        assert "#token=" in location, f"Token should be in URL fragment, got {location}"
+        assert "#token=" not in location, f"Token must NOT be in URL fragment: {location}"
 
     def test_returns_json_when_no_redirect_in_state(self):
-        """When state has no URL, return JSON."""
+        """When state has no URL, return JSON with token."""
         app = _build_app()
         mock_session = MagicMock()
         _override_session(app, mock_session)

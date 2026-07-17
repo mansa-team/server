@@ -24,7 +24,7 @@ class RequestContextFilter(logging.Filter):
         return True
 
 
-def _buildErrorResponse(statusCode: int, error: str, detail: str | None = None) -> dict:
+def buildErrorResponse(statusCode: int, error: str, detail: str | None = None) -> dict:
     return ErrorResponse(
         error=error,
         detail=detail,
@@ -37,7 +37,7 @@ def _buildErrorResponse(statusCode: int, error: str, detail: str | None = None) 
 async def httpExceptionHandler(request: Request, exc):
     return JSONResponse(
         status_code=exc.status_code,
-        content=_buildErrorResponse(exc.status_code, str(exc.detail)),
+        content=buildErrorResponse(exc.status_code, str(exc.detail)),
     )
 
 
@@ -49,7 +49,7 @@ async def validationExceptionHandler(request: Request, exc):
 
     return JSONResponse(
         status_code=422,
-        content=_buildErrorResponse(422, "Validation error", detail=str(errors)),
+        content=buildErrorResponse(422, "Validation error", detail=str(errors)),
     )
 
 
@@ -58,7 +58,7 @@ async def genericExceptionHandler(request: Request, exc):
     logger.exception(f"Unhandled exception: {exc}")
     return JSONResponse(
         status_code=500,
-        content=_buildErrorResponse(500, "Internal server error"),
+        content=buildErrorResponse(500, "Internal server error"),
     )
 
 

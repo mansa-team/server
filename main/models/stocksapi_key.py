@@ -17,38 +17,3 @@ class StocksAPIKey(Base):
     lastReset: Mapped[datetime] = mapped_column(TIMESTAMP, server_default=func.current_timestamp(), nullable=False)
 
     user = relationship("User")
-
-    def isQuotaExceeded(self) -> bool:
-        return self.currentUsage >= self.requestLimit
-
-    def needsReset(self, resetDays: int) -> bool:
-        if not self.lastReset:
-            return True
-        now = datetime.now(timezone("America/Sao_Paulo"))
-        lastResetTime = (
-            self.lastReset.replace(tzinfo=timezone("America/Sao_Paulo"))
-            if self.lastReset.tzinfo is None
-            else self.lastReset
-        )
-        daysSinceReset = (now - lastResetTime).days
-        return daysSinceReset >= resetDays
-
-    def resetQuota(self):
-        self.currentUsage = 0
-        self.lastReset = datetime.now(timezone("America/Sao_Paulo"))
-
-    def incrementUsage(self):
-        self.currentUsage += 1
-
-    def getRemainingQuota(self) -> int:
-        return max(0, self.requestLimit - self.currentUsage)
-
-    def toDict(self):
-        return {
-            "apiKey": self.apiKey,
-            "userId": self.userId,
-            "requestLimit": self.requestLimit,
-            "currentUsage": self.currentUsage,
-            "remainingQuota": self.getRemainingQuota(),
-            "lastReset": self.lastReset.isoformat() if self.lastReset else None,
-        }

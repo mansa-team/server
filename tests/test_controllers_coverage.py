@@ -293,7 +293,7 @@ class TestLogoutEndpoint:
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.verifyAccessToken")
     def test_logout_with_invalid_session_id(self, mock_verify, mock_session_mgr, mock_secure):
-        """Covers lines 122-124: sessionId is not a valid int, ValueError caught."""
+        """sessionId is a string — revokeSession receives it as-is (str type)."""
         client, _, _ = _make_auth_client()
         mock_verify.return_value = {"userId": 1, "sessionId": "not-a-number"}
 
@@ -302,7 +302,7 @@ class TestLogoutEndpoint:
             headers={"X-Access-Token": "valid-token"},
         )
         assert response.status_code == 200
-        mock_session_mgr.revokeSession.assert_not_called()
+        mock_session_mgr.revokeSession.assert_called_once()
 
     @patch("main.controller.authentication_controller.isSecureScheme", return_value=False)
     @patch("main.app.authentication.util.verifyAccessToken")
@@ -1227,7 +1227,7 @@ class TestAddRoleToUser:
         mock_db = MagicMock()
         mock_user = MagicMock()
         mock_user.userId = 1
-        mock_user.hasRole.return_value = False
+        mock_user.roles = "USER"
 
         mock_db.query.return_value.filter.return_value.first.return_value = mock_user
 
@@ -1236,14 +1236,14 @@ class TestAddRoleToUser:
         result = UserManager.addRoleToUser(mock_db, 1, "DEVELOPER_STARTER")
 
         assert result is True
-        mock_user.addRole.assert_called_once_with("DEVELOPER_STARTER")
+        assert "DEVELOPER_STARTER" in mock_user.roles
         mock_db.commit.assert_called_once()
 
     def test_add_role_already_has_role(self):
         """Covers line 27: user already has the role."""
         mock_db = MagicMock()
         mock_user = MagicMock()
-        mock_user.hasRole.return_value = True
+        mock_user.roles = "USER,ADMIN"
 
         mock_db.query.return_value.filter.return_value.first.return_value = mock_user
 
@@ -1252,7 +1252,6 @@ class TestAddRoleToUser:
         result = UserManager.addRoleToUser(mock_db, 1, "ADMIN")
 
         assert result is False
-        mock_user.addRole.assert_not_called()
 
     def test_add_role_user_not_found(self):
         """Covers lines 19-20: user not found raises 404."""

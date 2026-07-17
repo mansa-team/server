@@ -12,18 +12,19 @@ cloudscraper
 tenacity
 apscheduler
 pytz
-lxml
 
 # STOCKS-API
 fastapi
+fastapi_mcp
 uvicorn
 pyarrow
 orjson
 requests
 
 # PROMETHEUS
+sentence-transformers
+huggingface-hub
 fastmcp
-fastapi_mcp
 google-genai
 
 # USER

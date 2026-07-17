@@ -152,7 +152,8 @@ class StocksQueryManager:
             availableYears = sorted(set(year for field in fieldList for year in historicalFields[field]))
             if dates:
                 startDate, endDate = parseDateRange(dates)
-                assert startDate is not None and endDate is not None
+                if startDate is None or endDate is None:
+                    raise ValueError(f"Invalid date range: {dates}")
                 yearStart, yearEnd = startDate.year, endDate.year
             else:
                 yearStart, yearEnd = availableYears[0], availableYears[-1]

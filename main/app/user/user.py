@@ -10,14 +10,45 @@ logger = logging.getLogger(__name__)
 
 class UserManager:
     @staticmethod
+    def getRolesList(user: User) -> list[str]:
+        if not user.roles:
+            return ["USER"]
+        return [role.strip() for role in user.roles.split(",")]
+
+    @staticmethod
+    def addRole(user: User, role: str):
+        if hasattr(role, "name"):
+            role = str(role.name)
+        currentRoles = UserManager.getRolesList(user)
+        if role not in currentRoles:
+            currentRoles.append(role)
+            user.roles = ",".join(currentRoles)  # type: ignore[assignment]
+
+    @staticmethod
+    def hasRole(user: User, role: str) -> bool:
+        if hasattr(role, "name"):
+            role = str(role.name)
+        return role in UserManager.getRolesList(user)
+
+    @staticmethod
+    def toDict(user: User) -> dict:
+        return {
+            "userId": user.userId,
+            "username": user.username,
+            "email": user.email,
+            "roles": UserManager.getRolesList(user),
+            "createdAt": user.createdAt.isoformat() if user.createdAt else None,
+        }
+
+    @staticmethod
     def addRoleToUser(db: Session, userId: int, role: str):
         user = db.query(User).filter(User.userId == userId).first()
 
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
 
-        if not user.hasRole(role):
-            user.addRole(role)
+        if not UserManager.hasRole(user, role):
+            UserManager.addRole(user, role)
             db.commit()
             logger.info(f"Added role {role} to user {userId}")
             return True
@@ -49,7 +80,7 @@ class UserManager:
                 "userId": user.userId,
                 "username": user.username,
                 "email": user.email,
-                "roles": user.getRolesList(),
+                "roles": UserManager.getRolesList(user),
             }
 
             if sessionId:

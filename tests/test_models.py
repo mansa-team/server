@@ -2,6 +2,15 @@ import pytest
 from main.models.user import User
 from main.models.stocksapi_key import StocksAPIKey
 from main.models.prometheus import PrometheusSession
+from main.app.user.user import UserManager
+from main.app.stocks_api.key import (
+    isQuotaExceeded,
+    needsReset,
+    resetQuota,
+    incrementUsage,
+    getRemainingQuota,
+    keyToDict,
+)
 from datetime import datetime, timedelta
 
 
@@ -19,17 +28,17 @@ class TestUserModel:
     def test_get_roles_list_default(self, dbSession, sampleUserData):
         user = User(**sampleUserData)
         user.roles = None
-        assert user.getRolesList() == ["USER"]
+        assert UserManager.getRolesList(user) == ["USER"]
 
     def test_get_roles_list_single_role(self, dbSession, sampleUserData):
         user = User(**sampleUserData)
         user.roles = "ADMIN"
-        assert user.getRolesList() == ["ADMIN"]
+        assert UserManager.getRolesList(user) == ["ADMIN"]
 
     def test_get_roles_list_multiple_roles(self, dbSession, sampleUserData):
         user = User(**sampleUserData)
         user.roles = "ADMIN,USER,PREMIUM"
-        roles = user.getRolesList()
+        roles = UserManager.getRolesList(user)
         assert "ADMIN" in roles
         assert "USER" in roles
         assert "PREMIUM" in roles
@@ -37,25 +46,25 @@ class TestUserModel:
     def test_add_role_new(self, dbSession, sampleUserData):
         user = User(**sampleUserData)
         user.roles = "USER"
-        user.addRole("ADMIN")
-        assert "ADMIN" in user.getRolesList()
+        UserManager.addRole(user, "ADMIN")
+        assert "ADMIN" in UserManager.getRolesList(user)
 
     def test_add_role_existing(self, dbSession, sampleUserData):
         user = User(**sampleUserData)
         user.roles = "USER,ADMIN"
-        initialRoles = user.getRolesList()
-        user.addRole("ADMIN")
-        assert user.getRolesList() == initialRoles
+        initialRoles = UserManager.getRolesList(user)
+        UserManager.addRole(user, "ADMIN")
+        assert UserManager.getRolesList(user) == initialRoles
 
     def test_has_role_true(self, dbSession, sampleUserData):
         user = User(**sampleUserData)
         user.roles = "USER,ADMIN"
-        assert user.hasRole("ADMIN") is True
+        assert UserManager.hasRole(user, "ADMIN") is True
 
     def test_has_role_false(self, dbSession, sampleUserData):
         user = User(**sampleUserData)
         user.roles = "USER"
-        assert user.hasRole("ADMIN") is False
+        assert UserManager.hasRole(user, "ADMIN") is False
 
     def test_has_role_with_enum(self, dbSession, sampleUserData):
         class MockEnum:
@@ -63,12 +72,12 @@ class TestUserModel:
 
         user = User(**sampleUserData)
         user.roles = "ADMIN"
-        assert user.hasRole(MockEnum()) is True
+        assert UserManager.hasRole(user, MockEnum()) is True
 
     def test_to_dict(self, dbSession, sampleUserData):
         user = User(**sampleUserData)
         user.roles = "USER,ADMIN"
-        result = user.toDict()
+        result = UserManager.toDict(user)
 
         assert result["username"] == "testuser"
         assert result["email"] == "test@example.com"
@@ -90,33 +99,33 @@ class TestStocksAPIKeyModel:
         key = StocksAPIKey(**sampleAPIKeyData)
         key.currentUsage = 100
         key.requestLimit = 100
-        assert key.isQuotaExceeded() is True
+        assert isQuotaExceeded(key) is True
 
     def test_is_quota_exceeded_false(self, dbSession, sampleAPIKeyData):
         key = StocksAPIKey(**sampleAPIKeyData)
         key.currentUsage = 50
         key.requestLimit = 100
-        assert key.isQuotaExceeded() is False
+        assert isQuotaExceeded(key) is False
 
     def test_needs_reset_true_no_last_reset(self, dbSession, sampleAPIKeyData):
         key = StocksAPIKey(**sampleAPIKeyData)
         key.lastReset = None
-        assert key.needsReset(30) is True
+        assert needsReset(key, 30) is True
 
     def test_needs_reset_true_expired(self, dbSession, sampleAPIKeyData):
         key = StocksAPIKey(**sampleAPIKeyData)
         key.lastReset = datetime.now() - timedelta(days=31)
-        assert key.needsReset(30) is True
+        assert needsReset(key, 30) is True
 
     def test_needs_reset_false_recent(self, dbSession, sampleAPIKeyData):
         key = StocksAPIKey(**sampleAPIKeyData)
         key.lastReset = datetime.now() - timedelta(days=5)
-        assert key.needsReset(30) is False
+        assert needsReset(key, 30) is False
 
     def test_reset_quota(self, dbSession, sampleAPIKeyData):
         key = StocksAPIKey(**sampleAPIKeyData)
         key.currentUsage = 50
-        key.resetQuota()
+        resetQuota(key)
 
         assert key.currentUsage == 0
         assert key.lastReset is not None
@@ -124,24 +133,24 @@ class TestStocksAPIKeyModel:
     def test_increment_usage(self, dbSession, sampleAPIKeyData):
         key = StocksAPIKey(**sampleAPIKeyData)
         key.currentUsage = 10
-        key.incrementUsage()
+        incrementUsage(key)
         assert key.currentUsage == 11
 
     def test_get_remaining_quota(self, dbSession, sampleAPIKeyData):
         key = StocksAPIKey(**sampleAPIKeyData)
         key.currentUsage = 30
         key.requestLimit = 100
-        assert key.getRemainingQuota() == 70
+        assert getRemainingQuota(key) == 70
 
     def test_get_remaining_quota_exceeded(self, dbSession, sampleAPIKeyData):
         key = StocksAPIKey(**sampleAPIKeyData)
         key.currentUsage = 150
         key.requestLimit = 100
-        assert key.getRemainingQuota() == 0
+        assert getRemainingQuota(key) == 0
 
     def test_to_dict(self, dbSession, sampleAPIKeyData):
         key = StocksAPIKey(**sampleAPIKeyData)
-        result = key.toDict()
+        result = keyToDict(key)
 
         assert result["apiKey"] == "test_api_key_12345"
         assert result["userId"] == 1

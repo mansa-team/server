@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta, timezone
-from config import getSession
+from config import getSession, LOCALHOST_ADDRESSES
 from main.utils.logging_config import limiter
 
 from fastapi import APIRouter, Response, HTTPException, Request, Depends
@@ -30,32 +30,25 @@ def isSecureScheme(request: Request) -> bool:
     return request.url.scheme == "https" if request.url.scheme else False
 
 
-def issueSessionCookie(response, request, db, user, *, oauth: bool = False) -> str:
+def issueSessionCookie(response, request, db, user) -> str:
     userAgent = request.headers.get("User-Agent", "")
     expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
     session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
     accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
 
-    if oauth:
-        useSecure = isSecureScheme(request)
-        response.set_cookie(
-            key=COOKIE_NAME,
-            value=accessToken,
-            httponly=True,
-            secure=useSecure,
-            samesite=COOKIE_SAMESITE,
-            path=COOKIE_PATH,
-        )
-    else:
-        useCookieSecure = isSecureScheme(request)
-        response.set_cookie(
-            key=COOKIE_NAME,
-            value=accessToken,
-            httponly=True,
-            secure=useCookieSecure,
-            samesite=COOKIE_SAMESITE,
-            path=COOKIE_PATH,
-        )
+    # Set domain so cookie works across ports in dev (API:3200 → frontend:5173)
+    hostname = request.url.hostname or "localhost"
+    cookieDomain = "localhost" if hostname in ("localhost", "127.0.0.1") else hostname
+
+    response.set_cookie(
+        key=COOKIE_NAME,
+        value=accessToken,
+        httponly=True,
+        secure=isSecureScheme(request),
+        samesite=COOKIE_SAMESITE,
+        path=COOKIE_PATH,
+        domain=cookieDomain,
+    )
     return accessToken
 
 
@@ -127,7 +120,6 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
             sessionId = payload.get("sessionId")
             if userId and sessionId:
                 try:
-                    sessionId = int(sessionId)
                     SessionManager.revokeSession(db, sessionId, userId)
                 except (ValueError, TypeError):
                     pass
@@ -182,6 +174,9 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
         googleId = userInfo.id
         email = userInfo.email
 
+        if not googleId or not email:
+            raise HTTPException(status_code=400, detail="Incomplete user info from Google")
+
         logger.info(f"User identified: {email}")
         user = AuthenticationManager.authenticateGoogleUser(db, googleId)
 
@@ -191,15 +186,21 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
             AuthenticationManager.createUserAccount(db, username=username, email=email, googleId=googleId)
             user = AuthenticationManager.authenticateGoogleUser(db, googleId)
 
-        redirectUrl = state_param if state_param.startswith("http") else ""
+        redirectUrl = ""
+        if state_param.startswith("http"):
+            from urllib.parse import urlparse
+
+            parsed = urlparse(state_param)
+            host = parsed.hostname or ""
+            if host in LOCALHOST_ADDRESSES or host.endswith(".localhost"):
+                redirectUrl = state_param
 
         if redirectUrl:
             redirectResponse = RedirectResponse(url=redirectUrl)
-            accessToken = issueSessionCookie(redirectResponse, request, db, user, oauth=True)
-            redirectResponse.headers["location"] = f"{redirectUrl}#token={accessToken}"
+            issueSessionCookie(redirectResponse, request, db, user)
             return redirectResponse
 
-        accessToken = issueSessionCookie(response, request, db, user, oauth=True)
+        accessToken = issueSessionCookie(response, request, db, user)
         logger.info("--- Google Callback End ---")
         return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
 

@@ -19,10 +19,3 @@ class UserSession(Base):
     expiresAt = Column(TIMESTAMP, nullable=True)
 
     user = relationship("User", back_populates="sessions")
-
-    def getDeviceName(self) -> str:
-        if self.browser and self.operatingSystem:
-            return f"{self.browser} on {self.operatingSystem}"
-        elif self.accessTokenHash:
-            return f"Device {self.accessTokenHash[:8]}"
-        return "Unknown Device"

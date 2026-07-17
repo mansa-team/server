@@ -15,30 +15,3 @@ class User(Base):
     createdAt = Column(TIMESTAMP, server_default=func.current_timestamp(), nullable=False)
 
     sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
-
-    def getRolesList(self):
-        if not self.roles:
-            return ["USER"]
-        return [role.strip() for role in self.roles.split(",")]
-
-    def addRole(self, role: str):
-        if hasattr(role, "name"):
-            role = str(role.name)
-        currentRoles = self.getRolesList()
-        if role not in currentRoles:
-            currentRoles.append(role)
-            self.roles = ",".join(currentRoles)
-
-    def hasRole(self, role: str) -> bool:
-        if hasattr(role, "name"):
-            role = str(role.name)
-        return role in self.getRolesList()
-
-    def toDict(self):
-        return {
-            "userId": self.userId,
-            "username": self.username,
-            "email": self.email,
-            "roles": self.getRolesList(),
-            "createdAt": self.createdAt.isoformat() if self.createdAt else None,
-        }

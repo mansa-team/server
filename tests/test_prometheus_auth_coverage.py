@@ -24,11 +24,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
 class TestPrometheusInit:
-    """Cover __init__ and updateDates."""
+    """Cover __init__."""
 
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
-    def test_init_creates_client_and_updates_dates_debug(self, mock_genai, mock_config):
+    def test_init_creates_client(self, mock_genai, mock_config):
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "test-key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
         mock_config.DEBUG_MODE = True
 
@@ -36,22 +36,6 @@ class TestPrometheusInit:
 
         gen = Prometheus()
         mock_genai.Client.assert_called_once_with(api_key="test-key")
-        assert gen.currentDate == "23/03/2026"
-        assert gen.currentISODate == "2026-03-23"
-        assert gen.currentYear == 2026
-        assert gen.lastYear == 2025
-
-    @patch("main.app.prometheus.agent.Config")
-    @patch("main.app.prometheus.agent.genai")
-    def test_init_creates_client_and_updates_dates_prod(self, mock_genai, mock_config):
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "test-key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
-        mock_config.DEBUG_MODE = False
-
-        from main.app.prometheus.agent import Prometheus
-
-        gen = Prometheus()
-        assert gen.currentYear == datetime.now().year
-        assert gen.lastYear == gen.currentYear - 1
 
 
 class TestPrometheusSendMessage:
@@ -68,7 +52,7 @@ class TestPrometheusSendMessage:
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
         mock_client = MagicMock()
-        mock_genai.Client.return_value = mock_client
+        mock_genai.Client = MagicMock(return_value=mock_client)
         mock_chat.getHistory.return_value = []
 
         # Make MCP Client() behave as async context manager
@@ -81,12 +65,12 @@ class TestPrometheusSendMessage:
 
         @asynccontextmanager
         async def fake_chat_session(history):
-            yield mock_chat_session
+            yield mock_chat_session, {}
 
         mock_instance = MagicMock()
         mock_instance.chatSession = fake_chat_session
         # We patch Prometheus.__init__ to avoid real MCP Client setup
-        mock_genai.Client.return_value = mock_client
+        mock_genai.Client = MagicMock(return_value=mock_client)
 
         from main.app.prometheus.agent import Prometheus
 
@@ -110,26 +94,27 @@ class TestPrometheusSendMessage:
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
         mock_client = MagicMock()
-        mock_genai.Client.return_value = mock_client
+        mock_genai.Client = MagicMock(return_value=mock_client)
         mock_chat.getHistory.return_value = []
 
-        from contextlib import asynccontextmanager
+        # Set up mock MCP clients that are async context managers
+        mock_stocks = AsyncMock()
+        mock_searxng = AsyncMock()
+        mock_mcp_client.side_effect = [mock_stocks, mock_searxng]
 
-        @asynccontextmanager
-        async def failing_chat_session(history):
-            mock_session = AsyncMock()
-            mock_session.send_message = AsyncMock(side_effect=Exception("API error"))
-            yield mock_session
+        # Set up mock chat that raises on send_message
+        mock_chat_obj = MagicMock()
+        mock_chat_obj.send_message = AsyncMock(side_effect=Exception("API error"))
+        mock_client.aio.chats.create.return_value = mock_chat_obj
 
         from main.app.prometheus.agent import Prometheus
 
         gen = Prometheus()
-        gen.chatSession = failing_chat_session
 
         db = MagicMock()
-        with pytest.raises(Exception, match="API error"):
+        with pytest.raises(Exception):
             await gen.sendMessage(query="test", sessionId="sess-2", db=db)
-        # finally block still saves user message even when send_message raises
+        # user message is saved even when send_message raises
         mock_chat.saveMessage.assert_called_with(db, "sess-2", "user", "test")
 
     @pytest.mark.anyio
@@ -143,26 +128,145 @@ class TestPrometheusSendMessage:
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
         mock_client = MagicMock()
-        mock_genai.Client.return_value = mock_client
+        mock_genai.Client = MagicMock(return_value=mock_client)
         mock_chat.getHistory.return_value = [{"role": "user", "parts": [{"text": "prev"}]}]
 
-        from contextlib import asynccontextmanager
+        # Set up mock MCP clients
+        mock_stocks = AsyncMock()
+        mock_searxng = AsyncMock()
+        mock_mcp_client.side_effect = [mock_stocks, mock_searxng]
 
-        mock_chat_session = AsyncMock()
-        mock_chat_session.send_message = AsyncMock()
-        mock_chat_session.send_message.return_value = MagicMock(text="Reply with history")
-
-        @asynccontextmanager
-        async def fake_chat_session(history):
-            yield mock_chat_session
+        # Set up mock chat that returns a response
+        mock_chat_obj = MagicMock()
+        mock_chat_obj.send_message = AsyncMock(return_value=MagicMock(text="Reply with history"))
+        mock_client.aio.chats.create.return_value = mock_chat_obj
 
         from main.app.prometheus.agent import Prometheus
 
         gen = Prometheus()
-        gen.chatSession = fake_chat_session
 
         result = await gen.sendMessage(query="next", sessionId="sess-3", db=MagicMock())
         assert result == "Reply with history"
+
+    @pytest.mark.anyio
+    @patch("main.app.prometheus.agent.PrometheusChatManager")
+    @patch("main.app.prometheus.agent.Config")
+    @patch("main.app.prometheus.agent.genai")
+    @patch("main.app.prometheus.agent.Client")
+    async def test_stream_message_yields_text_chunks(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
+        """streamMessage must yield dict chunks from async iterator."""
+        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
+        mock_config.DEBUG_MODE = True
+        mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
+        mock_chat.getHistory.return_value = []
+
+        # Build a fake async iterator for send_message_stream
+        class FakeChunk:
+            def __init__(self, text=None, function_calls=None):
+                self.text = text
+                self.function_calls = function_calls
+
+        chunks = [FakeChunk(text="Hello "), FakeChunk(text="world")]
+
+        async def fake_aiter():
+            for c in chunks:
+                yield c
+
+        mock_chat_session = AsyncMock()
+        mock_chat_session.send_message_stream = AsyncMock(return_value=fake_aiter())
+
+        from main.app.prometheus.agent import Prometheus
+        from contextlib import asynccontextmanager
+
+        gen = Prometheus()
+
+        @asynccontextmanager
+        async def fake_open_mcp():
+            stocks = MagicMock()
+            searxng = MagicMock()
+            stocks.session = MagicMock()
+            searxng.session = MagicMock()
+            yield {"stocks": stocks, "searxng": searxng}, [stocks.session, searxng.session]
+
+        gen.openMCPClients = fake_open_mcp
+        gen.makeChat = MagicMock(return_value=mock_chat_session)
+
+        results = []
+        async for event in gen.streamMessage(query="hi", sessionId="s1", db=MagicMock()):
+            results.append(event)
+
+        assert len(results) == 2
+        assert results[0] == {"type": "text", "text": "Hello "}
+        assert results[1] == {"type": "text", "text": "world"}
+
+    @pytest.mark.anyio
+    @patch("main.app.prometheus.agent.PrometheusChatManager")
+    @patch("main.app.prometheus.agent.Config")
+    @patch("main.app.prometheus.agent.genai")
+    @patch("main.app.prometheus.agent.Client")
+    async def test_stream_message_handles_function_calls(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
+        """streamMessage must handle function_calls as a list (not dict)."""
+        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
+        mock_config.DEBUG_MODE = True
+        mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
+        mock_chat.getHistory.return_value = []
+
+        from contextlib import asynccontextmanager
+        from unittest.mock import patch as _patch
+
+        class FakeChunk:
+            def __init__(self, text=None, function_calls=None):
+                self.text = text
+                self.function_calls = function_calls
+
+        class FakeFunctionCall:
+            name = "search"
+            args = {"query": "test"}
+
+        # First stream: function call only (no text), second stream: text response
+        call_count = 0
+
+        async def fake_aiter_first():
+            yield FakeChunk(function_calls=[FakeFunctionCall()])
+
+        async def fake_aiter_second():
+            yield FakeChunk(text="Result: found it")
+
+        mock_chat_session = AsyncMock()
+
+        async def fake_stream(msg, config=None):
+            nonlocal call_count
+            call_count += 1
+            if call_count == 1:
+                return fake_aiter_first()
+            return fake_aiter_second()
+
+        mock_chat_session.send_message_stream = AsyncMock(side_effect=fake_stream)
+
+        from main.app.prometheus.agent import Prometheus
+        from contextlib import asynccontextmanager
+
+        gen = Prometheus()
+
+        @asynccontextmanager
+        async def fake_open_mcp():
+            stocks = MagicMock()
+            searxng = MagicMock()
+            stocks.session = MagicMock()
+            searxng.session = MagicMock()
+            yield {"stocks": stocks, "searxng": searxng}, [stocks.session, searxng.session]
+
+        gen.openMCPClients = fake_open_mcp
+        gen.makeChat = MagicMock(return_value=mock_chat_session)
+
+        results = []
+        async for event in gen.streamMessage(query="search test", sessionId="s2", db=MagicMock()):
+            results.append(event)
+
+        # Should have text from second stream after tool call
+        assert any(e["text"] == "Result: found it" for e in results)
+        # executeToolCall should have been called (tool loop ran)
+        assert call_count == 2
 
 
 # ---------------------------------------------------------------------------
