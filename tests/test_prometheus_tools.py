@@ -1,3 +1,4 @@
+import asyncio
 import inspect
 import pytest
 from main.app.prometheus.tools import (
@@ -110,14 +111,12 @@ class TestStateToolFunctions:
     def test_set_state_gemini_safe(self):
         _assert_gemini_safe(set_state)
 
-    @pytest.mark.asyncio
-    async def test_get_state_no_state_returns_error(self):
-        result = await get_state()
+    def test_get_state_no_state_returns_error(self):
+        result = asyncio.run(get_state())
         assert "error" in result
 
-    @pytest.mark.asyncio
-    async def test_set_state_no_state_returns_error(self):
-        result = await set_state(key="k", value="v")
+    def test_set_state_no_state_returns_error(self):
+        result = asyncio.run(set_state(key="k", value="v"))
         assert "error" in result
 
 
