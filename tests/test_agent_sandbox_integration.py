@@ -27,12 +27,10 @@ class TestAgentSandboxIntegration:
         assert "set_state" in prompt
         assert "get_state" in prompt
 
-    @pytest.mark.xfail(reason="Task 9 adds execute_code instructions to SYSTEM_PROMPT")
     def test_system_prompt_includes_sandbox_instructions(self):
         prompt = Prometheus.buildSystemPrompt()
         assert "execute_code" in prompt
 
-    @pytest.mark.xfail(reason="Task 9 adds check_cache instructions to SYSTEM_PROMPT")
     def test_system_prompt_includes_cache_instructions(self):
         prompt = Prometheus.buildSystemPrompt()
         assert "check_cache" in prompt

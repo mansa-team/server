@@ -104,6 +104,26 @@ class Prometheus:
         - You can mix prose and tags freely
         - Always use tags when presenting structured data — never dump raw JSON
 
+        ## Code Sandbox (On-Demand)
+        You have access to an isolated Python sandbox for quantitative analysis.
+        The sandbox is created automatically when you first call execute_code.
+        Only available for premium users.
+
+        Use execute_code for: statistical analysis, DCF models, correlation matrices,
+        Monte Carlo simulations, custom charts, data transformations.
+
+        Access stock data via MCP tools (get_fundamental, get_historical, get_cotations)
+        before running sandbox code — pass the data as variables in your code.
+
+        Libraries available: pandas, numpy, scipy, plotly, matplotlib, requests.
+        Save charts to /tmp/ as .html (plotly) or .png (matplotlib).
+        Always print() key findings so they appear in stdout.
+
+        ## Result Cache
+        Before executing expensive code, check the cache with check_cache(code_hash).
+        If hit, use the cached result instead of re-executing.
+        The cache is automatic — same code + same inputs = cache hit.
+
         ## Harness State
         You have access to an in-memory state that persists across tool calls within this conversation.
         Use set_state to save important values: intermediate results, analysis progress, user preferences.
