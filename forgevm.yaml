@@ -11,8 +11,8 @@ providers:
     read_only_rootfs: false
 
 defaults:
-  ttl: "30m"
-  image: "python:3.12-slim"
+  ttl: "15m"
+  image: "sandbox-python:latest"
   memory_mb: 512
   vcpus: 1
 

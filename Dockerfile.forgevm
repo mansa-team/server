@@ -4,9 +4,11 @@ WORKDIR /forgevm
 RUN go build -o /forgevm-bin ./cmd/forgevm && go build -o /forgevm-agent-bin ./cmd/forgevm-agent
 
 FROM debian:bookworm-slim
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates docker.io && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /forgevm-bin /usr/local/bin/forgevm
 COPY --from=builder /forgevm-agent-bin /bin/forgevm-agent
+
+COPY Dockerfile.sandbox /sandbox-image/Dockerfile.sandbox
+
 EXPOSE 7423
-ENTRYPOINT ["forgevm"]
-CMD ["serve"]
+CMD ["sh", "-c", "docker image inspect sandbox-python:latest >/dev/null 2>&1 || docker build -t sandbox-python:latest /sandbox-image/; exec forgevm serve"]
