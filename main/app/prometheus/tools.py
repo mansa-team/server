@@ -89,7 +89,7 @@ async def get_state(key: str = "", **_) -> dict:
         return {"error": "State not available"}
     if key:
         return {key: state.get(key)}
-    return state.to_dict()
+    return state.toDict()
 
 
 async def set_state(key: str, value: str, **_) -> dict:

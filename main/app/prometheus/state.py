@@ -15,18 +15,18 @@ class HarnessState:
         self.data[key] = value
         self.changed = True
 
-    def to_dict(self) -> dict:
+    def toDict(self) -> dict:
         return dict(self.data)
 
-    def to_context(self) -> str:
+    def toContext(self) -> str:
         if not self.data:
             return ""
         return "\n".join(f"- {k}: {v}" for k, v in self.data.items())
 
-    def haschanged(self) -> bool:
+    def hasChanged(self) -> bool:
         return self.changed
 
-    def resetchanged(self) -> bool:
+    def resetChanged(self) -> bool:
         wasChanged = self.changed
         self.changed = False
 

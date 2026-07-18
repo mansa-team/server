@@ -74,7 +74,7 @@ class TestUserModel:
         user.roles = "ADMIN"
         assert UserManager.hasRole(user, MockEnum()) is True
 
-    def test_to_dict(self, dbSession, sampleUserData):
+    def test_toDict(self, dbSession, sampleUserData):
         user = User(**sampleUserData)
         user.roles = "USER,ADMIN"
         result = UserManager.toDict(user)
@@ -148,7 +148,7 @@ class TestStocksAPIKeyModel:
         key.requestLimit = 100
         assert getRemainingQuota(key) == 0
 
-    def test_to_dict(self, dbSession, sampleAPIKeyData):
+    def test_toDict(self, dbSession, sampleAPIKeyData):
         key = StocksAPIKey(**sampleAPIKeyData)
         result = keyToDict(key)
 

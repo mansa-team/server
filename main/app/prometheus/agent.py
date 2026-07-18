@@ -180,8 +180,8 @@ class Prometheus:
             sections.append(f"\n[HISTÓRICO DA SESSÃO]\n{episodeBlock}")
         if memoryBlock:
             sections.append(f"\n[MEMÓRIAS DO USUÁRIO]\n{memoryBlock}\n[/MEMÓRIAS DO USUÁRIO]")
-        if state and state.to_context():
-            sections.append(f"\n[HARNESS STATE]\n{state.to_context()}\n[/HARNESS STATE]")
+        if state and state.toContext():
+            sections.append(f"\n[HARNESS STATE]\n{state.toContext()}\n[/HARNESS STATE]")
         return "".join(sections)
 
     @asynccontextmanager
@@ -262,11 +262,11 @@ class Prometheus:
                         yield {"type": "tool_result", "tool": fc.name, "result": result, "turn": turn}
                         responses.append(types.Part.from_function_response(name=fc.name, response=result))
 
-                    if state.haschanged():
+                    if state.hasChanged():
                         responses.append(
-                            types.Part.from_text(text=f"\n[HARNESS STATE]\n{state.to_context()}\n[/HARNESS STATE]")
+                            types.Part.from_text(text=f"\n[HARNESS STATE]\n{state.toContext()}\n[/HARNESS STATE]")
                         )
-                        state.resetchanged()
+                        state.resetChanged()
 
                     loop.emit_turn_end(
                         turnNumber=turn,

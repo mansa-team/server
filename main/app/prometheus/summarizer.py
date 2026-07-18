@@ -51,8 +51,9 @@ class PrometheusSummarizer:
         if not session or not session.history or len(session.history) < 20:
             return None
 
+        history: list[dict] = session.history  # type: ignore[assignment]
         messages = "\n".join(
-            f"{m.get('role', '?')}: {m.get('content', '')[:500]}" for m in session.history[-50:] if m.get("content")
+            f"{m.get('role', '?')}: {m.get('content', '')[:500]}" for m in history[-50:] if m.get("content")
         )
 
         try:
@@ -67,7 +68,7 @@ class PrometheusSummarizer:
                     max_output_tokens=256,
                 ),
             )
-            episode = resp.parsed
+            episode: dict = resp.parsed  # type: ignore[assignment]
         except Exception as e:
             logger.warning(f"Summarization failed: {e}")
             return None
@@ -83,7 +84,7 @@ class PrometheusSummarizer:
         existing = self.getEpisodes(db, sessionId)
         existing.append(obj)
 
-        session.summary = json.dumps(existing[-20:])
+        session.summary = json.dumps(existing[-20:])  # type: ignore[assignment]
         db.commit()
 
         return obj
@@ -93,7 +94,8 @@ class PrometheusSummarizer:
         if not session or not session.summary:
             return []
         try:
-            episodes = json.loads(session.summary)
+            summary: str = session.summary  # type: ignore[assignment]
+            episodes = json.loads(summary)
             return episodes if isinstance(episodes, list) else []
         except (json.JSONDecodeError, TypeError):
             return []
