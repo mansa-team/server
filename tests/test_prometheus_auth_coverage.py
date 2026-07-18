@@ -232,7 +232,7 @@ class TestPrometheusSendMessage:
             results.append(event)
 
         # Should have text from second stream after tool call
-        assert any(e["text"] == "Result: found it" for e in results)
+        assert any(e.get("text") == "Result: found it" for e in results)
         # executeToolCall should have been called (tool loop ran)
         assert call_count == 2
 
