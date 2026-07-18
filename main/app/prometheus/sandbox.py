@@ -29,10 +29,15 @@ def getClient() -> AsyncClient:
 def hostPath(userId: int, sandboxPath: str) -> Path:
     rel = sandboxPath.lstrip("/")
     if rel == "workspace":
-        return WORKSPACE_ROOT / str(userId)
-    if rel.startswith("workspace/"):
-        rel = rel[len("workspace/") :]
-    return WORKSPACE_ROOT / str(userId) / rel
+        rel = ""
+    elif rel.startswith("workspace/"):
+        rel = rel[len("workspace/"):]
+
+    base = (WORKSPACE_ROOT / str(userId)).resolve(strict=False)
+    candidate = (base / rel).resolve(strict=False)
+    if not candidate.is_relative_to(base):
+        raise ValueError("Invalid workspace path")
+    return candidate
 
 
 def sandboxPath(hostPath: Path, userId: int) -> str:
