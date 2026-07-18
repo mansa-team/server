@@ -1,7 +1,7 @@
 # Graph Report - server  (2026-07-18)
 
 ## Corpus Check
-- 81 files · ~28,279 words
+- 81 files · ~28,252 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c6c6aeaa`
+- Built from commit: `cc877c20`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -592,8 +592,8 @@ Cohesion: 0.05
 Nodes (34): _make_prometheus_client(), Generic Exception in chat propagates to FastAPI's default 500 handler., Generic Exception in chat propagates to FastAPI's default 500 handler., Generic Exception in chat propagates to FastAPI's default 500 handler., Generic Exception in chat propagates via SSE error event., Covers line 125, 126-128: generic Exception in chat., Return (client, app) with prometheus router and mocked deps., Covers lines 33-36: GET /prometheus/sessions. (+26 more)
 
 ### Community 17 - "Community 17"
-Cohesion: 0.08
-Nodes (24): Two dates in the range, both valid., Two dates in the range, both valid., Two dates in the range, both valid., Search with no index match falls back to string startswith., Search with no index match falls back to string startswith., search.strip() == '' should still dedup (line 181)., Search with no index match falls back to string startswith., Two dates in the range, both valid. (+16 more)
+Cohesion: 0.07
+Nodes (25): Two dates in the range, both valid., Two dates in the range, both valid., Two dates in the range, both valid., Two dates in the range, both valid., Search with no index match falls back to string startswith., Search with no index match falls back to string startswith., search.strip() == '' should still dedup (line 181)., Search with no index match falls back to string startswith. (+17 more)
 
 ### Community 18 - "Community 18"
 Cohesion: 0.07
@@ -1052,8 +1052,8 @@ Cohesion: 0.33
 Nodes (5): Covers lines 42-44: session validation fails., Covers lines 42-44: session validation fails., Covers lines 42-44: session validation fails., Covers lines 42-44: session validation fails., Covers lines 42-44: session validation fails.
 
 ### Community 136 - "Community 136"
-Cohesion: 0.2
-Nodes (9): Invalid date -> inner 400 passes through (not wrapped as 500)., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Two dates in the range, both valid. (+1 more)
+Cohesion: 0.22
+Nodes (8): Invalid date -> inner 400 passes through (not wrapped as 500)., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 caught by outer except -> 500., Invalid date -> inner 400 passes through (not wrapped as 500).
 
 ### Community 137 - "Community 137"
 Cohesion: 0.18
@@ -1248,8 +1248,8 @@ Cohesion: 0.33
 Nodes (6): Integration: /stocks/historical must accept slash and dot fields., GET /historical?fields=P/L must not return 422., Integration: /stocks/historical must accept slash and dot fields., GET /historical?fields=P/L must not return 422., When tickers have different date coverage, each should get its closest snapshot., TestHistoricalFieldValidation
 
 ### Community 192 - "Community 192"
-Cohesion: 0.33
-Nodes (5): Tests for optimized search filtering, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Filter should use ticker index for O(1) lookup, TestFilterBySearchTerms
+Cohesion: 0.29
+Nodes (4): Returns paginated memories., Offset and limit work., Archived memories excluded., TestGetUserMemories
 
 ### Community 193 - "Community 193"
 Cohesion: 0.33
@@ -1500,8 +1500,8 @@ Cohesion: 0.33
 Nodes (5): Covers line 27: user already has the role., Covers line 27: user already has the role., Covers line 27: user already has the role., Covers line 27: user already has the role., Covers lines 42-44: session validation fails.
 
 ### Community 477 - "Community 477"
-Cohesion: 0.29
-Nodes (4): Returns paginated memories., Offset and limit work., Archived memories excluded., TestGetUserMemories
+Cohesion: 0.33
+Nodes (5): Tests for optimized search filtering, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Filter should use ticker index for O(1) lookup, TestFilterBySearchTerms
 
 ### Community 478 - "Community 478"
 Cohesion: 0.33

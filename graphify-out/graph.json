@@ -73,7 +73,7 @@
       "label": "Write-Step()",
       "file_type": "code",
       "source_file": "ci.ps1",
-      "source_location": "L29",
+      "source_location": "L28",
       "id": "server_ci_write_step",
       "community": 203,
       "norm_label": "write-step()"
@@ -82,7 +82,7 @@
       "label": "Write-Pass()",
       "file_type": "code",
       "source_file": "ci.ps1",
-      "source_location": "L37",
+      "source_location": "L36",
       "id": "server_ci_write_pass",
       "community": 203,
       "norm_label": "write-pass()"
@@ -91,7 +91,7 @@
       "label": "Write-Fail()",
       "file_type": "code",
       "source_file": "ci.ps1",
-      "source_location": "L43",
+      "source_location": "L42",
       "id": "server_ci_write_fail",
       "community": 203,
       "norm_label": "write-fail()"
@@ -100,7 +100,7 @@
       "label": "Write-Fix()",
       "file_type": "code",
       "source_file": "ci.ps1",
-      "source_location": "L49",
+      "source_location": "L48",
       "id": "server_ci_write_fix",
       "community": 203,
       "norm_label": "write-fix()"
@@ -109,7 +109,7 @@
       "label": "Run-Check()",
       "file_type": "code",
       "source_file": "ci.ps1",
-      "source_location": "L55",
+      "source_location": "L54",
       "id": "server_ci_run_check",
       "community": 203,
       "norm_label": "run-check()"
@@ -1612,7 +1612,7 @@
       "label": ".getEpisodes()",
       "file_type": "code",
       "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L118",
+      "source_location": "L112",
       "id": "prometheus_summarizer_prometheussummarizer_getepisodes",
       "community": 72,
       "norm_label": ".getepisodes()"
@@ -15248,7 +15248,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L101",
-      "community": 477,
+      "community": 192,
       "norm_label": "testgetusermemories",
       "id": "tests_test_memory_manager_testgetusermemories"
     },
@@ -15257,7 +15257,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L102",
-      "community": 477,
+      "community": 192,
       "norm_label": ".test_returns_memories()",
       "id": "tests_test_memory_manager_testgetusermemories_test_returns_memories"
     },
@@ -15266,7 +15266,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L109",
-      "community": 477,
+      "community": 192,
       "norm_label": ".test_pagination()",
       "id": "tests_test_memory_manager_testgetusermemories_test_pagination"
     },
@@ -15275,7 +15275,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L115",
-      "community": 477,
+      "community": 192,
       "norm_label": ".test_excludes_archived()",
       "id": "tests_test_memory_manager_testgetusermemories_test_excludes_archived"
     },
@@ -20657,7 +20657,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L842",
-      "community": 136,
+      "community": 17,
       "norm_label": "two dates in the range, both valid.",
       "id": "tests_test_stocks_api_coverage_rationale_842"
     },
@@ -31259,7 +31259,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L107",
-      "community": 477,
+      "community": 192,
       "norm_label": "returns paginated memories.",
       "id": "tests_test_memory_manager_rationale_107"
     },
@@ -31268,7 +31268,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L115",
-      "community": 477,
+      "community": 192,
       "norm_label": "offset and limit work.",
       "id": "tests_test_memory_manager_rationale_115"
     },
@@ -31277,7 +31277,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L122",
-      "community": 477,
+      "community": 192,
       "norm_label": "archived memories excluded.",
       "id": "tests_test_memory_manager_rationale_122"
     },
@@ -40502,7 +40502,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L299",
-      "community": 192,
+      "community": 477,
       "norm_label": "testfilterbysearchterms",
       "id": "tests_test_stocks_cache_testfilterbysearchterms"
     },
@@ -40511,7 +40511,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L302",
-      "community": 192,
+      "community": 477,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_cache_testfilterbysearchterms_test_filter_with_tickerindex"
     },
@@ -40772,7 +40772,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L300",
-      "community": 192,
+      "community": 477,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_cache_rationale_300"
     },
@@ -40781,7 +40781,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L303",
-      "community": 192,
+      "community": 477,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_cache_rationale_303"
     },
@@ -41060,7 +41060,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L302",
-      "community": 192,
+      "community": 477,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_cache_rationale_302"
     },
@@ -41069,7 +41069,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L305",
-      "community": 192,
+      "community": 477,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_cache_rationale_305"
     },
@@ -41159,7 +41159,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L304",
-      "community": 192,
+      "community": 477,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_cache_testfilterbysearchterms_test_filter_with_tickerIndex"
     },
@@ -46006,6 +46006,17 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "main/app/prometheus/agent.py",
+      "source_location": "L293",
+      "weight": 1.0,
+      "source": "prometheus_agent_prometheus_streammessage",
+      "target": "prometheus_summarizer_prometheussummarizer"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "main/app/prometheus/agent.py",
       "source_location": "L182",
       "weight": 1.0,
       "source": "prometheus_agent_prometheus_streammessage",
@@ -46032,17 +46043,6 @@
       "weight": 1.0,
       "source": "prometheus_agent_prometheus_streammessage",
       "target": "prometheus_tools_dispatchtoolcall"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "main/app/prometheus/agent.py",
-      "source_location": "L293",
-      "weight": 1.0,
-      "source": "prometheus_agent_prometheus_streammessage",
-      "target": "prometheus_summarizer_prometheussummarizer"
     },
     {
       "relation": "calls",
@@ -49113,9 +49113,9 @@
       "source_file": "main/app/prometheus/summarizer.py",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "main_app_prometheus_summarizer_py",
-      "target": "prometheus_summarizer_smarttruncate",
-      "confidence_score": 1.0
+      "target": "prometheus_summarizer_smarttruncate"
     },
     {
       "relation": "contains",
@@ -49144,9 +49144,9 @@
       "source_file": "main/app/prometheus/summarizer.py",
       "source_location": "L76",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_summarizer_prometheussummarizer_summarize",
-      "target": "prometheus_summarizer_smarttruncate",
-      "confidence_score": 1.0
+      "target": "prometheus_summarizer_smarttruncate"
     },
     {
       "relation": "method",
@@ -107312,5 +107312,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "c6c6aeaa6d99d5befdcd79cc23ed5672c06236b4"
+  "built_at_commit": "cc877c20a8dc19f99d6f70c3e238dc068ceecbca"
 }

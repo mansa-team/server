@@ -122,7 +122,7 @@ class SandboxManager:
             return sandboxId
 
     @staticmethod
-    async def execute(userId: int, code: str, sandboxId: str, timeout: int = 30, *, retired: bool = False) -> dict:
+    async def execute(userId: int, code: str, sandboxId: str, timeout: int = 30, *, retried: bool = False) -> dict:
         client = getClient()
         try:
             sandbox = await client.get(sandboxId)
@@ -144,7 +144,7 @@ class SandboxManager:
 
             return output
         except SandboxNotFound:
-            if retired:
+            if retried:
                 raise
             logger.warning("Sandbox %s dead during exec for user %d, respawning", sandboxId, userId)
         finally:
@@ -155,7 +155,7 @@ class SandboxManager:
             newId = await SandboxManager.getOrCreate(userId, db)
         finally:
             db.close()
-        return await SandboxManager.execute(userId, code, newId, timeout, retired=True)
+        return await SandboxManager.execute(userId, code, newId, timeout, retried=True)
 
     @staticmethod
     async def executeWithWorkspace(userId: int, code: str, timeout: int = 30) -> dict:

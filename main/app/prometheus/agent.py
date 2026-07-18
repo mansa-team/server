@@ -162,17 +162,10 @@ class Prometheus:
             try:
                 episodes = PrometheusSummarizer().getEpisodes(db, sessionId)
                 if episodes:
-                    lines = []
-                    for i, ep in enumerate(episodes[-5:], 1):  # R2: max 5 episodes
-                        text = ep.get("summary", "")
-                        decisions = ep.get("keyDecisions", [])
-                        entities = ep.get("entities", [])
-                        parts = [f"[Episode {i}] {text}"]
-                        if decisions:
-                            parts.append(f"Decisions: {'; '.join(decisions)}")
-                        if entities:
-                            parts.append(f"Entities: {', '.join(entities)}")
-                        lines.append(" | ".join(parts))
+                    lines = [
+                        f"[{i+1}] {ep.get('summary', '')}"
+                        for i, ep in enumerate(episodes[-5:])
+                    ]
                     episodeBlock = "\n".join(lines)
             except Exception:
                 pass
@@ -205,8 +198,6 @@ class Prometheus:
         )
 
     async def streamMessage(self, query=None, sessionId=None, db=None, user=None) -> AsyncIterator[dict]:
-        # R1: summarize BEFORE getHistory so current turn benefits from trimmed context.
-        # Only fire when history hits 50 (the getHistory limit) — compress 50 into episode, trim to 20.
         try:
             session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
             if session and session.history and len(session.history) >= 50:
