@@ -75,12 +75,13 @@ class TestSmartTruncate:
         assert truncated == "a" * 500  # no truncation needed
 
 
-# ── R3: Deduplication ─────────────────────────────────────────────────
+# ── R3: Episode Accumulation ───────────────────────────────────────────
 
 
-class TestDeduplication:
+class TestEpisodeAccumulation:
     @patch("main.app.prometheus.summarizer.genai.Client")
-    def test_no_duplicate_episodes(self, mock_genai, db_session, fake_session_with_45_messages):
+    def test_each_summarize_creates_new_episode(self, mock_genai, db_session, fake_session_with_45_messages):
+        """Summarizing twice on the same history should NOT dedup — each batch gets its own episode."""
         mock_resp = MagicMock()
         mock_resp.parsed = {
             "summary": "Test summary",
@@ -91,39 +92,20 @@ class TestDeduplication:
 
         summarizer = PrometheusSummarizer()
         ep1 = summarizer.summarize(db_session, fake_session_with_45_messages.sessionId)
-        ep2 = summarizer.summarize(db_session, fake_session_with_45_messages.sessionId)
-
-        # second call should return same episode (deduped)
-        assert ep1 is not None
-        assert ep2 is not None
-        assert ep1["id"] == ep2["id"]
-        episodes = summarizer.getEpisodes(db_session, fake_session_with_45_messages.sessionId)
-        assert len(episodes) == 1
-
-    @patch("main.app.prometheus.summarizer.genai.Client")
-    def test_different_ranges_create_different_episodes(self, mock_genai, db_session, fake_session_with_45_messages):
-        mock_resp = MagicMock()
-        mock_resp.parsed = {
-            "summary": "Test summary",
-            "keyDecisions": [],
-            "entities": [],
-        }
-        mock_genai.return_value.models.generate_content.return_value = mock_resp
-
-        summarizer = PrometheusSummarizer()
-        ep1 = summarizer.summarize(db_session, fake_session_with_45_messages.sessionId)
-
-        # simulate new messages arriving by extending history
+        # After first summarize: history trimmed to 20
+        # Simulate new messages growing back to 50
         fake_session_with_45_messages.history = [
-            {"role": "user", "content": f"New message {i}", "timestamp": datetime.now().isoformat()} for i in range(100)
+            {"role": "user", "content": f"Msg {i}", "timestamp": datetime.now().isoformat()}
+            for i in range(50)
         ]
         db_session.commit()
-
         ep2 = summarizer.summarize(db_session, fake_session_with_45_messages.sessionId)
-        # different message range → different episode
+
         assert ep1 is not None
         assert ep2 is not None
-        assert ep1["id"] != ep2["id"]
+        assert ep1["id"] != ep2["id"]  # different episodes
+        episodes = summarizer.getEpisodes(db_session, fake_session_with_45_messages.sessionId)
+        assert len(episodes) == 2
 
 
 # ── R1: Summarize Trims History ───────────────────────────────────────

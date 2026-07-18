@@ -66,12 +66,7 @@ class PrometheusSummarizer:
             return None
 
         history: list[dict] = session.history  # type: ignore[assignment]
-        to_compress = history[-50:]
-        msg_range = [0, len(to_compress)]
 
-        existing = self.getEpisodes(db, sessionId)
-        if existing and existing[-1].get("message_range", [0, 0])[1] >= len(history):
-            return existing[-1]
         messages = "\n".join(
             f"{m.get('role', '?')}: {smartTruncate(m.get('content', ''), 500)}"
             for m in history[-50:]
@@ -101,7 +96,6 @@ class PrometheusSummarizer:
             "summary": episode.get("summary", ""),
             "keyDecisions": episode.get("keyDecisions", []),
             "entities": episode.get("entities", []),
-            "message_range": msg_range,
         }
 
         existing = self.getEpisodes(db, sessionId)
