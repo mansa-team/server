@@ -60,7 +60,7 @@ class TestPrometheusSandboxModel:
 
 
 class TestSandboxPersistence:
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_get_or_create_creates_new_when_no_existing(self, mock_get_client, dbSession):
         mock_client, mock_sandbox = _mock_forgevm(mock_get_client)
@@ -72,7 +72,7 @@ class TestSandboxPersistence:
         assert mapping is not None
         assert mapping.sandboxId == "sb-mock-123"
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_get_or_create_reuses_existing(self, mock_get_client, dbSession):
         # Pre-create a mapping
@@ -88,7 +88,7 @@ class TestSandboxPersistence:
         assert result == "sb-existing"
         mock_client.spawn.assert_not_called()
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_get_or_create_respawns_when_dead(self, mock_get_client, dbSession):
         # Pre-create a mapping for a dead sandbox
@@ -121,7 +121,7 @@ class TestSandboxPersistence:
         mapping = dbSession.query(PrometheusSandbox).filter_by(userId=1).first()
         assert mapping.sandboxId == "sb-new-456"
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_sync_to_sandbox(self, mock_get_client, tmp_path):
         """syncToSandbox pushes host files into the sandbox."""
@@ -140,7 +140,7 @@ class TestSandboxPersistence:
         # Verify sandbox.write_file was called for each file
         assert mock_sandbox.write_file.call_count == 2
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_sync_from_sandbox(self, mock_get_client, tmp_path):
         """syncFromSandbox pulls sandbox files to host."""
@@ -160,7 +160,7 @@ class TestSandboxPersistence:
         assert (workspace / "data.csv").read_text() == "content of /workspace/data.csv"
         assert (workspace / "main.py").read_text() == "content of /workspace/main.py"
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_sync_to_sandbox_empty_workspace(self, mock_get_client, tmp_path):
         """syncToSandbox returns 0 when workspace is empty."""

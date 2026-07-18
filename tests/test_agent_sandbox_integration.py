@@ -10,7 +10,7 @@ from main.app.prometheus.sandbox import SandboxManager
 class TestPersistentSandboxLifecycle:
     """Verify the agent uses getOrCreate + syncToSandbox/syncFromSandbox."""
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.SandboxManager.getOrCreate")
     @patch("main.app.prometheus.sandbox.SandboxManager.syncToSandbox")
     @patch("main.app.prometheus.sandbox.SandboxManager.syncFromSandbox")
@@ -36,7 +36,7 @@ class TestPersistentSandboxLifecycle:
         count = await SandboxManager.syncFromSandbox(sandbox_id, userId=42)
         assert count == 2
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.SandboxManager.getOrCreate")
     @patch("main.app.prometheus.sandbox.SandboxManager.syncToSandbox")
     async def test_sync_empty_workspace_skips_push(self, mock_sync_to, mock_get_or_create):
@@ -49,7 +49,7 @@ class TestPersistentSandboxLifecycle:
 
         assert count == 0
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_no_create_in_agent_source(self):
         """Verify agent.py no longer calls SandboxManager.create directly."""
         import inspect
