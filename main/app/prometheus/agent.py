@@ -160,18 +160,20 @@ class Prometheus:
         episodeBlock = ""
         if sessionId and db:
             try:
-                session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
-                if session and session.summary:
-                    episodes = json.loads(session.summary)
-                    if isinstance(episodes, list) and episodes:
-                        lines = []
-                        for ep in episodes[-3:]:
-                            text = ep.get("summary", "")
-                            decisions = ep.get("keyDecisions", [])
-                            if decisions:
-                                text += f" Decisões: {'; '.join(decisions)}"
-                            lines.append(f"- {text}")
-                        episodeBlock = "\n".join(lines)
+                episodes = PrometheusSummarizer().getEpisodes(db, sessionId)
+                if episodes:
+                    lines = []
+                    for i, ep in enumerate(episodes[-5:], 1):  # R2: max 5 episodes
+                        text = ep.get("summary", "")
+                        decisions = ep.get("keyDecisions", [])
+                        entities = ep.get("entities", [])
+                        parts = [f"[Episode {i}] {text}"]
+                        if decisions:
+                            parts.append(f"Decisions: {'; '.join(decisions)}")
+                        if entities:
+                            parts.append(f"Entities: {', '.join(entities)}")
+                        lines.append(" | ".join(parts))
+                    episodeBlock = "\n".join(lines)
             except Exception:
                 pass
 

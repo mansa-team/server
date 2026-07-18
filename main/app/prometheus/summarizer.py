@@ -7,12 +7,26 @@ from datetime import datetime, timezone
 
 from google import genai
 from google.genai import types
+
 from sqlalchemy.orm import Session as DBSession
+from sqlalchemy.orm.attributes import flag_modified
 
 from config import Config
 from main.models import PrometheusSession
 
 logger = logging.getLogger(__name__)
+
+
+def smartTruncate(text: str, max_len: int = 500) -> str:
+    if len(text) <= max_len:
+        return text
+    suffix = "..."
+    cut = text[: max_len - len(suffix)].rsplit(" ", 1)[0]
+
+    if "{%" in cut and cut.count("{%") > cut.count("%}"):
+        cut = cut.rsplit("{%", 1)[0]
+    return cut.strip() + suffix
+
 
 SYSTEM_INSTRUCTION = """
 You are a conversation summarizer. Compress the provided messages into a concise episode summary.
@@ -52,8 +66,16 @@ class PrometheusSummarizer:
             return None
 
         history: list[dict] = session.history  # type: ignore[assignment]
+        to_compress = history[-50:]
+        msg_range = [0, len(to_compress)]
+
+        existing = self.getEpisodes(db, sessionId)
+        if existing and existing[-1].get("message_range", [0, 0])[1] >= len(history):
+            return existing[-1]
         messages = "\n".join(
-            f"{m.get('role', '?')}: {m.get('content', '')[:500]}" for m in history[-50:] if m.get("content")
+            f"{m.get('role', '?')}: {smartTruncate(m.get('content', ''), 500)}"
+            for m in history[-50:]
+            if m.get("content")
         )
 
         try:
@@ -79,12 +101,16 @@ class PrometheusSummarizer:
             "summary": episode.get("summary", ""),
             "keyDecisions": episode.get("keyDecisions", []),
             "entities": episode.get("entities", []),
+            "message_range": msg_range,
         }
 
         existing = self.getEpisodes(db, sessionId)
         existing.append(obj)
 
         session.summary = json.dumps(existing[-20:])  # type: ignore[assignment]
+        session.history = session.history[-20:]  # type: ignore[assignment]
+        flag_modified(session, "history")
+
         db.commit()
 
         return obj
