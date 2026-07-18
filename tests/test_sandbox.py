@@ -163,7 +163,7 @@ class TestSandboxManager:
 
         with (
             patch("main.app.prometheus.sandbox.WORKSPACE_ROOT", Path("/tmp/ws")),
-            patch("config.SessionLocal", return_value=mock_db),
+            patch("main.app.prometheus.sandbox.SessionLocal", return_value=mock_db),
         ):
             result = await SandboxManager.execute(userId=1, code="print('retry ok')", sandboxId="sb-dead")
 

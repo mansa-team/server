@@ -1,10 +1,21 @@
 FROM python:3.13-slim
 
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    MPLBACKEND=Agg \
+    PIP_NO_CACHE_DIR=1
+    
 RUN pip install --no-cache-dir \
-    pandas numpy scipy sympy scikit-learn \
+    pandas numpy scipy \
+    scikit-learn xgboost lightgbm statsmodels \
     plotly matplotlib seaborn \
-    statsmodels \
-    openpyxl xlrd pymupdf fitz
+    python-docx lxml xlsxwriter xlrd pymupdf holidays
 
 RUN mkdir -p /workspace /tmp
+
+RUN useradd -m -u 1000 sandbox && \
+    mkdir -p /workspace && \
+    chown -R sandbox:sandbox /workspace
+
 WORKDIR /workspace
+USER sandbox

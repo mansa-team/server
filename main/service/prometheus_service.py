@@ -15,19 +15,20 @@ from main.models.memory import PrometheusMemory
 
 logger = logging.getLogger(__name__)
 
+DECAY_FACTORS = {
+    "preference": 0.99,  # sticky — decays slowly
+    "analysis": 0.95,  # medium — decays normally
+    "feedback": 0.97,  # medium-sticky
+    "context": 0.90,  # ephemeral — decays fast
+}
+
+DEFAULT_DECAY_FACTOR = 0.95
+DECAY_FACTOR = DEFAULT_DECAY_FACTOR  # alias for backward compat
+ARCHIVE_SCORE_THRESHOLD = 0.1
+ARCHIVE_DAYS_THRESHOLD = 90
+
 
 def memoryMaintenance(db: Session | None = None):
-    DECAY_FACTORS = {
-        "preference": 0.99,  # sticky — decays slowly
-        "analysis": 0.95,  # medium — decays normally
-        "feedback": 0.97,  # medium-sticky
-        "context": 0.90,  # ephemeral — decays fast
-    }
-
-    DEFAULT_DECAY_FACTOR = 0.95
-    ARCHIVE_SCORE_THRESHOLD = 0.1
-    ARCHIVE_DAYS_THRESHOLD = 90
-
     ownSession = db is None
     if ownSession:
         db = SessionLocal()

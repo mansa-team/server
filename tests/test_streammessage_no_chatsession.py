@@ -33,8 +33,7 @@ class TestStreamMessageNoChatSession:
         """streamMessage yields text chunks via inlined MCP setup."""
         mock_config.PROMETHEUS = {
             "GEMINI_API.KEY": "test-key",
-            "SEARXNG_HOST": "localhost",
-            "SEARXNG_PORT": 8888,
+            "SEARXNG_URL": "http://localhost:8888",
         }
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
@@ -101,8 +100,7 @@ class TestStreamMessageNoChatSession:
         """streamMessage handles function call loops via inlined MCP setup."""
         mock_config.PROMETHEUS = {
             "GEMINI_API.KEY": "test-key",
-            "SEARXNG_HOST": "localhost",
-            "SEARXNG_PORT": 8888,
+            "SEARXNG_URL": "http://localhost:8888",
         }
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}

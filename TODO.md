@@ -1,6 +1,9 @@
 - [ ] Improved harness focused on matching the functionality of Claude and Kimi's web harness systems
 - [ ] use TencentCloud/CubeSandbox for code execution and sandboxing of agents
 - [ ] Observable Agent Loop and a Persistent State
+- [ ] Optimized Docker Image sizes
+- [ ] Upload and Serve endpoints for files in the workspace
+- [ ] make the user able to manage their files in the workspace via endpoints related to workspace management /worksapce
 - [ ] Make my own Tokenizer
 - [ ] Add a system prompt
   
