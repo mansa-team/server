@@ -10,11 +10,19 @@ def _create_memory(db, key="petrobras preferencia", value="original value"):
 
 
 def _count_memories(db):
-    return db.query(PrometheusMemory).filter(PrometheusMemory.userId == USER_ID, PrometheusMemory.archivedAt.is_(None)).count()
+    return (
+        db.query(PrometheusMemory)
+        .filter(PrometheusMemory.userId == USER_ID, PrometheusMemory.archivedAt.is_(None))
+        .count()
+    )
 
 
 def _get_memory(db):
-    return db.query(PrometheusMemory).filter(PrometheusMemory.userId == USER_ID, PrometheusMemory.archivedAt.is_(None)).first()
+    return (
+        db.query(PrometheusMemory)
+        .filter(PrometheusMemory.userId == USER_ID, PrometheusMemory.archivedAt.is_(None))
+        .first()
+    )
 
 
 class TestExactSameKeyUpdates:
