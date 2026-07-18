@@ -10,9 +10,9 @@ COPY requirements.txt .
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --upgrade pip && \
-    pip install --prefix=/install \
+    pip install --no-cache-dir --prefix=/install \
     torch --index-url https://download.pytorch.org/whl/cpu && \
-    pip install --prefix=/install \
+    pip install --no-cache-dir --prefix=/install \
     --extra-index-url https://download.pytorch.org/whl/cpu \
     -r requirements.txt
 
