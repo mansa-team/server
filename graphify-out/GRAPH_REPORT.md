@@ -1,7 +1,7 @@
 # Graph Report - server  (2026-07-18)
 
 ## Corpus Check
-- 139 files · ~91,508 words
+- 139 files · ~91,409 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `354a2887`
+- Built from commit: `9a9a6e46`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -842,11 +842,11 @@ Cohesion: 0.13
 Nodes (14): 10. Performance, 11. Testing, 12. Risks, 13. Out of Scope (YAGNI), 14. Open Questions, 1. Executive Summary, 2. Context & Motivation, 5. Architecture Decision (+6 more)
 
 ### Community 135 - "Community 135"
-Cohesion: 0.19
+Cohesion: 0.21
 Nodes (10): contentHash(), Same input → same hash., Different inputs → different hashes., Returns 32-char hex string., TestContentHash, ALL(), content_hash(), contentHash() (+2 more)
 
 ### Community 136 - "Community 136"
-Cohesion: 0.23
+Cohesion: 0.21
 Nodes (8): pack → unpack preserves values., Empty list roundtrips., 384-dim vector packs to 1536 bytes., TestPackUnpack, pack_vector(), Unpack MySQL BLOB to float list., Vectorized cosine similarity: one query against N embeddings., unpack_vector()
 
 ### Community 138 - "Community 138"
@@ -966,8 +966,8 @@ Cohesion: 0.2
 Nodes (10): Tests for stocks API field validation — verifies the fields parameter accepts a, Integration: /stocks/fundamental must accept slash and dot fields., Minimal TestClient with just the stocks router for validation tests., GET /fundamental?fields=P/L must not return 422 (validation error)., GET /fundamental?fields=P/L must not return 422 (validation error)., Integration: /stocks/fundamental must accept slash and dot fields., GET /fundamental?fields=P/L must not return 422 (validation error)., GET /historical?fields=P/L must not return 422. (+2 more)
 
 ### Community 228 - "Community 228"
-Cohesion: 0.18
-Nodes (11): client(), TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with stocks router + verifyAPIKey + getCurrentUser overrides., TestClient with all routers mounted — no lifespan (no DB/service init).      O (+3 more)
+Cohesion: 0.11
+Nodes (13): client(), TestClient with all routers mounted — no lifespan (no DB/service init).      O, Reset slowapi in-memory rate limiter between every test., TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with all routers mounted — no lifespan (no DB/service init).      O, TestClient with stocks router + verifyAPIKey + getCurrentUser overrides. (+5 more)
 
 ### Community 229 - "Community 229"
 Cohesion: 0.5
@@ -1174,8 +1174,8 @@ Cohesion: 0.33
 Nodes (6): code:python (import pytest), code:python (from main.app.prometheus.sandbox import SandboxManager), code:python (def makeChat(self, sessions, history, *, system_prompt=None,), code:python (async def streamMessage(self, query=None, sessionId=None, db), code:bash (git add main/app/prometheus/agent.py tests/test_harness.py), Task 6: Agent Integration — Sandbox Lifecycle + Loop Events in Stream Loop
 
 ### Community 331 - "Community 331"
-Cohesion: 0.22
-Nodes (7): Integration tests for all query optimizations, Integration tests for all query optimizations, All optimizations should be implemented, All optimizations should be implemented, Query filter should use ticker index, Query filter should use ticker index, TestQueryOptimization
+Cohesion: 0.09
+Nodes (17): Tests for connection pool configuration, Tests for connection pool configuration, Stocks engine should have optimized pool settings, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Tests for lazy JSON deserialization, Query manager should have deserialize method, Query manager should have deserialize method (+9 more)
 
 ### Community 332 - "Community 332"
 Cohesion: 0.18
@@ -1234,8 +1234,8 @@ Cohesion: 0.17
 Nodes (12): Covers line 67: extractTokenPayload re-raises HTTPException from verifyAccessTok, Covers line 67: extractTokenPayload re-raises HTTPException from verifyAccessTok, Covers line 67: HTTPException raised by verifyAccessToken is re-raised., Covers line 67: extractTokenPayload re-raises HTTPException from verifyAccessTok, Covers line 67: extractTokenPayload re-raises HTTPException from verifyAccessTok, Covers line 67: HTTPException raised by verifyAccessToken is re-raised., Covers line 67: HTTPException raised by verifyAccessToken is re-raised., Covers line 67: extractTokenPayload re-raises HTTPException from verifyAccessTok (+4 more)
 
 ### Community 349 - "Community 349"
-Cohesion: 0.07
-Nodes (18): Tests for connection pool configuration, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Query manager should have deserialize method, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Tests for dynamic ticker index feature, Ticker index should be built when cache is loaded (+10 more)
+Cohesion: 0.17
+Nodes (7): Tests for dynamic ticker index feature, Ticker index should be built when cache is loaded, Ticker index should contain all tickers from cache, Ticker index should be case-insensitive, Looking up ticker should return valid row index, Ticker index should be rebuilt when cache refreshes, TestTickerIndex
 
 ### Community 350 - "Community 350"
 Cohesion: 0.33
@@ -1306,8 +1306,8 @@ Cohesion: 0.33
 Nodes (6): code:python (import pytest), code:python (from datetime import datetime, timezone), code:python (import logging), code:bash (git add main/models/harness.py main/app/prometheus/events.py), Phase 5: Observable Loop (Batched), Task 6: LoopEvent Model + LoopLogger
 
 ### Community 376 - "Community 376"
-Cohesion: 0.16
-Nodes (11): PrometheusSandbox, cleanup_expired_sandboxes(), Remove DB mappings for sandboxes that no longer exist in ForgeVM., Enforce one active sandbox per user via application logic., Enforce one active sandbox per user via application logic., Enforce one active sandbox per user via application logic., Enforce one active sandbox per user via application logic., test_cleanup_keeps_alive_sandboxes() (+3 more)
+Cohesion: 0.14
+Nodes (13): PrometheusSandbox, cleanup_expired_sandboxes(), Remove DB mappings for sandboxes that no longer exist in ForgeVM., Enforce one active sandbox per user via application logic., Enforce one active sandbox per user via application logic., Enforce one active sandbox per user via application logic., Enforce one active sandbox per user via application logic., test_cleanup_keeps_alive_sandboxes() (+5 more)
 
 ### Community 377 - "Community 377"
 Cohesion: 0.29
@@ -1326,8 +1326,8 @@ Cohesion: 0.4
 Nodes (5): code:python (import pytest), code:python (import logging), code:bash (git add main/app/prometheus/state.py tests/test_state.py), Phase 1: HarnessState (In-Memory Agent Scratchpad), Task 1: HarnessState Class
 
 ### Community 382 - "Community 382"
-Cohesion: 0.22
-Nodes (13): _mock_forgevm(), Wire up mock forgevm AsyncClient that returns sandbox with all methods., Wire up mock forgevm AsyncClient that returns sandbox with all methods., Wire up mock forgevm AsyncClient that returns sandbox with all methods., test_get_or_create_creates_new_when_no_existing(), test_get_or_create_reuses_existing(), test_restore_workspace(), test_sync_from_sandbox() (+5 more)
+Cohesion: 0.27
+Nodes (11): _mock_forgevm(), Wire up mock forgevm AsyncClient that returns sandbox with all methods., Wire up mock forgevm AsyncClient that returns sandbox with all methods., Wire up mock forgevm AsyncClient that returns sandbox with all methods., test_get_or_create_creates_new_when_no_existing(), test_get_or_create_reuses_existing(), test_restore_workspace(), test_sync_from_sandbox() (+3 more)
 
 ### Community 384 - "Community 384"
 Cohesion: 0.13
@@ -1354,8 +1354,8 @@ Cohesion: 0.33
 Nodes (3): normalizeColumns(), Tests for main/app/stocks_api/util.py., TestNormalizeColumns
 
 ### Community 391 - "Community 391"
-Cohesion: 0.11
-Nodes (15): Tests for connection pool configuration, Tests for connection pool configuration, Stocks engine should have optimized pool settings, Stocks engine should have optimized pool settings, Tests for optimized search filtering, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Filter should use ticker index for O(1) lookup (+7 more)
+Cohesion: 0.33
+Nodes (5): Tests for optimized search filtering, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Filter should use ticker index for O(1) lookup, TestFilterBySearchTerms
 
 ### Community 393 - "Community 393"
 Cohesion: 0.33
@@ -1374,8 +1374,8 @@ Cohesion: 0.09
 Nodes (5): Tests for agent <-> persistent sandbox integration (Task 3)., Verify the agent uses getOrCreate + syncToSandbox/syncFromSandbox., Test the premium gating logic used in streamMessage., TestPersistentSandboxLifecycle, TestPremiumCheck
 
 ### Community 399 - "Community 399"
-Cohesion: 0.33
-Nodes (4): Integration tests for all query optimizations, All optimizations should be implemented, Query filter should use ticker index, TestQueryOptimization
+Cohesion: 0.1
+Nodes (15): Tests for connection pool configuration, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Query manager should have deserialize method, Integration tests for all query optimizations, All optimizations should be implemented, Query filter should use ticker index, Performance tests for query operations (+7 more)
 
 ### Community 402 - "Community 402"
 Cohesion: 0.15
@@ -1415,7 +1415,7 @@ Nodes (8): Historical query with a year range., Historical query with a year ran
 
 ### Community 439 - "Community 439"
 Cohesion: 0.33
-Nodes (5): Tests for lazy JSON deserialization, Tests for lazy JSON deserialization, Query manager should have deserialize method, Query manager should have deserialize method, TestLazyDeserialization
+Nodes (5): Performance tests for query operations, Performance tests for query operations, Query should respond within 1 second, Query should respond within 1 second, TestQueryPerformance
 
 ### Community 440 - "Community 440"
 Cohesion: 0.29
@@ -1439,7 +1439,7 @@ Nodes (6): Covers lines 37-38, 46, 51, 58 (sessionId is None): skips session val
 
 ### Community 457 - "Community 457"
 Cohesion: 0.33
-Nodes (5): Performance tests for query operations, Query should respond within 1 second, Performance tests for query operations, Query should respond within 1 second, TestQueryPerformance
+Nodes (5): Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, TestFilterBySearchTerms
 
 ### Community 458 - "Community 458"
 Cohesion: 0.33
@@ -1474,8 +1474,8 @@ Cohesion: 0.4
 Nodes (5): Read a file from the sandbox filesystem.      Args:         path: Absolute pa, Read a file from the sandbox filesystem.      Args:         path: Absolute pa, Read a file from the workspace.      Args:         path: Path to the file (e., Read a file from the workspace.      Args:         path: Path to the file (e., read_file()
 
 ### Community 466 - "Community 466"
-Cohesion: 0.17
-Nodes (6): pytest_configure(), Set required env vars before test collection.      config.py eagerly instantia, Reset slowapi in-memory rate limiter between every test., Set required env vars before test collection.      config.py eagerly instantia, Set required env vars before test collection.      config.py eagerly instantia, _reset_rate_limiter()
+Cohesion: 0.5
+Nodes (4): pytest_configure(), Set required env vars before test collection.      config.py eagerly instantia, Set required env vars before test collection.      config.py eagerly instantia, Set required env vars before test collection.      config.py eagerly instantia
 
 ## Knowledge Gaps
 - **2341 isolated node(s):** `localStorageMock`, `chunkSizes`, `{ session, accumulated, lineCount, chunkIdx }`, `evilChunks`, `lines` (+2336 more)
@@ -1485,7 +1485,7 @@ Nodes (6): pytest_configure(), Set required env vars before test collection.    
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Pytest Testing` connect `Community 303` to `Stocks API Controller`, `Community 385`, `Session Management`, `Community 132`, `Community 389`, `Configuration & Logging`, `Scraper B3`, `Community 135`, `Community 391`, `Community 267`, `Scraper Service`, `Community 140`, `Community 398`, `Community 143`, `Database Utils`, `Decorators`, `Community 281`, `Settings`, `Helpers`, `Community 287`, `Community 175`, `Community 178`, `Community 180`, `Community 56`, `Community 318`, `Community 63`, `Community 72`, `Community 333`, `Community 466`, `Community 84`, `Community 88`, `Community 345`, `Community 93`, `Community 349`, `Community 227`, `Community 108`, `Community 236`, `Community 364`, `Community 369`, `Community 372`, `Community 252`, `Community 382`?**
+- **Why does `Pytest Testing` connect `Community 303` to `Stocks API Controller`, `Community 385`, `Session Management`, `Community 132`, `Community 389`, `Configuration & Logging`, `Scraper B3`, `Community 136`, `Community 267`, `Scraper Service`, `Community 140`, `Community 398`, `Community 143`, `Database Utils`, `Decorators`, `Community 399`, `Community 281`, `Settings`, `Helpers`, `Community 287`, `Community 175`, `Community 178`, `Community 180`, `Community 56`, `Community 318`, `Community 63`, `Community 72`, `Community 331`, `Community 333`, `Community 84`, `Community 88`, `Community 345`, `Community 93`, `Community 227`, `Community 228`, `Community 108`, `Community 236`, `Community 364`, `Community 369`, `Community 372`, `Community 252`, `Community 382`?**
   _High betweenness centrality (0.199) - this node is a cross-community bridge._
 - **Why does `FastAPI` connect `Community 345` to `Community 384`, `Community 385`, `Authentication Manager`, `Community 389`, `Scraper B3`, `Community 267`, `Community 140`, `Auth Service`, `Community 404`, `Settings`, `Community 174`, `Community 50`, `Community 54`, `Community 63`, `Community 74`, `Community 78`, `Community 79`, `Community 80`, `Community 211`, `Community 84`, `Community 88`, `Community 227`, `Community 108`, `Community 372`, `Community 383`?**
   _High betweenness centrality (0.059) - this node is a cross-community bridge._

@@ -8940,7 +8940,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L1",
       "id": "tests_conftest_py",
-      "community": 466,
+      "community": 228,
       "norm_label": "conftest.py"
     },
     {
@@ -8949,7 +8949,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L13",
       "id": "tests_conftest_reset_rate_limiter",
-      "community": 466,
+      "community": 228,
       "norm_label": "_reset_rate_limiter()"
     },
     {
@@ -8967,7 +8967,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L33",
       "id": "tests_conftest_patch_secret_key",
-      "community": 466,
+      "community": 228,
       "norm_label": "_patch_secret_key()"
     },
     {
@@ -8976,7 +8976,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L48",
       "id": "tests_conftest_dbsession",
-      "community": 466,
+      "community": 228,
       "norm_label": "dbsession()"
     },
     {
@@ -8985,7 +8985,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L60",
       "id": "tests_conftest_sampleuserdata",
-      "community": 466,
+      "community": 228,
       "norm_label": "sampleuserdata()"
     },
     {
@@ -8994,7 +8994,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L71",
       "id": "tests_conftest_sampleapikeydata",
-      "community": 466,
+      "community": 228,
       "norm_label": "sampleapikeydata()"
     },
     {
@@ -9003,7 +9003,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L76",
       "id": "tests_conftest_sampleprometheussessiondata",
-      "community": 466,
+      "community": 228,
       "norm_label": "sampleprometheussessiondata()"
     },
     {
@@ -9030,7 +9030,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L14",
       "id": "tests_conftest_rationale_14",
-      "community": 466,
+      "community": 228,
       "norm_label": "reset slowapi in-memory rate limiter between every test."
     },
     {
@@ -16950,7 +16950,7 @@
       "source_file": "tests/test_sandbox_persistence.py",
       "source_location": "L62",
       "id": "tests_test_sandbox_persistence_testsandboxpersistence",
-      "community": 382,
+      "community": 376,
       "norm_label": "testsandboxpersistence"
     },
     {
@@ -20982,7 +20982,7 @@
       "source_file": "tests/test_vector_utils.py",
       "source_location": "L1",
       "id": "tests_test_vector_utils_py",
-      "community": 135,
+      "community": 136,
       "norm_label": "test_vector_utils.py"
     },
     {
@@ -21241,7 +21241,7 @@
       "label": "User structure defined by string roles:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L35",
+      "source_location": "L33",
       "id": "server_todo_user_structure_defined_by_string_roles",
       "community": 47,
       "norm_label": "user structure defined by string roles:"
@@ -21250,7 +21250,7 @@
       "label": "USER:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L44",
+      "source_location": "L42",
       "id": "server_todo_user",
       "community": 47,
       "norm_label": "user:"
@@ -21259,7 +21259,7 @@
       "label": "PREMIUM:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L47",
+      "source_location": "L45",
       "id": "server_todo_premium",
       "community": 47,
       "norm_label": "premium:"
@@ -21268,28 +21268,10 @@
       "label": "DEVELOPER:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L50",
+      "source_location": "L48",
       "id": "server_todo_developer",
       "community": 47,
       "norm_label": "developer:"
-    },
-    {
-      "label": "STOCKS_API",
-      "file_type": "document",
-      "source_file": "TODO.md",
-      "source_location": "L77",
-      "id": "server_todo_stocks_api",
-      "community": 47,
-      "norm_label": "stocks_api"
-    },
-    {
-      "label": "Prometheus",
-      "file_type": "document",
-      "source_file": "TODO.md",
-      "source_location": "L80",
-      "id": "server_todo_prometheus",
-      "community": 47,
-      "norm_label": "prometheus"
     },
     {
       "label": "authentication.md",
@@ -22361,6 +22343,24 @@
       "id": "all_minilm_l6_v2_readme_training_data",
       "community": 212,
       "norm_label": "training data"
+    },
+    {
+      "label": "STOCKS_API",
+      "file_type": "document",
+      "source_file": "TODO.md",
+      "source_location": "L77",
+      "community": 47,
+      "norm_label": "stocks_api",
+      "id": "server_todo_stocks_api"
+    },
+    {
+      "label": "Prometheus",
+      "file_type": "document",
+      "source_file": "TODO.md",
+      "source_location": "L80",
+      "community": 47,
+      "norm_label": "prometheus",
+      "id": "server_todo_prometheus"
     },
     {
       "label": "2026-07-17-prometheus-forgevm-sandbox.md",
@@ -23627,7 +23627,7 @@
       "file_type": "code",
       "source_file": "tests/test_sandbox_persistence.py",
       "source_location": "L164",
-      "community": 382,
+      "community": 376,
       "norm_label": "testsandboxcleanup",
       "id": "tests_test_sandbox_persistence_testsandboxcleanup"
     },
@@ -33671,7 +33671,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L905",
-      "community": 87,
+      "community": 133,
       "norm_label": "dataframe without time column.",
       "id": "tests_test_stocks_api_coverage_rationale_905"
     },
@@ -37289,7 +37289,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L945",
-      "community": 133,
+      "community": 87,
       "norm_label": "multiple search terms with tickerindex.",
       "id": "tests_test_stocks_api_coverage_rationale_945"
     },
@@ -39674,7 +39674,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L1",
-      "community": 391,
+      "community": 331,
       "norm_label": "test_stocks_cache.py",
       "id": "tests_test_stocks_cache_py"
     },
@@ -39791,7 +39791,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L109",
-      "community": 391,
+      "community": 331,
       "norm_label": "testconnectionpool",
       "id": "tests_test_stocks_cache_testconnectionpool"
     },
@@ -39800,7 +39800,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L112",
-      "community": 391,
+      "community": 331,
       "norm_label": ".test_stocks_engine_has_pool_configuration()",
       "id": "tests_test_stocks_cache_testconnectionpool_test_stocks_engine_has_pool_configuration"
     },
@@ -39809,7 +39809,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L121",
-      "community": 439,
+      "community": 331,
       "norm_label": "testlazydeserialization",
       "id": "tests_test_stocks_cache_testlazydeserialization"
     },
@@ -39818,7 +39818,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L124",
-      "community": 439,
+      "community": 331,
       "norm_label": ".test_query_manager_has_deserialize_method()",
       "id": "tests_test_stocks_cache_testlazydeserialization_test_query_manager_has_deserialize_method"
     },
@@ -39935,7 +39935,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L308",
-      "community": 391,
+      "community": 439,
       "norm_label": "testqueryperformance",
       "id": "tests_test_stocks_cache_testqueryperformance"
     },
@@ -39944,7 +39944,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L311",
-      "community": 391,
+      "community": 439,
       "norm_label": ".test_query_response_time_under_1_second()",
       "id": "tests_test_stocks_cache_testqueryperformance_test_query_response_time_under_1_second"
     },
@@ -40061,7 +40061,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L110",
-      "community": 391,
+      "community": 331,
       "norm_label": "tests for connection pool configuration",
       "id": "tests_test_stocks_cache_rationale_110"
     },
@@ -40070,7 +40070,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L113",
-      "community": 391,
+      "community": 331,
       "norm_label": "stocks engine should have optimized pool settings",
       "id": "tests_test_stocks_cache_rationale_113"
     },
@@ -40079,7 +40079,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L122",
-      "community": 439,
+      "community": 331,
       "norm_label": "tests for lazy json deserialization",
       "id": "tests_test_stocks_cache_rationale_122"
     },
@@ -40088,7 +40088,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L125",
-      "community": 439,
+      "community": 331,
       "norm_label": "query manager should have deserialize method",
       "id": "tests_test_stocks_cache_rationale_125"
     },
@@ -40205,7 +40205,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L309",
-      "community": 391,
+      "community": 439,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_cache_rationale_309"
     },
@@ -40214,7 +40214,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L312",
-      "community": 391,
+      "community": 439,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_cache_rationale_312"
     },
@@ -40349,7 +40349,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L112",
-      "community": 391,
+      "community": 331,
       "norm_label": "tests for connection pool configuration",
       "id": "tests_test_stocks_cache_rationale_112"
     },
@@ -40358,7 +40358,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L115",
-      "community": 391,
+      "community": 331,
       "norm_label": "stocks engine should have optimized pool settings",
       "id": "tests_test_stocks_cache_rationale_115"
     },
@@ -40367,7 +40367,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L124",
-      "community": 439,
+      "community": 331,
       "norm_label": "tests for lazy json deserialization",
       "id": "tests_test_stocks_cache_rationale_124"
     },
@@ -40376,7 +40376,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L127",
-      "community": 439,
+      "community": 331,
       "norm_label": "query manager should have deserialize method",
       "id": "tests_test_stocks_cache_rationale_127"
     },
@@ -40493,7 +40493,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L311",
-      "community": 391,
+      "community": 439,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_cache_rationale_311"
     },
@@ -40502,7 +40502,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L314",
-      "community": 391,
+      "community": 439,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_cache_rationale_314"
     },
@@ -40583,7 +40583,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L1",
-      "community": 349,
+      "community": 399,
       "norm_label": "test_stocks_optimization.py",
       "id": "tests_test_stocks_optimization_py"
     },
@@ -40700,7 +40700,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L111",
-      "community": 349,
+      "community": 399,
       "norm_label": "testconnectionpool",
       "id": "tests_test_stocks_optimization_testconnectionpool"
     },
@@ -40709,7 +40709,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L114",
-      "community": 349,
+      "community": 399,
       "norm_label": ".test_stocks_engine_has_pool_configuration()",
       "id": "tests_test_stocks_optimization_testconnectionpool_test_stocks_engine_has_pool_configuration"
     },
@@ -40718,7 +40718,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L123",
-      "community": 349,
+      "community": 399,
       "norm_label": "testlazydeserialization",
       "id": "tests_test_stocks_optimization_testlazydeserialization"
     },
@@ -40727,7 +40727,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L126",
-      "community": 349,
+      "community": 399,
       "norm_label": ".test_query_manager_has_deserialize_method()",
       "id": "tests_test_stocks_optimization_testlazydeserialization_test_query_manager_has_deserialize_method"
     },
@@ -40826,7 +40826,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L301",
-      "community": 349,
+      "community": 457,
       "norm_label": "testfilterbysearchterms",
       "id": "tests_test_stocks_optimization_testfilterbysearchterms"
     },
@@ -40835,7 +40835,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L304",
-      "community": 349,
+      "community": 457,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_optimization_testfilterbysearchterms_test_filter_with_tickerIndex"
     },
@@ -40844,7 +40844,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L310",
-      "community": 457,
+      "community": 399,
       "norm_label": "testqueryperformance",
       "id": "tests_test_stocks_optimization_testqueryperformance"
     },
@@ -40853,7 +40853,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L313",
-      "community": 457,
+      "community": 399,
       "norm_label": ".test_query_response_time_under_1_second()",
       "id": "tests_test_stocks_optimization_testqueryperformance_test_query_response_time_under_1_second"
     },
@@ -40970,7 +40970,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L112",
-      "community": 349,
+      "community": 399,
       "norm_label": "tests for connection pool configuration",
       "id": "tests_test_stocks_optimization_rationale_112"
     },
@@ -40979,7 +40979,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L115",
-      "community": 349,
+      "community": 399,
       "norm_label": "stocks engine should have optimized pool settings",
       "id": "tests_test_stocks_optimization_rationale_115"
     },
@@ -40988,7 +40988,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L124",
-      "community": 349,
+      "community": 399,
       "norm_label": "tests for lazy json deserialization",
       "id": "tests_test_stocks_optimization_rationale_124"
     },
@@ -40997,7 +40997,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L127",
-      "community": 349,
+      "community": 399,
       "norm_label": "query manager should have deserialize method",
       "id": "tests_test_stocks_optimization_rationale_127"
     },
@@ -41096,7 +41096,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L302",
-      "community": 349,
+      "community": 457,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_optimization_rationale_302"
     },
@@ -41105,7 +41105,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L305",
-      "community": 349,
+      "community": 457,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_optimization_rationale_305"
     },
@@ -41114,7 +41114,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L311",
-      "community": 457,
+      "community": 399,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_optimization_rationale_311"
     },
@@ -41123,7 +41123,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L314",
-      "community": 457,
+      "community": 399,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_optimization_rationale_314"
     },
@@ -41141,7 +41141,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L173",
-      "community": 349,
+      "community": 457,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_optimization_rationale_173"
     },
@@ -41150,7 +41150,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L176",
-      "community": 349,
+      "community": 457,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_optimization_rationale_176"
     },
@@ -41159,7 +41159,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L182",
-      "community": 457,
+      "community": 399,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_optimization_rationale_182"
     },
@@ -41168,7 +41168,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L185",
-      "community": 457,
+      "community": 399,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_optimization_rationale_185"
     },
@@ -106021,5 +106021,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "354a2887686a56b2225abb4d24908290f1d50e62"
+  "built_at_commit": "9a9a6e4644b62af9e9b6bf50fad40e234c3abbb5"
 }

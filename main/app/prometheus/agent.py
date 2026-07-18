@@ -216,6 +216,7 @@ class Prometheus:
                     for fc in function_calls:
                         tools_used.append(fc.name)
                         loop.emit_tool_call(fc.name, fc.args or {}, turnNumber=turn)
+                        yield {"type": "tool_call", "tool": fc.name, "args": fc.args or {}, "turn": turn}
 
                         if fc.name == "execute_code":
                             try:
@@ -232,6 +233,7 @@ class Prometheus:
 
                         result = await dispatchToolCall(fc, mcpClients, user=user, state=state, sandbox_id=sandbox_id)
                         loop.emit_tool_result(fc.name, result, turnNumber=turn)
+                        yield {"type": "tool_result", "tool": fc.name, "result": result, "turn": turn}
                         responses.append(types.Part.from_function_response(name=fc.name, response=result))
 
                     if state.has_changed():
@@ -245,6 +247,7 @@ class Prometheus:
                         durationMs=int(__import__("time").time() * 1000) - turn_start,
                         toolsUsed=tools_used,
                     )
+                    yield {"type": "turn_end", "turn": turn, "durationMs": int(__import__("time").time() * 1000) - turn_start, "toolsUsed": len(tools_used)}
                     turn += 1
                     stream = await chat.send_message_stream(responses)
 
