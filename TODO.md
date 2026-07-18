@@ -1,15 +1,10 @@
-- [ ] Improved harness focused on matching the functionality of Claude and Kimi's web harness systems
-- [ ] use TencentCloud/CubeSandbox for code execution and sandboxing of agents
+- [ ] Context compressing methods
 - [ ] Observable Agent Loop and a Persistent State
-- [ ] Optimized Docker Image sizes
 - [ ] Upload and Serve endpoints for files in the workspace
-- [ ] make the user able to manage their files in the workspace via endpoints related to workspace management /worksapce
-- [ ] Make my own Tokenizer
-- [ ] Add a system prompt
+- [ ] Make the user able to manage their files in the workspace via endpoints related to workspace management /worksapce
+- [ ] Make my own Tokenizer tailored for financial speech
+- [ ] Add a good system prompt
   
-- [ ] The sandbox will be handled via Docker MicroVMs with an 10 concurrent shared pool (for the MVP)
-- [ ] pandas, numpy, matplotlib, yfinance (maybe) for the installed libs (no need for sklean, skfolio and scipy for now)
-
 - [ ] Github OAuth
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings
 - [ ] Make an Password Recovery system and 2FA using the Email Protocol
