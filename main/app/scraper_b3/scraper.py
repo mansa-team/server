@@ -156,7 +156,7 @@ class B3Scraper:
         newDF = {
             "TICKER": TICKER,
             **{f"DIVIDENDOS {row.rank}": row.value for row in dfYearly.itertuples() if len(str(row.rank)) >= 4},
-            "HISTORICO DIVIDENDOS": dfHistory.to_dict(orient="records"),
+            "HISTORICO DIVIDENDOS": dfHistory.toDict(orient="records"),
         }
 
         return pd.DataFrame([newDF]).set_index("TICKER")
@@ -284,7 +284,7 @@ class B3Scraper:
 
         df = df.rename(columns={"title": "TITULO", "link": "LINK", "pubDate": "DATE", "source": "SOURCE"})
 
-        newDF = {"TICKER": TICKER, "NOTICIAS": df.to_dict(orient="records")}
+        newDF = {"TICKER": TICKER, "NOTICIAS": df.toDict(orient="records")}
 
         return pd.DataFrame([newDF]).set_index("TICKER")
 

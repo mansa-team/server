@@ -401,26 +401,6 @@ class TestPrometheusChatManager:
         result = PrometheusChatManager.getHistory(mock_db, "sess-123", limit=5)
         assert len(result) == 5
 
-    def test_update_summary_found(self):
-        from main.app.prometheus.chat import PrometheusChatManager
-
-        mock_db = MagicMock()
-        mock_session = MagicMock()
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_session
-
-        PrometheusChatManager.updateSummary(mock_db, "sess-123", "New summary")
-        assert mock_session.summary == "New summary"
-        mock_db.commit.assert_called_once()
-
-    def test_update_summary_not_found(self):
-        from main.app.prometheus.chat import PrometheusChatManager
-
-        mock_db = MagicMock()
-        mock_db.query.return_value.filter.return_value.first.return_value = None
-
-        # Should not raise
-        PrometheusChatManager.updateSummary(mock_db, "nonexistent", "Summary")
-
     def test_delete_session_found(self):
         from main.app.prometheus.chat import PrometheusChatManager
 

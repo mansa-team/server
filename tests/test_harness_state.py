@@ -24,32 +24,32 @@ class TestHarnessState:
 
     def test_has_changed_true_after_set(self):
         state = HarnessState()
-        assert not state.has_changed()
+        assert not state.hasChanged()
         state.set("key", "value")
-        assert state.has_changed()
+        assert state.hasChanged()
 
     def test_has_changed_false_after_reset(self):
         state = HarnessState()
         state.set("key", "value")
-        state.reset_changed()
-        assert not state.has_changed()
+        state.resetChanged()
+        assert not state.hasChanged()
 
-    def test_to_dict_returns_copy(self):
+    def test_toDict_returns_copy(self):
         state = HarnessState()
         state.set("a", 1)
-        d = state.to_dict()
+        d = state.toDict()
         d["b"] = 2
         assert state.get("b") is None  # original unchanged
 
-    def test_to_context_empty_when_no_data(self):
+    def test_toContext_empty_when_no_data(self):
         state = HarnessState()
-        assert state.to_context() == ""
+        assert state.toContext() == ""
 
-    def test_to_context_formats_entries(self):
+    def test_toContext_formats_entries(self):
         state = HarnessState()
         state.set("step", "3/5")
         state.set("petr4_pe", 5.2)
-        ctx = state.to_context()
+        ctx = state.toContext()
         assert "- step: 3/5" in ctx
         assert "- petr4_pe: 5.2" in ctx
 
@@ -58,4 +58,4 @@ class TestHarnessState:
         state.set("key", "value")
         state.clear()
         assert state.get("key") is None
-        assert state.to_dict() == {}
+        assert state.toDict() == {}

@@ -1,12 +1,11 @@
-import asyncio
 import logging
+from config import Config, SessionLocal
+import asyncio
 from pathlib import Path
-from config import SessionLocal
 
 from forgevm import AsyncClient
 from forgevm.exceptions import SandboxNotFound
 
-from config import Config
 from main.models.sandbox import PrometheusSandbox
 
 logger = logging.getLogger(__name__)
@@ -31,7 +30,7 @@ def hostPath(userId: int, sandboxPath: str) -> Path:
     if rel == "workspace":
         rel = ""
     elif rel.startswith("workspace/"):
-        rel = rel[len("workspace/"):]
+        rel = rel[len("workspace/") :]
 
     base = (WORKSPACE_ROOT / str(userId)).resolve(strict=False)
     candidate = (base / rel).resolve(strict=False)
@@ -84,19 +83,21 @@ class SandboxManager:
                 client = getClient()
                 try:
                     sandbox = await client.get(mapping.sandboxId)
-                    # ponytail: ForgeVM metadata can be stale — Docker may have
-                    # killed the container but ForgeVM still reports state "running".
-                    # Verify alive with a tiny exec. If it fails, the sandbox is dead.
                     await sandbox.extend_ttl(f"{Config.PROMETHEUS['SANDBOX_TTL']}m")
                     await sandbox.exec(command="echo", args=["ok"], timeout="3s")
+
                     logger.info("Reusing sandbox %s for user %d", mapping.sandboxId, userId)
+
                     return mapping.sandboxId
+
                 except SandboxNotFound:
                     logger.info("Sandbox %s dead for user %d, creating new", mapping.sandboxId, userId)
+
                     db.delete(mapping)
                     db.commit()
                 except Exception as e:
                     logger.warning("Error checking sandbox %s: %s, creating new", mapping.sandboxId, e)
+
                     db.delete(mapping)
                     db.commit()
                 finally:
@@ -121,7 +122,7 @@ class SandboxManager:
             return sandboxId
 
     @staticmethod
-    async def execute(userId: int, code: str, sandboxId: str, timeout: int = 30, *, _retried: bool = False) -> dict:
+    async def execute(userId: int, code: str, sandboxId: str, timeout: int = 30, *, retried: bool = False) -> dict:
         client = getClient()
         try:
             sandbox = await client.get(sandboxId)
@@ -143,7 +144,7 @@ class SandboxManager:
 
             return output
         except SandboxNotFound:
-            if _retried:
+            if retried:
                 raise
             logger.warning("Sandbox %s dead during exec for user %d, respawning", sandboxId, userId)
         finally:
@@ -154,7 +155,7 @@ class SandboxManager:
             newId = await SandboxManager.getOrCreate(userId, db)
         finally:
             db.close()
-        return await SandboxManager.execute(userId, code, newId, timeout, _retried=True)
+        return await SandboxManager.execute(userId, code, newId, timeout, retried=True)
 
     @staticmethod
     async def executeWithWorkspace(userId: int, code: str, timeout: int = 30) -> dict:

@@ -1,9 +1,9 @@
 import logging
+from config import SessionLocal
 from typing import Any
 
 from forgevm.exceptions import SandboxNotFound
 
-from config import SessionLocal
 from main.app.prometheus.memory import PrometheusMemory
 from main.app.prometheus.sandbox import SandboxManager
 from main.app.prometheus.vector import embed
@@ -89,7 +89,7 @@ async def get_state(key: str = "", **_) -> dict:
         return {"error": "State not available"}
     if key:
         return {key: state.get(key)}
-    return state.to_dict()
+    return state.toDict()
 
 
 async def set_state(key: str, value: str, **_) -> dict:
