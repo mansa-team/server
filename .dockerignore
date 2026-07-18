@@ -20,11 +20,17 @@ graphify-out
 *.md
 LICENSE
 Dockerfile
+Dockerfile.forgevm
+!Dockerfile.sandbox
 docker-compose*.yml
 .dockerignore
+Makefile
 *.db
 *.sqlite
 .agents
 .opencode
+.opencode.json
 skills
 node_modules
+autoresearch-results.tsv
+.autoresearch

@@ -26,6 +26,7 @@ sentence-transformers
 huggingface-hub
 fastmcp
 google-genai
+forgevm
 
 # USER
 slowapi

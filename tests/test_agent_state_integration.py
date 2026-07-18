@@ -48,16 +48,16 @@ class TestSendMessageStateIntegration:
     @pytest.mark.anyio
     @patch("main.app.prometheus.agent.genai.Client")
     async def test_send_message_creates_harness_state(self, mock_client_cls):
-        """sendMessage should create a buildSystemPrompt with a state param."""
+        """streamMessage should create a buildSystemPrompt with a state param."""
         prometheus = Prometheus()
         prometheus.client = MagicMock()
         prometheus.client.aio = MagicMock()
 
-        mock_chat = AsyncMock()
-        mock_response = MagicMock()
-        mock_response.text = "Hello"
-        mock_chat.send_message = AsyncMock(return_value=mock_response)
-        prometheus.client.aio.chats.create = MagicMock(return_value=mock_chat)
+        async def fake_stream():
+            yield MagicMock(text="Hello", function_calls=None)
+
+        mock_chat_session = MagicMock()
+        mock_chat_session.send_message_stream = AsyncMock(return_value=fake_stream())
 
         mock_db = MagicMock()
 
@@ -68,11 +68,17 @@ class TestSendMessageStateIntegration:
                 with patch("main.app.prometheus.agent.Prometheus.openMCPClients") as mock_open:
                     mock_open.return_value.__aenter__ = AsyncMock(return_value=({}, []))
                     mock_open.return_value.__aexit__ = AsyncMock(return_value=False)
+                    with patch("main.app.prometheus.agent.Prometheus.makeChat") as mock_make:
+                        mock_make.return_value = mock_chat_session
 
-                    result = await prometheus.sendMessage(query="test", sessionId="s1", db=mock_db, user={"userId": 1})
+                        results = []
+                        async for chunk in prometheus.streamMessage(
+                            query="test", sessionId="s1", db=mock_db, user={"userId": 1}
+                        ):
+                            results.append(chunk)
 
-                    # buildSystemPrompt should have been called
-                    mock_build.assert_called()
+                        # buildSystemPrompt should have been called
+                        mock_build.assert_called()
 
 
 class TestStreamMessageStateIntegration:

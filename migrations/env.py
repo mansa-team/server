@@ -14,6 +14,7 @@ from main.models.base import Base
 import main.models.user
 import main.models.prometheus
 import main.models.stocksapi_key
+import main.models.sandbox
 
 config = context.config
 

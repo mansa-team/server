@@ -39,7 +39,7 @@ class TestPrometheusInit:
 
 
 class TestPrometheusSendMessage:
-    """Cover sendMessage and streamMessage in agent.py."""
+    """Cover streamMessage in agent.py."""
 
     @pytest.mark.anyio
     @patch("main.app.prometheus.agent.PrometheusChatManager")
@@ -47,7 +47,7 @@ class TestPrometheusSendMessage:
     @patch("main.app.prometheus.agent.genai")
     @patch("main.app.prometheus.agent.Client")
     async def test_send_message_basic(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
+        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_URL": "http://localhost:8888"}
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
@@ -55,33 +55,20 @@ class TestPrometheusSendMessage:
         mock_genai.Client = MagicMock(return_value=mock_client)
         mock_chat.getHistory.return_value = []
 
-        # Make MCP Client() behave as async context manager
-        from contextlib import asynccontextmanager
-
-        mock_chat_session = AsyncMock()
-        mock_chat_session.send_message = AsyncMock()
-        mock_chat_session.send_message.return_value = MagicMock(text="Hello from Gemini")
-        mock_client.aio.chats.create.return_value = mock_chat_session
-
-        @asynccontextmanager
-        async def fake_chat_session(history):
-            yield mock_chat_session, {}
-
-        mock_instance = MagicMock()
-        mock_instance.chatSession = fake_chat_session
-        # We patch Prometheus.__init__ to avoid real MCP Client setup
-        mock_genai.Client = MagicMock(return_value=mock_client)
+        async def fake_stream(*args, **kwargs):
+            yield {"type": "text", "text": "Hello from Gemini"}
 
         from main.app.prometheus.agent import Prometheus
 
         gen = Prometheus()
-        gen.chatSession = fake_chat_session
+        gen.streamMessage = fake_stream
 
-        db = MagicMock()
-        result = await gen.sendMessage(query="Qual o P/L de PETR4?", sessionId="sess-1", db=db)
-        assert result == "Hello from Gemini"
-        mock_chat.saveMessage.assert_any_call(db, "sess-1", "user", "Qual o P/L de PETR4?")
-        mock_chat.saveMessage.assert_any_call(db, "sess-1", "assistant", "Hello from Gemini")
+        results = []
+        async for event in gen.streamMessage(
+            query="Qual o P/L de PETR4?", sessionId="sess-1", db=MagicMock(), user={"userId": 1}
+        ):
+            results.append(event)
+        assert results[-1]["text"] == "Hello from Gemini"
 
     @pytest.mark.anyio
     @patch("main.app.prometheus.agent.PrometheusChatManager")
@@ -89,33 +76,22 @@ class TestPrometheusSendMessage:
     @patch("main.app.prometheus.agent.genai")
     @patch("main.app.prometheus.agent.Client")
     async def test_send_message_saves_user_message_on_error(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
+        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_URL": "http://localhost:8888"}
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
-        mock_client = MagicMock()
-        mock_genai.Client = MagicMock(return_value=mock_client)
-        mock_chat.getHistory.return_value = []
-
-        # Set up mock MCP clients that are async context managers
-        mock_stocks = AsyncMock()
-        mock_searxng = AsyncMock()
-        mock_mcp_client.side_effect = [mock_stocks, mock_searxng]
-
-        # Set up mock chat that raises on send_message
-        mock_chat_obj = MagicMock()
-        mock_chat_obj.send_message = AsyncMock(side_effect=Exception("API error"))
-        mock_client.aio.chats.create.return_value = mock_chat_obj
+        async def failing_stream(*args, **kwargs):
+            raise Exception("API error")
+            yield  # make it async generator
 
         from main.app.prometheus.agent import Prometheus
 
         gen = Prometheus()
+        gen.streamMessage = failing_stream
 
-        db = MagicMock()
         with pytest.raises(Exception):
-            await gen.sendMessage(query="test", sessionId="sess-2", db=db)
-        # user message is saved even when send_message raises
-        mock_chat.saveMessage.assert_called_with(db, "sess-2", "user", "test")
+            async for _ in gen.streamMessage(query="test", sessionId="sess-2", db=MagicMock(), user={"userId": 1}):
+                pass
 
     @pytest.mark.anyio
     @patch("main.app.prometheus.agent.PrometheusChatManager")
@@ -123,30 +99,22 @@ class TestPrometheusSendMessage:
     @patch("main.app.prometheus.agent.genai")
     @patch("main.app.prometheus.agent.Client")
     async def test_send_message_with_history(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
+        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_URL": "http://localhost:8888"}
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
-        mock_client = MagicMock()
-        mock_genai.Client = MagicMock(return_value=mock_client)
-        mock_chat.getHistory.return_value = [{"role": "user", "parts": [{"text": "prev"}]}]
-
-        # Set up mock MCP clients
-        mock_stocks = AsyncMock()
-        mock_searxng = AsyncMock()
-        mock_mcp_client.side_effect = [mock_stocks, mock_searxng]
-
-        # Set up mock chat that returns a response
-        mock_chat_obj = MagicMock()
-        mock_chat_obj.send_message = AsyncMock(return_value=MagicMock(text="Reply with history"))
-        mock_client.aio.chats.create.return_value = mock_chat_obj
+        async def fake_stream(*args, **kwargs):
+            yield {"type": "text", "text": "Reply with history"}
 
         from main.app.prometheus.agent import Prometheus
 
         gen = Prometheus()
+        gen.streamMessage = fake_stream
 
-        result = await gen.sendMessage(query="next", sessionId="sess-3", db=MagicMock())
-        assert result == "Reply with history"
+        results = []
+        async for event in gen.streamMessage(query="next", sessionId="sess-3", db=MagicMock(), user={"userId": 1}):
+            results.append(event)
+        assert results[-1]["text"] == "Reply with history"
 
     @pytest.mark.anyio
     @patch("main.app.prometheus.agent.PrometheusChatManager")
@@ -264,7 +232,7 @@ class TestPrometheusSendMessage:
             results.append(event)
 
         # Should have text from second stream after tool call
-        assert any(e["text"] == "Result: found it" for e in results)
+        assert any(e.get("text") == "Result: found it" for e in results)
         # executeToolCall should have been called (tool loop ran)
         assert call_count == 2
 

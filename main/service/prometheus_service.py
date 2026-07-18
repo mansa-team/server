@@ -10,7 +10,7 @@ from main.controller.prometheus_controller import router as prometheusRouter
 from main.utils.models.loader import getEmbeddingModel
 
 from sqlalchemy.orm import Session
-from main.models.memory import UserMemory
+from main.models.memory import PrometheusMemory
 
 
 logger = logging.getLogger(__name__)
@@ -21,8 +21,9 @@ DECAY_FACTORS = {
     "feedback": 0.97,  # medium-sticky
     "context": 0.90,  # ephemeral — decays fast
 }
+
 DEFAULT_DECAY_FACTOR = 0.95
-DECAY_FACTOR = DEFAULT_DECAY_FACTOR  # backward-compat alias
+DECAY_FACTOR = DEFAULT_DECAY_FACTOR  # alias for backward compat
 ARCHIVE_SCORE_THRESHOLD = 0.1
 ARCHIVE_DAYS_THRESHOLD = 90
 
@@ -35,7 +36,7 @@ def memoryMaintenance(db: Session | None = None):
         assert db is not None
         nowNaive = datetime.now(timezone("America/Sao_Paulo")).replace(tzinfo=None)
 
-        active = db.query(UserMemory).filter(UserMemory.archivedAt.is_(None)).all()
+        active = db.query(PrometheusMemory).filter(PrometheusMemory.archivedAt.is_(None)).all()
         if not active:
             return
 

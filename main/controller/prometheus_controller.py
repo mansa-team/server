@@ -106,25 +106,6 @@ def deleteSession(
     return {"success": True, "message": "Session deleted"}
 
 
-@router.post("/chat")
-@limiter.limit("5/minute")
-async def chat(
-    request: Request,
-    db: Session = Depends(getSession),
-    query: str = Body(..., min_length=1, max_length=10000, embed=True),
-    sessionId: str = Body(default=None, embed=True),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
-):
-    if not sessionId:
-        sessionId = PrometheusChatManager.createSession(db, user["userId"], query[:30] + "...")
-    else:
-        verifySessionOwnsership(db, sessionId, user["userId"])
-
-    response = await Prometheus().sendMessage(query, sessionId=sessionId, db=db, user=user)
-
-    return {"success": True, "response": response, "sessionId": sessionId, "timestamp": str(time.time())}
-
-
 @router.post("/chat/stream")
 @limiter.limit("5/minute")
 async def chat_stream(

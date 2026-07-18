@@ -11,7 +11,7 @@ from main.service.prometheus_service import (
     ARCHIVE_SCORE_THRESHOLD,
     ARCHIVE_DAYS_THRESHOLD,
 )
-from main.models.memory import UserMemory
+from main.models.memory import PrometheusMemory
 
 
 @pytest.fixture
@@ -26,7 +26,7 @@ def create_memories(dbSession, brt):
     def _create(userId, key, baseScore=1.0, daysOld=0, accessCount=0):
         now = brt.localize(datetime.now())
         lastAccessed = now - timedelta(days=daysOld)
-        memory = UserMemory(
+        memory = PrometheusMemory(
             userId=userId,
             memoryKey=key,
             memoryValue=f"value_{key}",

@@ -1018,28 +1018,29 @@ class TestPrometheusDeleteSession:
 
 
 class TestPrometheusChat:
-    """Covers lines 114-115, 117-120, 122, 125: POST /prometheus/chat."""
+    """Covers lines 109-136: POST /prometheus/chat/stream (SSE)."""
 
     def test_chat_new_session(self):
-        """Covers lines 111-112: sessionId is None, new session created."""
+        """Covers lines 118-119: sessionId is None, new session created."""
+
+        async def fake_stream(query, sessionId=None, db=None, user=None):
+            yield {"type": "text", "text": "AI response here"}
+
         with (
             patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm,
             patch("main.controller.prometheus_controller.Prometheus") as mock_prom,
         ):
             mock_pcm.createSession.return_value = "new-chat-id"
             mock_pcm.getHistory.return_value = []
-            mock_prom.return_value.sendMessage = AsyncMock(return_value="AI response here")
+            mock_prom.return_value.streamMessage = fake_stream
 
             client, _, _ = _make_prometheus_client()
-            resp = client.post("/prometheus/chat", json={"query": "Hello AI"})
+            resp = client.post("/prometheus/chat/stream", json={"query": "Hello AI"})
             assert resp.status_code == 200
-            data = resp.json()
-            assert data["success"] is True
-            assert data["response"] == "AI response here"
             mock_pcm.createSession.assert_called_once()
 
     def test_chat_existing_session_verified(self):
-        """Covers lines 114-115, 117-120, 122: existing session with verified ownership."""
+        """Covers lines 120-121: existing session with verified ownership."""
         from main.app.user.user import UserManager
         from main.app.authentication.util import extractTokenPayload
 
@@ -1058,6 +1059,9 @@ class TestPrometheusChat:
         }
         app.dependency_overrides[extractTokenPayload] = lambda: {"userId": 1}
 
+        async def fake_stream(query, sessionId=None, db=None, user=None):
+            yield {"type": "text", "text": "Response"}
+
         with (
             patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm,
             patch("main.controller.prometheus_controller.Prometheus") as mock_prom,
@@ -1071,16 +1075,15 @@ class TestPrometheusChat:
 
             mock_pcm.verifySessionOwnership.return_value = True
             mock_pcm.getHistory.return_value = [{"role": "user", "parts": [{"text": "hi"}]}]
-            mock_prom.return_value.sendMessage = AsyncMock(return_value="Response")
+            mock_prom.return_value.streamMessage = fake_stream
 
             client = _TestClient(app, raise_server_exceptions=False)
-            resp = client.post("/prometheus/chat", json={"query": "Follow up", "sessionId": "existing-sid"})
+            resp = client.post("/prometheus/chat/stream", json={"query": "Follow up", "sessionId": "existing-sid"})
             assert resp.status_code == 200
-            assert resp.json()["success"] is True
             mock_pcm.verifySessionOwnership.assert_called_once()
 
     def test_chat_existing_session_not_owner(self):
-        """Covers lines 114-115: session ownership check fails."""
+        """Covers lines 120-121: session ownership check fails."""
         from main.app.user.user import UserManager
         from main.app.authentication.util import extractTokenPayload
 
@@ -1112,23 +1115,27 @@ class TestPrometheusChat:
             mock_pcm.verifySessionOwnership.return_value = False
 
             client = _TestClient(app, raise_server_exceptions=False)
-            # sessionId is now a Body param (embed=True)
-            resp = client.post("/prometheus/chat", json={"query": "Hack", "sessionId": "others-sid"})
+            resp = client.post("/prometheus/chat/stream", json={"query": "Hack", "sessionId": "others-sid"})
             assert resp.status_code == 403
 
     def test_chat_generic_exception(self):
-        """Generic Exception in chat propagates to FastAPI's default 500 handler."""
+        """Generic Exception in chat propagates via SSE error event."""
+
+        async def failing_stream(query, sessionId=None, db=None, user=None):
+            raise RuntimeError("Gemini API down")
+            yield  # make it async generator
+
         with (
             patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm,
             patch("main.controller.prometheus_controller.Prometheus") as mock_prom,
         ):
             mock_pcm.createSession.return_value = "err-sess"
             mock_pcm.getHistory.return_value = []
-            mock_prom.sendMessage.side_effect = RuntimeError("Gemini API down")
+            mock_prom.return_value.streamMessage = failing_stream
 
             client, _, _ = _make_prometheus_client()
-            resp = client.post("/prometheus/chat", json={"query": "crash"})
-            assert resp.status_code == 500
+            resp = client.post("/prometheus/chat/stream", json={"query": "crash"})
+            assert resp.status_code == 200  # SSE stream returns 200, error is in the stream data
 
 
 # =========================================================================
