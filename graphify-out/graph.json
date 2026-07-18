@@ -120,7 +120,7 @@
       "source_file": "config.py",
       "source_location": "L1",
       "id": "config_py",
-      "community": 86,
+      "community": 335,
       "norm_label": "config.py"
     },
     {
@@ -129,7 +129,7 @@
       "source_file": "config.py",
       "source_location": "L10",
       "id": "server_config_applyipv4force",
-      "community": 86,
+      "community": 335,
       "norm_label": "applyipv4force()"
     },
     {
@@ -138,7 +138,7 @@
       "source_file": "config.py",
       "source_location": "L23",
       "id": "server_config_basemansasettings",
-      "community": 86,
+      "community": 335,
       "norm_label": "basemansasettings"
     },
     {
@@ -147,7 +147,7 @@
       "source_file": "",
       "source_location": "",
       "id": "basesettings",
-      "community": 86,
+      "community": 335,
       "norm_label": "basesettings"
     },
     {
@@ -156,7 +156,7 @@
       "source_file": "config.py",
       "source_location": "L24",
       "id": "server_config_basemansasettings_get",
-      "community": 86,
+      "community": 335,
       "norm_label": ".get()"
     },
     {
@@ -165,7 +165,7 @@
       "source_file": "config.py",
       "source_location": "L28",
       "id": "server_config_mysqlsettings",
-      "community": 86,
+      "community": 335,
       "norm_label": "mysqlsettings"
     },
     {
@@ -174,7 +174,7 @@
       "source_file": "config.py",
       "source_location": "L43",
       "id": "server_config_usersettings",
-      "community": 86,
+      "community": 335,
       "norm_label": "usersettings"
     },
     {
@@ -183,7 +183,7 @@
       "source_file": "config.py",
       "source_location": "L54",
       "id": "server_config_usersettings_getitem",
-      "community": 86,
+      "community": 335,
       "norm_label": ".__getitem__()"
     },
     {
@@ -192,7 +192,7 @@
       "source_file": "config.py",
       "source_location": "L63",
       "id": "server_config_stocksapisettings",
-      "community": 86,
+      "community": 434,
       "norm_label": "stocksapisettings"
     },
     {
@@ -201,7 +201,7 @@
       "source_file": "config.py",
       "source_location": "L73",
       "id": "server_config_stocksapisettings_getitem",
-      "community": 86,
+      "community": 335,
       "norm_label": ".__getitem__()"
     },
     {
@@ -210,7 +210,7 @@
       "source_file": "config.py",
       "source_location": "L78",
       "id": "server_config_prometheussettings",
-      "community": 86,
+      "community": 459,
       "norm_label": "prometheussettings"
     },
     {
@@ -219,7 +219,7 @@
       "source_file": "config.py",
       "source_location": "L92",
       "id": "server_config_prometheussettings_getitem",
-      "community": 86,
+      "community": 335,
       "norm_label": ".__getitem__()"
     },
     {
@@ -228,7 +228,7 @@
       "source_file": "config.py",
       "source_location": "L97",
       "id": "server_config_scrapersettings",
-      "community": 86,
+      "community": 434,
       "norm_label": "scrapersettings"
     },
     {
@@ -237,7 +237,7 @@
       "source_file": "config.py",
       "source_location": "L105",
       "id": "server_config_scrapersettings_getitem",
-      "community": 86,
+      "community": 434,
       "norm_label": ".__getitem__()"
     },
     {
@@ -246,7 +246,7 @@
       "source_file": "config.py",
       "source_location": "L109",
       "id": "server_config_discordsettings",
-      "community": 86,
+      "community": 335,
       "norm_label": "discordsettings"
     },
     {
@@ -255,7 +255,7 @@
       "source_file": "config.py",
       "source_location": "L114",
       "id": "server_config_discordsettings_getitem",
-      "community": 86,
+      "community": 335,
       "norm_label": ".__getitem__()"
     },
     {
@@ -264,7 +264,7 @@
       "source_file": "config.py",
       "source_location": "L118",
       "id": "server_config_config",
-      "community": 86,
+      "community": 211,
       "norm_label": "config"
     },
     {
@@ -273,7 +273,7 @@
       "source_file": "config.py",
       "source_location": "L155",
       "id": "server_config_getsession",
-      "community": 86,
+      "community": 335,
       "norm_label": "getsession()"
     },
     {
@@ -601,19 +601,19 @@
       "norm_label": "agentloop.jsx"
     },
     {
-      "label": "ToolCard()",
+      "label": "ToolChip()",
       "file_type": "code",
       "source_file": "frontend/src/components/AgentLoop.jsx",
       "source_location": "L3",
-      "id": "components_agentloop_toolcard",
+      "id": "components_agentloop_toolchip",
       "community": 81,
-      "norm_label": "toolcard()"
+      "norm_label": "toolchip()"
     },
     {
       "label": "AgentLoop()",
       "file_type": "code",
       "source_file": "frontend/src/components/AgentLoop.jsx",
-      "source_location": "L27",
+      "source_location": "L43",
       "id": "components_agentloop_agentloop",
       "community": 81,
       "norm_label": "agentloop()"
@@ -703,7 +703,7 @@
       "label": "MessageList()",
       "file_type": "code",
       "source_file": "frontend/src/components/MessageList.jsx",
-      "source_location": "L4",
+      "source_location": "L5",
       "id": "components_messagelist_messagelist",
       "community": 81,
       "norm_label": "messagelist()"
@@ -1164,7 +1164,7 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L44",
       "id": "authentication_util_verifyaccesstoken",
-      "community": 164,
+      "community": 345,
       "norm_label": "verifyaccesstoken()"
     },
     {
@@ -1434,7 +1434,7 @@
       "source_file": "main/app/prometheus/memory.py",
       "source_location": "L50",
       "id": "prometheus_memory_prometheusmemory",
-      "community": 56,
+      "community": 300,
       "norm_label": "prometheusmemory"
     },
     {
@@ -1686,7 +1686,7 @@
       "source_file": "main/app/prometheus/state.py",
       "source_location": "L14",
       "id": "prometheus_state_harnessstate_set",
-      "community": 57,
+      "community": 53,
       "norm_label": ".set()"
     },
     {
@@ -1758,7 +1758,7 @@
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L43",
       "id": "prometheus_tools_save_memory",
-      "community": 368,
+      "community": 456,
       "norm_label": "save_memory()"
     },
     {
@@ -1785,7 +1785,7 @@
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L113",
       "id": "prometheus_tools_execute_code",
-      "community": 464,
+      "community": 71,
       "norm_label": "execute_code()"
     },
     {
@@ -1839,7 +1839,7 @@
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L44",
       "id": "prometheus_tools_rationale_44",
-      "community": 368,
+      "community": 456,
       "norm_label": "store a memory about the user's preferences, analysis results, or feedback."
     },
     {
@@ -1866,7 +1866,7 @@
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L114",
       "id": "prometheus_tools_rationale_114",
-      "community": 464,
+      "community": 71,
       "norm_label": "execute python code in an isolated sandbox. use for quantitative analysis,"
     },
     {
@@ -1902,7 +1902,7 @@
       "source_file": "main/app/prometheus/vector.py",
       "source_location": "L1",
       "id": "main_app_prometheus_vector_py",
-      "community": 368,
+      "community": 135,
       "norm_label": "vector.py"
     },
     {
@@ -1947,7 +1947,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L1",
       "id": "main_app_scraper_b3_scraper_py",
-      "community": 86,
+      "community": 417,
       "norm_label": "scraper.py"
     },
     {
@@ -1956,7 +1956,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L32",
       "id": "scraper_b3_scraper_getcurrentselic",
-      "community": 86,
+      "community": 417,
       "norm_label": "getcurrentselic()"
     },
     {
@@ -1974,7 +1974,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L43",
       "id": "scraper_b3_scraper_b3scraper_init",
-      "community": 86,
+      "community": 417,
       "norm_label": ".__init__()"
     },
     {
@@ -1983,7 +1983,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L56",
       "id": "scraper_b3_scraper_getinitialdata",
-      "community": 86,
+      "community": 417,
       "norm_label": "getinitialdata()"
     },
     {
@@ -1992,7 +1992,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L111",
       "id": "scraper_b3_scraper_historicalrentability",
-      "community": 86,
+      "community": 417,
       "norm_label": "historicalrentability()"
     },
     {
@@ -2001,7 +2001,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L134",
       "id": "scraper_b3_scraper_historicaldividends",
-      "community": 86,
+      "community": 417,
       "norm_label": "historicaldividends()"
     },
     {
@@ -2010,7 +2010,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L165",
       "id": "scraper_b3_scraper_historicaldividendyields",
-      "community": 86,
+      "community": 417,
       "norm_label": "historicaldividendyields()"
     },
     {
@@ -2019,7 +2019,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L193",
       "id": "scraper_b3_scraper_historicalrevenue",
-      "community": 86,
+      "community": 417,
       "norm_label": "historicalrevenue()"
     },
     {
@@ -2028,7 +2028,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L214",
       "id": "scraper_b3_scraper_historicalcotationprofits",
-      "community": 86,
+      "community": 417,
       "norm_label": "historicalcotationprofits()"
     },
     {
@@ -2046,7 +2046,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L240",
       "id": "scraper_b3_scraper_historicalcotations",
-      "community": 86,
+      "community": 417,
       "norm_label": "historicalcotations()"
     },
     {
@@ -2055,7 +2055,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L257",
       "id": "scraper_b3_scraper_tagalong",
-      "community": 86,
+      "community": 417,
       "norm_label": "tagalong()"
     },
     {
@@ -2064,7 +2064,7 @@
       "source_file": "main/app/scraper_b3/scraper.py",
       "source_location": "L278",
       "id": "scraper_b3_scraper_stocknews",
-      "community": 86,
+      "community": 417,
       "norm_label": "stocknews()"
     },
     {
@@ -2865,7 +2865,7 @@
       "source_file": "main/controller/user_controller.py",
       "source_location": "L58",
       "id": "controller_user_controller_getsessions",
-      "community": 164,
+      "community": 345,
       "norm_label": "getsessions()"
     },
     {
@@ -2910,7 +2910,7 @@
       "source_file": "main/models/memory.py",
       "source_location": "L1",
       "id": "main_models_memory_py",
-      "community": 56,
+      "community": 300,
       "norm_label": "memory.py"
     },
     {
@@ -2919,7 +2919,7 @@
       "source_file": "main/models/memory.py",
       "source_location": "L7",
       "id": "models_memory_prometheusmemory",
-      "community": 56,
+      "community": 300,
       "norm_label": "prometheusmemory"
     },
     {
@@ -2928,7 +2928,7 @@
       "source_file": "",
       "source_location": "",
       "id": "base",
-      "community": 56,
+      "community": 300,
       "norm_label": "base"
     },
     {
@@ -3090,7 +3090,7 @@
       "source_file": "main/service/authentication_service.py",
       "source_location": "L1",
       "id": "main_service_authentication_service_py",
-      "community": 86,
+      "community": 211,
       "norm_label": "authentication_service.py"
     },
     {
@@ -3099,7 +3099,7 @@
       "source_file": "main/service/authentication_service.py",
       "source_location": "L10",
       "id": "service_authentication_service_authenticationservice",
-      "community": 86,
+      "community": 211,
       "norm_label": "authenticationservice"
     },
     {
@@ -3108,7 +3108,7 @@
       "source_file": "main/service/authentication_service.py",
       "source_location": "L12",
       "id": "service_authentication_service_initialize",
-      "community": 86,
+      "community": 211,
       "norm_label": "initialize()"
     },
     {
@@ -3126,7 +3126,7 @@
       "source_file": "main/service/prometheus_service.py",
       "source_location": "L31",
       "id": "service_prometheus_service_memorymaintenance",
-      "community": 132,
+      "community": 367,
       "norm_label": "memorymaintenance()"
     },
     {
@@ -3135,7 +3135,7 @@
       "source_file": "main/service/prometheus_service.py",
       "source_location": "L77",
       "id": "service_prometheus_service_prometheusservice",
-      "community": 56,
+      "community": 300,
       "norm_label": "prometheusservice"
     },
     {
@@ -3216,7 +3216,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L1",
       "id": "main_service_user_service_py",
-      "community": 440,
+      "community": 211,
       "norm_label": "user_service.py"
     },
     {
@@ -3225,7 +3225,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L15",
       "id": "service_user_service_removeinactivesessions",
-      "community": 440,
+      "community": 211,
       "norm_label": "removeinactivesessions()"
     },
     {
@@ -3234,7 +3234,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L37",
       "id": "service_user_service_userservice",
-      "community": 440,
+      "community": 211,
       "norm_label": "userservice"
     },
     {
@@ -3243,7 +3243,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L39",
       "id": "service_user_service_initialize",
-      "community": 440,
+      "community": 211,
       "norm_label": "initialize()"
     },
     {
@@ -3360,7 +3360,7 @@
       "source_file": "main/utils/errors.py",
       "source_location": "L65",
       "id": "utils_errors_registererrorhandlers",
-      "community": 55,
+      "community": 63,
       "norm_label": "registererrorhandlers()"
     },
     {
@@ -3495,7 +3495,7 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L5",
       "id": "utils_roles_permission",
-      "community": 56,
+      "community": 84,
       "norm_label": "permission"
     },
     {
@@ -9777,7 +9777,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L50",
       "id": "tests_test_auth_util_testauthutil_test_create_access_token_custom_expiry",
-      "community": 74,
+      "community": 108,
       "norm_label": ".test_create_access_token_custom_expiry()"
     },
     {
@@ -9786,7 +9786,7 @@
       "source_file": "tests/test_auth_util.py",
       "source_location": "L61",
       "id": "tests_test_auth_util_testauthutil_test_create_access_token_contains_data",
-      "community": 108,
+      "community": 74,
       "norm_label": ".test_create_access_token_contains_data()"
     },
     {
@@ -9885,7 +9885,7 @@
       "source_file": "tests/test_config.py",
       "source_location": "L1",
       "id": "tests_test_config_py",
-      "community": 86,
+      "community": 434,
       "norm_label": "test_config.py"
     },
     {
@@ -9894,7 +9894,7 @@
       "source_file": "tests/test_config.py",
       "source_location": "L5",
       "id": "tests_test_config_testconfig",
-      "community": 86,
+      "community": 434,
       "norm_label": "testconfig"
     },
     {
@@ -9903,7 +9903,7 @@
       "source_file": "tests/test_config.py",
       "source_location": "L6",
       "id": "tests_test_config_testconfig_test_stocks_api_getitem",
-      "community": 86,
+      "community": 434,
       "norm_label": ".test_stocks_api_getitem()"
     },
     {
@@ -9912,7 +9912,7 @@
       "source_file": "tests/test_config.py",
       "source_location": "L12",
       "id": "tests_test_config_testconfig_test_prometheus_getitem",
-      "community": 86,
+      "community": 434,
       "norm_label": ".test_prometheus_getitem()"
     },
     {
@@ -9921,7 +9921,7 @@
       "source_file": "tests/test_config.py",
       "source_location": "L17",
       "id": "tests_test_config_testconfig_test_scraper_getitem",
-      "community": 86,
+      "community": 434,
       "norm_label": ".test_scraper_getitem()"
     },
     {
@@ -9930,7 +9930,7 @@
       "source_file": "tests/test_config.py",
       "source_location": "L22",
       "id": "tests_test_config_testconfig_test_base_mansa_settings_get",
-      "community": 86,
+      "community": 434,
       "norm_label": ".test_base_mansa_settings_get()"
     },
     {
@@ -10290,7 +10290,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L215",
       "id": "tests_test_controllers_coverage_testloginendpoint",
-      "community": 63,
+      "community": 50,
       "norm_label": "testloginendpoint"
     },
     {
@@ -10317,7 +10317,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L257",
       "id": "tests_test_controllers_coverage_testlogoutendpoint",
-      "community": 63,
+      "community": 50,
       "norm_label": "testlogoutendpoint"
     },
     {
@@ -10461,7 +10461,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L527",
       "id": "tests_test_controllers_coverage_testuserhealth",
-      "community": 50,
+      "community": 460,
       "norm_label": "testuserhealth"
     },
     {
@@ -10470,7 +10470,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L530",
       "id": "tests_test_controllers_coverage_testuserhealth_test_health",
-      "community": 50,
+      "community": 460,
       "norm_label": ".test_health()"
     },
     {
@@ -10821,7 +10821,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1023",
       "id": "tests_test_controllers_coverage_testprometheuschat_test_chat_new_session",
-      "community": 172,
+      "community": 67,
       "norm_label": ".test_chat_new_session()"
     },
     {
@@ -10839,7 +10839,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1085",
       "id": "tests_test_controllers_coverage_testprometheuschat_test_chat_existing_session_not_owner",
-      "community": 55,
+      "community": 172,
       "norm_label": ".test_chat_existing_session_not_owner()"
     },
     {
@@ -10857,7 +10857,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1144",
       "id": "tests_test_controllers_coverage_teststocksapihealth",
-      "community": 402,
+      "community": 50,
       "norm_label": "teststocksapihealth"
     },
     {
@@ -10866,7 +10866,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1147",
       "id": "tests_test_controllers_coverage_teststocksapihealth_test_health",
-      "community": 402,
+      "community": 50,
       "norm_label": ".test_health()"
     },
     {
@@ -10947,7 +10947,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1229",
       "id": "tests_test_controllers_coverage_testaddroletouser",
-      "community": 458,
+      "community": 182,
       "norm_label": "testaddroletouser"
     },
     {
@@ -10956,7 +10956,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1232",
       "id": "tests_test_controllers_coverage_testaddroletouser_test_add_role_success",
-      "community": 459,
+      "community": 182,
       "norm_label": ".test_add_role_success()"
     },
     {
@@ -10965,7 +10965,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1249",
       "id": "tests_test_controllers_coverage_testaddroletouser_test_add_role_already_has_role",
-      "community": 460,
+      "community": 332,
       "norm_label": ".test_add_role_already_has_role()"
     },
     {
@@ -11010,7 +11010,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1307",
       "id": "tests_test_controllers_coverage_testgetcurrentuser_test_get_current_user_session_revoked",
-      "community": 417,
+      "community": 332,
       "norm_label": ".test_get_current_user_session_revoked()"
     },
     {
@@ -11019,7 +11019,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1323",
       "id": "tests_test_controllers_coverage_testgetcurrentuser_test_get_current_user_not_found",
-      "community": 451,
+      "community": 332,
       "norm_label": ".test_get_current_user_not_found()"
     },
     {
@@ -11028,7 +11028,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1340",
       "id": "tests_test_controllers_coverage_testgetcurrentuser_test_get_current_user_generic_exception",
-      "community": 461,
+      "community": 332,
       "norm_label": ".test_get_current_user_generic_exception()"
     },
     {
@@ -11037,7 +11037,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1357",
       "id": "tests_test_controllers_coverage_testgetcurrentuser_test_get_current_user_no_session_id",
-      "community": 456,
+      "community": 332,
       "norm_label": ".test_get_current_user_no_session_id()"
     },
     {
@@ -11046,7 +11046,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1381",
       "id": "tests_test_controllers_coverage_testhashpasswordempty",
-      "community": 50,
+      "community": 164,
       "norm_label": "testhashpasswordempty"
     },
     {
@@ -11055,7 +11055,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1384",
       "id": "tests_test_controllers_coverage_testhashpasswordempty_test_empty_password_raises",
-      "community": 50,
+      "community": 164,
       "norm_label": ".test_empty_password_raises()"
     },
     {
@@ -11082,7 +11082,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1410",
       "id": "tests_test_controllers_coverage_testverifyaccesstoken_test_invalid_token",
-      "community": 164,
+      "community": 345,
       "norm_label": ".test_invalid_token()"
     },
     {
@@ -11235,7 +11235,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L216",
       "id": "tests_test_controllers_coverage_rationale_216",
-      "community": 63,
+      "community": 50,
       "norm_label": "covers lines 87-93, 102: login success and failure paths."
     },
     {
@@ -11262,7 +11262,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L258",
       "id": "tests_test_controllers_coverage_rationale_258",
-      "community": 63,
+      "community": 50,
       "norm_label": "covers lines 107, 109-130, 133: logout token extraction and revocation."
     },
     {
@@ -11280,7 +11280,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L281",
       "id": "tests_test_controllers_coverage_rationale_281",
-      "community": 63,
+      "community": 50,
       "norm_label": "covers lines 111-113: token extracted from authorization bearer header."
     },
     {
@@ -11406,7 +11406,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L528",
       "id": "tests_test_controllers_coverage_rationale_528",
-      "community": 50,
+      "community": 460,
       "norm_label": "covers line 19: get /user/health."
     },
     {
@@ -11667,7 +11667,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1024",
       "id": "tests_test_controllers_coverage_rationale_1024",
-      "community": 172,
+      "community": 67,
       "norm_label": "covers lines 118-119: sessionid is none, new session created."
     },
     {
@@ -11685,7 +11685,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1086",
       "id": "tests_test_controllers_coverage_rationale_1086",
-      "community": 55,
+      "community": 172,
       "norm_label": "covers lines 120-121: session ownership check fails."
     },
     {
@@ -11703,7 +11703,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1145",
       "id": "tests_test_controllers_coverage_rationale_1145",
-      "community": 402,
+      "community": 50,
       "norm_label": "covers line 18: get /stocks/health."
     },
     {
@@ -11766,7 +11766,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1230",
       "id": "tests_test_controllers_coverage_rationale_1230",
-      "community": 458,
+      "community": 182,
       "norm_label": "covers lines 13, 17, 19-20, 22-27: usermanager.addroletouser."
     },
     {
@@ -11775,7 +11775,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1233",
       "id": "tests_test_controllers_coverage_rationale_1233",
-      "community": 459,
+      "community": 182,
       "norm_label": "covers lines 17, 22-27: user found, role not present, role added."
     },
     {
@@ -11784,7 +11784,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1250",
       "id": "tests_test_controllers_coverage_rationale_1250",
-      "community": 460,
+      "community": 332,
       "norm_label": "covers line 27: user already has the role."
     },
     {
@@ -11820,7 +11820,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1308",
       "id": "tests_test_controllers_coverage_rationale_1308",
-      "community": 417,
+      "community": 332,
       "norm_label": "covers lines 42-44: session validation fails."
     },
     {
@@ -11829,7 +11829,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1324",
       "id": "tests_test_controllers_coverage_rationale_1324",
-      "community": 451,
+      "community": 332,
       "norm_label": "covers lines 48-49: user not in db."
     },
     {
@@ -11838,7 +11838,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1341",
       "id": "tests_test_controllers_coverage_rationale_1341",
-      "community": 461,
+      "community": 332,
       "norm_label": "covers lines 65-67: unexpected exception."
     },
     {
@@ -11847,7 +11847,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1358",
       "id": "tests_test_controllers_coverage_rationale_1358",
-      "community": 456,
+      "community": 332,
       "norm_label": "covers lines 37-38, 46, 51, 58 (sessionid is none): skips session validation."
     },
     {
@@ -11883,7 +11883,7 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1411",
       "id": "tests_test_controllers_coverage_rationale_1411",
-      "community": 164,
+      "community": 345,
       "norm_label": "covers lines 50-51: jwt.invalidtokenerror."
     },
     {
@@ -12774,7 +12774,7 @@
       "source_file": "tests/test_harness_state.py",
       "source_location": "L1",
       "id": "tests_test_harness_state_py",
-      "community": 369,
+      "community": 175,
       "norm_label": "test_harness_state.py"
     },
     {
@@ -13413,7 +13413,7 @@
       "source_file": "tests/test_memory_dedup.py",
       "source_location": "L36",
       "id": "tests_test_memory_dedup_testsimilarkeymerges",
-      "community": 56,
+      "community": 300,
       "norm_label": "testsimilarkeymerges"
     },
     {
@@ -13431,7 +13431,7 @@
       "source_file": "tests/test_memory_dedup.py",
       "source_location": "L46",
       "id": "tests_test_memory_dedup_testdifferentkeysnomerge",
-      "community": 56,
+      "community": 300,
       "norm_label": "testdifferentkeysnomerge"
     },
     {
@@ -13485,7 +13485,7 @@
       "source_file": "tests/test_memory_dedup.py",
       "source_location": "L73",
       "id": "tests_test_memory_dedup_testthresholdboundary",
-      "community": 56,
+      "community": 300,
       "norm_label": "testthresholdboundary"
     },
     {
@@ -13728,7 +13728,7 @@
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L170",
       "id": "tests_test_memory_maintenance_testemptydatabase",
-      "community": 56,
+      "community": 300,
       "norm_label": "testemptydatabase"
     },
     {
@@ -13737,7 +13737,7 @@
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L171",
       "id": "tests_test_memory_maintenance_testemptydatabase_test_no_memories_does_not_crash",
-      "community": 132,
+      "community": 367,
       "norm_label": ".test_no_memories_does_not_crash()"
     },
     {
@@ -13854,7 +13854,7 @@
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L8",
       "id": "tests_test_memory_manager_testgetmemorylimit",
-      "community": 56,
+      "community": 457,
       "norm_label": "testgetmemorylimit"
     },
     {
@@ -13863,7 +13863,7 @@
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L9",
       "id": "tests_test_memory_manager_testgetmemorylimit_test_basic_user",
-      "community": 56,
+      "community": 457,
       "norm_label": ".test_basic_user()"
     },
     {
@@ -13872,7 +13872,7 @@
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L12",
       "id": "tests_test_memory_manager_testgetmemorylimit_test_premium_user",
-      "community": 56,
+      "community": 457,
       "norm_label": ".test_premium_user()"
     },
     {
@@ -13881,7 +13881,7 @@
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L15",
       "id": "tests_test_memory_manager_testgetmemorylimit_test_admin_user",
-      "community": 56,
+      "community": 457,
       "norm_label": ".test_admin_user()"
     },
     {
@@ -13890,7 +13890,7 @@
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L19",
       "id": "tests_test_memory_manager_testupsertmemory",
-      "community": 56,
+      "community": 402,
       "norm_label": "testupsertmemory"
     },
     {
@@ -13899,7 +13899,7 @@
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L20",
       "id": "tests_test_memory_manager_testupsertmemory_test_create",
-      "community": 56,
+      "community": 402,
       "norm_label": ".test_create()"
     },
     {
@@ -13908,7 +13908,7 @@
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L33",
       "id": "tests_test_memory_manager_testupsertmemory_test_update",
-      "community": 56,
+      "community": 402,
       "norm_label": ".test_update()"
     },
     {
@@ -13917,7 +13917,7 @@
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L40",
       "id": "tests_test_memory_manager_testupsertmemory_test_unchanged",
-      "community": 56,
+      "community": 402,
       "norm_label": ".test_unchanged()"
     },
     {
@@ -13926,7 +13926,7 @@
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L45",
       "id": "tests_test_memory_manager_testupsertmemory_test_limit_enforcement",
-      "community": 56,
+      "community": 402,
       "norm_label": ".test_limit_enforcement()"
     },
     {
@@ -13935,7 +13935,7 @@
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L59",
       "id": "tests_test_memory_manager_testupsertmemory_test_limit_not_enforced_without_roles",
-      "community": 56,
+      "community": 402,
       "norm_label": ".test_limit_not_enforced_without_roles()"
     },
     {
@@ -13944,7 +13944,7 @@
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L66",
       "id": "tests_test_memory_manager_testupsertmemory_test_upsert_with_embedding",
-      "community": 56,
+      "community": 402,
       "norm_label": ".test_upsert_with_embedding()"
     },
     {
@@ -14169,7 +14169,7 @@
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L64",
       "id": "tests_test_memory_tools_wiring_testtoolregistry",
-      "community": 215,
+      "community": 387,
       "norm_label": "testtoolregistry"
     },
     {
@@ -14178,7 +14178,7 @@
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L67",
       "id": "tests_test_memory_tools_wiring_testtoolregistry_test_registry_contains_memory_tools",
-      "community": 215,
+      "community": 387,
       "norm_label": ".test_registry_contains_memory_tools()"
     },
     {
@@ -14187,7 +14187,7 @@
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L71",
       "id": "tests_test_memory_tools_wiring_testtoolregistry_test_registry_values_are_callable",
-      "community": 215,
+      "community": 387,
       "norm_label": ".test_registry_values_are_callable()"
     },
     {
@@ -14196,7 +14196,7 @@
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L75",
       "id": "tests_test_memory_tools_wiring_testtoolregistry_test_registry_matches_tool_names",
-      "community": 215,
+      "community": 387,
       "norm_label": ".test_registry_matches_tool_names()"
     },
     {
@@ -14205,7 +14205,7 @@
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L79",
       "id": "tests_test_memory_tools_wiring_testmakechatincludesmemorytools",
-      "community": 387,
+      "community": 461,
       "norm_label": "testmakechatincludesmemorytools"
     },
     {
@@ -14277,7 +14277,7 @@
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L65",
       "id": "tests_test_memory_tools_wiring_rationale_65",
-      "community": 215,
+      "community": 387,
       "norm_label": "tool_registry pattern must work correctly."
     },
     {
@@ -14286,7 +14286,7 @@
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L80",
       "id": "tests_test_memory_tools_wiring_rationale_80",
-      "community": 387,
+      "community": 461,
       "norm_label": "makechat must include memory_tools alongside mcp sessions."
     },
     {
@@ -15843,7 +15843,7 @@
       "source_file": "tests/test_prometheus_tools.py",
       "source_location": "L114",
       "id": "tests_test_prometheus_tools_teststatetoolfunctions_test_get_state_no_state_returns_error",
-      "community": 318,
+      "community": 311,
       "norm_label": ".test_get_state_no_state_returns_error()"
     },
     {
@@ -17922,7 +17922,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L23",
       "id": "tests_test_stocks_api_coverage_make_stocks_df",
-      "community": 57,
+      "community": 53,
       "norm_label": "_make_stocks_df()"
     },
     {
@@ -18273,7 +18273,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L419",
       "id": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_float_nan_direct",
-      "community": 57,
+      "community": 463,
       "norm_label": ".test_deserialize_float_nan_direct()"
     },
     {
@@ -18309,7 +18309,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L473",
       "id": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_multiple_special_cols_with_none",
-      "community": 457,
+      "community": 57,
       "norm_label": ".test_deserialize_multiple_special_cols_with_none()"
     },
     {
@@ -18390,7 +18390,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L553",
       "id": "tests_test_stocks_api_coverage_testqueryhistorical",
-      "community": 66,
+      "community": 53,
       "norm_label": "testqueryhistorical"
     },
     {
@@ -18408,7 +18408,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L566",
       "id": "tests_test_stocks_api_coverage_testqueryhistorical_test_cache_not_initialized_raises_503",
-      "community": 66,
+      "community": 53,
       "norm_label": ".test_cache_not_initialized_raises_503()"
     },
     {
@@ -18417,7 +18417,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L574",
       "id": "tests_test_stocks_api_coverage_testqueryhistorical_test_basic_historical_query",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_basic_historical_query()"
     },
     {
@@ -18426,7 +18426,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L583",
       "id": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_search",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_historical_with_search()"
     },
     {
@@ -18444,7 +18444,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L599",
       "id": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_dates",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_historical_with_dates()"
     },
     {
@@ -18453,7 +18453,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L605",
       "id": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_order_by",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_historical_with_order_by()"
     },
     {
@@ -18462,7 +18462,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L611",
       "id": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_limit",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_historical_with_limit()"
     },
     {
@@ -18471,7 +18471,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L617",
       "id": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_no_historical_fields",
-      "community": 66,
+      "community": 451,
       "norm_label": ".test_historical_no_historical_fields()"
     },
     {
@@ -18480,7 +18480,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L628",
       "id": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_sorts_by_time",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_historical_sorts_by_time()"
     },
     {
@@ -18489,7 +18489,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L634",
       "id": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_deduplicates_by_ticker",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_historical_deduplicates_by_ticker()"
     },
     {
@@ -18516,7 +18516,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L669",
       "id": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_search_with_no_results",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_historical_search_with_no_results()"
     },
     {
@@ -18588,7 +18588,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L733",
       "id": "tests_test_stocks_api_coverage_testqueryfundamental_test_basic_fundamental_query",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_basic_fundamental_query()"
     },
     {
@@ -18597,7 +18597,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L741",
       "id": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_search",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_fundamental_with_search()"
     },
     {
@@ -18606,7 +18606,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L748",
       "id": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_fields",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_fundamental_with_fields()"
     },
     {
@@ -18615,7 +18615,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L754",
       "id": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_date_range",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_fundamental_with_date_range()"
     },
     {
@@ -18624,7 +18624,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L760",
       "id": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_single_date",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_fundamental_with_single_date()"
     },
     {
@@ -18633,7 +18633,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L766",
       "id": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_invalid_date",
-      "community": 434,
+      "community": 133,
       "norm_label": ".test_fundamental_with_invalid_date()"
     },
     {
@@ -18642,7 +18642,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L776",
       "id": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_order_by",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_fundamental_with_order_by()"
     },
     {
@@ -18651,7 +18651,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L782",
       "id": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_limit",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_fundamental_with_limit()"
     },
     {
@@ -18660,7 +18660,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L788",
       "id": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_deduplicates_without_search",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_fundamental_deduplicates_without_search()"
     },
     {
@@ -18669,7 +18669,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L796",
       "id": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_with_search_no_dedup",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_fundamental_with_search_no_dedup()"
     },
     {
@@ -18759,7 +18759,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L913",
       "id": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_excludes_cotacao_10y",
-      "community": 53,
+      "community": 472,
       "norm_label": ".test_fundamental_excludes_cotacao_10y()"
     },
     {
@@ -18777,7 +18777,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L963",
       "id": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_requires_search_fields_or_dates",
-      "community": 57,
+      "community": 53,
       "norm_label": ".test_fundamental_requires_search_fields_or_dates()"
     },
     {
@@ -18939,7 +18939,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1139",
       "id": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_http_route",
-      "community": 61,
+      "community": 440,
       "norm_label": ".test_cotations_http_route()"
     },
     {
@@ -18957,7 +18957,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1169",
       "id": "tests_test_stocks_api_coverage_testquerylivecotation_make_manager",
-      "community": 57,
+      "community": 61,
       "norm_label": "._make_manager()"
     },
     {
@@ -19029,7 +19029,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1265",
       "id": "tests_test_stocks_api_coverage_testquerylivecotation_test_http_route_search_required",
-      "community": 367,
+      "community": 19,
       "norm_label": ".test_http_route_search_required()"
     },
     {
@@ -19065,7 +19065,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1315",
       "id": "tests_test_stocks_api_coverage_testquerylivecotation_test_cotations_search_required",
-      "community": 367,
+      "community": 19,
       "norm_label": ".test_cotations_search_required()"
     },
     {
@@ -19083,7 +19083,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L24",
       "id": "tests_test_stocks_api_coverage_rationale_24",
-      "community": 57,
+      "community": 53,
       "norm_label": "return a small dataframe with the columns the query module expects."
     },
     {
@@ -19227,7 +19227,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L420",
       "id": "tests_test_stocks_api_coverage_rationale_420",
-      "community": 57,
+      "community": 463,
       "norm_label": "replacenan handles direct float nan values (line 34)."
     },
     {
@@ -19263,7 +19263,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L474",
       "id": "tests_test_stocks_api_coverage_rationale_474",
-      "community": 457,
+      "community": 57,
       "norm_label": "all four special_cols should parse correctly when mixed with none."
     },
     {
@@ -19281,7 +19281,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L554",
       "id": "tests_test_stocks_api_coverage_rationale_554",
-      "community": 66,
+      "community": 53,
       "norm_label": "tests covering query.py lines 77-132."
     },
     {
@@ -19299,7 +19299,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L618",
       "id": "tests_test_stocks_api_coverage_rationale_618",
-      "community": 66,
+      "community": 451,
       "norm_label": "no historical data columns -> inner 400 caught by outer except -> 500."
     },
     {
@@ -19344,7 +19344,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L694",
       "id": "tests_test_stocks_api_coverage_rationale_694",
-      "community": 66,
+      "community": 451,
       "norm_label": "multiple search terms, all found in tickerindex."
     },
     {
@@ -19371,7 +19371,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L767",
       "id": "tests_test_stocks_api_coverage_rationale_767",
-      "community": 434,
+      "community": 133,
       "norm_label": "invalid date -> inner 400 passes through (not wrapped as 500)."
     },
     {
@@ -19398,7 +19398,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L842",
       "id": "tests_test_stocks_api_coverage_rationale_842",
-      "community": 434,
+      "community": 133,
       "norm_label": "two dates in the range, both valid."
     },
     {
@@ -19452,7 +19452,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L914",
       "id": "tests_test_stocks_api_coverage_rationale_914",
-      "community": 53,
+      "community": 472,
       "norm_label": "cotacao 10y padrao and cotacao 10y ajustada belong to /cotations, not /fundament"
     },
     {
@@ -19506,7 +19506,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1140",
       "id": "tests_test_stocks_api_coverage_rationale_1140",
-      "community": 61,
+      "community": 440,
       "norm_label": "hit the actual /stocks/cotations http endpoint with adjusted=false."
     },
     {
@@ -19524,7 +19524,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1266",
       "id": "tests_test_stocks_api_coverage_rationale_1266",
-      "community": 367,
+      "community": 19,
       "norm_label": "get /stocks/realtime-cotation without search returns 422."
     },
     {
@@ -19533,7 +19533,7 @@
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1316",
       "id": "tests_test_stocks_api_coverage_rationale_1316",
-      "community": 367,
+      "community": 19,
       "norm_label": "get /cotations without search returns 422."
     },
     {
@@ -20775,7 +20775,7 @@
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L1",
       "id": "tests_test_type_aware_decay_py",
-      "community": 132,
+      "community": 367,
       "norm_label": "test_type_aware_decay.py"
     },
     {
@@ -20784,7 +20784,7 @@
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L11",
       "id": "tests_test_type_aware_decay_create",
-      "community": 132,
+      "community": 367,
       "norm_label": "_create()"
     },
     {
@@ -20793,7 +20793,7 @@
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L29",
       "id": "tests_test_type_aware_decay_testtypeawaredecay",
-      "community": 132,
+      "community": 367,
       "norm_label": "testtypeawaredecay"
     },
     {
@@ -20802,7 +20802,7 @@
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L30",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_preference_decays_slowly",
-      "community": 132,
+      "community": 367,
       "norm_label": ".test_preference_decays_slowly()"
     },
     {
@@ -20811,7 +20811,7 @@
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L36",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_context_decays_fast",
-      "community": 132,
+      "community": 367,
       "norm_label": ".test_context_decays_fast()"
     },
     {
@@ -20820,7 +20820,7 @@
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L42",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_analysis_decays_normally",
-      "community": 132,
+      "community": 367,
       "norm_label": ".test_analysis_decays_normally()"
     },
     {
@@ -20829,7 +20829,7 @@
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L48",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_feedback_decays_medium",
-      "community": 132,
+      "community": 367,
       "norm_label": ".test_feedback_decays_medium()"
     },
     {
@@ -20838,7 +20838,7 @@
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L54",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_unknown_type_uses_default",
-      "community": 132,
+      "community": 367,
       "norm_label": ".test_unknown_type_uses_default()"
     },
     {
@@ -20847,7 +20847,7 @@
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L60",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_mixed_types_all_correct",
-      "community": 132,
+      "community": 367,
       "norm_label": ".test_mixed_types_all_correct()"
     },
     {
@@ -20856,7 +20856,7 @@
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L76",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_preference_survives_longer",
-      "community": 132,
+      "community": 367,
       "norm_label": ".test_preference_survives_longer()"
     },
     {
@@ -20865,7 +20865,7 @@
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L77",
       "id": "tests_test_type_aware_decay_rationale_77",
-      "community": 132,
+      "community": 367,
       "norm_label": "after 10 cycles, preference (0.99^10) > context (0.90^10)."
     },
     {
@@ -21009,7 +21009,7 @@
       "source_file": "tests/test_vector_utils.py",
       "source_location": "L1",
       "id": "tests_test_vector_utils_py",
-      "community": 136,
+      "community": 135,
       "norm_label": "test_vector_utils.py"
     },
     {
@@ -22246,447 +22246,6 @@
       "norm_label": "license"
     },
     {
-      "label": "2026-07-17-observable-agent-loop.md",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L1",
-      "id": "docs_superpowers_plans_2026_07_17_observable_agent_loop_md",
-      "community": 349,
-      "norm_label": "2026-07-17-observable-agent-loop.md"
-    },
-    {
-      "label": "Observable Agent Loop \u2014 Implementation Plan",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L1",
-      "id": "plans_2026_07_17_observable_agent_loop_observable_agent_loop_implementation_plan",
-      "community": 349,
-      "norm_label": "observable agent loop \u2014 implementation plan"
-    },
-    {
-      "label": "Context",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L13",
-      "id": "plans_2026_07_17_observable_agent_loop_context",
-      "community": 349,
-      "norm_label": "context"
-    },
-    {
-      "label": "Current State",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L15",
-      "id": "plans_2026_07_17_observable_agent_loop_current_state",
-      "community": 349,
-      "norm_label": "current state"
-    },
-    {
-      "label": "What Changes",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L22",
-      "id": "plans_2026_07_17_observable_agent_loop_what_changes",
-      "community": 349,
-      "norm_label": "what changes"
-    },
-    {
-      "label": "File Structure",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L29",
-      "id": "plans_2026_07_17_observable_agent_loop_file_structure",
-      "community": 349,
-      "norm_label": "file structure"
-    },
-    {
-      "label": "Task 1: Stream Tool Events via SSE",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L40",
-      "id": "plans_2026_07_17_observable_agent_loop_task_1_stream_tool_events_via_sse",
-      "community": 349,
-      "norm_label": "task 1: stream tool events via sse"
-    },
-    {
-      "label": "code:python (for fc in function_calls:)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L55",
-      "id": "plans_2026_07_17_observable_agent_loop_codeblock_1",
-      "community": 349,
-      "norm_label": "code:python (for fc in function_calls:)"
-    },
-    {
-      "label": "code:python (turn_end_event = {)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L88",
-      "id": "plans_2026_07_17_observable_agent_loop_codeblock_2",
-      "community": 349,
-      "norm_label": "code:python (turn_end_event = {)"
-    },
-    {
-      "label": "code:bash (git add main/app/prometheus/agent.py)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L115",
-      "id": "plans_2026_07_17_observable_agent_loop_codeblock_3",
-      "community": 349,
-      "norm_label": "code:bash (git add main/app/prometheus/agent.py)"
-    },
-    {
-      "label": "Task 2: Create the Testing Frontend",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L122",
-      "id": "plans_2026_07_17_observable_agent_loop_task_2_create_the_testing_frontend",
-      "community": 349,
-      "norm_label": "task 2: create the testing frontend"
-    },
-    {
-      "label": "code:bash (mkdir -p main/app/prometheus/static)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L133",
-      "id": "plans_2026_07_17_observable_agent_loop_codeblock_4",
-      "community": 349,
-      "norm_label": "code:bash (mkdir -p main/app/prometheus/static)"
-    },
-    {
-      "label": "code:javascript (// Event types from the stream:)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L148",
-      "id": "plans_2026_07_17_observable_agent_loop_codeblock_5",
-      "community": 349,
-      "norm_label": "code:javascript (// event types from the stream:)"
-    },
-    {
-      "label": "code:python (from fastapi.responses import FileResponse)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L193",
-      "id": "plans_2026_07_17_observable_agent_loop_codeblock_6",
-      "community": 349,
-      "norm_label": "code:python (from fastapi.responses import fileresponse)"
-    },
-    {
-      "label": "code:bash (git add main/app/prometheus/static/index.html main/controlle)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L216",
-      "id": "plans_2026_07_17_observable_agent_loop_codeblock_7",
-      "community": 349,
-      "norm_label": "code:bash (git add main/app/prometheus/static/index.html main/controlle)"
-    },
-    {
-      "label": "Task 3: Verify End-to-End",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L223",
-      "id": "plans_2026_07_17_observable_agent_loop_task_3_verify_end_to_end",
-      "community": 349,
-      "norm_label": "task 3: verify end-to-end"
-    },
-    {
-      "label": "SSE Event Flow (Reference)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L240",
-      "id": "plans_2026_07_17_observable_agent_loop_sse_event_flow_reference",
-      "community": 349,
-      "norm_label": "sse event flow (reference)"
-    },
-    {
-      "label": "code:block8 (Frontend                          Backend (agent.py)        )",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L242",
-      "id": "plans_2026_07_17_observable_agent_loop_codeblock_8",
-      "community": 349,
-      "norm_label": "code:block8 (frontend                          backend (agent.py)        )"
-    },
-    {
-      "label": "Design Notes",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L271",
-      "id": "plans_2026_07_17_observable_agent_loop_design_notes",
-      "community": 349,
-      "norm_label": "design notes"
-    },
-    {
-      "label": "2026-07-18-observable-agent-loop.md",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L1",
-      "id": "docs_superpowers_plans_2026_07_18_observable_agent_loop_md",
-      "community": 65,
-      "norm_label": "2026-07-18-observable-agent-loop.md"
-    },
-    {
-      "label": "Observable Agent Loop \u2014 Implementation Plan",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L1",
-      "id": "plans_2026_07_18_observable_agent_loop_observable_agent_loop_implementation_plan",
-      "community": 65,
-      "norm_label": "observable agent loop \u2014 implementation plan"
-    },
-    {
-      "label": "Global Constraints",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L11",
-      "id": "plans_2026_07_18_observable_agent_loop_global_constraints",
-      "community": 65,
-      "norm_label": "global constraints"
-    },
-    {
-      "label": "File Map",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L21",
-      "id": "plans_2026_07_18_observable_agent_loop_file_map",
-      "community": 65,
-      "norm_label": "file map"
-    },
-    {
-      "label": "Task 1: Backend \u2014 Yield tool events to SSE",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L34",
-      "id": "plans_2026_07_18_observable_agent_loop_task_1_backend_yield_tool_events_to_sse",
-      "community": 65,
-      "norm_label": "task 1: backend \u2014 yield tool events to sse"
-    },
-    {
-      "label": "code:python (def emit_tool_call(self, toolName: str, args: dict, turnNumb)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L48",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_1",
-      "community": 65,
-      "norm_label": "code:python (def emit_tool_call(self, toolname: str, args: dict, turnnumb)"
-    },
-    {
-      "label": "code:python (# After loop.emit_tool_call(...))",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L69",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_2",
-      "community": 65,
-      "norm_label": "code:python (# after loop.emit_tool_call(...))"
-    },
-    {
-      "label": "code:bash (git add main/app/prometheus/agent.py main/app/prometheus/eve)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L87",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_3",
-      "community": 65,
-      "norm_label": "code:bash (git add main/app/prometheus/agent.py main/app/prometheus/eve)"
-    },
-    {
-      "label": "Task 2: Frontend \u2014 Update api.js to dispatch tool events",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L94",
-      "id": "plans_2026_07_18_observable_agent_loop_task_2_frontend_update_api_js_to_dispatch_tool_events",
-      "community": 65,
-      "norm_label": "task 2: frontend \u2014 update api.js to dispatch tool events"
-    },
-    {
-      "label": "code:javascript (export async function streamChat(query, sessionId, onChunk, )",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L107",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_4",
-      "community": 65,
-      "norm_label": "code:javascript (export async function streamchat(query, sessionid, onchunk, )"
-    },
-    {
-      "label": "code:javascript (try {)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L115",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_5",
-      "community": 65,
-      "norm_label": "code:javascript (try {)"
-    },
-    {
-      "label": "code:bash (git add frontend/src/api.js)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L134",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_6",
-      "community": 65,
-      "norm_label": "code:bash (git add frontend/src/api.js)"
-    },
-    {
-      "label": "Task 3: Frontend \u2014 Add AgentLoop component",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L141",
-      "id": "plans_2026_07_18_observable_agent_loop_task_3_frontend_add_agentloop_component",
-      "community": 65,
-      "norm_label": "task 3: frontend \u2014 add agentloop component"
-    },
-    {
-      "label": "code:jsx (import { useState } from 'react';)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L152",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_7",
-      "community": 65,
-      "norm_label": "code:jsx (import { usestate } from 'react';)"
-    },
-    {
-      "label": "code:bash (git add frontend/src/components/AgentLoop.jsx)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L215",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_8",
-      "community": 65,
-      "norm_label": "code:bash (git add frontend/src/components/agentloop.jsx)"
-    },
-    {
-      "label": "Task 4: Frontend \u2014 Wire AgentLoop into App.jsx",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L222",
-      "id": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx",
-      "community": 65,
-      "norm_label": "task 4: frontend \u2014 wire agentloop into app.jsx"
-    },
-    {
-      "label": "code:javascript (const [toolEvents, setToolEvents] = useState([]);)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L235",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_9",
-      "community": 65,
-      "norm_label": "code:javascript (const [toolevents, settoolevents] = usestate([]);)"
-    },
-    {
-      "label": "code:javascript (setToolEvents([]);)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L244",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_10",
-      "community": 65,
-      "norm_label": "code:javascript (settoolevents([]);)"
-    },
-    {
-      "label": "code:javascript (setToolEvents([]);)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L251",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_11",
-      "community": 65,
-      "norm_label": "code:javascript (settoolevents([]);)"
-    },
-    {
-      "label": "code:javascript (await streamChat()",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L260",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_12",
-      "community": 65,
-      "norm_label": "code:javascript (await streamchat()"
-    },
-    {
-      "label": "code:jsx (<div className=\"main\">)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L278",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_13",
-      "community": 65,
-      "norm_label": "code:jsx (<div classname=\"main\">)"
-    },
-    {
-      "label": "code:javascript (import AgentLoop from './components/AgentLoop';)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L288",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_14",
-      "community": 65,
-      "norm_label": "code:javascript (import agentloop from './components/agentloop';)"
-    },
-    {
-      "label": "code:bash (git add frontend/src/App.jsx)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L294",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_15",
-      "community": 65,
-      "norm_label": "code:bash (git add frontend/src/app.jsx)"
-    },
-    {
-      "label": "Task 5: Frontend \u2014 Add CSS styles",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L301",
-      "id": "plans_2026_07_18_observable_agent_loop_task_5_frontend_add_css_styles",
-      "community": 65,
-      "norm_label": "task 5: frontend \u2014 add css styles"
-    },
-    {
-      "label": "code:css (/* Agent Loop */)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L314",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_16",
-      "community": 65,
-      "norm_label": "code:css (/* agent loop */)"
-    },
-    {
-      "label": "code:bash (git add frontend/src/App.css)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L337",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_17",
-      "community": 65,
-      "norm_label": "code:bash (git add frontend/src/app.css)"
-    },
-    {
-      "label": "Task 6: Integration test",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L344",
-      "id": "plans_2026_07_18_observable_agent_loop_task_6_integration_test",
-      "community": 65,
-      "norm_label": "task 6: integration test"
-    },
-    {
-      "label": "code:bash (docker compose up -d --build)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L355",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_18",
-      "community": 65,
-      "norm_label": "code:bash (docker compose up -d --build)"
-    },
-    {
-      "label": "code:bash (cd frontend && npx vitest run)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L374",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_19",
-      "community": 65,
-      "norm_label": "code:bash (cd frontend && npx vitest run)"
-    },
-    {
-      "label": "code:bash (git add -A && git commit -m \"observable agent loop: backend )",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L382",
-      "id": "plans_2026_07_18_observable_agent_loop_codeblock_20",
-      "community": 65,
-      "norm_label": "code:bash (git add -a && git commit -m \"observable agent loop: backend )"
-    },
-    {
       "label": "README.md",
       "file_type": "document",
       "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
@@ -22811,6 +22370,456 @@
       "id": "all_minilm_l6_v2_readme_training_data",
       "community": 212,
       "norm_label": "training data"
+    },
+    {
+      "label": "ToolCard()",
+      "file_type": "code",
+      "source_file": "frontend/src/components/AgentLoop.jsx",
+      "source_location": "L3",
+      "community": 81,
+      "norm_label": "toolcard()",
+      "id": "components_agentloop_toolcard"
+    },
+    {
+      "label": "2026-07-17-observable-agent-loop.md",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L1",
+      "community": 349,
+      "norm_label": "2026-07-17-observable-agent-loop.md",
+      "id": "docs_superpowers_plans_2026_07_17_observable_agent_loop_md"
+    },
+    {
+      "label": "Observable Agent Loop \u2014 Implementation Plan",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L1",
+      "community": 349,
+      "norm_label": "observable agent loop \u2014 implementation plan",
+      "id": "plans_2026_07_17_observable_agent_loop_observable_agent_loop_implementation_plan"
+    },
+    {
+      "label": "Context",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L13",
+      "community": 349,
+      "norm_label": "context",
+      "id": "plans_2026_07_17_observable_agent_loop_context"
+    },
+    {
+      "label": "Current State",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L15",
+      "community": 349,
+      "norm_label": "current state",
+      "id": "plans_2026_07_17_observable_agent_loop_current_state"
+    },
+    {
+      "label": "What Changes",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L22",
+      "community": 349,
+      "norm_label": "what changes",
+      "id": "plans_2026_07_17_observable_agent_loop_what_changes"
+    },
+    {
+      "label": "File Structure",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L29",
+      "community": 349,
+      "norm_label": "file structure",
+      "id": "plans_2026_07_17_observable_agent_loop_file_structure"
+    },
+    {
+      "label": "Task 1: Stream Tool Events via SSE",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L40",
+      "community": 349,
+      "norm_label": "task 1: stream tool events via sse",
+      "id": "plans_2026_07_17_observable_agent_loop_task_1_stream_tool_events_via_sse"
+    },
+    {
+      "label": "code:python (for fc in function_calls:)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L55",
+      "community": 349,
+      "norm_label": "code:python (for fc in function_calls:)",
+      "id": "plans_2026_07_17_observable_agent_loop_codeblock_1"
+    },
+    {
+      "label": "code:python (turn_end_event = {)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L88",
+      "community": 349,
+      "norm_label": "code:python (turn_end_event = {)",
+      "id": "plans_2026_07_17_observable_agent_loop_codeblock_2"
+    },
+    {
+      "label": "code:bash (git add main/app/prometheus/agent.py)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L115",
+      "community": 349,
+      "norm_label": "code:bash (git add main/app/prometheus/agent.py)",
+      "id": "plans_2026_07_17_observable_agent_loop_codeblock_3"
+    },
+    {
+      "label": "Task 2: Create the Testing Frontend",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L122",
+      "community": 349,
+      "norm_label": "task 2: create the testing frontend",
+      "id": "plans_2026_07_17_observable_agent_loop_task_2_create_the_testing_frontend"
+    },
+    {
+      "label": "code:bash (mkdir -p main/app/prometheus/static)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L133",
+      "community": 349,
+      "norm_label": "code:bash (mkdir -p main/app/prometheus/static)",
+      "id": "plans_2026_07_17_observable_agent_loop_codeblock_4"
+    },
+    {
+      "label": "code:javascript (// Event types from the stream:)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L148",
+      "community": 349,
+      "norm_label": "code:javascript (// event types from the stream:)",
+      "id": "plans_2026_07_17_observable_agent_loop_codeblock_5"
+    },
+    {
+      "label": "code:python (from fastapi.responses import FileResponse)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L193",
+      "community": 349,
+      "norm_label": "code:python (from fastapi.responses import fileresponse)",
+      "id": "plans_2026_07_17_observable_agent_loop_codeblock_6"
+    },
+    {
+      "label": "code:bash (git add main/app/prometheus/static/index.html main/controlle)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L216",
+      "community": 349,
+      "norm_label": "code:bash (git add main/app/prometheus/static/index.html main/controlle)",
+      "id": "plans_2026_07_17_observable_agent_loop_codeblock_7"
+    },
+    {
+      "label": "Task 3: Verify End-to-End",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L223",
+      "community": 349,
+      "norm_label": "task 3: verify end-to-end",
+      "id": "plans_2026_07_17_observable_agent_loop_task_3_verify_end_to_end"
+    },
+    {
+      "label": "SSE Event Flow (Reference)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L240",
+      "community": 349,
+      "norm_label": "sse event flow (reference)",
+      "id": "plans_2026_07_17_observable_agent_loop_sse_event_flow_reference"
+    },
+    {
+      "label": "code:block8 (Frontend                          Backend (agent.py)        )",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L242",
+      "community": 349,
+      "norm_label": "code:block8 (frontend                          backend (agent.py)        )",
+      "id": "plans_2026_07_17_observable_agent_loop_codeblock_8"
+    },
+    {
+      "label": "Design Notes",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L271",
+      "community": 349,
+      "norm_label": "design notes",
+      "id": "plans_2026_07_17_observable_agent_loop_design_notes"
+    },
+    {
+      "label": "2026-07-18-observable-agent-loop.md",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L1",
+      "community": 65,
+      "norm_label": "2026-07-18-observable-agent-loop.md",
+      "id": "docs_superpowers_plans_2026_07_18_observable_agent_loop_md"
+    },
+    {
+      "label": "Observable Agent Loop \u2014 Implementation Plan",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L1",
+      "community": 65,
+      "norm_label": "observable agent loop \u2014 implementation plan",
+      "id": "plans_2026_07_18_observable_agent_loop_observable_agent_loop_implementation_plan"
+    },
+    {
+      "label": "Global Constraints",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L11",
+      "community": 65,
+      "norm_label": "global constraints",
+      "id": "plans_2026_07_18_observable_agent_loop_global_constraints"
+    },
+    {
+      "label": "File Map",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L21",
+      "community": 65,
+      "norm_label": "file map",
+      "id": "plans_2026_07_18_observable_agent_loop_file_map"
+    },
+    {
+      "label": "Task 1: Backend \u2014 Yield tool events to SSE",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L34",
+      "community": 65,
+      "norm_label": "task 1: backend \u2014 yield tool events to sse",
+      "id": "plans_2026_07_18_observable_agent_loop_task_1_backend_yield_tool_events_to_sse"
+    },
+    {
+      "label": "code:python (def emit_tool_call(self, toolName: str, args: dict, turnNumb)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L48",
+      "community": 65,
+      "norm_label": "code:python (def emit_tool_call(self, toolname: str, args: dict, turnnumb)",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_1"
+    },
+    {
+      "label": "code:python (# After loop.emit_tool_call(...))",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L69",
+      "community": 65,
+      "norm_label": "code:python (# after loop.emit_tool_call(...))",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_2"
+    },
+    {
+      "label": "code:bash (git add main/app/prometheus/agent.py main/app/prometheus/eve)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L87",
+      "community": 65,
+      "norm_label": "code:bash (git add main/app/prometheus/agent.py main/app/prometheus/eve)",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_3"
+    },
+    {
+      "label": "Task 2: Frontend \u2014 Update api.js to dispatch tool events",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L94",
+      "community": 65,
+      "norm_label": "task 2: frontend \u2014 update api.js to dispatch tool events",
+      "id": "plans_2026_07_18_observable_agent_loop_task_2_frontend_update_api_js_to_dispatch_tool_events"
+    },
+    {
+      "label": "code:javascript (export async function streamChat(query, sessionId, onChunk, )",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L107",
+      "community": 65,
+      "norm_label": "code:javascript (export async function streamchat(query, sessionid, onchunk, )",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_4"
+    },
+    {
+      "label": "code:javascript (try {)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L115",
+      "community": 65,
+      "norm_label": "code:javascript (try {)",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_5"
+    },
+    {
+      "label": "code:bash (git add frontend/src/api.js)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L134",
+      "community": 65,
+      "norm_label": "code:bash (git add frontend/src/api.js)",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_6"
+    },
+    {
+      "label": "Task 3: Frontend \u2014 Add AgentLoop component",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L141",
+      "community": 65,
+      "norm_label": "task 3: frontend \u2014 add agentloop component",
+      "id": "plans_2026_07_18_observable_agent_loop_task_3_frontend_add_agentloop_component"
+    },
+    {
+      "label": "code:jsx (import { useState } from 'react';)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L152",
+      "community": 65,
+      "norm_label": "code:jsx (import { usestate } from 'react';)",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_7"
+    },
+    {
+      "label": "code:bash (git add frontend/src/components/AgentLoop.jsx)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L215",
+      "community": 65,
+      "norm_label": "code:bash (git add frontend/src/components/agentloop.jsx)",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_8"
+    },
+    {
+      "label": "Task 4: Frontend \u2014 Wire AgentLoop into App.jsx",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L222",
+      "community": 65,
+      "norm_label": "task 4: frontend \u2014 wire agentloop into app.jsx",
+      "id": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx"
+    },
+    {
+      "label": "code:javascript (const [toolEvents, setToolEvents] = useState([]);)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L235",
+      "community": 65,
+      "norm_label": "code:javascript (const [toolevents, settoolevents] = usestate([]);)",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_9"
+    },
+    {
+      "label": "code:javascript (setToolEvents([]);)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L244",
+      "community": 65,
+      "norm_label": "code:javascript (settoolevents([]);)",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_10"
+    },
+    {
+      "label": "code:javascript (setToolEvents([]);)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L251",
+      "community": 65,
+      "norm_label": "code:javascript (settoolevents([]);)",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_11"
+    },
+    {
+      "label": "code:javascript (await streamChat()",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L260",
+      "community": 65,
+      "norm_label": "code:javascript (await streamchat()",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_12"
+    },
+    {
+      "label": "code:jsx (<div className=\"main\">)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L278",
+      "community": 65,
+      "norm_label": "code:jsx (<div classname=\"main\">)",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_13"
+    },
+    {
+      "label": "code:javascript (import AgentLoop from './components/AgentLoop';)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L288",
+      "community": 65,
+      "norm_label": "code:javascript (import agentloop from './components/agentloop';)",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_14"
+    },
+    {
+      "label": "code:bash (git add frontend/src/App.jsx)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L294",
+      "community": 65,
+      "norm_label": "code:bash (git add frontend/src/app.jsx)",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_15"
+    },
+    {
+      "label": "Task 5: Frontend \u2014 Add CSS styles",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L301",
+      "community": 65,
+      "norm_label": "task 5: frontend \u2014 add css styles",
+      "id": "plans_2026_07_18_observable_agent_loop_task_5_frontend_add_css_styles"
+    },
+    {
+      "label": "code:css (/* Agent Loop */)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L314",
+      "community": 65,
+      "norm_label": "code:css (/* agent loop */)",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_16"
+    },
+    {
+      "label": "code:bash (git add frontend/src/App.css)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L337",
+      "community": 65,
+      "norm_label": "code:bash (git add frontend/src/app.css)",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_17"
+    },
+    {
+      "label": "Task 6: Integration test",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L344",
+      "community": 65,
+      "norm_label": "task 6: integration test",
+      "id": "plans_2026_07_18_observable_agent_loop_task_6_integration_test"
+    },
+    {
+      "label": "code:bash (docker compose up -d --build)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L355",
+      "community": 65,
+      "norm_label": "code:bash (docker compose up -d --build)",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_18"
+    },
+    {
+      "label": "code:bash (cd frontend && npx vitest run)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L374",
+      "community": 65,
+      "norm_label": "code:bash (cd frontend && npx vitest run)",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_19"
+    },
+    {
+      "label": "code:bash (git add -A && git commit -m \"observable agent loop: backend )",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L382",
+      "community": 65,
+      "norm_label": "code:bash (git add -a && git commit -m \"observable agent loop: backend )",
+      "id": "plans_2026_07_18_observable_agent_loop_codeblock_20"
     },
     {
       "label": "STOCKS_API",
@@ -23573,7 +23582,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1083",
-      "community": 55,
+      "community": 172,
       "norm_label": "covers lines 114-115: session ownership check fails.",
       "id": "tests_test_controllers_coverage_rationale_1083"
     },
@@ -23591,7 +23600,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1138",
-      "community": 402,
+      "community": 50,
       "norm_label": "covers line 18: get /stocks/health.",
       "id": "tests_test_controllers_coverage_rationale_1138"
     },
@@ -23654,7 +23663,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1223",
-      "community": 458,
+      "community": 182,
       "norm_label": "covers lines 13, 17, 19-20, 22-27: usermanager.addroletouser.",
       "id": "tests_test_controllers_coverage_rationale_1223"
     },
@@ -23663,7 +23672,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1226",
-      "community": 459,
+      "community": 182,
       "norm_label": "covers lines 17, 22-27: user found, role not present, role added.",
       "id": "tests_test_controllers_coverage_rationale_1226"
     },
@@ -23672,7 +23681,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1243",
-      "community": 460,
+      "community": 332,
       "norm_label": "covers line 27: user already has the role.",
       "id": "tests_test_controllers_coverage_rationale_1243"
     },
@@ -23699,7 +23708,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1301",
-      "community": 417,
+      "community": 332,
       "norm_label": "covers lines 42-44: session validation fails.",
       "id": "tests_test_controllers_coverage_rationale_1301"
     },
@@ -23708,7 +23717,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1317",
-      "community": 451,
+      "community": 332,
       "norm_label": "covers lines 48-49: user not in db.",
       "id": "tests_test_controllers_coverage_rationale_1317"
     },
@@ -23717,7 +23726,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1334",
-      "community": 461,
+      "community": 332,
       "norm_label": "covers lines 65-67: unexpected exception.",
       "id": "tests_test_controllers_coverage_rationale_1334"
     },
@@ -23726,7 +23735,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1351",
-      "community": 456,
+      "community": 332,
       "norm_label": "covers lines 37-38, 46, 51, 58 (sessionid is none): skips session validation.",
       "id": "tests_test_controllers_coverage_rationale_1351"
     },
@@ -23735,7 +23744,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1375",
-      "community": 50,
+      "community": 164,
       "norm_label": "covers line 16: empty password raises valueerror.",
       "id": "tests_test_controllers_coverage_rationale_1375"
     },
@@ -23762,7 +23771,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1404",
-      "community": 164,
+      "community": 345,
       "norm_label": "covers lines 50-51: jwt.invalidtokenerror.",
       "id": "tests_test_controllers_coverage_rationale_1404"
     },
@@ -23897,7 +23906,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L42",
-      "community": 368,
+      "community": 456,
       "norm_label": "store a memory about the user's preferences, analysis results, or feedback.",
       "id": "prometheus_tools_rationale_42"
     },
@@ -23924,7 +23933,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L112",
-      "community": 464,
+      "community": 71,
       "norm_label": "execute python code in an isolated sandbox. use for quantitative analysis,",
       "id": "prometheus_tools_rationale_112"
     },
@@ -24140,7 +24149,7 @@
       "file_type": "code",
       "source_file": "main/models/memory.py",
       "source_location": "L7",
-      "community": 56,
+      "community": 300,
       "norm_label": "prometheusmemory",
       "id": "models_memory_usermemory"
     },
@@ -24455,7 +24464,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L111",
-      "community": 464,
+      "community": 71,
       "norm_label": "execute python code in an isolated sandbox. use for quantitative analysis,",
       "id": "prometheus_tools_rationale_111"
     },
@@ -24482,7 +24491,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L7",
-      "community": 420,
+      "community": 398,
       "norm_label": "testagentsandboxintegration",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration"
     },
@@ -24491,7 +24500,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L8",
-      "community": 420,
+      "community": 398,
       "norm_label": ".test_build_system_prompt_includes_sandbox_instructions()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_build_system_prompt_includes_sandbox_instructions"
     },
@@ -24500,7 +24509,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L14",
-      "community": 420,
+      "community": 398,
       "norm_label": ".test_build_system_prompt_includes_state_instructions()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_build_system_prompt_includes_state_instructions"
     },
@@ -24509,7 +24518,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L19",
-      "community": 420,
+      "community": 398,
       "norm_label": ".test_build_system_prompt_with_state()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_build_system_prompt_with_state"
     },
@@ -24608,7 +24617,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L41",
-      "community": 368,
+      "community": 456,
       "norm_label": "store a memory about the user's preferences, analysis results, or feedback.",
       "id": "prometheus_tools_rationale_41"
     },
@@ -26858,7 +26867,7 @@
       "file_type": "code",
       "source_file": "main/app/prometheus/cache.py",
       "source_location": "L1",
-      "community": 335,
+      "community": 308,
       "norm_label": "cache.py",
       "id": "main_app_prometheus_cache_py"
     },
@@ -26867,7 +26876,7 @@
       "file_type": "code",
       "source_file": "main/app/prometheus/cache.py",
       "source_location": "L7",
-      "community": 335,
+      "community": 308,
       "norm_label": "resultcache",
       "id": "prometheus_cache_resultcache"
     },
@@ -26876,7 +26885,7 @@
       "file_type": "code",
       "source_file": "main/app/prometheus/cache.py",
       "source_location": "L8",
-      "community": 335,
+      "community": 308,
       "norm_label": ".__init__()",
       "id": "prometheus_cache_resultcache_init"
     },
@@ -26885,7 +26894,7 @@
       "file_type": "code",
       "source_file": "main/app/prometheus/cache.py",
       "source_location": "L11",
-      "community": 335,
+      "community": 308,
       "norm_label": ".cachepath()",
       "id": "prometheus_cache_resultcache_cachepath"
     },
@@ -26894,7 +26903,7 @@
       "file_type": "code",
       "source_file": "main/app/prometheus/cache.py",
       "source_location": "L15",
-      "community": 335,
+      "community": 308,
       "norm_label": ".get()",
       "id": "prometheus_cache_resultcache_get"
     },
@@ -26903,7 +26912,7 @@
       "file_type": "code",
       "source_file": "main/app/prometheus/cache.py",
       "source_location": "L21",
-      "community": 335,
+      "community": 308,
       "norm_label": ".set()",
       "id": "prometheus_cache_resultcache_set"
     },
@@ -26912,7 +26921,7 @@
       "file_type": "code",
       "source_file": "main/app/prometheus/cache.py",
       "source_location": "L31",
-      "community": 335,
+      "community": 308,
       "norm_label": ".invalidate()",
       "id": "prometheus_cache_resultcache_invalidate"
     },
@@ -26921,7 +26930,7 @@
       "file_type": "code",
       "source_file": "main/app/prometheus/cache.py",
       "source_location": "L38",
-      "community": 335,
+      "community": 308,
       "norm_label": ".exists()",
       "id": "prometheus_cache_resultcache_exists"
     },
@@ -27011,7 +27020,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L109",
-      "community": 464,
+      "community": 71,
       "norm_label": "execute python code in an isolated sandbox. use for quantitative analysis,",
       "id": "prometheus_tools_rationale_109"
     },
@@ -27047,7 +27056,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L9",
-      "community": 420,
+      "community": 398,
       "norm_label": ".test_build_system_prompt_no_state()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_build_system_prompt_no_state"
     },
@@ -27056,7 +27065,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L20",
-      "community": 420,
+      "community": 398,
       "norm_label": ".test_build_system_prompt_empty_state()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_build_system_prompt_empty_state"
     },
@@ -27065,7 +27074,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L25",
-      "community": 420,
+      "community": 398,
       "norm_label": ".test_system_prompt_includes_state_instructions()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_system_prompt_includes_state_instructions"
     },
@@ -27074,7 +27083,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L30",
-      "community": 420,
+      "community": 398,
       "norm_label": ".test_system_prompt_includes_sandbox_instructions()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_system_prompt_includes_sandbox_instructions"
     },
@@ -27083,7 +27092,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L34",
-      "community": 420,
+      "community": 398,
       "norm_label": ".test_system_prompt_includes_cache_instructions()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_system_prompt_includes_cache_instructions"
     },
@@ -27092,7 +27101,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L38",
-      "community": 420,
+      "community": 398,
       "norm_label": ".test_makechat_uses_tool_registry()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_makechat_uses_tool_registry"
     },
@@ -27263,7 +27272,7 @@
       "file_type": "code",
       "source_file": "tests/test_config_sandbox.py",
       "source_location": "L1",
-      "community": 86,
+      "community": 459,
       "norm_label": "test_config_sandbox.py",
       "id": "tests_test_config_sandbox_py"
     },
@@ -27272,7 +27281,7 @@
       "file_type": "code",
       "source_file": "tests/test_config_sandbox.py",
       "source_location": "L5",
-      "community": 86,
+      "community": 459,
       "norm_label": "testsandboxconfig",
       "id": "tests_test_config_sandbox_testsandboxconfig"
     },
@@ -27281,7 +27290,7 @@
       "file_type": "code",
       "source_file": "tests/test_config_sandbox.py",
       "source_location": "L6",
-      "community": 86,
+      "community": 459,
       "norm_label": ".test_sandbox_defaults()",
       "id": "tests_test_config_sandbox_testsandboxconfig_test_sandbox_defaults"
     },
@@ -27290,7 +27299,7 @@
       "file_type": "code",
       "source_file": "tests/test_config_sandbox.py",
       "source_location": "L13",
-      "community": 86,
+      "community": 459,
       "norm_label": ".test_sandbox_fields_exist()",
       "id": "tests_test_config_sandbox_testsandboxconfig_test_sandbox_fields_exist"
     },
@@ -27299,7 +27308,7 @@
       "file_type": "code",
       "source_file": "tests/test_config_sandbox.py",
       "source_location": "L21",
-      "community": 86,
+      "community": 459,
       "norm_label": ".test_sandbox_types()",
       "id": "tests_test_config_sandbox_testsandboxconfig_test_sandbox_types"
     },
@@ -27938,7 +27947,7 @@
       "file_type": "code",
       "source_file": "main/app/prometheus/cache.py",
       "source_location": "L19",
-      "community": 335,
+      "community": 308,
       "norm_label": "._cache_path()",
       "id": "prometheus_cache_resultcache_cache_path"
     },
@@ -27947,7 +27956,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/cache.py",
       "source_location": "L1",
-      "community": 335,
+      "community": 308,
       "norm_label": "resultcache \u2014 sha256-keyed file-based cache for computed results.",
       "id": "prometheus_cache_rationale_1"
     },
@@ -27956,7 +27965,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/cache.py",
       "source_location": "L10",
-      "community": 335,
+      "community": 308,
       "norm_label": "file-based cache keyed by sha256 of code.      stores results as json under:",
       "id": "prometheus_cache_rationale_10"
     },
@@ -27965,7 +27974,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/cache.py",
       "source_location": "L24",
-      "community": 335,
+      "community": 308,
       "norm_label": "return cached result dict or none if miss.",
       "id": "prometheus_cache_rationale_24"
     },
@@ -27974,7 +27983,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/cache.py",
       "source_location": "L31",
-      "community": 335,
+      "community": 308,
       "norm_label": "store result with timestamp.",
       "id": "prometheus_cache_rationale_31"
     },
@@ -27983,7 +27992,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/cache.py",
       "source_location": "L42",
-      "community": 335,
+      "community": 308,
       "norm_label": "delete all cached results for a session.",
       "id": "prometheus_cache_rationale_42"
     },
@@ -27992,7 +28001,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/cache.py",
       "source_location": "L50",
-      "community": 335,
+      "community": 308,
       "norm_label": "check if a result exists for the given code.",
       "id": "prometheus_cache_rationale_50"
     },
@@ -28433,7 +28442,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L39",
-      "community": 368,
+      "community": 456,
       "norm_label": "store a memory about the user's preferences, analysis results, or feedback.",
       "id": "prometheus_tools_rationale_39"
     },
@@ -28496,7 +28505,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/state.py",
       "source_location": "L22",
-      "community": 57,
+      "community": 53,
       "norm_label": "store a value in state. marks state as changed for context injection.",
       "id": "prometheus_state_rationale_22"
     },
@@ -28559,7 +28568,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L38",
-      "community": 368,
+      "community": 456,
       "norm_label": "store a memory about the user's preferences, analysis results, or feedback.",
       "id": "prometheus_tools_rationale_38"
     },
@@ -28622,7 +28631,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L29",
-      "community": 368,
+      "community": 456,
       "norm_label": "store a memory about the user's preferences, analysis results, or feedback.",
       "id": "prometheus_tools_rationale_29"
     },
@@ -28757,7 +28766,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L52",
-      "community": 387,
+      "community": 461,
       "norm_label": "makechat must include memory_tools alongside mcp sessions.",
       "id": "tests_test_memory_tools_wiring_rationale_52"
     },
@@ -28793,7 +28802,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L57",
-      "community": 387,
+      "community": 461,
       "norm_label": "makechat must include memory_tools alongside mcp sessions.",
       "id": "tests_test_memory_tools_wiring_rationale_57"
     },
@@ -29252,7 +29261,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1277",
-      "community": 458,
+      "community": 332,
       "norm_label": "covers lines 36-38, 40-44, 46, 48-49, 51, 58-59, 61: successful user retrieval.",
       "id": "tests_test_controllers_coverage_rationale_1277"
     },
@@ -29261,7 +29270,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1302",
-      "community": 417,
+      "community": 332,
       "norm_label": "covers lines 42-44: session validation fails.",
       "id": "tests_test_controllers_coverage_rationale_1302"
     },
@@ -29270,7 +29279,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1318",
-      "community": 451,
+      "community": 332,
       "norm_label": "covers lines 48-49: user not in db.",
       "id": "tests_test_controllers_coverage_rationale_1318"
     },
@@ -29279,7 +29288,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1335",
-      "community": 461,
+      "community": 332,
       "norm_label": "covers lines 65-67: unexpected exception.",
       "id": "tests_test_controllers_coverage_rationale_1335"
     },
@@ -29288,7 +29297,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1352",
-      "community": 456,
+      "community": 332,
       "norm_label": "covers lines 37-38, 46, 51, 58 (sessionid is none): skips session validation.",
       "id": "tests_test_controllers_coverage_rationale_1352"
     },
@@ -29297,7 +29306,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1376",
-      "community": 50,
+      "community": 164,
       "norm_label": "covers line 16: empty password raises valueerror.",
       "id": "tests_test_controllers_coverage_rationale_1376"
     },
@@ -29315,7 +29324,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1389",
-      "community": 461,
+      "community": 332,
       "norm_label": "covers lines 48-49: jwt.expiredsignatureerror.",
       "id": "tests_test_controllers_coverage_rationale_1389"
     },
@@ -29324,7 +29333,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1405",
-      "community": 164,
+      "community": 345,
       "norm_label": "covers lines 50-51: jwt.invalidtokenerror.",
       "id": "tests_test_controllers_coverage_rationale_1405"
     },
@@ -29576,7 +29585,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L56",
-      "community": 387,
+      "community": 461,
       "norm_label": "makechat must include memory_tools alongside mcp sessions.",
       "id": "tests_test_memory_tools_wiring_rationale_56"
     },
@@ -29909,7 +29918,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L48",
-      "community": 387,
+      "community": 461,
       "norm_label": "makechat must include memory_tools alongside mcp sessions.",
       "id": "tests_test_memory_tools_wiring_rationale_48"
     },
@@ -31043,7 +31052,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L11",
-      "community": 56,
+      "community": 457,
       "norm_label": "non-extended role gets basic limit.",
       "id": "tests_test_memory_manager_rationale_11"
     },
@@ -31052,7 +31061,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L15",
-      "community": 56,
+      "community": 457,
       "norm_label": "premium user gets extended limit.",
       "id": "tests_test_memory_manager_rationale_15"
     },
@@ -31061,7 +31070,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L19",
-      "community": 56,
+      "community": 457,
       "norm_label": "admin gets extended limit (has all permissions).",
       "id": "tests_test_memory_manager_rationale_19"
     },
@@ -31070,7 +31079,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L25",
-      "community": 56,
+      "community": 402,
       "norm_label": "creates a new memory.",
       "id": "tests_test_memory_manager_rationale_25"
     },
@@ -31079,7 +31088,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L35",
-      "community": 56,
+      "community": 402,
       "norm_label": "updates existing memory when value changes.",
       "id": "tests_test_memory_manager_rationale_35"
     },
@@ -31088,7 +31097,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L43",
-      "community": 56,
+      "community": 402,
       "norm_label": "returns unchanged when value is identical.",
       "id": "tests_test_memory_manager_rationale_43"
     },
@@ -31097,7 +31106,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L49",
-      "community": 56,
+      "community": 402,
       "norm_label": "rejects new memory when limit reached.",
       "id": "tests_test_memory_manager_rationale_49"
     },
@@ -31106,7 +31115,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L61",
-      "community": 56,
+      "community": 402,
       "norm_label": "no role check when user_roles not provided.",
       "id": "tests_test_memory_manager_rationale_61"
     },
@@ -31115,7 +31124,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L69",
-      "community": 56,
+      "community": 402,
       "norm_label": "stores embedding alongside memory.",
       "id": "tests_test_memory_manager_rationale_69"
     },
@@ -32438,7 +32447,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L524",
-      "community": 50,
+      "community": 460,
       "norm_label": "covers line 19: get /user/health.",
       "id": "tests_test_controllers_coverage_rationale_524"
     },
@@ -32699,7 +32708,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1020",
-      "community": 172,
+      "community": 67,
       "norm_label": "covers lines 111-112: sessionid is none, new session created.",
       "id": "tests_test_controllers_coverage_rationale_1020"
     },
@@ -32717,7 +32726,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1079",
-      "community": 55,
+      "community": 172,
       "norm_label": "covers lines 114-115: session ownership check fails.",
       "id": "tests_test_controllers_coverage_rationale_1079"
     },
@@ -32735,7 +32744,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1134",
-      "community": 402,
+      "community": 50,
       "norm_label": "covers line 18: get /stocks/health.",
       "id": "tests_test_controllers_coverage_rationale_1134"
     },
@@ -32798,7 +32807,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1219",
-      "community": 458,
+      "community": 182,
       "norm_label": "covers lines 13, 17, 19-20, 22-27: usermanager.addroletouser.",
       "id": "tests_test_controllers_coverage_rationale_1219"
     },
@@ -32807,7 +32816,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1222",
-      "community": 459,
+      "community": 182,
       "norm_label": "covers lines 17, 22-27: user found, role not present, role added.",
       "id": "tests_test_controllers_coverage_rationale_1222"
     },
@@ -32816,7 +32825,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1239",
-      "community": 460,
+      "community": 332,
       "norm_label": "covers line 27: user already has the role.",
       "id": "tests_test_controllers_coverage_rationale_1239"
     },
@@ -32852,7 +32861,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1298",
-      "community": 417,
+      "community": 332,
       "norm_label": "covers lines 42-44: session validation fails.",
       "id": "tests_test_controllers_coverage_rationale_1298"
     },
@@ -32861,7 +32870,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1314",
-      "community": 451,
+      "community": 332,
       "norm_label": "covers lines 48-49: user not in db.",
       "id": "tests_test_controllers_coverage_rationale_1314"
     },
@@ -32870,7 +32879,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1331",
-      "community": 461,
+      "community": 332,
       "norm_label": "covers lines 65-67: unexpected exception.",
       "id": "tests_test_controllers_coverage_rationale_1331"
     },
@@ -32879,7 +32888,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1348",
-      "community": 456,
+      "community": 332,
       "norm_label": "covers lines 37-38, 46, 51, 58 (sessionid is none): skips session validation.",
       "id": "tests_test_controllers_coverage_rationale_1348"
     },
@@ -32888,7 +32897,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1372",
-      "community": 451,
+      "community": 332,
       "norm_label": "covers line 16: empty password raises valueerror.",
       "id": "tests_test_controllers_coverage_rationale_1372"
     },
@@ -32897,7 +32906,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1401",
-      "community": 164,
+      "community": 345,
       "norm_label": "covers lines 50-51: jwt.invalidtokenerror.",
       "id": "tests_test_controllers_coverage_rationale_1401"
     },
@@ -33050,7 +33059,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L522",
-      "community": 50,
+      "community": 460,
       "norm_label": "covers line 19: get /user/health.",
       "id": "tests_test_controllers_coverage_rationale_522"
     },
@@ -33311,7 +33320,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1018",
-      "community": 172,
+      "community": 67,
       "norm_label": "covers lines 111-112: sessionid is none, new session created.",
       "id": "tests_test_controllers_coverage_rationale_1018"
     },
@@ -33329,7 +33338,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1078",
-      "community": 55,
+      "community": 172,
       "norm_label": "covers lines 114-115: session ownership check fails.",
       "id": "tests_test_controllers_coverage_rationale_1078"
     },
@@ -33347,7 +33356,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1133",
-      "community": 402,
+      "community": 50,
       "norm_label": "covers line 18: get /stocks/health.",
       "id": "tests_test_controllers_coverage_rationale_1133"
     },
@@ -33401,7 +33410,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1218",
-      "community": 458,
+      "community": 182,
       "norm_label": "covers lines 13, 17, 19-20, 22-27: usermanager.addroletouser.",
       "id": "tests_test_controllers_coverage_rationale_1218"
     },
@@ -33410,7 +33419,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1221",
-      "community": 459,
+      "community": 182,
       "norm_label": "covers lines 17, 22-27: user found, role not present, role added.",
       "id": "tests_test_controllers_coverage_rationale_1221"
     },
@@ -33419,7 +33428,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1238",
-      "community": 460,
+      "community": 332,
       "norm_label": "covers line 27: user already has the role.",
       "id": "tests_test_controllers_coverage_rationale_1238"
     },
@@ -33455,7 +33464,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1297",
-      "community": 460,
+      "community": 332,
       "norm_label": "covers lines 42-44: session validation fails.",
       "id": "tests_test_controllers_coverage_rationale_1297"
     },
@@ -33464,7 +33473,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1313",
-      "community": 451,
+      "community": 332,
       "norm_label": "covers lines 48-49: user not in db.",
       "id": "tests_test_controllers_coverage_rationale_1313"
     },
@@ -33473,7 +33482,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1330",
-      "community": 461,
+      "community": 332,
       "norm_label": "covers lines 65-67: unexpected exception.",
       "id": "tests_test_controllers_coverage_rationale_1330"
     },
@@ -33482,7 +33491,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1347",
-      "community": 456,
+      "community": 332,
       "norm_label": "covers lines 37-38, 46, 51, 58 (sessionid is none): skips session validation.",
       "id": "tests_test_controllers_coverage_rationale_1347"
     },
@@ -33491,7 +33500,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1371",
-      "community": 50,
+      "community": 164,
       "norm_label": "covers line 16: empty password raises valueerror.",
       "id": "tests_test_controllers_coverage_rationale_1371"
     },
@@ -33518,7 +33527,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1400",
-      "community": 164,
+      "community": 345,
       "norm_label": "covers lines 50-51: jwt.invalidtokenerror.",
       "id": "tests_test_controllers_coverage_rationale_1400"
     },
@@ -33986,7 +33995,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L496",
-      "community": 57,
+      "community": 463,
       "norm_label": "replacenan handles direct float nan values (line 34).",
       "id": "tests_test_stocks_api_coverage_rationale_496"
     },
@@ -34022,7 +34031,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L550",
-      "community": 457,
+      "community": 57,
       "norm_label": "all four special_cols should parse correctly when mixed with none.",
       "id": "tests_test_stocks_api_coverage_rationale_550"
     },
@@ -34040,7 +34049,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L630",
-      "community": 66,
+      "community": 53,
       "norm_label": "tests covering query.py lines 77-132.",
       "id": "tests_test_stocks_api_coverage_rationale_630"
     },
@@ -34121,7 +34130,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L843",
-      "community": 434,
+      "community": 133,
       "norm_label": "invalid date -> inner 400 passes through (not wrapped as 500).",
       "id": "tests_test_stocks_api_coverage_rationale_843"
     },
@@ -34130,7 +34139,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L896",
-      "community": 133,
+      "community": 87,
       "norm_label": "search.strip() == '' should still dedup (line 181).",
       "id": "tests_test_stocks_api_coverage_rationale_896"
     },
@@ -34139,7 +34148,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L905",
-      "community": 87,
+      "community": 133,
       "norm_label": "dataframe without time column.",
       "id": "tests_test_stocks_api_coverage_rationale_905"
     },
@@ -34202,7 +34211,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L990",
-      "community": 53,
+      "community": 472,
       "norm_label": "cotacao 10y padrao and cotacao 10y ajustada belong to /cotations, not /fundament",
       "id": "tests_test_stocks_api_coverage_rationale_990"
     },
@@ -34256,7 +34265,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1216",
-      "community": 61,
+      "community": 440,
       "norm_label": "hit the actual /stocks/cotations http endpoint with adjusted=false.",
       "id": "tests_test_stocks_api_coverage_rationale_1216"
     },
@@ -34274,7 +34283,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1342",
-      "community": 367,
+      "community": 19,
       "norm_label": "get /stocks/realtime-cotation without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1342"
     },
@@ -34283,7 +34292,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1392",
-      "community": 367,
+      "community": 19,
       "norm_label": "get /cotations without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1392"
     },
@@ -34409,7 +34418,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1344",
-      "community": 367,
+      "community": 19,
       "norm_label": "get /stocks/realtime-cotation without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1344"
     },
@@ -34418,7 +34427,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1394",
-      "community": 367,
+      "community": 19,
       "norm_label": "get /cotations without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1394"
     },
@@ -34598,7 +34607,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1400",
-      "community": 367,
+      "community": 19,
       "norm_label": "get /stocks/realtime-cotation without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1400"
     },
@@ -34607,7 +34616,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1468",
-      "community": 367,
+      "community": 19,
       "norm_label": "get /cotations without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1468"
     },
@@ -34616,7 +34625,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L23",
-      "community": 57,
+      "community": 53,
       "norm_label": "return a small dataframe with the columns the query module expects.",
       "id": "tests_test_stocks_api_coverage_rationale_23"
     },
@@ -34751,7 +34760,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L495",
-      "community": 57,
+      "community": 463,
       "norm_label": "replacenan handles direct float nan values (line 34).",
       "id": "tests_test_stocks_api_coverage_rationale_495"
     },
@@ -34787,7 +34796,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L549",
-      "community": 457,
+      "community": 57,
       "norm_label": "all four special_cols should parse correctly when mixed with none.",
       "id": "tests_test_stocks_api_coverage_rationale_549"
     },
@@ -34805,7 +34814,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L629",
-      "community": 66,
+      "community": 53,
       "norm_label": "tests covering query.py lines 77-132.",
       "id": "tests_test_stocks_api_coverage_rationale_629"
     },
@@ -34823,7 +34832,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L693",
-      "community": 66,
+      "community": 451,
       "norm_label": "no historical data columns -> inner 400 caught by outer except -> 500.",
       "id": "tests_test_stocks_api_coverage_rationale_693"
     },
@@ -34958,7 +34967,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L986",
-      "community": 53,
+      "community": 472,
       "norm_label": "cotacao 10y padrao and cotacao 10y ajustada belong to /cotations, not /fundament",
       "id": "tests_test_stocks_api_coverage_rationale_986"
     },
@@ -35012,7 +35021,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1212",
-      "community": 61,
+      "community": 440,
       "norm_label": "hit the actual /stocks/cotations http endpoint with adjusted=false.",
       "id": "tests_test_stocks_api_coverage_rationale_1212"
     },
@@ -35030,7 +35039,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1396",
-      "community": 367,
+      "community": 19,
       "norm_label": "get /stocks/realtime-cotation without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1396"
     },
@@ -35039,7 +35048,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1464",
-      "community": 367,
+      "community": 19,
       "norm_label": "get /cotations without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1464"
     },
@@ -35066,7 +35075,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1388",
-      "community": 367,
+      "community": 19,
       "norm_label": "get /stocks/realtime-cotation without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1388"
     },
@@ -35075,7 +35084,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1456",
-      "community": 367,
+      "community": 19,
       "norm_label": "get /cotations without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1456"
     },
@@ -35111,7 +35120,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1297",
-      "community": 55,
+      "community": 63,
       "norm_label": ".test_cotations_search_required()",
       "id": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_search_required"
     },
@@ -35120,7 +35129,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1298",
-      "community": 55,
+      "community": 63,
       "norm_label": "get /cotations without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1298"
     },
@@ -35156,7 +35165,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1210",
-      "community": 61,
+      "community": 440,
       "norm_label": "hit the actual /stocks/cotations http endpoint with adjusted=false.",
       "id": "tests_test_stocks_api_coverage_rationale_1210"
     },
@@ -35165,7 +35174,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1288",
-      "community": 55,
+      "community": 63,
       "norm_label": "get /cotations without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1288"
     },
@@ -35246,7 +35255,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L976",
-      "community": 53,
+      "community": 472,
       "norm_label": "cotacao 10y padrao and cotacao 10y ajustada belong to /cotations, not /fundament",
       "id": "tests_test_stocks_api_coverage_rationale_976"
     },
@@ -35300,7 +35309,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1191",
-      "community": 61,
+      "community": 440,
       "norm_label": "hit the actual /stocks/cotations http endpoint with adjusted=false.",
       "id": "tests_test_stocks_api_coverage_rationale_1191"
     },
@@ -35831,7 +35840,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1170",
-      "community": 61,
+      "community": 440,
       "norm_label": "hit the actual /stocks/cotations http endpoint with adjusted=false.",
       "id": "tests_test_stocks_api_coverage_rationale_1170"
     },
@@ -35876,7 +35885,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1141",
-      "community": 61,
+      "community": 440,
       "norm_label": "hit the actual /stocks/cotations http endpoint with adjusted=false.",
       "id": "tests_test_stocks_api_coverage_rationale_1141"
     },
@@ -35957,7 +35966,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1148",
-      "community": 61,
+      "community": 440,
       "norm_label": "hit the actual /stocks/cotations http endpoint with adjusted=false.",
       "id": "tests_test_stocks_api_coverage_rationale_1148"
     },
@@ -35966,7 +35975,7 @@
       "file_type": "code",
       "source_file": "config.py",
       "source_location": "L47",
-      "community": 86,
+      "community": 335,
       "norm_label": ".__getitem__()",
       "id": "server_config_mysqlsettings_getitem"
     },
@@ -35975,7 +35984,7 @@
       "file_type": "code",
       "source_file": "config.py",
       "source_location": "L166",
-      "community": 86,
+      "community": 335,
       "norm_label": "getstockssession()",
       "id": "server_config_getstockssession"
     },
@@ -36407,7 +36416,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L228",
-      "community": 63,
+      "community": 50,
       "norm_label": "covers lines 87-93, 102: login success and failure paths.",
       "id": "tests_test_controllers_coverage_rationale_228"
     },
@@ -36551,7 +36560,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L567",
-      "community": 50,
+      "community": 460,
       "norm_label": "covers line 19: get /user/health.",
       "id": "tests_test_controllers_coverage_rationale_567"
     },
@@ -36812,7 +36821,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1063",
-      "community": 172,
+      "community": 67,
       "norm_label": "covers lines 111-112: sessionid is none, new session created.",
       "id": "tests_test_controllers_coverage_rationale_1063"
     },
@@ -36830,7 +36839,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1123",
-      "community": 55,
+      "community": 172,
       "norm_label": "covers lines 114-115: session ownership check fails.",
       "id": "tests_test_controllers_coverage_rationale_1123"
     },
@@ -36848,7 +36857,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1181",
-      "community": 402,
+      "community": 50,
       "norm_label": "covers line 18: get /stocks/health.",
       "id": "tests_test_controllers_coverage_rationale_1181"
     },
@@ -36911,7 +36920,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1280",
-      "community": 459,
+      "community": 182,
       "norm_label": "covers lines 17, 22-27: user found, role not present, role added.",
       "id": "tests_test_controllers_coverage_rationale_1280"
     },
@@ -36929,7 +36938,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1356",
-      "community": 417,
+      "community": 332,
       "norm_label": "covers lines 42-44: session validation fails.",
       "id": "tests_test_controllers_coverage_rationale_1356"
     },
@@ -36938,7 +36947,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1406",
-      "community": 456,
+      "community": 332,
       "norm_label": "covers lines 37-38, 46, 51, 58 (sessionid is none): skips session validation.",
       "id": "tests_test_controllers_coverage_rationale_1406"
     },
@@ -36947,7 +36956,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1430",
-      "community": 50,
+      "community": 164,
       "norm_label": "covers line 16: empty password raises valueerror.",
       "id": "tests_test_controllers_coverage_rationale_1430"
     },
@@ -36974,7 +36983,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1459",
-      "community": 164,
+      "community": 345,
       "norm_label": "covers lines 50-51: jwt.invalidtokenerror.",
       "id": "tests_test_controllers_coverage_rationale_1459"
     },
@@ -37577,7 +37586,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L494",
-      "community": 57,
+      "community": 463,
       "norm_label": "replacenan handles direct float nan values (line 34).",
       "id": "tests_test_stocks_api_coverage_rationale_494"
     },
@@ -37613,7 +37622,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L548",
-      "community": 457,
+      "community": 57,
       "norm_label": "all four special_cols should parse correctly when mixed with none.",
       "id": "tests_test_stocks_api_coverage_rationale_548"
     },
@@ -37631,7 +37640,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L628",
-      "community": 66,
+      "community": 53,
       "norm_label": "tests covering query.py lines 77-132.",
       "id": "tests_test_stocks_api_coverage_rationale_628"
     },
@@ -37649,7 +37658,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L692",
-      "community": 66,
+      "community": 451,
       "norm_label": "no historical data columns -> inner 400 caught by outer except -> 500.",
       "id": "tests_test_stocks_api_coverage_rationale_692"
     },
@@ -37703,7 +37712,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L831",
-      "community": 434,
+      "community": 133,
       "norm_label": "invalid date -> inner 400 caught by outer except -> 500.",
       "id": "tests_test_stocks_api_coverage_rationale_831"
     },
@@ -37973,7 +37982,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L827",
-      "community": 434,
+      "community": 133,
       "norm_label": "invalid date -> inner 400 caught by outer except -> 500.",
       "id": "tests_test_stocks_api_coverage_rationale_827"
     },
@@ -38063,7 +38072,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L826",
-      "community": 434,
+      "community": 133,
       "norm_label": "invalid date -> inner 400 caught by outer except -> 500.",
       "id": "tests_test_stocks_api_coverage_rationale_826"
     },
@@ -38126,7 +38135,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L582",
-      "community": 66,
+      "community": 53,
       "norm_label": "tests covering query.py lines 77-132.",
       "id": "tests_test_stocks_api_coverage_rationale_582"
     },
@@ -38144,7 +38153,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L646",
-      "community": 66,
+      "community": 451,
       "norm_label": "no historical data columns -> inner 400 caught by outer except -> 500.",
       "id": "tests_test_stocks_api_coverage_rationale_646"
     },
@@ -38198,7 +38207,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L780",
-      "community": 434,
+      "community": 133,
       "norm_label": "invalid date -> inner 400 caught by outer except -> 500.",
       "id": "tests_test_stocks_api_coverage_rationale_780"
     },
@@ -38441,7 +38450,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L583",
-      "community": 66,
+      "community": 53,
       "norm_label": "tests covering query.py lines 77-132.",
       "id": "tests_test_stocks_api_coverage_rationale_583"
     },
@@ -38459,7 +38468,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L647",
-      "community": 66,
+      "community": 451,
       "norm_label": "no historical data columns -> inner 400 caught by outer except -> 500.",
       "id": "tests_test_stocks_api_coverage_rationale_647"
     },
@@ -38513,7 +38522,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L781",
-      "community": 434,
+      "community": 133,
       "norm_label": "invalid date -> inner 400 caught by outer except -> 500.",
       "id": "tests_test_stocks_api_coverage_rationale_781"
     },
@@ -39080,7 +39089,7 @@
       "file_type": "code",
       "source_file": "main/service/user_service.py",
       "source_location": "L35",
-      "community": 440,
+      "community": 211,
       "norm_label": "inactivesessionsscheduler()",
       "id": "service_user_service_inactivesessionsscheduler"
     },
@@ -39521,7 +39530,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L489",
-      "community": 57,
+      "community": 463,
       "norm_label": "replacenan handles direct float nan values (line 34).",
       "id": "tests_test_stocks_api_coverage_rationale_489"
     },
@@ -39557,7 +39566,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L577",
-      "community": 66,
+      "community": 53,
       "norm_label": "tests covering query.py lines 77-132.",
       "id": "tests_test_stocks_api_coverage_rationale_577"
     },
@@ -39575,7 +39584,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L641",
-      "community": 66,
+      "community": 451,
       "norm_label": "no historical data columns -> inner 400 caught by outer except -> 500.",
       "id": "tests_test_stocks_api_coverage_rationale_641"
     },
@@ -39629,7 +39638,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L775",
-      "community": 434,
+      "community": 133,
       "norm_label": "invalid date -> inner 400 caught by outer except -> 500.",
       "id": "tests_test_stocks_api_coverage_rationale_775"
     },
@@ -40385,7 +40394,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L299",
-      "community": 331,
+      "community": 458,
       "norm_label": "testfilterbysearchterms",
       "id": "tests_test_stocks_cache_testfilterbysearchterms"
     },
@@ -40394,7 +40403,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L302",
-      "community": 331,
+      "community": 458,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_cache_testfilterbysearchterms_test_filter_with_tickerindex"
     },
@@ -40655,7 +40664,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L300",
-      "community": 331,
+      "community": 458,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_cache_rationale_300"
     },
@@ -40664,7 +40673,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L303",
-      "community": 331,
+      "community": 458,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_cache_rationale_303"
     },
@@ -40943,7 +40952,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L302",
-      "community": 331,
+      "community": 458,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_cache_rationale_302"
     },
@@ -40952,7 +40961,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L305",
-      "community": 331,
+      "community": 458,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_cache_rationale_305"
     },
@@ -41042,7 +41051,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L304",
-      "community": 331,
+      "community": 458,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_cache_testfilterbysearchterms_test_filter_with_tickerIndex"
     },
@@ -41060,7 +41069,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L17",
-      "community": 210,
+      "community": 420,
       "norm_label": "testtickerindex",
       "id": "tests_test_stocks_optimization_testtickerindex"
     },
@@ -41069,7 +41078,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L20",
-      "community": 210,
+      "community": 420,
       "norm_label": ".test_tickerindex_built_after_cache_load()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_tickerIndex_built_after_cache_load"
     },
@@ -41078,7 +41087,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L28",
-      "community": 210,
+      "community": 420,
       "norm_label": ".test_tickerindex_contains_all_tickers()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_tickerIndex_contains_all_tickers"
     },
@@ -41087,7 +41096,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L38",
-      "community": 210,
+      "community": 420,
       "norm_label": ".test_tickerindex_case_insensitive()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_tickerIndex_case_insensitive"
     },
@@ -41096,7 +41105,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L47",
-      "community": 210,
+      "community": 420,
       "norm_label": ".test_ticker_lookup_returns_valid_index()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_ticker_lookup_returns_valid_index"
     },
@@ -41105,7 +41114,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L58",
-      "community": 210,
+      "community": 420,
       "norm_label": ".test_tickerindex_rebuilt_on_cache_refresh()",
       "id": "tests_test_stocks_optimization_testtickerindex_test_tickerIndex_rebuilt_on_cache_refresh"
     },
@@ -41204,7 +41213,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L137",
-      "community": 399,
+      "community": 464,
       "norm_label": "testqueryoptimization",
       "id": "tests_test_stocks_optimization_testqueryoptimization"
     },
@@ -41213,7 +41222,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L140",
-      "community": 399,
+      "community": 464,
       "norm_label": ".test_all_optimizations_present()",
       "id": "tests_test_stocks_optimization_testqueryoptimization_test_all_optimizations_present"
     },
@@ -41222,7 +41231,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L155",
-      "community": 399,
+      "community": 464,
       "norm_label": ".test_query_filter_uses_optimization()",
       "id": "tests_test_stocks_optimization_testqueryoptimization_test_query_filter_uses_optimization"
     },
@@ -41330,7 +41339,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L18",
-      "community": 210,
+      "community": 420,
       "norm_label": "tests for dynamic ticker index feature",
       "id": "tests_test_stocks_optimization_rationale_18"
     },
@@ -41339,7 +41348,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L21",
-      "community": 210,
+      "community": 420,
       "norm_label": "ticker index should be built when cache is loaded",
       "id": "tests_test_stocks_optimization_rationale_21"
     },
@@ -41348,7 +41357,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L29",
-      "community": 210,
+      "community": 420,
       "norm_label": "ticker index should contain all tickers from cache",
       "id": "tests_test_stocks_optimization_rationale_29"
     },
@@ -41357,7 +41366,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L39",
-      "community": 210,
+      "community": 420,
       "norm_label": "ticker index should be case-insensitive",
       "id": "tests_test_stocks_optimization_rationale_39"
     },
@@ -41366,7 +41375,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L48",
-      "community": 210,
+      "community": 420,
       "norm_label": "looking up ticker should return valid row index",
       "id": "tests_test_stocks_optimization_rationale_48"
     },
@@ -41375,7 +41384,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L59",
-      "community": 210,
+      "community": 420,
       "norm_label": "ticker index should be rebuilt when cache refreshes",
       "id": "tests_test_stocks_optimization_rationale_59"
     },
@@ -41474,7 +41483,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L138",
-      "community": 399,
+      "community": 464,
       "norm_label": "integration tests for all query optimizations",
       "id": "tests_test_stocks_optimization_rationale_138"
     },
@@ -41483,7 +41492,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L141",
-      "community": 399,
+      "community": 464,
       "norm_label": "all optimizations should be implemented",
       "id": "tests_test_stocks_optimization_rationale_141"
     },
@@ -41492,7 +41501,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L156",
-      "community": 399,
+      "community": 464,
       "norm_label": "query filter should use ticker index",
       "id": "tests_test_stocks_optimization_rationale_156"
     },
@@ -42063,7 +42072,7 @@
       "label": "Pytest Testing",
       "file_type": "rationale",
       "source_file": "pyproject.toml",
-      "community": 369,
+      "community": 175,
       "norm_label": "pytest testing",
       "id": "pytest"
     },
@@ -43406,9 +43415,9 @@
       "source_file": "frontend/src/App.jsx",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_app_jsx",
-      "target": "frontend_src_components_agentloop_jsx",
-      "confidence_score": 1.0
+      "target": "frontend_src_components_agentloop_jsx"
     },
     {
       "relation": "contains",
@@ -43449,7 +43458,7 @@
       "source_location": "L3",
       "weight": 1.0,
       "source": "frontend_src_components_agentloop_jsx",
-      "target": "components_agentloop_toolcard",
+      "target": "components_agentloop_toolchip",
       "confidence_score": 1.0
     },
     {
@@ -43458,9 +43467,30 @@
       "source_file": "frontend/src/components/AgentLoop.jsx",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "frontend_src_components_agentloop_jsx",
-      "target": "components_agentloop_agentloop",
+      "target": "components_agentloop_agentloop"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/MessageList.jsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "frontend_src_components_messagelist_jsx",
+      "target": "frontend_src_components_agentloop_jsx",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "frontend/src/components/AgentLoop.jsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "frontend_src_components_agentloop_jsx",
+      "target": "components_agentloop_toolcard"
     },
     {
       "relation": "contains",
@@ -93239,476 +93269,6 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "docs_superpowers_plans_2026_07_17_observable_agent_loop_md",
-      "target": "plans_2026_07_17_observable_agent_loop_observable_agent_loop_implementation_plan",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L13",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_observable_agent_loop_implementation_plan",
-      "target": "plans_2026_07_17_observable_agent_loop_context",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L29",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_observable_agent_loop_implementation_plan",
-      "target": "plans_2026_07_17_observable_agent_loop_file_structure",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L240",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_observable_agent_loop_implementation_plan",
-      "target": "plans_2026_07_17_observable_agent_loop_sse_event_flow_reference",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L271",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_observable_agent_loop_implementation_plan",
-      "target": "plans_2026_07_17_observable_agent_loop_design_notes",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L15",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_context",
-      "target": "plans_2026_07_17_observable_agent_loop_current_state",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L22",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_context",
-      "target": "plans_2026_07_17_observable_agent_loop_what_changes",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L40",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_file_structure",
-      "target": "plans_2026_07_17_observable_agent_loop_task_1_stream_tool_events_via_sse",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L122",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_file_structure",
-      "target": "plans_2026_07_17_observable_agent_loop_task_2_create_the_testing_frontend",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L223",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_file_structure",
-      "target": "plans_2026_07_17_observable_agent_loop_task_3_verify_end_to_end",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L55",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_task_1_stream_tool_events_via_sse",
-      "target": "plans_2026_07_17_observable_agent_loop_codeblock_1",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L88",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_task_1_stream_tool_events_via_sse",
-      "target": "plans_2026_07_17_observable_agent_loop_codeblock_2",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L115",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_task_1_stream_tool_events_via_sse",
-      "target": "plans_2026_07_17_observable_agent_loop_codeblock_3",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L133",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_task_2_create_the_testing_frontend",
-      "target": "plans_2026_07_17_observable_agent_loop_codeblock_4",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L148",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_task_2_create_the_testing_frontend",
-      "target": "plans_2026_07_17_observable_agent_loop_codeblock_5",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L193",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_task_2_create_the_testing_frontend",
-      "target": "plans_2026_07_17_observable_agent_loop_codeblock_6",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L216",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_task_2_create_the_testing_frontend",
-      "target": "plans_2026_07_17_observable_agent_loop_codeblock_7",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
-      "source_location": "L242",
-      "weight": 1.0,
-      "source": "plans_2026_07_17_observable_agent_loop_sse_event_flow_reference",
-      "target": "plans_2026_07_17_observable_agent_loop_codeblock_8",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "docs_superpowers_plans_2026_07_18_observable_agent_loop_md",
-      "target": "plans_2026_07_18_observable_agent_loop_observable_agent_loop_implementation_plan",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L11",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_observable_agent_loop_implementation_plan",
-      "target": "plans_2026_07_18_observable_agent_loop_global_constraints",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L21",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_observable_agent_loop_implementation_plan",
-      "target": "plans_2026_07_18_observable_agent_loop_file_map",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L34",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_file_map",
-      "target": "plans_2026_07_18_observable_agent_loop_task_1_backend_yield_tool_events_to_sse",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L94",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_file_map",
-      "target": "plans_2026_07_18_observable_agent_loop_task_2_frontend_update_api_js_to_dispatch_tool_events",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L141",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_file_map",
-      "target": "plans_2026_07_18_observable_agent_loop_task_3_frontend_add_agentloop_component",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L222",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_file_map",
-      "target": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L301",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_file_map",
-      "target": "plans_2026_07_18_observable_agent_loop_task_5_frontend_add_css_styles",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L344",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_file_map",
-      "target": "plans_2026_07_18_observable_agent_loop_task_6_integration_test",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L48",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_1_backend_yield_tool_events_to_sse",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_1",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L69",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_1_backend_yield_tool_events_to_sse",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_2",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L87",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_1_backend_yield_tool_events_to_sse",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_3",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L107",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_2_frontend_update_api_js_to_dispatch_tool_events",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_4",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L115",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_2_frontend_update_api_js_to_dispatch_tool_events",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_5",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L134",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_2_frontend_update_api_js_to_dispatch_tool_events",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_6",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L152",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_3_frontend_add_agentloop_component",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_7",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L215",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_3_frontend_add_agentloop_component",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_8",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L235",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_9",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L244",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_10",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L251",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_11",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L260",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_12",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L278",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_13",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L288",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_14",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L294",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_15",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L314",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_5_frontend_add_css_styles",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_16",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L337",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_5_frontend_add_css_styles",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_17",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L355",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_6_integration_test",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_18",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L374",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_6_integration_test",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_19",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
-      "source_location": "L382",
-      "weight": 1.0,
-      "source": "plans_2026_07_18_observable_agent_loop_task_6_integration_test",
-      "target": "plans_2026_07_18_observable_agent_loop_codeblock_20",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
       "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
       "source_location": "L38",
       "weight": 1.0,
@@ -93835,6 +93395,476 @@
       "confidence_score": 1.0,
       "source": "all_minilm_l6_v2_readme_fine_tuning",
       "target": "all_minilm_l6_v2_readme_training_data"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "docs_superpowers_plans_2026_07_17_observable_agent_loop_md",
+      "target": "plans_2026_07_17_observable_agent_loop_observable_agent_loop_implementation_plan"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L13",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_observable_agent_loop_implementation_plan",
+      "target": "plans_2026_07_17_observable_agent_loop_context"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L29",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_observable_agent_loop_implementation_plan",
+      "target": "plans_2026_07_17_observable_agent_loop_file_structure"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L240",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_observable_agent_loop_implementation_plan",
+      "target": "plans_2026_07_17_observable_agent_loop_sse_event_flow_reference"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L271",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_observable_agent_loop_implementation_plan",
+      "target": "plans_2026_07_17_observable_agent_loop_design_notes"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L15",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_context",
+      "target": "plans_2026_07_17_observable_agent_loop_current_state"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L22",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_context",
+      "target": "plans_2026_07_17_observable_agent_loop_what_changes"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L40",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_file_structure",
+      "target": "plans_2026_07_17_observable_agent_loop_task_1_stream_tool_events_via_sse"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L122",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_file_structure",
+      "target": "plans_2026_07_17_observable_agent_loop_task_2_create_the_testing_frontend"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L223",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_file_structure",
+      "target": "plans_2026_07_17_observable_agent_loop_task_3_verify_end_to_end"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L55",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_task_1_stream_tool_events_via_sse",
+      "target": "plans_2026_07_17_observable_agent_loop_codeblock_1"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L88",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_task_1_stream_tool_events_via_sse",
+      "target": "plans_2026_07_17_observable_agent_loop_codeblock_2"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L115",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_task_1_stream_tool_events_via_sse",
+      "target": "plans_2026_07_17_observable_agent_loop_codeblock_3"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L133",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_task_2_create_the_testing_frontend",
+      "target": "plans_2026_07_17_observable_agent_loop_codeblock_4"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L148",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_task_2_create_the_testing_frontend",
+      "target": "plans_2026_07_17_observable_agent_loop_codeblock_5"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L193",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_task_2_create_the_testing_frontend",
+      "target": "plans_2026_07_17_observable_agent_loop_codeblock_6"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L216",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_task_2_create_the_testing_frontend",
+      "target": "plans_2026_07_17_observable_agent_loop_codeblock_7"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-17-observable-agent-loop.md",
+      "source_location": "L242",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_17_observable_agent_loop_sse_event_flow_reference",
+      "target": "plans_2026_07_17_observable_agent_loop_codeblock_8"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "docs_superpowers_plans_2026_07_18_observable_agent_loop_md",
+      "target": "plans_2026_07_18_observable_agent_loop_observable_agent_loop_implementation_plan"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L11",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_observable_agent_loop_implementation_plan",
+      "target": "plans_2026_07_18_observable_agent_loop_global_constraints"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L21",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_observable_agent_loop_implementation_plan",
+      "target": "plans_2026_07_18_observable_agent_loop_file_map"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L34",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_file_map",
+      "target": "plans_2026_07_18_observable_agent_loop_task_1_backend_yield_tool_events_to_sse"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L94",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_file_map",
+      "target": "plans_2026_07_18_observable_agent_loop_task_2_frontend_update_api_js_to_dispatch_tool_events"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L141",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_file_map",
+      "target": "plans_2026_07_18_observable_agent_loop_task_3_frontend_add_agentloop_component"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L222",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_file_map",
+      "target": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L301",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_file_map",
+      "target": "plans_2026_07_18_observable_agent_loop_task_5_frontend_add_css_styles"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L344",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_file_map",
+      "target": "plans_2026_07_18_observable_agent_loop_task_6_integration_test"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L48",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_1_backend_yield_tool_events_to_sse",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_1"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L69",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_1_backend_yield_tool_events_to_sse",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_2"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L87",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_1_backend_yield_tool_events_to_sse",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_3"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L107",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_2_frontend_update_api_js_to_dispatch_tool_events",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_4"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L115",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_2_frontend_update_api_js_to_dispatch_tool_events",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_5"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L134",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_2_frontend_update_api_js_to_dispatch_tool_events",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_6"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L152",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_3_frontend_add_agentloop_component",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_7"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L215",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_3_frontend_add_agentloop_component",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_8"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L235",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_9"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L244",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_10"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L251",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_11"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L260",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_12"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L278",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_13"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L288",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_14"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L294",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_4_frontend_wire_agentloop_into_app_jsx",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_15"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L314",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_5_frontend_add_css_styles",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_16"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L337",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_5_frontend_add_css_styles",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_17"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L355",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_6_integration_test",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_18"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L374",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_6_integration_test",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_19"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/superpowers/plans/2026-07-18-observable-agent-loop.md",
+      "source_location": "L382",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "plans_2026_07_18_observable_agent_loop_task_6_integration_test",
+      "target": "plans_2026_07_18_observable_agent_loop_codeblock_20"
     },
     {
       "relation": "contains",
@@ -106990,5 +107020,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "6f4bebdb6e4bf82d32dc3ab6acf68fb5bb65674f"
+  "built_at_commit": "b2c468bb2c029f291f9d89b4fb70df6e67f2cf0b"
 }

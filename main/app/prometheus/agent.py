@@ -247,7 +247,12 @@ class Prometheus:
                         durationMs=int(__import__("time").time() * 1000) - turn_start,
                         toolsUsed=tools_used,
                     )
-                    yield {"type": "turn_end", "turn": turn, "durationMs": int(__import__("time").time() * 1000) - turn_start, "toolsUsed": len(tools_used)}
+                    yield {
+                        "type": "turn_end",
+                        "turn": turn,
+                        "durationMs": int(__import__("time").time() * 1000) - turn_start,
+                        "toolsUsed": len(tools_used),
+                    }
                     turn += 1
                     stream = await chat.send_message_stream(responses)
 

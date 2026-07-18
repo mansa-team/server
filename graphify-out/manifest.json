@@ -35,8 +35,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\App.jsx": {
-    "mtime": 1784346794.18314,
-    "ast_hash": "8f6ad2e6937e366d8ac529b66d5d25f0",
+    "mtime": 1784349071.2389486,
+    "ast_hash": "12404e2a31eb14387d7ea228ff13e0cf",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\main.jsx": {
@@ -45,8 +45,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\components\\AgentLoop.jsx": {
-    "mtime": 1784346750.65673,
-    "ast_hash": "8d07db93f86657250b253ac883004ea4",
+    "mtime": 1784349100.1992836,
+    "ast_hash": "802bd3bc7c2f4453dcb030034d856877",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\components\\AuthForm.jsx": {
@@ -55,18 +55,18 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\components\\InputBar.jsx": {
-    "mtime": 1782691503.0028496,
-    "ast_hash": "47bfd815e6f72850d321d00231fe040c",
+    "mtime": 1784348368.64983,
+    "ast_hash": "d6d44dbf089bef743d6f435fb8034162",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\components\\MdocMessage.jsx": {
-    "mtime": 1784070004.5929909,
-    "ast_hash": "4dbc7f71e5c5b24133fed233b0e9f427",
+    "mtime": 1784348447.2776673,
+    "ast_hash": "a069498007b1e22de0253f9df98c189c",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\components\\MessageList.jsx": {
-    "mtime": 1784066517.5397754,
-    "ast_hash": "74430c6057f67b6663bc254949afd6de",
+    "mtime": 1784349895.4192085,
+    "ast_hash": "4f0e4a69d94957d8282e9b19fd5dee6a",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\components\\SessionSidebar.jsx": {
@@ -120,8 +120,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\agent.py": {
-    "mtime": 1784346592.70444,
-    "ast_hash": "09e1b575ee016252c3d50413d6d4aae9",
+    "mtime": 1784350446.8060174,
+    "ast_hash": "bbbfa5545e879dda2fc968e904a61211",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\chat.py": {
@@ -540,8 +540,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_prometheus_auth_coverage.py": {
-    "mtime": 1784339580.8412392,
-    "ast_hash": "b85e307423a4e1aeac45a8dcf549a1f4",
+    "mtime": 1784354205.2258363,
+    "ast_hash": "1666a600927b0cfd4b08ca08f87e5178",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\tests\\test_prometheus_tools.py": {
@@ -709,19 +709,9 @@
     "ast_hash": "a747b8dce6f5be90f82ace23efd8961a",
     "semantic_hash": ""
   },
-  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-07-17-observable-agent-loop.md": {
-    "mtime": 1784346087.8251534,
-    "ast_hash": "09d6a53305a59ee5c05d004ca718105f",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-07-18-observable-agent-loop.md": {
-    "mtime": 1784346420.614236,
-    "ast_hash": "5bb65855e505be19d96bce6256f2eb40",
-    "semantic_hash": ""
-  },
   "D:\\Repositories\\server\\frontend\\index.html": {
-    "mtime": 1782672983.9054935,
-    "ast_hash": "57317fe847ffc0182e4bdc49395cbbde",
+    "mtime": 1784348155.0821807,
+    "ast_hash": "800f53509e46165cdc4e66a338f1d70f",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\temp.txt": {
