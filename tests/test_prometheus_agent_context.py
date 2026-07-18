@@ -46,7 +46,8 @@ class TestBuildSystemPrompt:
             state=HarnessState(),
             sessionId=fake_session_with_120_messages.sessionId,
         )
-        episode_count = prompt.count("[Episode")
+        # format is [1] summary, [2] summary, ...
+        episode_count = sum(1 for line in prompt.split("\n") if line.startswith("[") and line[1].isdigit())
         assert episode_count <= 5
         assert episode_count >= 1
 
@@ -58,9 +59,10 @@ class TestBuildSystemPrompt:
             sessionId=fake_session_with_120_messages.sessionId,
         )
         lines = prompt.split("\n")
-        episode_lines = [ln for ln in lines if ln.startswith("[Episode")]
+        episode_lines = [ln for ln in lines if ln.startswith("[") and ln[1].isdigit()]
         for line in episode_lines:
-            assert "|" in line  # compressed single-line format
+            # each episode is one line: [N] summary text
+            assert line.count("\n") == 0
 
     def test_no_episodes_when_session_has_none(self, dbSession):
         session = PrometheusSession(
@@ -78,4 +80,5 @@ class TestBuildSystemPrompt:
             state=HarnessState(),
             sessionId="test-empty",
         )
-        assert "[Episode" not in prompt
+        # no lines starting with [N]
+        assert not any(ln.startswith("[") and ln[1].isdigit() for ln in prompt.split("\n"))

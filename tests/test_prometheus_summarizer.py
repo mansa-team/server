@@ -1,4 +1,4 @@
-"""Tests for PrometheusSummarizer: R3 (dedup), R5 (smart truncation), R1 (trim)."""
+"""Tests for PrometheusSummarizer: R5 (smart truncation), R1 (trim), edge cases."""
 
 import json
 import pytest
@@ -146,3 +146,145 @@ class TestSummarizeTrimsHistory:
         summarizer = PrometheusSummarizer()
         result = summarizer.summarize(db_session, "test-short")
         assert result is None
+
+
+# ── Edge Cases ────────────────────────────────────────────────────────
+
+
+class TestSummarizeEdgeCases:
+    @patch("main.app.prometheus.summarizer.genai.Client")
+    def test_api_failure_leaves_session_unchanged(self, mock_genai, db_session, fake_session_with_45_messages):
+        """Gemini API throws → summarize returns None, session is not mutated."""
+        mock_genai.return_value.models.generate_content.side_effect = Exception("API down")
+
+        summarizer = PrometheusSummarizer()
+        original_history_len = len(fake_session_with_45_messages.history)
+        original_summary = fake_session_with_45_messages.summary
+
+        result = summarizer.summarize(db_session, fake_session_with_45_messages.sessionId)
+
+        assert result is None
+        db_session.refresh(fake_session_with_45_messages)
+        assert len(fake_session_with_45_messages.history) == original_history_len
+        assert fake_session_with_45_messages.summary == original_summary
+
+    def test_empty_content_messages_skipped(self, db_session):
+        """Messages with empty/null content should not break the transcript builder."""
+        session = PrometheusSession(
+            sessionId="test-empty-content",
+            userId=1,
+            title="Empty",
+            history=[
+                {"role": "user", "content": "", "timestamp": datetime.now().isoformat()}
+                for _ in range(25)
+            ],
+        )
+        db_session.add(session)
+        db_session.commit()
+
+        summarizer = PrometheusSummarizer()
+        # Should not crash — empty content is filtered out, but transcript may be empty
+        result = summarizer.summarize(db_session, "test-empty-content")
+        # Result depends on whether API accepts empty input — just verify no crash
+        # (API may return None or a generic summary)
+
+    def test_20_episode_cap_drops_oldest(self, db_session):
+        """Storing more than20 episodes should keep only the last20."""
+        summarizer = PrometheusSummarizer()
+        # Pre-populate21 episodes directly in the summary
+        episodes = [
+            {
+                "id": f"ep_{i:04d}",
+                "time": datetime.now().isoformat(),
+                "summary": f"Episode {i}",
+                "keyDecisions": [],
+                "entities": [],
+            }
+            for i in range(21)
+        ]
+        session = PrometheusSession(
+            sessionId="test-cap",
+            userId=1,
+            title="Cap",
+            history=[
+                {"role": "user", "content": f"Msg {i}", "timestamp": datetime.now().isoformat()}
+                for i in range(25)
+            ],
+            summary=json.dumps(episodes),
+        )
+        db_session.add(session)
+        db_session.commit()
+
+        # Now summarize — should append episode22, then cap to last20
+        mock_resp = MagicMock()
+        mock_resp.parsed = {"summary": "New episode", "keyDecisions": [], "entities": []}
+        with patch("main.app.prometheus.summarizer.genai.Client") as mock_genai:
+            mock_genai.return_value.models.generate_content.return_value = mock_resp
+            summarizer.summarize(db_session, "test-cap")
+
+        result = summarizer.getEpisodes(db_session, "test-cap")
+        assert len(result) == 20
+        # First episode should be ep_0002 (0 and1 dropped)
+        assert result[0]["id"] == "ep_0002"
+
+
+class TestGetEpisodesEdgeCases:
+    def test_malformed_json_returns_empty(self, db_session):
+        """Corrupt JSON in summary column should return empty list, not crash."""
+        session = PrometheusSession(
+            sessionId="test-corrupt",
+            userId=1,
+            title="Corrupt",
+            history=[],
+            summary="not valid json {{{",
+        )
+        db_session.add(session)
+        db_session.commit()
+
+        episodes = PrometheusSummarizer().getEpisodes(db_session, "test-corrupt")
+        assert episodes == []
+
+    def test_non_list_json_returns_empty(self, db_session):
+        """Valid JSON but not a list (e.g. dict) should return empty list."""
+        session = PrometheusSession(
+            sessionId="test-dict",
+            userId=1,
+            title="Dict",
+            history=[],
+            summary=json.dumps({"key": "value"}),
+        )
+        db_session.add(session)
+        db_session.commit()
+
+        episodes = PrometheusSummarizer().getEpisodes(db_session, "test-dict")
+        assert episodes == []
+
+    def test_none_summary_returns_empty(self, db_session):
+        """None summary should return empty list."""
+        session = PrometheusSession(
+            sessionId="test-none",
+            userId=1,
+            title="None",
+            history=[],
+            summary=None,
+        )
+        db_session.add(session)
+        db_session.commit()
+
+        episodes = PrometheusSummarizer().getEpisodes(db_session, "test-none")
+        assert episodes == []
+
+    def test_empty_list_summary_returns_empty(self, db_session):
+        """Empty JSON list should return empty list."""
+        session = PrometheusSession(
+            sessionId="test-empty-list",
+            userId=1,
+            title="Empty",
+            history=[],
+            summary="[]",
+        )
+        db_session.add(session)
+        db_session.commit()
+
+        episodes = PrometheusSummarizer().getEpisodes(db_session, "test-empty-list")
+        assert episodes == []
