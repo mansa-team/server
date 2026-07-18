@@ -32,7 +32,7 @@ class TestDispatchToolCallSandbox:
         mock_sandbox.execute = AsyncMock(return_value={"stdout": "42\n", "stderr": ""})
         result = await dispatchToolCall(mock_fc, {}, user={"userId": 1}, sandbox_id="sb-123")
         assert result["stdout"] == "42\n"
-        mock_sandbox.execute.assert_called_once_with("sb-123", "print(42)", timeout=10)
+        mock_sandbox.execute.assert_called_once_with(1, "print(42)", "sb-123", timeout=10)
 
     @pytest.mark.anyio
     async def test_dispatch_execute_code_no_sandbox(self):
@@ -48,7 +48,7 @@ class TestDispatchToolCallSandbox:
         mock_fc = MagicMock()
         mock_fc.name = "read_file"
         mock_fc.args = {"path": "/workspace/results.json"}
-        mock_sandbox.read_file = AsyncMock(return_value='{"key": "value"}')
+        mock_sandbox.read_file = MagicMock(return_value='{"key": "value"}')
         result = await dispatchToolCall(mock_fc, {}, user={"userId": 1}, sandbox_id="sb-123")
         assert result["content"] == '{"key": "value"}'
 
@@ -58,7 +58,7 @@ class TestDispatchToolCallSandbox:
         mock_fc = MagicMock()
         mock_fc.name = "write_file"
         mock_fc.args = {"path": "/workspace/test.py", "content": "print(1)"}
-        mock_sandbox.write_file = AsyncMock(return_value=True)
+        mock_sandbox.write_file = MagicMock(return_value=True)
         result = await dispatchToolCall(mock_fc, {}, user={"userId": 1}, sandbox_id="sb-123")
         assert result["success"] is True
 
@@ -68,7 +68,7 @@ class TestDispatchToolCallSandbox:
         mock_fc = MagicMock()
         mock_fc.name = "list_files"
         mock_fc.args = {"path": "/workspace"}
-        mock_sandbox.list_files = AsyncMock(return_value={"entries": [{"name": "a.py"}]})
+        mock_sandbox.list_files = MagicMock(return_value={"entries": [{"name": "a.py"}]})
         result = await dispatchToolCall(mock_fc, {}, user={"userId": 1}, sandbox_id="sb-123")
         assert len(result["entries"]) == 1
 
@@ -77,5 +77,6 @@ class TestDispatchToolCallSandbox:
         mock_fc = MagicMock()
         mock_fc.name = "read_file"
         mock_fc.args = {"path": "/workspace/data.csv"}
-        result = await dispatchToolCall(mock_fc, {}, user={"userId": 1}, sandbox_id=None)
-        assert "error" in result
+        # read_file reads from host filesystem — raises FileNotFoundError if missing
+        with pytest.raises(FileNotFoundError):
+            await dispatchToolCall(mock_fc, {}, user={"userId": 1}, sandbox_id=None)

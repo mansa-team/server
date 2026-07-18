@@ -1,6 +1,8 @@
 import logging
 from typing import Any
 
+from forgevm.exceptions import SandboxNotFound
+
 from config import SessionLocal
 from main.app.prometheus.memory import PrometheusMemory
 from main.app.prometheus.sandbox import SandboxManager
@@ -116,31 +118,17 @@ async def execute_code(code: str, timeout: int = 30, **_) -> dict:
         code: Python code to execute
         timeout: Maximum execution time in seconds (default 30)
     """
-    sandboxId = _.get("sandbox_id")
     userId = _.get("userId", 0)
+    sandboxId = _.get("sandbox_id")
     if not sandboxId:
-        return {"error": "Sandbox not available. This feature requires a premium subscription."}
-
+        return {"error": "No sandbox available"}
     try:
-        count = await SandboxManager.syncToSandbox(sandboxId, userId)
-        if count:
-            logger.info("Synced %d files to sandbox for user %d", count, userId)
+        return await SandboxManager.execute(userId, code, sandboxId, timeout=timeout)
+    except SandboxNotFound:
+        return {"error": "Sandbox could not be respawned. Try again."}
     except Exception as e:
-        logger.warning("Pre-exec sync failed: %s", e)
-
-    result = await SandboxManager.execute(sandboxId, code, timeout=timeout)
-
-    try:
-        count = await SandboxManager.syncFromSandbox(sandboxId, userId)
-        if count:
-            logger.info("Synced %d files from sandbox for user %d", count, userId)
-    except Exception as e:
-        logger.warning("Post-exec sync failed: %s", e)
-
-    return {
-        "stdout": result.get("stdout", ""),
-        "stderr": result.get("stderr", ""),
-    }
+        logger.error("Sandbox execution failed: %s", e)
+        return {"error": f"Sandbox execution failed: {e}"}
 
 
 async def read_file(path: str, **_) -> dict:

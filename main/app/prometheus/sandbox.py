@@ -1,39 +1,42 @@
+import asyncio
 import logging
-import os
 from pathlib import Path
+from config import SessionLocal
 
-from forgevm import AsyncClient, ExecResult
-from sqlalchemy.orm import Session
+from forgevm import AsyncClient
+from forgevm.exceptions import SandboxNotFound
 
 from config import Config
 from main.models.sandbox import PrometheusSandbox
 
 logger = logging.getLogger(__name__)
 
-FORGEVM_URL = Config.PROMETHEUS.get("FORGEVM_URL", "http://forgevm:7423")
-WORKSPACE_ROOT = Config.PROMETHEUS.get("WORKSPACE_ROOT", "/data/workspaces")
-SANDBOX_IMAGE = Config.PROMETHEUS.get("SANDBOX_IMAGE", "sandbox-python:latest")
-SANDBOX_MEMORY_MB = Config.PROMETHEUS.get("SANDBOX_MEMORY_MB", 512)
-SANDBOX_CPUS = Config.PROMETHEUS.get("SANDBOX_CPUS", 1)
-SANDBOX_TTL_MINUTES = Config.PROMETHEUS.get("SANDBOX_TTL_MINUTES", 15)
-SANDBOX_TTL_RENEW = Config.PROMETHEUS.get("SANDBOX_TTL_RENEW", "24h")
+WORKSPACE_ROOT = Path("/data/workspaces")
+
+userLocks: dict[int, asyncio.Lock] = {}
+
+
+def lockFor(userId: int) -> asyncio.Lock:
+    if userId not in userLocks:
+        userLocks[userId] = asyncio.Lock()
+    return userLocks[userId]
 
 
 def getClient() -> AsyncClient:
-    return AsyncClient(base_url=FORGEVM_URL, timeout=30)
+    return AsyncClient(base_url=Config.PROMETHEUS["FORGEVM_URL"], timeout=30)
 
 
 def hostPath(userId: int, sandboxPath: str) -> Path:
     rel = sandboxPath.lstrip("/")
     if rel == "workspace":
-        return Path(WORKSPACE_ROOT) / str(userId)
+        return WORKSPACE_ROOT / str(userId)
     if rel.startswith("workspace/"):
         rel = rel[len("workspace/") :]
-    return Path(WORKSPACE_ROOT) / str(userId) / rel
+    return WORKSPACE_ROOT / str(userId) / rel
 
 
 def sandboxPath(hostPath: Path, userId: int) -> str:
-    rel = hostPath.relative_to(Path(WORKSPACE_ROOT) / str(userId))
+    rel = hostPath.relative_to(WORKSPACE_ROOT / str(userId))
     return f"/workspace/{rel}"
 
 
@@ -43,10 +46,10 @@ class SandboxManager:
         client = getClient()
         try:
             sandbox = await client.spawn(
-                image=SANDBOX_IMAGE,
-                memory_mb=SANDBOX_MEMORY_MB,
-                vcpus=SANDBOX_CPUS,
-                ttl=f"{SANDBOX_TTL_MINUTES}m",
+                image=Config.PROMETHEUS["SANDBOX_IMAGE"],
+                memory_mb=Config.PROMETHEUS["SANDBOX_MEMORY"],
+                vcpus=Config.PROMETHEUS["SANDBOX_CPU"],
+                ttl=f"{Config.PROMETHEUS['SANDBOX_TTL']}m",
             )
             sandboxId = sandbox.id  # type: ignore[attr-defined]
             logger.info("Sandbox created: %s for user %d", sandboxId, userId)
@@ -55,35 +58,128 @@ class SandboxManager:
             await client.close()
 
     @staticmethod
-    async def getOrCreate(userId: int, db: Session | None = None) -> str:
-        if db:
-            mapping = db.query(PrometheusSandbox).filter_by(userId=userId).first()
+    async def destroy(sandboxId: str) -> None:
+        client = getClient()
+        try:
+            sandbox = await client.get(sandboxId)
+            await sandbox.destroy()
+            logger.info("Sandbox destroyed: %s", sandboxId)
+        except Exception as e:
+            logger.warning("Failed to destroy sandbox %s: %s", sandboxId, e)
+        finally:
+            await client.close()
+
+    @staticmethod
+    async def getOrCreate(userId: int, db) -> str:
+        lock = lockFor(userId)
+        async with lock:
+            mapping = db.query(PrometheusSandbox).filter(PrometheusSandbox.userId == userId).first()
+
             if mapping:
                 client = getClient()
                 try:
-                    sandbox_id_str: str = str(mapping.sandboxId)
-                    sandbox = await client.get(sandbox_id_str)
-                    await sandbox.extend_ttl(SANDBOX_TTL_RENEW)
-                    logger.info("Reused sandbox %s for user %d", sandbox_id_str, userId)
-                    return sandbox_id_str
-                except Exception:
-                    logger.info("Sandbox %s dead for user %d, respawning", mapping.sandboxId, userId)
+                    sandbox = await client.get(mapping.sandboxId)
+                    # ponytail: ForgeVM metadata can be stale — Docker may have
+                    # killed the container but ForgeVM still reports state "running".
+                    # Verify alive with a tiny exec. If it fails, the sandbox is dead.
+                    await sandbox.extend_ttl(f"{Config.PROMETHEUS['SANDBOX_TTL']}m")
+                    await sandbox.exec(command="echo", args=["ok"], timeout="3s")
+                    logger.info("Reusing sandbox %s for user %d", mapping.sandboxId, userId)
+                    return mapping.sandboxId
+                except SandboxNotFound:
+                    logger.info("Sandbox %s dead for user %d, creating new", mapping.sandboxId, userId)
                     db.delete(mapping)
                     db.commit()
+                except Exception as e:
+                    logger.warning("Error checking sandbox %s: %s, creating new", mapping.sandboxId, e)
+                    db.delete(mapping)
+                    db.commit()
+                finally:
+                    await client.close()
 
-        sandboxId = await SandboxManager.create(userId)
+            sandboxId = await SandboxManager.create(userId)
 
-        if db:
-            wsPath = os.path.join(WORKSPACE_ROOT, str(userId))
-            new_mapping = PrometheusSandbox(
-                userId=userId,
-                sandboxId=sandboxId,
-                workspacePath=wsPath,
+            db.add(
+                PrometheusSandbox(
+                    userId=userId,
+                    sandboxId=sandboxId,
+                    workspacePath=f"/data/workspaces/{userId}",
+                )
             )
-            db.add(new_mapping)
             db.commit()
+            logger.info("Mapped sandbox %s to user %d", sandboxId, userId)
 
-        return sandboxId
+            syncIn = await SandboxManager.syncToSandbox(sandboxId, userId)
+            if syncIn:
+                logger.info("Synced %d files to sandbox for user %d", syncIn, userId)
+
+            return sandboxId
+
+    @staticmethod
+    async def execute(userId: int, code: str, sandboxId: str, timeout: int = 30, *, _retried: bool = False) -> dict:
+        client = getClient()
+        try:
+            sandbox = await client.get(sandboxId)
+
+            syncIn = await SandboxManager.syncToSandbox(sandboxId, userId)
+            if syncIn:
+                logger.debug("Synced %d files to sandbox before exec for user %d", syncIn, userId)
+
+            result = await sandbox.exec(
+                command="python3",
+                args=["-c", code],
+                timeout=f"{timeout}s",
+            )
+            output = {"stdout": result.stdout, "stderr": result.stderr}
+
+            syncOut = await SandboxManager.syncFromSandbox(sandboxId, userId)
+            if syncOut:
+                logger.info("Synced %d files from sandbox for user %d", syncOut, userId)
+
+            return output
+        except SandboxNotFound:
+            if _retried:
+                raise
+            logger.warning("Sandbox %s dead during exec for user %d, respawning", sandboxId, userId)
+        finally:
+            await client.close()
+
+        db = SessionLocal()
+        try:
+            newId = await SandboxManager.getOrCreate(userId, db)
+        finally:
+            db.close()
+        return await SandboxManager.execute(userId, code, newId, timeout, _retried=True)
+
+    @staticmethod
+    async def executeWithWorkspace(userId: int, code: str, timeout: int = 30) -> dict:
+        lock = lockFor(userId)
+        async with lock:
+            sandboxId = await SandboxManager.create(userId)
+            try:
+                syncIn = await SandboxManager.syncToSandbox(sandboxId, userId)
+                if syncIn:
+                    logger.info("Synced %d files to sandbox for user %d", syncIn, userId)
+
+                client = getClient()
+                try:
+                    sandbox = await client.get(sandboxId)
+                    result = await sandbox.exec(
+                        command="python3",
+                        args=["-c", code],
+                        timeout=f"{timeout}s",
+                    )
+                    output = {"stdout": result.stdout, "stderr": result.stderr}
+                finally:
+                    await client.close()
+
+                syncOut = await SandboxManager.syncFromSandbox(sandboxId, userId)
+                if syncOut:
+                    logger.info("Synced %d files from sandbox for user %d", syncOut, userId)
+
+                return output
+            finally:
+                await SandboxManager.destroy(sandboxId)
 
     @staticmethod
     def read_file(userId: int, path: str) -> str:
@@ -113,7 +209,7 @@ class SandboxManager:
 
     @staticmethod
     async def syncToSandbox(sandboxId: str, userId: int) -> int:
-        workspace = Path(WORKSPACE_ROOT) / str(userId)
+        workspace = WORKSPACE_ROOT / str(userId)
         if not workspace.exists():
             return 0
 
@@ -135,7 +231,7 @@ class SandboxManager:
         client = getClient()
         try:
             sandbox = await client.get(sandboxId)
-            paths: list[str] = await sandbox.glob_files("/workspace/**")
+            paths: list[str] = await sandbox.glob_files("/workspace/**") or []
             count = 0
             for p in paths:
                 try:
@@ -149,38 +245,3 @@ class SandboxManager:
             return count
         finally:
             await client.close()
-
-    @staticmethod
-    async def execute(sandboxId: str, code: str, timeout: int = 30) -> dict:
-        client = getClient()
-        try:
-            sandbox = await client.get(sandboxId)
-            result: ExecResult = await sandbox.exec(
-                command="python3",
-                args=["-c", code],
-                timeout=f"{timeout}s",
-            )
-            return {
-                "stdout": result.stdout,
-                "stderr": result.stderr,
-            }
-        finally:
-            await client.close()
-
-    @staticmethod
-    async def destroy(sandboxId: str, userId: int | None = None, db: Session | None = None) -> None:
-        client = getClient()
-        try:
-            sandbox = await client.get(sandboxId)
-            await sandbox.destroy()
-            logger.info("Sandbox destroyed: %s", sandboxId)
-        except Exception as e:
-            logger.warning("Failed to destroy sandbox %s: %s", sandboxId, e)
-        finally:
-            await client.close()
-
-        if userId is not None and db:
-            mapping = db.query(PrometheusSandbox).filter_by(userId=userId).first()
-            if mapping:
-                db.delete(mapping)
-                db.commit()

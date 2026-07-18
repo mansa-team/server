@@ -163,7 +163,7 @@ class Prometheus:
     @asynccontextmanager
     async def openMCPClients(self):
         stocks = Client(f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/mcp")
-        searxng = Client(f"http://{Config.PROMETHEUS['SEARXNG_HOST']}:{Config.PROMETHEUS['SEARXNG_PORT']}/mcp/")
+        searxng = Client(f"{Config.PROMETHEUS['SEARXNG_URL']}/mcp/")
         async with stocks, searxng:
             for s in [stocks.session, searxng.session]:
                 type(s).__deepcopy__ = lambda self, memo=None: self  # type: ignore[attr-defined]
@@ -182,8 +182,6 @@ class Prometheus:
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
         state = HarnessState()
         loop = LoopLogger(history)
-        sandbox_id = None
-
         system_prompt = Prometheus.buildSystemPrompt(user.get("userId") if user else None, db, state=state)
 
         try:
@@ -214,11 +212,12 @@ class Prometheus:
                     tools_used = []
                     responses = []
 
+                    sandbox_id = None
                     for fc in function_calls:
                         tools_used.append(fc.name)
                         loop.emit_tool_call(fc.name, fc.args or {}, turnNumber=turn)
 
-                        if fc.name == "execute_code" and sandbox_id is None:
+                        if fc.name == "execute_code":
                             try:
                                 sandbox_id = await SandboxManager.getOrCreate(user.get("userId", 0), db)
                                 logger.info("Sandbox ready: %s", sandbox_id)
