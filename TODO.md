@@ -8,14 +8,12 @@
 - [ ] Github OAuth
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings
 - [ ] Make an Password Recovery system and 2FA using the Email Protocol
-- [ ] Redis or some similar caching solution for the whole system
-- [ ] Update the config files to have boolean support instead of string comparasions
 
-- [ ] Add a framework to quickly debug the scraper over time
+- [ ] Add a framework to quickly debug the scraper over time with accuracy over each category that is scrapped
 
 - [ ] Move the STOCKS_API to a SQLite/DuckDB based cache instead of a dataframe based cache
 
-- [ ] Figure out if im able to do the same MicroVM architecture for exposing MetaTrader5 terminals for quick user switch and execution for Ogum
+- [ ] Use the ForgeVM architecture to expose MetaTrader5 terminals
 
 - [ ] Abacate Pay
 
@@ -73,14 +71,6 @@
         - 2 Free Months in the annual plan (R$6790 per year)
 
 #
-
-### STOCKS_API
-- [ ] Dedicated key system linked to the main Mansa's structure (verify the userId before being able to create a key)
-
-### Prometheus
-- [ ] CORS environment validation to prevent API requests outside the website
-- [ ] Make Prometheus able to iterate over the user's wallet and make recommendations based on what positions they have
-
 
 Renaming ideas:
 - Xango - Scraper / Stock Grading algorithm
