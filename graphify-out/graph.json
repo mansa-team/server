@@ -73,7 +73,7 @@
       "label": "Write-Step()",
       "file_type": "code",
       "source_file": "ci.ps1",
-      "source_location": "L28",
+      "source_location": "L29",
       "id": "server_ci_write_step",
       "community": 203,
       "norm_label": "write-step()"
@@ -82,7 +82,7 @@
       "label": "Write-Pass()",
       "file_type": "code",
       "source_file": "ci.ps1",
-      "source_location": "L36",
+      "source_location": "L37",
       "id": "server_ci_write_pass",
       "community": 203,
       "norm_label": "write-pass()"
@@ -91,7 +91,7 @@
       "label": "Write-Fail()",
       "file_type": "code",
       "source_file": "ci.ps1",
-      "source_location": "L42",
+      "source_location": "L43",
       "id": "server_ci_write_fail",
       "community": 203,
       "norm_label": "write-fail()"
@@ -100,7 +100,7 @@
       "label": "Write-Fix()",
       "file_type": "code",
       "source_file": "ci.ps1",
-      "source_location": "L48",
+      "source_location": "L49",
       "id": "server_ci_write_fix",
       "community": 203,
       "norm_label": "write-fix()"
@@ -109,7 +109,7 @@
       "label": "Run-Check()",
       "file_type": "code",
       "source_file": "ci.ps1",
-      "source_location": "L54",
+      "source_location": "L55",
       "id": "server_ci_run_check",
       "community": 203,
       "norm_label": "run-check()"
@@ -264,7 +264,7 @@
       "source_file": "config.py",
       "source_location": "L118",
       "id": "server_config_config",
-      "community": 102,
+      "community": 72,
       "norm_label": "config"
     },
     {
@@ -732,7 +732,7 @@
       "source_file": "main/app/authentication/authentication.py",
       "source_location": "L1",
       "id": "main_app_authentication_authentication_py",
-      "community": 157,
+      "community": 43,
       "norm_label": "authentication.py"
     },
     {
@@ -750,7 +750,7 @@
       "source_file": "main/app/authentication/authentication.py",
       "source_location": "L16",
       "id": "authentication_authentication_createuseraccount",
-      "community": 157,
+      "community": 43,
       "norm_label": "createuseraccount()"
     },
     {
@@ -759,7 +759,7 @@
       "source_file": "main/app/authentication/authentication.py",
       "source_location": "L51",
       "id": "authentication_authentication_authenticategoogleuser",
-      "community": 157,
+      "community": 43,
       "norm_label": "authenticategoogleuser()"
     },
     {
@@ -768,7 +768,7 @@
       "source_file": "main/app/authentication/authentication.py",
       "source_location": "L65",
       "id": "authentication_authentication_authenticateuser",
-      "community": 157,
+      "community": 43,
       "norm_label": "authenticateuser()"
     },
     {
@@ -975,7 +975,7 @@
       "source_file": "main/app/authentication/util.py",
       "source_location": "L1",
       "id": "main_app_authentication_util_py",
-      "community": 43,
+      "community": 238,
       "norm_label": "util.py"
     },
     {
@@ -1072,7 +1072,7 @@
       "label": "openMCPClients()",
       "file_type": "code",
       "source_file": "main/app/prometheus/agent.py",
-      "source_location": "L188",
+      "source_location": "L190",
       "id": "prometheus_agent_openmcpclients",
       "community": 72,
       "norm_label": "openmcpclients()"
@@ -1081,7 +1081,7 @@
       "label": ".makeChat()",
       "file_type": "code",
       "source_file": "main/app/prometheus/agent.py",
-      "source_location": "L196",
+      "source_location": "L198",
       "id": "prometheus_agent_prometheus_makechat",
       "community": 72,
       "norm_label": ".makechat()"
@@ -1090,7 +1090,7 @@
       "label": ".streamMessage()",
       "file_type": "code",
       "source_file": "main/app/prometheus/agent.py",
-      "source_location": "L205",
+      "source_location": "L207",
       "id": "prometheus_agent_prometheus_streammessage",
       "community": 72,
       "norm_label": ".streammessage()"
@@ -1532,36 +1532,36 @@
       "file_type": "code",
       "source_file": "main/app/prometheus/state.py",
       "source_location": "L18",
-      "id": "prometheus_state_harnessstate_toDict",
+      "id": "prometheus_state_harnessstate_todict",
       "community": 8,
-      "norm_label": ".toDict()"
+      "norm_label": ".todict()"
     },
     {
       "label": ".toContext()",
       "file_type": "code",
       "source_file": "main/app/prometheus/state.py",
       "source_location": "L21",
-      "id": "prometheus_state_harnessstate_toContext",
+      "id": "prometheus_state_harnessstate_tocontext",
       "community": 8,
-      "norm_label": ".toContext()"
+      "norm_label": ".tocontext()"
     },
     {
       "label": ".hasChanged()",
       "file_type": "code",
       "source_file": "main/app/prometheus/state.py",
       "source_location": "L26",
-      "id": "prometheus_state_harnessstate_hasChanged",
+      "id": "prometheus_state_harnessstate_haschanged",
       "community": 8,
-      "norm_label": ".hasChanged()"
+      "norm_label": ".haschanged()"
     },
     {
       "label": ".resetChanged()",
       "file_type": "code",
       "source_file": "main/app/prometheus/state.py",
       "source_location": "L29",
-      "id": "prometheus_state_harnessstate_resetChanged",
+      "id": "prometheus_state_harnessstate_resetchanged",
       "community": 8,
-      "norm_label": ".resetChanged()"
+      "norm_label": ".resetchanged()"
     },
     {
       "label": ".clear()",
@@ -1582,10 +1582,19 @@
       "norm_label": "summarizer.py"
     },
     {
+      "label": "smartTruncate()",
+      "file_type": "code",
+      "source_file": "main/app/prometheus/summarizer.py",
+      "source_location": "L20",
+      "id": "prometheus_summarizer_smarttruncate",
+      "community": 72,
+      "norm_label": "smarttruncate()"
+    },
+    {
       "label": "PrometheusSummarizer",
       "file_type": "code",
       "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L47",
+      "source_location": "L61",
       "id": "prometheus_summarizer_prometheussummarizer",
       "community": 72,
       "norm_label": "prometheussummarizer"
@@ -1594,7 +1603,7 @@
       "label": ".summarize()",
       "file_type": "code",
       "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L48",
+      "source_location": "L62",
       "id": "prometheus_summarizer_prometheussummarizer_summarize",
       "community": 72,
       "norm_label": ".summarize()"
@@ -1603,7 +1612,7 @@
       "label": ".getEpisodes()",
       "file_type": "code",
       "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L91",
+      "source_location": "L118",
       "id": "prometheus_summarizer_prometheussummarizer_getepisodes",
       "community": 72,
       "norm_label": ".getepisodes()"
@@ -1650,7 +1659,7 @@
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L80",
       "id": "prometheus_tools_get_state",
-      "community": 137,
+      "community": 8,
       "norm_label": "get_state()"
     },
     {
@@ -1659,7 +1668,7 @@
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L95",
       "id": "prometheus_tools_set_state",
-      "community": 137,
+      "community": 100,
       "norm_label": "set_state()"
     },
     {
@@ -1731,7 +1740,7 @@
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L81",
       "id": "prometheus_tools_rationale_81",
-      "community": 137,
+      "community": 8,
       "norm_label": "retrieve values from the harness state. use this to recall intermediate results,"
     },
     {
@@ -1740,7 +1749,7 @@
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L96",
       "id": "prometheus_tools_rationale_96",
-      "community": 137,
+      "community": 100,
       "norm_label": "store a value in the harness state for this session. use this to save     inter"
     },
     {
@@ -3099,7 +3108,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L1",
       "id": "main_service_user_service_py",
-      "community": 474,
+      "community": 92,
       "norm_label": "user_service.py"
     },
     {
@@ -3108,7 +3117,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L15",
       "id": "service_user_service_removeinactivesessions",
-      "community": 474,
+      "community": 92,
       "norm_label": "removeinactivesessions()"
     },
     {
@@ -3117,7 +3126,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L37",
       "id": "service_user_service_userservice",
-      "community": 474,
+      "community": 92,
       "norm_label": "userservice"
     },
     {
@@ -3126,7 +3135,7 @@
       "source_file": "main/service/user_service.py",
       "source_location": "L39",
       "id": "service_user_service_initialize",
-      "community": 474,
+      "community": 92,
       "norm_label": "initialize()"
     },
     {
@@ -3162,7 +3171,7 @@
       "source_file": "main/utils/errors.py",
       "source_location": "L1",
       "id": "main_utils_errors_py",
-      "community": 33,
+      "community": 197,
       "norm_label": "errors.py"
     },
     {
@@ -3207,7 +3216,7 @@
       "source_file": "main/utils/errors.py",
       "source_location": "L27",
       "id": "utils_errors_builderrorresponse",
-      "community": 33,
+      "community": 197,
       "norm_label": "builderrorresponse()"
     },
     {
@@ -3216,7 +3225,7 @@
       "source_file": "main/utils/errors.py",
       "source_location": "L37",
       "id": "utils_errors_httpexceptionhandler",
-      "community": 33,
+      "community": 197,
       "norm_label": "httpexceptionhandler()"
     },
     {
@@ -3225,7 +3234,7 @@
       "source_file": "main/utils/errors.py",
       "source_location": "L44",
       "id": "utils_errors_validationexceptionhandler",
-      "community": 33,
+      "community": 197,
       "norm_label": "validationexceptionhandler()"
     },
     {
@@ -3234,7 +3243,7 @@
       "source_file": "main/utils/errors.py",
       "source_location": "L56",
       "id": "utils_errors_genericexceptionhandler",
-      "community": 33,
+      "community": 197,
       "norm_label": "genericexceptionhandler()"
     },
     {
@@ -3243,7 +3252,7 @@
       "source_file": "main/utils/errors.py",
       "source_location": "L65",
       "id": "utils_errors_registererrorhandlers",
-      "community": 48,
+      "community": 21,
       "norm_label": "registererrorhandlers()"
     },
     {
@@ -3369,7 +3378,7 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L1",
       "id": "main_utils_roles_py",
-      "community": 82,
+      "community": 13,
       "norm_label": "roles.py"
     },
     {
@@ -3378,7 +3387,7 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L5",
       "id": "utils_roles_permission",
-      "community": 45,
+      "community": 13,
       "norm_label": "permission"
     },
     {
@@ -3414,7 +3423,7 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L55",
       "id": "utils_roles_checkaccess",
-      "community": 82,
+      "community": 13,
       "norm_label": "checkaccess()"
     },
     {
@@ -3423,7 +3432,7 @@
       "source_file": "main/utils/roles.py",
       "source_location": "L68",
       "id": "utils_roles_requirepermission",
-      "community": 82,
+      "community": 13,
       "norm_label": "requirepermission()"
     },
     {
@@ -4973,6 +4982,42 @@
       "id": "docs_user_license",
       "community": 23,
       "norm_label": "license"
+    },
+    {
+      "label": ".toDict()",
+      "file_type": "code",
+      "source_file": "main/app/prometheus/state.py",
+      "source_location": "L18",
+      "community": 8,
+      "norm_label": ".todict()",
+      "id": "prometheus_state_harnessstate_toDict"
+    },
+    {
+      "label": ".toContext()",
+      "file_type": "code",
+      "source_file": "main/app/prometheus/state.py",
+      "source_location": "L21",
+      "community": 8,
+      "norm_label": ".tocontext()",
+      "id": "prometheus_state_harnessstate_toContext"
+    },
+    {
+      "label": ".hasChanged()",
+      "file_type": "code",
+      "source_file": "main/app/prometheus/state.py",
+      "source_location": "L26",
+      "community": 8,
+      "norm_label": ".haschanged()",
+      "id": "prometheus_state_harnessstate_hasChanged"
+    },
+    {
+      "label": ".resetChanged()",
+      "file_type": "code",
+      "source_file": "main/app/prometheus/state.py",
+      "source_location": "L29",
+      "community": 8,
+      "norm_label": ".resetchanged()",
+      "id": "prometheus_state_harnessstate_resetChanged"
     },
     {
       "label": "api.test.js",
@@ -10253,7 +10298,7 @@
       "file_type": "code",
       "source_file": "tests/conftest.py",
       "source_location": "L81",
-      "community": 55,
+      "community": 137,
       "norm_label": "stocks_http_client()",
       "id": "tests_conftest_stocks_http_client"
     },
@@ -10262,7 +10307,7 @@
       "file_type": "code",
       "source_file": "tests/conftest.py",
       "source_location": "L106",
-      "community": 55,
+      "community": 137,
       "norm_label": "client()",
       "id": "tests_conftest_client"
     },
@@ -10289,7 +10334,7 @@
       "file_type": "rationale",
       "source_file": "tests/conftest.py",
       "source_location": "L82",
-      "community": 55,
+      "community": 137,
       "norm_label": "testclient with stocks router + verifyapikey + getcurrentuser overrides.",
       "id": "tests_conftest_rationale_82"
     },
@@ -10298,7 +10343,7 @@
       "file_type": "rationale",
       "source_file": "tests/conftest.py",
       "source_location": "L107",
-      "community": 55,
+      "community": 137,
       "norm_label": "testclient with all routers mounted \u2014 no lifespan (no db/service init).      o",
       "id": "tests_conftest_rationale_107"
     },
@@ -10406,7 +10451,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_state_integration.py",
       "source_location": "L7",
-      "community": 8,
+      "community": 152,
       "norm_label": "testbuildsystempromptstate",
       "id": "tests_test_agent_state_integration_testbuildsystempromptstate"
     },
@@ -10415,7 +10460,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_state_integration.py",
       "source_location": "L8",
-      "community": 8,
+      "community": 152,
       "norm_label": ".test_build_system_prompt_no_state()",
       "id": "tests_test_agent_state_integration_testbuildsystempromptstate_test_build_system_prompt_no_state"
     },
@@ -10424,7 +10469,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_state_integration.py",
       "source_location": "L13",
-      "community": 8,
+      "community": 152,
       "norm_label": ".test_build_system_prompt_with_state()",
       "id": "tests_test_agent_state_integration_testbuildsystempromptstate_test_build_system_prompt_with_state"
     },
@@ -10433,7 +10478,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_state_integration.py",
       "source_location": "L21",
-      "community": 8,
+      "community": 152,
       "norm_label": ".test_build_system_prompt_empty_state()",
       "id": "tests_test_agent_state_integration_testbuildsystempromptstate_test_build_system_prompt_empty_state"
     },
@@ -10442,7 +10487,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_state_integration.py",
       "source_location": "L27",
-      "community": 8,
+      "community": 152,
       "norm_label": ".test_build_system_prompt_state_after_memories()",
       "id": "tests_test_agent_state_integration_testbuildsystempromptstate_test_build_system_prompt_state_after_memories"
     },
@@ -10451,7 +10496,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_state_integration.py",
       "source_location": "L37",
-      "community": 8,
+      "community": 152,
       "norm_label": ".test_build_system_prompt_multiple_state_entries()",
       "id": "tests_test_agent_state_integration_testbuildsystempromptstate_test_build_system_prompt_multiple_state_entries"
     },
@@ -10532,7 +10577,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_agent_state_integration.py",
       "source_location": "L9",
-      "community": 8,
+      "community": 152,
       "norm_label": "system prompt should work without state parameter.",
       "id": "tests_test_agent_state_integration_rationale_9"
     },
@@ -10541,7 +10586,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_agent_state_integration.py",
       "source_location": "L14",
-      "community": 8,
+      "community": 152,
       "norm_label": "system prompt should include state context when provided.",
       "id": "tests_test_agent_state_integration_rationale_14"
     },
@@ -10550,7 +10595,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_agent_state_integration.py",
       "source_location": "L22",
-      "community": 8,
+      "community": 152,
       "norm_label": "system prompt should not include state section when empty.",
       "id": "tests_test_agent_state_integration_rationale_22"
     },
@@ -10559,7 +10604,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_agent_state_integration.py",
       "source_location": "L28",
-      "community": 8,
+      "community": 152,
       "norm_label": "state section should appear after memories section.",
       "id": "tests_test_agent_state_integration_rationale_28"
     },
@@ -10568,7 +10613,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_agent_state_integration.py",
       "source_location": "L38",
-      "community": 8,
+      "community": 152,
       "norm_label": "all state entries should appear in the prompt.",
       "id": "tests_test_agent_state_integration_rationale_38"
     },
@@ -10910,7 +10955,7 @@
       "file_type": "code",
       "source_file": "tests/test_auth_util.py",
       "source_location": "L1",
-      "community": 43,
+      "community": 238,
       "norm_label": "test_auth_util.py",
       "id": "tests_test_auth_util_py"
     },
@@ -11000,7 +11045,7 @@
       "file_type": "code",
       "source_file": "tests/test_auth_util.py",
       "source_location": "L61",
-      "community": 58,
+      "community": 43,
       "norm_label": ".test_create_access_token_contains_data()",
       "id": "tests_test_auth_util_testauthutil_test_create_access_token_contains_data"
     },
@@ -11387,7 +11432,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L57",
-      "community": 105,
+      "community": 16,
       "norm_label": "_make_prometheus_client()",
       "id": "tests_test_controllers_coverage_make_prometheus_client"
     },
@@ -11504,7 +11549,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L215",
-      "community": 21,
+      "community": 13,
       "norm_label": "testloginendpoint",
       "id": "tests_test_controllers_coverage_testloginendpoint"
     },
@@ -11882,7 +11927,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L835",
-      "community": 13,
+      "community": 478,
       "norm_label": "testprometheushealth",
       "id": "tests_test_controllers_coverage_testprometheushealth"
     },
@@ -11891,7 +11936,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L838",
-      "community": 13,
+      "community": 478,
       "norm_label": ".test_health()",
       "id": "tests_test_controllers_coverage_testprometheushealth_test_health"
     },
@@ -11900,7 +11945,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L849",
-      "community": 105,
+      "community": 16,
       "norm_label": "testprometheusgetsessions",
       "id": "tests_test_controllers_coverage_testprometheusgetsessions"
     },
@@ -11909,7 +11954,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L852",
-      "community": 105,
+      "community": 16,
       "norm_label": ".test_get_sessions()",
       "id": "tests_test_controllers_coverage_testprometheusgetsessions_test_get_sessions"
     },
@@ -11918,7 +11963,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L867",
-      "community": 105,
+      "community": 16,
       "norm_label": "testprometheuscreatesession",
       "id": "tests_test_controllers_coverage_testprometheuscreatesession"
     },
@@ -11927,7 +11972,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L870",
-      "community": 105,
+      "community": 16,
       "norm_label": ".test_create_session()",
       "id": "tests_test_controllers_coverage_testprometheuscreatesession_test_create_session"
     },
@@ -12062,7 +12107,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1121",
-      "community": 56,
+      "community": 16,
       "norm_label": ".test_chat_generic_exception()",
       "id": "tests_test_controllers_coverage_testprometheuschat_test_chat_generic_exception"
     },
@@ -12161,7 +12206,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1229",
-      "community": 476,
+      "community": 211,
       "norm_label": "testaddroletouser",
       "id": "tests_test_controllers_coverage_testaddroletouser"
     },
@@ -12179,7 +12224,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1249",
-      "community": 135,
+      "community": 476,
       "norm_label": ".test_add_role_already_has_role()",
       "id": "tests_test_controllers_coverage_testaddroletouser_test_add_role_already_has_role"
     },
@@ -12287,7 +12332,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1394",
-      "community": 79,
+      "community": 474,
       "norm_label": ".test_expired_token()",
       "id": "tests_test_controllers_coverage_testverifyaccesstoken_test_expired_token"
     },
@@ -12305,7 +12350,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1422",
-      "community": 114,
+      "community": 13,
       "norm_label": "testextracttokenpayloadreraise",
       "id": "tests_test_controllers_coverage_testextracttokenpayloadreraise"
     },
@@ -12368,7 +12413,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L58",
-      "community": 105,
+      "community": 16,
       "norm_label": "return (client, app) with prometheus router and mocked deps.",
       "id": "tests_test_controllers_coverage_rationale_58"
     },
@@ -12449,7 +12494,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L216",
-      "community": 21,
+      "community": 13,
       "norm_label": "covers lines 87-93, 102: login success and failure paths.",
       "id": "tests_test_controllers_coverage_rationale_216"
     },
@@ -12755,7 +12800,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L836",
-      "community": 13,
+      "community": 478,
       "norm_label": "covers line 24: get /prometheus/health.",
       "id": "tests_test_controllers_coverage_rationale_836"
     },
@@ -12764,7 +12809,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L850",
-      "community": 105,
+      "community": 16,
       "norm_label": "covers lines 33-36: get /prometheus/sessions.",
       "id": "tests_test_controllers_coverage_rationale_850"
     },
@@ -12773,7 +12818,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L868",
-      "community": 105,
+      "community": 16,
       "norm_label": "covers line 52: post /prometheus/sessions.",
       "id": "tests_test_controllers_coverage_rationale_868"
     },
@@ -12908,7 +12953,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1122",
-      "community": 56,
+      "community": 16,
       "norm_label": "generic exception in chat propagates via sse error event.",
       "id": "tests_test_controllers_coverage_rationale_1122"
     },
@@ -12953,7 +12998,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1195",
-      "community": 14,
+      "community": 13,
       "norm_label": "covers lines 52-53: user without generate_api_keys permission gets 403.",
       "id": "tests_test_controllers_coverage_rationale_1195"
     },
@@ -12980,7 +13025,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1230",
-      "community": 476,
+      "community": 211,
       "norm_label": "covers lines 13, 17, 19-20, 22-27: usermanager.addroletouser.",
       "id": "tests_test_controllers_coverage_rationale_1230"
     },
@@ -12998,7 +13043,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1250",
-      "community": 14,
+      "community": 476,
       "norm_label": "covers line 27: user already has the role.",
       "id": "tests_test_controllers_coverage_rationale_1250"
     },
@@ -13088,7 +13133,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1395",
-      "community": 79,
+      "community": 474,
       "norm_label": "covers lines 48-49: jwt.expiredsignatureerror.",
       "id": "tests_test_controllers_coverage_rationale_1395"
     },
@@ -13106,7 +13151,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1423",
-      "community": 114,
+      "community": 13,
       "norm_label": "covers line 67: extracttokenpayload re-raises httpexception from verifyaccesstok",
       "id": "tests_test_controllers_coverage_rationale_1423"
     },
@@ -14061,7 +14106,7 @@
       "source_file": "tests/test_harness_state.py",
       "source_location": "L37",
       "community": 8,
-      "norm_label": ".test_toDict_returns_copy()",
+      "norm_label": ".test_todict_returns_copy()",
       "id": "tests_test_harness_state_testharnessstate_test_toDict_returns_copy"
     },
     {
@@ -14070,7 +14115,7 @@
       "source_file": "tests/test_harness_state.py",
       "source_location": "L44",
       "community": 8,
-      "norm_label": ".test_toContext_empty_when_no_data()",
+      "norm_label": ".test_tocontext_empty_when_no_data()",
       "id": "tests_test_harness_state_testharnessstate_test_toContext_empty_when_no_data"
     },
     {
@@ -14079,7 +14124,7 @@
       "source_file": "tests/test_harness_state.py",
       "source_location": "L48",
       "community": 8,
-      "norm_label": ".test_toContext_formats_entries()",
+      "norm_label": ".test_tocontext_formats_entries()",
       "id": "tests_test_harness_state_testharnessstate_test_toContext_formats_entries"
     },
     {
@@ -15068,7 +15113,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L8",
-      "community": 186,
+      "community": 54,
       "norm_label": "testgetmemorylimit",
       "id": "tests_test_memory_manager_testgetmemorylimit"
     },
@@ -15077,7 +15122,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L9",
-      "community": 186,
+      "community": 54,
       "norm_label": ".test_basic_user()",
       "id": "tests_test_memory_manager_testgetmemorylimit_test_basic_user"
     },
@@ -15086,7 +15131,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L12",
-      "community": 186,
+      "community": 54,
       "norm_label": ".test_premium_user()",
       "id": "tests_test_memory_manager_testgetmemorylimit_test_premium_user"
     },
@@ -15095,7 +15140,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L15",
-      "community": 186,
+      "community": 54,
       "norm_label": ".test_admin_user()",
       "id": "tests_test_memory_manager_testgetmemorylimit_test_admin_user"
     },
@@ -15203,7 +15248,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L101",
-      "community": 54,
+      "community": 477,
       "norm_label": "testgetusermemories",
       "id": "tests_test_memory_manager_testgetusermemories"
     },
@@ -15212,7 +15257,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L102",
-      "community": 54,
+      "community": 477,
       "norm_label": ".test_returns_memories()",
       "id": "tests_test_memory_manager_testgetusermemories_test_returns_memories"
     },
@@ -15221,7 +15266,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L109",
-      "community": 54,
+      "community": 477,
       "norm_label": ".test_pagination()",
       "id": "tests_test_memory_manager_testgetusermemories_test_pagination"
     },
@@ -15230,7 +15275,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L115",
-      "community": 54,
+      "community": 477,
       "norm_label": ".test_excludes_archived()",
       "id": "tests_test_memory_manager_testgetusermemories_test_excludes_archived"
     },
@@ -15302,7 +15347,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L23",
-      "community": 150,
+      "community": 210,
       "norm_label": "testmemorytoolfunctions",
       "id": "tests_test_memory_tools_wiring_testmemorytoolfunctions"
     },
@@ -15311,7 +15356,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L26",
-      "community": 150,
+      "community": 210,
       "norm_label": ".test_search_memory_has_docstring()",
       "id": "tests_test_memory_tools_wiring_testmemorytoolfunctions_test_search_memory_has_docstring"
     },
@@ -15320,7 +15365,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L30",
-      "community": 150,
+      "community": 210,
       "norm_label": ".test_save_memory_has_docstring()",
       "id": "tests_test_memory_tools_wiring_testmemorytoolfunctions_test_save_memory_has_docstring"
     },
@@ -15329,7 +15374,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L34",
-      "community": 150,
+      "community": 210,
       "norm_label": ".test_search_memory_signature()",
       "id": "tests_test_memory_tools_wiring_testmemorytoolfunctions_test_search_memory_signature"
     },
@@ -15338,7 +15383,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L39",
-      "community": 150,
+      "community": 210,
       "norm_label": ".test_save_memory_signature()",
       "id": "tests_test_memory_tools_wiring_testmemorytoolfunctions_test_save_memory_signature"
     },
@@ -15347,7 +15392,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L46",
-      "community": 150,
+      "community": 210,
       "norm_label": ".test_search_memory_has_type_hints()",
       "id": "tests_test_memory_tools_wiring_testmemorytoolfunctions_test_search_memory_has_type_hints"
     },
@@ -15356,7 +15401,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L50",
-      "community": 150,
+      "community": 210,
       "norm_label": ".test_save_memory_has_type_hints()",
       "id": "tests_test_memory_tools_wiring_testmemorytoolfunctions_test_save_memory_has_type_hints"
     },
@@ -15365,7 +15410,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L54",
-      "community": 150,
+      "community": 210,
       "norm_label": ".test_memory_tools_is_list_of_callables()",
       "id": "tests_test_memory_tools_wiring_testmemorytoolfunctions_test_memory_tools_is_list_of_callables"
     },
@@ -15419,7 +15464,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L79",
-      "community": 49,
+      "community": 480,
       "norm_label": "testmakechatincludesmemorytools",
       "id": "tests_test_memory_tools_wiring_testmakechatincludesmemorytools"
     },
@@ -15437,7 +15482,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L112",
-      "community": 49,
+      "community": 479,
       "norm_label": "testdispatchroutesmemorytools",
       "id": "tests_test_memory_tools_wiring_testdispatchroutesmemorytools"
     },
@@ -15482,7 +15527,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L24",
-      "community": 150,
+      "community": 210,
       "norm_label": "verify the actual async tool functions have correct signatures.",
       "id": "tests_test_memory_tools_wiring_rationale_24"
     },
@@ -15500,7 +15545,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L80",
-      "community": 49,
+      "community": 480,
       "norm_label": "makechat must include memory_tools alongside mcp sessions.",
       "id": "tests_test_memory_tools_wiring_rationale_80"
     },
@@ -15509,7 +15554,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L113",
-      "community": 49,
+      "community": 479,
       "norm_label": "dispatchtoolcall must route memory tool names via tool_registry.",
       "id": "tests_test_memory_tools_wiring_rationale_113"
     },
@@ -15726,7 +15771,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L77",
       "community": 61,
-      "norm_label": ".test_toDict()",
+      "norm_label": ".test_todict()",
       "id": "tests_test_models_testusermodel_test_toDict"
     },
     {
@@ -15834,7 +15879,7 @@
       "source_file": "tests/test_models.py",
       "source_location": "L151",
       "community": 37,
-      "norm_label": ".test_toDict()",
+      "norm_label": ".test_todict()",
       "id": "tests_test_models_teststocksapikeymodel_test_toDict"
     },
     {
@@ -16067,7 +16112,7 @@
       "file_type": "code",
       "source_file": "tests/test_pagination.py",
       "source_location": "L1",
-      "community": 140,
+      "community": 69,
       "norm_label": "test_pagination.py",
       "id": "tests_test_pagination_py"
     },
@@ -16076,7 +16121,7 @@
       "file_type": "code",
       "source_file": "tests/test_pagination.py",
       "source_location": "L14",
-      "community": 140,
+      "community": 69,
       "norm_label": "app()",
       "id": "tests_test_pagination_app"
     },
@@ -16085,7 +16130,7 @@
       "file_type": "code",
       "source_file": "tests/test_pagination.py",
       "source_location": "L35",
-      "community": 140,
+      "community": 69,
       "norm_label": "client()",
       "id": "tests_test_pagination_client"
     },
@@ -16184,7 +16229,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_pagination.py",
       "source_location": "L1",
-      "community": 140,
+      "community": 69,
       "norm_label": "tests for inline pagination params (used in user + prometheus controllers).",
       "id": "tests_test_pagination_rationale_1"
     },
@@ -16913,7 +16958,7 @@
       "file_type": "code",
       "source_file": "tests/test_prometheus_tools.py",
       "source_location": "L44",
-      "community": 100,
+      "community": 150,
       "norm_label": "testmemorytoolfunctions",
       "id": "tests_test_prometheus_tools_testmemorytoolfunctions"
     },
@@ -16922,7 +16967,7 @@
       "file_type": "code",
       "source_file": "tests/test_prometheus_tools.py",
       "source_location": "L45",
-      "community": 100,
+      "community": 150,
       "norm_label": ".test_search_memory_has_docstring()",
       "id": "tests_test_prometheus_tools_testmemorytoolfunctions_test_search_memory_has_docstring"
     },
@@ -16931,7 +16976,7 @@
       "file_type": "code",
       "source_file": "tests/test_prometheus_tools.py",
       "source_location": "L49",
-      "community": 100,
+      "community": 150,
       "norm_label": ".test_save_memory_has_docstring()",
       "id": "tests_test_prometheus_tools_testmemorytoolfunctions_test_save_memory_has_docstring"
     },
@@ -16940,7 +16985,7 @@
       "file_type": "code",
       "source_file": "tests/test_prometheus_tools.py",
       "source_location": "L53",
-      "community": 100,
+      "community": 150,
       "norm_label": ".test_search_memory_signature()",
       "id": "tests_test_prometheus_tools_testmemorytoolfunctions_test_search_memory_signature"
     },
@@ -16949,7 +16994,7 @@
       "file_type": "code",
       "source_file": "tests/test_prometheus_tools.py",
       "source_location": "L59",
-      "community": 100,
+      "community": 150,
       "norm_label": ".test_save_memory_signature()",
       "id": "tests_test_prometheus_tools_testmemorytoolfunctions_test_save_memory_signature"
     },
@@ -16958,7 +17003,7 @@
       "file_type": "code",
       "source_file": "tests/test_prometheus_tools.py",
       "source_location": "L66",
-      "community": 100,
+      "community": 150,
       "norm_label": ".test_search_memory_has_type_hints()",
       "id": "tests_test_prometheus_tools_testmemorytoolfunctions_test_search_memory_has_type_hints"
     },
@@ -16967,7 +17012,7 @@
       "file_type": "code",
       "source_file": "tests/test_prometheus_tools.py",
       "source_location": "L71",
-      "community": 100,
+      "community": 150,
       "norm_label": ".test_save_memory_has_type_hints()",
       "id": "tests_test_prometheus_tools_testmemorytoolfunctions_test_save_memory_has_type_hints"
     },
@@ -16976,7 +17021,7 @@
       "file_type": "code",
       "source_file": "tests/test_prometheus_tools.py",
       "source_location": "L77",
-      "community": 100,
+      "community": 150,
       "norm_label": ".test_memory_tools_is_list_of_callables()",
       "id": "tests_test_prometheus_tools_testmemorytoolfunctions_test_memory_tools_is_list_of_callables"
     },
@@ -17426,7 +17471,7 @@
       "file_type": "code",
       "source_file": "tests/test_request_id.py",
       "source_location": "L1",
-      "community": 33,
+      "community": 126,
       "norm_label": "test_request_id.py",
       "id": "tests_test_request_id_py"
     },
@@ -17435,7 +17480,7 @@
       "file_type": "code",
       "source_file": "tests/test_request_id.py",
       "source_location": "L14",
-      "community": 33,
+      "community": 126,
       "norm_label": "app()",
       "id": "tests_test_request_id_app"
     },
@@ -17444,7 +17489,7 @@
       "file_type": "code",
       "source_file": "tests/test_request_id.py",
       "source_location": "L30",
-      "community": 33,
+      "community": 126,
       "norm_label": "client()",
       "id": "tests_test_request_id_client"
     },
@@ -17453,7 +17498,7 @@
       "file_type": "code",
       "source_file": "tests/test_request_id.py",
       "source_location": "L34",
-      "community": 33,
+      "community": 126,
       "norm_label": "testrequestidmiddleware",
       "id": "tests_test_request_id_testrequestidmiddleware"
     },
@@ -17462,7 +17507,7 @@
       "file_type": "code",
       "source_file": "tests/test_request_id.py",
       "source_location": "L35",
-      "community": 33,
+      "community": 126,
       "norm_label": ".test_generates_uuid_when_no_header()",
       "id": "tests_test_request_id_testrequestidmiddleware_test_generates_uuid_when_no_header"
     },
@@ -17471,7 +17516,7 @@
       "file_type": "code",
       "source_file": "tests/test_request_id.py",
       "source_location": "L44",
-      "community": 33,
+      "community": 126,
       "norm_label": ".test_returns_generated_uuid_in_body()",
       "id": "tests_test_request_id_testrequestidmiddleware_test_returns_generated_uuid_in_body"
     },
@@ -17480,7 +17525,7 @@
       "file_type": "code",
       "source_file": "tests/test_request_id.py",
       "source_location": "L51",
-      "community": 33,
+      "community": 126,
       "norm_label": ".test_uses_client_provided_request_id()",
       "id": "tests_test_request_id_testrequestidmiddleware_test_uses_client_provided_request_id"
     },
@@ -17489,7 +17534,7 @@
       "file_type": "code",
       "source_file": "tests/test_request_id.py",
       "source_location": "L57",
-      "community": 33,
+      "community": 126,
       "norm_label": ".test_response_header_matches_request()",
       "id": "tests_test_request_id_testrequestidmiddleware_test_response_header_matches_request"
     },
@@ -17498,7 +17543,7 @@
       "file_type": "code",
       "source_file": "tests/test_request_id.py",
       "source_location": "L62",
-      "community": 33,
+      "community": 126,
       "norm_label": ".test_different_requests_get_different_ids()",
       "id": "tests_test_request_id_testrequestidmiddleware_test_different_requests_get_different_ids"
     },
@@ -17507,7 +17552,7 @@
       "file_type": "code",
       "source_file": "tests/test_request_id.py",
       "source_location": "L67",
-      "community": 33,
+      "community": 126,
       "norm_label": ".test_context_var_available_in_route()",
       "id": "tests_test_request_id_testrequestidmiddleware_test_context_var_available_in_route"
     },
@@ -17516,7 +17561,7 @@
       "file_type": "code",
       "source_file": "tests/test_request_id.py",
       "source_location": "L72",
-      "community": 33,
+      "community": 126,
       "norm_label": ".test_empty_x_request_id_header_generates_uuid()",
       "id": "tests_test_request_id_testrequestidmiddleware_test_empty_x_request_id_header_generates_uuid"
     },
@@ -17525,7 +17570,7 @@
       "file_type": "code",
       "source_file": "tests/test_request_id.py",
       "source_location": "L81",
-      "community": 33,
+      "community": 126,
       "norm_label": ".test_middleware_preserves_response_body()",
       "id": "tests_test_request_id_testrequestidmiddleware_test_middleware_preserves_response_body"
     },
@@ -17534,7 +17579,7 @@
       "file_type": "code",
       "source_file": "tests/test_roles.py",
       "source_location": "L1",
-      "community": 67,
+      "community": 162,
       "norm_label": "test_roles.py",
       "id": "tests_test_roles_py"
     },
@@ -17543,7 +17588,7 @@
       "file_type": "code",
       "source_file": "tests/test_roles.py",
       "source_location": "L4",
-      "community": 67,
+      "community": 162,
       "norm_label": "testpermission",
       "id": "tests_test_roles_testpermission"
     },
@@ -17552,7 +17597,7 @@
       "file_type": "code",
       "source_file": "tests/test_roles.py",
       "source_location": "L5",
-      "community": 67,
+      "community": 162,
       "norm_label": ".test_permission_enum_values()",
       "id": "tests_test_roles_testpermission_test_permission_enum_values"
     },
@@ -17561,7 +17606,7 @@
       "file_type": "code",
       "source_file": "tests/test_roles.py",
       "source_location": "L10",
-      "community": 67,
+      "community": 162,
       "norm_label": ".test_permission_all_includes_all()",
       "id": "tests_test_roles_testpermission_test_permission_all_includes_all"
     },
@@ -18308,7 +18353,7 @@
       "file_type": "code",
       "source_file": "tests/test_sandbox_tools.py",
       "source_location": "L6",
-      "community": 152,
+      "community": 49,
       "norm_label": "testsandboxtooldefinitions",
       "id": "tests_test_sandbox_tools_testsandboxtooldefinitions"
     },
@@ -18317,7 +18362,7 @@
       "file_type": "code",
       "source_file": "tests/test_sandbox_tools.py",
       "source_location": "L7",
-      "community": 152,
+      "community": 49,
       "norm_label": ".test_execute_code_in_registry()",
       "id": "tests_test_sandbox_tools_testsandboxtooldefinitions_test_execute_code_in_registry"
     },
@@ -18326,7 +18371,7 @@
       "file_type": "code",
       "source_file": "tests/test_sandbox_tools.py",
       "source_location": "L10",
-      "community": 152,
+      "community": 49,
       "norm_label": ".test_read_file_in_registry()",
       "id": "tests_test_sandbox_tools_testsandboxtooldefinitions_test_read_file_in_registry"
     },
@@ -18335,7 +18380,7 @@
       "file_type": "code",
       "source_file": "tests/test_sandbox_tools.py",
       "source_location": "L13",
-      "community": 152,
+      "community": 49,
       "norm_label": ".test_write_file_in_registry()",
       "id": "tests_test_sandbox_tools_testsandboxtooldefinitions_test_write_file_in_registry"
     },
@@ -18344,7 +18389,7 @@
       "file_type": "code",
       "source_file": "tests/test_sandbox_tools.py",
       "source_location": "L16",
-      "community": 152,
+      "community": 49,
       "norm_label": ".test_list_files_in_registry()",
       "id": "tests_test_sandbox_tools_testsandboxtooldefinitions_test_list_files_in_registry"
     },
@@ -18353,7 +18398,7 @@
       "file_type": "code",
       "source_file": "tests/test_sandbox_tools.py",
       "source_location": "L19",
-      "community": 152,
+      "community": 49,
       "norm_label": ".test_execute_code_has_docstring()",
       "id": "tests_test_sandbox_tools_testsandboxtooldefinitions_test_execute_code_has_docstring"
     },
@@ -18785,7 +18830,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L1",
-      "community": 137,
+      "community": 8,
       "norm_label": "test_state_tools.py",
       "id": "tests_test_state_tools_py"
     },
@@ -18794,7 +18839,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L15",
-      "community": 137,
+      "community": 157,
       "norm_label": "teststatetoolfunctions",
       "id": "tests_test_state_tools_teststatetoolfunctions"
     },
@@ -18803,7 +18848,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L16",
-      "community": 137,
+      "community": 157,
       "norm_label": ".test_get_state_has_docstring()",
       "id": "tests_test_state_tools_teststatetoolfunctions_test_get_state_has_docstring"
     },
@@ -18812,7 +18857,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L20",
-      "community": 137,
+      "community": 157,
       "norm_label": ".test_set_state_has_docstring()",
       "id": "tests_test_state_tools_teststatetoolfunctions_test_set_state_has_docstring"
     },
@@ -18821,7 +18866,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L24",
-      "community": 137,
+      "community": 157,
       "norm_label": ".test_get_state_signature()",
       "id": "tests_test_state_tools_teststatetoolfunctions_test_get_state_signature"
     },
@@ -18830,7 +18875,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L31",
-      "community": 137,
+      "community": 157,
       "norm_label": ".test_set_state_signature()",
       "id": "tests_test_state_tools_teststatetoolfunctions_test_set_state_signature"
     },
@@ -18839,7 +18884,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L38",
-      "community": 137,
+      "community": 157,
       "norm_label": ".test_get_state_has_type_hints()",
       "id": "tests_test_state_tools_teststatetoolfunctions_test_get_state_has_type_hints"
     },
@@ -18848,7 +18893,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L44",
-      "community": 137,
+      "community": 157,
       "norm_label": ".test_set_state_has_type_hints()",
       "id": "tests_test_state_tools_teststatetoolfunctions_test_set_state_has_type_hints"
     },
@@ -18857,7 +18902,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L50",
-      "community": 137,
+      "community": 157,
       "norm_label": ".test_state_tools_in_registry()",
       "id": "tests_test_state_tools_teststatetoolfunctions_test_state_tools_in_registry"
     },
@@ -18866,7 +18911,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L56",
-      "community": 137,
+      "community": 157,
       "norm_label": ".test_registry_has_all_tools()",
       "id": "tests_test_state_tools_teststatetoolfunctions_test_registry_has_all_tools"
     },
@@ -18875,7 +18920,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L60",
-      "community": 137,
+      "community": 8,
       "norm_label": "testgetstate",
       "id": "tests_test_state_tools_testgetstate"
     },
@@ -18884,7 +18929,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L62",
-      "community": 137,
+      "community": 8,
       "norm_label": "test_get_state_specific_key()",
       "id": "tests_test_state_tools_test_get_state_specific_key"
     },
@@ -18893,7 +18938,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L69",
-      "community": 137,
+      "community": 8,
       "norm_label": "test_get_state_all()",
       "id": "tests_test_state_tools_test_get_state_all"
     },
@@ -18902,7 +18947,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L77",
-      "community": 137,
+      "community": 8,
       "norm_label": "test_get_state_missing_key()",
       "id": "tests_test_state_tools_test_get_state_missing_key"
     },
@@ -18911,7 +18956,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L83",
-      "community": 137,
+      "community": 8,
       "norm_label": "test_get_state_no_state()",
       "id": "tests_test_state_tools_test_get_state_no_state"
     },
@@ -18920,7 +18965,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L88",
-      "community": 137,
+      "community": 8,
       "norm_label": "testsetstate",
       "id": "tests_test_state_tools_testsetstate"
     },
@@ -18929,7 +18974,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L90",
-      "community": 137,
+      "community": 8,
       "norm_label": "test_set_state()",
       "id": "tests_test_state_tools_test_set_state"
     },
@@ -18938,7 +18983,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L97",
-      "community": 137,
+      "community": 100,
       "norm_label": "test_set_state_no_state()",
       "id": "tests_test_state_tools_test_set_state_no_state"
     },
@@ -18947,7 +18992,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L102",
-      "community": 137,
+      "community": 8,
       "norm_label": "teststatedispatch",
       "id": "tests_test_state_tools_teststatedispatch"
     },
@@ -18956,7 +19001,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L104",
-      "community": 137,
+      "community": 8,
       "norm_label": "test_dispatch_get_state()",
       "id": "tests_test_state_tools_test_dispatch_get_state"
     },
@@ -18965,7 +19010,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L114",
-      "community": 137,
+      "community": 8,
       "norm_label": "test_dispatch_set_state()",
       "id": "tests_test_state_tools_test_dispatch_set_state"
     },
@@ -18974,7 +19019,7 @@
       "file_type": "code",
       "source_file": "tests/test_status_endpoint.py",
       "source_location": "L1",
-      "community": 162,
+      "community": 239,
       "norm_label": "test_status_endpoint.py",
       "id": "tests_test_status_endpoint_py"
     },
@@ -18983,7 +19028,7 @@
       "file_type": "code",
       "source_file": "tests/test_status_endpoint.py",
       "source_location": "L9",
-      "community": 162,
+      "community": 239,
       "norm_label": "statusclient()",
       "id": "tests_test_status_endpoint_statusclient"
     },
@@ -19082,7 +19127,7 @@
       "file_type": "code",
       "source_file": "tests/test_status_endpoint.py",
       "source_location": "L69",
-      "community": 162,
+      "community": 239,
       "norm_label": "testscrapertrigger",
       "id": "tests_test_status_endpoint_testscrapertrigger"
     },
@@ -19091,7 +19136,7 @@
       "file_type": "code",
       "source_file": "tests/test_status_endpoint.py",
       "source_location": "L70",
-      "community": 162,
+      "community": 239,
       "norm_label": ".test_scraper_trigger_debug_mode()",
       "id": "tests_test_status_endpoint_testscrapertrigger_test_scraper_trigger_debug_mode"
     },
@@ -19100,7 +19145,7 @@
       "file_type": "code",
       "source_file": "tests/test_status_endpoint.py",
       "source_location": "L77",
-      "community": 162,
+      "community": 239,
       "norm_label": ".test_scraper_trigger_not_debug()",
       "id": "tests_test_status_endpoint_testscrapertrigger_test_scraper_trigger_not_debug"
     },
@@ -19109,7 +19154,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_status_endpoint.py",
       "source_location": "L1",
-      "community": 162,
+      "community": 239,
       "norm_label": "tests for run.py /status endpoint \u2014 covers status response structure.",
       "id": "tests_test_status_endpoint_rationale_1"
     },
@@ -19118,7 +19163,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_status_endpoint.py",
       "source_location": "L10",
-      "community": 162,
+      "community": 239,
       "norm_label": "create a test client for the status endpoint without running lifespan.",
       "id": "tests_test_status_endpoint_rationale_10"
     },
@@ -20243,7 +20288,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1265",
-      "community": 197,
+      "community": 22,
       "norm_label": ".test_http_route_search_required()",
       "id": "tests_test_stocks_api_coverage_testquerylivecotation_test_http_route_search_required"
     },
@@ -20279,7 +20324,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1315",
-      "community": 210,
+      "community": 22,
       "norm_label": ".test_cotations_search_required()",
       "id": "tests_test_stocks_api_coverage_testquerylivecotation_test_cotations_search_required"
     },
@@ -20738,7 +20783,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1266",
-      "community": 197,
+      "community": 22,
       "norm_label": "get /stocks/realtime-cotation without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1266"
     },
@@ -20747,7 +20792,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1316",
-      "community": 210,
+      "community": 22,
       "norm_label": "get /cotations without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1316"
     },
@@ -22088,7 +22133,7 @@
       "file_type": "code",
       "source_file": "tests/test_user_deps.py",
       "source_location": "L1",
-      "community": 157,
+      "community": 69,
       "norm_label": "test_user_deps.py",
       "id": "tests_test_user_deps_py"
     },
@@ -23654,7 +23699,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1120",
-      "community": 56,
+      "community": 16,
       "norm_label": "generic exception in chat propagates to fastapi's default 500 handler.",
       "id": "tests_test_controllers_coverage_rationale_1120"
     },
@@ -23726,7 +23771,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1223",
-      "community": 476,
+      "community": 211,
       "norm_label": "covers lines 13, 17, 19-20, 22-27: usermanager.addroletouser.",
       "id": "tests_test_controllers_coverage_rationale_1223"
     },
@@ -23744,7 +23789,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1243",
-      "community": 135,
+      "community": 476,
       "norm_label": "covers line 27: user already has the role.",
       "id": "tests_test_controllers_coverage_rationale_1243"
     },
@@ -23816,7 +23861,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1385",
-      "community": 79,
+      "community": 474,
       "norm_label": "covers lines 45-51: verifyaccesstoken with expired and invalid tokens.",
       "id": "tests_test_controllers_coverage_rationale_1385"
     },
@@ -23825,7 +23870,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1388",
-      "community": 79,
+      "community": 474,
       "norm_label": "covers lines 48-49: jwt.expiredsignatureerror.",
       "id": "tests_test_controllers_coverage_rationale_1388"
     },
@@ -23978,7 +24023,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L79",
-      "community": 137,
+      "community": 8,
       "norm_label": "retrieve values from the harness state. use this to recall intermediate results,",
       "id": "prometheus_tools_rationale_79"
     },
@@ -23987,7 +24032,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L94",
-      "community": 137,
+      "community": 100,
       "norm_label": "store a value in the harness state for this session. use this to save     inter",
       "id": "prometheus_tools_rationale_94"
     },
@@ -24554,7 +24599,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L7",
-      "community": 8,
+      "community": 186,
       "norm_label": "testagentsandboxintegration",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration"
     },
@@ -24563,7 +24608,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L8",
-      "community": 8,
+      "community": 186,
       "norm_label": ".test_build_system_prompt_includes_sandbox_instructions()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_build_system_prompt_includes_sandbox_instructions"
     },
@@ -24572,7 +24617,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L14",
-      "community": 8,
+      "community": 186,
       "norm_label": ".test_build_system_prompt_includes_state_instructions()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_build_system_prompt_includes_state_instructions"
     },
@@ -24581,7 +24626,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L19",
-      "community": 8,
+      "community": 186,
       "norm_label": ".test_build_system_prompt_with_state()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_build_system_prompt_with_state"
     },
@@ -24689,7 +24734,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L78",
-      "community": 137,
+      "community": 8,
       "norm_label": "retrieve values from the harness state. use this to recall intermediate results,",
       "id": "prometheus_tools_rationale_78"
     },
@@ -24698,7 +24743,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L93",
-      "community": 137,
+      "community": 100,
       "norm_label": "store a value in the harness state for this session. use this to save     inter",
       "id": "prometheus_tools_rationale_93"
     },
@@ -27074,7 +27119,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L92",
-      "community": 137,
+      "community": 100,
       "norm_label": "store a value in the harness state for this session. use this to save     inter",
       "id": "prometheus_tools_rationale_92"
     },
@@ -27119,7 +27164,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L9",
-      "community": 8,
+      "community": 186,
       "norm_label": ".test_build_system_prompt_no_state()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_build_system_prompt_no_state"
     },
@@ -27128,7 +27173,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L20",
-      "community": 8,
+      "community": 186,
       "norm_label": ".test_build_system_prompt_empty_state()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_build_system_prompt_empty_state"
     },
@@ -27137,7 +27182,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L25",
-      "community": 8,
+      "community": 186,
       "norm_label": ".test_system_prompt_includes_state_instructions()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_system_prompt_includes_state_instructions"
     },
@@ -27146,7 +27191,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L30",
-      "community": 8,
+      "community": 186,
       "norm_label": ".test_system_prompt_includes_sandbox_instructions()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_system_prompt_includes_sandbox_instructions"
     },
@@ -27155,7 +27200,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L34",
-      "community": 8,
+      "community": 186,
       "norm_label": ".test_system_prompt_includes_cache_instructions()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_system_prompt_includes_cache_instructions"
     },
@@ -27164,7 +27209,7 @@
       "file_type": "code",
       "source_file": "tests/test_agent_sandbox_integration.py",
       "source_location": "L38",
-      "community": 8,
+      "community": 186,
       "norm_label": ".test_makechat_uses_tool_registry()",
       "id": "tests_test_agent_sandbox_integration_testagentsandboxintegration_test_makechat_uses_tool_registry"
     },
@@ -27200,7 +27245,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L1",
-      "community": 96,
+      "community": 20,
       "norm_label": "test_cache.py",
       "id": "tests_test_cache_py"
     },
@@ -27209,7 +27254,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L11",
-      "community": 96,
+      "community": 20,
       "norm_label": "cache()",
       "id": "tests_test_cache_cache"
     },
@@ -27218,7 +27263,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L15",
-      "community": 126,
+      "community": 20,
       "norm_label": "testresultcache",
       "id": "tests_test_cache_testresultcache"
     },
@@ -27227,7 +27272,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L16",
-      "community": 126,
+      "community": 20,
       "norm_label": ".test_set_and_get()",
       "id": "tests_test_cache_testresultcache_test_set_and_get"
     },
@@ -27236,7 +27281,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L24",
-      "community": 126,
+      "community": 20,
       "norm_label": ".test_get_miss()",
       "id": "tests_test_cache_testresultcache_test_get_miss"
     },
@@ -27245,7 +27290,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L27",
-      "community": 126,
+      "community": 20,
       "norm_label": ".test_exists()",
       "id": "tests_test_cache_testresultcache_test_exists"
     },
@@ -27254,7 +27299,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L32",
-      "community": 126,
+      "community": 20,
       "norm_label": ".test_different_codes_different_hashes()",
       "id": "tests_test_cache_testresultcache_test_different_codes_different_hashes"
     },
@@ -27263,7 +27308,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L38",
-      "community": 126,
+      "community": 20,
       "norm_label": ".test_invalidate()",
       "id": "tests_test_cache_testresultcache_test_invalidate"
     },
@@ -27272,7 +27317,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L45",
-      "community": 126,
+      "community": 20,
       "norm_label": ".test_invalidate_does_not_affect_other_sessions()",
       "id": "tests_test_cache_testresultcache_test_invalidate_does_not_affect_other_sessions"
     },
@@ -27281,7 +27326,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L52",
-      "community": 126,
+      "community": 20,
       "norm_label": ".test_invalidate_does_not_affect_other_users()",
       "id": "tests_test_cache_testresultcache_test_invalidate_does_not_affect_other_users"
     },
@@ -27290,7 +27335,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L59",
-      "community": 126,
+      "community": 20,
       "norm_label": ".test_set_creates_directories()",
       "id": "tests_test_cache_testresultcache_test_set_creates_directories"
     },
@@ -27299,7 +27344,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L66",
-      "community": 126,
+      "community": 20,
       "norm_label": ".test_overwrite_same_code()",
       "id": "tests_test_cache_testresultcache_test_overwrite_same_code"
     },
@@ -27308,7 +27353,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L72",
-      "community": 126,
+      "community": 20,
       "norm_label": ".test_invalidate_empty_session()",
       "id": "tests_test_cache_testresultcache_test_invalidate_empty_session"
     },
@@ -27317,7 +27362,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L76",
-      "community": 126,
+      "community": 20,
       "norm_label": ".test_json_roundtrip()",
       "id": "tests_test_cache_testresultcache_test_json_roundtrip"
     },
@@ -27326,7 +27371,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_cache.py",
       "source_location": "L1",
-      "community": 96,
+      "community": 20,
       "norm_label": "tests for resultcache.",
       "id": "tests_test_cache_rationale_1"
     },
@@ -27632,7 +27677,7 @@
       "file_type": "code",
       "source_file": "tests/test_sandbox_tools.py",
       "source_location": "L12",
-      "community": 152,
+      "community": 49,
       "norm_label": ".test_read_sandbox_file_in_registry()",
       "id": "tests_test_sandbox_tools_testsandboxtooldefinitions_test_read_sandbox_file_in_registry"
     },
@@ -27641,7 +27686,7 @@
       "file_type": "code",
       "source_file": "tests/test_sandbox_tools.py",
       "source_location": "L15",
-      "community": 152,
+      "community": 49,
       "norm_label": ".test_check_cache_in_registry()",
       "id": "tests_test_sandbox_tools_testsandboxtooldefinitions_test_check_cache_in_registry"
     },
@@ -27650,7 +27695,7 @@
       "file_type": "code",
       "source_file": "tests/test_sandbox_tools.py",
       "source_location": "L23",
-      "community": 152,
+      "community": 49,
       "norm_label": ".test_read_sandbox_file_has_docstring()",
       "id": "tests_test_sandbox_tools_testsandboxtooldefinitions_test_read_sandbox_file_has_docstring"
     },
@@ -27659,7 +27704,7 @@
       "file_type": "code",
       "source_file": "tests/test_sandbox_tools.py",
       "source_location": "L28",
-      "community": 152,
+      "community": 49,
       "norm_label": ".test_check_cache_has_docstring()",
       "id": "tests_test_sandbox_tools_testsandboxtooldefinitions_test_check_cache_has_docstring"
     },
@@ -27912,7 +27957,7 @@
       "source_file": "tests/test_context.py",
       "source_location": "L77",
       "community": 32,
-      "norm_label": ".test_state_toDict()",
+      "norm_label": ".test_state_todict()",
       "id": "tests_test_context_testtoolcontextstateaccess_test_state_toDict"
     },
     {
@@ -28415,7 +28460,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L77",
-      "community": 137,
+      "community": 8,
       "norm_label": "retrieve values from the harness state. use this to recall intermediate results,",
       "id": "prometheus_tools_rationale_77"
     },
@@ -28424,7 +28469,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L91",
-      "community": 137,
+      "community": 100,
       "norm_label": "store a value in the harness state for this session. use this to save     interm",
       "id": "prometheus_tools_rationale_91"
     },
@@ -28487,7 +28532,7 @@
       "file_type": "code",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L104",
-      "community": 137,
+      "community": 8,
       "norm_label": "executestatetool()",
       "id": "prometheus_tools_executestatetool"
     },
@@ -28514,7 +28559,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L44",
-      "community": 137,
+      "community": 157,
       "norm_label": ".test_state_tools_is_list_of_callables()",
       "id": "tests_test_state_tools_teststatetoolfunctions_test_state_tools_is_list_of_callables"
     },
@@ -28523,7 +28568,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L50",
-      "community": 137,
+      "community": 157,
       "norm_label": ".test_state_tool_names()",
       "id": "tests_test_state_tools_teststatetoolfunctions_test_state_tool_names"
     },
@@ -28532,7 +28577,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L54",
-      "community": 137,
+      "community": 8,
       "norm_label": "testexecutestatetool",
       "id": "tests_test_state_tools_testexecutestatetool"
     },
@@ -28541,7 +28586,7 @@
       "file_type": "code",
       "source_file": "tests/test_state_tools.py",
       "source_location": "L84",
-      "community": 137,
+      "community": 8,
       "norm_label": "test_unknown_tool()",
       "id": "tests_test_state_tools_test_unknown_tool"
     },
@@ -28829,7 +28874,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L52",
-      "community": 49,
+      "community": 480,
       "norm_label": "makechat must include memory_tools alongside mcp sessions.",
       "id": "tests_test_memory_tools_wiring_rationale_52"
     },
@@ -28838,7 +28883,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L89",
-      "community": 49,
+      "community": 479,
       "norm_label": "dispatchtoolcall must route memory tool names to executememorytool.",
       "id": "tests_test_memory_tools_wiring_rationale_89"
     },
@@ -28865,7 +28910,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L57",
-      "community": 49,
+      "community": 480,
       "norm_label": "makechat must include memory_tools alongside mcp sessions.",
       "id": "tests_test_memory_tools_wiring_rationale_57"
     },
@@ -28874,7 +28919,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L92",
-      "community": 49,
+      "community": 479,
       "norm_label": "dispatchtoolcall must route memory tool names to executememorytool.",
       "id": "tests_test_memory_tools_wiring_rationale_92"
     },
@@ -29387,7 +29432,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1389",
-      "community": 178,
+      "community": 474,
       "norm_label": "covers lines 48-49: jwt.expiredsignatureerror.",
       "id": "tests_test_controllers_coverage_rationale_1389"
     },
@@ -29405,7 +29450,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1417",
-      "community": 114,
+      "community": 13,
       "norm_label": "covers line 67: extracttokenpayload re-raises httpexception from verifyaccesstok",
       "id": "tests_test_controllers_coverage_rationale_1417"
     },
@@ -29648,7 +29693,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L56",
-      "community": 49,
+      "community": 480,
       "norm_label": "makechat must include memory_tools alongside mcp sessions.",
       "id": "tests_test_memory_tools_wiring_rationale_56"
     },
@@ -29657,7 +29702,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L91",
-      "community": 49,
+      "community": 479,
       "norm_label": "dispatchtoolcall must route memory tool names to executememorytool.",
       "id": "tests_test_memory_tools_wiring_rationale_91"
     },
@@ -29981,7 +30026,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L48",
-      "community": 49,
+      "community": 480,
       "norm_label": "makechat must include memory_tools alongside mcp sessions.",
       "id": "tests_test_memory_tools_wiring_rationale_48"
     },
@@ -29990,7 +30035,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L76",
-      "community": 49,
+      "community": 479,
       "norm_label": "dispatchtoolcall must route memory tool names to executememorytool.",
       "id": "tests_test_memory_tools_wiring_rationale_76"
     },
@@ -31115,7 +31160,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L11",
-      "community": 186,
+      "community": 54,
       "norm_label": "non-extended role gets basic limit.",
       "id": "tests_test_memory_manager_rationale_11"
     },
@@ -31124,7 +31169,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L15",
-      "community": 186,
+      "community": 54,
       "norm_label": "premium user gets extended limit.",
       "id": "tests_test_memory_manager_rationale_15"
     },
@@ -31133,7 +31178,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L19",
-      "community": 186,
+      "community": 54,
       "norm_label": "admin gets extended limit (has all permissions).",
       "id": "tests_test_memory_manager_rationale_19"
     },
@@ -31214,7 +31259,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L107",
-      "community": 54,
+      "community": 477,
       "norm_label": "returns paginated memories.",
       "id": "tests_test_memory_manager_rationale_107"
     },
@@ -31223,7 +31268,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L115",
-      "community": 54,
+      "community": 477,
       "norm_label": "offset and limit work.",
       "id": "tests_test_memory_manager_rationale_115"
     },
@@ -31232,7 +31277,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L122",
-      "community": 54,
+      "community": 477,
       "norm_label": "archived memories excluded.",
       "id": "tests_test_memory_manager_rationale_122"
     },
@@ -32483,7 +32528,7 @@
       "file_type": "rationale",
       "source_file": "tests/conftest.py",
       "source_location": "L74",
-      "community": 55,
+      "community": 137,
       "norm_label": "testclient with stocks router + verifyapikey + getcurrentuser overrides.",
       "id": "tests_conftest_rationale_74"
     },
@@ -32492,7 +32537,7 @@
       "file_type": "rationale",
       "source_file": "tests/conftest.py",
       "source_location": "L99",
-      "community": 55,
+      "community": 137,
       "norm_label": "testclient with all routers mounted \u2014 no lifespan (no db/service init).      o",
       "id": "tests_conftest_rationale_99"
     },
@@ -32645,7 +32690,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L832",
-      "community": 13,
+      "community": 478,
       "norm_label": "covers line 24: get /prometheus/health.",
       "id": "tests_test_controllers_coverage_rationale_832"
     },
@@ -32654,7 +32699,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L846",
-      "community": 105,
+      "community": 16,
       "norm_label": "covers lines 33-36: get /prometheus/sessions.",
       "id": "tests_test_controllers_coverage_rationale_846"
     },
@@ -32663,7 +32708,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L864",
-      "community": 105,
+      "community": 16,
       "norm_label": "covers line 52: post /prometheus/sessions.",
       "id": "tests_test_controllers_coverage_rationale_864"
     },
@@ -32798,7 +32843,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1116",
-      "community": 56,
+      "community": 16,
       "norm_label": "generic exception in chat propagates to fastapi's default 500 handler.",
       "id": "tests_test_controllers_coverage_rationale_1116"
     },
@@ -32870,7 +32915,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1219",
-      "community": 476,
+      "community": 211,
       "norm_label": "covers lines 13, 17, 19-20, 22-27: usermanager.addroletouser.",
       "id": "tests_test_controllers_coverage_rationale_1219"
     },
@@ -32888,7 +32933,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1239",
-      "community": 135,
+      "community": 476,
       "norm_label": "covers line 27: user already has the role.",
       "id": "tests_test_controllers_coverage_rationale_1239"
     },
@@ -32978,7 +33023,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1413",
-      "community": 114,
+      "community": 13,
       "norm_label": "covers line 67: extracttokenpayload re-raises httpexception from verifyaccesstok",
       "id": "tests_test_controllers_coverage_rationale_1413"
     },
@@ -33257,7 +33302,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L830",
-      "community": 13,
+      "community": 478,
       "norm_label": "covers line 24: get /prometheus/health.",
       "id": "tests_test_controllers_coverage_rationale_830"
     },
@@ -33266,7 +33311,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L844",
-      "community": 105,
+      "community": 16,
       "norm_label": "covers lines 33-36: get /prometheus/sessions.",
       "id": "tests_test_controllers_coverage_rationale_844"
     },
@@ -33275,7 +33320,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L862",
-      "community": 105,
+      "community": 16,
       "norm_label": "covers line 52: post /prometheus/sessions.",
       "id": "tests_test_controllers_coverage_rationale_862"
     },
@@ -33410,7 +33455,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1115",
-      "community": 56,
+      "community": 16,
       "norm_label": "generic exception in chat propagates to fastapi's default 500 handler.",
       "id": "tests_test_controllers_coverage_rationale_1115"
     },
@@ -33473,7 +33518,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1218",
-      "community": 476,
+      "community": 211,
       "norm_label": "covers lines 13, 17, 19-20, 22-27: usermanager.addroletouser.",
       "id": "tests_test_controllers_coverage_rationale_1218"
     },
@@ -33491,7 +33536,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1238",
-      "community": 135,
+      "community": 476,
       "norm_label": "covers line 27: user already has the role.",
       "id": "tests_test_controllers_coverage_rationale_1238"
     },
@@ -33527,7 +33572,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1297",
-      "community": 135,
+      "community": 476,
       "norm_label": "covers lines 42-44: session validation fails.",
       "id": "tests_test_controllers_coverage_rationale_1297"
     },
@@ -33581,7 +33626,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1384",
-      "community": 79,
+      "community": 474,
       "norm_label": "covers lines 48-49: jwt.expiredsignatureerror.",
       "id": "tests_test_controllers_coverage_rationale_1384"
     },
@@ -33599,7 +33644,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1412",
-      "community": 114,
+      "community": 13,
       "norm_label": "covers line 67: extracttokenpayload re-raises httpexception from verifyaccesstok",
       "id": "tests_test_controllers_coverage_rationale_1412"
     },
@@ -33797,7 +33842,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L89",
-      "community": 96,
+      "community": 20,
       "norm_label": "testcolumnvalidator",
       "id": "tests_test_cache_testcolumnvalidator"
     },
@@ -33806,7 +33851,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L90",
-      "community": 96,
+      "community": 20,
       "norm_label": ".test_valid_column_names()",
       "id": "tests_test_cache_testcolumnvalidator_test_valid_column_names"
     },
@@ -33815,7 +33860,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L97",
-      "community": 96,
+      "community": 20,
       "norm_label": ".test_invalid_column_names()",
       "id": "tests_test_cache_testcolumnvalidator_test_invalid_column_names"
     },
@@ -33824,7 +33869,7 @@
       "file_type": "code",
       "source_file": "tests/test_cache.py",
       "source_location": "L103",
-      "community": 96,
+      "community": 20,
       "norm_label": ".test_empty_string()",
       "id": "tests_test_cache_testcolumnvalidator_test_empty_string"
     },
@@ -34346,7 +34391,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1342",
-      "community": 197,
+      "community": 22,
       "norm_label": "get /stocks/realtime-cotation without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1342"
     },
@@ -34355,7 +34400,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1392",
-      "community": 210,
+      "community": 22,
       "norm_label": "get /cotations without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1392"
     },
@@ -34481,7 +34526,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1344",
-      "community": 197,
+      "community": 22,
       "norm_label": "get /stocks/realtime-cotation without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1344"
     },
@@ -34490,7 +34535,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1394",
-      "community": 210,
+      "community": 22,
       "norm_label": "get /cotations without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1394"
     },
@@ -34670,7 +34715,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1400",
-      "community": 197,
+      "community": 22,
       "norm_label": "get /stocks/realtime-cotation without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1400"
     },
@@ -34679,7 +34724,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1468",
-      "community": 210,
+      "community": 22,
       "norm_label": "get /cotations without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1468"
     },
@@ -35102,7 +35147,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1396",
-      "community": 197,
+      "community": 22,
       "norm_label": "get /stocks/realtime-cotation without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1396"
     },
@@ -35111,7 +35156,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1464",
-      "community": 210,
+      "community": 22,
       "norm_label": "get /cotations without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1464"
     },
@@ -35138,7 +35183,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1388",
-      "community": 197,
+      "community": 22,
       "norm_label": "get /stocks/realtime-cotation without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1388"
     },
@@ -35147,7 +35192,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1456",
-      "community": 210,
+      "community": 22,
       "norm_label": "get /cotations without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1456"
     },
@@ -35183,7 +35228,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1297",
-      "community": 48,
+      "community": 21,
       "norm_label": ".test_cotations_search_required()",
       "id": "tests_test_stocks_api_coverage_testquerycotations_test_cotations_search_required"
     },
@@ -35192,7 +35237,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1298",
-      "community": 48,
+      "community": 21,
       "norm_label": "get /cotations without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1298"
     },
@@ -35237,7 +35282,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L1288",
-      "community": 48,
+      "community": 21,
       "norm_label": "get /cotations without search returns 422.",
       "id": "tests_test_stocks_api_coverage_rationale_1288"
     },
@@ -36191,7 +36236,7 @@
       "file_type": "code",
       "source_file": "main/utils/pagination.py",
       "source_location": "L1",
-      "community": 157,
+      "community": 69,
       "norm_label": "pagination.py",
       "id": "main_utils_pagination_py"
     },
@@ -36200,7 +36245,7 @@
       "file_type": "code",
       "source_file": "main/utils/pagination.py",
       "source_location": "L4",
-      "community": 157,
+      "community": 69,
       "norm_label": "paginationparams",
       "id": "utils_pagination_paginationparams"
     },
@@ -36209,7 +36254,7 @@
       "file_type": "code",
       "source_file": "main/utils/pagination.py",
       "source_location": "L5",
-      "community": 157,
+      "community": 69,
       "norm_label": ".__init__()",
       "id": "utils_pagination_paginationparams_init"
     },
@@ -36227,7 +36272,7 @@
       "file_type": "rationale",
       "source_file": "tests/conftest.py",
       "source_location": "L75",
-      "community": 55,
+      "community": 137,
       "norm_label": "testclient with all routers mounted \u2014 no lifespan (no db/service init).      o",
       "id": "tests_conftest_rationale_75"
     },
@@ -36407,7 +36452,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1194",
-      "community": 14,
+      "community": 13,
       "norm_label": "teststocksapikeytest",
       "id": "tests_test_controllers_coverage_teststocksapikeytest"
     },
@@ -36479,7 +36524,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L228",
-      "community": 21,
+      "community": 13,
       "norm_label": "covers lines 87-93, 102: login success and failure paths.",
       "id": "tests_test_controllers_coverage_rationale_228"
     },
@@ -36758,7 +36803,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L875",
-      "community": 13,
+      "community": 478,
       "norm_label": "covers line 24: get /prometheus/health.",
       "id": "tests_test_controllers_coverage_rationale_875"
     },
@@ -36767,7 +36812,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L889",
-      "community": 105,
+      "community": 16,
       "norm_label": "covers lines 33-36: get /prometheus/sessions.",
       "id": "tests_test_controllers_coverage_rationale_889"
     },
@@ -36776,7 +36821,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L907",
-      "community": 105,
+      "community": 16,
       "norm_label": "covers line 52: post /prometheus/sessions.",
       "id": "tests_test_controllers_coverage_rationale_907"
     },
@@ -36911,7 +36956,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1160",
-      "community": 56,
+      "community": 16,
       "norm_label": "covers line 125, 126-128: generic exception in chat.",
       "id": "tests_test_controllers_coverage_rationale_1160"
     },
@@ -37037,7 +37082,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1443",
-      "community": 79,
+      "community": 474,
       "norm_label": "covers lines 48-49: jwt.expiredsignatureerror.",
       "id": "tests_test_controllers_coverage_rationale_1443"
     },
@@ -37055,7 +37100,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1471",
-      "community": 114,
+      "community": 13,
       "norm_label": "covers line 67: extracttokenpayload re-raises httpexception from verifyaccesstok",
       "id": "tests_test_controllers_coverage_rationale_1471"
     },
@@ -37398,7 +37443,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L18",
       "community": 44,
-      "norm_label": ".test_toDict_basic()",
+      "norm_label": ".test_todict_basic()",
       "id": "tests_test_sessions_testusersessionmodel_test_toDict_basic"
     },
     {
@@ -37407,7 +37452,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L35",
       "community": 44,
-      "norm_label": ".test_toDict_with_sensitive()",
+      "norm_label": ".test_todict_with_sensitive()",
       "id": "tests_test_sessions_testusersessionmodel_test_toDict_with_sensitive"
     },
     {
@@ -37416,7 +37461,7 @@
       "source_file": "tests/test_sessions.py",
       "source_location": "L46",
       "community": 44,
-      "norm_label": ".test_toDict_hides_useragent()",
+      "norm_label": ".test_todict_hides_useragent()",
       "id": "tests_test_sessions_testusersessionmodel_test_toDict_hides_useragent"
     },
     {
@@ -38351,7 +38396,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_status_endpoint.py",
       "source_location": "L9",
-      "community": 162,
+      "community": 239,
       "norm_label": "create a test client for the status endpoint without running lifespan.",
       "id": "tests_test_status_endpoint_rationale_9"
     },
@@ -38657,7 +38702,7 @@
       "file_type": "code",
       "source_file": "main/utils/errors.py",
       "source_location": "L27",
-      "community": 33,
+      "community": 197,
       "norm_label": "_build_error_response()",
       "id": "utils_errors_build_error_response"
     },
@@ -38666,7 +38711,7 @@
       "file_type": "code",
       "source_file": "main/utils/errors.py",
       "source_location": "L37",
-      "community": 33,
+      "community": 197,
       "norm_label": "http_exception_handler()",
       "id": "utils_errors_http_exception_handler"
     },
@@ -38675,7 +38720,7 @@
       "file_type": "code",
       "source_file": "main/utils/errors.py",
       "source_location": "L44",
-      "community": 33,
+      "community": 197,
       "norm_label": "validation_exception_handler()",
       "id": "utils_errors_validation_exception_handler"
     },
@@ -38684,7 +38729,7 @@
       "file_type": "code",
       "source_file": "main/utils/errors.py",
       "source_location": "L56",
-      "community": 33,
+      "community": 197,
       "norm_label": "generic_exception_handler()",
       "id": "utils_errors_generic_exception_handler"
     },
@@ -38693,7 +38738,7 @@
       "file_type": "code",
       "source_file": "main/utils/errors.py",
       "source_location": "L65",
-      "community": 21,
+      "community": 48,
       "norm_label": "register_error_handlers()",
       "id": "utils_errors_register_error_handlers"
     },
@@ -39152,7 +39197,7 @@
       "file_type": "code",
       "source_file": "main/service/user_service.py",
       "source_location": "L35",
-      "community": 474,
+      "community": 92,
       "norm_label": "inactivesessionsscheduler()",
       "id": "service_user_service_inactivesessionsscheduler"
     },
@@ -39503,7 +39548,7 @@
       "file_type": "rationale",
       "source_file": "main/utils/errors.py",
       "source_location": "L68",
-      "community": 21,
+      "community": 48,
       "norm_label": "register exception handlers on the fastapi app.      note: httpexception and r",
       "id": "utils_errors_rationale_68"
     },
@@ -39764,7 +39809,7 @@
       "file_type": "rationale",
       "source_file": "tests/conftest.py",
       "source_location": "L62",
-      "community": 55,
+      "community": 137,
       "norm_label": "testclient with all routers mounted \u2014 no lifespan (no db/service init).      o",
       "id": "tests_conftest_rationale_62"
     },
@@ -39773,7 +39818,7 @@
       "file_type": "rationale",
       "source_file": "tests/conftest.py",
       "source_location": "L61",
-      "community": 55,
+      "community": 137,
       "norm_label": "testclient with all routers mounted \u2014 no lifespan (no db/service init).      o",
       "id": "tests_conftest_rationale_61"
     },
@@ -39782,7 +39827,7 @@
       "file_type": "rationale",
       "source_file": "tests/conftest.py",
       "source_location": "L57",
-      "community": 55,
+      "community": 137,
       "norm_label": "testclient with all routers mounted \u2014 no lifespan (no db/service init).      o",
       "id": "tests_conftest_rationale_57"
     },
@@ -39791,7 +39836,7 @@
       "file_type": "rationale",
       "source_file": "tests/conftest.py",
       "source_location": "L49",
-      "community": 55,
+      "community": 137,
       "norm_label": "testclient with all routers mounted \u2014 no lifespan (no db/service init).      o",
       "id": "tests_conftest_rationale_49"
     },
@@ -40196,7 +40241,7 @@
       "file_type": "rationale",
       "source_file": "main/utils/errors.py",
       "source_location": "L67",
-      "community": 21,
+      "community": 48,
       "norm_label": "register exception handlers on the fastapi app.      note: httpexception and r",
       "id": "utils_errors_rationale_67"
     },
@@ -40367,7 +40412,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L135",
-      "community": 75,
+      "community": 221,
       "norm_label": "testqueryoptimization",
       "id": "tests_test_stocks_cache_testqueryoptimization"
     },
@@ -40376,7 +40421,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L138",
-      "community": 75,
+      "community": 221,
       "norm_label": ".test_all_optimizations_present()",
       "id": "tests_test_stocks_cache_testqueryoptimization_test_all_optimizations_present"
     },
@@ -40385,7 +40430,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L153",
-      "community": 75,
+      "community": 221,
       "norm_label": ".test_query_filter_uses_optimization()",
       "id": "tests_test_stocks_cache_testqueryoptimization_test_query_filter_uses_optimization"
     },
@@ -40475,7 +40520,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L308",
-      "community": 221,
+      "community": 75,
       "norm_label": "testqueryperformance",
       "id": "tests_test_stocks_cache_testqueryperformance"
     },
@@ -40484,7 +40529,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L311",
-      "community": 221,
+      "community": 75,
       "norm_label": ".test_query_response_time_under_1_second()",
       "id": "tests_test_stocks_cache_testqueryperformance_test_query_response_time_under_1_second"
     },
@@ -40637,7 +40682,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L136",
-      "community": 75,
+      "community": 221,
       "norm_label": "integration tests for all query optimizations",
       "id": "tests_test_stocks_cache_rationale_136"
     },
@@ -40646,7 +40691,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L139",
-      "community": 75,
+      "community": 221,
       "norm_label": "all optimizations should be implemented",
       "id": "tests_test_stocks_cache_rationale_139"
     },
@@ -40655,7 +40700,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L154",
-      "community": 75,
+      "community": 221,
       "norm_label": "query filter should use ticker index",
       "id": "tests_test_stocks_cache_rationale_154"
     },
@@ -40745,7 +40790,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L309",
-      "community": 221,
+      "community": 75,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_cache_rationale_309"
     },
@@ -40754,7 +40799,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L312",
-      "community": 221,
+      "community": 75,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_cache_rationale_312"
     },
@@ -40925,7 +40970,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L138",
-      "community": 75,
+      "community": 221,
       "norm_label": "integration tests for all query optimizations",
       "id": "tests_test_stocks_cache_rationale_138"
     },
@@ -40934,7 +40979,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L141",
-      "community": 75,
+      "community": 221,
       "norm_label": "all optimizations should be implemented",
       "id": "tests_test_stocks_cache_rationale_141"
     },
@@ -40943,7 +40988,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L156",
-      "community": 75,
+      "community": 221,
       "norm_label": "query filter should use ticker index",
       "id": "tests_test_stocks_cache_rationale_156"
     },
@@ -41033,7 +41078,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L311",
-      "community": 221,
+      "community": 75,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_cache_rationale_311"
     },
@@ -41042,7 +41087,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L314",
-      "community": 221,
+      "community": 75,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_cache_rationale_314"
     },
@@ -41276,7 +41321,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L137",
-      "community": 64,
+      "community": 481,
       "norm_label": "testqueryoptimization",
       "id": "tests_test_stocks_optimization_testqueryoptimization"
     },
@@ -41285,7 +41330,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L140",
-      "community": 64,
+      "community": 481,
       "norm_label": ".test_all_optimizations_present()",
       "id": "tests_test_stocks_optimization_testqueryoptimization_test_all_optimizations_present"
     },
@@ -41294,7 +41339,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L155",
-      "community": 64,
+      "community": 481,
       "norm_label": ".test_query_filter_uses_optimization()",
       "id": "tests_test_stocks_optimization_testqueryoptimization_test_query_filter_uses_optimization"
     },
@@ -41366,7 +41411,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L301",
-      "community": 239,
+      "community": 64,
       "norm_label": "testfilterbysearchterms",
       "id": "tests_test_stocks_optimization_testfilterbysearchterms"
     },
@@ -41375,7 +41420,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L304",
-      "community": 239,
+      "community": 64,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_optimization_testfilterbysearchterms_test_filter_with_tickerIndex"
     },
@@ -41546,7 +41591,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L138",
-      "community": 64,
+      "community": 481,
       "norm_label": "integration tests for all query optimizations",
       "id": "tests_test_stocks_optimization_rationale_138"
     },
@@ -41555,7 +41600,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L141",
-      "community": 64,
+      "community": 481,
       "norm_label": "all optimizations should be implemented",
       "id": "tests_test_stocks_optimization_rationale_141"
     },
@@ -41564,7 +41609,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L156",
-      "community": 64,
+      "community": 481,
       "norm_label": "query filter should use ticker index",
       "id": "tests_test_stocks_optimization_rationale_156"
     },
@@ -41636,7 +41681,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L302",
-      "community": 239,
+      "community": 64,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_optimization_rationale_302"
     },
@@ -41645,7 +41690,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L305",
-      "community": 239,
+      "community": 64,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_optimization_rationale_305"
     },
@@ -41681,7 +41726,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L173",
-      "community": 239,
+      "community": 64,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_optimization_rationale_173"
     },
@@ -41690,7 +41735,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L176",
-      "community": 239,
+      "community": 64,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_optimization_rationale_176"
     },
@@ -41991,7 +42036,7 @@
       "label": "FastAPI",
       "file_type": "rationale",
       "source_file": "README.md",
-      "community": 157,
+      "community": 69,
       "norm_label": "fastapi",
       "id": "fastapi"
     },
@@ -42031,7 +42076,7 @@
       "label": "Authentication System",
       "file_type": "document",
       "source_file": "docs/authentication.md",
-      "community": 43,
+      "community": 238,
       "norm_label": "authentication system",
       "id": "authentication"
     },
@@ -42039,7 +42084,7 @@
       "label": "JWT Authentication",
       "file_type": "rationale",
       "source_file": "docs/authentication.md",
-      "community": 43,
+      "community": 238,
       "norm_label": "jwt authentication",
       "id": "jwt"
     },
@@ -42047,7 +42092,7 @@
       "label": "Google OAuth",
       "file_type": "rationale",
       "source_file": "docs/authentication.md",
-      "community": 43,
+      "community": 238,
       "norm_label": "google oauth",
       "id": "google_oauth"
     },
@@ -42710,9 +42755,9 @@
       "source_file": "main/app/prometheus/summarizer.py",
       "source_location": "L12",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "prometheus_summarizer_prometheussummarizer",
-      "target": "server_config_config",
-      "confidence_score": 0.5
+      "target": "server_config_config"
     },
     {
       "relation": "uses",
@@ -45532,9 +45577,9 @@
       "source_file": "main/app/prometheus/agent.py",
       "source_location": "L13",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "prometheus_agent_prometheus",
-      "target": "models_prometheus_prometheussession",
-      "confidence_score": 0.5
+      "target": "models_prometheus_prometheussession"
     },
     {
       "relation": "uses",
@@ -45562,9 +45607,9 @@
       "source_file": "main/app/prometheus/agent.py",
       "source_location": "L17",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "prometheus_agent_prometheus",
-      "target": "prometheus_summarizer_prometheussummarizer",
-      "confidence_score": 0.5
+      "target": "prometheus_summarizer_prometheussummarizer"
     },
     {
       "relation": "uses",
@@ -45877,6 +45922,17 @@
       "confidence_score": 1.0,
       "source": "prometheus_agent_prometheus_streammessage",
       "target": "prometheus_agent_buildsystemprompt"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "main/app/prometheus/agent.py",
+      "source_location": "L163",
+      "weight": 1.0,
+      "source": "prometheus_agent_buildsystemprompt",
+      "target": "prometheus_summarizer_prometheussummarizer"
     },
     {
       "relation": "calls",
@@ -48265,6 +48321,56 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "main/app/prometheus/state.py",
+      "source_location": "L18",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_state_harnessstate",
+      "target": "prometheus_state_harnessstate_todict"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/state.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_state_harnessstate",
+      "target": "prometheus_state_harnessstate_tocontext"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/state.py",
+      "source_location": "L26",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_state_harnessstate",
+      "target": "prometheus_state_harnessstate_haschanged"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/state.py",
+      "source_location": "L29",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_state_harnessstate",
+      "target": "prometheus_state_harnessstate_resetchanged"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/state.py",
+      "source_location": "L46",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_state_harnessstate",
+      "target": "prometheus_state_harnessstate_clear"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/state.py",
       "source_location": "L26",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -48287,9 +48393,9 @@
       "source_file": "main/app/prometheus/state.py",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_state_harnessstate",
-      "target": "prometheus_state_harnessstate_hasChanged",
-      "confidence_score": 1.0
+      "target": "prometheus_state_harnessstate_hasChanged"
     },
     {
       "relation": "method",
@@ -48297,19 +48403,9 @@
       "source_file": "main/app/prometheus/state.py",
       "source_location": "L29",
       "weight": 1.0,
-      "source": "prometheus_state_harnessstate",
-      "target": "prometheus_state_harnessstate_resetChanged",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/prometheus/state.py",
-      "source_location": "L46",
-      "weight": 1.0,
       "confidence_score": 1.0,
       "source": "prometheus_state_harnessstate",
-      "target": "prometheus_state_harnessstate_clear"
+      "target": "prometheus_state_harnessstate_resetChanged"
     },
     {
       "relation": "method",
@@ -49005,26 +49101,6 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "main/app/prometheus/state.py",
-      "source_location": "L27",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "prometheus_state_harnessstate_toDict",
-      "target": "prometheus_state_rationale_27"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/prometheus/state.py",
-      "source_location": "L31",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "prometheus_state_harnessstate_toContext",
-      "target": "prometheus_state_rationale_31"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/prometheus/state.py",
       "source_location": "L47",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -49035,11 +49111,21 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L47",
+      "source_location": "L20",
       "weight": 1.0,
       "source": "main_app_prometheus_summarizer_py",
-      "target": "prometheus_summarizer_prometheussummarizer",
+      "target": "prometheus_summarizer_smarttruncate",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/summarizer.py",
+      "source_location": "L47",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "main_app_prometheus_summarizer_py",
+      "target": "prometheus_summarizer_prometheussummarizer"
     },
     {
       "relation": "rationale_for",
@@ -49047,8 +49133,19 @@
       "source_file": "main/app/prometheus/summarizer.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_summarizer_rationale_1",
-      "target": "main_app_prometheus_summarizer_py",
+      "target": "main_app_prometheus_summarizer_py"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/summarizer.py",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "prometheus_summarizer_prometheussummarizer_summarize",
+      "target": "prometheus_summarizer_smarttruncate",
       "confidence_score": 1.0
     },
     {
@@ -49057,9 +49154,9 @@
       "source_file": "main/app/prometheus/summarizer.py",
       "source_location": "L48",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_summarizer_prometheussummarizer",
-      "target": "prometheus_summarizer_prometheussummarizer_summarize",
-      "confidence_score": 1.0
+      "target": "prometheus_summarizer_prometheussummarizer_summarize"
     },
     {
       "relation": "method",
@@ -49067,9 +49164,9 @@
       "source_file": "main/app/prometheus/summarizer.py",
       "source_location": "L91",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_summarizer_prometheussummarizer",
-      "target": "prometheus_summarizer_prometheussummarizer_getepisodes",
-      "confidence_score": 1.0
+      "target": "prometheus_summarizer_prometheussummarizer_getepisodes"
     },
     {
       "relation": "calls",
@@ -49078,9 +49175,9 @@
       "source_file": "main/app/prometheus/summarizer.py",
       "source_location": "L83",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "prometheus_summarizer_prometheussummarizer_summarize",
-      "target": "prometheus_summarizer_prometheussummarizer_getepisodes",
-      "confidence_score": 1.0
+      "target": "prometheus_summarizer_prometheussummarizer_getepisodes"
     },
     {
       "relation": "contains",
@@ -60473,6 +60570,26 @@
       "confidence_score": 1.0,
       "source": "docs_user_workflow",
       "target": "docs_user_codeblock_16"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/state.py",
+      "source_location": "L27",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_state_harnessstate_toDict",
+      "target": "prometheus_state_rationale_27"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/state.py",
+      "source_location": "L31",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_state_harnessstate_toContext",
+      "target": "prometheus_state_rationale_31"
     },
     {
       "relation": "contains",
@@ -107195,5 +107312,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "03be80d6c13fc24d53a634f6bb01f8c21c076275"
+  "built_at_commit": "c6c6aeaa6d99d5befdcd79cc23ed5672c06236b4"
 }
