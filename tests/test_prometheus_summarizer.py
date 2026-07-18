@@ -95,8 +95,7 @@ class TestEpisodeAccumulation:
         # After first summarize: history trimmed to 20
         # Simulate new messages growing back to 50
         fake_session_with_45_messages.history = [
-            {"role": "user", "content": f"Msg {i}", "timestamp": datetime.now().isoformat()}
-            for i in range(50)
+            {"role": "user", "content": f"Msg {i}", "timestamp": datetime.now().isoformat()} for i in range(50)
         ]
         db_session.commit()
         ep2 = summarizer.summarize(db_session, fake_session_with_45_messages.sessionId)
@@ -174,10 +173,7 @@ class TestSummarizeEdgeCases:
             sessionId="test-empty-content",
             userId=1,
             title="Empty",
-            history=[
-                {"role": "user", "content": "", "timestamp": datetime.now().isoformat()}
-                for _ in range(25)
-            ],
+            history=[{"role": "user", "content": "", "timestamp": datetime.now().isoformat()} for _ in range(25)],
         )
         db_session.add(session)
         db_session.commit()
@@ -207,8 +203,7 @@ class TestSummarizeEdgeCases:
             userId=1,
             title="Cap",
             history=[
-                {"role": "user", "content": f"Msg {i}", "timestamp": datetime.now().isoformat()}
-                for i in range(25)
+                {"role": "user", "content": f"Msg {i}", "timestamp": datetime.now().isoformat()} for i in range(25)
             ],
             summary=json.dumps(episodes),
         )

@@ -162,13 +162,10 @@ class Prometheus:
             try:
                 episodes = PrometheusSummarizer().getEpisodes(db, sessionId)
                 if episodes:
-                    lines = [
-                        f"[{i+1}] {ep.get('summary', '')}"
-                        for i, ep in enumerate(episodes[-5:])
-                    ]
+                    lines = [f"[{i + 1}] {ep.get('summary', '')}" for i, ep in enumerate(episodes[-5:])]
                     episodeBlock = "\n".join(lines)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug("Failed to load episodes for session %s: %s", sessionId, e)
 
         sections = [SYSTEM_PROMPT]
         if episodeBlock:
