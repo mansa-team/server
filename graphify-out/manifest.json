@@ -30,18 +30,23 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\api.js": {
-    "mtime": 1784226355.8503823,
-    "ast_hash": "d41bfc7c0751fb0dcc920c9cc160f3ba",
+    "mtime": 1784346742.2894464,
+    "ast_hash": "9871df61440084b56f058ce94e34df46",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\App.jsx": {
-    "mtime": 1782691503.0018494,
-    "ast_hash": "9677bee052b37307bc4522f960fc0bf2",
+    "mtime": 1784346794.18314,
+    "ast_hash": "8f6ad2e6937e366d8ac529b66d5d25f0",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\main.jsx": {
     "mtime": 1782691503.0038493,
     "ast_hash": "d8bc74f55bba87d65b304e0b344ae1c8",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\frontend\\src\\components\\AgentLoop.jsx": {
+    "mtime": 1784346750.65673,
+    "ast_hash": "8d07db93f86657250b253ac883004ea4",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\components\\AuthForm.jsx": {
@@ -115,8 +120,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\agent.py": {
-    "mtime": 1784332245.6603084,
-    "ast_hash": "5c3e12d289c36611926095043c36f9d5",
+    "mtime": 1784346592.70444,
+    "ast_hash": "09e1b575ee016252c3d50413d6d4aae9",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\chat.py": {
@@ -125,8 +130,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\events.py": {
-    "mtime": 1784252963.445454,
-    "ast_hash": "6387092657ec2d550dc00eb693f156be",
+    "mtime": 1784346607.2747917,
+    "ast_hash": "ea377a60c36142752e4ba7478c9bc1c8",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\memory.py": {
@@ -704,14 +709,19 @@
     "ast_hash": "a747b8dce6f5be90f82ace23efd8961a",
     "semantic_hash": ""
   },
+  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-07-17-observable-agent-loop.md": {
+    "mtime": 1784346087.8251534,
+    "ast_hash": "09d6a53305a59ee5c05d004ca718105f",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-07-18-observable-agent-loop.md": {
+    "mtime": 1784346420.614236,
+    "ast_hash": "5bb65855e505be19d96bce6256f2eb40",
+    "semantic_hash": ""
+  },
   "D:\\Repositories\\server\\frontend\\index.html": {
     "mtime": 1782672983.9054935,
     "ast_hash": "57317fe847ffc0182e4bdc49395cbbde",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\index.legacy.html": {
-    "mtime": 1782669183.0326607,
-    "ast_hash": "821030e2539face20641e2b4124ee3e2",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\temp.txt": {
