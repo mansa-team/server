@@ -8940,7 +8940,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L1",
       "id": "tests_conftest_py",
-      "community": 228,
+      "community": 466,
       "norm_label": "conftest.py"
     },
     {
@@ -8949,7 +8949,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L13",
       "id": "tests_conftest_reset_rate_limiter",
-      "community": 228,
+      "community": 466,
       "norm_label": "_reset_rate_limiter()"
     },
     {
@@ -8967,7 +8967,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L33",
       "id": "tests_conftest_patch_secret_key",
-      "community": 228,
+      "community": 466,
       "norm_label": "_patch_secret_key()"
     },
     {
@@ -8976,7 +8976,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L48",
       "id": "tests_conftest_dbsession",
-      "community": 228,
+      "community": 466,
       "norm_label": "dbsession()"
     },
     {
@@ -8985,7 +8985,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L60",
       "id": "tests_conftest_sampleuserdata",
-      "community": 228,
+      "community": 466,
       "norm_label": "sampleuserdata()"
     },
     {
@@ -8994,7 +8994,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L71",
       "id": "tests_conftest_sampleapikeydata",
-      "community": 228,
+      "community": 466,
       "norm_label": "sampleapikeydata()"
     },
     {
@@ -9003,7 +9003,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L76",
       "id": "tests_conftest_sampleprometheussessiondata",
-      "community": 228,
+      "community": 466,
       "norm_label": "sampleprometheussessiondata()"
     },
     {
@@ -9030,7 +9030,7 @@
       "source_file": "tests/conftest.py",
       "source_location": "L14",
       "id": "tests_conftest_rationale_14",
-      "community": 228,
+      "community": 466,
       "norm_label": "reset slowapi in-memory rate limiter between every test."
     },
     {
@@ -14826,7 +14826,7 @@
       "source_file": "tests/test_pagination.py",
       "source_location": "L1",
       "id": "tests_test_pagination_py",
-      "community": 381,
+      "community": 7,
       "norm_label": "test_pagination.py"
     },
     {
@@ -14835,7 +14835,7 @@
       "source_file": "tests/test_pagination.py",
       "source_location": "L14",
       "id": "tests_test_pagination_app",
-      "community": 381,
+      "community": 7,
       "norm_label": "app()"
     },
     {
@@ -14844,7 +14844,7 @@
       "source_file": "tests/test_pagination.py",
       "source_location": "L35",
       "id": "tests_test_pagination_client",
-      "community": 381,
+      "community": 7,
       "norm_label": "client()"
     },
     {
@@ -14943,7 +14943,7 @@
       "source_file": "tests/test_pagination.py",
       "source_location": "L1",
       "id": "tests_test_pagination_rationale_1",
-      "community": 381,
+      "community": 7,
       "norm_label": "tests for inline pagination params (used in user + prometheus controllers)."
     },
     {
@@ -20847,7 +20847,7 @@
       "source_file": "tests/test_user_deps.py",
       "source_location": "L1",
       "id": "tests_test_user_deps_py",
-      "community": 381,
+      "community": 345,
       "norm_label": "test_user_deps.py"
     },
     {
@@ -20982,7 +20982,7 @@
       "source_file": "tests/test_vector_utils.py",
       "source_location": "L1",
       "id": "tests_test_vector_utils_py",
-      "community": 136,
+      "community": 135,
       "norm_label": "test_vector_utils.py"
     },
     {
@@ -21241,7 +21241,7 @@
       "label": "User structure defined by string roles:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L40",
+      "source_location": "L35",
       "id": "server_todo_user_structure_defined_by_string_roles",
       "community": 47,
       "norm_label": "user structure defined by string roles:"
@@ -21250,7 +21250,7 @@
       "label": "USER:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L49",
+      "source_location": "L44",
       "id": "server_todo_user",
       "community": 47,
       "norm_label": "user:"
@@ -21259,7 +21259,7 @@
       "label": "PREMIUM:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L52",
+      "source_location": "L47",
       "id": "server_todo_premium",
       "community": 47,
       "norm_label": "premium:"
@@ -21268,7 +21268,7 @@
       "label": "DEVELOPER:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L55",
+      "source_location": "L50",
       "id": "server_todo_developer",
       "community": 47,
       "norm_label": "developer:"
@@ -21277,7 +21277,7 @@
       "label": "STOCKS_API",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L82",
+      "source_location": "L77",
       "id": "server_todo_stocks_api",
       "community": 47,
       "norm_label": "stocks_api"
@@ -21286,7 +21286,7 @@
       "label": "Prometheus",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L85",
+      "source_location": "L80",
       "id": "server_todo_prometheus",
       "community": 47,
       "norm_label": "prometheus"
@@ -22237,699 +22237,6 @@
       "norm_label": "license"
     },
     {
-      "label": "2026-07-17-prometheus-forgevm-sandbox.md",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L1",
-      "id": "docs_superpowers_plans_2026_07_17_prometheus_forgevm_sandbox_md",
-      "community": 49,
-      "norm_label": "2026-07-17-prometheus-forgevm-sandbox.md"
-    },
-    {
-      "label": "Prometheus ForgeVM Sandbox \u2014 Implementation Plan",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L1",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_prometheus_forgevm_sandbox_implementation_plan",
-      "community": 49,
-      "norm_label": "prometheus forgevm sandbox \u2014 implementation plan"
-    },
-    {
-      "label": "code:block1 (User 123: \"Analyze PETR4 vs VALE3 correlation\")",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L9",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_1",
-      "community": 49,
-      "norm_label": "code:block1 (user 123: \"analyze petr4 vs vale3 correlation\")"
-    },
-    {
-      "label": "Global Constraints",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L43",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_global_constraints",
-      "community": 49,
-      "norm_label": "global constraints"
-    },
-    {
-      "label": "File Map",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L59",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_file_map",
-      "community": 49,
-      "norm_label": "file map"
-    },
-    {
-      "label": "Phase 1: Config + ForgeVM Setup",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L75",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_phase_1_config_forgevm_setup",
-      "community": 49,
-      "norm_label": "phase 1: config + forgevm setup"
-    },
-    {
-      "label": "Task 1: Config \u2014 Add ForgeVM Settings",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L77",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_task_1_config_add_forgevm_settings",
-      "community": 49,
-      "norm_label": "task 1: config \u2014 add forgevm settings"
-    },
-    {
-      "label": "code:python (class PrometheusSettings(BaseMansaSettings):)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L84",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_2",
-      "community": 49,
-      "norm_label": "code:python (class prometheussettings(basemansasettings):)"
-    },
-    {
-      "label": "code:bash (git add config.py)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L97",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_3",
-      "community": 49,
-      "norm_label": "code:bash (git add config.py)"
-    },
-    {
-      "label": "Task 2: Docker Compose \u2014 Add ForgeVM Service",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L104",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_task_2_docker_compose_add_forgevm_service",
-      "community": 49,
-      "norm_label": "task 2: docker compose \u2014 add forgevm service"
-    },
-    {
-      "label": "code:yaml (services:)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L111",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_4",
-      "community": 49,
-      "norm_label": "code:yaml (services:)"
-    },
-    {
-      "label": "code:bash (git add docker-compose.yml)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L139",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_5",
-      "community": 49,
-      "norm_label": "code:bash (git add docker-compose.yml)"
-    },
-    {
-      "label": "Phase 2: SandboxManager",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L146",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_phase_2_sandboxmanager",
-      "community": 49,
-      "norm_label": "phase 2: sandboxmanager"
-    },
-    {
-      "label": "Task 3: ForgeVM REST API Client",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L148",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_task_3_forgevm_rest_api_client",
-      "community": 49,
-      "norm_label": "task 3: forgevm rest api client"
-    },
-    {
-      "label": "code:python (import pytest)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L160",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_6",
-      "community": 49,
-      "norm_label": "code:python (import pytest)"
-    },
-    {
-      "label": "code:python (import logging)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L270",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_7",
-      "community": 49,
-      "norm_label": "code:python (import logging)"
-    },
-    {
-      "label": "code:bash (git add main/app/prometheus/sandbox.py tests/test_sandbox.py)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L377",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_8",
-      "community": 49,
-      "norm_label": "code:bash (git add main/app/prometheus/sandbox.py tests/test_sandbox.py)"
-    },
-    {
-      "label": "Phase 3: Sandbox Tools",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L384",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_phase_3_sandbox_tools",
-      "community": 49,
-      "norm_label": "phase 3: sandbox tools"
-    },
-    {
-      "label": "Task 4: Tool Definitions \u2014 Sandbox Tools in TOOL_REGISTRY",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L386",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_task_4_tool_definitions_sandbox_tools_in_tool_registry",
-      "community": 49,
-      "norm_label": "task 4: tool definitions \u2014 sandbox tools in tool_registry"
-    },
-    {
-      "label": "code:python (import pytest)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L396",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_9",
-      "community": 49,
-      "norm_label": "code:python (import pytest)"
-    },
-    {
-      "label": "code:python (from main.app.prometheus.sandbox import SandboxManager)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L455",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_10",
-      "community": 49,
-      "norm_label": "code:python (from main.app.prometheus.sandbox import sandboxmanager)"
-    },
-    {
-      "label": "code:python (TOOL_REGISTRY: dict[str, Any] = {)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L524",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_11",
-      "community": 49,
-      "norm_label": "code:python (tool_registry: dict[str, any] = {)"
-    },
-    {
-      "label": "code:python (async def dispatchToolCall()",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L539",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_12",
-      "community": 49,
-      "norm_label": "code:python (async def dispatchtoolcall()"
-    },
-    {
-      "label": "code:bash (git add main/app/prometheus/tools.py tests/test_sandbox_tool)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L567",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_13",
-      "community": 49,
-      "norm_label": "code:bash (git add main/app/prometheus/tools.py tests/test_sandbox_tool)"
-    },
-    {
-      "label": "Phase 4: Agent Integration",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L574",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_phase_4_agent_integration",
-      "community": 49,
-      "norm_label": "phase 4: agent integration"
-    },
-    {
-      "label": "Task 5: Agent \u2014 On-Demand Sandbox + Premium Gating",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L576",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_task_5_agent_on_demand_sandbox_premium_gating",
-      "community": 49,
-      "norm_label": "task 5: agent \u2014 on-demand sandbox + premium gating"
-    },
-    {
-      "label": "code:python (import pytest)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L586",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_14",
-      "community": 49,
-      "norm_label": "code:python (import pytest)"
-    },
-    {
-      "label": "code:python (from main.app.prometheus.sandbox import SandboxManager)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L617",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_15",
-      "community": 49,
-      "norm_label": "code:python (from main.app.prometheus.sandbox import sandboxmanager)"
-    },
-    {
-      "label": "code:python (async def streamMessage(self, query=None, sessionId=None, db)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L623",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_16",
-      "community": 49,
-      "norm_label": "code:python (async def streammessage(self, query=none, sessionid=none, db)"
-    },
-    {
-      "label": "code:python (## Code Sandbox (On-Demand))",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L723",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_17",
-      "community": 49,
-      "norm_label": "code:python (## code sandbox (on-demand))"
-    },
-    {
-      "label": "code:bash (git add main/app/prometheus/agent.py tests/test_agent_sandbo)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L751",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_18",
-      "community": 49,
-      "norm_label": "code:bash (git add main/app/prometheus/agent.py tests/test_agent_sandbo)"
-    },
-    {
-      "label": "Phase 5: Docker Image + Final Verification",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L758",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_phase_5_docker_image_final_verification",
-      "community": 49,
-      "norm_label": "phase 5: docker image + final verification"
-    },
-    {
-      "label": "Task 6: Dockerfile.sandbox \u2014 Python Data Science Image",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L760",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_task_6_dockerfile_sandbox_python_data_science_image",
-      "community": 49,
-      "norm_label": "task 6: dockerfile.sandbox \u2014 python data science image"
-    },
-    {
-      "label": "code:dockerfile (FROM python:3.11-slim)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L767",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_19",
-      "community": 49,
-      "norm_label": "code:dockerfile (from python:3.11-slim)"
-    },
-    {
-      "label": "code:bash (git add Dockerfile.sandbox)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L785",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_20",
-      "community": 49,
-      "norm_label": "code:bash (git add dockerfile.sandbox)"
-    },
-    {
-      "label": "Task 7: Full CI Verification",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L792",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_task_7_full_ci_verification",
-      "community": 49,
-      "norm_label": "task 7: full ci verification"
-    },
-    {
-      "label": "code:bash (docker-compose up -d --build)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L801",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_21",
-      "community": 49,
-      "norm_label": "code:bash (docker-compose up -d --build)"
-    },
-    {
-      "label": "Summary",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L811",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_summary",
-      "community": 49,
-      "norm_label": "summary"
-    },
-    {
-      "label": "What This Enables",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L827",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_what_this_enables",
-      "community": 49,
-      "norm_label": "what this enables"
-    },
-    {
-      "label": "What This Does NOT Do (By Design)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
-      "source_location": "L838",
-      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_what_this_does_not_do_by_design",
-      "community": 49,
-      "norm_label": "what this does not do (by design)"
-    },
-    {
-      "label": "2026-07-17-sandbox-persistence.md",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L1",
-      "id": "docs_superpowers_plans_2026_07_17_sandbox_persistence_md",
-      "community": 64,
-      "norm_label": "2026-07-17-sandbox-persistence.md"
-    },
-    {
-      "label": "Sandbox Persistence Implementation Plan",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L1",
-      "id": "plans_2026_07_17_sandbox_persistence_sandbox_persistence_implementation_plan",
-      "community": 64,
-      "norm_label": "sandbox persistence implementation plan"
-    },
-    {
-      "label": "Global Constraints",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L11",
-      "id": "plans_2026_07_17_sandbox_persistence_global_constraints",
-      "community": 64,
-      "norm_label": "global constraints"
-    },
-    {
-      "label": "File Structure",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L23",
-      "id": "plans_2026_07_17_sandbox_persistence_file_structure",
-      "community": 64,
-      "norm_label": "file structure"
-    },
-    {
-      "label": "Task 1: Database Model + Migration",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L38",
-      "id": "plans_2026_07_17_sandbox_persistence_task_1_database_model_migration",
-      "community": 64,
-      "norm_label": "task 1: database model + migration"
-    },
-    {
-      "label": "code:python (# tests/test_sandbox_persistence.py)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L52",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_1",
-      "community": 64,
-      "norm_label": "code:python (# tests/test_sandbox_persistence.py)"
-    },
-    {
-      "label": "code:python (# main/models/sandbox.py)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L101",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_2",
-      "community": 64,
-      "norm_label": "code:python (# main/models/sandbox.py)"
-    },
-    {
-      "label": "code:python (# main/models/__init__.py \u2014 add import)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L120",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_3",
-      "community": 64,
-      "norm_label": "code:python (# main/models/__init__.py \u2014 add import)"
-    },
-    {
-      "label": "code:python (# migrations/env.py \u2014 add import after line 14)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L133",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_4",
-      "community": 64,
-      "norm_label": "code:python (# migrations/env.py \u2014 add import after line 14)"
-    },
-    {
-      "label": "code:bash (git add main/models/sandbox.py main/models/__init__.py migra)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L150",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_5",
-      "community": 64,
-      "norm_label": "code:bash (git add main/models/sandbox.py main/models/__init__.py migra)"
-    },
-    {
-      "label": "Task 2: SandboxManager Persistence Logic",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L157",
-      "id": "plans_2026_07_17_sandbox_persistence_task_2_sandboxmanager_persistence_logic",
-      "community": 64,
-      "norm_label": "task 2: sandboxmanager persistence logic"
-    },
-    {
-      "label": "code:python (# tests/test_sandbox_persistence.py \u2014 append to existing fil)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L170",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_6",
-      "community": 64,
-      "norm_label": "code:python (# tests/test_sandbox_persistence.py \u2014 append to existing fil)"
-    },
-    {
-      "label": "code:python (# main/app/prometheus/sandbox.py \u2014 full rewrite)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L284",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_7",
-      "community": 64,
-      "norm_label": "code:python (# main/app/prometheus/sandbox.py \u2014 full rewrite)"
-    },
-    {
-      "label": "code:bash (git add main/app/prometheus/sandbox.py tests/test_sandbox_pe)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L533",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_8",
-      "community": 64,
-      "norm_label": "code:bash (git add main/app/prometheus/sandbox.py tests/test_sandbox_pe)"
-    },
-    {
-      "label": "Task 3: Agent Integration \u2014 Persistent Sandbox Lifecycle",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L540",
-      "id": "plans_2026_07_17_sandbox_persistence_task_3_agent_integration_persistent_sandbox_lifecycle",
-      "community": 64,
-      "norm_label": "task 3: agent integration \u2014 persistent sandbox lifecycle"
-    },
-    {
-      "label": "code:python (# tests/test_agent_sandbox_integration.py \u2014 append)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L552",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_9",
-      "community": 64,
-      "norm_label": "code:python (# tests/test_agent_sandbox_integration.py \u2014 append)"
-    },
-    {
-      "label": "code:python (# In streamMessage \u2014 replace sandbox_id = None with:)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L586",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_10",
-      "community": 64,
-      "norm_label": "code:python (# in streammessage \u2014 replace sandbox_id = none with:)"
-    },
-    {
-      "label": "code:bash (git add main/app/prometheus/agent.py tests/test_agent_sandbo)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L627",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_11",
-      "community": 64,
-      "norm_label": "code:bash (git add main/app/prometheus/agent.py tests/test_agent_sandbo)"
-    },
-    {
-      "label": "Task 4: Cleanup Job \u2014 Expired Sandbox Sweeper",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L634",
-      "id": "plans_2026_07_17_sandbox_persistence_task_4_cleanup_job_expired_sandbox_sweeper",
-      "community": 64,
-      "norm_label": "task 4: cleanup job \u2014 expired sandbox sweeper"
-    },
-    {
-      "label": "code:python (# tests/test_sandbox_persistence.py \u2014 append)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L646",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_12",
-      "community": 64,
-      "norm_label": "code:python (# tests/test_sandbox_persistence.py \u2014 append)"
-    },
-    {
-      "label": "code:python (# main/app/prometheus/sandbox_cleanup.py)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L700",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_13",
-      "community": 64,
-      "norm_label": "code:python (# main/app/prometheus/sandbox_cleanup.py)"
-    },
-    {
-      "label": "code:bash (git add main/app/prometheus/sandbox_cleanup.py tests/test_sa)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L746",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_14",
-      "community": 64,
-      "norm_label": "code:bash (git add main/app/prometheus/sandbox_cleanup.py tests/test_sa)"
-    },
-    {
-      "label": "Task 5: Full CI Verification",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L753",
-      "id": "plans_2026_07_17_sandbox_persistence_task_5_full_ci_verification",
-      "community": 64,
-      "norm_label": "task 5: full ci verification"
-    },
-    {
-      "label": "code:bash (git add -A)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L764",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_15",
-      "community": 64,
-      "norm_label": "code:bash (git add -a)"
-    },
-    {
-      "label": "Task 6: Docker Compose \u2014 Workspace Volume for Persistence",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L771",
-      "id": "plans_2026_07_17_sandbox_persistence_task_6_docker_compose_workspace_volume_for_persistence",
-      "community": 64,
-      "norm_label": "task 6: docker compose \u2014 workspace volume for persistence"
-    },
-    {
-      "label": "code:yaml (# docker-compose.yml \u2014 add to api service volumes)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L782",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_16",
-      "community": 64,
-      "norm_label": "code:yaml (# docker-compose.yml \u2014 add to api service volumes)"
-    },
-    {
-      "label": "code:yaml (# docker-compose.yml \u2014 add to api environment)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L797",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_17",
-      "community": 64,
-      "norm_label": "code:yaml (# docker-compose.yml \u2014 add to api environment)"
-    },
-    {
-      "label": "code:bash (git add docker-compose.yml)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L809",
-      "id": "plans_2026_07_17_sandbox_persistence_codeblock_18",
-      "community": 64,
-      "norm_label": "code:bash (git add docker-compose.yml)"
-    },
-    {
-      "label": "Summary",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
-      "source_location": "L816",
-      "id": "plans_2026_07_17_sandbox_persistence_summary",
-      "community": 64,
-      "norm_label": "summary"
-    },
-    {
-      "label": "task-1-report.md",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/task-1-report.md",
-      "source_location": "L1",
-      "id": "docs_superpowers_plans_task_1_report_md",
-      "community": 421,
-      "norm_label": "task-1-report.md"
-    },
-    {
-      "label": "Task 1 Report: PrometheusSandbox Model & Migration",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/task-1-report.md",
-      "source_location": "L1",
-      "id": "plans_task_1_report_task_1_report_prometheussandbox_model_migration",
-      "community": 421,
-      "norm_label": "task 1 report: prometheussandbox model & migration"
-    },
-    {
-      "label": "Files Created/Modified",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/task-1-report.md",
-      "source_location": "L5",
-      "id": "plans_task_1_report_files_created_modified",
-      "community": 421,
-      "norm_label": "files created/modified"
-    },
-    {
-      "label": "Test Results",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/task-1-report.md",
-      "source_location": "L15",
-      "id": "plans_task_1_report_test_results",
-      "community": 421,
-      "norm_label": "test results"
-    },
-    {
-      "label": "code:block1 (tests/test_sandbox_persistence.py::TestPrometheusSandboxMode)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/task-1-report.md",
-      "source_location": "L17",
-      "id": "plans_task_1_report_codeblock_1",
-      "community": 421,
-      "norm_label": "code:block1 (tests/test_sandbox_persistence.py::testprometheussandboxmode)"
-    },
-    {
-      "label": "Commits",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/task-1-report.md",
-      "source_location": "L25",
-      "id": "plans_task_1_report_commits",
-      "community": 421,
-      "norm_label": "commits"
-    },
-    {
-      "label": "code:block2 (7fe4c6d feat: add PrometheusSandbox model for per-user sandb)",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/task-1-report.md",
-      "source_location": "L27",
-      "id": "plans_task_1_report_codeblock_2",
-      "community": 421,
-      "norm_label": "code:block2 (7fe4c6d feat: add prometheussandbox model for per-user sandb)"
-    },
-    {
-      "label": "Concerns",
-      "file_type": "document",
-      "source_file": "docs/superpowers/plans/task-1-report.md",
-      "source_location": "L31",
-      "id": "plans_task_1_report_concerns",
-      "community": 421,
-      "norm_label": "concerns"
-    },
-    {
       "label": "README.md",
       "file_type": "document",
       "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
@@ -23054,6 +22361,699 @@
       "id": "all_minilm_l6_v2_readme_training_data",
       "community": 212,
       "norm_label": "training data"
+    },
+    {
+      "label": "2026-07-17-prometheus-forgevm-sandbox.md",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L1",
+      "community": 49,
+      "norm_label": "2026-07-17-prometheus-forgevm-sandbox.md",
+      "id": "docs_superpowers_plans_2026_07_17_prometheus_forgevm_sandbox_md"
+    },
+    {
+      "label": "Prometheus ForgeVM Sandbox \u2014 Implementation Plan",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L1",
+      "community": 49,
+      "norm_label": "prometheus forgevm sandbox \u2014 implementation plan",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_prometheus_forgevm_sandbox_implementation_plan"
+    },
+    {
+      "label": "code:block1 (User 123: \"Analyze PETR4 vs VALE3 correlation\")",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L9",
+      "community": 49,
+      "norm_label": "code:block1 (user 123: \"analyze petr4 vs vale3 correlation\")",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_1"
+    },
+    {
+      "label": "Global Constraints",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L43",
+      "community": 49,
+      "norm_label": "global constraints",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_global_constraints"
+    },
+    {
+      "label": "File Map",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L59",
+      "community": 49,
+      "norm_label": "file map",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_file_map"
+    },
+    {
+      "label": "Phase 1: Config + ForgeVM Setup",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L75",
+      "community": 49,
+      "norm_label": "phase 1: config + forgevm setup",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_phase_1_config_forgevm_setup"
+    },
+    {
+      "label": "Task 1: Config \u2014 Add ForgeVM Settings",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L77",
+      "community": 49,
+      "norm_label": "task 1: config \u2014 add forgevm settings",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_task_1_config_add_forgevm_settings"
+    },
+    {
+      "label": "code:python (class PrometheusSettings(BaseMansaSettings):)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L84",
+      "community": 49,
+      "norm_label": "code:python (class prometheussettings(basemansasettings):)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_2"
+    },
+    {
+      "label": "code:bash (git add config.py)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L97",
+      "community": 49,
+      "norm_label": "code:bash (git add config.py)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_3"
+    },
+    {
+      "label": "Task 2: Docker Compose \u2014 Add ForgeVM Service",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L104",
+      "community": 49,
+      "norm_label": "task 2: docker compose \u2014 add forgevm service",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_task_2_docker_compose_add_forgevm_service"
+    },
+    {
+      "label": "code:yaml (services:)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L111",
+      "community": 49,
+      "norm_label": "code:yaml (services:)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_4"
+    },
+    {
+      "label": "code:bash (git add docker-compose.yml)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L139",
+      "community": 49,
+      "norm_label": "code:bash (git add docker-compose.yml)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_5"
+    },
+    {
+      "label": "Phase 2: SandboxManager",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L146",
+      "community": 49,
+      "norm_label": "phase 2: sandboxmanager",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_phase_2_sandboxmanager"
+    },
+    {
+      "label": "Task 3: ForgeVM REST API Client",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L148",
+      "community": 49,
+      "norm_label": "task 3: forgevm rest api client",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_task_3_forgevm_rest_api_client"
+    },
+    {
+      "label": "code:python (import pytest)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L160",
+      "community": 49,
+      "norm_label": "code:python (import pytest)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_6"
+    },
+    {
+      "label": "code:python (import logging)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L270",
+      "community": 49,
+      "norm_label": "code:python (import logging)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_7"
+    },
+    {
+      "label": "code:bash (git add main/app/prometheus/sandbox.py tests/test_sandbox.py)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L377",
+      "community": 49,
+      "norm_label": "code:bash (git add main/app/prometheus/sandbox.py tests/test_sandbox.py)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_8"
+    },
+    {
+      "label": "Phase 3: Sandbox Tools",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L384",
+      "community": 49,
+      "norm_label": "phase 3: sandbox tools",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_phase_3_sandbox_tools"
+    },
+    {
+      "label": "Task 4: Tool Definitions \u2014 Sandbox Tools in TOOL_REGISTRY",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L386",
+      "community": 49,
+      "norm_label": "task 4: tool definitions \u2014 sandbox tools in tool_registry",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_task_4_tool_definitions_sandbox_tools_in_tool_registry"
+    },
+    {
+      "label": "code:python (import pytest)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L396",
+      "community": 49,
+      "norm_label": "code:python (import pytest)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_9"
+    },
+    {
+      "label": "code:python (from main.app.prometheus.sandbox import SandboxManager)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L455",
+      "community": 49,
+      "norm_label": "code:python (from main.app.prometheus.sandbox import sandboxmanager)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_10"
+    },
+    {
+      "label": "code:python (TOOL_REGISTRY: dict[str, Any] = {)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L524",
+      "community": 49,
+      "norm_label": "code:python (tool_registry: dict[str, any] = {)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_11"
+    },
+    {
+      "label": "code:python (async def dispatchToolCall()",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L539",
+      "community": 49,
+      "norm_label": "code:python (async def dispatchtoolcall()",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_12"
+    },
+    {
+      "label": "code:bash (git add main/app/prometheus/tools.py tests/test_sandbox_tool)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L567",
+      "community": 49,
+      "norm_label": "code:bash (git add main/app/prometheus/tools.py tests/test_sandbox_tool)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_13"
+    },
+    {
+      "label": "Phase 4: Agent Integration",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L574",
+      "community": 49,
+      "norm_label": "phase 4: agent integration",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_phase_4_agent_integration"
+    },
+    {
+      "label": "Task 5: Agent \u2014 On-Demand Sandbox + Premium Gating",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L576",
+      "community": 49,
+      "norm_label": "task 5: agent \u2014 on-demand sandbox + premium gating",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_task_5_agent_on_demand_sandbox_premium_gating"
+    },
+    {
+      "label": "code:python (import pytest)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L586",
+      "community": 49,
+      "norm_label": "code:python (import pytest)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_14"
+    },
+    {
+      "label": "code:python (from main.app.prometheus.sandbox import SandboxManager)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L617",
+      "community": 49,
+      "norm_label": "code:python (from main.app.prometheus.sandbox import sandboxmanager)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_15"
+    },
+    {
+      "label": "code:python (async def streamMessage(self, query=None, sessionId=None, db)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L623",
+      "community": 49,
+      "norm_label": "code:python (async def streammessage(self, query=none, sessionid=none, db)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_16"
+    },
+    {
+      "label": "code:python (## Code Sandbox (On-Demand))",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L723",
+      "community": 49,
+      "norm_label": "code:python (## code sandbox (on-demand))",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_17"
+    },
+    {
+      "label": "code:bash (git add main/app/prometheus/agent.py tests/test_agent_sandbo)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L751",
+      "community": 49,
+      "norm_label": "code:bash (git add main/app/prometheus/agent.py tests/test_agent_sandbo)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_18"
+    },
+    {
+      "label": "Phase 5: Docker Image + Final Verification",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L758",
+      "community": 49,
+      "norm_label": "phase 5: docker image + final verification",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_phase_5_docker_image_final_verification"
+    },
+    {
+      "label": "Task 6: Dockerfile.sandbox \u2014 Python Data Science Image",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L760",
+      "community": 49,
+      "norm_label": "task 6: dockerfile.sandbox \u2014 python data science image",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_task_6_dockerfile_sandbox_python_data_science_image"
+    },
+    {
+      "label": "code:dockerfile (FROM python:3.11-slim)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L767",
+      "community": 49,
+      "norm_label": "code:dockerfile (from python:3.11-slim)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_19"
+    },
+    {
+      "label": "code:bash (git add Dockerfile.sandbox)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L785",
+      "community": 49,
+      "norm_label": "code:bash (git add dockerfile.sandbox)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_20"
+    },
+    {
+      "label": "Task 7: Full CI Verification",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L792",
+      "community": 49,
+      "norm_label": "task 7: full ci verification",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_task_7_full_ci_verification"
+    },
+    {
+      "label": "code:bash (docker-compose up -d --build)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L801",
+      "community": 49,
+      "norm_label": "code:bash (docker-compose up -d --build)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_codeblock_21"
+    },
+    {
+      "label": "Summary",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L811",
+      "community": 49,
+      "norm_label": "summary",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_summary"
+    },
+    {
+      "label": "What This Enables",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L827",
+      "community": 49,
+      "norm_label": "what this enables",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_what_this_enables"
+    },
+    {
+      "label": "What This Does NOT Do (By Design)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
+      "source_location": "L838",
+      "community": 49,
+      "norm_label": "what this does not do (by design)",
+      "id": "plans_2026_07_17_prometheus_forgevm_sandbox_what_this_does_not_do_by_design"
+    },
+    {
+      "label": "2026-07-17-sandbox-persistence.md",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L1",
+      "community": 64,
+      "norm_label": "2026-07-17-sandbox-persistence.md",
+      "id": "docs_superpowers_plans_2026_07_17_sandbox_persistence_md"
+    },
+    {
+      "label": "Sandbox Persistence Implementation Plan",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L1",
+      "community": 64,
+      "norm_label": "sandbox persistence implementation plan",
+      "id": "plans_2026_07_17_sandbox_persistence_sandbox_persistence_implementation_plan"
+    },
+    {
+      "label": "Global Constraints",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L11",
+      "community": 64,
+      "norm_label": "global constraints",
+      "id": "plans_2026_07_17_sandbox_persistence_global_constraints"
+    },
+    {
+      "label": "File Structure",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L23",
+      "community": 64,
+      "norm_label": "file structure",
+      "id": "plans_2026_07_17_sandbox_persistence_file_structure"
+    },
+    {
+      "label": "Task 1: Database Model + Migration",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L38",
+      "community": 64,
+      "norm_label": "task 1: database model + migration",
+      "id": "plans_2026_07_17_sandbox_persistence_task_1_database_model_migration"
+    },
+    {
+      "label": "code:python (# tests/test_sandbox_persistence.py)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L52",
+      "community": 64,
+      "norm_label": "code:python (# tests/test_sandbox_persistence.py)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_1"
+    },
+    {
+      "label": "code:python (# main/models/sandbox.py)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L101",
+      "community": 64,
+      "norm_label": "code:python (# main/models/sandbox.py)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_2"
+    },
+    {
+      "label": "code:python (# main/models/__init__.py \u2014 add import)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L120",
+      "community": 64,
+      "norm_label": "code:python (# main/models/__init__.py \u2014 add import)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_3"
+    },
+    {
+      "label": "code:python (# migrations/env.py \u2014 add import after line 14)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L133",
+      "community": 64,
+      "norm_label": "code:python (# migrations/env.py \u2014 add import after line 14)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_4"
+    },
+    {
+      "label": "code:bash (git add main/models/sandbox.py main/models/__init__.py migra)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L150",
+      "community": 64,
+      "norm_label": "code:bash (git add main/models/sandbox.py main/models/__init__.py migra)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_5"
+    },
+    {
+      "label": "Task 2: SandboxManager Persistence Logic",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L157",
+      "community": 64,
+      "norm_label": "task 2: sandboxmanager persistence logic",
+      "id": "plans_2026_07_17_sandbox_persistence_task_2_sandboxmanager_persistence_logic"
+    },
+    {
+      "label": "code:python (# tests/test_sandbox_persistence.py \u2014 append to existing fil)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L170",
+      "community": 64,
+      "norm_label": "code:python (# tests/test_sandbox_persistence.py \u2014 append to existing fil)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_6"
+    },
+    {
+      "label": "code:python (# main/app/prometheus/sandbox.py \u2014 full rewrite)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L284",
+      "community": 64,
+      "norm_label": "code:python (# main/app/prometheus/sandbox.py \u2014 full rewrite)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_7"
+    },
+    {
+      "label": "code:bash (git add main/app/prometheus/sandbox.py tests/test_sandbox_pe)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L533",
+      "community": 64,
+      "norm_label": "code:bash (git add main/app/prometheus/sandbox.py tests/test_sandbox_pe)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_8"
+    },
+    {
+      "label": "Task 3: Agent Integration \u2014 Persistent Sandbox Lifecycle",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L540",
+      "community": 64,
+      "norm_label": "task 3: agent integration \u2014 persistent sandbox lifecycle",
+      "id": "plans_2026_07_17_sandbox_persistence_task_3_agent_integration_persistent_sandbox_lifecycle"
+    },
+    {
+      "label": "code:python (# tests/test_agent_sandbox_integration.py \u2014 append)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L552",
+      "community": 64,
+      "norm_label": "code:python (# tests/test_agent_sandbox_integration.py \u2014 append)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_9"
+    },
+    {
+      "label": "code:python (# In streamMessage \u2014 replace sandbox_id = None with:)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L586",
+      "community": 64,
+      "norm_label": "code:python (# in streammessage \u2014 replace sandbox_id = none with:)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_10"
+    },
+    {
+      "label": "code:bash (git add main/app/prometheus/agent.py tests/test_agent_sandbo)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L627",
+      "community": 64,
+      "norm_label": "code:bash (git add main/app/prometheus/agent.py tests/test_agent_sandbo)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_11"
+    },
+    {
+      "label": "Task 4: Cleanup Job \u2014 Expired Sandbox Sweeper",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L634",
+      "community": 64,
+      "norm_label": "task 4: cleanup job \u2014 expired sandbox sweeper",
+      "id": "plans_2026_07_17_sandbox_persistence_task_4_cleanup_job_expired_sandbox_sweeper"
+    },
+    {
+      "label": "code:python (# tests/test_sandbox_persistence.py \u2014 append)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L646",
+      "community": 64,
+      "norm_label": "code:python (# tests/test_sandbox_persistence.py \u2014 append)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_12"
+    },
+    {
+      "label": "code:python (# main/app/prometheus/sandbox_cleanup.py)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L700",
+      "community": 64,
+      "norm_label": "code:python (# main/app/prometheus/sandbox_cleanup.py)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_13"
+    },
+    {
+      "label": "code:bash (git add main/app/prometheus/sandbox_cleanup.py tests/test_sa)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L746",
+      "community": 64,
+      "norm_label": "code:bash (git add main/app/prometheus/sandbox_cleanup.py tests/test_sa)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_14"
+    },
+    {
+      "label": "Task 5: Full CI Verification",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L753",
+      "community": 64,
+      "norm_label": "task 5: full ci verification",
+      "id": "plans_2026_07_17_sandbox_persistence_task_5_full_ci_verification"
+    },
+    {
+      "label": "code:bash (git add -A)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L764",
+      "community": 64,
+      "norm_label": "code:bash (git add -a)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_15"
+    },
+    {
+      "label": "Task 6: Docker Compose \u2014 Workspace Volume for Persistence",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L771",
+      "community": 64,
+      "norm_label": "task 6: docker compose \u2014 workspace volume for persistence",
+      "id": "plans_2026_07_17_sandbox_persistence_task_6_docker_compose_workspace_volume_for_persistence"
+    },
+    {
+      "label": "code:yaml (# docker-compose.yml \u2014 add to api service volumes)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L782",
+      "community": 64,
+      "norm_label": "code:yaml (# docker-compose.yml \u2014 add to api service volumes)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_16"
+    },
+    {
+      "label": "code:yaml (# docker-compose.yml \u2014 add to api environment)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L797",
+      "community": 64,
+      "norm_label": "code:yaml (# docker-compose.yml \u2014 add to api environment)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_17"
+    },
+    {
+      "label": "code:bash (git add docker-compose.yml)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L809",
+      "community": 64,
+      "norm_label": "code:bash (git add docker-compose.yml)",
+      "id": "plans_2026_07_17_sandbox_persistence_codeblock_18"
+    },
+    {
+      "label": "Summary",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/2026-07-17-sandbox-persistence.md",
+      "source_location": "L816",
+      "community": 64,
+      "norm_label": "summary",
+      "id": "plans_2026_07_17_sandbox_persistence_summary"
+    },
+    {
+      "label": "task-1-report.md",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/task-1-report.md",
+      "source_location": "L1",
+      "community": 421,
+      "norm_label": "task-1-report.md",
+      "id": "docs_superpowers_plans_task_1_report_md"
+    },
+    {
+      "label": "Task 1 Report: PrometheusSandbox Model & Migration",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/task-1-report.md",
+      "source_location": "L1",
+      "community": 421,
+      "norm_label": "task 1 report: prometheussandbox model & migration",
+      "id": "plans_task_1_report_task_1_report_prometheussandbox_model_migration"
+    },
+    {
+      "label": "Files Created/Modified",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/task-1-report.md",
+      "source_location": "L5",
+      "community": 421,
+      "norm_label": "files created/modified",
+      "id": "plans_task_1_report_files_created_modified"
+    },
+    {
+      "label": "Test Results",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/task-1-report.md",
+      "source_location": "L15",
+      "community": 421,
+      "norm_label": "test results",
+      "id": "plans_task_1_report_test_results"
+    },
+    {
+      "label": "code:block1 (tests/test_sandbox_persistence.py::TestPrometheusSandboxMode)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/task-1-report.md",
+      "source_location": "L17",
+      "community": 421,
+      "norm_label": "code:block1 (tests/test_sandbox_persistence.py::testprometheussandboxmode)",
+      "id": "plans_task_1_report_codeblock_1"
+    },
+    {
+      "label": "Commits",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/task-1-report.md",
+      "source_location": "L25",
+      "community": 421,
+      "norm_label": "commits",
+      "id": "plans_task_1_report_commits"
+    },
+    {
+      "label": "code:block2 (7fe4c6d feat: add PrometheusSandbox model for per-user sandb)",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/task-1-report.md",
+      "source_location": "L27",
+      "community": 421,
+      "norm_label": "code:block2 (7fe4c6d feat: add prometheussandbox model for per-user sandb)",
+      "id": "plans_task_1_report_codeblock_2"
+    },
+    {
+      "label": "Concerns",
+      "file_type": "document",
+      "source_file": "docs/superpowers/plans/task-1-report.md",
+      "source_location": "L31",
+      "community": 421,
+      "norm_label": "concerns",
+      "id": "plans_task_1_report_concerns"
     },
     {
       "label": "streamMessage should create a HarnessState and pass it to buildSystemPrompt.",
@@ -33671,7 +33671,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L905",
-      "community": 133,
+      "community": 87,
       "norm_label": "dataframe without time column.",
       "id": "tests_test_stocks_api_coverage_rationale_905"
     },
@@ -35651,7 +35651,7 @@
       "file_type": "code",
       "source_file": "main/utils/pagination.py",
       "source_location": "L1",
-      "community": 381,
+      "community": 345,
       "norm_label": "pagination.py",
       "id": "main_utils_pagination_py"
     },
@@ -35660,7 +35660,7 @@
       "file_type": "code",
       "source_file": "main/utils/pagination.py",
       "source_location": "L4",
-      "community": 381,
+      "community": 345,
       "norm_label": "paginationparams",
       "id": "utils_pagination_paginationparams"
     },
@@ -35669,7 +35669,7 @@
       "file_type": "code",
       "source_file": "main/utils/pagination.py",
       "source_location": "L5",
-      "community": 381,
+      "community": 345,
       "norm_label": ".__init__()",
       "id": "utils_pagination_paginationparams_init"
     },
@@ -37289,7 +37289,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L945",
-      "community": 87,
+      "community": 133,
       "norm_label": "multiple search terms with tickerindex.",
       "id": "tests_test_stocks_api_coverage_rationale_945"
     },
@@ -39809,7 +39809,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L121",
-      "community": 391,
+      "community": 439,
       "norm_label": "testlazydeserialization",
       "id": "tests_test_stocks_cache_testlazydeserialization"
     },
@@ -39818,7 +39818,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L124",
-      "community": 391,
+      "community": 439,
       "norm_label": ".test_query_manager_has_deserialize_method()",
       "id": "tests_test_stocks_cache_testlazydeserialization_test_query_manager_has_deserialize_method"
     },
@@ -39917,7 +39917,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L299",
-      "community": 457,
+      "community": 391,
       "norm_label": "testfilterbysearchterms",
       "id": "tests_test_stocks_cache_testfilterbysearchterms"
     },
@@ -39926,7 +39926,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L302",
-      "community": 457,
+      "community": 391,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_cache_testfilterbysearchterms_test_filter_with_tickerindex"
     },
@@ -40079,7 +40079,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L122",
-      "community": 391,
+      "community": 439,
       "norm_label": "tests for lazy json deserialization",
       "id": "tests_test_stocks_cache_rationale_122"
     },
@@ -40088,7 +40088,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L125",
-      "community": 391,
+      "community": 439,
       "norm_label": "query manager should have deserialize method",
       "id": "tests_test_stocks_cache_rationale_125"
     },
@@ -40187,7 +40187,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L300",
-      "community": 457,
+      "community": 391,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_cache_rationale_300"
     },
@@ -40196,7 +40196,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L303",
-      "community": 457,
+      "community": 391,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_cache_rationale_303"
     },
@@ -40367,7 +40367,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L124",
-      "community": 391,
+      "community": 439,
       "norm_label": "tests for lazy json deserialization",
       "id": "tests_test_stocks_cache_rationale_124"
     },
@@ -40376,7 +40376,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L127",
-      "community": 391,
+      "community": 439,
       "norm_label": "query manager should have deserialize method",
       "id": "tests_test_stocks_cache_rationale_127"
     },
@@ -40475,7 +40475,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L302",
-      "community": 457,
+      "community": 391,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_cache_rationale_302"
     },
@@ -40484,7 +40484,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L305",
-      "community": 457,
+      "community": 391,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_cache_rationale_305"
     },
@@ -40574,7 +40574,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L304",
-      "community": 457,
+      "community": 391,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_cache_testfilterbysearchterms_test_filter_with_tickerIndex"
     },
@@ -40583,7 +40583,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L1",
-      "community": 399,
+      "community": 349,
       "norm_label": "test_stocks_optimization.py",
       "id": "tests_test_stocks_optimization_py"
     },
@@ -40700,7 +40700,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L111",
-      "community": 399,
+      "community": 349,
       "norm_label": "testconnectionpool",
       "id": "tests_test_stocks_optimization_testconnectionpool"
     },
@@ -40709,7 +40709,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L114",
-      "community": 399,
+      "community": 349,
       "norm_label": ".test_stocks_engine_has_pool_configuration()",
       "id": "tests_test_stocks_optimization_testconnectionpool_test_stocks_engine_has_pool_configuration"
     },
@@ -40718,7 +40718,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L123",
-      "community": 399,
+      "community": 349,
       "norm_label": "testlazydeserialization",
       "id": "tests_test_stocks_optimization_testlazydeserialization"
     },
@@ -40727,7 +40727,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L126",
-      "community": 399,
+      "community": 349,
       "norm_label": ".test_query_manager_has_deserialize_method()",
       "id": "tests_test_stocks_optimization_testlazydeserialization_test_query_manager_has_deserialize_method"
     },
@@ -40826,7 +40826,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L301",
-      "community": 439,
+      "community": 349,
       "norm_label": "testfilterbysearchterms",
       "id": "tests_test_stocks_optimization_testfilterbysearchterms"
     },
@@ -40835,7 +40835,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L304",
-      "community": 439,
+      "community": 349,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_optimization_testfilterbysearchterms_test_filter_with_tickerIndex"
     },
@@ -40844,7 +40844,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L310",
-      "community": 399,
+      "community": 457,
       "norm_label": "testqueryperformance",
       "id": "tests_test_stocks_optimization_testqueryperformance"
     },
@@ -40853,7 +40853,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L313",
-      "community": 399,
+      "community": 457,
       "norm_label": ".test_query_response_time_under_1_second()",
       "id": "tests_test_stocks_optimization_testqueryperformance_test_query_response_time_under_1_second"
     },
@@ -40970,7 +40970,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L112",
-      "community": 399,
+      "community": 349,
       "norm_label": "tests for connection pool configuration",
       "id": "tests_test_stocks_optimization_rationale_112"
     },
@@ -40979,7 +40979,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L115",
-      "community": 399,
+      "community": 349,
       "norm_label": "stocks engine should have optimized pool settings",
       "id": "tests_test_stocks_optimization_rationale_115"
     },
@@ -40988,7 +40988,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L124",
-      "community": 399,
+      "community": 349,
       "norm_label": "tests for lazy json deserialization",
       "id": "tests_test_stocks_optimization_rationale_124"
     },
@@ -40997,7 +40997,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L127",
-      "community": 399,
+      "community": 349,
       "norm_label": "query manager should have deserialize method",
       "id": "tests_test_stocks_optimization_rationale_127"
     },
@@ -41096,7 +41096,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L302",
-      "community": 439,
+      "community": 349,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_optimization_rationale_302"
     },
@@ -41105,7 +41105,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L305",
-      "community": 439,
+      "community": 349,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_optimization_rationale_305"
     },
@@ -41114,7 +41114,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L311",
-      "community": 399,
+      "community": 457,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_optimization_rationale_311"
     },
@@ -41123,7 +41123,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L314",
-      "community": 399,
+      "community": 457,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_optimization_rationale_314"
     },
@@ -41141,7 +41141,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L173",
-      "community": 439,
+      "community": 349,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_optimization_rationale_173"
     },
@@ -41150,7 +41150,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L176",
-      "community": 439,
+      "community": 349,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_optimization_rationale_176"
     },
@@ -41159,7 +41159,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L182",
-      "community": 399,
+      "community": 457,
       "norm_label": "performance tests for query operations",
       "id": "tests_test_stocks_optimization_rationale_182"
     },
@@ -41168,7 +41168,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L185",
-      "community": 399,
+      "community": 457,
       "norm_label": "query should respond within 1 second",
       "id": "tests_test_stocks_optimization_rationale_185"
     },
@@ -41451,7 +41451,7 @@
       "label": "FastAPI",
       "file_type": "rationale",
       "source_file": "README.md",
-      "community": 381,
+      "community": 345,
       "norm_label": "fastapi",
       "id": "fastapi"
     },
@@ -64861,9 +64861,9 @@
       "source_file": "tests/test_agent_state_integration.py",
       "source_location": "L188",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_agent_state_integration_rationale_188",
-      "target": "tests_test_agent_state_integration_testsystempromptstateinstructions_test_system_prompt_has_harness_state_section",
-      "confidence_score": 1.0
+      "target": "tests_test_agent_state_integration_testsystempromptstateinstructions_test_system_prompt_has_harness_state_section"
     },
     {
       "relation": "rationale_for",
@@ -64891,9 +64891,9 @@
       "source_file": "tests/test_agent_state_integration.py",
       "source_location": "L196",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_agent_state_integration_rationale_196",
-      "target": "tests_test_agent_state_integration_testsystempromptstateinstructions_test_system_prompt_has_memory_sync_section",
-      "confidence_score": 1.0
+      "target": "tests_test_agent_state_integration_testsystempromptstateinstructions_test_system_prompt_has_memory_sync_section"
     },
     {
       "relation": "rationale_for",
@@ -69134,9 +69134,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1043",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1043",
-      "target": "tests_test_controllers_coverage_testprometheuschat_test_chat_existing_session_verified",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testprometheuschat_test_chat_existing_session_verified"
     },
     {
       "relation": "rationale_for",
@@ -69195,9 +69195,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1086",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1086",
-      "target": "tests_test_controllers_coverage_testprometheuschat_test_chat_existing_session_not_owner",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testprometheuschat_test_chat_existing_session_not_owner"
     },
     {
       "relation": "rationale_for",
@@ -69256,9 +69256,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1122",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1122",
-      "target": "tests_test_controllers_coverage_testprometheuschat_test_chat_generic_exception",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testprometheuschat_test_chat_generic_exception"
     },
     {
       "relation": "rationale_for",
@@ -69316,9 +69316,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1145",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1145",
-      "target": "tests_test_controllers_coverage_teststocksapihealth",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_teststocksapihealth"
     },
     {
       "relation": "rationale_for",
@@ -69376,9 +69376,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1159",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1159",
-      "target": "tests_test_controllers_coverage_teststocksapihistorical",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_teststocksapihistorical"
     },
     {
       "relation": "rationale_for",
@@ -69436,9 +69436,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1173",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1173",
-      "target": "tests_test_controllers_coverage_teststocksapifundamental",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_teststocksapifundamental"
     },
     {
       "relation": "rationale_for",
@@ -69516,9 +69516,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1187",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1187",
-      "target": "tests_test_controllers_coverage_teststocksapigeneratekey",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_teststocksapigeneratekey"
     },
     {
       "relation": "rationale_for",
@@ -69566,9 +69566,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1195",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1195",
-      "target": "tests_test_controllers_coverage_teststocksapigeneratekey_test_generate_key_permission_error",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_teststocksapigeneratekey_test_generate_key_permission_error"
     },
     {
       "relation": "rationale_for",
@@ -69616,9 +69616,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1203",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1203",
-      "target": "tests_test_controllers_coverage_teststocksapigeneratekey_test_generate_key_admin_bypasses_permission_check",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_teststocksapigeneratekey_test_generate_key_admin_bypasses_permission_check"
     },
     {
       "relation": "rationale_for",
@@ -69666,9 +69666,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1215",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1215",
-      "target": "tests_test_controllers_coverage_teststocksapigeneratekey_test_generate_key_exception",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_teststocksapigeneratekey_test_generate_key_exception"
     },
     {
       "relation": "rationale_for",
@@ -69746,9 +69746,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1230",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1230",
-      "target": "tests_test_controllers_coverage_testaddroletouser",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testaddroletouser"
     },
     {
       "relation": "rationale_for",
@@ -69796,9 +69796,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1233",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1233",
-      "target": "tests_test_controllers_coverage_testaddroletouser_test_add_role_success",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testaddroletouser_test_add_role_success"
     },
     {
       "relation": "rationale_for",
@@ -69846,9 +69846,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1250",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1250",
-      "target": "tests_test_controllers_coverage_testaddroletouser_test_add_role_already_has_role",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testaddroletouser_test_add_role_already_has_role"
     },
     {
       "relation": "rationale_for",
@@ -69896,9 +69896,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1264",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1264",
-      "target": "tests_test_controllers_coverage_testaddroletouser_test_add_role_user_not_found",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testaddroletouser_test_add_role_user_not_found"
     },
     {
       "relation": "rationale_for",
@@ -70016,9 +70016,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1276",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1276",
-      "target": "tests_test_controllers_coverage_testgetcurrentuser",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testgetcurrentuser"
     },
     {
       "relation": "rationale_for",
@@ -70076,9 +70076,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1283",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1283",
-      "target": "tests_test_controllers_coverage_testgetcurrentuser_test_get_current_user_valid_session",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testgetcurrentuser_test_get_current_user_valid_session"
     },
     {
       "relation": "rationale_for",
@@ -70136,9 +70136,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1308",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1308",
-      "target": "tests_test_controllers_coverage_testgetcurrentuser_test_get_current_user_session_revoked",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testgetcurrentuser_test_get_current_user_session_revoked"
     },
     {
       "relation": "rationale_for",
@@ -70196,9 +70196,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1324",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1324",
-      "target": "tests_test_controllers_coverage_testgetcurrentuser_test_get_current_user_not_found",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testgetcurrentuser_test_get_current_user_not_found"
     },
     {
       "relation": "rationale_for",
@@ -70256,9 +70256,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1341",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1341",
-      "target": "tests_test_controllers_coverage_testgetcurrentuser_test_get_current_user_generic_exception",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testgetcurrentuser_test_get_current_user_generic_exception"
     },
     {
       "relation": "rationale_for",
@@ -70316,9 +70316,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1358",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1358",
-      "target": "tests_test_controllers_coverage_testgetcurrentuser_test_get_current_user_no_session_id",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testgetcurrentuser_test_get_current_user_no_session_id"
     },
     {
       "relation": "rationale_for",
@@ -70386,9 +70386,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1382",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1382",
-      "target": "tests_test_controllers_coverage_testhashpasswordempty",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testhashpasswordempty"
     },
     {
       "relation": "rationale_for",
@@ -70466,9 +70466,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1392",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1392",
-      "target": "tests_test_controllers_coverage_testverifyaccesstoken",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testverifyaccesstoken"
     },
     {
       "relation": "rationale_for",
@@ -70526,9 +70526,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1395",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1395",
-      "target": "tests_test_controllers_coverage_testverifyaccesstoken_test_expired_token",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testverifyaccesstoken_test_expired_token"
     },
     {
       "relation": "rationale_for",
@@ -70586,9 +70586,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1411",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1411",
-      "target": "tests_test_controllers_coverage_testverifyaccesstoken_test_invalid_token",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testverifyaccesstoken_test_invalid_token"
     },
     {
       "relation": "rationale_for",
@@ -70656,9 +70656,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1423",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1423",
-      "target": "tests_test_controllers_coverage_testextracttokenpayloadreraise",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testextracttokenpayloadreraise"
     },
     {
       "relation": "rationale_for",
@@ -70716,9 +70716,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1426",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1426",
-      "target": "tests_test_controllers_coverage_testextracttokenpayloadreraise_test_http_exception_from_verify_propagates",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testextracttokenpayloadreraise_test_http_exception_from_verify_propagates"
     },
     {
       "relation": "rationale_for",
@@ -70786,9 +70786,9 @@
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1442",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_controllers_coverage_rationale_1442",
-      "target": "tests_test_controllers_coverage_testmanagerinit",
-      "confidence_score": 1.0
+      "target": "tests_test_controllers_coverage_testmanagerinit"
     },
     {
       "relation": "rationale_for",
@@ -76499,9 +76499,9 @@
       "source_file": "tests/test_prometheus_auth_coverage.py",
       "source_location": "L246",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_prometheus_auth_coverage_rationale_246",
-      "target": "tests_test_prometheus_auth_coverage_testprometheuschatmanager",
-      "confidence_score": 1.0
+      "target": "tests_test_prometheus_auth_coverage_testprometheuschatmanager"
     },
     {
       "relation": "rationale_for",
@@ -76669,9 +76669,9 @@
       "source_file": "tests/test_prometheus_auth_coverage.py",
       "source_location": "L470",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_prometheus_auth_coverage_rationale_470",
-      "target": "tests_test_prometheus_auth_coverage_testauthenticationmanager",
-      "confidence_score": 1.0
+      "target": "tests_test_prometheus_auth_coverage_testauthenticationmanager"
     },
     {
       "relation": "rationale_for",
@@ -76909,9 +76909,9 @@
       "source_file": "tests/test_prometheus_auth_coverage.py",
       "source_location": "L647",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_prometheus_auth_coverage_rationale_647",
-      "target": "tests_test_prometheus_auth_coverage_testsessionmanager",
-      "confidence_score": 1.0
+      "target": "tests_test_prometheus_auth_coverage_testsessionmanager"
     },
     {
       "relation": "rationale_for",
@@ -76979,9 +76979,9 @@
       "source_file": "tests/test_prometheus_auth_coverage.py",
       "source_location": "L882",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_prometheus_auth_coverage_rationale_882",
-      "target": "tests_test_prometheus_auth_coverage_testsessionmanager_test_validate_session_expired_naive_tz",
-      "confidence_score": 1.0
+      "target": "tests_test_prometheus_auth_coverage_testsessionmanager_test_validate_session_expired_naive_tz"
     },
     {
       "relation": "rationale_for",
@@ -77039,9 +77039,9 @@
       "source_file": "tests/test_prometheus_auth_coverage.py",
       "source_location": "L896",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_prometheus_auth_coverage_rationale_896",
-      "target": "tests_test_prometheus_auth_coverage_testsessionmanager_test_validate_session_no_expiry",
-      "confidence_score": 1.0
+      "target": "tests_test_prometheus_auth_coverage_testsessionmanager_test_validate_session_no_expiry"
     },
     {
       "relation": "rationale_for",
@@ -77099,9 +77099,9 @@
       "source_file": "tests/test_prometheus_auth_coverage.py",
       "source_location": "L915",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_prometheus_auth_coverage_rationale_915",
-      "target": "tests_test_prometheus_auth_coverage_testsso",
-      "confidence_score": 1.0
+      "target": "tests_test_prometheus_auth_coverage_testsso"
     },
     {
       "relation": "rationale_for",
@@ -92740,6 +92740,136 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
+      "source_location": "L38",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "main_utils_models_all_minilm_l6_v2_readme_md",
+      "target": "all_minilm_l6_v2_readme_all_minilm_l6_v2"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
+      "source_location": "L41",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "all_minilm_l6_v2_readme_all_minilm_l6_v2",
+      "target": "all_minilm_l6_v2_readme_usage_sentence_transformers"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
+      "source_location": "L58",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "all_minilm_l6_v2_readme_all_minilm_l6_v2",
+      "target": "all_minilm_l6_v2_readme_usage_huggingface_transformers"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
+      "source_location": "L99",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "all_minilm_l6_v2_readme_all_minilm_l6_v2",
+      "target": "all_minilm_l6_v2_readme_background"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
+      "source_location": "L110",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "all_minilm_l6_v2_readme_all_minilm_l6_v2",
+      "target": "all_minilm_l6_v2_readme_intended_uses"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
+      "source_location": "L118",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "all_minilm_l6_v2_readme_all_minilm_l6_v2",
+      "target": "all_minilm_l6_v2_readme_training_procedure"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
+      "source_location": "L44",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "all_minilm_l6_v2_readme_usage_sentence_transformers",
+      "target": "all_minilm_l6_v2_readme_codeblock_1"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
+      "source_location": "L49",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "all_minilm_l6_v2_readme_usage_sentence_transformers",
+      "target": "all_minilm_l6_v2_readme_codeblock_2"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
+      "source_location": "L61",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "all_minilm_l6_v2_readme_usage_huggingface_transformers",
+      "target": "all_minilm_l6_v2_readme_codeblock_3"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
+      "source_location": "L120",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "all_minilm_l6_v2_readme_training_procedure",
+      "target": "all_minilm_l6_v2_readme_pre_training"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
+      "source_location": "L124",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "all_minilm_l6_v2_readme_training_procedure",
+      "target": "all_minilm_l6_v2_readme_fine_tuning"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
+      "source_location": "L129",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "all_minilm_l6_v2_readme_fine_tuning",
+      "target": "all_minilm_l6_v2_readme_hyper_parameters"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
+      "source_location": "L135",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "all_minilm_l6_v2_readme_fine_tuning",
+      "target": "all_minilm_l6_v2_readme_training_data"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "docs/superpowers/plans/2026-07-17-prometheus-forgevm-sandbox.md",
       "source_location": "L1",
       "weight": 1.0,
@@ -93476,136 +93606,6 @@
       "confidence_score": 1.0,
       "source": "plans_task_1_report_commits",
       "target": "plans_task_1_report_codeblock_2"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
-      "source_location": "L38",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "main_utils_models_all_minilm_l6_v2_readme_md",
-      "target": "all_minilm_l6_v2_readme_all_minilm_l6_v2"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
-      "source_location": "L41",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "all_minilm_l6_v2_readme_all_minilm_l6_v2",
-      "target": "all_minilm_l6_v2_readme_usage_sentence_transformers"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
-      "source_location": "L58",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "all_minilm_l6_v2_readme_all_minilm_l6_v2",
-      "target": "all_minilm_l6_v2_readme_usage_huggingface_transformers"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
-      "source_location": "L99",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "all_minilm_l6_v2_readme_all_minilm_l6_v2",
-      "target": "all_minilm_l6_v2_readme_background"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
-      "source_location": "L110",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "all_minilm_l6_v2_readme_all_minilm_l6_v2",
-      "target": "all_minilm_l6_v2_readme_intended_uses"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
-      "source_location": "L118",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "all_minilm_l6_v2_readme_all_minilm_l6_v2",
-      "target": "all_minilm_l6_v2_readme_training_procedure"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
-      "source_location": "L44",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "all_minilm_l6_v2_readme_usage_sentence_transformers",
-      "target": "all_minilm_l6_v2_readme_codeblock_1"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
-      "source_location": "L49",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "all_minilm_l6_v2_readme_usage_sentence_transformers",
-      "target": "all_minilm_l6_v2_readme_codeblock_2"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
-      "source_location": "L61",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "all_minilm_l6_v2_readme_usage_huggingface_transformers",
-      "target": "all_minilm_l6_v2_readme_codeblock_3"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
-      "source_location": "L120",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "all_minilm_l6_v2_readme_training_procedure",
-      "target": "all_minilm_l6_v2_readme_pre_training"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
-      "source_location": "L124",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "all_minilm_l6_v2_readme_training_procedure",
-      "target": "all_minilm_l6_v2_readme_fine_tuning"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
-      "source_location": "L129",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "all_minilm_l6_v2_readme_fine_tuning",
-      "target": "all_minilm_l6_v2_readme_hyper_parameters"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/utils/models/all-MiniLM-L6-v2/README.md",
-      "source_location": "L135",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "all_minilm_l6_v2_readme_fine_tuning",
-      "target": "all_minilm_l6_v2_readme_training_data"
     },
     {
       "relation": "contains",
@@ -106021,5 +106021,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "b2e38f612eb4c7b116a54c771a60bc7afecdf764"
+  "built_at_commit": "354a2887686a56b2225abb4d24908290f1d50e62"
 }

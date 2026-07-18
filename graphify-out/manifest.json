@@ -675,8 +675,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\TODO.md": {
-    "mtime": 1784338949.773463,
-    "ast_hash": "ddb5fd710343f88b63d05786d42b0706",
+    "mtime": 1784345215.0652356,
+    "ast_hash": "780154040aab776b6f1e31c3a621287d",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docs\\authentication.md": {
@@ -702,21 +702,6 @@
   "D:\\Repositories\\server\\docs\\user.md": {
     "mtime": 1782691503.0008502,
     "ast_hash": "a747b8dce6f5be90f82ace23efd8961a",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-07-17-prometheus-forgevm-sandbox.md": {
-    "mtime": 1784265611.3285625,
-    "ast_hash": "b4b25499c0bb10fc500e811c6f59de44",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-07-17-sandbox-persistence.md": {
-    "mtime": 1784313047.1431932,
-    "ast_hash": "3f67dae00ee934d76c2d6648f5755539",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\docs\\superpowers\\plans\\task-1-report.md": {
-    "mtime": 1784313407.9458194,
-    "ast_hash": "f7ddbd1d675d5b0c8a2e392a25673fe5",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\index.html": {
