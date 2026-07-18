@@ -205,6 +205,12 @@ class Prometheus:
         )
 
     async def streamMessage(self, query=None, sessionId=None, db=None, user=None) -> AsyncIterator[dict]:
+        # R1: summarize BEFORE getHistory so this turn benefits from trimmed context
+        try:
+            PrometheusSummarizer().summarize(db, str(sessionId))
+        except Exception:
+            logger.debug("Pre-turn summarization skipped", exc_info=True)
+
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
         state = HarnessState()
         loop = LoopLogger(history)
@@ -287,13 +293,5 @@ class Prometheus:
             PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
             if fullText:
                 PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", fullText)
-
-            try:
-                session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
-
-                if session and session.history and len(session.history) % 50 == 0:
-                    PrometheusSummarizer().summarize(db, str(sessionId))
-            except Exception:
-                logger.debug("Summarization skipped", exc_info=True)
         finally:
             loop.flush()
