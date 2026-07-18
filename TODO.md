@@ -1,5 +1,6 @@
 - [ ] Context compressing methods
-- [ ] Observable Agent Loop
+- [ ] Tool compressing methods (or caching the big outputs in a non persistant mount in the sandbox, that is then referenced as a file by the agent instead of a raw output)
+- [ ] Auto consolidating memories after n number of messages
 - [ ] Upload and Serve endpoints for files in the workspace
 - [ ] Make the user able to manage their files in the workspace via endpoints related to workspace management /worksapce
 - [ ] Make my own Tokenizer tailored for financial speech

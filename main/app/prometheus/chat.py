@@ -1,13 +1,13 @@
 import logging
-from main.models import PrometheusSession
 from datetime import datetime
-from sqlalchemy.orm import Session
-from sqlalchemy.orm.attributes import flag_modified
 import uuid
 
-logger = logging.getLogger(__name__)
+from sqlalchemy.orm import Session
+from sqlalchemy.orm.attributes import flag_modified
 
-MAX_HISTORY_MESSAGES = 500
+from main.models import PrometheusSession
+
+logger = logging.getLogger(__name__)
 
 
 class PrometheusChatManager:
@@ -65,10 +65,6 @@ class PrometheusChatManager:
 
             session.history.append(message)
 
-            # Trim unbounded history growth
-            if len(session.history) > MAX_HISTORY_MESSAGES:
-                session.history = session.history[-MAX_HISTORY_MESSAGES:]  # type: ignore[assignment]
-
             flag_modified(session, "history")
 
             session.lastActivity = datetime.now()  # type: ignore[assignment]
@@ -91,13 +87,6 @@ class PrometheusChatManager:
                 {"role": "user" if msg["role"] == "user" else "model", "parts": [{"text": msg["content"]}]}
             )
         return formattedHistory
-
-    @classmethod
-    def updateSummary(cls, db: Session, sessionId: str, summary: str):
-        session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
-        if session:
-            session.summary = summary  # type: ignore[assignment]
-            db.commit()
 
     @classmethod
     def deleteSession(cls, db: Session, sessionId: str, userId: int):

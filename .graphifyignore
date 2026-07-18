@@ -13,3 +13,6 @@ node_modules
 package.json
 package-lock.json
 bun.lock
+
+tests/
+main/utils/models/all-MiniLM-L6-v2

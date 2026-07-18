@@ -5,33 +5,33 @@ logger = logging.getLogger(__name__)
 
 class HarnessState:
     def __init__(self):
-        self._data: dict = {}
-        self._changed: bool = False
+        self.data: dict = {}
+        self.changed: bool = False
 
     def get(self, key: str, default=None):
-        return self._data.get(key, default)
+        return self.data.get(key, default)
 
     def set(self, key: str, value) -> None:
-        self._data[key] = value
-        self._changed = True
+        self.data[key] = value
+        self.changed = True
 
     def to_dict(self) -> dict:
-        return dict(self._data)
+        return dict(self.data)
 
     def to_context(self) -> str:
-        if not self._data:
+        if not self.data:
             return ""
-        return "\n".join(f"- {k}: {v}" for k, v in self._data.items())
+        return "\n".join(f"- {k}: {v}" for k, v in self.data.items())
 
-    def has_changed(self) -> bool:
-        return self._changed
+    def haschanged(self) -> bool:
+        return self.changed
 
-    def reset_changed(self) -> bool:
-        was_changed = self._changed
-        self._changed = False
+    def resetchanged(self) -> bool:
+        wasChanged = self.changed
+        self.changed = False
 
-        return was_changed
+        return wasChanged
 
     def clear(self) -> None:
-        self._data.clear()
-        self._changed = False
+        self.data.clear()
+        self.changed = False

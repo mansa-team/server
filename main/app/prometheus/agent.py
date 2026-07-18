@@ -1,4 +1,6 @@
+import json
 import logging
+from config import Config
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -7,9 +9,12 @@ from google import genai
 from google.genai import types
 import google.genai._mcp_utils as _mcp
 
-from config import Config
+
+from main.models.prometheus import PrometheusSession
 from main.models.memory import PrometheusMemory
+
 from main.app.prometheus.chat import PrometheusChatManager
+from main.app.prometheus.summarizer import PrometheusSummarizer
 from main.app.prometheus.events import LoopLogger
 from main.app.prometheus.sandbox import SandboxManager
 from main.app.prometheus.state import HarnessState
@@ -119,7 +124,8 @@ You have access to an isolated Python sandbox for quantitative analysis.
 The sandbox is created automatically when you first call execute_code.
 
 Use execute_code for: statistical analysis, DCF models, correlation matrices,
-Monte Carlo simulations, custom charts, data transformations.
+Monte Carlo simulations, custom charts that are not avaliable in the current definitions,
+data transformations and more.
 
 Use write_file to push data files (CSV, JSON) into the sandbox before running code.
 Use read_file to read results from the sandbox.
@@ -127,10 +133,6 @@ Use list_files to explore the workspace.
 
 Access stock data via MCP tools (get_fundamental, get_historical, get_cotations)
 before running sandbox code — pass the data as variables in your code.
-
-Libraries available: pandas, numpy, scipy, plotly, matplotlib, requests.
-Save charts to /workspace/ as .html (plotly) or .png (matplotlib).
-Always print() key findings so they appear in stdout.
 """
 
 
@@ -139,7 +141,9 @@ class Prometheus:
         self.client = genai.Client(api_key=Config.PROMETHEUS["GEMINI_API.KEY"])
 
     @classmethod
-    def buildSystemPrompt(cls, userId: int | None = None, db=None, state: HarnessState | None = None) -> str:
+    def buildSystemPrompt(
+        cls, userId: int | None = None, db=None, state: HarnessState | None = None, sessionId: str | None = None
+    ) -> str:
         memoryBlock = ""
         if userId and db:
             memories = (
@@ -153,9 +157,29 @@ class Prometheus:
             if memories:
                 memoryBlock = "\n".join(f"- [{m.memoryType}] {m.memoryKey}: {m.memoryValue}" for m in memories)
 
+        episodeBlock = ""
+        if sessionId and db:
+            try:
+                session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
+                if session and session.summary:
+                    episodes = json.loads(session.summary)
+                    if isinstance(episodes, list) and episodes:
+                        lines = []
+                        for ep in episodes[-3:]:
+                            text = ep.get("summary", "")
+                            decisions = ep.get("keyDecisions", [])
+                            if decisions:
+                                text += f" Decisões: {'; '.join(decisions)}"
+                            lines.append(f"- {text}")
+                        episodeBlock = "\n".join(lines)
+            except Exception:
+                pass
+
         sections = [SYSTEM_PROMPT]
+        if episodeBlock:
+            sections.append(f"\n[HISTÓRICO DA SESSÃO]\n{episodeBlock}")
         if memoryBlock:
-            sections.append(f"\n[MEMÓRIAS DO USUÁRIO]\n{memoryBlock}")
+            sections.append(f"\n[MEMÓRIAS DO USUÁRIO]\n{memoryBlock}\n[/MEMÓRIAS DO USUÁRIO]")
         if state and state.to_context():
             sections.append(f"\n[HARNESS STATE]\n{state.to_context()}\n[/HARNESS STATE]")
         return "".join(sections)
@@ -171,7 +195,7 @@ class Prometheus:
 
     def makeChat(self, sessions, history, *, system_prompt=None, disable_automatic_function_calling=False):
         all_tools = list(sessions) + list(TOOL_REGISTRY.values())
-        kwargs = dict(system_instruction=system_prompt, tools=all_tools, temperature=0.5)
+        kwargs = dict(system_instruction=system_prompt, tools=all_tools, temperature=0.5, max_output_tokens=65536)
         if disable_automatic_function_calling:
             kwargs["automatic_function_calling"] = types.AutomaticFunctionCallingConfig(disable=True)
         return self.client.aio.chats.create(
@@ -182,7 +206,9 @@ class Prometheus:
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
         state = HarnessState()
         loop = LoopLogger(history)
-        system_prompt = Prometheus.buildSystemPrompt(user.get("userId") if user else None, db, state=state)
+        system_prompt = Prometheus.buildSystemPrompt(
+            user.get("userId") if user else None, db, state=state, sessionId=str(sessionId) if sessionId else None
+        )
 
         try:
             async with self.openMCPClients() as (mcpClients, sessions):
@@ -236,11 +262,11 @@ class Prometheus:
                         yield {"type": "tool_result", "tool": fc.name, "result": result, "turn": turn}
                         responses.append(types.Part.from_function_response(name=fc.name, response=result))
 
-                    if state.has_changed():
+                    if state.haschanged():
                         responses.append(
                             types.Part.from_text(text=f"\n[HARNESS STATE]\n{state.to_context()}\n[/HARNESS STATE]")
                         )
-                        state.reset_changed()
+                        state.resetchanged()
 
                     loop.emit_turn_end(
                         turnNumber=turn,
@@ -259,5 +285,13 @@ class Prometheus:
             PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
             if fullText:
                 PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", fullText)
+
+            try:
+                session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
+
+                if session and session.history and len(session.history) % 50 == 0:
+                    PrometheusSummarizer().summarize(db, str(sessionId))
+            except Exception:
+                logger.debug("Summarization skipped", exc_info=True)
         finally:
             loop.flush()

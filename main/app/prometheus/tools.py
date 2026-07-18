@@ -1,9 +1,9 @@
 import logging
+from config import SessionLocal
 from typing import Any
 
 from forgevm.exceptions import SandboxNotFound
 
-from config import SessionLocal
 from main.app.prometheus.memory import PrometheusMemory
 from main.app.prometheus.sandbox import SandboxManager
 from main.app.prometheus.vector import embed
