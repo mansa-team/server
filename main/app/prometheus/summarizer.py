@@ -9,7 +9,6 @@ from google import genai
 from google.genai import types
 
 from sqlalchemy.orm import Session as DBSession
-from sqlalchemy.orm.attributes import flag_modified
 
 from config import Config
 from main.models import PrometheusSession
@@ -62,7 +61,7 @@ class PrometheusSummarizer:
     def summarize(self, db: DBSession, sessionId: str) -> dict | None:
         session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
 
-        if not session or not session.history or len(session.history) < 20:
+        if not session or not session.history or len(session.history) < 50 or len(session.history) % 50 > 1:
             return None
 
         history: list[dict] = session.history  # type: ignore[assignment]
@@ -102,9 +101,6 @@ class PrometheusSummarizer:
         existing.append(obj)
 
         session.summary = json.dumps(existing[-20:])  # type: ignore[assignment]
-        session.history = session.history[-20:]  # type: ignore[assignment]
-        flag_modified(session, "history")
-
         db.commit()
 
         return obj

@@ -1,4 +1,4 @@
-"""Tests for PrometheusSummarizer: R5 (smart truncation), R1 (trim), edge cases."""
+"""Tests for PrometheusSummarizer: R5 (smart truncation), summarization trigger, edge cases."""
 
 import json
 import pytest
@@ -21,7 +21,7 @@ def fake_session_with_45_messages(db_session):
         userId=1,
         title="Test",
         history=[
-            {"role": "user", "content": f"Message {i}", "timestamp": datetime.now().isoformat()} for i in range(45)
+            {"role": "user", "content": f"Message {i}", "timestamp": datetime.now().isoformat()} for i in range(50)
         ],
     )
     db_session.add(session)
@@ -92,10 +92,10 @@ class TestEpisodeAccumulation:
 
         summarizer = PrometheusSummarizer()
         ep1 = summarizer.summarize(db_session, fake_session_with_45_messages.sessionId)
-        # After first summarize: history trimmed to 20
-        # Simulate new messages growing back to 50
+        # After first summarize: history untouched at 50
+        # Simulate new messages growing to 100 (next % 50 boundary)
         fake_session_with_45_messages.history = [
-            {"role": "user", "content": f"Msg {i}", "timestamp": datetime.now().isoformat()} for i in range(50)
+            {"role": "user", "content": f"Msg {i}", "timestamp": datetime.now().isoformat()} for i in range(100)
         ]
         db_session.commit()
         ep2 = summarizer.summarize(db_session, fake_session_with_45_messages.sessionId)
@@ -112,7 +112,7 @@ class TestEpisodeAccumulation:
 
 class TestSummarizeTrimsHistory:
     @patch("main.app.prometheus.summarizer.genai.Client")
-    def test_summarize_trims_history_to_20(self, mock_genai, db_session, fake_session_with_45_messages):
+    def test_summarize_does_not_trim_history(self, mock_genai, db_session, fake_session_with_45_messages):
         mock_resp = MagicMock()
         mock_resp.parsed = {
             "summary": "Test summary",
@@ -127,7 +127,8 @@ class TestSummarizeTrimsHistory:
         db_session.refresh(fake_session_with_45_messages)
 
         assert result is not None
-        assert len(fake_session_with_45_messages.history) == 20
+        # History is NOT trimmed — full conversation preserved for frontend
+        assert len(fake_session_with_45_messages.history) == 50
         assert len(summarizer.getEpisodes(db_session, fake_session_with_45_messages.sessionId)) == 1
 
     def test_no_summarize_under_20_messages(self, db_session):
@@ -203,7 +204,7 @@ class TestSummarizeEdgeCases:
             userId=1,
             title="Cap",
             history=[
-                {"role": "user", "content": f"Msg {i}", "timestamp": datetime.now().isoformat()} for i in range(25)
+                {"role": "user", "content": f"Msg {i}", "timestamp": datetime.now().isoformat()} for i in range(50)
             ],
             summary=json.dumps(episodes),
         )
