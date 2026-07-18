@@ -205,10 +205,11 @@ class Prometheus:
         )
 
     async def streamMessage(self, query=None, sessionId=None, db=None, user=None) -> AsyncIterator[dict]:
-        # R1: summarize BEFORE getHistory so current turn benefits, but only when history is long enough
+        # R1: summarize BEFORE getHistory so current turn benefits from trimmed context.
+        # Only fire when history hits 50 (the getHistory limit) — compress 50 into episode, trim to 20.
         try:
             session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
-            if session and session.history and len(session.history) >= 20:
+            if session and session.history and len(session.history) >= 50:
                 PrometheusSummarizer().summarize(db, str(sessionId))
         except Exception:
             logger.debug("Pre-turn summarization skipped", exc_info=True)
