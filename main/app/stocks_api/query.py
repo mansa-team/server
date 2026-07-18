@@ -54,7 +54,7 @@ def filterCotationColumn(series: pd.Series, startDate, endDate) -> pd.Series:
 
     result = [entries if not isinstance(entries, list) else [] for entries in series]
     for rowIdx, group in filtered.groupby("_rowIdx"):
-        result[int(rowIdx)] = group.drop(columns="_rowIdx").toDict(orient="records")
+        result[int(rowIdx)] = group.drop(columns="_rowIdx").to_dict(orient="records")
 
     return pd.Series(result, index=series.index)
 
@@ -188,7 +188,7 @@ class StocksQueryManager:
                 "dates": [yearStart, yearEnd],
                 "type": "historical",
                 "count": len(df),
-                "data": sanitizeNanValues(df.toDict(orient="records")),
+                "data": sanitizeNanValues(df.to_dict(orient="records")),
             }
         except Exception as e:
             logger.exception("Cached historical query failed")
@@ -275,7 +275,7 @@ class StocksQueryManager:
                 "dates": dates,
                 "type": "fundamental",
                 "count": len(df),
-                "data": sanitizeNanValues(df.toDict(orient="records")),
+                "data": sanitizeNanValues(df.to_dict(orient="records")),
             }
         except HTTPException:
             raise
@@ -328,7 +328,7 @@ class StocksQueryManager:
                 "dates": dates,
                 "type": "cotations",
                 "count": len(df),
-                "data": sanitizeNanValues(df.toDict(orient="records")),
+                "data": sanitizeNanValues(df.to_dict(orient="records")),
             }
         except HTTPException:
             raise
@@ -372,7 +372,7 @@ class StocksQueryManager:
             "type": "realtime-cotation",
             "timestamp": dtTm,
             "count": len(df),
-            "data": df.toDict(orient="records"),
+            "data": df.to_dict(orient="records"),
         }
 
 
