@@ -82,6 +82,7 @@ class PrometheusSummarizer:
                     response_mime_type="application/json",
                     response_schema=RESPONSE_SCHEMA,
                     max_output_tokens=256,
+                    temperature=0.0
                 ),
             )
             episode: dict = resp.parsed  # type: ignore[assignment]

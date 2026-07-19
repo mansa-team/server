@@ -1,7 +1,7 @@
 # Graph Report - server  (2026-07-18)
 
 ## Corpus Check
-- 81 files · ~27,823 words
+- 81 files · ~27,824 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `38c7542c`
+- Built from commit: `c7e6358b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -738,7 +738,7 @@ Nodes (21): _applyUpdate(), archiveDead(), count_memories(), countMemories(), de
 
 ### Community 54 - "Community 54"
 Cohesion: 0.09
-Nodes (13): MemoryManager, All memory operations. Stateless class methods., Non-extended role gets basic limit., Soft-deletes a memory., Returns False for non-existent memory., Cannot delete another user's memory., Premium user gets extended limit., Admin gets extended limit (has all permissions). (+5 more)
+Nodes (13): MemoryManager, All memory operations. Stateless class methods., Returns paginated memories., Non-extended role gets basic limit., Offset and limit work., Archived memories excluded., Premium user gets extended limit., Admin gets extended limit (has all permissions). (+5 more)
 
 ### Community 55 - "Community 55"
 Cohesion: 0.09
@@ -773,8 +773,8 @@ Cohesion: 0.11
 Nodes (9): Store a value in state. Marks state as changed for context injection., _filterCotationByDate(), filterCotationData(), _parseCotationDate(), Fetch live prices for B3 tickers via yfinance.          B3 tickers must match, Parse DD-MM-YYYY from COTACAO 10Y JSON DATA field. ponytail: stdlib datetime onl, Filter COTACAO 10Y JSON entries by their inner DATA field (DD-MM-YYYY)., sanitizeNanValues() (+1 more)
 
 ### Community 64 - "Community 64"
-Cohesion: 0.07
-Nodes (18): Tests for connection pool configuration, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Query manager should have deserialize method, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Tests for dynamic ticker index feature, Ticker index should be built when cache is loaded (+10 more)
+Cohesion: 0.17
+Nodes (7): Tests for dynamic ticker index feature, Ticker index should be built when cache is loaded, Ticker index should contain all tickers from cache, Ticker index should be case-insensitive, Looking up ticker should return valid row index, Ticker index should be rebuilt when cache refreshes, TestTickerIndex
 
 ### Community 65 - "Community 65"
 Cohesion: 0.1
@@ -813,8 +813,8 @@ Cohesion: 0.11
 Nodes (13): Different query parameters should not share cache, Different query parameters should not share cache, Cache should expire after TTL, Cache should expire after TTL, Tests for query result caching, Tests for query result caching, CacheManager should track cached queries, CacheManager should track cached queries (+5 more)
 
 ### Community 75 - "Community 75"
-Cohesion: 0.09
-Nodes (17): Tests for connection pool configuration, Tests for connection pool configuration, Stocks engine should have optimized pool settings, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Tests for lazy JSON deserialization, Query manager should have deserialize method, Query manager should have deserialize method (+9 more)
+Cohesion: 0.11
+Nodes (15): Tests for connection pool configuration, Tests for connection pool configuration, Stocks engine should have optimized pool settings, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Tests for lazy JSON deserialization, Query manager should have deserialize method, Query manager should have deserialize method (+7 more)
 
 ### Community 76 - "Community 76"
 Cohesion: 0.11
@@ -1245,8 +1245,8 @@ Cohesion: 0.33
 Nodes (6): Integration: /stocks/historical must accept slash and dot fields., GET /historical?fields=P/L must not return 422., Integration: /stocks/historical must accept slash and dot fields., GET /historical?fields=P/L must not return 422., When tickers have different date coverage, each should get its closest snapshot., TestHistoricalFieldValidation
 
 ### Community 192 - "Community 192"
-Cohesion: 0.29
-Nodes (4): Returns paginated memories., Offset and limit work., Archived memories excluded., TestGetUserMemories
+Cohesion: 0.22
+Nodes (7): Integration tests for all query optimizations, Integration tests for all query optimizations, All optimizations should be implemented, All optimizations should be implemented, Query filter should use ticker index, Query filter should use ticker index, TestQueryOptimization
 
 ### Community 193 - "Community 193"
 Cohesion: 0.33
@@ -1353,8 +1353,8 @@ Cohesion: 0.4
 Nodes (5): model, continuing_subword_prefix, max_input_chars_per_word, type, unk_token
 
 ### Community 221 - "Community 221"
-Cohesion: 0.33
-Nodes (5): Performance tests for query operations, Query should respond within 1 second, Performance tests for query operations, Query should respond within 1 second, TestQueryPerformance
+Cohesion: 0.1
+Nodes (15): Tests for connection pool configuration, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Query manager should have deserialize method, Integration tests for all query optimizations, All optimizations should be implemented, Query filter should use ticker index, Performance tests for query operations (+7 more)
 
 ### Community 222 - "Community 222"
 Cohesion: 0.4
@@ -1505,8 +1505,8 @@ Cohesion: 0.33
 Nodes (5): Covers line 27: user already has the role., Covers line 27: user already has the role., Covers line 27: user already has the role., Covers line 27: user already has the role., Covers lines 42-44: session validation fails.
 
 ### Community 477 - "Community 477"
-Cohesion: 0.33
-Nodes (5): Tests for optimized search filtering, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Filter should use ticker index for O(1) lookup, TestFilterBySearchTerms
+Cohesion: 0.29
+Nodes (4): Soft-deletes a memory., Returns False for non-existent memory., Cannot delete another user's memory., TestDeleteMemory
 
 ### Community 478 - "Community 478"
 Cohesion: 0.33
@@ -1522,7 +1522,7 @@ Nodes (4): All four SPECIAL_COLS should parse correctly when mixed with None., A
 
 ### Community 481 - "Community 481"
 Cohesion: 0.33
-Nodes (4): Integration tests for all query optimizations, All optimizations should be implemented, Query filter should use ticker index, TestQueryOptimization
+Nodes (5): Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, TestFilterBySearchTerms
 
 ## Knowledge Gaps
 - **2374 isolated node(s):** `localStorageMock`, `chunkSizes`, `{ session, accumulated, lineCount, chunkIdx }`, `evilChunks`, `lines` (+2369 more)
@@ -1532,7 +1532,7 @@ Nodes (4): Integration tests for all query optimizations, All optimizations shou
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Pytest Testing` connect `Community 162` to `Community 1`, `Community 2`, `Community 129`, `Community 4`, `Community 130`, `Community 8`, `Community 138`, `Community 13`, `Community 18`, `Community 21`, `Community 24`, `Community 25`, `Community 27`, `Community 29`, `Community 32`, `Community 33`, `Community 38`, `Community 40`, `Community 169`, `Community 168`, `Community 44`, `Community 49`, `Community 51`, `Community 54`, `Community 55`, `Community 59`, `Community 64`, `Community 69`, `Community 75`, `Community 82`, `Community 89`, `Community 93`, `Community 96`, `Community 99`, `Community 100`, `Community 238`, `Community 239`, `Community 112`, `Community 115`, `Community 118`, `Community 122`, `Community 125`?**
+- **Why does `Pytest Testing` connect `Community 162` to `Community 1`, `Community 2`, `Community 129`, `Community 4`, `Community 130`, `Community 8`, `Community 138`, `Community 13`, `Community 18`, `Community 21`, `Community 24`, `Community 25`, `Community 27`, `Community 29`, `Community 32`, `Community 33`, `Community 38`, `Community 40`, `Community 169`, `Community 168`, `Community 44`, `Community 49`, `Community 51`, `Community 54`, `Community 55`, `Community 59`, `Community 69`, `Community 75`, `Community 82`, `Community 89`, `Community 93`, `Community 221`, `Community 96`, `Community 99`, `Community 100`, `Community 238`, `Community 239`, `Community 112`, `Community 115`, `Community 118`, `Community 122`, `Community 125`?**
   _High betweenness centrality (0.181) - this node is a cross-community bridge._
 - **Why does `UserManager` connect `Community 13` to `Community 130`, `Community 3`, `Community 7`, `Community 137`, `Community 10`, `Community 141`, `Community 14`, `Community 143`, `Community 16`, `Community 148`, `Community 149`, `Community 22`, `Community 152`, `Community 37`, `Community 47`, `Community 48`, `Community 50`, `Community 181`, `Community 56`, `Community 58`, `Community 61`, `Community 194`, `Community 68`, `Community 79`, `Community 211`, `Community 89`, `Community 478`, `Community 99`, `Community 104`, `Community 105`, `Community 106`?**
   _High betweenness centrality (0.068) - this node is a cross-community bridge._
