@@ -71,15 +71,12 @@ class StocksQueryManager:
 
         df = df.copy()
 
-        def cleanValue(val):
-            return sanitizeNanValues(val)
-
         def cleanJSON(obj):
             if isinstance(obj, dict):
                 return {k: cleanJSON(v) for k, v in obj.items()}
             if isinstance(obj, list):
                 return [cleanJSON(item) for item in obj]
-            return cleanValue(obj)
+            return sanitizeNanValues(obj)
 
         def parseJSON(x):
             try:
@@ -91,7 +88,9 @@ class StocksQueryManager:
             if col in self.SPECIAL_COLS and (df[col].dtype == "object" or pd.api.types.is_string_dtype(df[col])):
                 df[col] = df[col].apply(
                     lambda x: (
-                        cleanJSON(parseJSON(x)) if isinstance(x, str) and x.startswith(("{", "[")) else cleanValue(x)
+                        cleanJSON(parseJSON(x))
+                        if isinstance(x, str) and x.startswith(("{", "["))
+                        else sanitizeNanValues(x)
                     )
                 )
 
@@ -351,28 +350,22 @@ class StocksQueryManager:
             raise HTTPException(404, detail=f"Ticker {search.upper()} not found")
 
         dtTm = payload["Msg"]["dtTm"]
-        df = (
-            pd.DataFrame([payload["Trad"][0]["scty"]["SctyQtn"]])
-            .rename(
-                columns={
-                    "opngPric": "PRECO ORIGINAL",
-                    "minPric": "PRECO MINIMO",
-                    "maxPric": "PRECO MAXIMO",
-                    "avrgPric": "PRECO MEDIO",
-                    "curPrc": "PRECO ATUAL",
-                }
-            )
-            .drop(columns={"prcFlcn"})
-        )
-
-        df["TICKER"] = payload["Trad"][0]["scty"]["symb"]
+        raw = payload["Trad"][0]["scty"]["SctyQtn"]
+        data = {
+            "TICKER": payload["Trad"][0]["scty"]["symb"],
+            "PRECO ATUAL": raw.get("curPrc"),
+            "PRECO ORIGINAL": raw.get("opngPric"),
+            "PRECO MINIMO": raw.get("minPric"),
+            "PRECO MAXIMO": raw.get("maxPric"),
+            "PRECO MEDIO": raw.get("avrgPric"),
+        }
 
         return {
             "search": search.upper(),
             "type": "realtime-cotation",
             "timestamp": dtTm,
-            "count": len(df),
-            "data": df.to_dict(orient="records"),
+            "count": 1,
+            "data": [data],
         }
 
 

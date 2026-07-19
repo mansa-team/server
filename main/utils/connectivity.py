@@ -3,6 +3,7 @@ import time
 from requests.exceptions import ConnectionError, Timeout, RequestException
 from main.utils.http_session import getSession
 from sqlalchemy import text
+from sqlalchemy.exc import OperationalError
 
 from config import Config, engine, stocksEngine
 
@@ -21,7 +22,7 @@ def checkMySqlConnection():
             latency = (time.time() - startTime) * 1000
             logger.info(f"USER DB connected ({latency:.2f}ms)")
             userDb = True
-        except (ConnectionError, Timeout) as e:
+        except OperationalError as e:
             logger.error(f"USER DB connection failed: {e}")
         except Exception as e:
             logger.error(f"USER DB unexpected error: {e}")
@@ -37,7 +38,7 @@ def checkMySqlConnection():
             latency = (time.time() - startTime) * 1000
             logger.info(f"STOCKS DB connected ({latency:.2f}ms)")
             stocksDb = True
-        except (ConnectionError, Timeout) as e:
+        except OperationalError as e:
             logger.error(f"STOCKS DB connection failed: {e}")
         except Exception as e:
             logger.error(f"STOCKS DB unexpected error: {e}")

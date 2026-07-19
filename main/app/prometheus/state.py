@@ -6,14 +6,14 @@ logger = logging.getLogger(__name__)
 class HarnessState:
     def __init__(self):
         self.data: dict = {}
-        self.changed: bool = False
+        self._changed: bool = False
 
     def get(self, key: str, default=None):
         return self.data.get(key, default)
 
     def set(self, key: str, value) -> None:
         self.data[key] = value
-        self.changed = True
+        self._changed = True
 
     def toDict(self) -> dict:
         return dict(self.data)
@@ -24,14 +24,13 @@ class HarnessState:
         return "\n".join(f"- {k}: {v}" for k, v in self.data.items())
 
     def hasChanged(self) -> bool:
-        return self.changed
+        return self._changed
 
     def resetChanged(self) -> bool:
-        wasChanged = self.changed
-        self.changed = False
-
+        wasChanged = self._changed
+        self._changed = False
         return wasChanged
 
     def clear(self) -> None:
         self.data.clear()
-        self.changed = False
+        self._changed = False

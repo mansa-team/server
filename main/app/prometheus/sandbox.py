@@ -158,36 +158,6 @@ class SandboxManager:
         return await SandboxManager.execute(userId, code, newId, timeout, retried=True)
 
     @staticmethod
-    async def executeWithWorkspace(userId: int, code: str, timeout: int = 30) -> dict:
-        lock = lockFor(userId)
-        async with lock:
-            sandboxId = await SandboxManager.create(userId)
-            try:
-                syncIn = await SandboxManager.syncToSandbox(sandboxId, userId)
-                if syncIn:
-                    logger.info("Synced %d files to sandbox for user %d", syncIn, userId)
-
-                client = getClient()
-                try:
-                    sandbox = await client.get(sandboxId)
-                    result = await sandbox.exec(
-                        command="python3",
-                        args=["-c", code],
-                        timeout=f"{timeout}s",
-                    )
-                    output = {"stdout": result.stdout, "stderr": result.stderr}
-                finally:
-                    await client.close()
-
-                syncOut = await SandboxManager.syncFromSandbox(sandboxId, userId)
-                if syncOut:
-                    logger.info("Synced %d files from sandbox for user %d", syncOut, userId)
-
-                return output
-            finally:
-                await SandboxManager.destroy(sandboxId)
-
-    @staticmethod
     def read_file(userId: int, path: str) -> str:
         host = hostPath(userId, path)
         if not host.exists():

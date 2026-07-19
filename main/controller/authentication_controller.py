@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from config import getSession, LOCALHOST_ADDRESSES
 from main.utils.logging_config import limiter
 
-from fastapi import APIRouter, Response, HTTPException, Request, Depends
+from fastapi import APIRouter, Response, HTTPException, Request, Depends, Body
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
@@ -12,13 +12,11 @@ from main.app.authentication.util import createAccessToken, verifyAccessToken
 from main.app.authentication.sso import getGoogleSSO
 from main.app.authentication.constants import (
     COOKIE_NAME,
-    COOKIE_ACCESS_NAME,
     COOKIE_PATH,
     COOKIE_SAMESITE,
     TOKEN_EXPIRY_HOURS,
 )
 from main.app.authentication.session import SessionManager
-from fastapi import Body
 from fastapi_sso.sso.base import SSOLoginError
 
 logger = logging.getLogger(__name__)

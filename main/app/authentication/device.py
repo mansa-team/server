@@ -1,6 +1,4 @@
-import hashlib
 import re
-from typing import Optional
 from dataclasses import dataclass
 
 
@@ -123,8 +121,3 @@ def detectDeviceType(ua: str) -> str:
             return "mobile"
 
     return "desktop"
-
-
-def generateFingerprint(userAgent: str, ipAddress: str, language: Optional[str] = None) -> str:
-    raw = f"{userAgent}|{ipAddress}|{language or ''}"
-    return hashlib.sha256(raw.encode()).hexdigest()[:64]

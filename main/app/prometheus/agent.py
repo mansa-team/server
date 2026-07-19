@@ -240,7 +240,7 @@ class Prometheus:
                     sandbox_id = None
                     for fc in function_calls:
                         tools_used.append(fc.name)
-                        loop.emit_tool_call(fc.name, fc.args or {}, turnNumber=turn)
+                        loop.emit("tool_call", toolName=fc.name, args=fc.args or {}, turnNumber=turn)
                         yield {"type": "tool_call", "tool": fc.name, "args": fc.args or {}, "turn": turn}
 
                         if fc.name == "execute_code":
@@ -257,7 +257,7 @@ class Prometheus:
                                 continue
 
                         result = await dispatchToolCall(fc, mcpClients, user=user, state=state, sandbox_id=sandbox_id)
-                        loop.emit_tool_result(fc.name, result, turnNumber=turn)
+                        loop.emit("tool_result", toolName=fc.name, result=result, turnNumber=turn)
                         yield {"type": "tool_result", "tool": fc.name, "result": result, "turn": turn}
                         responses.append(types.Part.from_function_response(name=fc.name, response=result))
 
@@ -267,7 +267,8 @@ class Prometheus:
                         )
                         state.resetChanged()
 
-                    loop.emit_turn_end(
+                    loop.emit(
+                        "turn_end",
                         turnNumber=turn,
                         durationMs=int(__import__("time").time() * 1000) - turn_start,
                         toolsUsed=tools_used,
@@ -285,4 +286,4 @@ class Prometheus:
             if fullText:
                 PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", fullText)
         finally:
-            loop.flush()
+            pass  # ponytail: LoopLogger.flush was a no-op

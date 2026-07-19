@@ -36,20 +36,12 @@ def _parse_date(dateStr: str, end: bool = False) -> date:
     return pd.to_datetime(dateStr).date()
 
 
-def parseDateStart(dateStr: str) -> date:
-    return _parse_date(dateStr, end=False)
-
-
-def parseDateEnd(dateStr: str) -> date:
-    return _parse_date(dateStr, end=True)
-
-
 def parseDateRange(dates: str | None) -> tuple[date | None, date | None]:
     if not dates or not dates.strip():
         return None, None
     parts = [d.strip() for d in dates.split(",")]
     if len(parts) == 1:
-        return parseDateStart(parts[0]), parseDateEnd(parts[0])
+        return _parse_date(parts[0], end=False), _parse_date(parts[0], end=True)
     if len(parts) == 2:
-        return parseDateStart(parts[0]), parseDateEnd(parts[1])
+        return _parse_date(parts[0], end=False), _parse_date(parts[1], end=True)
     raise HTTPException(status_code=400, detail="Date format: DATE or START,END (max 2 values)")

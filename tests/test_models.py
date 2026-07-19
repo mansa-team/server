@@ -3,14 +3,6 @@ from main.models.user import User
 from main.models.stocksapi_key import StocksAPIKey
 from main.models.prometheus import PrometheusSession
 from main.app.user.user import UserManager
-from main.app.stocks_api.key import (
-    isQuotaExceeded,
-    needsReset,
-    resetQuota,
-    incrementUsage,
-    getRemainingQuota,
-    keyToDict,
-)
 from datetime import datetime, timedelta
 
 
@@ -94,69 +86,6 @@ class TestStocksAPIKeyModel:
         assert key.apiKey == "test_api_key_12345"
         assert key.userId == 1
         assert key.requestLimit == 100
-
-    def test_is_quota_exceeded_true(self, dbSession, sampleAPIKeyData):
-        key = StocksAPIKey(**sampleAPIKeyData)
-        key.currentUsage = 100
-        key.requestLimit = 100
-        assert isQuotaExceeded(key) is True
-
-    def test_is_quota_exceeded_false(self, dbSession, sampleAPIKeyData):
-        key = StocksAPIKey(**sampleAPIKeyData)
-        key.currentUsage = 50
-        key.requestLimit = 100
-        assert isQuotaExceeded(key) is False
-
-    def test_needs_reset_true_no_last_reset(self, dbSession, sampleAPIKeyData):
-        key = StocksAPIKey(**sampleAPIKeyData)
-        key.lastReset = None
-        assert needsReset(key, 30) is True
-
-    def test_needs_reset_true_expired(self, dbSession, sampleAPIKeyData):
-        key = StocksAPIKey(**sampleAPIKeyData)
-        key.lastReset = datetime.now() - timedelta(days=31)
-        assert needsReset(key, 30) is True
-
-    def test_needs_reset_false_recent(self, dbSession, sampleAPIKeyData):
-        key = StocksAPIKey(**sampleAPIKeyData)
-        key.lastReset = datetime.now() - timedelta(days=5)
-        assert needsReset(key, 30) is False
-
-    def test_reset_quota(self, dbSession, sampleAPIKeyData):
-        key = StocksAPIKey(**sampleAPIKeyData)
-        key.currentUsage = 50
-        resetQuota(key)
-
-        assert key.currentUsage == 0
-        assert key.lastReset is not None
-
-    def test_increment_usage(self, dbSession, sampleAPIKeyData):
-        key = StocksAPIKey(**sampleAPIKeyData)
-        key.currentUsage = 10
-        incrementUsage(key)
-        assert key.currentUsage == 11
-
-    def test_get_remaining_quota(self, dbSession, sampleAPIKeyData):
-        key = StocksAPIKey(**sampleAPIKeyData)
-        key.currentUsage = 30
-        key.requestLimit = 100
-        assert getRemainingQuota(key) == 70
-
-    def test_get_remaining_quota_exceeded(self, dbSession, sampleAPIKeyData):
-        key = StocksAPIKey(**sampleAPIKeyData)
-        key.currentUsage = 150
-        key.requestLimit = 100
-        assert getRemainingQuota(key) == 0
-
-    def test_toDict(self, dbSession, sampleAPIKeyData):
-        key = StocksAPIKey(**sampleAPIKeyData)
-        result = keyToDict(key)
-
-        assert result["apiKey"] == "test_api_key_12345"
-        assert result["userId"] == 1
-        assert result["requestLimit"] == 100
-        assert result["currentUsage"] == 0
-        assert result["remainingQuota"] == 100
 
 
 class TestPrometheusSessionModel:

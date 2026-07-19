@@ -1,6 +1,6 @@
 import os
 import socket
-from typing import Optional
+from typing import ClassVar, Optional
 from pydantic import Field, AliasChoices
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import create_engine, QueuePool
@@ -21,8 +21,10 @@ applyIPv4Force()
 
 
 class BaseMansaSettings(BaseSettings):
-    def get(self, item, default=None):
-        return getattr(self, item, default)
+    alias_map: ClassVar[dict[str, str]] = {}
+
+    def __getitem__(self, item):
+        return getattr(self, self.alias_map.get(item, item))
 
 
 class MysqlSettings(BaseMansaSettings):
@@ -51,13 +53,11 @@ class UserSettings(BaseMansaSettings):
     GOOGLE_REDIRECT_URI: str = Field(default="", validation_alias=AliasChoices("GOOGLE_REDIRECT.URI"))
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    def __getitem__(self, item):
-        mapping = {
-            "GOOGLE_CLIENT.ID": "GOOGLE_CLIENT_ID",
-            "GOOGLE_CLIENT.SECRET": "GOOGLE_CLIENT_SECRET",
-            "GOOGLE_REDIRECT.URI": "GOOGLE_REDIRECT_URI",
-        }
-        return getattr(self, mapping.get(item, item))
+    alias_map: ClassVar[dict[str, str]] = {
+        "GOOGLE_CLIENT.ID": "GOOGLE_CLIENT_ID",
+        "GOOGLE_CLIENT.SECRET": "GOOGLE_CLIENT_SECRET",
+        "GOOGLE_REDIRECT.URI": "GOOGLE_REDIRECT_URI",
+    }
 
 
 class StocksApiSettings(BaseMansaSettings):
@@ -70,9 +70,11 @@ class StocksApiSettings(BaseMansaSettings):
     QUOTA_RESETDAYS: int = Field(default=30, validation_alias=AliasChoices("STOCKSAPI_QUOTA.RESETDAYS"))
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    def __getitem__(self, item):
-        mapping = {"KEY.SYSTEM": "KEY_SYSTEM", "DEFAULT.QUOTA": "DEFAULT_QUOTA", "QUOTA.RESETDAYS": "QUOTA_RESETDAYS"}
-        return getattr(self, mapping.get(item, item))
+    alias_map: ClassVar[dict[str, str]] = {
+        "KEY.SYSTEM": "KEY_SYSTEM",
+        "DEFAULT.QUOTA": "DEFAULT_QUOTA",
+        "QUOTA.RESETDAYS": "QUOTA_RESETDAYS",
+    }
 
 
 class PrometheusSettings(BaseMansaSettings):
@@ -89,9 +91,7 @@ class PrometheusSettings(BaseMansaSettings):
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    def __getitem__(self, item):
-        mapping = {"GEMINI_API.KEY": "GEMINI_API_KEY"}
-        return getattr(self, mapping.get(item, item))
+    alias_map: ClassVar[dict[str, str]] = {"GEMINI_API.KEY": "GEMINI_API_KEY"}
 
 
 class ScraperSettings(BaseMansaSettings):
@@ -102,17 +102,11 @@ class ScraperSettings(BaseMansaSettings):
     MAX_WORKERS: int = Field(default=10, validation_alias=AliasChoices("MAX_WORKERS"))
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    def __getitem__(self, item):
-        return getattr(self, item)
-
 
 class DiscordSettings(BaseMansaSettings):
     ENABLED: bool = Field(default=False, validation_alias=AliasChoices("DISCORD_ENABLED"))
     WEBHOOK_URL: str = Field(default="", validation_alias=AliasChoices("DISCORD_WEBHOOK_URL"))
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-
-    def __getitem__(self, item):
-        return getattr(self, item)
 
 
 class Config:

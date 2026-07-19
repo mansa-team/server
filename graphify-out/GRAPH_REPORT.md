@@ -1,7 +1,7 @@
 # Graph Report - server  (2026-07-18)
 
 ## Corpus Check
-- 81 files · ~28,231 words
+- 81 files · ~28,225 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e866956e`
+- Built from commit: `f5a178a7`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -741,7 +741,7 @@ Nodes (17): archiveDead(), count_memories(), countMemories(), decayScores(), del
 
 ### Community 54 - "Community 54"
 Cohesion: 0.09
-Nodes (13): MemoryManager, All memory operations. Stateless class methods., Returns paginated memories., Offset and limit work., Archived memories excluded., Soft-deletes a memory., Returns False for non-existent memory., Cannot delete another user's memory. (+5 more)
+Nodes (13): MemoryManager, All memory operations. Stateless class methods., Non-extended role gets basic limit., Soft-deletes a memory., Returns False for non-existent memory., Cannot delete another user's memory., Premium user gets extended limit., Admin gets extended limit (has all permissions). (+5 more)
 
 ### Community 55 - "Community 55"
 Cohesion: 0.17
@@ -777,7 +777,7 @@ Nodes (6): _filterCotationByDate(), filterCotationData(), _parseCotationDate(), 
 
 ### Community 64 - "Community 64"
 Cohesion: 0.1
-Nodes (15): Tests for connection pool configuration, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Query manager should have deserialize method, Integration tests for all query optimizations, All optimizations should be implemented, Query filter should use ticker index, Performance tests for query operations (+7 more)
+Nodes (16): Tests for connection pool configuration, Stocks engine should have optimized pool settings, Tests for lazy JSON deserialization, Query manager should have deserialize method, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Performance tests for query operations, Query should respond within 1 second (+8 more)
 
 ### Community 65 - "Community 65"
 Cohesion: 0.1
@@ -1249,7 +1249,7 @@ Nodes (6): Integration: /stocks/historical must accept slash and dot fields., GE
 
 ### Community 192 - "Community 192"
 Cohesion: 0.29
-Nodes (4): Non-extended role gets basic limit., Premium user gets extended limit., Admin gets extended limit (has all permissions)., TestGetMemoryLimit
+Nodes (4): Returns paginated memories., Offset and limit work., Archived memories excluded., TestGetUserMemories
 
 ### Community 193 - "Community 193"
 Cohesion: 0.33
@@ -1517,7 +1517,7 @@ Nodes (6): makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat 
 
 ### Community 481 - "Community 481"
 Cohesion: 0.33
-Nodes (5): Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, Tests for optimized search filtering, Filter should use ticker index for O(1) lookup, TestFilterBySearchTerms
+Nodes (4): Integration tests for all query optimizations, All optimizations should be implemented, Query filter should use ticker index, TestQueryOptimization
 
 ## Knowledge Gaps
 - **2374 isolated node(s):** `localStorageMock`, `chunkSizes`, `{ session, accumulated, lineCount, chunkIdx }`, `evilChunks`, `lines` (+2369 more)

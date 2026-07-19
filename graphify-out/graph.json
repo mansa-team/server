@@ -1585,7 +1585,7 @@
       "label": "smartTruncate()",
       "file_type": "code",
       "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L20",
+      "source_location": "L19",
       "id": "prometheus_summarizer_smarttruncate",
       "community": 72,
       "norm_label": "smarttruncate()"
@@ -1594,7 +1594,7 @@
       "label": "PrometheusSummarizer",
       "file_type": "code",
       "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L61",
+      "source_location": "L60",
       "id": "prometheus_summarizer_prometheussummarizer",
       "community": 72,
       "norm_label": "prometheussummarizer"
@@ -1603,7 +1603,7 @@
       "label": ".summarize()",
       "file_type": "code",
       "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L62",
+      "source_location": "L61",
       "id": "prometheus_summarizer_prometheussummarizer_summarize",
       "community": 72,
       "norm_label": ".summarize()"
@@ -1612,7 +1612,7 @@
       "label": ".getEpisodes()",
       "file_type": "code",
       "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L112",
+      "source_location": "L108",
       "id": "prometheus_summarizer_prometheussummarizer_getepisodes",
       "community": 72,
       "norm_label": ".getepisodes()"
@@ -15113,7 +15113,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L8",
-      "community": 192,
+      "community": 54,
       "norm_label": "testgetmemorylimit",
       "id": "tests_test_memory_manager_testgetmemorylimit"
     },
@@ -15122,7 +15122,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L9",
-      "community": 192,
+      "community": 54,
       "norm_label": ".test_basic_user()",
       "id": "tests_test_memory_manager_testgetmemorylimit_test_basic_user"
     },
@@ -15131,7 +15131,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L12",
-      "community": 192,
+      "community": 54,
       "norm_label": ".test_premium_user()",
       "id": "tests_test_memory_manager_testgetmemorylimit_test_premium_user"
     },
@@ -15140,7 +15140,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L15",
-      "community": 192,
+      "community": 54,
       "norm_label": ".test_admin_user()",
       "id": "tests_test_memory_manager_testgetmemorylimit_test_admin_user"
     },
@@ -15248,7 +15248,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L101",
-      "community": 54,
+      "community": 192,
       "norm_label": "testgetusermemories",
       "id": "tests_test_memory_manager_testgetusermemories"
     },
@@ -15257,7 +15257,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L102",
-      "community": 54,
+      "community": 192,
       "norm_label": ".test_returns_memories()",
       "id": "tests_test_memory_manager_testgetusermemories_test_returns_memories"
     },
@@ -15266,7 +15266,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L109",
-      "community": 54,
+      "community": 192,
       "norm_label": ".test_pagination()",
       "id": "tests_test_memory_manager_testgetusermemories_test_pagination"
     },
@@ -15275,7 +15275,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L115",
-      "community": 54,
+      "community": 192,
       "norm_label": ".test_excludes_archived()",
       "id": "tests_test_memory_manager_testgetusermemories_test_excludes_archived"
     },
@@ -31160,7 +31160,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L11",
-      "community": 192,
+      "community": 54,
       "norm_label": "non-extended role gets basic limit.",
       "id": "tests_test_memory_manager_rationale_11"
     },
@@ -31169,7 +31169,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L15",
-      "community": 192,
+      "community": 54,
       "norm_label": "premium user gets extended limit.",
       "id": "tests_test_memory_manager_rationale_15"
     },
@@ -31178,7 +31178,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L19",
-      "community": 192,
+      "community": 54,
       "norm_label": "admin gets extended limit (has all permissions).",
       "id": "tests_test_memory_manager_rationale_19"
     },
@@ -31259,7 +31259,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L107",
-      "community": 54,
+      "community": 192,
       "norm_label": "returns paginated memories.",
       "id": "tests_test_memory_manager_rationale_107"
     },
@@ -31268,7 +31268,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L115",
-      "community": 54,
+      "community": 192,
       "norm_label": "offset and limit work.",
       "id": "tests_test_memory_manager_rationale_115"
     },
@@ -31277,7 +31277,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L122",
-      "community": 54,
+      "community": 192,
       "norm_label": "archived memories excluded.",
       "id": "tests_test_memory_manager_rationale_122"
     },
@@ -41321,7 +41321,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L137",
-      "community": 64,
+      "community": 481,
       "norm_label": "testqueryoptimization",
       "id": "tests_test_stocks_optimization_testqueryoptimization"
     },
@@ -41330,7 +41330,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L140",
-      "community": 64,
+      "community": 481,
       "norm_label": ".test_all_optimizations_present()",
       "id": "tests_test_stocks_optimization_testqueryoptimization_test_all_optimizations_present"
     },
@@ -41339,7 +41339,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L155",
-      "community": 64,
+      "community": 481,
       "norm_label": ".test_query_filter_uses_optimization()",
       "id": "tests_test_stocks_optimization_testqueryoptimization_test_query_filter_uses_optimization"
     },
@@ -41411,7 +41411,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L301",
-      "community": 481,
+      "community": 64,
       "norm_label": "testfilterbysearchterms",
       "id": "tests_test_stocks_optimization_testfilterbysearchterms"
     },
@@ -41420,7 +41420,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L304",
-      "community": 481,
+      "community": 64,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_optimization_testfilterbysearchterms_test_filter_with_tickerIndex"
     },
@@ -41591,7 +41591,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L138",
-      "community": 64,
+      "community": 481,
       "norm_label": "integration tests for all query optimizations",
       "id": "tests_test_stocks_optimization_rationale_138"
     },
@@ -41600,7 +41600,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L141",
-      "community": 64,
+      "community": 481,
       "norm_label": "all optimizations should be implemented",
       "id": "tests_test_stocks_optimization_rationale_141"
     },
@@ -41609,7 +41609,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L156",
-      "community": 64,
+      "community": 481,
       "norm_label": "query filter should use ticker index",
       "id": "tests_test_stocks_optimization_rationale_156"
     },
@@ -41681,7 +41681,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L302",
-      "community": 481,
+      "community": 64,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_optimization_rationale_302"
     },
@@ -41690,7 +41690,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L305",
-      "community": 481,
+      "community": 64,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_optimization_rationale_305"
     },
@@ -41726,7 +41726,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L173",
-      "community": 481,
+      "community": 64,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_optimization_rationale_173"
     },
@@ -41735,7 +41735,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_optimization.py",
       "source_location": "L176",
-      "community": 481,
+      "community": 64,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_optimization_rationale_176"
     },
@@ -107312,5 +107312,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "e866956e95fa5c85ca5e360306cd8afe2dd9abc7"
+  "built_at_commit": "f5a178a7dea2438939832f8c72d3b93031dd0f4e"
 }
