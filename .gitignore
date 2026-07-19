@@ -16,3 +16,4 @@ bun.lock
 
 main/utils/models/*/
 frontend/
+graphify-out/graph.html
