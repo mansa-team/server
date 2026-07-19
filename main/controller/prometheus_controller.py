@@ -10,11 +10,9 @@ from main.models.prometheus import PrometheusSession
 
 from fastapi import APIRouter, Depends, Request, HTTPException, Query, Body
 from fastapi.responses import StreamingResponse
-import time
 
 from main.app.prometheus.agent import Prometheus
 from main.app.prometheus.chat import PrometheusChatManager
-from fastapi import Body
 
 logger = logging.getLogger(__name__)
 

@@ -6,7 +6,6 @@ from main.app.authentication.device import (
     detectBrowser,
     detectOS,
     detectDeviceType,
-    generateFingerprint,
     DeviceInfo,
 )
 
@@ -166,22 +165,6 @@ class TestDetectDeviceType:
 
     def test_kindle(self):
         assert detectDeviceType("kindle fire") == "tablet"
-
-
-class TestGenerateFingerprint:
-    def test_basic(self):
-        result = generateFingerprint("ua1", "1.2.3.4")
-        assert len(result) == 64
-        assert result == generateFingerprint("ua1", "1.2.3.4")
-
-    def test_with_language(self):
-        result = generateFingerprint("ua1", "1.2.3.4", "en-US")
-        assert len(result) == 64
-
-    def test_different_inputs_different_hash(self):
-        r1 = generateFingerprint("ua1", "1.2.3.4")
-        r2 = generateFingerprint("ua2", "1.2.3.4")
-        assert r1 != r2
 
 
 class TestParseUserAgent:

@@ -47,6 +47,17 @@ def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8
     return None
 
 
+def _applyUpdate(memory, value, memoryType, source, embedding):
+    memory.memoryValue = value  # type: ignore[assignment]
+    memory.memoryType = memoryType  # type: ignore[assignment]
+    memory.source = source  # type: ignore[assignment]
+    memory.contentHash = contentHash(value)  # type: ignore[assignment]
+    memory.embedding = embedding  # type: ignore[assignment]
+    memory.baseScore = min(memory.baseScore + 0.1, 1.0)  # type: ignore[arg-type]
+    memory.accessCount += 1  # type: ignore[assignment]
+    memory.lastAccessedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
+
+
 class PrometheusMemory:
     @classmethod
     def getMemoryLimit(cls, userRoles: list[str]) -> int:
@@ -86,14 +97,7 @@ class PrometheusMemory:
             if existing.contentHash == newHash:
                 return {"status": "unchanged", "memory": existing}
 
-            existing.memoryValue = value  # type: ignore[assignment]
-            existing.memoryType = memoryType  # type: ignore[assignment]
-            existing.source = source  # type: ignore[assignment]
-            existing.contentHash = newHash  # type: ignore[assignment]
-            existing.embedding = embedding  # type: ignore[assignment]
-            existing.baseScore = min(existing.baseScore + 0.1, 1.0)  # type: ignore[arg-type]
-            existing.accessCount += 1  # type: ignore[assignment]
-            existing.lastAccessedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
+            _applyUpdate(existing, value, memoryType, source, embedding)
 
             db.commit()
             db.refresh(existing)
@@ -102,14 +106,7 @@ class PrometheusMemory:
 
         similar = findSimilarKey(db, userId, key)
         if similar:
-            similar.memoryValue = value  # type: ignore[assignment]
-            similar.memoryType = memoryType  # type: ignore[assignment]
-            similar.source = source  # type: ignore[assignment]
-            similar.contentHash = contentHash(value)  # type: ignore[assignment]
-            similar.embedding = embedding  # type: ignore[assignment]
-            similar.baseScore = min(similar.baseScore + 0.1, 1.0)  # type: ignore[arg-type]
-            similar.accessCount += 1  # type: ignore[assignment]
-            similar.lastAccessedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
+            _applyUpdate(similar, value, memoryType, source, embedding)
 
             db.commit()
             db.refresh(similar)

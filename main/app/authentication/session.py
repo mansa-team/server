@@ -1,7 +1,6 @@
 import logging
 import secrets
 from datetime import datetime, timedelta
-from typing import Optional
 from pytz import timezone
 import hashlib
 from sqlalchemy.orm import Session
@@ -27,7 +26,7 @@ class SessionManager:
         userId: int,
         userAgent: str,
         request,
-        expiresAt: Optional[datetime] = None,
+        expiresAt: datetime | None = None,
     ) -> UserSession:
         sessionId = secrets.token_urlsafe(32)
         accessTokenHash = hashlib.sha256(secrets.token_hex(32).encode()).hexdigest()[:64]
@@ -66,7 +65,7 @@ class SessionManager:
         return query.order_by(UserSession.lastActivityAt.desc()).limit(limit).all()
 
     @staticmethod
-    def getSessionById(db: Session, sessionId: str, userId: Optional[int] = None) -> UserSession | None:
+    def getSessionById(db: Session, sessionId: str, userId: int | None = None) -> UserSession | None:
         query = db.query(UserSession).filter(UserSession.sessionId == str(sessionId))
         if userId:
             query = query.filter(UserSession.userId == userId)
@@ -97,7 +96,7 @@ class SessionManager:
         return True
 
     @staticmethod
-    def revokeAllSessions(db: Session, userId: int, exceptSessionId: Optional[str] = None) -> int:
+    def revokeAllSessions(db: Session, userId: int, exceptSessionId: str | None = None) -> int:
         query = db.query(UserSession).filter(
             UserSession.userId == userId,
             UserSession.isActive,

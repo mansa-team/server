@@ -6,7 +6,6 @@ from pytz import timezone
 from main.app.prometheus.memory import PrometheusMemory as MemoryManager
 from main.service.prometheus_service import (
     memoryMaintenance,
-    DECAY_FACTOR,
     DECAY_FACTORS,
     ARCHIVE_SCORE_THRESHOLD,
     ARCHIVE_DAYS_THRESHOLD,

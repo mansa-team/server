@@ -4,7 +4,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from main.app.authentication.device import parseUserAgent, generateFingerprint
+from main.app.authentication.device import parseUserAgent
 
 
 class TestDeviceDetection:
@@ -65,25 +65,3 @@ class TestDeviceDetection:
 
         assert result.browser == "Unknown"
         assert result.os == "Unknown"
-
-    def test_generate_fingerprint_consistent(self):
-        ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/135.0.0.0"
-        ip = "192.168.1.1"
-
-        fp1 = generateFingerprint(ua, ip)
-        fp2 = generateFingerprint(ua, ip)
-
-        assert fp1 == fp2
-        assert len(fp1) == 64
-
-    def test_generate_fingerprint_different_inputs(self):
-        fp1 = generateFingerprint("Chrome on Windows", "192.168.1.1")
-        fp2 = generateFingerprint("Firefox on Linux", "192.168.1.1")
-
-        assert fp1 != fp2
-
-    def test_generate_fingerprint_includes_language(self):
-        fp1 = generateFingerprint("Chrome", "192.168.1.1", "pt-BR")
-        fp2 = generateFingerprint("Chrome", "192.168.1.1", "en-US")
-
-        assert fp1 != fp2

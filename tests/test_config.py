@@ -18,24 +18,3 @@ class TestConfig:
         settings = ScraperSettings()
         # Test __getitem__ returns getattr
         assert settings["ENABLED"] == settings.ENABLED
-
-    def test_base_mansa_settings_get(self):
-        from config import BaseMansaSettings
-
-        class TestSettings(BaseMansaSettings):
-            TEST_VALUE: str = "test"
-
-            def __getitem__(self, item):
-                if item == "MISSING_KEY":
-                    raise KeyError(item)
-                if item == "MISSING_ATTR":
-                    raise AttributeError(item)
-                return getattr(self, item, None)
-
-        settings = TestSettings()
-        # Test get method - existing key
-        assert settings.get("TEST_VALUE") == "test"
-        # Test KeyError path
-        assert settings.get("MISSING_KEY", "default") == "default"
-        # Test AttributeError path
-        assert settings.get("MISSING_ATTR", "default") == "default"
