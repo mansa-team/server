@@ -15,6 +15,42 @@ from main.models import PrometheusSession
 
 logger = logging.getLogger(__name__)
 
+# Lazy-loaded tokenizer — initialized once, reused across calls
+_tokenizer = None
+
+
+def _getTokenizer():
+    global _tokenizer
+    if _tokenizer is None:
+        try:
+            from google import genai
+
+            _tokenizer = genai.LocalTokenizer(model_name="gemini-2.5-flash")
+            logger.info("Loaded Gemini local tokenizer")
+        except Exception as e:
+            logger.warning(f"Failed to load local tokenizer, using fallback: {e}")
+            _tokenizer = None
+    return _tokenizer
+
+
+def countTokens(text: str) -> int:
+    """Count tokens using Gemini's local tokenizer.
+
+    Falls back to len(text)//3 if tokenizer unavailable.
+    //3 not //4 because Portuguese text averages ~2.5-3 chars/token.
+    """
+    if not text:
+        return 0
+    tok = _getTokenizer()
+    if tok is not None:
+        try:
+            result = tok.count_tokens(text)
+            return result.total_tokens
+        except Exception:
+            pass
+    # ponytail: fallback estimate, //3 is conservative for PT+EN mix
+    return len(text) // 3
+
 
 def smartTruncate(text: str, max_len: int = 500) -> str:
     if len(text) <= max_len:
@@ -82,7 +118,7 @@ class PrometheusSummarizer:
                     response_mime_type="application/json",
                     response_schema=RESPONSE_SCHEMA,
                     max_output_tokens=256,
-                    temperature=0.0
+                    temperature=0.0,
                 ),
             )
             episode: dict = resp.parsed  # type: ignore[assignment]

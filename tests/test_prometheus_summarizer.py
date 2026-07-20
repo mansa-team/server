@@ -5,7 +5,7 @@ import pytest
 from datetime import datetime
 from unittest.mock import patch, MagicMock
 
-from main.app.prometheus.summarizer import PrometheusSummarizer, smartTruncate
+from main.app.prometheus.summarizer import PrometheusSummarizer, smartTruncate, countTokens
 from main.models.prometheus import PrometheusSession
 
 
@@ -284,3 +284,24 @@ class TestGetEpisodesEdgeCases:
 
         episodes = PrometheusSummarizer().getEpisodes(db_session, "test-empty-list")
         assert episodes == []
+
+
+class TestCountTokens:
+    def test_english_text(self):
+        count = countTokens("The quick brown fox jumps over the lazy dog")
+        assert 5 <= count <= 15
+
+    def test_portuguese_text(self):
+        count = countTokens("A análise fundamentalista mostra que a Petrobras está subvalorizada")
+        assert 10 <= count <= 25
+
+    def test_empty_string(self):
+        assert countTokens("") == 0
+
+    def test_code_block(self):
+        count = countTokens("```python\ndef hello():\n    print('world')\n```")
+        assert count > 0
+
+    def test_mixed_language(self):
+        count = countTokens("PETR4 P/L ratio está em 5.2, which is low")
+        assert count > 0

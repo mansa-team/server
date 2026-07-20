@@ -25,7 +25,7 @@ requests
 sentence-transformers
 huggingface-hub
 fastmcp
-google-genai
+google-genai[local-tokenizer]
 forgevm
 
 # USER
