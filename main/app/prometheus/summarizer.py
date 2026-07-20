@@ -115,7 +115,7 @@ MERGE_SCHEMA = {
 
 
 EPISODE_TOKEN_BUDGET = 8000
-EPISODE_SOFT_CAP = 12
+EPISODE_CAP = 12
 MERGE_WINDOW = 5
 
 
@@ -145,7 +145,7 @@ class PrometheusSummarizer:
         Keeps the most recent 10 episodes intact.
         Merges the rest into a single compressed episode via Gemini.
         """
-        if len(episodes) <= EPISODE_SOFT_CAP:
+        if len(episodes) <= EPISODE_CAP:
             return episodes
 
         recent = episodes[-10:]
@@ -249,7 +249,7 @@ class PrometheusSummarizer:
         existing.append(obj)
 
         # Consolidate if too many episodes
-        if len(existing) > EPISODE_SOFT_CAP:
+        if len(existing) > EPISODE_CAP:
             existing = self.consolidate(existing)
 
         session.summary = json.dumps(existing)  # type: ignore[assignment]

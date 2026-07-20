@@ -36,7 +36,6 @@ def getAbbr() -> dict:
 def getNest() -> dict:
     global nest
     if nest is None:
-
         if stocksCache.STOCKS_CACHE is not None:
             nest = detectNestedFields(stocksCache.STOCKS_CACHE)
         else:
