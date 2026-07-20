@@ -192,9 +192,8 @@ class TestSummarizeEdgeCases:
         # (API may return None or a generic summary)
 
     def test_20_episode_cap_drops_oldest(self, db_session):
-        """Storing more than 20 episodes should keep only the last 20."""
+        """With consolidation, 21 episodes + new = consolidation triggers, reducing count below hard cap."""
         summarizer = PrometheusSummarizer()
-        # Pre-populate 21 episodes directly in the summary
         episodes = [
             {
                 "id": f"ep_{i:04d}",
@@ -217,7 +216,6 @@ class TestSummarizeEdgeCases:
         db_session.add(session)
         db_session.commit()
 
-        # Now summarize — should append episode 22, then cap to last 20
         mock_resp = MagicMock()
         mock_resp.parsed = {"summary": "New episode", "keyDecisions": [], "entities": []}
         with patch("main.app.prometheus.summarizer.genai.Client") as mock_genai:
@@ -226,9 +224,10 @@ class TestSummarizeEdgeCases:
                 summarizer.summarize(db_session, "test-cap")
 
         result = summarizer.getEpisodes(db_session, "test-cap")
-        assert len(result) == 20
-        # First episode should be ep_0002 (0 and 1 dropped)
-        assert result[0]["id"] == "ep_0002"
+        # 21 existing + 1 new = 22 > SOFT_CAP(12) → consolidate merges first 12 into 1
+        # 1 merged + 10 recent = 11, then hard cap(20) → 11 kept
+        assert len(result) <= 20
+        assert result[0]["summary"] == "New episode"  # merged episode from consolidation
 
 
 class TestGetEpisodesEdgeCases:
@@ -335,3 +334,47 @@ class TestTokenBasedTrigger:
         s = PrometheusSummarizer()
         history = [{"role": "user", "content": "x" * 100} for _ in range(5)]
         assert s.shouldSummarize(history) is False
+
+
+class TestConsolidation:
+    def test_no_consolidation_under_threshold(self):
+        s = PrometheusSummarizer()
+        episodes = [{"id": f"ep_{i}", "summary": f"Episode {i}", "keyDecisions": [], "entities": []} for i in range(10)]
+        result = s.consolidate(episodes)
+        assert len(result) == 10
+
+    def test_consolidation_triggered_above_threshold(self):
+        s = PrometheusSummarizer()
+        episodes = [{"id": f"ep_{i}", "summary": f"Episode {i}", "keyDecisions": [], "entities": []} for i in range(15)]
+        result = s.consolidate(episodes)
+        assert len(result) <= 12
+
+    def test_recent_episodes_preserved(self):
+        s = PrometheusSummarizer()
+        episodes = [{"id": f"ep_{i}", "summary": f"Episode {i}", "keyDecisions": [], "entities": []} for i in range(15)]
+        result = s.consolidate(episodes)
+        recent_ids = [ep["id"] for ep in result[1:]]
+        assert "ep_14" in recent_ids
+        assert "ep_5" in recent_ids
+
+    def test_merged_episode_has_all_entities(self):
+        s = PrometheusSummarizer()
+        episodes = [
+            {"id": f"ep_{i}", "summary": f"Episode {i}", "keyDecisions": [], "entities": [f"entity_{i}"]}
+            for i in range(15)
+        ]
+        result = s.consolidate(episodes)
+        merged = result[0]
+        for i in range(5):
+            assert f"entity_{i}" in merged["entities"]
+
+    def test_consolidate_empty_episodes(self):
+        s = PrometheusSummarizer()
+        result = s.consolidate([])
+        assert result == []
+
+    def test_consolidate_single_episode(self):
+        s = PrometheusSummarizer()
+        ep = [{"id": "ep_1", "summary": "Test", "keyDecisions": [], "entities": []}]
+        result = s.consolidate(ep)
+        assert len(result) == 1

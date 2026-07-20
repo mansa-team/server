@@ -92,8 +92,32 @@ RESPONSE_SCHEMA = {
     "required": ["summary", "keyDecisions", "entities"],
 }
 
+MERGE_INSTRUCTION = """
+You are merging conversation episode summaries into a single condensed summary.
+
+Rules:
+- Preserve ALL keyDecisions from all episodes (deduplicate)
+- Preserve ALL entities mentioned (deduplicate)
+- The summary should be a single paragraph covering the full arc
+- Do not add information not present in the original episodes
+- Keep the merged summary under 300 words
+"""
+
+MERGE_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "summary": {"type": "string"},
+        "keyDecisions": {"type": "array", "items": {"type": "string"}},
+        "entities": {"type": "array", "items": {"type": "string"}},
+    },
+    "required": ["summary", "keyDecisions", "entities"],
+}
+
 
 EPISODE_TOKEN_BUDGET = 8000  # ~15-20 substantial messages
+EPISODE_HARD_CAP = 20
+EPISODE_SOFT_CAP = 12
+MERGE_WINDOW = 5
 
 
 class PrometheusSummarizer:
@@ -115,6 +139,72 @@ class PrometheusSummarizer:
 
         chunk = [m for m in history if m.get("timestamp", "") > lastEpTime]
         return chunk if chunk else history[-10:]  # fallback: last 10 messages
+
+    def consolidate(self, episodes: list[dict]) -> list[dict]:
+        """Merge oldest episodes when count exceeds soft cap.
+
+        Keeps the most recent 10 episodes intact.
+        Merges the rest into a single compressed episode via Gemini.
+        """
+        if len(episodes) <= EPISODE_SOFT_CAP:
+            return episodes
+
+        recent = episodes[-10:]
+        old = episodes[:-10]
+
+        if len(old) < 3:
+            return episodes  # not enough to merge meaningfully
+
+        merged = self._mergeEpisodes(old)
+        return [merged] + recent
+
+    def _mergeEpisodes(self, episodes: list[dict]) -> dict:
+        """Merge multiple episodes into one via Gemini."""
+        episode_texts = []
+        all_decisions = []
+        all_entities = []
+
+        for ep in episodes:
+            episode_texts.append(
+                f"--- Episode {ep.get('id', '?')} ({ep.get('time', '?')}) ---\n"
+                f"Summary: {ep.get('summary', '')}\n"
+                f"Decisions: {ep.get('keyDecisions', [])}\n"
+                f"Entities: {ep.get('entities', [])}"
+            )
+            all_decisions.extend(ep.get("keyDecisions", []))
+            all_entities.extend(ep.get("entities", []))
+
+        contents = "\n\n".join(episode_texts)
+
+        try:
+            client = genai.Client(api_key=Config.PROMETHEUS["GEMINI_API.KEY"])
+            resp = client.models.generate_content(
+                model="gemini-flash-lite-latest",
+                contents=contents,
+                config=types.GenerateContentConfig(
+                    system_instruction=MERGE_INSTRUCTION,
+                    response_mime_type="application/json",
+                    response_schema=MERGE_SCHEMA,
+                    max_output_tokens=512,
+                    temperature=0.0,
+                ),
+            )
+            merged: dict = resp.parsed
+        except Exception as e:
+            logger.warning(f"Episode merge failed, using fallback: {e}")
+            merged = {
+                "summary": " | ".join(ep.get("summary", "") for ep in episodes),
+                "keyDecisions": list(dict.fromkeys(all_decisions)),
+                "entities": list(dict.fromkeys(all_entities)),
+            }
+
+        return {
+            "id": f"ep_{uuid.uuid4().hex[:8]}",
+            "time": datetime.now(timezone.utc).isoformat(),
+            "summary": merged.get("summary", ""),
+            "keyDecisions": merged.get("keyDecisions", []),
+            "entities": merged.get("entities", []),
+        }
 
     def summarize(self, db: DBSession, sessionId: str) -> dict | None:
         session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
@@ -159,7 +249,11 @@ class PrometheusSummarizer:
         existing = self.getEpisodes(db, sessionId)
         existing.append(obj)
 
-        session.summary = json.dumps(existing[-20:])  # type: ignore[assignment]
+        # Consolidate if too many episodes
+        if len(existing) > EPISODE_SOFT_CAP:
+            existing = self.consolidate(existing)
+
+        session.summary = json.dumps(existing[-EPISODE_HARD_CAP:])  # type: ignore[assignment]
         db.commit()
 
         return obj
