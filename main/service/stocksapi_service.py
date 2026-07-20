@@ -14,7 +14,7 @@ class StocksAPIService:
 
         @service.middleware("http")
         async def mcpDetect(request: Request, call_next):
-            request.state.mcp_compressed = request.headers.get("x-mcp") == "true"
+            request.state.compressed = request.headers.get("x-mcp") == "true"
             return await call_next(request)
 
         service.include_router(stocksRouter)

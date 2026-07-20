@@ -105,8 +105,8 @@
     "semantic_hash": "cb349123af780ef71f4871b50f26f79c"
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\agent.py": {
-    "mtime": 1784425712.1464777,
-    "ast_hash": "6fff43a482a854786ccb9fa11536ae7e",
+    "mtime": 1784568002.8040216,
+    "ast_hash": "2bd4f820f251ed5180367ee7d6620c2d",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\chat.py": {
@@ -140,7 +140,7 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\tools.py": {
-    "mtime": 1784409127.239988,
+    "mtime": 1784427360.584931,
     "ast_hash": "50f51ffe05d68263f15a5329e041be18",
     "semantic_hash": ""
   },
@@ -160,9 +160,14 @@
     "semantic_hash": "0cbeed2304027b45b74b36f17b47cca7"
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\cache.py": {
-    "mtime": 1782700969.477249,
-    "ast_hash": "dd75b6c8f03783414681c27287f112f0",
-    "semantic_hash": "dd75b6c8f03783414681c27287f112f0"
+    "mtime": 1784480785.9285023,
+    "ast_hash": "8c55821e8d329218ba670c4bb524d53e",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\main\\app\\stocks_api\\compressor.py": {
+    "mtime": 1784508804.2731628,
+    "ast_hash": "47658ff50161a741331d57d3e3c30e73",
+    "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\key.py": {
     "mtime": 1784419605.5970507,
@@ -175,8 +180,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\util.py": {
-    "mtime": 1784419613.933882,
-    "ast_hash": "3d651fe38b39dcb3be7a3f13281b925c",
+    "mtime": 1784508781.1364906,
+    "ast_hash": "7c874392b71e77cc700c0373bb863381",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\user\\user.py": {
@@ -195,9 +200,9 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\stocksapi_controller.py": {
-    "mtime": 1784154769.5275948,
-    "ast_hash": "5077e3defa0c547bc8e52130f68cc9c7",
-    "semantic_hash": "5077e3defa0c547bc8e52130f68cc9c7"
+    "mtime": 1784568411.4590726,
+    "ast_hash": "4610f08b1a0c349b10ebc958cc18bb05",
+    "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\user_controller.py": {
     "mtime": 1784217523.126977,
@@ -265,9 +270,9 @@
     "semantic_hash": "b474855122d1c4e53da74174cd251412"
   },
   "D:\\Repositories\\server\\main\\service\\stocksapi_service.py": {
-    "mtime": 1782691503.0431175,
-    "ast_hash": "f963831ee7ac6cc577a797023b2c99ff",
-    "semantic_hash": "f963831ee7ac6cc577a797023b2c99ff"
+    "mtime": 1784568399.5129645,
+    "ast_hash": "d4712f1c550bbd7fb85bfa2df73c8cd1",
+    "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\service\\user_service.py": {
     "mtime": 1782691503.0441167,
