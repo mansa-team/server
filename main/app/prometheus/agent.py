@@ -1,19 +1,19 @@
-import json
 import logging
 from config import Config
+import time
+from datetime import datetime
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastmcp import Client
+from fastmcp.client.client import StreamableHttpTransport
 from google import genai
 from google.genai import types
 import google.genai._mcp_utils as _mcp
 
 
 from main.models.prometheus import PrometheusSession
-from main.models.memory import PrometheusMemory
-from main.app.prometheus.memory import PrometheusMemory as MemoryService
-
+from main.app.prometheus.memory import PrometheusMemory
 from main.app.prometheus.chat import PrometheusChatManager
 from main.app.prometheus.summarizer import PrometheusSummarizer
 from main.app.prometheus.events import LoopLogger
@@ -35,6 +35,8 @@ _mcp._filter_to_supported_schema = _safe_filter
 logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """
+Current date: __DATE__
+
 You are Prometheus, a senior Equity Research analyst and financial intelligence engine for
 Mansa, a Brazilian stock platform focused on B3-listed equities. You deliver dense,
 technically rigorous investment theses grounded in Value Investing and Buy and Hold
@@ -183,7 +185,7 @@ Use with stat cards for portfolio snapshots.
 - {% card %} to group related content
 - Wrap tag content in valid JSON, no extra text inside tags
 - Mix prose and tags freely
-"""
+""".replace("__DATE__", str(datetime.now().date()))
 
 
 class Prometheus:
@@ -201,7 +203,7 @@ class Prometheus:
     ) -> str:
         memoryBlock = ""
         if userId and db:
-            memories = MemoryService.search(db, userId, query or "", limit=10)
+            memories = PrometheusMemory.search(db, userId, query or "", limit=10)
             if memories:
                 memoryBlock = "\n".join(f"- [{m['memoryType']}] {m['memoryKey']}: {m['memoryValue']}" for m in memories)
 
@@ -226,7 +228,12 @@ class Prometheus:
 
     @asynccontextmanager
     async def openMCPClients(self):
-        stocks = Client(f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/mcp")
+        stocks = Client(
+            transport=StreamableHttpTransport(
+                f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/mcp",
+                headers={"X-MCP": "true"},
+            )
+        )
         searxng = Client(f"{Config.PROMETHEUS['SEARXNG_URL']}/mcp/")
         async with stocks, searxng:
             for s in [stocks.session, searxng.session]:
@@ -285,7 +292,7 @@ class Prometheus:
                     if not function_calls:
                         break
 
-                    turn_start = int(__import__("time").time() * 1000)
+                    turn_start = int(time.time() * 1000)
                     tools_used = []
                     responses = []
 
@@ -322,13 +329,13 @@ class Prometheus:
                     loop.emit(
                         "turn_end",
                         turnNumber=turn,
-                        durationMs=int(__import__("time").time() * 1000) - turn_start,
+                        durationMs=int(time.time() * 1000) - turn_start,
                         toolsUsed=tools_used,
                     )
                     yield {
                         "type": "turn_end",
                         "turn": turn,
-                        "durationMs": int(__import__("time").time() * 1000) - turn_start,
+                        "durationMs": int(time.time() * 1000) - turn_start,
                         "toolsUsed": len(tools_used),
                     }
                     turn += 1
@@ -338,4 +345,4 @@ class Prometheus:
             if fullText:
                 PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", fullText)
         finally:
-            pass  # ponytail: LoopLogger.flush was a no-op
+            pass

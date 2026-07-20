@@ -982,7 +982,7 @@
       "label": "_safe_filter()",
       "file_type": "code",
       "source_file": "main/app/prometheus/agent.py",
-      "source_location": "L26",
+      "source_location": "L27",
       "id": "prometheus_agent_safe_filter",
       "community": 72,
       "norm_label": "_safe_filter()"
@@ -991,7 +991,7 @@
       "label": "Prometheus",
       "file_type": "code",
       "source_file": "main/app/prometheus/agent.py",
-      "source_location": "L139",
+      "source_location": "L189",
       "id": "prometheus_agent_prometheus",
       "community": 72,
       "norm_label": "prometheus"
@@ -1000,7 +1000,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "main/app/prometheus/agent.py",
-      "source_location": "L140",
+      "source_location": "L190",
       "id": "prometheus_agent_prometheus_init",
       "community": 72,
       "norm_label": ".__init__()"
@@ -1009,7 +1009,7 @@
       "label": "buildSystemPrompt()",
       "file_type": "code",
       "source_file": "main/app/prometheus/agent.py",
-      "source_location": "L144",
+      "source_location": "L194",
       "id": "prometheus_agent_buildsystemprompt",
       "community": 72,
       "norm_label": "buildsystemprompt()"
@@ -1018,7 +1018,7 @@
       "label": "openMCPClients()",
       "file_type": "code",
       "source_file": "main/app/prometheus/agent.py",
-      "source_location": "L180",
+      "source_location": "L228",
       "id": "prometheus_agent_openmcpclients",
       "community": 72,
       "norm_label": "openmcpclients()"
@@ -1027,7 +1027,7 @@
       "label": ".makeChat()",
       "file_type": "code",
       "source_file": "main/app/prometheus/agent.py",
-      "source_location": "L188",
+      "source_location": "L236",
       "id": "prometheus_agent_prometheus_makechat",
       "community": 72,
       "norm_label": ".makechat()"
@@ -1036,7 +1036,7 @@
       "label": ".streamMessage()",
       "file_type": "code",
       "source_file": "main/app/prometheus/agent.py",
-      "source_location": "L197",
+      "source_location": "L245",
       "id": "prometheus_agent_prometheus_streammessage",
       "community": 72,
       "norm_label": ".streammessage()"
@@ -1531,7 +1531,7 @@
       "label": ".getEpisodes()",
       "file_type": "code",
       "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L108",
+      "source_location": "L109",
       "id": "prometheus_summarizer_prometheussummarizer_getepisodes",
       "community": 72,
       "norm_label": ".getepisodes()"
@@ -15275,7 +15275,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L101",
-      "community": 54,
+      "community": 192,
       "norm_label": "testgetusermemories",
       "id": "tests_test_memory_manager_testgetusermemories"
     },
@@ -15284,7 +15284,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L102",
-      "community": 54,
+      "community": 192,
       "norm_label": ".test_returns_memories()",
       "id": "tests_test_memory_manager_testgetusermemories_test_returns_memories"
     },
@@ -15293,7 +15293,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L109",
-      "community": 54,
+      "community": 192,
       "norm_label": ".test_pagination()",
       "id": "tests_test_memory_manager_testgetusermemories_test_pagination"
     },
@@ -15302,7 +15302,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L115",
-      "community": 54,
+      "community": 192,
       "norm_label": ".test_excludes_archived()",
       "id": "tests_test_memory_manager_testgetusermemories_test_excludes_archived"
     },
@@ -15311,7 +15311,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L125",
-      "community": 477,
+      "community": 54,
       "norm_label": "testdeletememory",
       "id": "tests_test_memory_manager_testdeletememory"
     },
@@ -15320,7 +15320,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L126",
-      "community": 477,
+      "community": 54,
       "norm_label": ".test_soft_delete()",
       "id": "tests_test_memory_manager_testdeletememory_test_soft_delete"
     },
@@ -15329,7 +15329,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L132",
-      "community": 477,
+      "community": 54,
       "norm_label": ".test_delete_nonexistent()",
       "id": "tests_test_memory_manager_testdeletememory_test_delete_nonexistent"
     },
@@ -15338,7 +15338,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L135",
-      "community": 477,
+      "community": 54,
       "norm_label": ".test_delete_wrong_user()",
       "id": "tests_test_memory_manager_testdeletememory_test_delete_wrong_user"
     },
@@ -31277,7 +31277,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L107",
-      "community": 54,
+      "community": 192,
       "norm_label": "returns paginated memories.",
       "id": "tests_test_memory_manager_rationale_107"
     },
@@ -31286,7 +31286,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L115",
-      "community": 54,
+      "community": 192,
       "norm_label": "offset and limit work.",
       "id": "tests_test_memory_manager_rationale_115"
     },
@@ -31295,7 +31295,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L122",
-      "community": 54,
+      "community": 192,
       "norm_label": "archived memories excluded.",
       "id": "tests_test_memory_manager_rationale_122"
     },
@@ -31304,7 +31304,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L135",
-      "community": 477,
+      "community": 54,
       "norm_label": "soft-deletes a memory.",
       "id": "tests_test_memory_manager_rationale_135"
     },
@@ -31313,7 +31313,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L142",
-      "community": 477,
+      "community": 54,
       "norm_label": "returns false for non-existent memory.",
       "id": "tests_test_memory_manager_rationale_142"
     },
@@ -31322,7 +31322,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L146",
-      "community": 477,
+      "community": 54,
       "norm_label": "cannot delete another user's memory.",
       "id": "tests_test_memory_manager_rationale_146"
     },
@@ -40430,7 +40430,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L135",
-      "community": 192,
+      "community": 75,
       "norm_label": "testqueryoptimization",
       "id": "tests_test_stocks_cache_testqueryoptimization"
     },
@@ -40439,7 +40439,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L138",
-      "community": 192,
+      "community": 75,
       "norm_label": ".test_all_optimizations_present()",
       "id": "tests_test_stocks_cache_testqueryoptimization_test_all_optimizations_present"
     },
@@ -40448,7 +40448,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L153",
-      "community": 192,
+      "community": 75,
       "norm_label": ".test_query_filter_uses_optimization()",
       "id": "tests_test_stocks_cache_testqueryoptimization_test_query_filter_uses_optimization"
     },
@@ -40520,7 +40520,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L299",
-      "community": 75,
+      "community": 477,
       "norm_label": "testfilterbysearchterms",
       "id": "tests_test_stocks_cache_testfilterbysearchterms"
     },
@@ -40529,7 +40529,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L302",
-      "community": 75,
+      "community": 477,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_cache_testfilterbysearchterms_test_filter_with_tickerindex"
     },
@@ -40700,7 +40700,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L136",
-      "community": 192,
+      "community": 75,
       "norm_label": "integration tests for all query optimizations",
       "id": "tests_test_stocks_cache_rationale_136"
     },
@@ -40709,7 +40709,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L139",
-      "community": 192,
+      "community": 75,
       "norm_label": "all optimizations should be implemented",
       "id": "tests_test_stocks_cache_rationale_139"
     },
@@ -40718,7 +40718,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L154",
-      "community": 192,
+      "community": 75,
       "norm_label": "query filter should use ticker index",
       "id": "tests_test_stocks_cache_rationale_154"
     },
@@ -40790,7 +40790,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L300",
-      "community": 75,
+      "community": 477,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_cache_rationale_300"
     },
@@ -40799,7 +40799,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L303",
-      "community": 75,
+      "community": 477,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_cache_rationale_303"
     },
@@ -40988,7 +40988,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L138",
-      "community": 192,
+      "community": 75,
       "norm_label": "integration tests for all query optimizations",
       "id": "tests_test_stocks_cache_rationale_138"
     },
@@ -40997,7 +40997,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L141",
-      "community": 192,
+      "community": 75,
       "norm_label": "all optimizations should be implemented",
       "id": "tests_test_stocks_cache_rationale_141"
     },
@@ -41006,7 +41006,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L156",
-      "community": 192,
+      "community": 75,
       "norm_label": "query filter should use ticker index",
       "id": "tests_test_stocks_cache_rationale_156"
     },
@@ -41078,7 +41078,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L302",
-      "community": 75,
+      "community": 477,
       "norm_label": "tests for optimized search filtering",
       "id": "tests_test_stocks_cache_rationale_302"
     },
@@ -41087,7 +41087,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L305",
-      "community": 75,
+      "community": 477,
       "norm_label": "filter should use ticker index for o(1) lookup",
       "id": "tests_test_stocks_cache_rationale_305"
     },
@@ -41177,7 +41177,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_cache.py",
       "source_location": "L304",
-      "community": 75,
+      "community": 477,
       "norm_label": ".test_filter_with_tickerindex()",
       "id": "tests_test_stocks_cache_testfilterbysearchterms_test_filter_with_tickerIndex"
     },
@@ -107394,5 +107394,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "c7e6358bb1ab794c6e885eee4334aa6742dafc5a"
+  "built_at_commit": "2a521e1a06f06202e04f14cdd3f2ea9270d53ecb"
 }
