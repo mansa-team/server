@@ -378,3 +378,58 @@ class TestConsolidation:
         ep = [{"id": "ep_1", "summary": "Test", "keyDecisions": [], "entities": []}]
         result = s.consolidate(ep)
         assert len(result) == 1
+
+
+# ── Token Counting Integration ─────────────────────────────────────────
+
+
+class TestTokenCountingIntegration:
+    def test_count_tokens_matches_gemini_tokenizer(self):
+        """Verify local tokenizer produces reasonable counts."""
+        text = "A análise fundamentalista da PETR4 mostra P/L de 5.2 e ROE de 15%"
+        count = countTokens(text)
+        assert 20 <= count <= 35
+
+    def test_count_tokens_handles_long_text(self):
+        text = "x" * 10000
+        count = countTokens(text)
+        assert count > 1000
+
+    def test_fallback_when_tokenizer_unavailable(self):
+        """Verify fallback works if local tokenizer fails."""
+        import main.app.prometheus.summarizer as mod
+
+        original = mod._tokenizer
+        mod._tokenizer = None
+        try:
+            count = countTokens("hello world")
+            assert count > 0
+        finally:
+            mod._tokenizer = original
+
+
+# ── Edge Cases ──────────────────────────────────────────────────────────
+
+
+class TestEdgeCases:
+    def test_shouldSummarize_all_empty_content(self):
+        s = PrometheusSummarizer()
+        history = [{"role": "user", "content": ""} for _ in range(100)]
+        assert s.shouldSummarize(history) is False
+
+    def test_getSummarizableChunk_no_episodes(self):
+        s = PrometheusSummarizer()
+        history = [{"role": "user", "content": "x", "timestamp": "2026-01-01T00:00:00"}]
+        chunk = s.getSummarizableChunk(history, [])
+        assert chunk == history
+
+    def test_getSummarizableChunk_with_episodes(self):
+        s = PrometheusSummarizer()
+        history = [
+            {"role": "user", "content": "old", "timestamp": "2026-01-01T00:00:00"},
+            {"role": "user", "content": "new", "timestamp": "2026-01-02T00:00:00"},
+        ]
+        episodes = [{"time": "2026-01-01T12:00:00"}]
+        chunk = s.getSummarizableChunk(history, episodes)
+        assert len(chunk) == 1
+        assert chunk[0]["content"] == "new"
