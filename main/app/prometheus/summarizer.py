@@ -93,19 +93,41 @@ RESPONSE_SCHEMA = {
 }
 
 
+EPISODE_TOKEN_BUDGET = 8000  # ~15-20 substantial messages
+
+
 class PrometheusSummarizer:
+    def shouldSummarize(self, history: list) -> bool:
+        """Check if accumulated tokens exceed episode threshold."""
+        if not history:
+            return False
+        total = sum(countTokens(m.get("content", "")) for m in history)
+        return total >= EPISODE_TOKEN_BUDGET
+
+    def getSummarizableChunk(self, history: list, episodes: list) -> list[dict]:
+        """Get messages since the last episode for summarization."""
+        if not episodes:
+            return history  # first episode: summarize everything
+
+        lastEpTime = episodes[-1].get("time")
+        if not lastEpTime:
+            return history
+
+        chunk = [m for m in history if m.get("timestamp", "") > lastEpTime]
+        return chunk if chunk else history[-10:]  # fallback: last 10 messages
+
     def summarize(self, db: DBSession, sessionId: str) -> dict | None:
         session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
 
-        if not session or not session.history or len(session.history) < 50 or len(session.history) % 50 > 1:
+        if not session or not session.history:
             return None
 
-        history: list[dict] = session.history  # type: ignore[assignment]
+        chunk = self.getSummarizableChunk(session.history, self.getEpisodes(db, sessionId))
+        if not self.shouldSummarize(chunk):
+            return None
 
         messages = "\n".join(
-            f"{m.get('role', '?')}: {smartTruncate(m.get('content', ''), 500)}"
-            for m in history[-50:]
-            if m.get("content")
+            f"{m.get('role', '?')}: {smartTruncate(m.get('content', ''), 500)}" for m in chunk if m.get("content")
         )
 
         try:

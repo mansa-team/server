@@ -79,8 +79,11 @@ class TestSmartTruncate:
 
 
 class TestEpisodeAccumulation:
+    @patch("main.app.prometheus.summarizer.countTokens", return_value=600)
     @patch("main.app.prometheus.summarizer.genai.Client")
-    def test_each_summarize_creates_new_episode(self, mock_genai, db_session, fake_session_with_45_messages):
+    def test_each_summarize_creates_new_episode(
+        self, mock_genai, mock_count, db_session, fake_session_with_45_messages
+    ):
         """Summarizing twice on the same history should NOT dedup — each batch gets its own episode."""
         mock_resp = MagicMock()
         mock_resp.parsed = {
@@ -92,15 +95,17 @@ class TestEpisodeAccumulation:
 
         summarizer = PrometheusSummarizer()
         ep1 = summarizer.summarize(db_session, fake_session_with_45_messages.sessionId)
-        # After first summarize: history untouched at 50
-        # Simulate new messages growing to 100 (next % 50 boundary)
+        assert ep1 is not None
+
+        # Simulate new messages — give enough messages so fallback chunk (last 10) exceeds threshold
         fake_session_with_45_messages.history = [
             {"role": "user", "content": f"Msg {i}", "timestamp": datetime.now().isoformat()} for i in range(100)
         ]
         db_session.commit()
+        # Bump mock so 10 fallback messages × 1000 = 10000 > 8000
+        mock_count.return_value = 1000
         ep2 = summarizer.summarize(db_session, fake_session_with_45_messages.sessionId)
 
-        assert ep1 is not None
         assert ep2 is not None
         assert ep1["id"] != ep2["id"]  # different episodes
         episodes = summarizer.getEpisodes(db_session, fake_session_with_45_messages.sessionId)
@@ -111,8 +116,9 @@ class TestEpisodeAccumulation:
 
 
 class TestSummarizeTrimsHistory:
+    @patch("main.app.prometheus.summarizer.countTokens", return_value=600)
     @patch("main.app.prometheus.summarizer.genai.Client")
-    def test_summarize_does_not_trim_history(self, mock_genai, db_session, fake_session_with_45_messages):
+    def test_summarize_does_not_trim_history(self, mock_genai, mock_count, db_session, fake_session_with_45_messages):
         mock_resp = MagicMock()
         mock_resp.parsed = {
             "summary": "Test summary",
@@ -186,9 +192,9 @@ class TestSummarizeEdgeCases:
         # (API may return None or a generic summary)
 
     def test_20_episode_cap_drops_oldest(self, db_session):
-        """Storing more than20 episodes should keep only the last20."""
+        """Storing more than 20 episodes should keep only the last 20."""
         summarizer = PrometheusSummarizer()
-        # Pre-populate21 episodes directly in the summary
+        # Pre-populate 21 episodes directly in the summary
         episodes = [
             {
                 "id": f"ep_{i:04d}",
@@ -211,16 +217,17 @@ class TestSummarizeEdgeCases:
         db_session.add(session)
         db_session.commit()
 
-        # Now summarize — should append episode22, then cap to last20
+        # Now summarize — should append episode 22, then cap to last 20
         mock_resp = MagicMock()
         mock_resp.parsed = {"summary": "New episode", "keyDecisions": [], "entities": []}
         with patch("main.app.prometheus.summarizer.genai.Client") as mock_genai:
-            mock_genai.return_value.models.generate_content.return_value = mock_resp
-            summarizer.summarize(db_session, "test-cap")
+            with patch("main.app.prometheus.summarizer.countTokens", return_value=600):
+                mock_genai.return_value.models.generate_content.return_value = mock_resp
+                summarizer.summarize(db_session, "test-cap")
 
         result = summarizer.getEpisodes(db_session, "test-cap")
         assert len(result) == 20
-        # First episode should be ep_0002 (0 and1 dropped)
+        # First episode should be ep_0002 (0 and 1 dropped)
         assert result[0]["id"] == "ep_0002"
 
 
@@ -305,3 +312,26 @@ class TestCountTokens:
     def test_mixed_language(self):
         count = countTokens("PETR4 P/L ratio está em 5.2, which is low")
         assert count > 0
+
+
+class TestTokenBasedTrigger:
+    def test_should_not_summarize_empty_history(self):
+        s = PrometheusSummarizer()
+        assert s.shouldSummarize([]) is False
+
+    def test_should_not_summarize_short_history(self):
+        s = PrometheusSummarizer()
+        history = [{"role": "user", "content": "Hello"} for _ in range(5)]
+        assert s.shouldSummarize(history) is False
+
+    @patch("main.app.prometheus.summarizer.countTokens", return_value=3000)
+    def test_should_summarize_when_threshold_exceeded(self, mock_count):
+        s = PrometheusSummarizer()
+        history = [{"role": "user", "content": "x" * 3000} for _ in range(4)]
+        assert s.shouldSummarize(history) is True
+
+    @patch("main.app.prometheus.summarizer.countTokens", return_value=1000)
+    def test_should_not_summarize_below_threshold(self, mock_count):
+        s = PrometheusSummarizer()
+        history = [{"role": "user", "content": "x" * 100} for _ in range(5)]
+        assert s.shouldSummarize(history) is False

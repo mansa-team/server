@@ -252,7 +252,7 @@ class Prometheus:
     async def streamMessage(self, query=None, sessionId=None, db=None, user=None) -> AsyncIterator[dict]:
         try:
             session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
-            if session and session.history and len(session.history) >= 50:
+            if session and session.history:
                 PrometheusSummarizer().summarize(db, str(sessionId))
         except Exception:
             logger.debug("Pre-turn summarization skipped", exc_info=True)
