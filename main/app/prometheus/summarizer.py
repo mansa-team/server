@@ -189,7 +189,7 @@ class PrometheusSummarizer:
                     temperature=0.0,
                 ),
             )
-            merged: dict = resp.parsed
+            merged: dict = resp.parsed  # type: ignore[assignment]
         except Exception as e:
             logger.warning(f"Episode merge failed, using fallback: {e}")
             merged = {
@@ -212,7 +212,7 @@ class PrometheusSummarizer:
         if not session or not session.history:
             return None
 
-        chunk = self.getSummarizableChunk(session.history, self.getEpisodes(db, sessionId))
+        chunk = self.getSummarizableChunk(session.history, self.getEpisodes(db, sessionId))  # type: ignore[arg-type]
         if not self.shouldSummarize(chunk):
             return None
 
