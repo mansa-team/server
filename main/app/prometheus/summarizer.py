@@ -114,8 +114,7 @@ MERGE_SCHEMA = {
 }
 
 
-EPISODE_TOKEN_BUDGET = 8000  # ~15-20 substantial messages
-EPISODE_HARD_CAP = 20
+EPISODE_TOKEN_BUDGET = 8000
 EPISODE_SOFT_CAP = 12
 MERGE_WINDOW = 5
 
@@ -253,7 +252,7 @@ class PrometheusSummarizer:
         if len(existing) > EPISODE_SOFT_CAP:
             existing = self.consolidate(existing)
 
-        session.summary = json.dumps(existing[-EPISODE_HARD_CAP:])  # type: ignore[assignment]
+        session.summary = json.dumps(existing)  # type: ignore[assignment]
         db.commit()
 
         return obj
