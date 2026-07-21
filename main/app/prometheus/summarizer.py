@@ -1,5 +1,3 @@
-"""Summarize conversation history into episode summaries."""
-
 import json
 import uuid
 import logging
@@ -15,7 +13,6 @@ from main.models import PrometheusSession
 
 logger = logging.getLogger(__name__)
 
-# Lazy-loaded tokenizer — initialized once, reused across calls
 _tokenizer = None
 
 
@@ -23,9 +20,7 @@ def _getTokenizer():
     global _tokenizer
     if _tokenizer is None:
         try:
-            from google import genai
-
-            _tokenizer = genai.LocalTokenizer(model_name="gemini-2.5-flash")
+            _tokenizer = genai.LocalTokenizer(model_name="gemini-flash-lite-latest")
             logger.info("Loaded Gemini local tokenizer")
         except Exception as e:
             logger.warning(f"Failed to load local tokenizer, using fallback: {e}")
@@ -34,11 +29,6 @@ def _getTokenizer():
 
 
 def countTokens(text: str) -> int:
-    """Count tokens using Gemini's local tokenizer.
-
-    Falls back to len(text)//3 if tokenizer unavailable.
-    //3 not //4 because Portuguese text averages ~2.5-3 chars/token.
-    """
     if not text:
         return 0
     tok = _getTokenizer()
@@ -116,35 +106,27 @@ MERGE_SCHEMA = {
 
 EPISODE_TOKEN_BUDGET = 8000
 EPISODE_CAP = 12
-MERGE_WINDOW = 5
 
 
 class PrometheusSummarizer:
     def shouldSummarize(self, history: list) -> bool:
-        """Check if accumulated tokens exceed episode threshold."""
         if not history:
             return False
         total = sum(countTokens(m.get("content", "")) for m in history)
         return total >= EPISODE_TOKEN_BUDGET
 
     def getSummarizableChunk(self, history: list, episodes: list) -> list[dict]:
-        """Get messages since the last episode for summarization."""
         if not episodes:
-            return history  # first episode: summarize everything
+            return history
 
         lastEpTime = episodes[-1].get("time")
         if not lastEpTime:
             return history
 
         chunk = [m for m in history if m.get("timestamp", "") > lastEpTime]
-        return chunk if chunk else history[-10:]  # fallback: last 10 messages
+        return chunk if chunk else history[-10:]
 
     def consolidate(self, episodes: list[dict]) -> list[dict]:
-        """Merge oldest episodes when count exceeds soft cap.
-
-        Keeps the most recent 10 episodes intact.
-        Merges the rest into a single compressed episode via Gemini.
-        """
         if len(episodes) <= EPISODE_CAP:
             return episodes
 
@@ -152,20 +134,19 @@ class PrometheusSummarizer:
         old = episodes[:-10]
 
         if len(old) < 3:
-            return episodes  # not enough to merge meaningfully
+            return episodes
 
         merged = self._mergeEpisodes(old)
         return [merged] + recent
 
     def _mergeEpisodes(self, episodes: list[dict]) -> dict:
-        """Merge multiple episodes into one via Gemini."""
         episode_texts = []
         all_decisions = []
         all_entities = []
 
         for ep in episodes:
             episode_texts.append(
-                f"--- Episode {ep.get('id', '?')} ({ep.get('time', '?')}) ---\n"
+                f"Episode {ep.get('id', '?')} ({ep.get('time', '?')})\n"
                 f"Summary: {ep.get('summary', '')}\n"
                 f"Decisions: {ep.get('keyDecisions', [])}\n"
                 f"Entities: {ep.get('entities', [])}"
@@ -248,7 +229,6 @@ class PrometheusSummarizer:
         existing = self.getEpisodes(db, sessionId)
         existing.append(obj)
 
-        # Consolidate if too many episodes
         if len(existing) > EPISODE_CAP:
             existing = self.consolidate(existing)
 

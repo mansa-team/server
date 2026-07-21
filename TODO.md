@@ -1,3 +1,4 @@
+- [ ] Use a int8 embedding model rather than full precision
 - [ ] Context compressing methods
 - [ ] Tool compressing methods (or caching the big outputs in a non persistant mount in the sandbox, that is then referenced as a file by the agent instead of a raw output)
 - [ ] Auto consolidating memories after n number of messages

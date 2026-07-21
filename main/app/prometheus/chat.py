@@ -73,6 +73,25 @@ class PrometheusChatManager:
             logger.error(f"Session {sessionId} not found for saveMessage")
 
     @classmethod
+    def saveLoopEvent(cls, db: Session, sessionId: str, eventType: str, metadata: dict):
+        session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
+
+        if session:
+            if session.history is None:
+                session.history = []
+
+            event = {
+                "role": "loop_event",
+                "eventType": eventType,
+                "metadata": metadata,
+                "timestamp": datetime.now().isoformat(),
+            }
+
+            session.history.append(event)
+            flag_modified(session, "history")
+            db.commit()
+
+    @classmethod
     def getHistory(cls, db: Session, sessionId: str, limit: int = 20):
         session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
 
@@ -83,6 +102,8 @@ class PrometheusChatManager:
 
         formattedHistory = []
         for msg in activeHistory:
+            if msg.get("role") == "loop_event":
+                continue
             formattedHistory.append(
                 {"role": "user" if msg["role"] == "user" else "model", "parts": [{"text": msg["content"]}]}
             )

@@ -302,6 +302,17 @@ class Prometheus:
                         loop.emit("tool_call", toolName=fc.name, args=fc.args or {}, turnNumber=turn)
                         yield {"type": "tool_call", "tool": fc.name, "args": fc.args or {}, "turn": turn}
 
+                        if sessionId:
+                            try:
+                                PrometheusChatManager.saveLoopEvent(
+                                    db,
+                                    str(sessionId),
+                                    "tool_call",
+                                    {"toolName": fc.name, "args": fc.args or {}, "turn": turn},
+                                )
+                            except Exception as e:
+                                logger.error(f"Failed to persist tool_call event: {e}")
+
                         if fc.name == "execute_code":
                             try:
                                 sandbox_id = await SandboxManager.getOrCreate(user.get("userId", 0), db)
@@ -338,6 +349,22 @@ class Prometheus:
                         "durationMs": int(time.time() * 1000) - turn_start,
                         "toolsUsed": len(tools_used),
                     }
+
+                    if sessionId:
+                        try:
+                            PrometheusChatManager.saveLoopEvent(
+                                db,
+                                str(sessionId),
+                                "turn_end",
+                                {
+                                    "turnNumber": turn,
+                                    "durationMs": int(time.time() * 1000) - turn_start,
+                                    "toolsUsed": tools_used,
+                                },
+                            )
+                        except Exception as e:
+                            logger.error(f"Failed to persist turn_end event: {e}")
+
                     turn += 1
                     stream = await chat.send_message_stream(responses)
 
