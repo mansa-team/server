@@ -135,8 +135,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\summarizer.py": {
-    "mtime": 1784591047.915719,
-    "ast_hash": "81120a31c4d5ec479cf37d13f7dbf4ee",
+    "mtime": 1784692437.5424666,
+    "ast_hash": "2048a0e2bd03d8253c13be85f2f1d89a",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\tools.py": {
@@ -320,9 +320,9 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\utils\\models\\loader.py": {
-    "mtime": 1784246058.3832757,
-    "ast_hash": "5e25428347cd1e946ee54360b9031213",
-    "semantic_hash": "5e25428347cd1e946ee54360b9031213"
+    "mtime": 1784691942.737728,
+    "ast_hash": "0a20b5de114aa575c319a04058b9790c",
+    "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\utils\\models\\__init__.py": {
     "mtime": 1782708689.9179392,
@@ -370,8 +370,8 @@
     "semantic_hash": "35e7305edfc17a02ff36bb113761bead"
   },
   "D:\\Repositories\\server\\AGENTS.md": {
-    "mtime": 1784686965.2774978,
-    "ast_hash": "619c704c6341314fe935a33bced6ef20",
+    "mtime": 1784693065.8764627,
+    "ast_hash": "57ec88c5e3c30976589788f9c761d7bb",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docker-compose.yml": {
@@ -390,8 +390,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\requirements.txt": {
-    "mtime": 1784686922.1285386,
-    "ast_hash": "2c4528f56f97a7e2868d86184fe8a736",
+    "mtime": 1784691465.4854207,
+    "ast_hash": "421ccea1b4310152dd58f88b3fcd586e",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\TODO.md": {
@@ -423,11 +423,6 @@
     "mtime": 1782691503.0008502,
     "ast_hash": "a747b8dce6f5be90f82ace23efd8961a",
     "semantic_hash": "a747b8dce6f5be90f82ace23efd8961a"
-  },
-  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-07-19-stocks-api-perf.md": {
-    "mtime": 1784594317.278871,
-    "ast_hash": "e431477a6280d10ff763599388a3ed63",
-    "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\index.html": {
     "mtime": 1784348155.0821807,
