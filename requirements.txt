@@ -27,6 +27,7 @@ huggingface-hub
 fastmcp
 google-genai[local-tokenizer]
 forgevm
+tiktoken
 
 # USER
 slowapi

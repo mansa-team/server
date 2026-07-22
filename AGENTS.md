@@ -54,6 +54,33 @@ Exit code: 0 = all passed, 1 = at least one failed. Bandit failures are non-bloc
 - Tests in `tests/test_*.py`, use fixtures from `conftest.py`
 - Requires MySQL running
 
+## Prometheus (AI Chat) — Strengths & Gaps
+
+### What It Does Well
+- **Memory system**: 7-layer architecture (DB schema, system prompt injection, search tool, extraction, maintenance)
+- **Tool calling**: 8 registered tools (memory, state, file ops, code execution) + MCP integration (stocks, searxng)
+- **Streaming**: SSE-based response streaming with real-time token delivery
+- **Session management**: Persistent chat history with JSON storage
+- **Episode summarization**: Auto-summarizes long conversations using Gemini
+
+### What It Should Be Doing (Gaps)
+- **GenAI native tool calling**: Currently uses custom dispatch loop, should migrate to Gemini's native function calling
+- **Code execution sandbox**: No sandboxed execution environment (ForgeVM planned)
+- **Redis caching**: No caching layer for frequent queries
+- **CORS validation**: Missing for Prometheus endpoints
+
+### Pandas-First Approach (80%+ Rule)
+- **Stocks API** exemplifies this pattern: `StocksCacheManager` loads `SELECT * FROM b3_stocks` into pandas DataFrame at startup
+- **Benefits**: In-memory filtering, O(1) ticker lookup via index, no repeated DB queries
+- **Trade-off**: Initial load time (1.6s for 652 stocks) vs zero-latency queries afterward
+- **Applies to**: Any read-heavy endpoint with <10k rows that fits in memory
+
+### Memory Keys
+- `preference` — user investment style, risk tolerance, favorite tickers
+- `analysis` — past analysis results, portfolio performance
+- `feedback` — user reactions, quality ratings
+- `context` — conversational state, recent topics
+
 ## graphify
 This project has a graphify knowledge graph at graphify-out/.
 
