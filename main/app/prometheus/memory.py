@@ -2,14 +2,13 @@ import logging
 import unicodedata
 from datetime import datetime
 
-import numpy as np
 from pytz import timezone
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 
 from main.models.memory import PrometheusMemory as PrometheusMemoryModel
 from main.utils.roles import Permission, Roles
-from main.app.prometheus.vector import batchCosineSimilarity, contentHash, getRelevanceScore, embed
+from main.app.prometheus.vector import batchCosineSimilarity, contentHash, decodeEmbeddings, getRelevanceScore, embed
 
 logger = logging.getLogger(__name__)
 
@@ -160,7 +159,7 @@ class PrometheusMemory:
         if memoriesWithEmb:
             try:
                 queryEmbedding = embed([query])[0]
-                matrix = np.vstack([m.embedding for m in memoriesWithEmb])
+                matrix = decodeEmbeddings([m.embedding for m in memoriesWithEmb])  # type: ignore[misc]
                 similarities = batchCosineSimilarity(queryEmbedding, matrix)
 
                 results = []
