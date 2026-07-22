@@ -1,7 +1,7 @@
 import json
 import logging
 import traceback
-from config import SessionLocal, getSession
+from config import getSession
 from main.utils.logging_config import limiter
 from main.utils.roles import Roles, Permission
 
@@ -119,16 +119,14 @@ async def chat_stream(
         verifySessionOwnsership(db, sessionId, user["userId"])
 
     async def eventStream():
-        streamDb = SessionLocal()
         try:
             yield f"data: {json.dumps({'type': 'session', 'sessionId': sessionId})}\n\n"
-            async for event in Prometheus().streamMessage(query, sessionId=sessionId, db=streamDb, user=user):
+            async for event in Prometheus().streamMessage(query, sessionId=sessionId, db=db, user=user):
                 yield f"data: {json.dumps(event)}\n\n"
         except Exception as e:
             logger.error(f"Stream error: {e}\n{traceback.format_exc()}")
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
         finally:
-            streamDb.close()
             yield "data: [DONE]\n\n"
 
     return StreamingResponse(eventStream(), media_type="text/event-stream")
