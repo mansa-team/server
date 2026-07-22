@@ -257,14 +257,16 @@ class Prometheus:
         except Exception:
             logger.debug("Pre-turn summarization skipped", exc_info=True)
 
-        history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
+        episodes = PrometheusSummarizer().getEpisodes(db, str(sessionId))
+        last_ep_time = episodes[-1].get("time") if episodes else None
+        history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50, since=last_ep_time)
         state = HarnessState()
         loop = LoopLogger(history)
         system_prompt = Prometheus.buildSystemPrompt(
             user.get("userId") if user else None,
             db,
             state=state,
-            sessionId=str(sessionId) if sessionId else None,
+            sessionId=str(sessionId),
             query=query,
         )
 

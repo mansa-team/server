@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 from sqlalchemy.orm import Session
@@ -92,13 +92,17 @@ class PrometheusChatManager:
             db.commit()
 
     @classmethod
-    def getHistory(cls, db: Session, sessionId: str, limit: int = 20):
+    def getHistory(cls, db: Session, sessionId: str, limit: int = 20, since: datetime | None = None):
         session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
 
         if not session or not session.history:
             return []
 
         activeHistory: list = session.history[-limit:]  # type: ignore[assignment]
+
+        # Skip messages already covered by episode summaries
+        if since is not None:
+            activeHistory = [m for m in activeHistory if m.get("timestamp", "") > since.isoformat()]
 
         formattedHistory = []
         for msg in activeHistory:
