@@ -83,7 +83,7 @@ def toColumnar(data: list) -> Any:
     keys = list(data[0].keys())
     if not all(list(row.keys()) == keys for row in data):
         return data
-    return {"h": ",".join(keys), "d": "\n".join("|".join(str(row[k]) for k in keys) for row in data)}
+    return {"h": ",".join(keys), "d": ["|".join(str(row[k]) for k in keys) for row in data]}
 
 
 def fixHeaders(obj: Any) -> None:
@@ -131,11 +131,11 @@ def compactCotations(result: dict) -> dict:
     def toCol(cd: list) -> dict:
         first = cd[0]
         if not isinstance(first, dict):
-            return {"h": "v", "d": "\n".join("|".join(str(v) for v in x) for x in cd)}
+            return {"h": "v", "d": ["|".join(str(v) for v in x) for x in cd]}
         hdrs = list(first.keys())
         return {
             "h": ",".join(COT.get(h, h) for h in hdrs),
-            "d": "\n".join("|".join(str(compactValue(x.get(h, ""))) for h in hdrs) for x in cd),
+            "d": ["|".join(str(compactValue(x.get(h, ""))) for h in hdrs) for x in cd],
         }
 
     if len(data) == 1 and isinstance(data[0], dict):
