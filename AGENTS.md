@@ -44,6 +44,25 @@ Exit code: 0 = all passed, 1 = at least one failed. Bandit failures are non-bloc
 - **DB**: Two MySQL connections (`engine` for user_db, `stocksEngine` for stocks_db)
 - **Entry**: `run.py`, source in `main/`
 
+## Stocks API — Pandas-First Pattern
+- **Cache**: `StocksCacheManager` loads `SELECT * FROM b3_stocks` into DataFrame at startup, 12h refresh
+- **Query**: `StocksQueryManager` does in-memory filtering, O(1) tickerIndex lookup
+- **Compression**: 6-layer field abbreviation, number suffixing, columnar format
+- **Auth**: API keys via `X-API-Key` header, SHA-256 hashed, atomic quota enforcement
+- **Key files**: `main/app/stocks_api/cache.py`, `query.py`, `compressor.py`, `key.py`
+
+## Scraper B3 (Xango) — Batch Data Pipeline
+- **Schedule**: APScheduler cron, configurable via `SCRAPER_SCHEDULER` env var
+- **Sources**: statusinvest, tradingview, investidor10, oceans14, bcb.gov.br, Google News RSS
+- **Scoring**: Xango score (growth, volatility, consistency, max drawdown, liquidity, ON penalty)
+- **Key files**: `main/app/scraper_b3/scraper.py`, `xango.py`
+
+## Auth/Users — Dual-Layer Session Security
+- **Session**: JWT (sessionId) + DB liveness check (UserSession table)
+- **RBAC**: IntFlag bitmask (USER, PREMIUM, DEVELOPER_STARTER, DEVELOPER_ENTERPRISE, ADMIN)
+- **SSO**: Google OAuth2 via fastapi_sso
+- **Key files**: `main/app/authentication/session.py`, `util.py`, `user/user.py`
+
 ## Key Quirks
 1. **Env vars use weird format**: `GOOGLE_CLIENT.ID`, `STOCKSAPI_KEY.SYSTEM`, `GEMINI_API.KEY` (dots in names)
 2. **Ports**: All services map to port 3200 via separate env vars (`USER_PORT`, `STOCKSAPI_PORT`, `PROMETHEUS_PORT`)
