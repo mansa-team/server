@@ -12,12 +12,16 @@ model: SentenceTransformer | None = None
 def getEmbeddingModel() -> SentenceTransformer:
     global model
     if model is None:
-        if not (MODEL_DIR / "model.safetensors").exists():
+        if not (MODEL_DIR / "onnx" / "model_qint8_avx512_vnni.onnx").exists():
             snapshot_download(
                 MODEL_ID,
                 local_dir=str(MODEL_DIR),
                 revision="main",
-                ignore_patterns=["*.bin", "*.h5", "*.ot", "*.onnx", "*.openvino*"],
+                ignore_patterns=["*.bin", "*.h5", "*.ot", "*.openvino*"],
             )
-        model = SentenceTransformer(str(MODEL_DIR))
+        model = SentenceTransformer(
+            str(MODEL_DIR),
+            backend="onnx",
+            model_kwargs={"file_name": "onnx/model_qint8_avx512_vnni.onnx"},
+        )
     return model
