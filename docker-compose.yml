@@ -20,7 +20,23 @@ services:
     environment:
       - SEARXNG_MCP_TRANSPORT=http
       - SEARXNG_PORT=8888
-      
+
+  forgevm:
+    build:
+      context: .
+      dockerfile: Dockerfile.forgevm
+    restart: always
+    ports:
+      - "7423:7423"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - forgevm-data:/data
+      - workspaces:/data/workspaces
+      - ./forgevm.yaml:/forgevm.yaml
+    environment:
+      - FORGEVM_DATABASE_PATH=/data/forgevm.db
+      - FORGEVM_LOGGING_LEVEL=info
+            
   api:
     build:
       context: .
@@ -40,22 +56,6 @@ services:
     volumes:
       - .:/app
       - workspaces:/data/workspaces
-
-  forgevm:
-    build:
-      context: .
-      dockerfile: Dockerfile.forgevm
-    restart: always
-    ports:
-      - "7423:7423"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - forgevm-data:/data
-      - workspaces:/data/workspaces
-      - ./forgevm.yaml:/forgevm.yaml
-    environment:
-      - FORGEVM_DATABASE_PATH=/data/forgevm.db
-      - FORGEVM_LOGGING_LEVEL=info
 
 volumes:
   db_data:

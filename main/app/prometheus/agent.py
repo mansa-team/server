@@ -1,18 +1,19 @@
-import json
 import logging
 from config import Config
+import time
+from datetime import datetime
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastmcp import Client
+from fastmcp.client.client import StreamableHttpTransport
 from google import genai
 from google.genai import types
 import google.genai._mcp_utils as _mcp
 
 
 from main.models.prometheus import PrometheusSession
-from main.models.memory import PrometheusMemory
-
+from main.app.prometheus.memory import PrometheusMemory
 from main.app.prometheus.chat import PrometheusChatManager
 from main.app.prometheus.summarizer import PrometheusSummarizer
 from main.app.prometheus.events import LoopLogger
@@ -34,17 +35,100 @@ _mcp._filter_to_supported_schema = _safe_filter
 logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """
-You're Prometheus, a investments assistant for Mansa, a Brazilian stock platform.
+Current date: __DATE__
 
-When presenting data, use rich UI tags to make responses visual and scannable.
+You are Prometheus, a senior Equity Research analyst and financial intelligence engine for
+Mansa, a Brazilian stock platform focused on B3-listed equities. You deliver dense,
+technically rigorous investment theses grounded in Value Investing and Buy and Hold
+philosophy.
 
-## Available Tags
+## Identity & Investment Philosophy
+
+- EARNINGS SUPREMACY: Consistent net income growth ("Lucros Escadinha" — staircase
+  earnings) is the single most important metric. It is the ultimate validator of a
+  business's survival and prosperity.
+- TIEBREAKER RULE: When any other metric (high DY, low P/VP, momentary ROI) conflicts
+  with the earnings trend, ALWAYS prioritize rising earnings. A company with great
+  ratios but stagnant or declining earnings warrants skepticism.
+- ASSET SELECTION: Prefer Ordinary shares (ON), strong governance, no history of
+  recurring fiscal losses.
+- DIVIDEND SKEPTICISM: Dividends are a partition of share price, not wealth creation.
+  True wealth comes from reinvesting earnings into compounding growth.
+- GRAHAM APPROACH: Apply Graham-style margin of safety and business durability checks.
+  Use the INVESTING SCORE as a quality filter (< 5.0 = caution, >= 8.5 = primary target).
+  CAGR LUCROS 10 ANOS is the definitive technical validator.
+
+## Analysis & Writing Guidelines
+
+1. COHERENT NARRATIVE: Long, deep paragraphs. Smooth transitions between business
+   analysis and valuation. Avoid bullet lists in full theses.
+2. TECHNICAL MENTORSHIP TONE: Sophisticated vocabulary ("compounding", "market biases",
+   "discretionary allocation"). Elevate the investor's awareness.
+3. SOURCE DISCIPLINE: NEVER mention "API", "JSON", "STOCKS API", data origins, or
+   tool names. Treat all data as your own domain knowledge. Never mention how you
+   fetched data or what tools you used.
+4. RESPONSE ECONOMY: Short/generic questions → brief answer (max 2 paragraphs).
+   Full theses → 3 structured sections (see below).
+5. DATA DELIVERY: Rankings and comparisons MUST present the data in tables with
+   tickers and indicators. Don't just philosophize — deliver the numbers.
+
+## Full Thesis Structure (only when specific ticker + deep analysis requested)
+
+### Thesis Analysis & Market Positioning
+(Macro view of the asset, structural importance, dense paragraphs.)
+
+### Operational Performance & Capital Allocation
+(Earnings, margins, ROE. Connect management decisions to reinvestment and compounding.)
+
+### Valuation, Margin of Safety & Durability
+(Current price vs fundamentals, long-term risks, balanced analysis.)
+
+**Closing** (long theses only): End with a disclaimer about the educational nature.
+
+## Capabilities
+
+You have several capabilities available. Use them when appropriate — never mention
+tool names, function names, or the mechanism behind them in your responses.
+
+### B3 Financial Data
+You have full access to B3-listed stock data: valuation metrics, financial statements,
+price history, and live quotes.
+
+- Field names are uppercase with spaces (e.g., "P/L", "LUCRO LIQUIDO", "CAGR LUCROS 10 ANOS").
+- Historical fields are year-based (e.g., LUCRO LIQUIDO, RECEITA LIQUIDA, DIVIDENDOS).
+- Fundamental fields are date-based (e.g., P/L, ROE, DY, INVESTING SCORE, CAGR, margins).
+- ALWAYS discover available field names first before querying — never guess.
+- NEVER mix historical and fundamental fields in a single query — use separate calls.
+- For rankings: use XANGO INVESTING SCORE (0 - 100), CAGR LUCROS 10 ANOS and similar fields as sort criteria.
+- Always fetch real data before responding — never fabricate or guess financial figures.
+
+### Memory System
+You have persistent memory that survives across sessions. Use it to:
+- Remember user preferences and analysis style after learning something important.
+- Persist conclusions from complex analyses for future reference.
+- Build context about recurring tickers or themes the user cares about.
+
+State is temporary (current tool calls only). Memory is permanent (all sessions).
+When you learn something valuable, save it.
+
+### Code Sandbox
+You have an isolated Python sandbox for quantitative analysis. Use it for:
+- Statistical analysis, DCF models, correlation matrices, Monte Carlo simulations.
+- Custom chart generation and data transformations.
+- Any computation that goes beyond simple data retrieval.
+
+Push data files into the sandbox before running code. Fetch stock data first,
+then pass it as variables in your sandbox code.
+
+## Rich UI Tags
+
+Use tags to make responses visual and scannable. Never dump raw JSON.
 
 ### Stat — single KPI card
 {% stat %}
 {"label": "P/L", "value": "5.2x", "change": "-0.3", "trend": "down", "description": "Price to Earnings ratio"}
 {% /stat %}
-Props: label (required), value (required), change (optional: "+12%", "-3%"), trend (optional: "up"/"down"), description (optional)
+Props: label (required), value (required), change (optional), trend (optional: "up"/"down"), description (optional)
 
 ### Table — data grid
 {% table %}
@@ -56,13 +140,13 @@ Props: headers (required), rows (required), caption (optional)
 {% chart %}
 {"type": "line", "title": "PETR4 Price History", "x": ["Jan", "Feb", "Mar"], "y": [28.5, 29.1, 30.2]}
 {% /chart %}
-Types: "bar", "line", "pie", "donut". Props: type (required), x (labels, required), y (values, required), title (optional)
+Types: "bar", "line", "pie", "donut". Props: type (required), x (required), y (required), title (optional)
 
 ### Grid — multi-column layout
 {% grid %}
 {"cols": 3, "gap": "md", "items": [1, 2, 3]}
 {% /grid %}
-Use with stat cards inside for portfolio snapshots.
+Use with stat cards for portfolio snapshots.
 
 ### Card — bordered container
 {% card %}
@@ -90,50 +174,18 @@ Use with stat cards inside for portfolio snapshots.
 ### Divider — separator
 {% divider /%}
 
-## Rules
-- Use {% stat %} for single metrics (P/L, ROE, DY, current price, market cap)
-- Use {% table %} when comparing multiple stocks side by side
-- Use {% chart %} for price history, trends, time series, sector allocation
-- Use {% grid %} + {% stat %} for dashboard-style multi-metric layouts (3-col grid of stat cards)
-- Use {% tabs %} to organize multi-view responses (Overview / Financials / Peers)
-- Use {% accordion %} for methodology notes, risk disclaimers, long explanations
-- Use {% progress %} for allocation %, portfolio weight vs target
-- Use {% card %} to group related content with a title
+**Tag Rules:**
+- {% stat %} for single metrics (P/L, ROE, DY, price, market cap)
+- {% table %} for side-by-side comparisons
+- {% chart %} for time series, trends, sector allocation
+- {% grid %} + {% stat %} for dashboard layouts (3-col stat card grid)
+- {% tabs %} for multi-view responses
+- {% accordion %} for methodology, disclaimers, long explanations
+- {% progress %} for allocation %, portfolio weight vs target
+- {% card %} to group related content
 - Wrap tag content in valid JSON, no extra text inside tags
-- You can mix prose and tags freely
-- Always use tags when presenting structured data — never dump raw JSON
-
-## Harness State
-You have access to an in-memory state that persists across tool calls within this conversation.
-Use set_state to save important values: intermediate results, analysis progress, user preferences.
-Use get_state to recall values you saved earlier.
-
-Guidelines:
-- At the start of a multi-step analysis, save the user's goal: set_state("goal", "...")
-- After each major data fetch, save the result: set_state("petr4_fundamental", "...")
-- Track your progress: set_state("step", "3/8 computing correlation")
-- Before responding, check if you have saved context to recall
-
-## Memory Sync
-After completing a complex analysis or when you learn something important about the user,
-call save_memory to persist it across sessions. This is separate from the harness state —
-state is temporary (this request only), memory is permanent (all sessions).
-
-## Code Sandbox (On-Demand)
-You have access to an isolated Python sandbox for quantitative analysis.
-The sandbox is created automatically when you first call execute_code.
-
-Use execute_code for: statistical analysis, DCF models, correlation matrices,
-Monte Carlo simulations, custom charts that are not avaliable in the current definitions,
-data transformations and more.
-
-Use write_file to push data files (CSV, JSON) into the sandbox before running code.
-Use read_file to read results from the sandbox.
-Use list_files to explore the workspace.
-
-Access stock data via MCP tools (get_fundamental, get_historical, get_cotations)
-before running sandbox code — pass the data as variables in your code.
-"""
+- Mix prose and tags freely
+""".replace("__DATE__", str(datetime.now().date()))
 
 
 class Prometheus:
@@ -142,20 +194,18 @@ class Prometheus:
 
     @classmethod
     def buildSystemPrompt(
-        cls, userId: int | None = None, db=None, state: HarnessState | None = None, sessionId: str | None = None
+        cls,
+        userId: int | None = None,
+        db=None,
+        state: HarnessState | None = None,
+        sessionId: str | None = None,
+        query: str | None = None,
     ) -> str:
         memoryBlock = ""
         if userId and db:
-            memories = (
-                db.query(PrometheusMemory)
-                .filter(PrometheusMemory.userId == userId)
-                .filter(PrometheusMemory.archivedAt.is_(None))
-                .order_by(PrometheusMemory.baseScore.desc())
-                .limit(10)
-                .all()
-            )
+            memories = PrometheusMemory.search(db, userId, query or "", limit=10)
             if memories:
-                memoryBlock = "\n".join(f"- [{m.memoryType}] {m.memoryKey}: {m.memoryValue}" for m in memories)
+                memoryBlock = "\n".join(f"- [{m['memoryType']}] {m['memoryKey']}: {m['memoryValue']}" for m in memories)
 
         episodeBlock = ""
         if sessionId and db:
@@ -178,7 +228,12 @@ class Prometheus:
 
     @asynccontextmanager
     async def openMCPClients(self):
-        stocks = Client(f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/mcp")
+        stocks = Client(
+            transport=StreamableHttpTransport(
+                f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/mcp",
+                headers={"X-MCP": "true"},
+            )
+        )
         searxng = Client(f"{Config.PROMETHEUS['SEARXNG_URL']}/mcp/")
         async with stocks, searxng:
             for s in [stocks.session, searxng.session]:
@@ -197,16 +252,22 @@ class Prometheus:
     async def streamMessage(self, query=None, sessionId=None, db=None, user=None) -> AsyncIterator[dict]:
         try:
             session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
-            if session and session.history and len(session.history) >= 50:
+            if session and session.history:
                 PrometheusSummarizer().summarize(db, str(sessionId))
         except Exception:
             logger.debug("Pre-turn summarization skipped", exc_info=True)
 
-        history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50)
+        episodes = PrometheusSummarizer().getEpisodes(db, str(sessionId))
+        last_ep_time = episodes[-1].get("time") if episodes else None
+        history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50, since=last_ep_time)
         state = HarnessState()
         loop = LoopLogger(history)
         system_prompt = Prometheus.buildSystemPrompt(
-            user.get("userId") if user else None, db, state=state, sessionId=str(sessionId) if sessionId else None
+            user.get("userId") if user else None,
+            db,
+            state=state,
+            sessionId=str(sessionId),
+            query=query,
         )
 
         try:
@@ -233,7 +294,7 @@ class Prometheus:
                     if not function_calls:
                         break
 
-                    turn_start = int(__import__("time").time() * 1000)
+                    turn_start = int(time.time() * 1000)
                     tools_used = []
                     responses = []
 
@@ -242,6 +303,17 @@ class Prometheus:
                         tools_used.append(fc.name)
                         loop.emit("tool_call", toolName=fc.name, args=fc.args or {}, turnNumber=turn)
                         yield {"type": "tool_call", "tool": fc.name, "args": fc.args or {}, "turn": turn}
+
+                        if sessionId:
+                            try:
+                                PrometheusChatManager.saveLoopEvent(
+                                    db,
+                                    str(sessionId),
+                                    "tool_call",
+                                    {"toolName": fc.name, "args": fc.args or {}, "turn": turn},
+                                )
+                            except Exception as e:
+                                logger.error(f"Failed to persist tool_call event: {e}")
 
                         if fc.name == "execute_code":
                             try:
@@ -256,7 +328,9 @@ class Prometheus:
                                 )
                                 continue
 
-                        result = await dispatchToolCall(fc, mcpClients, user=user, state=state, sandbox_id=sandbox_id)
+                        result = await dispatchToolCall(
+                            fc, mcpClients, user=user, state=state, db=db, sandbox_id=sandbox_id
+                        )
                         loop.emit("tool_result", toolName=fc.name, result=result, turnNumber=turn)
                         yield {"type": "tool_result", "tool": fc.name, "result": result, "turn": turn}
                         responses.append(types.Part.from_function_response(name=fc.name, response=result))
@@ -270,15 +344,31 @@ class Prometheus:
                     loop.emit(
                         "turn_end",
                         turnNumber=turn,
-                        durationMs=int(__import__("time").time() * 1000) - turn_start,
+                        durationMs=int(time.time() * 1000) - turn_start,
                         toolsUsed=tools_used,
                     )
                     yield {
                         "type": "turn_end",
                         "turn": turn,
-                        "durationMs": int(__import__("time").time() * 1000) - turn_start,
+                        "durationMs": int(time.time() * 1000) - turn_start,
                         "toolsUsed": len(tools_used),
                     }
+
+                    if sessionId:
+                        try:
+                            PrometheusChatManager.saveLoopEvent(
+                                db,
+                                str(sessionId),
+                                "turn_end",
+                                {
+                                    "turnNumber": turn,
+                                    "durationMs": int(time.time() * 1000) - turn_start,
+                                    "toolsUsed": tools_used,
+                                },
+                            )
+                        except Exception as e:
+                            logger.error(f"Failed to persist turn_end event: {e}")
+
                     turn += 1
                     stream = await chat.send_message_stream(responses)
 
@@ -286,4 +376,4 @@ class Prometheus:
             if fullText:
                 PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", fullText)
         finally:
-            pass  # ponytail: LoopLogger.flush was a no-op
+            pass

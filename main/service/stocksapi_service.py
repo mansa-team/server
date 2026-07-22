@@ -1,4 +1,5 @@
 from fastapi_mcp import FastApiMCP
+from starlette.requests import Request
 
 from main.utils.service_manager import ServiceManager
 from main.controller.stocksapi_controller import router as stocksRouter
@@ -10,6 +11,12 @@ class StocksAPIService:
     @staticmethod
     def initialize(port: int):
         service = ServiceManager.getApp(port)
+
+        @service.middleware("http")
+        async def mcpDetect(request: Request, call_next):
+            request.state.compressed = request.headers.get("x-mcp") == "true"
+            return await call_next(request)
+
         service.include_router(stocksRouter)
 
         mcp = FastApiMCP(
@@ -22,6 +29,7 @@ class StocksAPIService:
                 "get_cotations",
                 "get_live_price",
             ],
+            headers=["authorization", "x-mcp"],
         )
         mcp.mount_http(service, mount_path="/stocks/mcp")
 

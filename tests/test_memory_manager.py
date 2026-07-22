@@ -87,7 +87,7 @@ class TestCountMemories:
         MemoryManager.upsertMemory(dbSession, 1, "k1", "v1")
         MemoryManager.upsertMemory(dbSession, 1, "k2", "v2")
         mem = dbSession.query(PrometheusMemory).filter(PrometheusMemory.memoryKey == "k1").first()
-        mem.archivedAt = datetime.now(timezone.utc)
+        mem.archivedAt = datetime.now()
         dbSession.commit()
         assert MemoryManager.countMemories(dbSession, 1) == 1
 
@@ -116,7 +116,7 @@ class TestGetUserMemories:
         MemoryManager.upsertMemory(dbSession, 1, "k1", "v1")
         MemoryManager.upsertMemory(dbSession, 1, "k2", "v2")
         mem = dbSession.query(PrometheusMemory).filter(PrometheusMemory.memoryKey == "k1").first()
-        mem.archivedAt = datetime.now(timezone.utc)
+        mem.archivedAt = datetime.now()
         dbSession.commit()
         result = MemoryManager.getUserMemories(dbSession, 1)
         assert len(result) == 1

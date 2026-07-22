@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta
-from pytz import timezone
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from config import SessionLocal
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 def removeInactiveSessions():
     db = SessionLocal()
     try:
-        thresholdDate = datetime.now(timezone("America/Sao_Paulo")) - timedelta(days=SESSION_EXPIRY_DAYS)
+        thresholdDate = datetime.now() - timedelta(days=SESSION_EXPIRY_DAYS)
 
         deleted = (
             db.query(UserSession)
@@ -41,7 +40,7 @@ class UserService:
         service = ServiceManager.getApp(port)
         service.include_router(userRouter)
 
-        scheduler = BackgroundScheduler(timezone=timezone("America/Sao_Paulo"))
+        scheduler = BackgroundScheduler()
         scheduler.add_job(
             removeInactiveSessions,
             "interval",

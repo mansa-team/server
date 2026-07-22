@@ -2,14 +2,12 @@ import logging
 import unicodedata
 from datetime import datetime
 
-import numpy as np
-from pytz import timezone
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 
 from main.models.memory import PrometheusMemory as PrometheusMemoryModel
 from main.utils.roles import Permission, Roles
-from main.app.prometheus.vector import batchCosineSimilarity, contentHash, getRelevanceScore, embed
+from main.app.prometheus.vector import batchCosineSimilarity, contentHash, decodeEmbeddings, getRelevanceScore, embed
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +53,7 @@ def _applyUpdate(memory, value, memoryType, source, embedding):
     memory.embedding = embedding  # type: ignore[assignment]
     memory.baseScore = min(memory.baseScore + 0.1, 1.0)  # type: ignore[arg-type]
     memory.accessCount += 1  # type: ignore[assignment]
-    memory.lastAccessedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
+    memory.lastAccessedAt = datetime.now()  # type: ignore[assignment]
 
 
 class PrometheusMemory:
@@ -127,7 +125,7 @@ class PrometheusMemory:
             source=source,
             embedding=embedding,
             contentHash=contentHash(value),
-            lastAccessedAt=datetime.now(timezone("America/Sao_Paulo")),
+            lastAccessedAt=datetime.now(),
         )
         db.add(memory)
         db.commit()
@@ -160,7 +158,7 @@ class PrometheusMemory:
         if memoriesWithEmb:
             try:
                 queryEmbedding = embed([query])[0]
-                matrix = np.vstack([m.embedding for m in memoriesWithEmb])
+                matrix = decodeEmbeddings([m.embedding for m in memoriesWithEmb])  # type: ignore[misc]
                 similarities = batchCosineSimilarity(queryEmbedding, matrix)
 
                 results = []
@@ -172,7 +170,7 @@ class PrometheusMemory:
                             "memoryValue": m.memoryValue,
                             "memoryType": m.memoryType,
                             "score": float(similarities[i]),
-                            "relevanceScore": getRelevanceScore(m, datetime.now(timezone("America/Sao_Paulo"))),
+                            "relevanceScore": getRelevanceScore(m, datetime.now()),
                         }
                     )
                 results.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
@@ -232,7 +230,7 @@ class PrometheusMemory:
                 "memoryKey": m.memoryKey,
                 "memoryValue": m.memoryValue,
                 "memoryType": m.memoryType,
-                "relevanceScore": getRelevanceScore(m, datetime.now(timezone("America/Sao_Paulo"))),
+                "relevanceScore": getRelevanceScore(m, datetime.now()),
                 "accessCount": m.accessCount,
                 "createdAt": m.createdAt.isoformat() if m.createdAt else None,
             }
@@ -250,7 +248,7 @@ class PrometheusMemory:
         if not memory:
             return False
 
-        memory.archivedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
+        memory.archivedAt = datetime.now()  # type: ignore[assignment]
 
         db.commit()
 

@@ -2,7 +2,6 @@ import logging
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
-from pytz import timezone
 
 from config import SessionLocal
 from main.utils.service_manager import ServiceManager
@@ -33,7 +32,7 @@ def memoryMaintenance(db: Session | None = None):
         db = SessionLocal()
     try:
         assert db is not None
-        nowNaive = datetime.now(timezone("America/Sao_Paulo")).replace(tzinfo=None)
+        nowNaive = datetime.now().replace(tzinfo=None)
 
         active = db.query(PrometheusMemory).filter(PrometheusMemory.archivedAt.is_(None)).all()
         if not active:
@@ -60,7 +59,7 @@ def memoryMaintenance(db: Session | None = None):
                 and m.accessCount == 0
                 and daysSinceAccess > ARCHIVE_DAYS_THRESHOLD
             ):
-                m.archivedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
+                m.archivedAt = datetime.now()  # type: ignore[assignment]
                 archived += 1
             else:
                 decayed += 1
@@ -81,12 +80,11 @@ class PrometheusService:
 
         getEmbeddingModel()
 
-        scheduler = BackgroundScheduler(timezone=timezone("America/Sao_Paulo"))
+        scheduler = BackgroundScheduler()
         scheduler.add_job(
             memoryMaintenance,
             "interval",
             hours=24,
-            timezone=timezone("America/Sao_Paulo"),
             id="memory_maintenance",
             name="Memory Maintenance",
         )

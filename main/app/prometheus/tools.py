@@ -3,6 +3,7 @@ from config import SessionLocal
 from typing import Any
 
 from forgevm.exceptions import SandboxNotFound
+from sqlalchemy.orm import Session
 
 from main.app.prometheus.memory import PrometheusMemory
 from main.app.prometheus.sandbox import SandboxManager
@@ -27,17 +28,21 @@ async def search_memory(query: str, limit: int = 10, **_) -> dict:
     if not user:
         return {"error": "Authentication required"}
 
-    db = SessionLocal()
+    db: Session | None = _.get("db")
+    ownSession = not db
+    if ownSession:
+        db = SessionLocal()
     try:
         results = PrometheusMemory.search(
-            db,
+            db,  # type: ignore[arg-type]
             user["userId"],
             query,
             limit=limit,
         )
         return {"memories": results}
     finally:
-        db.close()
+        if ownSession:
+            db.close()  # type: ignore[union-attr]
 
 
 async def save_memory(key: str, value: str, type: str, **_) -> dict:
@@ -54,11 +59,14 @@ async def save_memory(key: str, value: str, type: str, **_) -> dict:
     if not user:
         return {"error": "Authentication required"}
 
-    db = SessionLocal()
+    db: Session | None = _.get("db")
+    ownSession = not db
+    if ownSession:
+        db = SessionLocal()
     try:
         embedding = embed([value])[0]
         result = PrometheusMemory.upsertMemory(
-            db,
+            db,  # type: ignore[arg-type]
             user["userId"],
             key=key,
             value=value,
@@ -71,7 +79,8 @@ async def save_memory(key: str, value: str, type: str, **_) -> dict:
             return {"error": f"Memory limit reached ({result['limit']}). Upgrade to premium for more memories."}
         return {"status": result["status"], "memoryId": result["memory"].id}
     finally:
-        db.close()
+        if ownSession:
+            db.close()  # type: ignore[union-attr]
 
 
 #
@@ -182,6 +191,7 @@ async def dispatchToolCall(
     mcpClients,
     user=None,
     state=None,
+    db=None,
     sandbox_id: str | None = None,
 ) -> dict:
     name = functionCall.name
@@ -192,6 +202,7 @@ async def dispatchToolCall(
         fn = TOOL_REGISTRY[name]
         args["user"] = user
         args["state"] = state
+        args["db"] = db
         args["sandbox_id"] = sandbox_id
         args["userId"] = user.get("userId", 0) if user else 0
         return await fn(**args)

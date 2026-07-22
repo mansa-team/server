@@ -44,12 +44,6 @@ Exit code: 0 = all passed, 1 = at least one failed. Bandit failures are non-bloc
 - **DB**: Two MySQL connections (`engine` for user_db, `stocksEngine` for stocks_db)
 - **Entry**: `run.py`, source in `main/`
 
-## Key Quirks
-1. **Env vars use weird format**: `GOOGLE_CLIENT.ID`, `STOCKSAPI_KEY.SYSTEM`, `GEMINI_API.KEY` (dots in names)
-2. **Ports**: All services map to port 3200 via separate env vars (`USER_PORT`, `STOCKSAPI_PORT`, `PROMETHEUS_PORT`)
-3. **Config classes**: Defined in `config.py` — don't guess field names
-4. **Migrations**: Alembic in `migrations/`, run via `alembic upgrade head`
-
 ## Testing
 - Tests in `tests/test_*.py`, use fixtures from `conftest.py`
 - Requires MySQL running

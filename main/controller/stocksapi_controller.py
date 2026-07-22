@@ -1,12 +1,13 @@
 import logging
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query, HTTPException, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from config import getSession
 
 from main.app.stocks_api.query import stocksQuery
 from main.app.stocks_api.key import verifyAPIKey, createKey
-from main.app.stocks_api.util import categorizeColumns
+from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
+from main.app.stocks_api.compressor import compressResponse, getNest
 from main.app.stocks_api.cache import stocksCache
 from main.app.user.user import UserManager
 from main.utils.roles import Permission, Roles
@@ -28,39 +29,54 @@ def listFields():
     IMPORTANT: Call this tool FIRST to get exact field names. Do NOT guess field names —
     they are dynamic and change when the database is updated.
 
-    The response contains two categories:
+    The response contains four categories:
     - "historical": object mapping field names to arrays of available years.
       Example: {"LUCRO LIQUIDO": [2020, 2021, 2022, 2023, 2024], "RECEITA LIQUIDA": [2020, ...]}
       Use these field names (without the year) in the /historical endpoint's `fields` parameter.
     - "fundamental": array of available field names.
       Example: ["P/L", "P/VP", "ROE", "DY", "LIQUIDEZ CORRENTE"]
       Use these exact names in the /fundamental endpoint's `fields` parameter.
+    - "abbreviations": object mapping full names to short abbreviations.
+      Example: {"LUCRO LIQUIDO": "LL", "P/L": "PL", "TICKER": "TK"}
+      Use these abbreviations in compact responses (they appear in compressed data).
+    - "nested": object describing JSON array fields and their subfield abbreviations.
+      Example: {"NOTICIAS": {"subfields": {"TITULO": "T", "LINK": "L"}, "dropped_in_compact": ["LINK"]}}
+      These subfields appear when compact=true or X-MCP header is set.
 
     Response format:
     {
       "historical": {"FIELD_NAME": [year1, year2, ...], ...},
-      "fundamental": ["FIELD1", "FIELD2", ...]
+      "fundamental": ["FIELD1", "FIELD2", ...],
+      "abbreviations": {"FULL_NAME": "ABBREV", ...},
+      "nested": {"FIELD": {"subfields": {...}, "dropped_in_compact": [...], "max_items_compact": N}}
     }
 
     Typical workflow:
     1. Call this endpoint to get available fields
     2. Pick field names from the response
-    3. Pass them to /historical or /fundamental via the `fields` parameter"""
+    3. Pass them to /historical or /fundamental via the `fields` parameter
+    4. Use abbreviations from the response to decode compressed responses
+    5. Use nested docs to understand compressed subfields in NOTICIAS/DIVIDENDOS"""
     if stocksCache.STOCKS_CACHE is None:
         raise HTTPException(status_code=503, detail="Cache not initialized")
 
     cols = stocksCache.STOCKS_CACHE.columns.tolist()
     historical, fundamental = categorizeColumns(cols)
-    return {"historical": historical, "fundamental": fundamental}
+    abbreviations = generateAbbreviations(historical, fundamental)
+    nested = getNest()
+
+    return {"historical": historical, "fundamental": fundamental, "abbreviations": abbreviations, "nested": nested}
 
 
 @router.get("/historical", operation_id="get_historical")
 def getHistorical(
+    request: Request,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     fields: str = Query(None, max_length=500, pattern=r"^[A-Za-z0-9,\s/.-]+$"),
     dates: str = Query(None, max_length=21),
     orderBy: str = Query(None),
     limit: int = Query(None, ge=1, le=1000),
+    compact: bool = Query(False),
     apiKey: str = Depends(verifyAPIKey),
 ):
     """Get year-based historical financial data for Brazilian B3 stocks.
@@ -109,16 +125,20 @@ def getHistorical(
     - Get all revenue data for VALE3: search="VALE3", fields="RECEITA LIQUIDA"
     - Compare top 10 by EBITDA: fields="EBITDA", orderBy="EBITDA", limit=10"""
     result = stocksQuery.queryHistorical(search, fields, dates, orderBy, limit)
+    if compact or getattr(request.state, "compressed", False):
+        result = compressResponse(result, "get_historical", {"search": search, "fields": fields, "dates": dates})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
 
 
 @router.get("/fundamental", operation_id="get_fundamental")
 def getFundamental(
+    request: Request,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     fields: str = Query(None, max_length=500, pattern=r"^[A-Za-z0-9,\s/.-]+$"),
     dates: str = Query(None, max_length=21),
     orderBy: str = Query(None),
     limit: int = Query(None, ge=1, le=1000),
+    compact: bool = Query(False),
     apiKey: str = Depends(verifyAPIKey),
 ):
     """Get point-in-time fundamental/valuation data for Brazilian B3 stocks.
@@ -172,14 +192,18 @@ def getFundamental(
     - Compare P/L across tickers: search="PETR4,VALE3,ITUB4", fields="P/L", orderBy="P/L"
     - Q1 2024 fundamental snapshot: fields="P/L,ROE", dates="2024-01-01,2024-03-31" """
     result = stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
+    if compact or getattr(request.state, "compressed", False):
+        result = compressResponse(result, "get_fundamental", {"search": search, "fields": fields, "dates": dates})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
 
 
 @router.get("/cotations", operation_id="get_cotations")
 def getCotations(
+    request: Request,
     search: str = Query(..., min_length=1, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     dates: str = Query(None, max_length=21),
     adjusted: bool = Query(False),
+    compact: bool = Query(False),
     apiKey: str = Depends(verifyAPIKey),
 ):
     """Get 10-year daily price history (cotation) for Brazilian B3 stocks.
@@ -222,12 +246,16 @@ def getCotations(
     - Get PETR4 + VALE3 2023 prices: search="PETR4,VALE3", dates="2023-01-01,2023-12-31"
     - Get inflation-adjusted prices: search="ITUB4", adjusted=true"""
     result = stocksQuery.queryCotations(search, dates, adjusted)
+    if compact or getattr(request.state, "compressed", False):
+        result = compressResponse(result, "get_cotations", {"search": search, "dates": dates})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
 
 
 @router.get("/cotations/live", operation_id="get_live_price")
 def getLiveCotation(
+    request: Request,
     search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),
+    compact: bool = Query(False),
     apiKey: str = Depends(verifyAPIKey),
 ):
     """Get real-time price quotation for a single Brazilian B3 stock.
@@ -261,6 +289,8 @@ def getLiveCotation(
     - Real-time data is only available during B3 market hours (10:00-17:30 BRT).
     - Outside market hours, returns the last available closing price."""
     result = stocksQuery.queryLiveCotation(search)
+    if compact or getattr(request.state, "compressed", False):
+        result = compressResponse(result, "get_live_price", {"search": search})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=15"})
 
 

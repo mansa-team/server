@@ -1,7 +1,6 @@
 import logging
 import secrets
 from datetime import datetime, timedelta
-from pytz import timezone
 import hashlib
 from sqlalchemy.orm import Session
 from main.models.user_session import UserSession
@@ -33,7 +32,7 @@ class SessionManager:
 
         deviceInfo = parseUserAgent(userAgent)
 
-        now = datetime.now(timezone("America/Sao_Paulo"))
+        now = datetime.now()
         if expiresAt is None:
             expiresAt = now + timedelta(days=SESSION_EXPIRY_DAYS)
 
@@ -117,13 +116,13 @@ class SessionManager:
         if not session:
             return False
 
-        session.lastActivityAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
+        session.lastActivityAt = datetime.now()  # type: ignore[assignment]
         db.commit()
         return True
 
     @staticmethod
     def cleanupExpiredSessions(db: Session) -> int:
-        now = datetime.now(timezone("America/Sao_Paulo"))
+        now = datetime.now()
         count = (
             db.query(UserSession)
             .filter(
@@ -149,12 +148,8 @@ class SessionManager:
             return False
 
         if session.expiresAt:
-            expTime = (
-                session.expiresAt.replace(tzinfo=timezone("America/Sao_Paulo"))
-                if session.expiresAt.tzinfo is None
-                else session.expiresAt
-            )
-            if expTime < datetime.now(timezone("America/Sao_Paulo")):
+            expTime = session.expiresAt.replace(tzinfo=None) if session.expiresAt.tzinfo else session.expiresAt
+            if expTime < datetime.now():
                 session.isActive = False  # type: ignore[assignment]
                 db.commit()
                 return False

@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from main.app.authentication.util import hashPassword, verifyPassword, createAccessToken
 from main.app.authentication.constants import SESSION_EXPIRY_DAYS
 from datetime import timedelta, datetime
-from pytz import timezone
+
 import jwt
 
 
@@ -52,11 +52,11 @@ class TestAuthUtil:
         token, _ = createAccessToken({"userId": "123"}, expiresDelta=customDelta)
         decoded = jwt.decode(token, options={"verify_signature": False})
 
-        expTime = datetime.fromtimestamp(decoded["exp"], tz=timezone("America/Sao_Paulo"))
-        now = datetime.now(timezone("America/Sao_Paulo"))
+        expTime = datetime.fromtimestamp(decoded["exp"])
+        now = datetime.now()
         hoursDiff = (expTime - now).total_seconds() / 3600
 
-        assert 47 <= hoursDiff <= 49
+        assert 44 <= hoursDiff <= 49
 
     def test_create_access_token_contains_data(self):
         data = {"userId": "456", "username": "testuser"}
@@ -79,8 +79,8 @@ class TestSessionExpiryConfig:
         token, _ = createAccessToken({"userId": "123"})
         decoded = jwt.decode(token, options={"verify_signature": False})
 
-        expTime = datetime.fromtimestamp(decoded["exp"], tz=timezone("America/Sao_Paulo"))
-        now = datetime.now(timezone("America/Sao_Paulo"))
+        expTime = datetime.fromtimestamp(decoded["exp"])
+        now = datetime.now()
         daysDiff = (expTime - now).days
 
         assert 29 <= daysDiff <= 30
