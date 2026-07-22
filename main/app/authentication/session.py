@@ -1,7 +1,6 @@
 import logging
 import secrets
 from datetime import datetime, timedelta
-from pytz import timezone
 import hashlib
 from sqlalchemy.orm import Session
 from main.models.user_session import UserSession
@@ -149,12 +148,8 @@ class SessionManager:
             return False
 
         if session.expiresAt:
-            expTime = (
-                session.expiresAt.replace(tzinfo=timezone("America/Sao_Paulo"))
-                if session.expiresAt.tzinfo is None
-                else session.expiresAt
-            )
-            if expTime < datetime.now(tz=timezone("America/Sao_Paulo")):
+            expTime = session.expiresAt.replace(tzinfo=None) if session.expiresAt.tzinfo else session.expiresAt
+            if expTime < datetime.now():
                 session.isActive = False  # type: ignore[assignment]
                 db.commit()
                 return False
