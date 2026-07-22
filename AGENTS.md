@@ -84,7 +84,7 @@ Exit code: 0 = all passed, 1 = at least one failed. Bandit failures are non-bloc
 
 ### What It Should Be Doing (Gaps)
 - **GenAI native tool calling**: Currently uses custom dispatch loop, should migrate to Gemini's native function calling
-- **Code execution sandbox**: No sandboxed execution environment (ForgeVM planned)
+- **Code execution sandbox**: ForgeVM — async sandboxed Python execution with per-user workspaces, file sync, auto-recreation on death, TTL-based lifecycle
 - **Redis caching**: No caching layer for frequent queries
 - **CORS validation**: Missing for Prometheus endpoints
 
