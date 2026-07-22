@@ -326,7 +326,9 @@ class Prometheus:
                                 )
                                 continue
 
-                        result = await dispatchToolCall(fc, mcpClients, user=user, state=state, sandbox_id=sandbox_id)
+                        result = await dispatchToolCall(
+                            fc, mcpClients, user=user, state=state, db=db, sandbox_id=sandbox_id
+                        )
                         loop.emit("tool_result", toolName=fc.name, result=result, turnNumber=turn)
                         yield {"type": "tool_result", "tool": fc.name, "result": result, "turn": turn}
                         responses.append(types.Part.from_function_response(name=fc.name, response=result))
