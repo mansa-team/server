@@ -105,8 +105,8 @@
     "semantic_hash": "cb349123af780ef71f4871b50f26f79c"
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\agent.py": {
-    "mtime": 1784587745.006254,
-    "ast_hash": "02c80c2d6821cc9ef7668c478785a323",
+    "mtime": 1784669845.1111574,
+    "ast_hash": "7a69fd14ff2470e83e56dff4183813a8",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\chat.py": {
@@ -120,8 +120,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\memory.py": {
-    "mtime": 1784419769.4255981,
-    "ast_hash": "b7b4db276750ce19c70047ba4fbe6007",
+    "mtime": 1784670080.6452458,
+    "ast_hash": "c8f6ea58418fc2c17de81096bb07c769",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\sandbox.py": {
@@ -140,14 +140,14 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\tools.py": {
-    "mtime": 1784427360.584931,
-    "ast_hash": "50f51ffe05d68263f15a5329e041be18",
+    "mtime": 1784670161.1085925,
+    "ast_hash": "1ada06e56aa117ec205f71ee39d1413f",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\vector.py": {
-    "mtime": 1784225580.3212,
-    "ast_hash": "e53f9444fa2e3df870c768dea8f7ede6",
-    "semantic_hash": "e53f9444fa2e3df870c768dea8f7ede6"
+    "mtime": 1784687032.066051,
+    "ast_hash": "b723e22d6e092c0d6e0395c9de96f24c",
+    "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\scraper_b3\\scraper.py": {
     "mtime": 1784409127.239988,
@@ -160,7 +160,7 @@
     "semantic_hash": "0cbeed2304027b45b74b36f17b47cca7"
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\cache.py": {
-    "mtime": 1784592295.001708,
+    "mtime": 1784663244.7338364,
     "ast_hash": "dcda43abf60da30ac35b9e1717e0a604",
     "semantic_hash": ""
   },
@@ -195,8 +195,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\prometheus_controller.py": {
-    "mtime": 1784419593.0119414,
-    "ast_hash": "93cd8471003016cc4855759b3d4a8d54",
+    "mtime": 1784669889.5181527,
+    "ast_hash": "c365428011da624ff286fe1037a179f4",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\stocksapi_controller.py": {
@@ -370,9 +370,9 @@
     "semantic_hash": "35e7305edfc17a02ff36bb113761bead"
   },
   "D:\\Repositories\\server\\AGENTS.md": {
-    "mtime": 1782691502.9893162,
-    "ast_hash": "0f61369305d82e46ed248c697e4d3027",
-    "semantic_hash": "0f61369305d82e46ed248c697e4d3027"
+    "mtime": 1784686965.2774978,
+    "ast_hash": "619c704c6341314fe935a33bced6ef20",
+    "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docker-compose.yml": {
     "mtime": 1784423845.2006292,
@@ -390,8 +390,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\requirements.txt": {
-    "mtime": 1784588047.4505367,
-    "ast_hash": "421ccea1b4310152dd58f88b3fcd586e",
+    "mtime": 1784686922.1285386,
+    "ast_hash": "2c4528f56f97a7e2868d86184fe8a736",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\TODO.md": {
@@ -424,9 +424,9 @@
     "ast_hash": "a747b8dce6f5be90f82ace23efd8961a",
     "semantic_hash": "a747b8dce6f5be90f82ace23efd8961a"
   },
-  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-07-20-persist-loop-events.md": {
-    "mtime": 1784586145.6029372,
-    "ast_hash": "057df21312abf5100b6a33db3d138eae",
+  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-07-19-stocks-api-perf.md": {
+    "mtime": 1784594317.278871,
+    "ast_hash": "e431477a6280d10ff763599388a3ed63",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\index.html": {

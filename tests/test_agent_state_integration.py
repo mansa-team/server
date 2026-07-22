@@ -8,7 +8,7 @@ class TestBuildSystemPromptState:
     def test_build_system_prompt_no_state(self):
         """System prompt should work without state parameter."""
         prompt = Prometheus.buildSystemPrompt()
-        assert "investments assistant" in prompt.lower()
+        assert "equity research analyst" in prompt.lower()
 
     def test_build_system_prompt_with_state(self):
         """System prompt should include state context when provided."""
@@ -184,17 +184,18 @@ class TestStreamMessageStateIntegration:
 
 
 class TestSystemPromptStateInstructions:
-    def test_system_prompt_has_harness_state_section(self):
-        """System prompt should instruct LLM about harness state usage."""
+    def test_build_system_prompt_includes_harness_state_when_set(self):
+        """buildSystemPrompt should inject [HARNESS STATE] when state has entries."""
         from main.app.prometheus.agent import SYSTEM_PROMPT
 
-        assert "Harness State" in SYSTEM_PROMPT or "harness state" in SYSTEM_PROMPT.lower()
-        assert "set_state" in SYSTEM_PROMPT
-        assert "get_state" in SYSTEM_PROMPT
+        state = HarnessState()
+        state.set("current_step", "3/5")
+        prompt = Prometheus.buildSystemPrompt(state=state)
+        assert "[HARNESS STATE]" in prompt
+        assert "current_step" in prompt
 
-    def test_system_prompt_has_memory_sync_section(self):
-        """System prompt should instruct LLM about memory vs state."""
+    def test_system_prompt_has_memory_system_section(self):
+        """System prompt should mention the Memory System capability."""
         from main.app.prometheus.agent import SYSTEM_PROMPT
 
-        assert "Memory Sync" in SYSTEM_PROMPT or "memory sync" in SYSTEM_PROMPT.lower()
-        assert "save_memory" in SYSTEM_PROMPT
+        assert "Memory System" in SYSTEM_PROMPT

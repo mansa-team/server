@@ -14,7 +14,7 @@ def embed(texts: list[str]) -> list[list[float]]:
 def decodeEmbeddings(rawEmbeddings: list[bytes]) -> np.ndarray:
     if not rawEmbeddings:
         return np.empty((0, 0), dtype=np.float32)
-    
+
     buf = b"".join(rawEmbeddings)
     dims = len(rawEmbeddings[0]) // 4  # float32 = 4 bytes
     return np.frombuffer(buf, dtype=np.float32).reshape(len(rawEmbeddings), dims)
