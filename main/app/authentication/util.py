@@ -35,7 +35,7 @@ def createAccessToken(data: dict | None, expiresDelta: timedelta | None = None):
         expiresDelta = timedelta(hours=TOKEN_EXPIRY_HOURS)
 
     payload = data.copy()
-    payload["exp"] = datetime.now(timezone("America/Sao_Paulo")) + expiresDelta
+    payload["exp"] = datetime.now() + expiresDelta
 
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
     return token, expiresDelta

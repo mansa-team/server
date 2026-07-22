@@ -13,7 +13,7 @@ class LoopLogger:
             "role": "loop_event",
             "eventType": eventType,
             "metadata": kwargs,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now().isoformat(),
         }
         self._history.append(event)
         return event

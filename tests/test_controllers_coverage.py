@@ -1397,7 +1397,7 @@ class TestVerifyAccessToken:
         from main.app.authentication.constants import SECRET_KEY, ALGORITHM
         from main.app.authentication.util import verifyAccessToken
 
-        expired_payload = {"userId": "1", "exp": datetime.now(timezone.utc) - timedelta(hours=1)}
+        expired_payload = {"userId": "1", "exp": datetime.now() - timedelta(hours=1)}
         token = pyjwt.encode(expired_payload, SECRET_KEY, algorithm=ALGORITHM)
 
         from fastapi import HTTPException

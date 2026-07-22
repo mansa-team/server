@@ -29,7 +29,7 @@ def buildErrorResponse(statusCode: int, error: str, detail: str | None = None) -
         error=error,
         detail=detail,
         request_id=requestIdVar.get(""),
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now().isoformat(),
         status_code=statusCode,
     ).model_dump()
 

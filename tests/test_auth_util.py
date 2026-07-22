@@ -53,7 +53,7 @@ class TestAuthUtil:
         decoded = jwt.decode(token, options={"verify_signature": False})
 
         expTime = datetime.fromtimestamp(decoded["exp"], tz=timezone("America/Sao_Paulo"))
-        now = datetime.now(timezone("America/Sao_Paulo"))
+        now = datetime.now()
         hoursDiff = (expTime - now).total_seconds() / 3600
 
         assert 47 <= hoursDiff <= 49
@@ -80,7 +80,7 @@ class TestSessionExpiryConfig:
         decoded = jwt.decode(token, options={"verify_signature": False})
 
         expTime = datetime.fromtimestamp(decoded["exp"], tz=timezone("America/Sao_Paulo"))
-        now = datetime.now(timezone("America/Sao_Paulo"))
+        now = datetime.now()
         daysDiff = (expTime - now).days
 
         assert 29 <= daysDiff <= 30

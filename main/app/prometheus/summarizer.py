@@ -38,7 +38,6 @@ def countTokens(text: str) -> int:
             return result.total_tokens
         except Exception:
             pass
-    # ponytail: fallback estimate, //3 is conservative for PT+EN mix
     return len(text) // 3
 
 
@@ -180,7 +179,7 @@ class PrometheusSummarizer:
 
         return {
             "id": f"ep_{uuid.uuid4().hex[:8]}",
-            "time": datetime.now(timezone.utc).isoformat(),
+            "time": datetime.now().isoformat(),
             "summary": merged.get("summary", ""),
             "keyDecisions": merged.get("keyDecisions", []),
             "entities": merged.get("entities", []),
@@ -220,7 +219,7 @@ class PrometheusSummarizer:
 
         obj = {
             "id": f"ep_{uuid.uuid4().hex[:8]}",
-            "time": datetime.now(timezone.utc).isoformat(),
+            "time": datetime.now().isoformat(),
             "summary": episode.get("summary", ""),
             "keyDecisions": episode.get("keyDecisions", []),
             "entities": episode.get("entities", []),

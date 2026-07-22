@@ -54,7 +54,7 @@ def _applyUpdate(memory, value, memoryType, source, embedding):
     memory.embedding = embedding  # type: ignore[assignment]
     memory.baseScore = min(memory.baseScore + 0.1, 1.0)  # type: ignore[arg-type]
     memory.accessCount += 1  # type: ignore[assignment]
-    memory.lastAccessedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
+    memory.lastAccessedAt = datetime.now()  # type: ignore[assignment]
 
 
 class PrometheusMemory:
@@ -126,7 +126,7 @@ class PrometheusMemory:
             source=source,
             embedding=embedding,
             contentHash=contentHash(value),
-            lastAccessedAt=datetime.now(timezone("America/Sao_Paulo")),
+            lastAccessedAt=datetime.now(),
         )
         db.add(memory)
         db.commit()
@@ -171,7 +171,7 @@ class PrometheusMemory:
                             "memoryValue": m.memoryValue,
                             "memoryType": m.memoryType,
                             "score": float(similarities[i]),
-                            "relevanceScore": getRelevanceScore(m, datetime.now(timezone("America/Sao_Paulo"))),
+                            "relevanceScore": getRelevanceScore(m, datetime.now()),
                         }
                     )
                 results.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
@@ -231,7 +231,7 @@ class PrometheusMemory:
                 "memoryKey": m.memoryKey,
                 "memoryValue": m.memoryValue,
                 "memoryType": m.memoryType,
-                "relevanceScore": getRelevanceScore(m, datetime.now(timezone("America/Sao_Paulo"))),
+                "relevanceScore": getRelevanceScore(m, datetime.now()),
                 "accessCount": m.accessCount,
                 "createdAt": m.createdAt.isoformat() if m.createdAt else None,
             }
@@ -249,7 +249,7 @@ class PrometheusMemory:
         if not memory:
             return False
 
-        memory.archivedAt = datetime.now(timezone("America/Sao_Paulo"))  # type: ignore[assignment]
+        memory.archivedAt = datetime.now()  # type: ignore[assignment]
 
         db.commit()
 

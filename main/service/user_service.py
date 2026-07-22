@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 def removeInactiveSessions():
     db = SessionLocal()
     try:
-        thresholdDate = datetime.now(timezone("America/Sao_Paulo")) - timedelta(days=SESSION_EXPIRY_DAYS)
+        thresholdDate = datetime.now() - timedelta(days=SESSION_EXPIRY_DAYS)
 
         deleted = (
             db.query(UserSession)
