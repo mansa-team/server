@@ -154,7 +154,7 @@ class SessionManager:
                 if session.expiresAt.tzinfo is None
                 else session.expiresAt
             )
-            if expTime < datetime.now():
+            if expTime < datetime.now(tz=timezone("America/Sao_Paulo")):
                 session.isActive = False  # type: ignore[assignment]
                 db.commit()
                 return False
