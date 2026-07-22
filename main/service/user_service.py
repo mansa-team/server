@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta
-from pytz import timezone
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from config import SessionLocal
@@ -41,7 +40,7 @@ class UserService:
         service = ServiceManager.getApp(port)
         service.include_router(userRouter)
 
-        scheduler = BackgroundScheduler(timezone=timezone("America/Sao_Paulo"))
+        scheduler = BackgroundScheduler()
         scheduler.add_job(
             removeInactiveSessions,
             "interval",

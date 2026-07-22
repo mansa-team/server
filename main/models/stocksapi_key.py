@@ -2,7 +2,6 @@ from sqlalchemy import Integer, String, TIMESTAMP, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from main.models.base import Base
 from datetime import datetime
-from pytz import timezone
 
 
 class StocksAPIKey(Base):

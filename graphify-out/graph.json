@@ -802,7 +802,7 @@
       "label": "SessionManager",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L14",
+      "source_location": "L13",
       "id": "authentication_session_sessionmanager",
       "community": 68,
       "norm_label": "sessionmanager"
@@ -811,7 +811,7 @@
       "label": "getDeviceName()",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L16",
+      "source_location": "L15",
       "id": "authentication_session_getdevicename",
       "community": 127,
       "norm_label": "getdevicename()"
@@ -820,7 +820,7 @@
       "label": "createSession()",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L24",
+      "source_location": "L23",
       "id": "authentication_session_createsession",
       "community": 127,
       "norm_label": "createsession()"
@@ -829,7 +829,7 @@
       "label": "getUserSessions()",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L61",
+      "source_location": "L60",
       "id": "authentication_session_getusersessions",
       "community": 127,
       "norm_label": "getusersessions()"
@@ -838,7 +838,7 @@
       "label": "getSessionById()",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L68",
+      "source_location": "L67",
       "id": "authentication_session_getsessionbyid",
       "community": 127,
       "norm_label": "getsessionbyid()"
@@ -847,7 +847,7 @@
       "label": "getCurrentSession()",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L75",
+      "source_location": "L74",
       "id": "authentication_session_getcurrentsession",
       "community": 127,
       "norm_label": "getcurrentsession()"
@@ -856,7 +856,7 @@
       "label": "revokeSession()",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L87",
+      "source_location": "L86",
       "id": "authentication_session_revokesession",
       "community": 127,
       "norm_label": "revokesession()"
@@ -865,7 +865,7 @@
       "label": "revokeAllSessions()",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L99",
+      "source_location": "L98",
       "id": "authentication_session_revokeallsessions",
       "community": 127,
       "norm_label": "revokeallsessions()"
@@ -874,7 +874,7 @@
       "label": "updateLastActive()",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L115",
+      "source_location": "L114",
       "id": "authentication_session_updatelastactive",
       "community": 127,
       "norm_label": "updatelastactive()"
@@ -883,7 +883,7 @@
       "label": "cleanupExpiredSessions()",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L125",
+      "source_location": "L124",
       "id": "authentication_session_cleanupexpiredsessions",
       "community": 127,
       "norm_label": "cleanupexpiredsessions()"
@@ -892,7 +892,7 @@
       "label": "validateSession()",
       "file_type": "code",
       "source_file": "main/app/authentication/session.py",
-      "source_location": "L143",
+      "source_location": "L142",
       "id": "authentication_session_validatesession",
       "community": 127,
       "norm_label": "validatesession()"
@@ -928,7 +928,7 @@
       "label": "hashPassword()",
       "file_type": "code",
       "source_file": "main/app/authentication/util.py",
-      "source_location": "L14",
+      "source_location": "L13",
       "id": "authentication_util_hashpassword",
       "community": 43,
       "norm_label": "hashpassword()"
@@ -937,7 +937,7 @@
       "label": "verifyPassword()",
       "file_type": "code",
       "source_file": "main/app/authentication/util.py",
-      "source_location": "L22",
+      "source_location": "L21",
       "id": "authentication_util_verifypassword",
       "community": 43,
       "norm_label": "verifypassword()"
@@ -946,7 +946,7 @@
       "label": "createAccessToken()",
       "file_type": "code",
       "source_file": "main/app/authentication/util.py",
-      "source_location": "L31",
+      "source_location": "L30",
       "id": "authentication_util_createaccesstoken",
       "community": 58,
       "norm_label": "createaccesstoken()"
@@ -955,7 +955,7 @@
       "label": "verifyAccessToken()",
       "file_type": "code",
       "source_file": "main/app/authentication/util.py",
-      "source_location": "L44",
+      "source_location": "L43",
       "id": "authentication_util_verifyaccesstoken",
       "community": 78,
       "norm_label": "verifyaccesstoken()"
@@ -964,7 +964,7 @@
       "label": "extractTokenPayload()",
       "file_type": "code",
       "source_file": "main/app/authentication/util.py",
-      "source_location": "L54",
+      "source_location": "L53",
       "id": "authentication_util_extracttokenpayload",
       "community": 98,
       "norm_label": "extracttokenpayload()"
@@ -1180,7 +1180,7 @@
       "label": "normalizeKey()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L19",
+      "source_location": "L18",
       "id": "prometheus_memory_normalizekey",
       "community": 53,
       "norm_label": "normalizekey()"
@@ -1189,7 +1189,7 @@
       "label": "findSimilarKey()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L26",
+      "source_location": "L25",
       "id": "prometheus_memory_findsimilarkey",
       "community": 53,
       "norm_label": "findsimilarkey()"
@@ -1198,7 +1198,7 @@
       "label": "_applyUpdate()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L49",
+      "source_location": "L48",
       "id": "prometheus_memory_applyupdate",
       "community": 82,
       "norm_label": "_applyupdate()"
@@ -1207,7 +1207,7 @@
       "label": "PrometheusMemory",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L60",
+      "source_location": "L59",
       "id": "prometheus_memory_prometheusmemory",
       "community": 86,
       "norm_label": "prometheusmemory"
@@ -1216,7 +1216,7 @@
       "label": "getMemoryLimit()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L62",
+      "source_location": "L61",
       "id": "prometheus_memory_getmemorylimit",
       "community": 53,
       "norm_label": "getmemorylimit()"
@@ -1225,7 +1225,7 @@
       "label": "countMemories()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L68",
+      "source_location": "L67",
       "id": "prometheus_memory_countmemories",
       "community": 53,
       "norm_label": "countmemories()"
@@ -1234,7 +1234,7 @@
       "label": "upsertMemory()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L77",
+      "source_location": "L76",
       "id": "prometheus_memory_upsertmemory",
       "community": 53,
       "norm_label": "upsertmemory()"
@@ -1243,7 +1243,7 @@
       "label": "search()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L137",
+      "source_location": "L136",
       "id": "prometheus_memory_search",
       "community": 53,
       "norm_label": "search()"
@@ -1252,7 +1252,7 @@
       "label": "fullTextSearch()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L186",
+      "source_location": "L185",
       "id": "prometheus_memory_fulltextsearch",
       "community": 53,
       "norm_label": "fulltextsearch()"
@@ -1261,7 +1261,7 @@
       "label": "getUserMemories()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L217",
+      "source_location": "L216",
       "id": "prometheus_memory_getusermemories",
       "community": 53,
       "norm_label": "getusermemories()"
@@ -1270,7 +1270,7 @@
       "label": "deleteMemory()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L242",
+      "source_location": "L241",
       "id": "prometheus_memory_deletememory",
       "community": 53,
       "norm_label": "deletememory()"
@@ -2917,7 +2917,7 @@
       "label": "StocksAPIKey",
       "file_type": "code",
       "source_file": "main/models/stocksapi_key.py",
-      "source_location": "L8",
+      "source_location": "L7",
       "id": "models_stocksapi_key_stocksapikey",
       "community": 37,
       "norm_label": "stocksapikey"
@@ -3061,7 +3061,7 @@
       "label": "memoryMaintenance()",
       "file_type": "code",
       "source_file": "main/service/prometheus_service.py",
-      "source_location": "L30",
+      "source_location": "L29",
       "id": "service_prometheus_service_memorymaintenance",
       "community": 115,
       "norm_label": "memorymaintenance()"
@@ -3070,7 +3070,7 @@
       "label": "PrometheusService",
       "file_type": "code",
       "source_file": "main/service/prometheus_service.py",
-      "source_location": "L76",
+      "source_location": "L75",
       "id": "service_prometheus_service_prometheusservice",
       "community": 86,
       "norm_label": "prometheusservice"
@@ -3079,7 +3079,7 @@
       "label": "initialize()",
       "file_type": "code",
       "source_file": "main/service/prometheus_service.py",
-      "source_location": "L78",
+      "source_location": "L77",
       "id": "service_prometheus_service_initialize",
       "community": 186,
       "norm_label": "initialize()"
@@ -3097,7 +3097,7 @@
       "label": "runScraper()",
       "file_type": "code",
       "source_file": "main/service/scraper_service.py",
-      "source_location": "L13",
+      "source_location": "L12",
       "id": "service_scraper_service_runscraper",
       "community": 101,
       "norm_label": "runscraper()"
@@ -3106,7 +3106,7 @@
       "label": "ScraperService",
       "file_type": "code",
       "source_file": "main/service/scraper_service.py",
-      "source_location": "L23",
+      "source_location": "L22",
       "id": "service_scraper_service_scraperservice",
       "community": 101,
       "norm_label": "scraperservice"
@@ -3115,7 +3115,7 @@
       "label": "initialize()",
       "file_type": "code",
       "source_file": "main/service/scraper_service.py",
-      "source_location": "L25",
+      "source_location": "L24",
       "id": "service_scraper_service_initialize",
       "community": 101,
       "norm_label": "initialize()"
@@ -3160,7 +3160,7 @@
       "label": "removeInactiveSessions()",
       "file_type": "code",
       "source_file": "main/service/user_service.py",
-      "source_location": "L15",
+      "source_location": "L14",
       "id": "service_user_service_removeinactivesessions",
       "community": 492,
       "norm_label": "removeinactivesessions()"
@@ -3169,7 +3169,7 @@
       "label": "UserService",
       "file_type": "code",
       "source_file": "main/service/user_service.py",
-      "source_location": "L37",
+      "source_location": "L36",
       "id": "service_user_service_userservice",
       "community": 492,
       "norm_label": "userservice"
@@ -3178,7 +3178,7 @@
       "label": "initialize()",
       "file_type": "code",
       "source_file": "main/service/user_service.py",
-      "source_location": "L39",
+      "source_location": "L38",
       "id": "service_user_service_initialize",
       "community": 492,
       "norm_label": "initialize()"
@@ -13799,7 +13799,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L668",
-      "community": 143,
+      "community": 48,
       "norm_label": "testgetcurrentsession",
       "id": "tests_test_controllers_coverage_testgetcurrentsession"
     },
@@ -13808,7 +13808,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L671",
-      "community": 143,
+      "community": 48,
       "norm_label": ".test_get_current_session_found()",
       "id": "tests_test_controllers_coverage_testgetcurrentsession_test_get_current_session_found"
     },
@@ -13817,7 +13817,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L704",
-      "community": 143,
+      "community": 48,
       "norm_label": ".test_get_current_session_not_found()",
       "id": "tests_test_controllers_coverage_testgetcurrentsession_test_get_current_session_not_found"
     },
@@ -14672,7 +14672,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L669",
-      "community": 143,
+      "community": 48,
       "norm_label": "covers lines 100-104, 106: get /user/sessions/current.",
       "id": "tests_test_controllers_coverage_rationale_669"
     },
@@ -14681,7 +14681,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L672",
-      "community": 143,
+      "community": 48,
       "norm_label": "covers lines 100-104, 106: session found.",
       "id": "tests_test_controllers_coverage_rationale_672"
     },
@@ -14690,7 +14690,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L705",
-      "community": 143,
+      "community": 48,
       "norm_label": "covers line 104: session not found.",
       "id": "tests_test_controllers_coverage_rationale_705"
     },
@@ -34544,7 +34544,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L665",
-      "community": 143,
+      "community": 48,
       "norm_label": "covers lines 100-104, 106: get /user/sessions/current.",
       "id": "tests_test_controllers_coverage_rationale_665"
     },
@@ -34553,7 +34553,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L668",
-      "community": 143,
+      "community": 48,
       "norm_label": "covers lines 100-104, 106: session found.",
       "id": "tests_test_controllers_coverage_rationale_668"
     },
@@ -34562,7 +34562,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L701",
-      "community": 143,
+      "community": 48,
       "norm_label": "covers line 104: session not found.",
       "id": "tests_test_controllers_coverage_rationale_701"
     },
@@ -35156,7 +35156,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L663",
-      "community": 143,
+      "community": 48,
       "norm_label": "covers lines 100-104, 106: get /user/sessions/current.",
       "id": "tests_test_controllers_coverage_rationale_663"
     },
@@ -35165,7 +35165,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L666",
-      "community": 143,
+      "community": 48,
       "norm_label": "covers lines 100-104, 106: session found.",
       "id": "tests_test_controllers_coverage_rationale_666"
     },
@@ -35174,7 +35174,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L699",
-      "community": 143,
+      "community": 48,
       "norm_label": "covers line 104: session not found.",
       "id": "tests_test_controllers_coverage_rationale_699"
     },
@@ -38657,7 +38657,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L708",
-      "community": 143,
+      "community": 48,
       "norm_label": "covers lines 100-104, 106: get /user/sessions/current.",
       "id": "tests_test_controllers_coverage_rationale_708"
     },
@@ -38666,7 +38666,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L711",
-      "community": 143,
+      "community": 48,
       "norm_label": "covers lines 100-104, 106: session found.",
       "id": "tests_test_controllers_coverage_rationale_711"
     },
@@ -38675,7 +38675,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L744",
-      "community": 143,
+      "community": 48,
       "norm_label": "covers line 104: session not found.",
       "id": "tests_test_controllers_coverage_rationale_744"
     },
@@ -61937,9 +61937,9 @@
       "source_file": "migrations/versions/e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories.py",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "migrations_versions_e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories_py",
-      "target": "versions_e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories_upgrade",
-      "confidence_score": 1.0
+      "target": "versions_e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories_upgrade"
     },
     {
       "relation": "contains",
@@ -61947,9 +61947,9 @@
       "source_file": "migrations/versions/e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories.py",
       "source_location": "L45",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "migrations_versions_e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories_py",
-      "target": "versions_e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories_downgrade",
-      "confidence_score": 1.0
+      "target": "versions_e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories_downgrade"
     },
     {
       "relation": "rationale_for",
@@ -61957,9 +61957,9 @@
       "source_file": "migrations/versions/e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "versions_e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories_rationale_1",
-      "target": "migrations_versions_e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories_py",
-      "confidence_score": 1.0
+      "target": "migrations_versions_e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories_py"
     },
     {
       "relation": "contains",
@@ -111777,5 +111777,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "e70be14744b2deef3d35f9bc6690481365876ed1"
+  "built_at_commit": "eeffe901f20902358eac99ac4148b550792d5689"
 }

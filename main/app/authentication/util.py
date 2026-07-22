@@ -2,7 +2,6 @@ import logging
 
 from fastapi import HTTPException, Request
 from datetime import datetime, timedelta
-from pytz import timezone
 import bcrypt
 import jwt
 

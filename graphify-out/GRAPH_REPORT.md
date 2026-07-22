@@ -1,16 +1,16 @@
 # Graph Report - server  (2026-07-22)
 
 ## Corpus Check
-- 83 files · ~30,217 words
+- 83 files · ~30,178 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4907 nodes · 6612 edges · 504 communities (267 shown, 237 thin omitted)
+- 4907 nodes · 6612 edges · 503 communities (266 shown, 237 thin omitted)
 - Extraction: 83% EXTRACTED · 17% INFERRED · 0% AMBIGUOUS · INFERRED: 1132 edges (avg confidence: 0.68)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `e70be147`
+- Built from commit: `eeffe901`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -158,7 +158,6 @@
 - [[_COMMUNITY_Community 140|Community 140]]
 - [[_COMMUNITY_Community 141|Community 141]]
 - [[_COMMUNITY_Community 142|Community 142]]
-- [[_COMMUNITY_Community 143|Community 143]]
 - [[_COMMUNITY_Community 144|Community 144]]
 - [[_COMMUNITY_Community 145|Community 145]]
 - [[_COMMUNITY_Community 146|Community 146]]
@@ -543,7 +542,7 @@
 - **Configuration & Database Infrastructure** — config_Config, config_engine, config_stocksEngine [INFERRED]
 - **User Authentication & Authorization** — user_service, authentication, user_roles, permission_system [INFERRED]
 
-## Communities (504 total, 237 thin omitted)
+## Communities (503 total, 237 thin omitted)
 
 ### Community 0 - "Stocks API Endpoints"
 Cohesion: 0.0
@@ -738,8 +737,8 @@ Cohesion: 0.1
 Nodes (17): _make_user_client(), Return (client, app) with user router and mocked deps., Covers line 24: GET /user/me returns currentUser., Covers line 24: GET /user/me returns currentUser., Covers line 24: GET /user/me returns currentUser., Covers lines 31-32, 36, 43-44, 48: upgrade developer starter/enterprise., Covers lines 31-32, 36, 43-44, 48: upgrade developer starter/enterprise., Covers lines 31-32, 36, 43-44, 48: upgrade developer starter/enterprise. (+9 more)
 
 ### Community 48 - "Community 48"
-Cohesion: 0.07
-Nodes (29): Covers lines 114-115, 117-120, 122: existing session with verified ownership., Covers lines 114-115, 117-120, 122: existing session with verified ownership., Covers lines 114-115, 117-120, 122: existing session with verified ownership., Covers lines 120-121: existing session with verified ownership., Covers lines 114-115, 117-120, 122: existing session with verified ownership., Covers lines 126-136: DELETE /user/sessions/{sessionId}., Covers lines 126-136: DELETE /user/sessions/{sessionId}., Covers lines 126, 131, 135-136. (+21 more)
+Cohesion: 0.05
+Nodes (42): Covers lines 114-115, 117-120, 122: existing session with verified ownership., Covers lines 114-115, 117-120, 122: existing session with verified ownership., Covers lines 114-115, 117-120, 122: existing session with verified ownership., Covers lines 120-121: existing session with verified ownership., Covers lines 114-115, 117-120, 122: existing session with verified ownership., Covers lines 100-104, 106: GET /user/sessions/current., Covers lines 100-104, 106: GET /user/sessions/current., Covers lines 100-104, 106: session found. (+34 more)
 
 ### Community 49 - "Community 49"
 Cohesion: 0.13
@@ -1072,10 +1071,6 @@ Nodes (7): generateSecureKey(), Tests covering key.py line 44., Tests covering k
 ### Community 142 - "Community 142"
 Cohesion: 0.22
 Nodes (9): chunkSizes, data, event, evilChunks, lines, runParser(), { session, accumulated, lineCount, chunkIdx }, simulateStream() (+1 more)
-
-### Community 143 - "Community 143"
-Cohesion: 0.13
-Nodes (13): Covers lines 100-104, 106: GET /user/sessions/current., Covers lines 100-104, 106: GET /user/sessions/current., Covers lines 100-104, 106: session found., Covers lines 100-104, 106: session found., Covers lines 100-104, 106: GET /user/sessions/current., Covers lines 100-104, 106: session found., Covers line 104: session not found., Covers line 104: session not found. (+5 more)
 
 ### Community 144 - "Community 144"
 Cohesion: 0.2
@@ -1589,7 +1584,7 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.164) - this node is a cross-community bridge._
 - **Why does `FastAPI` connect `Community 69` to `Community 129`, `Community 135`, `Community 18`, `Community 21`, `Community 33`, `Community 34`, `Community 37`, `Community 40`, `Community 169`, `Community 168`, `Community 43`, `Community 45`, `Community 181`, `Community 58`, `Community 189`, `Community 63`, `Community 71`, `Community 78`, `Community 208`, `Community 81`, `Community 82`, `Community 84`, `Community 89`, `Community 92`, `Community 221`, `Community 491`, `Community 112`?**
   _High betweenness centrality (0.061) - this node is a cross-community bridge._
-- **Why does `UserManager` connect `Prometheus Tools` to `Prometheus Agent`, `B3 Stock Scraper`, `Server Configuration`, `Prometheus Memory`, `Community 141`, `User Roles & Permissions`, `Community 143`, `Community 16`, `Community 148`, `Community 21`, `Community 149`, `Community 22`, `Community 165`, `Community 37`, `Community 47`, `Community 48`, `Community 50`, `Community 181`, `Community 56`, `Community 58`, `Community 61`, `Community 68`, `Community 76`, `Community 211`, `Community 86`, `Community 89`, `Community 475`, `Community 99`, `Community 104`, `Community 106`, `Community 234`, `Community 114`?**
+- **Why does `UserManager` connect `Prometheus Tools` to `Prometheus Agent`, `B3 Stock Scraper`, `Server Configuration`, `Prometheus Memory`, `Community 141`, `User Roles & Permissions`, `Community 16`, `Community 148`, `Community 21`, `Community 149`, `Community 22`, `Community 165`, `Community 37`, `Community 47`, `Community 48`, `Community 50`, `Community 181`, `Community 56`, `Community 58`, `Community 61`, `Community 68`, `Community 76`, `Community 211`, `Community 86`, `Community 89`, `Community 475`, `Community 99`, `Community 104`, `Community 106`, `Community 234`, `Community 114`?**
   _High betweenness centrality (0.052) - this node is a cross-community bridge._
 - **Are the 72 inferred relationships involving `StocksCacheManager` (e.g. with `TestStocksCacheManager` and `TestVerifyAPIKey`) actually correct?**
   _`StocksCacheManager` has 72 INFERRED edges - model-reasoned connections that need verification._

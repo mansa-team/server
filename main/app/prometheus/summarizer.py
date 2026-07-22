@@ -1,7 +1,7 @@
 import json
 import uuid
 import logging
-from datetime import datetime, timezone
+from datetime import datetime
 
 from google import genai
 from google.genai import types

@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from config import getSession, LOCALHOST_ADDRESSES
 from main.utils.logging_config import limiter
 

@@ -2,7 +2,6 @@ import logging
 import unicodedata
 from datetime import datetime
 
-from pytz import timezone
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 

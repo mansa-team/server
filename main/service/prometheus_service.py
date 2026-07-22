@@ -2,7 +2,6 @@ import logging
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
-from pytz import timezone
 
 from config import SessionLocal
 from main.utils.service_manager import ServiceManager
@@ -81,12 +80,11 @@ class PrometheusService:
 
         getEmbeddingModel()
 
-        scheduler = BackgroundScheduler(timezone=timezone("America/Sao_Paulo"))
+        scheduler = BackgroundScheduler()
         scheduler.add_job(
             memoryMaintenance,
             "interval",
             hours=24,
-            timezone=timezone("America/Sao_Paulo"),
             id="memory_maintenance",
             name="Memory Maintenance",
         )

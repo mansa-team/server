@@ -2,7 +2,6 @@ import logging
 import time
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-from pytz import timezone
 
 from config import Config
 from main.app.scraper_b3.scraper import B3Scraper
@@ -24,7 +23,7 @@ class ScraperService:
     @staticmethod
     def initialize():
         schedules = Config.SCRAPER["SCHEDULER"].split(";")
-        scheduler = BackgroundScheduler(timezone=timezone("America/Sao_Paulo"))
+        scheduler = BackgroundScheduler()
 
         if not schedules:
             logger.warning("No schedules configured in SCRAPER_SCHEDULER")
@@ -35,7 +34,7 @@ class ScraperService:
                 hour, minute = map(int, schedule.strip().split(":"))
                 scheduler.add_job(
                     runScraper,
-                    CronTrigger(hour=hour, minute=minute, timezone=timezone("America/Sao_Paulo")),
+                    CronTrigger(hour=hour, minute=minute),
                     id=f"scraper_{idx}",
                     name=f"Scraper ({schedule})",
                 )
