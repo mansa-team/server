@@ -1,27 +1,27 @@
-import logging
-import logging.handlers
 import atexit
-from concurrent.futures import ThreadPoolExecutor
+import logging
+import threading
+import time
+from collections import deque
+
 import requests
 
 from config import Config
+from main.utils.errors import RequestContextFilter
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-from main.utils.errors import RequestContextFilter
 
 limiter = Limiter(key_func=get_remote_address)
 logger = logging.getLogger(__name__)
 
-discordExecutor = ThreadPoolExecutor(max_workers=5, thread_name_prefix="discord-webhook")
-atexit.register(discordExecutor.shutdown, wait=False)
+queue: deque[str] = deque()
+lock = threading.Lock()
+event = threading.Event()
 
 
 def setupLogging():
     root = logging.getLogger()
-    level = logging.DEBUG if Config.DEBUG_MODE else logging.ERROR
-    root.setLevel(level)
-
-    requestFilter = RequestContextFilter()
+    root.setLevel(logging.DEBUG if Config.DEBUG_MODE else logging.ERROR)
 
     console = logging.StreamHandler()
     console.setFormatter(
@@ -30,49 +30,51 @@ def setupLogging():
             datefmt="%Y-%m-%d %H:%M:%S",
         )
     )
-    console.addFilter(requestFilter)
+    console.addFilter(RequestContextFilter())
     root.addHandler(console)
 
 
 class DiscordHandler(logging.Handler):
     def emit(self, record: logging.LogRecord):
-        if not Config.DISCORD.ENABLED or not Config.DISCORD.WEBHOOK_URL:
-            return
-
         if record.levelno < logging.ERROR:
             return
-
         module = record.name.split(".")[-1]
-        message = record.getMessage()
-
-        excText = ""
+        text = f"[{record.levelname}] [{module}] {record.getMessage()}"
         if record.exc_info and record.exc_info[1]:
-            excText = logging.Formatter().formatException(record.exc_info)
+            text += f"\n{logging.Formatter().formatException(record.exc_info)}"
 
-        fullText = f"[{record.levelname}] [{module}] {message}"
-        if excText:
-            fullText += f"\n{excText}"
-
-        MAX_MESSAGE_LENGTH = 2000
-        if len(fullText) > MAX_MESSAGE_LENGTH:
-            fullText = fullText[: MAX_MESSAGE_LENGTH - 20] + "\n...[truncated]"
-
-        payload = {"content": fullText}
-
-        try:
-            discordExecutor.submit(
-                requests.post,
-                Config.DISCORD.WEBHOOK_URL,
-                json=payload,
-                timeout=5,
-            )
-        except Exception as e:
-            logger.debug(f"Discord webhook failed: {e}")
+        if not Config.DISCORD.ENABLED or not Config.DISCORD.WEBHOOK_URL:
+            return
+        text = text[:1980] + "\n...[truncated]" if len(text) > 2000 else text
+        with lock:
+            if text not in queue:
+                queue.append(text)
+        event.set()
 
 
 def setupDiscordHandler():
-    if Config.DISCORD.ENABLED and Config.DISCORD.WEBHOOK_URL:
-        logging.getLogger().addHandler(DiscordHandler())
+    if not (Config.DISCORD.ENABLED and Config.DISCORD.WEBHOOK_URL):
+        return
+
+    def sender():
+        while True:
+            event.wait()
+            event.clear()
+            while True:
+                with lock:
+                    if not queue:
+                        break
+                    msg = queue.popleft()
+                try:
+                    requests.post(Config.DISCORD.WEBHOOK_URL, json={"content": msg}, timeout=10)
+                except Exception:
+                    pass
+                time.sleep(0.45) # ~5 msgs/2s, under discord rate limit
+
+    t = threading.Thread(target=sender, daemon=True, name="discord-sender")
+    t.start()
+    atexit.register(lambda: (event.set(), t.join(timeout=3)))
+    logging.getLogger().addHandler(DiscordHandler())
 
 
 setupLogging()
