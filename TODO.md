@@ -1,6 +1,3 @@
-- [ ] Use a int8 embedding model rather than full precision
-- [ ] Context compressing methods
-- [ ] Tool compressing methods (or caching the big outputs in a non persistant mount in the sandbox, that is then referenced as a file by the agent instead of a raw output)
 - [ ] Auto consolidating memories after n number of messages
 - [ ] Upload and Serve endpoints for files in the workspace
 - [ ] Make the user able to manage their files in the workspace via endpoints related to workspace management /worksapce
@@ -10,8 +7,6 @@
 - [ ] Github OAuth
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings
 - [ ] Make an Password Recovery system and 2FA using the Email Protocol
-
-- [ ] Add a framework to quickly debug the scraper over time with accuracy over each category that is scrapped
 
 - [ ] Move the STOCKS_API to a SQLite/DuckDB based cache instead of a dataframe based cache
 
