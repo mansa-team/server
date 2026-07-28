@@ -7,7 +7,7 @@ class TestLoopLogger:
     def test_init_with_empty_history(self):
         history = []
         logger = LoopLogger(history)
-        assert logger._history is history
+        assert logger.history is history
 
     def test_emit_tool_call_appends_to_history(self):
         history = []
