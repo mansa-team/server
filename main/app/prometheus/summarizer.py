@@ -13,25 +13,25 @@ from main.models import PrometheusSession
 
 logger = logging.getLogger(__name__)
 
-_tokenizer = None
+tokenizer = None
 
 
-def _getTokenizer():
-    global _tokenizer
-    if _tokenizer is None:
+def getTokenizer():
+    global tokenizer
+    if tokenizer is None:
         try:
-            _tokenizer = genai.LocalTokenizer(model_name="gemini-flash-lite-latest")
+            tokenizer = genai.LocalTokenizer(model_name="gemini-flash-lite-latest")
             logger.info("Loaded Gemini local tokenizer")
         except Exception as e:
             logger.warning(f"Failed to load local tokenizer, using fallback: {e}")
-            _tokenizer = None
-    return _tokenizer
+            tokenizer = None
+    return tokenizer
 
 
 def countTokens(text: str) -> int:
     if not text:
         return 0
-    tok = _getTokenizer()
+    tok = getTokenizer()
     if tok is not None:
         try:
             result = tok.count_tokens(text)
@@ -135,15 +135,11 @@ class PrometheusSummarizer:
         if len(old) < 3:
             return episodes
 
-        merged = self.mergeEpisodes(old)
-        return [merged] + recent
-
-    def mergeEpisodes(self, episodes: list[dict]) -> dict:
         episode_texts = []
         all_decisions = []
         all_entities = []
 
-        for ep in episodes:
+        for ep in old:
             episode_texts.append(
                 f"Episode {ep.get('id', '?')} ({ep.get('time', '?')})\n"
                 f"Summary: {ep.get('summary', '')}\n"
@@ -172,18 +168,20 @@ class PrometheusSummarizer:
         except Exception as e:
             logger.warning(f"Episode merge failed, using fallback: {e}")
             merged = {
-                "summary": " | ".join(ep.get("summary", "") for ep in episodes),
+                "summary": " | ".join(ep.get("summary", "") for ep in old),
                 "keyDecisions": list(dict.fromkeys(all_decisions)),
                 "entities": list(dict.fromkeys(all_entities)),
             }
 
-        return {
-            "id": f"ep_{uuid.uuid4().hex[:8]}",
-            "time": datetime.now().isoformat(),
-            "summary": merged.get("summary", ""),
-            "keyDecisions": merged.get("keyDecisions", []),
-            "entities": merged.get("entities", []),
-        }
+        return [
+            {
+                "id": f"ep_{uuid.uuid4().hex[:8]}",
+                "time": datetime.now().isoformat(),
+                "summary": merged.get("summary", ""),
+                "keyDecisions": merged.get("keyDecisions", []),
+                "entities": merged.get("entities", []),
+            }
+        ] + recent
 
     def summarize(self, db: DBSession, sessionId: str) -> dict | None:
         session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()

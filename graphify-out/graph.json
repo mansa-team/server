@@ -1117,7 +1117,7 @@
       "label": "deleteSession()",
       "file_type": "code",
       "source_file": "main/app/prometheus/chat.py",
-      "source_location": "L117",
+      "source_location": "L116",
       "id": "prometheus_chat_deletesession",
       "community": 99,
       "norm_label": "deletesession()"
@@ -1126,7 +1126,7 @@
       "label": "verifySessionOwnership()",
       "file_type": "code",
       "source_file": "main/app/prometheus/chat.py",
-      "source_location": "L131",
+      "source_location": "L130",
       "id": "prometheus_chat_verifysessionownership",
       "community": 99,
       "norm_label": "verifysessionownership()"
@@ -1195,13 +1195,13 @@
       "norm_label": "findsimilarkey()"
     },
     {
-      "label": "_applyUpdate()",
+      "label": "applyUpdate()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
       "source_location": "L48",
       "id": "prometheus_memory_applyupdate",
       "community": 82,
-      "norm_label": "_applyupdate()"
+      "norm_label": "applyupdate()"
     },
     {
       "label": "PrometheusMemory",
@@ -1510,13 +1510,13 @@
       "norm_label": "summarizer.py"
     },
     {
-      "label": "_getTokenizer()",
+      "label": "getTokenizer()",
       "file_type": "code",
       "source_file": "main/app/prometheus/summarizer.py",
       "source_location": "L19",
       "id": "prometheus_summarizer_gettokenizer",
       "community": 80,
-      "norm_label": "_gettokenizer()"
+      "norm_label": "gettokenizer()"
     },
     {
       "label": "countTokens()",
@@ -1573,19 +1573,10 @@
       "norm_label": ".consolidate()"
     },
     {
-      "label": "._mergeEpisodes()",
-      "file_type": "code",
-      "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L141",
-      "id": "prometheus_summarizer_prometheussummarizer_mergeepisodes",
-      "community": 80,
-      "norm_label": "._mergeepisodes()"
-    },
-    {
       "label": ".summarize()",
       "file_type": "code",
       "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L188",
+      "source_location": "L186",
       "id": "prometheus_summarizer_prometheussummarizer_summarize",
       "community": 80,
       "norm_label": ".summarize()"
@@ -1594,7 +1585,7 @@
       "label": ".getEpisodes()",
       "file_type": "code",
       "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L239",
+      "source_location": "L237",
       "id": "prometheus_summarizer_prometheussummarizer_getepisodes",
       "community": 80,
       "norm_label": ".getepisodes()"
@@ -1659,7 +1650,7 @@
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L143",
       "id": "prometheus_tools_read_file",
-      "community": 493,
+      "community": 152,
       "norm_label": "read_file()"
     },
     {
@@ -1677,7 +1668,7 @@
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L167",
       "id": "prometheus_tools_list_files",
-      "community": 152,
+      "community": 475,
       "norm_label": "list_files()"
     },
     {
@@ -1758,7 +1749,7 @@
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L168",
       "id": "prometheus_tools_rationale_168",
-      "community": 152,
+      "community": 475,
       "norm_label": "list files in the workspace directory.      args:         path: directory pat"
     },
     {
@@ -4078,7 +4069,7 @@
       "label": "User structure defined by string roles:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L35",
+      "source_location": "L30",
       "id": "server_todo_user_structure_defined_by_string_roles",
       "community": 187,
       "norm_label": "user structure defined by string roles:"
@@ -4087,7 +4078,7 @@
       "label": "USER:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L44",
+      "source_location": "L39",
       "id": "server_todo_user",
       "community": 187,
       "norm_label": "user:"
@@ -4096,7 +4087,7 @@
       "label": "PREMIUM:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L47",
+      "source_location": "L42",
       "id": "server_todo_premium",
       "community": 187,
       "norm_label": "premium:"
@@ -4105,7 +4096,7 @@
       "label": "DEVELOPER:",
       "file_type": "document",
       "source_file": "TODO.md",
-      "source_location": "L50",
+      "source_location": "L45",
       "id": "server_todo_developer",
       "community": 187,
       "norm_label": "developer:"
@@ -5056,6 +5047,15 @@
       "norm_label": "license"
     },
     {
+      "label": ".mergeEpisodes()",
+      "file_type": "code",
+      "source_file": "main/app/prometheus/summarizer.py",
+      "source_location": "L141",
+      "community": 80,
+      "norm_label": ".mergeepisodes()",
+      "id": "prometheus_summarizer_prometheussummarizer_mergeepisodes"
+    },
+    {
       "label": "Stocks API \u2014 Pandas-First Pattern",
       "file_type": "document",
       "source_file": "AGENTS.md",
@@ -5996,7 +5996,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L135",
-      "community": 493,
+      "community": 152,
       "norm_label": "read a file from the workspace.      args:         path: path to the file (e.",
       "id": "prometheus_tools_rationale_135"
     },
@@ -6014,7 +6014,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L159",
-      "community": 152,
+      "community": 475,
       "norm_label": "list files in the workspace directory.      args:         path: directory pat",
       "id": "prometheus_tools_rationale_159"
     },
@@ -13799,7 +13799,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L668",
-      "community": 143,
+      "community": 216,
       "norm_label": "testgetcurrentsession",
       "id": "tests_test_controllers_coverage_testgetcurrentsession"
     },
@@ -13808,7 +13808,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L671",
-      "community": 143,
+      "community": 216,
       "norm_label": ".test_get_current_session_found()",
       "id": "tests_test_controllers_coverage_testgetcurrentsession_test_get_current_session_found"
     },
@@ -13817,7 +13817,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L704",
-      "community": 143,
+      "community": 216,
       "norm_label": ".test_get_current_session_not_found()",
       "id": "tests_test_controllers_coverage_testgetcurrentsession_test_get_current_session_not_found"
     },
@@ -14672,7 +14672,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L669",
-      "community": 143,
+      "community": 216,
       "norm_label": "covers lines 100-104, 106: get /user/sessions/current.",
       "id": "tests_test_controllers_coverage_rationale_669"
     },
@@ -14681,7 +14681,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L672",
-      "community": 143,
+      "community": 216,
       "norm_label": "covers lines 100-104, 106: session found.",
       "id": "tests_test_controllers_coverage_rationale_672"
     },
@@ -14690,7 +14690,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L705",
-      "community": 143,
+      "community": 216,
       "norm_label": "covers line 104: session not found.",
       "id": "tests_test_controllers_coverage_rationale_705"
     },
@@ -17075,7 +17075,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L9",
-      "community": 497,
+      "community": 490,
       "norm_label": ".test_basic_user()",
       "id": "tests_test_memory_manager_testgetmemorylimit_test_basic_user"
     },
@@ -17111,7 +17111,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L20",
-      "community": 85,
+      "community": 499,
       "norm_label": ".test_create()",
       "id": "tests_test_memory_manager_testupsertmemory_test_create"
     },
@@ -17228,7 +17228,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L115",
-      "community": 54,
+      "community": 493,
       "norm_label": ".test_excludes_archived()",
       "id": "tests_test_memory_manager_testgetusermemories_test_excludes_archived"
     },
@@ -17246,7 +17246,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L126",
-      "community": 499,
+      "community": 497,
       "norm_label": ".test_soft_delete()",
       "id": "tests_test_memory_manager_testdeletememory_test_soft_delete"
     },
@@ -21341,7 +21341,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L287",
-      "community": 89,
+      "community": 85,
       "norm_label": "testcreatekey",
       "id": "tests_test_stocks_api_coverage_testcreatekey"
     },
@@ -21485,7 +21485,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L419",
-      "community": 3,
+      "community": 143,
       "norm_label": ".test_deserialize_float_nan_direct()",
       "id": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_float_nan_direct"
     },
@@ -21494,7 +21494,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L433",
-      "community": 475,
+      "community": 3,
       "norm_label": ".test_deserialize_non_nan_float()",
       "id": "tests_test_stocks_api_coverage_testdeserializejsoncolumns_test_deserialize_non_nan_float"
     },
@@ -21539,7 +21539,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L501",
-      "community": 63,
+      "community": 3,
       "norm_label": "._make_manager()",
       "id": "tests_test_stocks_api_coverage_testfilterbysearchterms_make_manager"
     },
@@ -21611,7 +21611,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L556",
-      "community": 63,
+      "community": 7,
       "norm_label": "._make_manager()",
       "id": "tests_test_stocks_api_coverage_testqueryhistorical_make_manager"
     },
@@ -21647,7 +21647,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L591",
-      "community": 216,
+      "community": 28,
       "norm_label": ".test_historical_with_fields()",
       "id": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_fields"
     },
@@ -21746,7 +21746,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L686",
-      "community": 28,
+      "community": 54,
       "norm_label": ".test_historical_with_date_range()",
       "id": "tests_test_stocks_api_coverage_testqueryhistorical_test_historical_with_date_range"
     },
@@ -22394,7 +22394,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L288",
-      "community": 89,
+      "community": 85,
       "norm_label": "tests covering key.py lines 48-66.",
       "id": "tests_test_stocks_api_coverage_rationale_288"
     },
@@ -22439,7 +22439,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L420",
-      "community": 3,
+      "community": 143,
       "norm_label": "replacenan handles direct float nan values (line 34).",
       "id": "tests_test_stocks_api_coverage_rationale_420"
     },
@@ -22448,7 +22448,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L434",
-      "community": 475,
+      "community": 3,
       "norm_label": "non-json-dict/list string is left as-is.",
       "id": "tests_test_stocks_api_coverage_rationale_434"
     },
@@ -22502,7 +22502,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L592",
-      "community": 216,
+      "community": 28,
       "norm_label": "pass field name without year (how categorizecolumns returns them).",
       "id": "tests_test_stocks_api_coverage_rationale_592"
     },
@@ -22547,7 +22547,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L687",
-      "community": 28,
+      "community": 54,
       "norm_label": "historical query with a year range.",
       "id": "tests_test_stocks_api_coverage_rationale_687"
     },
@@ -26003,7 +26003,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L147",
-      "community": 493,
+      "community": 152,
       "norm_label": "read a file from the workspace.      args:         path: path to the file (e.",
       "id": "prometheus_tools_rationale_147"
     },
@@ -26012,7 +26012,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L158",
-      "community": 152,
+      "community": 475,
       "norm_label": "write a file to the workspace. use this to save data files     (csv, json, scri",
       "id": "prometheus_tools_rationale_158"
     },
@@ -26021,7 +26021,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L171",
-      "community": 152,
+      "community": 475,
       "norm_label": "list files in the workspace directory.      args:         path: directory pat",
       "id": "prometheus_tools_rationale_171"
     },
@@ -26318,7 +26318,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L131",
-      "community": 493,
+      "community": 152,
       "norm_label": "read a file from the sandbox filesystem.      args:         path: absolute pa",
       "id": "prometheus_tools_rationale_131"
     },
@@ -26525,7 +26525,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L130",
-      "community": 493,
+      "community": 152,
       "norm_label": "read a file from the sandbox filesystem.      args:         path: absolute pa",
       "id": "prometheus_tools_rationale_130"
     },
@@ -33095,7 +33095,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L11",
-      "community": 497,
+      "community": 490,
       "norm_label": "non-extended role gets basic limit.",
       "id": "tests_test_memory_manager_rationale_11"
     },
@@ -33122,7 +33122,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L25",
-      "community": 85,
+      "community": 499,
       "norm_label": "creates a new memory.",
       "id": "tests_test_memory_manager_rationale_25"
     },
@@ -33212,7 +33212,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L122",
-      "community": 54,
+      "community": 493,
       "norm_label": "archived memories excluded.",
       "id": "tests_test_memory_manager_rationale_122"
     },
@@ -33221,7 +33221,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L135",
-      "community": 499,
+      "community": 497,
       "norm_label": "soft-deletes a memory.",
       "id": "tests_test_memory_manager_rationale_135"
     },
@@ -34544,7 +34544,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L665",
-      "community": 143,
+      "community": 216,
       "norm_label": "covers lines 100-104, 106: get /user/sessions/current.",
       "id": "tests_test_controllers_coverage_rationale_665"
     },
@@ -34553,7 +34553,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L668",
-      "community": 143,
+      "community": 216,
       "norm_label": "covers lines 100-104, 106: session found.",
       "id": "tests_test_controllers_coverage_rationale_668"
     },
@@ -34562,7 +34562,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L701",
-      "community": 143,
+      "community": 216,
       "norm_label": "covers line 104: session not found.",
       "id": "tests_test_controllers_coverage_rationale_701"
     },
@@ -35156,7 +35156,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L663",
-      "community": 143,
+      "community": 216,
       "norm_label": "covers lines 100-104, 106: get /user/sessions/current.",
       "id": "tests_test_controllers_coverage_rationale_663"
     },
@@ -35165,7 +35165,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L666",
-      "community": 143,
+      "community": 216,
       "norm_label": "covers lines 100-104, 106: session found.",
       "id": "tests_test_controllers_coverage_rationale_666"
     },
@@ -35174,7 +35174,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L699",
-      "community": 143,
+      "community": 216,
       "norm_label": "covers line 104: session not found.",
       "id": "tests_test_controllers_coverage_rationale_699"
     },
@@ -35993,7 +35993,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L364",
-      "community": 89,
+      "community": 85,
       "norm_label": "tests covering key.py lines 48-66.",
       "id": "tests_test_stocks_api_coverage_rationale_364"
     },
@@ -36038,7 +36038,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L496",
-      "community": 3,
+      "community": 143,
       "norm_label": "replacenan handles direct float nan values (line 34).",
       "id": "tests_test_stocks_api_coverage_rationale_496"
     },
@@ -36047,7 +36047,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L510",
-      "community": 475,
+      "community": 3,
       "norm_label": "non-json-dict/list string is left as-is.",
       "id": "tests_test_stocks_api_coverage_rationale_510"
     },
@@ -36101,7 +36101,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L668",
-      "community": 216,
+      "community": 28,
       "norm_label": "pass field name without year (how categorizecolumns returns them).",
       "id": "tests_test_stocks_api_coverage_rationale_668"
     },
@@ -36758,7 +36758,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L363",
-      "community": 89,
+      "community": 85,
       "norm_label": "tests covering key.py lines 48-66.",
       "id": "tests_test_stocks_api_coverage_rationale_363"
     },
@@ -36803,7 +36803,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L495",
-      "community": 3,
+      "community": 143,
       "norm_label": "replacenan handles direct float nan values (line 34).",
       "id": "tests_test_stocks_api_coverage_rationale_495"
     },
@@ -36812,7 +36812,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L509",
-      "community": 475,
+      "community": 3,
       "norm_label": "non-json-dict/list string is left as-is.",
       "id": "tests_test_stocks_api_coverage_rationale_509"
     },
@@ -36866,7 +36866,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L667",
-      "community": 216,
+      "community": 28,
       "norm_label": "pass field name without year (how categorizecolumns returns them).",
       "id": "tests_test_stocks_api_coverage_rationale_667"
     },
@@ -36911,7 +36911,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L762",
-      "community": 28,
+      "community": 54,
       "norm_label": "historical query with a year range.",
       "id": "tests_test_stocks_api_coverage_rationale_762"
     },
@@ -38657,7 +38657,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L708",
-      "community": 143,
+      "community": 216,
       "norm_label": "covers lines 100-104, 106: get /user/sessions/current.",
       "id": "tests_test_controllers_coverage_rationale_708"
     },
@@ -38666,7 +38666,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L711",
-      "community": 143,
+      "community": 216,
       "norm_label": "covers lines 100-104, 106: session found.",
       "id": "tests_test_controllers_coverage_rationale_711"
     },
@@ -38675,7 +38675,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L744",
-      "community": 143,
+      "community": 216,
       "norm_label": "covers line 104: session not found.",
       "id": "tests_test_controllers_coverage_rationale_744"
     },
@@ -39584,7 +39584,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L362",
-      "community": 89,
+      "community": 85,
       "norm_label": "tests covering key.py lines 48-66.",
       "id": "tests_test_stocks_api_coverage_rationale_362"
     },
@@ -39629,7 +39629,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L494",
-      "community": 3,
+      "community": 143,
       "norm_label": "replacenan handles direct float nan values (line 34).",
       "id": "tests_test_stocks_api_coverage_rationale_494"
     },
@@ -39638,7 +39638,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L508",
-      "community": 475,
+      "community": 3,
       "norm_label": "non-json-dict/list string is left as-is.",
       "id": "tests_test_stocks_api_coverage_rationale_508"
     },
@@ -39692,7 +39692,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L666",
-      "community": 216,
+      "community": 28,
       "norm_label": "pass field name without year (how categorizecolumns returns them).",
       "id": "tests_test_stocks_api_coverage_rationale_666"
     },
@@ -39737,7 +39737,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L761",
-      "community": 28,
+      "community": 54,
       "norm_label": "historical query with a year range.",
       "id": "tests_test_stocks_api_coverage_rationale_761"
     },
@@ -39998,7 +39998,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L757",
-      "community": 28,
+      "community": 54,
       "norm_label": "historical query with a year range.",
       "id": "tests_test_stocks_api_coverage_rationale_757"
     },
@@ -40097,7 +40097,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L756",
-      "community": 28,
+      "community": 54,
       "norm_label": "historical query with a year range.",
       "id": "tests_test_stocks_api_coverage_rationale_756"
     },
@@ -40187,7 +40187,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L620",
-      "community": 216,
+      "community": 28,
       "norm_label": "pass field name without year (how categorizecolumns returns them).",
       "id": "tests_test_stocks_api_coverage_rationale_620"
     },
@@ -40232,7 +40232,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L710",
-      "community": 28,
+      "community": 54,
       "norm_label": "historical query with a year range.",
       "id": "tests_test_stocks_api_coverage_rationale_710"
     },
@@ -40502,7 +40502,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L621",
-      "community": 216,
+      "community": 28,
       "norm_label": "pass field name without year (how categorizecolumns returns them).",
       "id": "tests_test_stocks_api_coverage_rationale_621"
     },
@@ -40547,7 +40547,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L711",
-      "community": 28,
+      "community": 54,
       "norm_label": "historical query with a year range.",
       "id": "tests_test_stocks_api_coverage_rationale_711"
     },
@@ -41537,7 +41537,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L358",
-      "community": 89,
+      "community": 85,
       "norm_label": "tests covering key.py lines 48-66.",
       "id": "tests_test_stocks_api_coverage_rationale_358"
     },
@@ -41573,7 +41573,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L489",
-      "community": 3,
+      "community": 143,
       "norm_label": "replacenan handles direct float nan values (line 34).",
       "id": "tests_test_stocks_api_coverage_rationale_489"
     },
@@ -41582,7 +41582,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L503",
-      "community": 475,
+      "community": 3,
       "norm_label": "non-json-dict/list string is left as-is.",
       "id": "tests_test_stocks_api_coverage_rationale_503"
     },
@@ -41618,7 +41618,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L615",
-      "community": 216,
+      "community": 28,
       "norm_label": "pass field name without year (how categorizecolumns returns them).",
       "id": "tests_test_stocks_api_coverage_rationale_615"
     },
@@ -41654,7 +41654,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L705",
-      "community": 28,
+      "community": 54,
       "norm_label": "historical query with a year range.",
       "id": "tests_test_stocks_api_coverage_rationale_705"
     },
@@ -51134,16 +51134,6 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L161",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "prometheus_summarizer_prometheussummarizer",
-      "target": "prometheus_summarizer_prometheussummarizer_mergeepisodes"
-    },
-    {
-      "relation": "method",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/prometheus/summarizer.py",
       "source_location": "L48",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -51159,6 +51149,16 @@
       "confidence_score": 1.0,
       "source": "prometheus_summarizer_prometheussummarizer",
       "target": "prometheus_summarizer_prometheussummarizer_getepisodes"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/summarizer.py",
+      "source_location": "L161",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_summarizer_prometheussummarizer",
+      "target": "prometheus_summarizer_prometheussummarizer_mergeepisodes"
     },
     {
       "relation": "calls",
@@ -51258,22 +51258,22 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L158",
+      "source_location": "L254",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "prometheus_summarizer_prometheussummarizer_consolidate",
-      "target": "prometheus_summarizer_prometheussummarizer_mergeepisodes"
+      "source": "prometheus_summarizer_prometheussummarizer_summarize",
+      "target": "prometheus_summarizer_prometheussummarizer_consolidate"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L254",
+      "source_location": "L158",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "prometheus_summarizer_prometheussummarizer_summarize",
-      "target": "prometheus_summarizer_prometheussummarizer_consolidate"
+      "source": "prometheus_summarizer_prometheussummarizer_consolidate",
+      "target": "prometheus_summarizer_prometheussummarizer_mergeepisodes"
     },
     {
       "relation": "rationale_for",
@@ -51294,26 +51294,6 @@
       "confidence_score": 1.0,
       "source": "prometheus_summarizer_rationale_144",
       "target": "prometheus_summarizer_prometheussummarizer_consolidate"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L161",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "prometheus_summarizer_rationale_161",
-      "target": "prometheus_summarizer_prometheussummarizer_mergeepisodes"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/prometheus/summarizer.py",
-      "source_location": "L162",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "prometheus_summarizer_rationale_162",
-      "target": "prometheus_summarizer_prometheussummarizer_mergeepisodes"
     },
     {
       "relation": "calls",
@@ -63220,6 +63200,26 @@
       "confidence_score": 1.0,
       "source": "docs_user_workflow",
       "target": "docs_user_codeblock_16"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/summarizer.py",
+      "source_location": "L161",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_summarizer_rationale_161",
+      "target": "prometheus_summarizer_prometheussummarizer_mergeepisodes"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/summarizer.py",
+      "source_location": "L162",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_summarizer_rationale_162",
+      "target": "prometheus_summarizer_prometheussummarizer_mergeepisodes"
     },
     {
       "relation": "contains",
@@ -111777,5 +111777,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "064afd8304dc9d63f0edac3d849ef83ad8d56604"
+  "built_at_commit": "1c2e87ad060ead73d0a3846371a49ab4414a667e"
 }

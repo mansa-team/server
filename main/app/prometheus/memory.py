@@ -45,7 +45,7 @@ def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8
     return None
 
 
-def _applyUpdate(memory, value, memoryType, source, embedding):
+def applyUpdate(memory, value, memoryType, source, embedding):
     memory.memoryValue = value  # type: ignore[assignment]
     memory.memoryType = memoryType  # type: ignore[assignment]
     memory.source = source  # type: ignore[assignment]
@@ -95,7 +95,7 @@ class PrometheusMemory:
             if existing.contentHash == newHash:
                 return {"status": "unchanged", "memory": existing}
 
-            _applyUpdate(existing, value, memoryType, source, embedding)
+            applyUpdate(existing, value, memoryType, source, embedding)
 
             db.commit()
             db.refresh(existing)
@@ -104,7 +104,7 @@ class PrometheusMemory:
 
         similar = findSimilarKey(db, userId, key)
         if similar:
-            _applyUpdate(similar, value, memoryType, source, embedding)
+            applyUpdate(similar, value, memoryType, source, embedding)
 
             db.commit()
             db.refresh(similar)

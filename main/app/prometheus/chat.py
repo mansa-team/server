@@ -100,7 +100,6 @@ class PrometheusChatManager:
 
         activeHistory: list = session.history[-limit:]  # type: ignore[assignment]
 
-        # Skip messages already covered by episode summaries
         if since is not None:
             activeHistory = [m for m in activeHistory if m.get("timestamp", "") > since.isoformat()]
 
