@@ -44,6 +44,7 @@ class B3Scraper:
         self.engine = stocksEngine
         self.currentYear = datetime.now().year
         self.scraperDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.stats = {}
 
         self.requests = cloudscraper.create_scraper(browser="chrome")
         adapter = cloudscraper.requests.adapters.HTTPAdapter(pool_connections=100, pool_maxsize=100, max_retries=3)
@@ -429,11 +430,14 @@ class B3Scraper:
             self.tagAlong,
             self.stockNews,
         ]:
+            stats = self.stats.setdefault(task.__name__, {"ok": 0, "err": 0})
             try:
                 taskDf = task(ticker)
                 results.append(taskDf)
+                stats["ok"] += 1
             except Exception as e:
                 logger.error(f"Error ({ticker}) in {task.__name__}: {e}")
+                stats["err"] += 1
                 results.append(pd.DataFrame(index=pd.Index([ticker], name="TICKER")))
 
         combinedDF = pd.concat(results, axis=1)
@@ -487,6 +491,18 @@ class B3Scraper:
 
         self.exportJson(finalDf)
         self.exportMysql(finalDf)
+
+        total = sum(taskStats["ok"] + taskStats["err"] for taskStats in self.stats.values())
+        failures = sum(taskStats["err"] for taskStats in self.stats.values())
+        failedLines = "\n".join(
+            f"`{name}`: {taskStats['ok']}/{taskStats['ok'] + taskStats['err']}"
+            for name, taskStats in sorted(self.stats.items(), key=lambda item: item[1]["err"], reverse=True)
+            if taskStats["err"]
+        )
+        msg = f"**Scraper** — {total} tasks, {failures} errors"
+        if failures:
+            msg += f"\n{failedLines}"
+        logger.error(msg)
 
     def reorderColumns(self, df):
         if df.empty:

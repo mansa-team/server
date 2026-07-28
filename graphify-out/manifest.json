@@ -35,9 +35,9 @@
     "semantic_hash": "9871df61440084b56f058ce94e34df46"
   },
   "D:\\Repositories\\server\\frontend\\src\\App.jsx": {
-    "mtime": 1784587331.563286,
-    "ast_hash": "1b7c1612e0afcbc5d9990a5142fcafbd",
-    "semantic_hash": "1b7c1612e0afcbc5d9990a5142fcafbd"
+    "mtime": 1784761750.485786,
+    "ast_hash": "409145f7796105269d4e603fa0512d01",
+    "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\main.jsx": {
     "mtime": 1782691503.0038493,
@@ -295,9 +295,9 @@
     "semantic_hash": "0837b2c1f6a7f9e678f96844d4d1aadc"
   },
   "D:\\Repositories\\server\\main\\utils\\logging_config.py": {
-    "mtime": 1782691503.0461166,
-    "ast_hash": "7a82394e60cf6d22dd3b004178496037",
-    "semantic_hash": "7a82394e60cf6d22dd3b004178496037"
+    "mtime": 1785102127.1076636,
+    "ast_hash": "c22abfbdf266303cacbe6e7d9e1a638a",
+    "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\utils\\migrator.py": {
     "mtime": 1782691503.0476232,
@@ -370,8 +370,8 @@
     "semantic_hash": "35e7305edfc17a02ff36bb113761bead"
   },
   "D:\\Repositories\\server\\migrations\\versions\\e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories.py": {
-    "mtime": 1784697856.837223,
-    "ast_hash": "723b17658923b359923f361da3cb98aa",
+    "mtime": 1785038280.5729103,
+    "ast_hash": "bc73f85625cf67526ac60e7795d19d42",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\AGENTS.md": {

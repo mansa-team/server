@@ -69,7 +69,7 @@ def setupDiscordHandler():
                     requests.post(Config.DISCORD.WEBHOOK_URL, json={"content": msg}, timeout=10)
                 except Exception:
                     pass
-                time.sleep(0.45) # ~5 msgs/2s, under discord rate limit
+                time.sleep(0.45)  # ~5 msgs/2s, under discord rate limit
 
     t = threading.Thread(target=sender, daemon=True, name="discord-sender")
     t.start()

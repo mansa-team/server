@@ -3331,7 +3331,7 @@
       "label": "setupLogging()",
       "file_type": "code",
       "source_file": "main/utils/logging_config.py",
-      "source_location": "L19",
+      "source_location": "L22",
       "id": "utils_logging_config_setuplogging",
       "community": 94,
       "norm_label": "setuplogging()"
@@ -3358,7 +3358,7 @@
       "label": "setupDiscordHandler()",
       "file_type": "code",
       "source_file": "main/utils/logging_config.py",
-      "source_location": "L73",
+      "source_location": "L55",
       "id": "utils_logging_config_setupdiscordhandler",
       "community": 94,
       "norm_label": "setupdiscordhandler()"
@@ -3889,7 +3889,7 @@
       "label": "upgrade()",
       "file_type": "code",
       "source_file": "migrations/versions/e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories.py",
-      "source_location": "L21",
+      "source_location": "L22",
       "id": "versions_e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories_upgrade",
       "community": 494,
       "norm_label": "upgrade()"
@@ -3898,7 +3898,7 @@
       "label": "downgrade()",
       "file_type": "code",
       "source_file": "migrations/versions/e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories.py",
-      "source_location": "L45",
+      "source_location": "L39",
       "id": "versions_e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories_downgrade",
       "community": 494,
       "norm_label": "downgrade()"
@@ -13799,7 +13799,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L668",
-      "community": 48,
+      "community": 143,
       "norm_label": "testgetcurrentsession",
       "id": "tests_test_controllers_coverage_testgetcurrentsession"
     },
@@ -13808,7 +13808,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L671",
-      "community": 48,
+      "community": 143,
       "norm_label": ".test_get_current_session_found()",
       "id": "tests_test_controllers_coverage_testgetcurrentsession_test_get_current_session_found"
     },
@@ -13817,7 +13817,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L704",
-      "community": 48,
+      "community": 143,
       "norm_label": ".test_get_current_session_not_found()",
       "id": "tests_test_controllers_coverage_testgetcurrentsession_test_get_current_session_not_found"
     },
@@ -14672,7 +14672,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L669",
-      "community": 48,
+      "community": 143,
       "norm_label": "covers lines 100-104, 106: get /user/sessions/current.",
       "id": "tests_test_controllers_coverage_rationale_669"
     },
@@ -14681,7 +14681,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L672",
-      "community": 48,
+      "community": 143,
       "norm_label": "covers lines 100-104, 106: session found.",
       "id": "tests_test_controllers_coverage_rationale_672"
     },
@@ -14690,7 +14690,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L705",
-      "community": 48,
+      "community": 143,
       "norm_label": "covers line 104: session not found.",
       "id": "tests_test_controllers_coverage_rationale_705"
     },
@@ -34544,7 +34544,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L665",
-      "community": 48,
+      "community": 143,
       "norm_label": "covers lines 100-104, 106: get /user/sessions/current.",
       "id": "tests_test_controllers_coverage_rationale_665"
     },
@@ -34553,7 +34553,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L668",
-      "community": 48,
+      "community": 143,
       "norm_label": "covers lines 100-104, 106: session found.",
       "id": "tests_test_controllers_coverage_rationale_668"
     },
@@ -34562,7 +34562,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L701",
-      "community": 48,
+      "community": 143,
       "norm_label": "covers line 104: session not found.",
       "id": "tests_test_controllers_coverage_rationale_701"
     },
@@ -35156,7 +35156,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L663",
-      "community": 48,
+      "community": 143,
       "norm_label": "covers lines 100-104, 106: get /user/sessions/current.",
       "id": "tests_test_controllers_coverage_rationale_663"
     },
@@ -35165,7 +35165,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L666",
-      "community": 48,
+      "community": 143,
       "norm_label": "covers lines 100-104, 106: session found.",
       "id": "tests_test_controllers_coverage_rationale_666"
     },
@@ -35174,7 +35174,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L699",
-      "community": 48,
+      "community": 143,
       "norm_label": "covers line 104: session not found.",
       "id": "tests_test_controllers_coverage_rationale_699"
     },
@@ -38657,7 +38657,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L708",
-      "community": 48,
+      "community": 143,
       "norm_label": "covers lines 100-104, 106: get /user/sessions/current.",
       "id": "tests_test_controllers_coverage_rationale_708"
     },
@@ -38666,7 +38666,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L711",
-      "community": 48,
+      "community": 143,
       "norm_label": "covers lines 100-104, 106: session found.",
       "id": "tests_test_controllers_coverage_rationale_711"
     },
@@ -38675,7 +38675,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L744",
-      "community": 48,
+      "community": 143,
       "norm_label": "covers line 104: session not found.",
       "id": "tests_test_controllers_coverage_rationale_744"
     },
@@ -111777,5 +111777,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "eeffe901f20902358eac99ac4148b550792d5689"
+  "built_at_commit": "42145cc94ef0464e73a833ef8105ea6d48087f29"
 }
