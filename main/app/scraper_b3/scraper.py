@@ -3,7 +3,6 @@ from config import Config
 from main.app.scraper_b3.xango import calculateInvestingScore
 
 from io import StringIO
-import math
 import time
 import warnings
 from datetime import datetime
@@ -25,8 +24,6 @@ logger = logging.getLogger(__name__)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
-
-startTime = time.time()
 
 
 def getCurrentSelic():
@@ -289,41 +286,41 @@ class B3Scraper:
 
         return pd.DataFrame([newDF]).set_index("TICKER")
 
-    def fundamentalIndicators(self, TICKER, df):
+    def fundamentalIndicators(self, TICKER, data, stocksDF):
         newDF = {"TICKER": TICKER}
 
         try:
-            mEbit = df.get("MARGEM EBIT", 0)
-            receita = df.get(f"RECEITA LIQUIDA {self.currentYear - 1}", np.nan)
+            mEbit = data.get("MARGEM EBIT", 0)
+            receita = data.get(f"RECEITA LIQUIDA {self.currentYear - 1}", np.nan)
             if np.isnan(receita):
-                receita = df.get(f"RECEITA LIQUIDA {self.currentYear - 2}", np.nan)
+                receita = data.get(f"RECEITA LIQUIDA {self.currentYear - 2}", np.nan)
             newDF["EBIT"] = (mEbit * receita) / 100 if receita and not np.isnan(receita) and receita > 0 else np.nan
         except:
             newDF["EBIT"] = np.nan
 
         try:
-            dyVals = np.array([df.get(f"DY {y}", np.nan) for y in range(self.currentYear - 5, self.currentYear)])
+            dyVals = np.array([data.get(f"DY {y}", np.nan) for y in range(self.currentYear - 5, self.currentYear)])
             newDF["DY MEDIO 5 ANOS"] = np.nanmean(dyVals)
         except:
             newDF["DY MEDIO 5 ANOS"] = np.nan
 
         try:
-            rent5y = df.get("RENT 5 ANOS", np.nan)
+            rent5y = data.get("RENT 5 ANOS", np.nan)
             newDF["RENT MEDIA 5 ANOS"] = rent5y / 5 if not np.isnan(rent5y) and rent5y != 0 else np.nan
         except:
             newDF["RENT MEDIA 5 ANOS"] = np.nan
 
         try:
             incomes = np.array(
-                [df.get(f"LUCRO LIQUIDO {y}", np.nan) for y in range(self.currentYear - 5, self.currentYear)]
+                [data.get(f"LUCRO LIQUIDO {y}", np.nan) for y in range(self.currentYear - 5, self.currentYear)]
             )
             newDF["LUCRO LIQUIDO MEDIO 5 ANOS"] = np.nanmean(incomes)
         except:
             newDF["LUCRO LIQUIDO MEDIO 5 ANOS"] = np.nan
 
         try:
-            dStart = df.get(f"DIVIDENDOS {self.currentYear - 6}", np.nan)
-            dEnd = df.get(f"DIVIDENDOS {self.currentYear - 1}", np.nan)
+            dStart = data.get(f"DIVIDENDOS {self.currentYear - 6}", np.nan)
+            dEnd = data.get(f"DIVIDENDOS {self.currentYear - 1}", np.nan)
             if not np.isnan(dStart) and not np.isnan(dEnd) and dStart > 0 and dEnd > 0:
                 newDF["CAGR DIVIDENDOS 5 ANOS"] = ((dEnd / dStart) ** 0.2 - 1) * 100
             else:
@@ -332,8 +329,8 @@ class B3Scraper:
             newDF["CAGR DIVIDENDOS 5 ANOS"] = np.nan
 
         try:
-            pStart = df.get(f"LUCRO LIQUIDO {self.currentYear - 11}", np.nan)
-            pEnd = df.get(f"LUCRO LIQUIDO {self.currentYear - 1}", np.nan)
+            pStart = data.get(f"LUCRO LIQUIDO {self.currentYear - 11}", np.nan)
+            pEnd = data.get(f"LUCRO LIQUIDO {self.currentYear - 1}", np.nan)
             if not np.isnan(pStart) and not np.isnan(pEnd) and pStart > 0 and pEnd > 0:
                 cagr = ((pEnd / pStart) ** 0.1 - 1) * 100
             else:
@@ -343,9 +340,9 @@ class B3Scraper:
             newDF["CAGR LUCROS 10 ANOS"] = np.nan
 
         try:
-            roe = df.get("ROE", np.nan)
-            divY2 = df.get(f"DIVIDENDOS {self.currentYear - 2}", np.nan)
-            netY2 = df.get(f"LUCRO LIQUIDO {self.currentYear - 2}", np.nan)
+            roe = data.get("ROE", np.nan)
+            divY2 = data.get(f"DIVIDENDOS {self.currentYear - 2}", np.nan)
+            netY2 = data.get(f"LUCRO LIQUIDO {self.currentYear - 2}", np.nan)
             if not np.isnan(roe) and not np.isnan(netY2) and not np.isnan(divY2) and netY2 != 0:
                 newDF["SGR"] = roe * (1 - divY2 / netY2)
             else:
@@ -354,7 +351,7 @@ class B3Scraper:
             newDF["SGR"] = np.nan
 
         try:
-            lpa, vpa = df.get("LPA", np.nan), df.get("VPA", np.nan)
+            lpa, vpa = data.get("LPA", np.nan), data.get("VPA", np.nan)
             newDF["PRECO DE GRAHAM"] = (
                 np.sqrt(22.5 * lpa * vpa) if not np.isnan(lpa) and not np.isnan(vpa) and lpa > 0 and vpa > 0 else np.nan
             )
@@ -363,7 +360,7 @@ class B3Scraper:
 
         try:
             divs5y = np.array(
-                [df.get(f"DIVIDENDOS {y}", np.nan) for y in range(self.currentYear - 5, self.currentYear)]
+                [data.get(f"DIVIDENDOS {y}", np.nan) for y in range(self.currentYear - 5, self.currentYear)]
             )
             avgDiv = np.nanmean(divs5y)
             newDF["PRECO DE BAZIN"] = avgDiv / 0.06 if not np.isnan(avgDiv) and avgDiv > 0 else np.nan
@@ -373,28 +370,23 @@ class B3Scraper:
         try:
             years = range(self.currentYear - 10, self.currentYear)
 
-            row = df if isinstance(df, pd.Series) else df.iloc[0]
-            profitCols = [col for col in row.keys() if str(col).startswith("LUCRO LIQUIDO") and str(col)[-1].isdigit()]
-
-            profitDF = []
-            for col in profitCols:
-                try:
-                    yearVal = int(col.split()[-1])
-                    profitVal = row[col]
-                    if not pd.isna(profitVal):
-                        profitDF.append({"YEAR": yearVal, "LUCRO LIQUIDO": profitVal})
-                except (ValueError, IndexError):
-                    continue
-
-            profitDF = pd.DataFrame(profitDF).sort_values("YEAR").reset_index(drop=True)
+            profitDF = (
+                pd.DataFrame(
+                    [
+                        {"YEAR": int(col.split()[-1]), "LUCRO LIQUIDO": data[col]}
+                        for col in data
+                        if col.startswith("LUCRO LIQUIDO") and col.split()[-1].isdigit()
+                    ]
+                )
+                .sort_values("YEAR")
+                .reset_index(drop=True)
+            )
             profit10yDF = profitDF[profitDF["YEAR"].isin(years)].copy().reset_index(drop=True)
 
-            companyLiquidity = df.get("LIQUIDEZ MEDIA DIARIA", 0) or 0
+            companyLiquidity = data.get("LIQUIDEZ MEDIA DIARIA", 0) or 0
 
             prefix = TICKER[:4]
-            prefixLiquidity = (
-                self.stocksDF.groupby(self.stocksDF.index.str[:4])["LIQUIDEZ MEDIA DIARIA"].sum().get(prefix, 0)
-            )
+            prefixLiquidity = stocksDF.groupby(stocksDF.index.str[:4])["LIQUIDEZ MEDIA DIARIA"].sum().get(prefix, 0)
 
             result = calculateInvestingScore(
                 ticker=TICKER,
@@ -417,8 +409,9 @@ class B3Scraper:
 
         return pd.DataFrame([newDF]).set_index("TICKER")
 
-    def processTicker(self, ticker, tickerData):
-        results = [tickerData]
+    def processTicker(self, ticker, tickerData, stocksDF):
+        data = tickerData.to_dict()
+
         for task in [
             self.historicalRentability,
             self.historicalDividends,
@@ -432,54 +425,43 @@ class B3Scraper:
         ]:
             stats = self.stats.setdefault(task.__name__, {"ok": 0, "err": 0})
             try:
-                taskDf = task(ticker)
-                results.append(taskDf)
+                result = task(ticker)
+                data.update(result.iloc[0].to_dict())
                 stats["ok"] += 1
             except Exception as e:
                 logger.error(f"Error ({ticker}) in {task.__name__}: {e}")
                 stats["err"] += 1
-                results.append(pd.DataFrame(index=pd.Index([ticker], name="TICKER")))
 
-        combinedDF = pd.concat(results, axis=1)
-        combinedDF = combinedDF.loc[:, ~combinedDF.columns.duplicated(keep="last")]
         try:
-            fundamentalDF = self.fundamentalIndicators(ticker, combinedDF.iloc[0])
-            fundamentalDF.index = combinedDF.index
-            combinedDF = pd.concat([combinedDF, fundamentalDF], axis=1)
+            data.update(self.fundamentalIndicators(ticker, data, stocksDF))
         except Exception as e:
             logger.error(f"Error ({ticker}) in fundamentalIndicators: {e}")
 
-        return (ticker, combinedDF)
+        return data
 
     def scrapeStocks(self, maxWorkers=Config.SCRAPER["MAX_WORKERS"]):
+        startTime = time.time()
         stocksDF = self.getInitialData()
         stocksDF["TIME"] = pd.to_datetime(self.scraperDate)
         stocksList = stocksDF.index.tolist()
 
-        self.stocksDF = stocksDF
-
-        processedDfs = []
+        processedDicts = []
 
         with ThreadPoolExecutor(max_workers=maxWorkers) as executor:
-            results = executor.map(lambda t: self.processTicker(t, stocksDF.loc[[t]]), stocksList)
-            for ticker, resultDf in results:
+            futureToTicker = {
+                executor.submit(self.processTicker, t, stocksDF.loc[[t]], stocksDF): t for t in stocksList
+            }
+            for future in as_completed(futureToTicker):
+                ticker = futureToTicker[future]
                 try:
-                    processedDfs.append(resultDf)
+                    processedDicts.append(future.result())
                 except Exception as e:
                     logger.error(f"Error processing {ticker}: {e}")
 
-        processedDfs = [
-            df for df in processedDfs if len(df.dropna(how="all")) > 0 and len(df.dropna(how="all", axis=1)) > 0
-        ]
-
-        if processedDfs:
-            combined = pd.concat(processedDfs, axis=0, ignore_index=False)
-
-            if combined.columns.duplicated().any():
-                combined = combined.loc[:, ~combined.columns.duplicated(keep="last")]
-
-            newCols = [c for c in combined.columns if c not in stocksDF.columns]
-            finalDf = pd.concat([stocksDF, combined[newCols]], axis=1, join="outer")
+        if processedDicts:
+            scraped = pd.DataFrame(processedDicts).set_index("TICKER")
+            newCols = [c for c in scraped.columns if c not in stocksDF.columns]
+            finalDf = pd.concat([stocksDF, scraped[newCols]], axis=1, join="outer")
             finalDf = finalDf.reindex(stocksList)
         else:
             finalDf = stocksDF.copy()
@@ -503,6 +485,8 @@ class B3Scraper:
         if failures:
             msg += f"\n{failedLines}"
         logger.error(msg)
+
+        logger.info(f"Total Execution: {time.time() - startTime:.0f}s")
 
     def reorderColumns(self, df):
         if df.empty:
@@ -674,5 +658,3 @@ class B3Scraper:
 if __name__ == "__main__":
     scraper = B3Scraper()
     scraper.scrapeStocks()
-
-    logger.info(f"Total Execution: {time.time() - startTime:.0f}s")
