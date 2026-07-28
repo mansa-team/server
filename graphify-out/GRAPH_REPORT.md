@@ -1,16 +1,16 @@
 # Graph Report - server  (2026-07-28)
 
 ## Corpus Check
-- 83 files · ~30,339 words
+- 83 files · ~30,271 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4907 nodes · 6612 edges · 504 communities (267 shown, 237 thin omitted)
+- 4907 nodes · 6612 edges · 503 communities (266 shown, 237 thin omitted)
 - Extraction: 83% EXTRACTED · 17% INFERRED · 0% AMBIGUOUS · INFERRED: 1132 edges (avg confidence: 0.68)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `31f583a8`
+- Built from commit: `064afd83`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -496,7 +496,6 @@
 - [[_COMMUNITY_Community 487|Community 487]]
 - [[_COMMUNITY_Community 488|Community 488]]
 - [[_COMMUNITY_Community 489|Community 489]]
-- [[_COMMUNITY_Community 490|Community 490]]
 - [[_COMMUNITY_Community 491|Community 491]]
 - [[_COMMUNITY_Community 492|Community 492]]
 - [[_COMMUNITY_Community 493|Community 493]]
@@ -543,7 +542,7 @@
 - **Configuration & Database Infrastructure** — config_Config, config_engine, config_stocksEngine [INFERRED]
 - **User Authentication & Authorization** — user_service, authentication, user_roles, permission_system [INFERRED]
 
-## Communities (504 total, 237 thin omitted)
+## Communities (503 total, 237 thin omitted)
 
 ### Community 0 - "Stocks API Endpoints"
 Cohesion: 0.0
@@ -558,8 +557,8 @@ Cohesion: 0.13
 Nodes (21): Thin async wrapper around the CubeSandbox/E2B HTTP API.      All methods are sta, SandboxManager, _mock_forgevm(), Unit tests for SandboxManager — HTTP calls mocked via a fake client class., Wire up mock forgevm AsyncClient that returns sandbox with all methods., Wire up mock forgevm AsyncClient that returns sandbox with all methods., test_create_sandbox(), test_destroy_sandbox() (+13 more)
 
 ### Community 3 - "Prometheus Agent"
-Cohesion: 0.06
-Nodes (28): Tests covering query.py lines 22-48., Tests covering query.py lines 22-48., Tests covering query.py lines 22-48., Tests covering query.py lines 22-48., Tests covering query.py lines 22-48., Tests covering cache.py lines 28-76., Non-JSON-dict/list string is left as-is., Tests covering cache.py lines 28-76. (+20 more)
+Cohesion: 0.07
+Nodes (28): Tests covering query.py lines 22-48., Tests covering query.py lines 22-48., Tests covering query.py lines 22-48., Tests covering query.py lines 22-48., Tests covering query.py lines 22-48., replaceNan handles direct float NaN values (line 34)., Tests covering cache.py lines 28-76., Tests covering cache.py lines 28-76. (+20 more)
 
 ### Community 4 - "Data Models & Types"
 Cohesion: 0.11
@@ -659,7 +658,7 @@ Nodes (14): getRelevanceScore(), _FakeMemory, A memory with no lastAccessedAt sh
 
 ### Community 28 - "Community 28"
 Cohesion: 0.07
-Nodes (26): Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them)., No historical data columns -> inner 400 caught by outer except -> 500., Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them)., No historical data columns -> inner 400 caught by outer except -> 500., If an unexpected exception occurs in queryHistorical., No historical data columns -> inner 400 caught by outer except -> 500. (+18 more)
+Nodes (27): No historical data columns -> inner 400 caught by outer except -> 500., No historical data columns -> inner 400 caught by outer except -> 500., If an unexpected exception occurs in queryHistorical., No historical data columns -> inner 400 caught by outer except -> 500., No historical data columns -> inner 400 caught by outer except -> 500., If an unexpected exception occurs (line 132)., If an unexpected exception occurs (line 132)., Historical query with a year range. (+19 more)
 
 ### Community 29 - "Community 29"
 Cohesion: 0.08
@@ -790,7 +789,7 @@ Cohesion: 0.1
 Nodes (20): architectures, attention_probs_dropout_prob, gradient_checkpointing, hidden_act, hidden_dropout_prob, hidden_size, initializer_range, intermediate_size (+12 more)
 
 ### Community 63 - "Community 63"
-Cohesion: 0.18
+Cohesion: 0.16
 Nodes (8): _filterCotationByDate(), filterCotationData(), _parseCotationDate(), Fetch live prices for B3 tickers via yfinance.          B3 tickers must match, Parse DD-MM-YYYY from COTACAO 10Y JSON DATA field. ponytail: stdlib datetime onl, Filter COTACAO 10Y JSON entries by their inner DATA field (DD-MM-YYYY)., sanitizeNanValues(), StocksQueryManager
 
 ### Community 64 - "Community 64"
@@ -882,8 +881,8 @@ Cohesion: 0.12
 Nodes (7): Cover all methods in authentication.py (lines 13-75)., Cover all methods in authentication.py (lines 13-75)., Cover all methods in authentication.py (lines 13-75)., Cover all methods in authentication.py (lines 13-75)., Cover all methods in authentication.py (lines 13-75)., Cover all methods in authentication.py (lines 13-75)., TestAuthenticationManager
 
 ### Community 89 - "Community 89"
-Cohesion: 0.16
-Nodes (16): verifyAPIKey(), Tests to increase coverage for query.py, key.py, and cache.py in stocks_api., Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, test_cache_scheduler_starts_apscheduler(), test_cache_scheduler_starts_daemon_thread() (+8 more)
+Cohesion: 0.11
+Nodes (22): verifyAPIKey(), Tests to increase coverage for query.py, key.py, and cache.py in stocks_api., Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 48-66., Tests covering key.py lines 48-66. (+14 more)
 
 ### Community 90 - "Community 90"
 Cohesion: 0.14
@@ -1346,8 +1345,8 @@ Cohesion: 0.14
 Nodes (9): Verify that getSession() returns per-thread Session instances., Calling getSession() twice in the same thread returns the same object., Two threads must NOT share a Session object., With 20 concurrent threads, every thread must get its own Session., The returned object must be a real requests.Session., TestGetSession, get_session(), Return a requests.Session for the current thread.      Sessions are created la (+1 more)
 
 ### Community 216 - "Community 216"
-Cohesion: 0.22
-Nodes (8): Historical query with a year range., Historical query with a year range., Historical query with a year range., Historical query with a year range., Historical query with a year range., Historical query with a year range., Historical query with a year range., Historical query with a year range.
+Cohesion: 0.25
+Nodes (7): Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them)., Pass field name WITHOUT year (how categorizeColumns returns them).
 
 ### Community 217 - "Community 217"
 Cohesion: 0.33
@@ -1503,7 +1502,7 @@ Nodes (6): makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat 
 
 ### Community 475 - "Community 475"
 Cohesion: 0.33
-Nodes (6): Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., Tests covering key.py lines 48-66., TestCreateKey
+Nodes (5): Non-JSON-dict/list string is left as-is., Non-JSON-dict/list string is left as-is., Non-JSON-dict/list string is left as-is., Non-JSON-dict/list string is left as-is., Non-JSON-dict/list string is left as-is.
 
 ### Community 476 - "Community 476"
 Cohesion: 0.29
@@ -1557,10 +1556,6 @@ Nodes (6): execute_code(), Execute Python code in an isolated sandbox. Use for q
 Cohesion: 0.33
 Nodes (5): Covers lines 65-67: unexpected exception., Covers lines 65-67: unexpected exception., Covers lines 65-67: unexpected exception., Covers lines 65-67: unexpected exception., Covers lines 65-67: unexpected exception.
 
-### Community 490 - "Community 490"
-Cohesion: 0.33
-Nodes (5): replaceNan handles direct float NaN values (line 34)., replaceNan handles direct float NaN values (line 34)., replaceNan handles direct float NaN values (line 34)., replaceNan handles direct float NaN values (line 34)., replaceNan handles direct float NaN values (line 34).
-
 ### Community 491 - "Community 491"
 Cohesion: 0.6
 Nodes (4): _parse_date(), parseDate(), parseDateEnd(), parseDateStart()
@@ -1589,7 +1584,7 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.164) - this node is a cross-community bridge._
 - **Why does `FastAPI` connect `Community 69` to `Community 129`, `Community 135`, `Community 18`, `Community 21`, `Community 33`, `Community 34`, `Community 37`, `Community 40`, `Community 169`, `Community 168`, `Community 43`, `Community 45`, `Community 181`, `Community 58`, `Community 189`, `Community 63`, `Community 71`, `Community 78`, `Community 208`, `Community 81`, `Community 82`, `Community 84`, `Community 89`, `Community 92`, `Community 221`, `Community 491`, `Community 112`?**
   _High betweenness centrality (0.061) - this node is a cross-community bridge._
-- **Why does `UserManager` connect `Prometheus Tools` to `Prometheus Agent`, `B3 Stock Scraper`, `Server Configuration`, `Prometheus Memory`, `Community 141`, `User Roles & Permissions`, `Community 143`, `Community 16`, `Community 148`, `Community 21`, `Community 149`, `Community 22`, `Community 165`, `Community 37`, `Community 47`, `Community 48`, `Community 50`, `Community 181`, `Community 56`, `Community 58`, `Community 61`, `Community 68`, `Community 76`, `Community 211`, `Community 86`, `Community 89`, `Community 475`, `Community 99`, `Community 104`, `Community 106`, `Community 234`, `Community 114`?**
+- **Why does `UserManager` connect `Prometheus Tools` to `Prometheus Agent`, `B3 Stock Scraper`, `Server Configuration`, `Prometheus Memory`, `Community 141`, `User Roles & Permissions`, `Community 143`, `Community 16`, `Community 148`, `Community 21`, `Community 149`, `Community 22`, `Community 165`, `Community 37`, `Community 47`, `Community 48`, `Community 50`, `Community 181`, `Community 56`, `Community 58`, `Community 61`, `Community 68`, `Community 76`, `Community 211`, `Community 86`, `Community 89`, `Community 99`, `Community 104`, `Community 106`, `Community 234`, `Community 114`?**
   _High betweenness centrality (0.052) - this node is a cross-community bridge._
 - **Are the 72 inferred relationships involving `StocksCacheManager` (e.g. with `TestStocksCacheManager` and `TestVerifyAPIKey`) actually correct?**
   _`StocksCacheManager` has 72 INFERRED edges - model-reasoned connections that need verification._

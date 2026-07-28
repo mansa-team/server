@@ -135,10 +135,10 @@ class PrometheusSummarizer:
         if len(old) < 3:
             return episodes
 
-        merged = self._mergeEpisodes(old)
+        merged = self.mergeEpisodes(old)
         return [merged] + recent
 
-    def _mergeEpisodes(self, episodes: list[dict]) -> dict:
+    def mergeEpisodes(self, episodes: list[dict]) -> dict:
         episode_texts = []
         all_decisions = []
         all_entities = []

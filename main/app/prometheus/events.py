@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 class LoopLogger:
     def __init__(self, history: list):
-        self._history = history
+        self.history = history
 
     def emit(self, eventType: str, **kwargs) -> dict:
         event = {
@@ -15,5 +15,5 @@ class LoopLogger:
             "metadata": kwargs,
             "timestamp": datetime.now().isoformat(),
         }
-        self._history.append(event)
+        self.history.append(event)
         return event
