@@ -5,7 +5,7 @@ import pytest
 from datetime import datetime
 from unittest.mock import patch, MagicMock
 
-from main.app.prometheus.summarizer import PrometheusSummarizer, smartTruncate, countTokens
+from main.app.prometheus._summarizer_legacy import PrometheusSummarizer, smartTruncate, countTokens
 from main.models.prometheus import PrometheusSession
 
 
@@ -79,8 +79,8 @@ class TestSmartTruncate:
 
 
 class TestEpisodeAccumulation:
-    @patch("main.app.prometheus.summarizer.countTokens", return_value=600)
-    @patch("main.app.prometheus.summarizer.genai.Client")
+    @patch("main.app.prometheus._summarizer_legacy.countTokens", return_value=600)
+    @patch("main.app.prometheus._summarizer_legacy.genai.Client")
     def test_each_summarize_creates_new_episode(
         self, mock_genai, mock_count, db_session, fake_session_with_45_messages
     ):
@@ -116,8 +116,8 @@ class TestEpisodeAccumulation:
 
 
 class TestSummarizeTrimsHistory:
-    @patch("main.app.prometheus.summarizer.countTokens", return_value=600)
-    @patch("main.app.prometheus.summarizer.genai.Client")
+    @patch("main.app.prometheus._summarizer_legacy.countTokens", return_value=600)
+    @patch("main.app.prometheus._summarizer_legacy.genai.Client")
     def test_summarize_does_not_trim_history(self, mock_genai, mock_count, db_session, fake_session_with_45_messages):
         mock_resp = MagicMock()
         mock_resp.parsed = {
@@ -158,7 +158,7 @@ class TestSummarizeTrimsHistory:
 
 
 class TestSummarizeEdgeCases:
-    @patch("main.app.prometheus.summarizer.genai.Client")
+    @patch("main.app.prometheus._summarizer_legacy.genai.Client")
     def test_api_failure_leaves_session_unchanged(self, mock_genai, db_session, fake_session_with_45_messages):
         """Gemini API throws → summarize returns None, session is not mutated."""
         mock_genai.return_value.models.generate_content.side_effect = Exception("API down")
@@ -218,8 +218,8 @@ class TestSummarizeEdgeCases:
 
         mock_resp = MagicMock()
         mock_resp.parsed = {"summary": "New episode", "keyDecisions": [], "entities": []}
-        with patch("main.app.prometheus.summarizer.genai.Client") as mock_genai:
-            with patch("main.app.prometheus.summarizer.countTokens", return_value=600):
+        with patch("main.app.prometheus._summarizer_legacy.genai.Client") as mock_genai:
+            with patch("main.app.prometheus._summarizer_legacy.countTokens", return_value=600):
                 mock_genai.return_value.models.generate_content.return_value = mock_resp
                 summarizer.summarize(db_session, "test-cap")
 
@@ -323,13 +323,13 @@ class TestTokenBasedTrigger:
         history = [{"role": "user", "content": "Hello"} for _ in range(5)]
         assert s.shouldSummarize(history) is False
 
-    @patch("main.app.prometheus.summarizer.countTokens", return_value=3000)
+    @patch("main.app.prometheus._summarizer_legacy.countTokens", return_value=3000)
     def test_should_summarize_when_threshold_exceeded(self, mock_count):
         s = PrometheusSummarizer()
         history = [{"role": "user", "content": "x" * 3000} for _ in range(4)]
         assert s.shouldSummarize(history) is True
 
-    @patch("main.app.prometheus.summarizer.countTokens", return_value=1000)
+    @patch("main.app.prometheus._summarizer_legacy.countTokens", return_value=1000)
     def test_should_not_summarize_below_threshold(self, mock_count):
         s = PrometheusSummarizer()
         history = [{"role": "user", "content": "x" * 100} for _ in range(5)]
@@ -397,15 +397,15 @@ class TestTokenCountingIntegration:
 
     def test_fallback_when_tokenizer_unavailable(self):
         """Verify fallback works if local tokenizer fails."""
-        import main.app.prometheus.summarizer as mod
+        import main.app.prometheus._summarizer_legacy as mod
 
-        original = mod._tokenizer
-        mod._tokenizer = None
+        original = mod.tokenizer
+        mod.tokenizer = None
         try:
             count = countTokens("hello world")
             assert count > 0
         finally:
-            mod._tokenizer = original
+            mod.tokenizer = original
 
 
 # ── Edge Cases ──────────────────────────────────────────────────────────
