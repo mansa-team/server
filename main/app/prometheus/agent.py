@@ -15,7 +15,7 @@ import google.genai._mcp_utils as _mcp
 from main.models.prometheus import PrometheusSession
 from main.app.prometheus.memory import PrometheusMemory
 from main.app.prometheus.chat import PrometheusChatManager
-from main.app.prometheus.summarizer import PrometheusSummarizer
+from main.app.prometheus.compact import PrometheusCompactor
 from main.app.prometheus.events import LoopLogger
 from main.app.prometheus.sandbox import SandboxManager
 from main.app.prometheus.state import HarnessState
@@ -210,7 +210,7 @@ class Prometheus:
         episodeBlock = ""
         if sessionId and db:
             try:
-                episodes = PrometheusSummarizer().getEpisodes(db, sessionId)
+                episodes = PrometheusCompactor().getEpisodes(db, sessionId)
                 if episodes:
                     lines = [f"[{i + 1}] {ep.get('summary', '')}" for i, ep in enumerate(episodes[-5:])]
                     episodeBlock = "\n".join(lines)
@@ -253,11 +253,11 @@ class Prometheus:
         try:
             session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
             if session and session.history:
-                PrometheusSummarizer().summarize(db, str(sessionId))
+                PrometheusCompactor().compact(db, str(sessionId))
         except Exception:
-            logger.debug("Pre-turn summarization skipped", exc_info=True)
+            logger.debug("Pre-turn compaction skipped", exc_info=True)
 
-        episodes = PrometheusSummarizer().getEpisodes(db, str(sessionId))
+        episodes = PrometheusCompactor().getEpisodes(db, str(sessionId))
         last_ep_time = episodes[-1].get("time") if episodes else None
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50, since=last_ep_time)
         state = HarnessState()
