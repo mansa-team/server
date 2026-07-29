@@ -17,7 +17,7 @@ import re
 from sqlalchemy import text
 from config import stocksEngine
 
-from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_not_exception_type
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 logger = logging.getLogger(__name__)
@@ -272,7 +272,11 @@ class B3Scraper:
 
         return pd.DataFrame([{"TICKER": TICKER, "TAG ALONG": tagAlong}]).set_index("TICKER")
 
-    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=3))
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=1, max=3),
+        retry=retry_if_not_exception_type(ImportError),
+    )
     def stockNews(self, TICKER):
         df = pd.read_xml(
             StringIO(self.requests.get(f"https://news.google.com/rss/search?q={TICKER}&hl=pt-BR").text), xpath=".//item"
@@ -411,6 +415,7 @@ class B3Scraper:
 
     def processTicker(self, ticker, tickerData, stocksDF):
         data = tickerData.to_dict()
+        data["TICKER"] = ticker
 
         for task in [
             self.historicalRentability,
@@ -433,7 +438,7 @@ class B3Scraper:
                 stats["err"] += 1
 
         try:
-            data.update(self.fundamentalIndicators(ticker, data, stocksDF))
+            data.update(self.fundamentalIndicators(ticker, data, stocksDF).iloc[0].to_dict())
         except Exception as e:
             logger.error(f"Error ({ticker}) in fundamentalIndicators: {e}")
 
@@ -448,9 +453,7 @@ class B3Scraper:
         processedDicts = []
 
         with ThreadPoolExecutor(max_workers=maxWorkers) as executor:
-            futureToTicker = {
-                executor.submit(self.processTicker, t, stocksDF.loc[[t]], stocksDF): t for t in stocksList
-            }
+            futureToTicker = {executor.submit(self.processTicker, t, stocksDF.loc[t], stocksDF): t for t in stocksList}
             for future in as_completed(futureToTicker):
                 ticker = futureToTicker[future]
                 try:
@@ -531,128 +534,133 @@ class B3Scraper:
         if not Config.SCRAPER["MYSQL"] or df.empty:
             return
 
-        with self.engine.begin() as conn:
-            existingCols = pd.read_sql("SELECT * FROM b3_stocks LIMIT 1", con=conn).columns.tolist()
-            newCols = [c for c in df.columns if c not in existingCols]
+        try:
+            with self.engine.begin() as conn:
+                existingCols = pd.read_sql("SELECT * FROM b3_stocks LIMIT 1", con=conn).columns.tolist()
+                newCols = [c for c in df.columns if c not in existingCols]
 
-            if newCols:
-                for col in newCols:
-                    dtype = (
-                        "JSON"
-                        if df[col].dtype == "object"
-                        and df[col]
-                        .apply(lambda x: isinstance(x, (dict, list)) or (isinstance(x, str) and x.startswith("{")))
-                        .any()
-                        else ("TEXT" if df[col].dtype == "object" else "DOUBLE PRECISION")
-                    )
-                    conn.execute(text(f"ALTER TABLE b3_stocks ADD COLUMN `{col}` {dtype} NULL"))
+                if newCols:
+                    for col in newCols:
+                        dtype = (
+                            "JSON"
+                            if df[col].dtype == "object"
+                            and df[col]
+                            .apply(lambda x: isinstance(x, (dict, list)) or (isinstance(x, str) and x.startswith("{")))
+                            .any()
+                            else ("TEXT" if df[col].dtype == "object" else "DOUBLE PRECISION")
+                        )
+                        conn.execute(text(f"ALTER TABLE b3_stocks ADD COLUMN `{col}` {dtype} NULL"))
 
-            for col in ["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"]:
-                if col in df.columns:
-                    conn.execute(text(f"ALTER TABLE b3_stocks MODIFY COLUMN `{col}` LONGTEXT NULL"))
+                for col in ["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"]:
+                    if col in df.columns:
+                        conn.execute(text(f"ALTER TABLE b3_stocks MODIFY COLUMN `{col}` LONGTEXT NULL"))
 
-            df.to_sql("b3_stocks", con=conn, if_exists="append", index=False, method="multi", chunksize=50)
+                df.to_sql("b3_stocks", con=conn, if_exists="append", index=False, method="multi", chunksize=50)
 
-            cleanupSql = """
-            CREATE TEMPORARY TABLE IF NOT EXISTS tickerLookup (
-                TICKER VARCHAR(20) PRIMARY KEY,
-                NOME VARCHAR(255),
-                SETOR VARCHAR(255),
-                SUBSETOR VARCHAR(255),
-                SEGMENTO VARCHAR(255)
-            );
+                cleanupSql = """
+                CREATE TEMPORARY TABLE IF NOT EXISTS tickerLookup (
+                    TICKER VARCHAR(20) PRIMARY KEY,
+                    NOME VARCHAR(255),
+                    SETOR VARCHAR(255),
+                    SUBSETOR VARCHAR(255),
+                    SEGMENTO VARCHAR(255)
+                );
 
-            INSERT INTO tickerLookup (TICKER, NOME, SETOR, SUBSETOR, SEGMENTO)
-            SELECT TICKER, MAX(NOME), MAX(SETOR), MAX(SUBSETOR), MAX(SEGMENTO)
-            FROM b3_stocks 
-            WHERE NOME IS NOT NULL 
-            GROUP BY TICKER
-            ON DUPLICATE KEY UPDATE 
-                NOME=VALUES(NOME), SETOR=VALUES(SETOR), 
-                SUBSETOR=VALUES(SUBSETOR), SEGMENTO=VALUES(SEGMENTO);
+                INSERT INTO tickerLookup (TICKER, NOME, SETOR, SUBSETOR, SEGMENTO)
+                SELECT TICKER, MAX(NOME), MAX(SETOR), MAX(SUBSETOR), MAX(SEGMENTO)
+                FROM b3_stocks 
+                WHERE NOME IS NOT NULL 
+                GROUP BY TICKER
+                ON DUPLICATE KEY UPDATE 
+                    NOME=VALUES(NOME), SETOR=VALUES(SETOR), 
+                    SUBSETOR=VALUES(SUBSETOR), SEGMENTO=VALUES(SEGMENTO);
 
-            UPDATE b3_stocks s
-            INNER JOIN tickerLookup l ON s.TICKER = l.TICKER
-            SET 
-                s.NOME = COALESCE(s.NOME, l.NOME),
-                s.SETOR = COALESCE(s.SETOR, l.SETOR),
-                s.SUBSETOR = COALESCE(s.SUBSETOR, l.SUBSETOR),
-                s.SEGMENTO = COALESCE(s.SEGMENTO, l.SEGMENTO)
-            WHERE s.NOME IS NULL 
-                OR s.SETOR IS NULL 
-                OR s.SUBSETOR IS NULL 
-                OR s.SEGMENTO IS NULL;
+                UPDATE b3_stocks s
+                INNER JOIN tickerLookup l ON s.TICKER = l.TICKER
+                SET 
+                    s.NOME = COALESCE(s.NOME, l.NOME),
+                    s.SETOR = COALESCE(s.SETOR, l.SETOR),
+                    s.SUBSETOR = COALESCE(s.SUBSETOR, l.SUBSETOR),
+                    s.SEGMENTO = COALESCE(s.SEGMENTO, l.SEGMENTO)
+                WHERE s.NOME IS NULL 
+                    OR s.SETOR IS NULL 
+                    OR s.SUBSETOR IS NULL 
+                    OR s.SEGMENTO IS NULL;
 
-            DROP TEMPORARY TABLE tickerLookup;
-            """
-            for statement in cleanupSql.split(";"):
-                if statement.strip():
-                    conn.execute(text(statement))
+                DROP TEMPORARY TABLE tickerLookup;
+                """
+                for statement in cleanupSql.split(";"):
+                    if statement.strip():
+                        conn.execute(text(statement))
 
-            currentDate = pd.to_datetime(self.scraperDate)
-            existingCols = pd.read_sql("SELECT * FROM b3_stocks LIMIT 1", con=conn).columns.tolist()
+                currentDate = pd.to_datetime(self.scraperDate)
+                existingCols = pd.read_sql("SELECT * FROM b3_stocks LIMIT 1", con=conn).columns.tolist()
 
-            excludeCols = {"COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"}
+                excludeCols = {"COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"}
 
-            historicalPatterns = [
-                "RECEITA LIQUIDA",
-                "LUCRO LIQUIDO",
-                "DIVIDENDOS",
-                "DY",
-                "MARGEM BRUTA",
-                "MARGEM EBITDA",
-                "MARGEM EBIT",
-                "MARGEM LIQUIDA",
-                "DESPESAS",
-                "COTACAO ",
-            ]
+                historicalPatterns = [
+                    "RECEITA LIQUIDA",
+                    "LUCRO LIQUIDO",
+                    "DIVIDENDOS",
+                    "DY",
+                    "MARGEM BRUTA",
+                    "MARGEM EBITDA",
+                    "MARGEM EBIT",
+                    "MARGEM LIQUIDA",
+                    "DESPESAS",
+                    "COTACAO ",
+                ]
 
-            historicalCols = [
-                col
-                for col in existingCols
-                if any(pattern in col for pattern in historicalPatterns) and col not in excludeCols
-            ]
+                historicalCols = [
+                    col
+                    for col in existingCols
+                    if any(pattern in col for pattern in historicalPatterns) and col not in excludeCols
+                ]
 
-            if historicalCols:
-                conn.execute(
-                    text("""
-                    CREATE TEMPORARY TABLE IF NOT EXISTS tmp_prev_historical (
-                        TICKER VARCHAR(20),
-                        COL_NAME VARCHAR(255),
-                        VAL DOUBLE PRECISION,
-                        PRIMARY KEY (TICKER, COL_NAME)
-                    )
-                """)
-                )
-
-                for col in historicalCols:
+                if historicalCols:
                     conn.execute(
-                        text(f"""
-                        INSERT INTO tmp_prev_historical (TICKER, COL_NAME, VAL)
-                        SELECT t1.TICKER, :col, t1.`{col}`
-                        FROM b3_stocks t1
-                        INNER JOIN (
-                            SELECT TICKER, MAX(TIME) AS MAX_TIME
-                            FROM b3_stocks
-                            WHERE `{col}` IS NOT NULL AND TIME < :currentDate
-                            GROUP BY TICKER
-                        ) latest ON t1.TICKER = latest.TICKER AND t1.TIME = latest.MAX_TIME
-                        WHERE t1.`{col}` IS NOT NULL
-                    """),
-                        {"col": col, "currentDate": currentDate},
+                        text("""
+                        CREATE TEMPORARY TABLE IF NOT EXISTS tmp_prev_historical (
+                            TICKER VARCHAR(20),
+                            COL_NAME VARCHAR(255),
+                            VAL DOUBLE PRECISION,
+                            PRIMARY KEY (TICKER, COL_NAME)
+                        )
+                    """)
                     )
 
-                for col in historicalCols:
-                    mergeSql = f"""
-                    UPDATE b3_stocks s
-                    INNER JOIN tmp_prev_historical prev ON s.TICKER = prev.TICKER AND prev.COL_NAME = :col
-                    SET s.`{col}` = COALESCE(s.`{col}`, prev.VAL)
-                    WHERE s.`{col}` IS NULL
-                      AND s.TIME >= :currentDate;
-                    """
-                    conn.execute(text(mergeSql), {"col": col, "currentDate": currentDate})
+                    for col in historicalCols:
+                        conn.execute(
+                            text(f"""
+                            INSERT INTO tmp_prev_historical (TICKER, COL_NAME, VAL)
+                            SELECT t1.TICKER, :col, t1.`{col}`
+                            FROM b3_stocks t1
+                            INNER JOIN (
+                                SELECT TICKER, MAX(TIME) AS MAX_TIME
+                                FROM b3_stocks
+                                WHERE `{col}` IS NOT NULL AND TIME < :currentDate
+                                GROUP BY TICKER
+                            ) latest ON t1.TICKER = latest.TICKER AND t1.TIME = latest.MAX_TIME
+                            WHERE t1.`{col}` IS NOT NULL
+                        """),
+                            {"col": col, "currentDate": currentDate},
+                        )
 
-                conn.execute(text("DROP TEMPORARY TABLE tmp_prev_historical"))
+                    for col in historicalCols:
+                        mergeSql = f"""
+                        UPDATE b3_stocks s
+                        INNER JOIN tmp_prev_historical prev ON s.TICKER = prev.TICKER AND prev.COL_NAME = :col
+                        SET s.`{col}` = COALESCE(s.`{col}`, prev.VAL)
+                        WHERE s.`{col}` IS NULL
+                          AND s.TIME >= :currentDate;
+                        """
+                        conn.execute(text(mergeSql), {"col": col, "currentDate": currentDate})
+
+                    conn.execute(text("DROP TEMPORARY TABLE tmp_prev_historical"))
+
+            logger.info(f"MySQL export completed: {len(df)} rows")
+        except Exception as e:
+            logger.error(f"MySQL export failed: {e}")
 
 
 if __name__ == "__main__":

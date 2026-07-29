@@ -1180,7 +1180,7 @@
       "label": "normalizeKey()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L18",
+      "source_location": "L26",
       "id": "prometheus_memory_normalizekey",
       "community": 53,
       "norm_label": "normalizekey()"
@@ -1189,25 +1189,16 @@
       "label": "findSimilarKey()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L25",
+      "source_location": "L33",
       "id": "prometheus_memory_findsimilarkey",
       "community": 53,
       "norm_label": "findsimilarkey()"
     },
     {
-      "label": "applyUpdate()",
-      "file_type": "code",
-      "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L48",
-      "id": "prometheus_memory_applyupdate",
-      "community": 82,
-      "norm_label": "applyupdate()"
-    },
-    {
       "label": "PrometheusMemory",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L59",
+      "source_location": "L56",
       "id": "prometheus_memory_prometheusmemory",
       "community": 86,
       "norm_label": "prometheusmemory"
@@ -1216,7 +1207,7 @@
       "label": "getMemoryLimit()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L61",
+      "source_location": "L58",
       "id": "prometheus_memory_getmemorylimit",
       "community": 53,
       "norm_label": "getmemorylimit()"
@@ -1225,7 +1216,7 @@
       "label": "countMemories()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L67",
+      "source_location": "L64",
       "id": "prometheus_memory_countmemories",
       "community": 53,
       "norm_label": "countmemories()"
@@ -1234,7 +1225,7 @@
       "label": "upsertMemory()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L76",
+      "source_location": "L73",
       "id": "prometheus_memory_upsertmemory",
       "community": 53,
       "norm_label": "upsertmemory()"
@@ -1243,7 +1234,7 @@
       "label": "search()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L136",
+      "source_location": "L148",
       "id": "prometheus_memory_search",
       "community": 53,
       "norm_label": "search()"
@@ -1252,7 +1243,7 @@
       "label": "fullTextSearch()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L185",
+      "source_location": "L214",
       "id": "prometheus_memory_fulltextsearch",
       "community": 53,
       "norm_label": "fulltextsearch()"
@@ -1261,7 +1252,7 @@
       "label": "getUserMemories()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L216",
+      "source_location": "L245",
       "id": "prometheus_memory_getusermemories",
       "community": 53,
       "norm_label": "getusermemories()"
@@ -1270,7 +1261,7 @@
       "label": "deleteMemory()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L241",
+      "source_location": "L270",
       "id": "prometheus_memory_deletememory",
       "community": 53,
       "norm_label": "deletememory()"
@@ -1650,7 +1641,7 @@
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L143",
       "id": "prometheus_tools_read_file",
-      "community": 152,
+      "community": 475,
       "norm_label": "read_file()"
     },
     {
@@ -1668,7 +1659,7 @@
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L167",
       "id": "prometheus_tools_list_files",
-      "community": 475,
+      "community": 152,
       "norm_label": "list_files()"
     },
     {
@@ -1749,7 +1740,7 @@
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L168",
       "id": "prometheus_tools_rationale_168",
-      "community": 475,
+      "community": 152,
       "norm_label": "list files in the workspace directory.      args:         path: directory pat"
     },
     {
@@ -1954,7 +1945,7 @@
       "label": ".scrapeStocks()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L442",
+      "source_location": "L443",
       "id": "scraper_b3_scraper_b3scraper_scrapestocks",
       "community": 101,
       "norm_label": ".scrapestocks()"
@@ -1963,7 +1954,7 @@
       "label": ".reorderColumns()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L491",
+      "source_location": "L490",
       "id": "scraper_b3_scraper_b3scraper_reordercolumns",
       "community": 101,
       "norm_label": ".reordercolumns()"
@@ -1972,7 +1963,7 @@
       "label": ".serializeComplexTypes()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L501",
+      "source_location": "L500",
       "id": "scraper_b3_scraper_b3scraper_serializecomplextypes",
       "community": 101,
       "norm_label": ".serializecomplextypes()"
@@ -1981,7 +1972,7 @@
       "label": ".exportJson()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L522",
+      "source_location": "L521",
       "id": "scraper_b3_scraper_b3scraper_exportjson",
       "community": 101,
       "norm_label": ".exportjson()"
@@ -1990,7 +1981,7 @@
       "label": ".exportMysql()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L530",
+      "source_location": "L529",
       "id": "scraper_b3_scraper_b3scraper_exportmysql",
       "community": 101,
       "norm_label": ".exportmysql()"
@@ -3052,7 +3043,7 @@
       "label": "memoryMaintenance()",
       "file_type": "code",
       "source_file": "main/service/prometheus_service.py",
-      "source_location": "L29",
+      "source_location": "L21",
       "id": "service_prometheus_service_memorymaintenance",
       "community": 115,
       "norm_label": "memorymaintenance()"
@@ -3061,7 +3052,7 @@
       "label": "PrometheusService",
       "file_type": "code",
       "source_file": "main/service/prometheus_service.py",
-      "source_location": "L75",
+      "source_location": "L60",
       "id": "service_prometheus_service_prometheusservice",
       "community": 86,
       "norm_label": "prometheusservice"
@@ -3070,7 +3061,7 @@
       "label": "initialize()",
       "file_type": "code",
       "source_file": "main/service/prometheus_service.py",
-      "source_location": "L77",
+      "source_location": "L62",
       "id": "service_prometheus_service_initialize",
       "community": 186,
       "norm_label": "initialize()"
@@ -5047,6 +5038,15 @@
       "norm_label": "license"
     },
     {
+      "label": "applyUpdate()",
+      "file_type": "code",
+      "source_file": "main/app/prometheus/memory.py",
+      "source_location": "L48",
+      "community": 82,
+      "norm_label": "applyupdate()",
+      "id": "prometheus_memory_applyupdate"
+    },
+    {
       "label": ".mergeEpisodes()",
       "file_type": "code",
       "source_file": "main/app/prometheus/summarizer.py",
@@ -5996,7 +5996,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L135",
-      "community": 152,
+      "community": 475,
       "norm_label": "read a file from the workspace.      args:         path: path to the file (e.",
       "id": "prometheus_tools_rationale_135"
     },
@@ -6014,7 +6014,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L159",
-      "community": 475,
+      "community": 152,
       "norm_label": "list files in the workspace directory.      args:         path: directory pat",
       "id": "prometheus_tools_rationale_159"
     },
@@ -26003,7 +26003,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L147",
-      "community": 152,
+      "community": 475,
       "norm_label": "read a file from the workspace.      args:         path: path to the file (e.",
       "id": "prometheus_tools_rationale_147"
     },
@@ -26012,7 +26012,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L158",
-      "community": 475,
+      "community": 152,
       "norm_label": "write a file to the workspace. use this to save data files     (csv, json, scri",
       "id": "prometheus_tools_rationale_158"
     },
@@ -26021,7 +26021,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L171",
-      "community": 475,
+      "community": 152,
       "norm_label": "list files in the workspace directory.      args:         path: directory pat",
       "id": "prometheus_tools_rationale_171"
     },
@@ -26318,7 +26318,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L131",
-      "community": 152,
+      "community": 475,
       "norm_label": "read a file from the sandbox filesystem.      args:         path: absolute pa",
       "id": "prometheus_tools_rationale_131"
     },
@@ -26525,7 +26525,7 @@
       "file_type": "rationale",
       "source_file": "main/app/prometheus/tools.py",
       "source_location": "L130",
-      "community": 152,
+      "community": 475,
       "norm_label": "read a file from the sandbox filesystem.      args:         path: absolute pa",
       "id": "prometheus_tools_rationale_130"
     },
@@ -48506,16 +48506,6 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L50",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "main_app_prometheus_memory_py",
-      "target": "prometheus_memory_applyupdate"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/prometheus/memory.py",
       "source_location": "L16",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -48591,6 +48581,16 @@
       "confidence_score": 1.0,
       "source": "main_app_prometheus_memory_py",
       "target": "prometheus_memory_deletememory"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/memory.py",
+      "source_location": "L50",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "main_app_prometheus_memory_py",
+      "target": "prometheus_memory_applyupdate"
     },
     {
       "relation": "contains",
@@ -48785,28 +48785,6 @@
       "confidence_score": 1.0,
       "source": "prometheus_memory_findsimilarkey",
       "target": "prometheus_memory_normalize_key"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L100",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "prometheus_memory_upsertmemory",
-      "target": "prometheus_memory_applyupdate"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L54",
-      "weight": 1.0,
-      "source": "prometheus_memory_applyupdate",
-      "target": "prometheus_vector_contenthash"
     },
     {
       "relation": "uses",
@@ -49055,6 +49033,17 @@
     {
       "relation": "calls",
       "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "main/app/prometheus/memory.py",
+      "source_location": "L100",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "prometheus_memory_upsertmemory",
+      "target": "prometheus_memory_applyupdate"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "main/app/prometheus/memory.py",
@@ -49102,6 +49091,17 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "main/app/prometheus/memory.py",
+      "source_location": "L120",
+      "weight": 1.0,
+      "source": "prometheus_memory_search",
+      "target": "prometheus_vector_getrelevancescore"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "main/app/prometheus/memory.py",
       "source_location": "L104",
       "weight": 1.0,
       "source": "prometheus_memory_search",
@@ -49128,17 +49128,6 @@
       "weight": 1.0,
       "source": "prometheus_memory_search",
       "target": "prometheus_vector_batchcosinesimilarity"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "INFERRED",
-      "confidence_score": 0.8,
-      "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L120",
-      "weight": 1.0,
-      "source": "prometheus_memory_search",
-      "target": "prometheus_vector_getrelevancescore"
     },
     {
       "relation": "calls",
@@ -52320,6 +52309,17 @@
       "weight": 1.0,
       "source": "prometheus_vector_batchcosinesimilarity",
       "target": "tests_test_vector_utils_testbatchcosinesimilarity_test_zero_query"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "main/app/prometheus/memory.py",
+      "source_location": "L54",
+      "weight": 1.0,
+      "source": "prometheus_memory_applyupdate",
+      "target": "prometheus_vector_contenthash"
     },
     {
       "relation": "calls",
@@ -111777,5 +111777,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "1c2e87ad060ead73d0a3846371a49ab4414a667e"
+  "built_at_commit": "8c3a0689467be114c2a5fef04f56617cdea644fb"
 }

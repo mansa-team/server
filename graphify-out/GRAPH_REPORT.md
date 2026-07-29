@@ -1,7 +1,7 @@
 # Graph Report - server  (2026-07-28)
 
 ## Corpus Check
-- 83 files · ~30,181 words
+- 83 files · ~30,258 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `1c2e87ad`
+- Built from commit: `8c3a0689`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -1119,7 +1119,7 @@ Nodes (3): MEMORY_TOOLS must be defined as a Tool wrapping FunctionDeclarations.
 
 ### Community 152 - "Community 152"
 Cohesion: 0.2
-Nodes (10): Read a file from the sandbox filesystem.      Args:         path: Absolute pa, Read a file from the sandbox filesystem.      Args:         path: Absolute pa, Read a file from the workspace.      Args:         path: Path to the file (e., Write a file to the sandbox filesystem. Use this to push data files     (CSV, J, Read a file from the workspace.      Args:         path: Path to the file (e., Write a file to the workspace. Use this to save data files     (CSV, JSON, scri, Read a file from the workspace.      Args:         path: Path to the file (e., Write a file to the workspace. Use this to save data files     (CSV, JSON, scri (+2 more)
+Nodes (10): list_files(), Write a file to the sandbox filesystem. Use this to push data files     (CSV, J, Read a file from the workspace.      Args:         path: Path to the file (e., Write a file to the workspace. Use this to save data files     (CSV, JSON, scri, Write a file to the workspace. Use this to save data files     (CSV, JSON, scri, Write a file to the workspace. Use this to save data files     (CSV, JSON, scri, List files in the workspace directory.      Args:         path: Directory pat, List files in the workspace directory.      Args:         path: Directory pat (+2 more)
 
 ### Community 153 - "Community 153"
 Cohesion: 0.12
@@ -1511,7 +1511,7 @@ Nodes (6): makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat 
 
 ### Community 475 - "Community 475"
 Cohesion: 0.4
-Nodes (5): list_files(), Write a file to the workspace. Use this to save data files     (CSV, JSON, scri, List files in the workspace directory.      Args:         path: Directory pat, List files in the workspace directory.      Args:         path: Directory pat, List files in the workspace directory.      Args:         path: Directory pat
+Nodes (5): Read a file from the sandbox filesystem.      Args:         path: Absolute pa, Read a file from the sandbox filesystem.      Args:         path: Absolute pa, Read a file from the workspace.      Args:         path: Path to the file (e., Read a file from the workspace.      Args:         path: Path to the file (e., read_file()
 
 ### Community 476 - "Community 476"
 Cohesion: 0.29
@@ -1586,9 +1586,9 @@ Nodes (3): checkMySqlConnection — success, errors, engine=None paths., checkMy
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Pytest Testing` connect `Community 110` to `Authentication Core`, `Frontend Components`, `Community 129`, `Data Models & Types`, `Community 135`, `Device Detection`, `Community 138`, `Community 18`, `Community 147`, `Community 21`, `Community 24`, `Community 25`, `Community 27`, `Community 29`, `Community 32`, `Community 33`, `Community 40`, `Community 169`, `Community 168`, `Community 44`, `Community 45`, `Community 49`, `Community 50`, `Community 51`, `Community 55`, `Community 184`, `Community 183`, `Community 59`, `Community 67`, `Community 69`, `Community 75`, `Community 208`, `Community 82`, `Community 86`, `Community 89`, `Community 93`, `Community 99`, `Community 100`, `Community 102`, `Community 489`, `Community 112`, `Community 115`, `Community 118`, `Community 124`, `Community 125`?**
-  _High betweenness centrality (0.165) - this node is a cross-community bridge._
+  _High betweenness centrality (0.164) - this node is a cross-community bridge._
 - **Why does `FastAPI` connect `Community 69` to `Community 129`, `Community 135`, `Community 18`, `Community 21`, `Community 33`, `Community 34`, `Community 37`, `Community 40`, `Community 169`, `Community 168`, `Community 43`, `Community 45`, `Community 181`, `Community 58`, `Community 189`, `Community 63`, `Community 71`, `Community 78`, `Community 208`, `Community 81`, `Community 82`, `Community 84`, `Community 89`, `Community 92`, `Community 221`, `Community 491`, `Community 112`?**
-  _High betweenness centrality (0.065) - this node is a cross-community bridge._
+  _High betweenness centrality (0.064) - this node is a cross-community bridge._
 - **Why does `UserManager` connect `Prometheus Tools` to `Prometheus Agent`, `B3 Stock Scraper`, `Server Configuration`, `Prometheus Memory`, `Community 141`, `User Roles & Permissions`, `Community 16`, `Community 148`, `Community 21`, `Community 149`, `Community 22`, `Community 165`, `Community 37`, `Community 47`, `Community 48`, `Community 50`, `Community 181`, `Community 56`, `Community 58`, `Community 61`, `Community 68`, `Community 76`, `Community 211`, `Community 85`, `Community 86`, `Community 216`, `Community 89`, `Community 99`, `Community 104`, `Community 106`, `Community 234`, `Community 114`?**
   _High betweenness centrality (0.056) - this node is a cross-community bridge._
 - **Are the 72 inferred relationships involving `StocksCacheManager` (e.g. with `TestStocksCacheManager` and `TestVerifyAPIKey`) actually correct?**
