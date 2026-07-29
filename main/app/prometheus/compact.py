@@ -5,7 +5,6 @@ import time
 import logging
 from datetime import datetime
 from urllib.request import urlopen, Request
-from urllib.error import URLError
 
 from sqlalchemy.orm import Session as DBSession
 
@@ -51,8 +50,8 @@ class FieldRegistry:
 
     def buildUrl(self) -> str:
         from config import Config
-        host = Config.STOCKS_API.get("HOST", "localhost")
-        port = Config.STOCKS_API.get("PORT", "3200")
+        host = Config.STOCKS_API["HOST"]
+        port = Config.STOCKS_API["PORT"]
         return f"http://{host}:{port}/stocks/fields"
 
     def fetchFields(self) -> list[str]:
