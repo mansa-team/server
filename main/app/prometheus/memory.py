@@ -14,6 +14,14 @@ logger = logging.getLogger(__name__)
 MEMORY_LIMIT_BASIC = 50
 MEMORY_LIMIT_EXTENDED = 250
 
+INITIAL_STABILITY = {
+    "preference": 14.0,   # sticky - forgets slowly
+    "analysis": 7.0,      # medium - forgets normally
+    "feedback": 10.0,     # medium - sticky
+    "context": 3.0,       # ephemeral - forgets fast
+}
+DEFAULT_INITIAL_STABILITY = 7.0
+
 
 def normalizeKey(key: str) -> set[str]:
     normalized = key.lower().replace("_", " ")
@@ -43,17 +51,6 @@ def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8
             return m
 
     return None
-
-
-def applyUpdate(memory, value, memoryType, source, embedding):
-    memory.memoryValue = value  # type: ignore[assignment]
-    memory.memoryType = memoryType  # type: ignore[assignment]
-    memory.source = source  # type: ignore[assignment]
-    memory.contentHash = contentHash(value)  # type: ignore[assignment]
-    memory.embedding = embedding  # type: ignore[assignment]
-    memory.baseScore = min(memory.baseScore + 0.1, 1.0)  # type: ignore[arg-type]
-    memory.accessCount += 1  # type: ignore[assignment]
-    memory.lastAccessedAt = datetime.now()  # type: ignore[assignment]
 
 
 class PrometheusMemory:
@@ -95,7 +92,14 @@ class PrometheusMemory:
             if existing.contentHash == newHash:
                 return {"status": "unchanged", "memory": existing}
 
-            applyUpdate(existing, value, memoryType, source, embedding)
+            existing.memoryValue = value  # type: ignore[assignment]
+            existing.memoryType = memoryType  # type: ignore[assignment]
+            existing.source = source  # type: ignore[assignment]
+            existing.contentHash = newHash
+            existing.embedding = embedding  # type: ignore[assignment]
+            existing.baseScore = existing.baseScore * 1.1  # type: ignore[arg-type]
+            existing.accessCount += 1  # type: ignore[assignment]
+            existing.lastAccessedAt = datetime.now()  # type: ignore[assignment]
 
             db.commit()
             db.refresh(existing)
@@ -104,7 +108,14 @@ class PrometheusMemory:
 
         similar = findSimilarKey(db, userId, key)
         if similar:
-            applyUpdate(similar, value, memoryType, source, embedding)
+            similar.memoryValue = value  # type: ignore[assignment]
+            similar.memoryType = memoryType  # type: ignore[assignment]
+            similar.source = source  # type: ignore[assignment]
+            similar.contentHash = contentHash(value)
+            similar.embedding = embedding  # type: ignore[assignment]
+            similar.baseScore = similar.baseScore * 1.1  # type: ignore[arg-type]
+            similar.accessCount += 1  # type: ignore[assignment]
+            similar.lastAccessedAt = datetime.now()  # type: ignore[assignment]
 
             db.commit()
             db.refresh(similar)
@@ -125,6 +136,7 @@ class PrometheusMemory:
             source=source,
             embedding=embedding,
             contentHash=contentHash(value),
+            baseScore=INITIAL_STABILITY.get(str(memoryType), DEFAULT_INITIAL_STABILITY),
             lastAccessedAt=datetime.now(),
         )
         db.add(memory)
@@ -153,6 +165,23 @@ class PrometheusMemory:
         memories = queryFilter.all()
         if not memories:
             return []
+
+        if not query or len(query.strip()) < 3:
+            scored = []
+            now = datetime.now()
+            for m in memories:
+                scored.append(
+                    {
+                        "id": m.id,
+                        "memoryKey": m.memoryKey,
+                        "memoryValue": m.memoryValue,
+                        "memoryType": m.memoryType,
+                        "score": getRelevanceScore(m, now),
+                        "relevanceScore": getRelevanceScore(m, now),
+                    }
+                )
+            scored.sort(key=lambda x: x["score"], reverse=True)
+            return scored[:limit]
 
         memoriesWithEmb = [m for m in memories if m.embedding is not None]
         if memoriesWithEmb:
