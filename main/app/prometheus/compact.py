@@ -24,16 +24,35 @@ DECISION_KEYWORDS = re.compile(
     re.IGNORECASE,
 )
 
-SNAPSHOT_VALUE_RE = re.compile(
-    r"([\w\s/.,]+?):\s*([\-]?[\d.,]+)\s*(x|%|pts|R\$)?"
-)
+SNAPSHOT_VALUE_RE = re.compile(r"([\w\s/.,]+?):\s*([\-]?[\d.,]+)\s*(x|%|pts|R\$)?")
 
 FALLBACK_FIELDS = [
-    "P/L", "P/VP", "P/EBIT", "P/ATIVO", "EV/EBIT", "PSR", "ROE", "ROA", "ROIC",
-    "DY", "MARGEM BRUTA", "MARGEM EBIT", "MARG. LIQUIDA", "MARGEM EBITDA",
-    "LPA", "VPA", "PEG Ratio", "SGR", "INVESTING SCORE", "LIQ. CORRENTE",
-    "DIV. LIQ. / PATRI.", "PASSIVO / ATIVOS", "GIRO ATIVOS",
-    "PRECO DE GRAHAM", "PRECO DE BAZIN", "TAG ALONG",
+    "P/L",
+    "P/VP",
+    "P/EBIT",
+    "P/ATIVO",
+    "EV/EBIT",
+    "PSR",
+    "ROE",
+    "ROA",
+    "ROIC",
+    "DY",
+    "MARGEM BRUTA",
+    "MARGEM EBIT",
+    "MARG. LIQUIDA",
+    "MARGEM EBITDA",
+    "LPA",
+    "VPA",
+    "PEG Ratio",
+    "SGR",
+    "INVESTING SCORE",
+    "LIQ. CORRENTE",
+    "DIV. LIQ. / PATRI.",
+    "PASSIVO / ATIVOS",
+    "GIRO ATIVOS",
+    "PRECO DE GRAHAM",
+    "PRECO DE BAZIN",
+    "TAG ALONG",
 ]
 
 
@@ -50,6 +69,7 @@ class FieldRegistry:
 
     def buildUrl(self) -> str:
         from config import Config
+
         host = Config.STOCKS_API["HOST"]
         port = Config.STOCKS_API["PORT"]
         return f"http://{host}:{port}/stocks/fields"
@@ -252,9 +272,7 @@ class PrometheusCompactor:
         return [merged] + recent
 
     def compact(self, db: DBSession, sessionId: str) -> dict | None:
-        session = db.query(PrometheusSession).filter(
-            PrometheusSession.sessionId == sessionId
-        ).first()
+        session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
 
         if not session or not session.history:
             return None
@@ -285,15 +303,15 @@ class PrometheusCompactor:
 
         logger.info(
             "Compacted %d messages into episode %s (decisions=%d, entities=%d)",
-            len(chunk), episode["id"],
-            len(episode["keyDecisions"]), len(episode["entities"]),
+            len(chunk),
+            episode["id"],
+            len(episode["keyDecisions"]),
+            len(episode["entities"]),
         )
         return episode
 
     def getEpisodes(self, db: DBSession, sessionId: str) -> list[dict]:
-        session = db.query(PrometheusSession).filter(
-            PrometheusSession.sessionId == sessionId
-        ).first()
+        session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
         if not session or not session.summary:
             return []
         try:

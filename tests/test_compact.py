@@ -1,9 +1,17 @@
 import pytest
 from unittest.mock import patch, MagicMock
 from main.app.prometheus.compact import (
-    extractTickers, extractMetrics, extractDecisions,
-    extractSnapshots, extractToolCalls, buildSummary, charCount,
-    FieldRegistry, FALLBACK_FIELDS,
+    extractTickers,
+    extractMetrics,
+    extractDecisions,
+    extractSnapshots,
+    extractToolCalls,
+    buildSummary,
+    charCount,
+    FieldRegistry,
+    FALLBACK_FIELDS,
+    PrometheusCompactor,
+    EPISODE_CAP,
 )
 
 
@@ -136,9 +144,6 @@ class TestCharCount:
         assert charCount("") == 0
 
 
-from main.app.prometheus.compact import PrometheusCompactor, EPISODE_CAP
-
-
 class TestPrometheusCompactor:
     def setup_method(self):
         self.compactor = PrometheusCompactor()
@@ -157,7 +162,11 @@ class TestPrometheusCompactor:
     def test_extract_basic(self):
         chunk = [
             {"role": "user", "content": "Analise PETR4 e VALE3"},
-            {"role": "loop_event", "eventType": "tool_call", "metadata": {"toolName": "get_fundamental", "args": {"search": "PETR4"}}},
+            {
+                "role": "loop_event",
+                "eventType": "tool_call",
+                "metadata": {"toolName": "get_fundamental", "args": {"search": "PETR4"}},
+            },
             {"role": "loop_event", "eventType": "tool_result", "metadata": {"result": {"P/L": 5.2}}},
         ]
         result = self.compactor.extractEpisode(chunk)
@@ -196,3 +205,96 @@ class TestPrometheusCompactor:
     def test_has_field_registry(self):
         assert self.compactor.registry is not None
         assert isinstance(self.compactor.registry, FieldRegistry)
+
+    def test_get_episodes_empty_session(self):
+        mockDb = MagicMock()
+        mockDb.query.return_value.filter.return_value.first.return_value = None
+        assert self.compactor.getEpisodes(mockDb, "sid1") == []
+
+    def test_get_episodes_empty_summary(self):
+        session = MagicMock()
+        session.summary = None
+        mockDb = MagicMock()
+        mockDb.query.return_value.filter.return_value.first.return_value = session
+        assert self.compactor.getEpisodes(mockDb, "sid1") == []
+
+    def test_get_episodes_corrupt_json(self):
+        session = MagicMock()
+        session.summary = "{invalid json"
+        mockDb = MagicMock()
+        mockDb.query.return_value.filter.return_value.first.return_value = session
+        assert self.compactor.getEpisodes(mockDb, "sid1") == []
+
+    def test_get_episodes_non_list_json(self):
+        session = MagicMock()
+        session.summary = '"just a string"'
+        mockDb = MagicMock()
+        mockDb.query.return_value.filter.return_value.first.return_value = session
+        assert self.compactor.getEpisodes(mockDb, "sid1") == []
+
+    def test_get_episodes_valid(self):
+        session = MagicMock()
+        session.summary = '[{"id": "ep_1", "summary": "test"}]'
+        mockDb = MagicMock()
+        mockDb.query.return_value.filter.return_value.first.return_value = session
+        result = self.compactor.getEpisodes(mockDb, "sid1")
+        assert len(result) == 1
+        assert result[0]["id"] == "ep_1"
+
+    def test_get_compactable_chunk_no_episodes(self):
+        history = [{"role": "user", "content": "msg1"}]
+        assert self.compactor.getCompactableChunk(history, []) == history
+
+    def test_get_compactable_chunk_no_last_ep_time(self):
+        history = [{"role": "user", "content": "msg1"}]
+        episodes = [{"id": "ep_1"}]
+        assert self.compactor.getCompactableChunk(history, episodes) == history
+
+    def test_get_compactable_chunk_filters_by_timestamp(self):
+        history = [
+            {"role": "user", "content": "old", "timestamp": "2025-01-01"},
+            {"role": "user", "content": "new", "timestamp": "2025-06-01"},
+        ]
+        episodes = [{"id": "ep_1", "time": "2025-03-01"}]
+        result = self.compactor.getCompactableChunk(history, episodes)
+        assert len(result) == 1
+        assert result[0]["content"] == "new"
+
+    def test_get_compactable_chunk_fallback_last_10(self):
+        history = [{"role": "user", "content": f"msg{i}", "timestamp": "2025-01-01"} for i in range(20)]
+        episodes = [{"id": "ep_1", "time": "2025-12-01"}]
+        result = self.compactor.getCompactableChunk(history, episodes)
+        assert len(result) == 10
+        assert result[0]["content"] == "msg10"
+
+    def test_compact_returns_none_no_session(self):
+        mockDb = MagicMock()
+        mockDb.query.return_value.filter.return_value.first.return_value = None
+        assert self.compactor.compact(mockDb, "sid1") is None
+
+    def test_compact_returns_none_no_history(self):
+        session = MagicMock()
+        session.history = []
+        mockDb = MagicMock()
+        mockDb.query.return_value.filter.return_value.first.return_value = session
+        assert self.compactor.compact(mockDb, "sid1") is None
+
+    def test_compact_returns_none_below_budget(self):
+        session = MagicMock()
+        session.history = [{"role": "user", "content": "short"}]
+        session.summary = None
+        mockDb = MagicMock()
+        mockDb.query.return_value.filter.return_value.first.return_value = session
+        assert self.compactor.compact(mockDb, "sid1") is None
+
+    def test_compact_creates_episode_above_budget(self):
+        session = MagicMock()
+        session.history = [{"role": "user", "content": "x" * 40000}]
+        session.summary = None
+        mockDb = MagicMock()
+        mockDb.query.return_value.filter.return_value.first.return_value = session
+        result = self.compactor.compact(mockDb, "sid1")
+        assert result is not None
+        assert result["id"].startswith("ep_")
+        assert "summary" in result
+        mockDb.commit.assert_called_once()
