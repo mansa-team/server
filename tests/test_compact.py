@@ -134,3 +134,65 @@ class TestCharCount:
     def test_basic(self):
         assert charCount("1234") == 1
         assert charCount("") == 0
+
+
+from main.app.prometheus.compact import PrometheusCompactor, EPISODE_CAP
+
+
+class TestPrometheusCompactor:
+    def setup_method(self):
+        self.compactor = PrometheusCompactor()
+
+    def test_should_compact_below_budget(self):
+        history = [{"role": "user", "content": "short"}]
+        assert self.compactor.shouldCompact(history) is False
+
+    def test_should_compact_above_budget(self):
+        history = [{"role": "user", "content": "x" * 40000}]
+        assert self.compactor.shouldCompact(history) is True
+
+    def test_should_compact_empty(self):
+        assert self.compactor.shouldCompact([]) is False
+
+    def test_extract_basic(self):
+        chunk = [
+            {"role": "user", "content": "Analise PETR4 e VALE3"},
+            {"role": "loop_event", "eventType": "tool_call", "metadata": {"toolName": "get_fundamental", "args": {"search": "PETR4"}}},
+            {"role": "loop_event", "eventType": "tool_result", "metadata": {"result": {"P/L": 5.2}}},
+        ]
+        result = self.compactor.extractEpisode(chunk)
+        assert "PETR4" in result["entities"]
+        assert "VALE3" in result["entities"]
+        assert "get_fundamental(PETR4)" in result["summary"] or "get_fundamental" in result["summary"]
+
+    def test_extract_uses_field_registry(self):
+        chunk = [{"role": "user", "content": "P/L de 5x e ROE 15%"}]
+        with patch("main.app.prometheus.compact.extractMetrics") as mockExtract:
+            mockExtract.return_value = ["P/L", "ROE"]
+            result = self.compactor.extractEpisode(chunk)
+            mockExtract.assert_called_once()
+            callArgs = mockExtract.call_args
+            assert callArgs[1].get("registry") is not None or callArgs[0][1] is not None
+
+    def test_consolidate_under_cap(self):
+        episodes = [{"id": f"ep_{i}", "summary": f"Episode {i}"} for i in range(5)]
+        assert len(self.compactor.consolidate(episodes)) == 5
+
+    def test_consolidate_over_cap(self):
+        episodes = [{"id": f"ep_{i}", "summary": f"Episode {i}", "keyDecisions": [], "entities": []} for i in range(15)]
+        result = self.compactor.consolidate(episodes)
+        assert len(result) == 11
+        assert result[0]["id"].startswith("ep_")
+
+    def test_consolidate_preserves_decisions(self):
+        episodes = [
+            {"id": f"ep_{i}", "summary": f"Ep {i}", "keyDecisions": [f"decision {i}"], "entities": []}
+            for i in range(15)
+        ]
+        result = self.compactor.consolidate(episodes)
+        merged = result[0]
+        assert len(merged["keyDecisions"]) == 5
+
+    def test_has_field_registry(self):
+        assert self.compactor.registry is not None
+        assert isinstance(self.compactor.registry, FieldRegistry)

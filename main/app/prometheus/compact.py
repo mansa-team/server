@@ -181,3 +181,123 @@ def buildSummary(
     if decisions:
         parts.append(f"User decisions: {'; '.join(decisions[:3])}")
     return " | ".join(parts) if parts else "Session with no extractable data."
+
+
+class PrometheusCompactor:
+    def __init__(self):
+        self.registry = FieldRegistry()
+
+    def shouldCompact(self, history: list) -> bool:
+        if not history:
+            return False
+        total = sum(charCount(m.get("content", "")) for m in history)
+        return total >= EPISODE_TOKEN_BUDGET
+
+    def getCompactableChunk(self, history: list, episodes: list) -> list[dict]:
+        if not episodes:
+            return history
+        lastEpTime = episodes[-1].get("time")
+        if not lastEpTime:
+            return history
+        chunk = [m for m in history if m.get("timestamp", "") > lastEpTime]
+        return chunk if chunk else history[-10:]
+
+    def extractEpisode(self, chunk: list[dict]) -> dict:
+        userMessages = [m for m in chunk if m.get("role") == "user"]
+        loopEvents = [m for m in chunk if m.get("role") == "loop_event"]
+        toolResults = [m for m in loopEvents if m.get("eventType") == "tool_result"]
+
+        allText = " ".join(m.get("content", "") for m in chunk if m.get("content"))
+
+        tickers = extractTickers(allText)
+        metrics = extractMetrics(allText, registry=self.registry)
+        decisions = extractDecisions(userMessages)
+        snapshots = extractSnapshots(toolResults)
+        tools = extractToolCalls(loopEvents)
+
+        summary = buildSummary(tickers, tools, decisions, metrics, snapshots)
+        entities = list(dict.fromkeys(tickers + metrics))
+
+        return {
+            "summary": summary,
+            "keyDecisions": decisions,
+            "entities": entities,
+        }
+
+    def consolidate(self, episodes: list[dict]) -> list[dict]:
+        if len(episodes) <= EPISODE_CAP:
+            return episodes
+
+        recent = episodes[-10:]
+        old = episodes[:-10]
+
+        if len(old) < 3:
+            return episodes
+
+        mergedSummary = " | ".join(ep.get("summary", "") for ep in old)
+        allDecisions = []
+        allEntities = []
+        for ep in old:
+            allDecisions.extend(ep.get("keyDecisions", []))
+            allEntities.extend(ep.get("entities", []))
+
+        merged = {
+            "id": f"ep_{uuid.uuid4().hex[:8]}",
+            "time": datetime.now().isoformat(),
+            "summary": mergedSummary[:1000],
+            "keyDecisions": list(dict.fromkeys(allDecisions)),
+            "entities": list(dict.fromkeys(allEntities)),
+        }
+
+        return [merged] + recent
+
+    def compact(self, db: DBSession, sessionId: str) -> dict | None:
+        session = db.query(PrometheusSession).filter(
+            PrometheusSession.sessionId == sessionId
+        ).first()
+
+        if not session or not session.history:
+            return None
+
+        episodes = self.getEpisodes(db, sessionId)
+        chunk = self.getCompactableChunk(session.history, episodes)
+
+        if not self.shouldCompact(chunk):
+            return None
+
+        episodeData = self.extractEpisode(chunk)
+        episode = {
+            "id": f"ep_{uuid.uuid4().hex[:8]}",
+            "time": datetime.now().isoformat(),
+            "summary": episodeData["summary"],
+            "keyDecisions": episodeData["keyDecisions"],
+            "entities": episodeData["entities"],
+        }
+
+        existing = self.getEpisodes(db, sessionId)
+        existing.append(episode)
+
+        if len(existing) > EPISODE_CAP:
+            existing = self.consolidate(existing)
+
+        session.summary = json.dumps(existing)
+        db.commit()
+
+        logger.info(
+            "Compacted %d messages into episode %s (decisions=%d, entities=%d)",
+            len(chunk), episode["id"],
+            len(episode["keyDecisions"]), len(episode["entities"]),
+        )
+        return episode
+
+    def getEpisodes(self, db: DBSession, sessionId: str) -> list[dict]:
+        session = db.query(PrometheusSession).filter(
+            PrometheusSession.sessionId == sessionId
+        ).first()
+        if not session or not session.summary:
+            return []
+        try:
+            episodes = json.loads(session.summary)
+            return episodes if isinstance(episodes, list) else []
+        except (json.JSONDecodeError, TypeError):
+            return []
