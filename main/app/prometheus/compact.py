@@ -1,0 +1,184 @@
+import re
+import json
+import uuid
+import time
+import logging
+from datetime import datetime
+from urllib.request import urlopen, Request
+from urllib.error import URLError
+
+from sqlalchemy.orm import Session as DBSession
+
+from main.models import PrometheusSession
+
+logger = logging.getLogger(__name__)
+
+EPISODE_TOKEN_BUDGET = 8000
+EPISODE_CAP = 12
+
+TICKER_RE = re.compile(r"\b([A-Z]{4}[0-9])\b")
+
+DECISION_KEYWORDS = re.compile(
+    r"(?:prefiro|prefere|quero|gostaria|sempre|nunca|quando|"
+    r"não use|use ao invés|troque|prefira|defina|configure|"
+    r"prefer|always|never|want|don't use|use instead|define|configure)",
+    re.IGNORECASE,
+)
+
+SNAPSHOT_VALUE_RE = re.compile(
+    r"([\w\s/.,]+?):\s*([\-]?[\d.,]+)\s*(x|%|pts|R\$)?"
+)
+
+FALLBACK_FIELDS = [
+    "P/L", "P/VP", "P/EBIT", "P/ATIVO", "EV/EBIT", "PSR", "ROE", "ROA", "ROIC",
+    "DY", "MARGEM BRUTA", "MARGEM EBIT", "MARG. LIQUIDA", "MARGEM EBITDA",
+    "LPA", "VPA", "PEG Ratio", "SGR", "INVESTING SCORE", "LIQ. CORRENTE",
+    "DIV. LIQ. / PATRI.", "PASSIVO / ATIVOS", "GIRO ATIVOS",
+    "PRECO DE GRAHAM", "PRECO DE BAZIN", "TAG ALONG",
+]
+
+
+class FieldRegistry:
+    instance = None
+    fields: list[str] | None = None
+    fetchedAt: float = 0
+    ttl: float = 3600
+
+    def __new__(cls):
+        if cls.instance is None:
+            cls.instance = super().__new__(cls)
+        return cls.instance
+
+    def buildUrl(self) -> str:
+        from config import Config
+        host = Config.STOCKS_API.get("HOST", "localhost")
+        port = Config.STOCKS_API.get("PORT", "3200")
+        return f"http://{host}:{port}/stocks/fields"
+
+    def fetchFields(self) -> list[str]:
+        try:
+            url = self.buildUrl()
+            req = Request(url, headers={"X-MCP": "true"})
+            with urlopen(req, timeout=5) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+
+            fields = []
+            historical = data.get("historical", {})
+            if isinstance(historical, dict):
+                fields.extend(historical.keys())
+            fundamental = data.get("fundamental", [])
+            if isinstance(fundamental, list):
+                fields.extend(fundamental)
+
+            logger.info("FieldRegistry: fetched %d fields from Stocks API", len(fields))
+            return list(dict.fromkeys(fields))
+        except Exception as e:
+            logger.warning("FieldRegistry: failed to fetch fields, using fallback: %s", e)
+            return list(FALLBACK_FIELDS)
+
+    def getFields(self) -> list[str]:
+        now = time.time()
+        if self.fields is None or (now - self.fetchedAt) > self.ttl:
+            self.fields = self.fetchFields()
+            self.fetchedAt = now
+        return self.fields
+
+    def buildMetricRegex(self) -> re.Pattern:
+        fields = self.getFields()
+        escaped = [re.escape(f) for f in fields if len(f) > 1]
+        escaped.sort(key=len, reverse=True)
+        pattern = r"\b(" + "|".join(escaped) + r")\b"
+        return re.compile(pattern)
+
+    def getMetricRegex(self) -> re.Pattern:
+        if not hasattr(self, "metricRegex") or self.fields is None:
+            self.metricRegex = self.buildMetricRegex()
+        return self.metricRegex
+
+    def invalidate(self):
+        self.fields = None
+        self.fetchedAt = 0
+        if hasattr(self, "metricRegex"):
+            del self.metricRegex
+
+
+def charCount(text: str) -> int:
+    return len(text) // 4
+
+
+def extractTickers(text: str) -> list[str]:
+    return list(dict.fromkeys(TICKER_RE.findall(text)))
+
+
+def extractMetrics(text: str, registry: FieldRegistry | None = None) -> list[str]:
+    if registry is not None:
+        regex = registry.getMetricRegex()
+    else:
+        escaped = [re.escape(f) for f in FALLBACK_FIELDS if len(f) > 1]
+        escaped.sort(key=len, reverse=True)
+        regex = re.compile(r"\b(" + "|".join(escaped) + r")\b")
+    return list(dict.fromkeys(regex.findall(text)))
+
+
+def extractDecisions(userMessages: list[dict]) -> list[str]:
+    decisions = []
+    for msg in userMessages:
+        content = msg.get("content", "")
+        if not content:
+            continue
+        sentences = re.split(r"[.!?\n]", content)
+        for sent in sentences:
+            sent = sent.strip()
+            if sent and DECISION_KEYWORDS.search(sent):
+                decisions.append(sent[:200])
+    return list(dict.fromkeys(decisions))[:10]
+
+
+def extractSnapshots(toolResults: list[dict]) -> list[str]:
+    snapshots = []
+    for tr in toolResults:
+        content = str(tr.get("content", ""))
+        for match in SNAPSHOT_VALUE_RE.finditer(content):
+            label = match.group(1).strip()
+            value = match.group(2)
+            unit = match.group(3) or ""
+            if any(kw in label.upper() for kw in ["P/L", "ROE", "DY", "PRECO", "LPA", "VPA"]):
+                snapshots.append(f"{label}: {value}{unit}")
+    return list(dict.fromkeys(snapshots))[:10]
+
+
+def extractToolCalls(loopEvents: list[dict]) -> list[str]:
+    calls = []
+    for ev in loopEvents:
+        if ev.get("eventType") != "tool_call":
+            continue
+        meta = ev.get("metadata", {})
+        toolName = meta.get("toolName", "")
+        args = meta.get("args", {})
+        ticker = args.get("search", "") or args.get("ticker", "")
+        if ticker:
+            calls.append(f"{toolName}({ticker})")
+        else:
+            calls.append(toolName)
+    return list(dict.fromkeys(calls))[:15]
+
+
+def buildSummary(
+    tickers: list[str],
+    tools: list[str],
+    decisions: list[str],
+    metrics: list[str],
+    snapshots: list[str],
+) -> str:
+    parts = []
+    if tickers:
+        parts.append(f"Tickers analyzed: {', '.join(tickers[:5])}")
+    if tools:
+        parts.append(f"Tools used: {', '.join(tools[:5])}")
+    if metrics:
+        parts.append(f"Metrics considered: {', '.join(metrics[:5])}")
+    if snapshots:
+        parts.append(f"Key values: {'; '.join(snapshots[:3])}")
+    if decisions:
+        parts.append(f"User decisions: {'; '.join(decisions[:3])}")
+    return " | ".join(parts) if parts else "Session with no extractable data."
