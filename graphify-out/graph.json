@@ -1918,7 +1918,7 @@
       "label": "stockNews()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L276",
+      "source_location": "L280",
       "id": "scraper_b3_scraper_stocknews",
       "community": 101,
       "norm_label": "stocknews()"
@@ -1927,7 +1927,7 @@
       "label": ".fundamentalIndicators()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L289",
+      "source_location": "L293",
       "id": "scraper_b3_scraper_b3scraper_fundamentalindicators",
       "community": 101,
       "norm_label": ".fundamentalindicators()"
@@ -1936,7 +1936,7 @@
       "label": ".processTicker()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L412",
+      "source_location": "L416",
       "id": "scraper_b3_scraper_b3scraper_processticker",
       "community": 101,
       "norm_label": ".processticker()"
@@ -1945,7 +1945,7 @@
       "label": ".scrapeStocks()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L443",
+      "source_location": "L447",
       "id": "scraper_b3_scraper_b3scraper_scrapestocks",
       "community": 101,
       "norm_label": ".scrapestocks()"
@@ -1954,7 +1954,7 @@
       "label": ".reorderColumns()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L490",
+      "source_location": "L494",
       "id": "scraper_b3_scraper_b3scraper_reordercolumns",
       "community": 101,
       "norm_label": ".reordercolumns()"
@@ -1963,7 +1963,7 @@
       "label": ".serializeComplexTypes()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L500",
+      "source_location": "L504",
       "id": "scraper_b3_scraper_b3scraper_serializecomplextypes",
       "community": 101,
       "norm_label": ".serializecomplextypes()"
@@ -1972,7 +1972,7 @@
       "label": ".exportJson()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L521",
+      "source_location": "L525",
       "id": "scraper_b3_scraper_b3scraper_exportjson",
       "community": 101,
       "norm_label": ".exportjson()"
@@ -1981,7 +1981,7 @@
       "label": ".exportMysql()",
       "file_type": "code",
       "source_file": "main/app/scraper_b3/scraper.py",
-      "source_location": "L529",
+      "source_location": "L533",
       "id": "scraper_b3_scraper_b3scraper_exportmysql",
       "community": 101,
       "norm_label": ".exportmysql()"
@@ -13799,7 +13799,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L668",
-      "community": 216,
+      "community": 48,
       "norm_label": "testgetcurrentsession",
       "id": "tests_test_controllers_coverage_testgetcurrentsession"
     },
@@ -13808,7 +13808,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L671",
-      "community": 216,
+      "community": 48,
       "norm_label": ".test_get_current_session_found()",
       "id": "tests_test_controllers_coverage_testgetcurrentsession_test_get_current_session_found"
     },
@@ -13817,7 +13817,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L704",
-      "community": 216,
+      "community": 48,
       "norm_label": ".test_get_current_session_not_found()",
       "id": "tests_test_controllers_coverage_testgetcurrentsession_test_get_current_session_not_found"
     },
@@ -14672,7 +14672,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L669",
-      "community": 216,
+      "community": 48,
       "norm_label": "covers lines 100-104, 106: get /user/sessions/current.",
       "id": "tests_test_controllers_coverage_rationale_669"
     },
@@ -14681,7 +14681,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L672",
-      "community": 216,
+      "community": 48,
       "norm_label": "covers lines 100-104, 106: session found.",
       "id": "tests_test_controllers_coverage_rationale_672"
     },
@@ -14690,7 +14690,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L705",
-      "community": 216,
+      "community": 48,
       "norm_label": "covers line 104: session not found.",
       "id": "tests_test_controllers_coverage_rationale_705"
     },
@@ -34544,7 +34544,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L665",
-      "community": 216,
+      "community": 48,
       "norm_label": "covers lines 100-104, 106: get /user/sessions/current.",
       "id": "tests_test_controllers_coverage_rationale_665"
     },
@@ -34553,7 +34553,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L668",
-      "community": 216,
+      "community": 48,
       "norm_label": "covers lines 100-104, 106: session found.",
       "id": "tests_test_controllers_coverage_rationale_668"
     },
@@ -34562,7 +34562,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L701",
-      "community": 216,
+      "community": 48,
       "norm_label": "covers line 104: session not found.",
       "id": "tests_test_controllers_coverage_rationale_701"
     },
@@ -35156,7 +35156,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L663",
-      "community": 216,
+      "community": 48,
       "norm_label": "covers lines 100-104, 106: get /user/sessions/current.",
       "id": "tests_test_controllers_coverage_rationale_663"
     },
@@ -35165,7 +35165,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L666",
-      "community": 216,
+      "community": 48,
       "norm_label": "covers lines 100-104, 106: session found.",
       "id": "tests_test_controllers_coverage_rationale_666"
     },
@@ -35174,7 +35174,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L699",
-      "community": 216,
+      "community": 48,
       "norm_label": "covers line 104: session not found.",
       "id": "tests_test_controllers_coverage_rationale_699"
     },
@@ -38657,7 +38657,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L708",
-      "community": 216,
+      "community": 48,
       "norm_label": "covers lines 100-104, 106: get /user/sessions/current.",
       "id": "tests_test_controllers_coverage_rationale_708"
     },
@@ -38666,7 +38666,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L711",
-      "community": 216,
+      "community": 48,
       "norm_label": "covers lines 100-104, 106: session found.",
       "id": "tests_test_controllers_coverage_rationale_711"
     },
@@ -38675,7 +38675,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L744",
-      "community": 216,
+      "community": 48,
       "norm_label": "covers line 104: session not found.",
       "id": "tests_test_controllers_coverage_rationale_744"
     },
@@ -111777,5 +111777,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "8c3a0689467be114c2a5fef04f56617cdea644fb"
+  "built_at_commit": "738a1a33341311e4317ac4436b0d5b1e0b9ea42e"
 }

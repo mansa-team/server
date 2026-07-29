@@ -2,7 +2,7 @@ import logging
 import unicodedata
 from datetime import datetime
 
-from sqlalchemy import func, text
+from sqlalchemy import func, desc
 from sqlalchemy.orm import Session
 
 from main.models.memory import PrometheusMemory as PrometheusMemoryModel
@@ -162,7 +162,7 @@ class PrometheusMemory:
         if memoryType:
             queryFilter = queryFilter.filter(PrometheusMemoryModel.memoryType == memoryType)
 
-        memories = queryFilter.all()
+        memories = queryFilter.limit().all()
         if not memories:
             return []
 
@@ -212,31 +212,35 @@ class PrometheusMemory:
 
     @classmethod
     def fullTextSearch(cls, db: Session, userId: int, query: str, limit: int) -> list[dict]:
+        matchExpr = func.match(
+            PrometheusMemoryModel.memoryKey,
+            PrometheusMemoryModel.memoryValue,
+        ).against(query, modifier="IN BOOLEAN MODE")
+
         results = (
-            db.execute(
-                text("""
-                SELECT id, memoryKey, memoryValue, memoryType, baseScore,
-                       MATCH(memoryKey, memoryValue) AGAINST(:query IN BOOLEAN MODE) as score
-                FROM prometheus_memories
-                WHERE userId = :userId
-                  AND archivedAt IS NULL
-                ORDER BY score DESC, baseScore DESC
-                LIMIT :limit
-            """),
-                {"query": query, "userId": userId, "limit": limit},
+            db.query(
+                PrometheusMemoryModel.id,
+                PrometheusMemoryModel.memoryKey,
+                PrometheusMemoryModel.memoryValue,
+                PrometheusMemoryModel.memoryType,
+                PrometheusMemoryModel.baseScore,
+                matchExpr.label("score"),
             )
-            .mappings()
+            .filter(PrometheusMemoryModel.userId == userId)
+            .filter(PrometheusMemoryModel.archivedAt.is_(None))
+            .order_by(desc("score"), desc(PrometheusMemoryModel.baseScore))
+            .limit(limit)
             .all()
         )
 
         return [
             {
-                "id": r["id"],
-                "memoryKey": r["memoryKey"],
-                "memoryValue": r["memoryValue"],
-                "memoryType": r["memoryType"],
-                "score": float(r["score"]),
-                "relevanceScore": float(r["baseScore"]),
+                "id": r.id,
+                "memoryKey": r.memoryKey,
+                "memoryValue": r.memoryValue,
+                "memoryType": r.memoryType,
+                "score": float(r.score),
+                "relevanceScore": float(r.baseScore),
             }
             for r in results
         ]
