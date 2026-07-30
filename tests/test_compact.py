@@ -8,6 +8,8 @@ from main.app.prometheus.compact import (
     extractToolCalls,
     buildSummary,
     charCount,
+    countTokens,
+    getTokenizer,
     FieldRegistry,
     FALLBACK_FIELDS,
     PrometheusCompactor,
@@ -140,8 +142,64 @@ class TestBuildSummary:
 
 class TestCharCount:
     def test_basic(self):
-        assert charCount("1234") == 1
+        with patch("main.app.prometheus.compact.getTokenizer") as mockGet:
+            mockTok = MagicMock()
+            mockTok.count_tokens.return_value.total_tokens = 3
+            mockGet.return_value = mockTok
+            assert charCount("hello world") == 3
+
+    def test_empty(self):
         assert charCount("") == 0
+
+    def test_fallback_when_no_tokenizer(self):
+        with patch("main.app.prometheus.compact.getTokenizer", return_value=None):
+            assert charCount("12345678") == 2
+
+    def test_fallback_on_exception(self):
+        with patch("main.app.prometheus.compact.getTokenizer") as mockGet:
+            mockTok = MagicMock()
+            mockTok.count_tokens.side_effect = RuntimeError("broken")
+            mockGet.return_value = mockTok
+            assert charCount("12345678") == 2
+
+
+class TestCountTokens:
+    def test_empty(self):
+        assert countTokens("") == 0
+
+    def test_with_tokenizer(self):
+        with patch("main.app.prometheus.compact.getTokenizer") as mockGet:
+            mockTok = MagicMock()
+            mockTok.count_tokens.return_value.total_tokens = 10
+            mockGet.return_value = mockTok
+            assert countTokens("test text") == 10
+
+    def test_without_tokenizer(self):
+        with patch("main.app.prometheus.compact.getTokenizer", return_value=None):
+            assert countTokens("1234567890") == 3
+
+
+class TestGetTokenizer:
+    def test_caches_instance(self):
+        import main.app.prometheus.compact as mod
+
+        mod.tokenizer = None
+        with patch("main.app.prometheus.compact.genai") as mockGenai:
+            mockGenai.LocalTokenizer.return_value = MagicMock()
+            t1 = getTokenizer()
+            t2 = getTokenizer()
+            assert t1 is t2
+            assert mockGenai.LocalTokenizer.call_count == 1
+        mod.tokenizer = None
+
+    def test_returns_none_on_failure(self):
+        import main.app.prometheus.compact as mod
+
+        mod.tokenizer = None
+        with patch("main.app.prometheus.compact.genai") as mockGenai:
+            mockGenai.LocalTokenizer.side_effect = RuntimeError("no model")
+            assert getTokenizer() is None
+        mod.tokenizer = None
 
 
 class TestPrometheusCompactor:

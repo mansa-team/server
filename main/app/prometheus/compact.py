@@ -6,6 +6,7 @@ import logging
 from datetime import datetime
 from urllib.request import urlopen, Request
 
+from google import genai
 from sqlalchemy.orm import Session as DBSession
 
 from main.models import PrometheusSession
@@ -25,6 +26,34 @@ DECISION_KEYWORDS = re.compile(
 )
 
 SNAPSHOT_VALUE_RE = re.compile(r"([\w\s/.,]+?):\s*([\-]?[\d.,]+)\s*(x|%|pts|R\$)?")
+
+tokenizer = None
+
+
+def getTokenizer():
+    global tokenizer
+    if tokenizer is None:
+        try:
+            tokenizer = genai.LocalTokenizer(model_name="gemini-flash-lite-latest")
+            logger.info("Loaded Gemini local tokenizer")
+        except Exception as e:
+            logger.warning("Failed to load local tokenizer, using fallback: %s", e)
+            tokenizer = None
+    return tokenizer
+
+
+def countTokens(text: str) -> int:
+    if not text:
+        return 0
+    tok = getTokenizer()
+    if tok is not None:
+        try:
+            result = tok.count_tokens(text)
+            return result.total_tokens
+        except Exception:
+            pass
+    return len(text) // 3
+
 
 FALLBACK_FIELDS = [
     "P/L",
@@ -122,7 +151,7 @@ class FieldRegistry:
 
 
 def charCount(text: str) -> int:
-    return len(text) // 4
+    return countTokens(text)
 
 
 def extractTickers(text: str) -> list[str]:
