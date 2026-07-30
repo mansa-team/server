@@ -10,7 +10,7 @@ from config import Config, engine, stocksEngine
 logger = logging.getLogger(__name__)
 
 
-def checkMySqlConnection():
+def checkDatabaseConnection():
     stocksDb = False
     userDb = False
     if engine:

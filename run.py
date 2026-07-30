@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 import asyncio
 
 from config import Config, LOCALHOST_ADDRESSES
-from main.utils.connectivity import checkMySqlConnection, checkServiceConnection
+from main.utils.connectivity import checkDatabaseConnection, checkServiceConnection
 from main.utils.service_manager import ServiceManager
 from main.utils.migrator import runMigrations
 from main.utils.request_id import RequestIDMiddleware
@@ -26,7 +26,7 @@ appStartTime = datetime.now()
 async def lifespan(app: FastAPI):
     dbConnected = False
     for i in range(10):
-        if checkMySqlConnection():
+        if checkDatabaseConnection():
             dbConnected = True
             break
         logger.info(f"Retrying database connection ({i + 1}/10)")
@@ -85,7 +85,7 @@ async def status():
     minutes, seconds = divmod(remainder, 60)
     days, hours = divmod(hours, 24)
 
-    dbOk = checkMySqlConnection()
+    dbOk = checkDatabaseConnection()
 
     services = {}
     for name, config in [
