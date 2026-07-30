@@ -10,42 +10,37 @@ from config import Config, engine, stocksEngine
 logger = logging.getLogger(__name__)
 
 
+def checkSingleDb(dbEngine, name):
+    if not dbEngine:
+        return {"status": "not_configured"}
+    try:
+        startTime = time.time()
+        with dbEngine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        latency = (time.time() - startTime) * 1000
+        pool = dbEngine.pool
+        return {
+            "status": "connected",
+            "latency_ms": round(latency, 2),
+            "pool": {
+                "size": pool.size(),
+                "checked_in": pool.checkedin(),
+                "checked_out": pool.checkedout(),
+                "overflow": pool.overflow(),
+            },
+        }
+    except OperationalError as e:
+        return {"status": "error", "error": str(e)}
+    except Exception as e:
+        return {"status": "error", "error": str(e)}
+
+
 def checkMySqlConnection():
-    stocksDb = False
-    userDb = False
-    if engine:
-        try:
-            startTime = time.time()
-            with engine.connect() as connection:
-                connection.execute(text("SELECT 1"))
-                connection.commit()
-            latency = (time.time() - startTime) * 1000
-            logger.info(f"USER DB connected ({latency:.2f}ms)")
-            userDb = True
-        except OperationalError as e:
-            logger.error(f"USER DB connection failed: {e}")
-        except Exception as e:
-            logger.error(f"USER DB unexpected error: {e}")
-    else:
-        logger.warning("USER DB engine not initialized!")
-
-    if stocksEngine:
-        try:
-            startTime = time.time()
-            with stocksEngine.connect() as connection:
-                connection.execute(text("SELECT 1"))
-                connection.commit()
-            latency = (time.time() - startTime) * 1000
-            logger.info(f"STOCKS DB connected ({latency:.2f}ms)")
-            stocksDb = True
-        except OperationalError as e:
-            logger.error(f"STOCKS DB connection failed: {e}")
-        except Exception as e:
-            logger.error(f"STOCKS DB unexpected error: {e}")
-    else:
-        logger.warning("STOCKS DB engine not initialized!")
-
-    return userDb and stocksDb
+    results = {
+        "user_db": checkSingleDb(engine, "user_db"),
+        "stocks_db": checkSingleDb(stocksEngine, "stocks_db"),
+    }
+    return results["user_db"]["status"] == "connected" and results["stocks_db"]["status"] == "connected"
 
 
 def checkServiceConnection(service: str):
