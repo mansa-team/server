@@ -28,7 +28,8 @@ class ResponseCache:
 
     def makeKey(self, endpoint, **params):
         raw = f"{endpoint}:{json.dumps(params, sort_keys=True)}"
-        return hashlib.sha256(raw.encode()).hexdigest()[:16]
+        h = hashlib.sha256(raw.encode()).hexdigest()[:16]
+        return f"{endpoint}:{h}"
 
     def get(self, key):
         with self.lock:
