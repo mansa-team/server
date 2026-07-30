@@ -52,7 +52,7 @@ class TestEbbinghausRetention:
     def test_high_stability_forgotten_slowly(self):
         """High stability (S=14) retains more than low stability (S=3) at same age."""
         s_high = math.exp(-7 / 14.0)  # ~0.607
-        s_low = math.exp(-7 / 3.0)   # ~0.097
+        s_low = math.exp(-7 / 3.0)  # ~0.097
         assert s_high > s_low
 
 

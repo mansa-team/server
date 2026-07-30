@@ -15,10 +15,10 @@ MEMORY_LIMIT_BASIC = 50
 MEMORY_LIMIT_EXTENDED = 250
 
 INITIAL_STABILITY = {
-    "preference": 14.0,   # sticky - forgets slowly
-    "analysis": 7.0,      # medium - forgets normally
-    "feedback": 10.0,     # medium - sticky
-    "context": 3.0,       # ephemeral - forgets fast
+    "preference": 14.0,  # sticky - forgets slowly
+    "analysis": 7.0,  # medium - forgets normally
+    "feedback": 10.0,  # medium - sticky
+    "context": 3.0,  # ephemeral - forgets fast
 }
 DEFAULT_INITIAL_STABILITY = 7.0
 

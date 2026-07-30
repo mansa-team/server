@@ -264,9 +264,7 @@ class Prometheus:
         )
 
         mcpClients, sessions = await MCPClientPool().getClients()
-        chat = self.makeChat(
-            sessions, history, system_prompt=system_prompt, disable_automatic_function_calling=True
-        )
+        chat = self.makeChat(sessions, history, system_prompt=system_prompt, disable_automatic_function_calling=True)
         stream = await chat.send_message_stream(query)
         fullText = ""
         turn = 0
@@ -314,23 +312,17 @@ class Prometheus:
                     except Exception as e:
                         logger.warning("Sandbox creation failed: %s", e)
                         responses.append(
-                            types.Part.from_function_response(
-                                name=fc.name, response={"error": "Sandbox unavailable."}
-                            )
+                            types.Part.from_function_response(name=fc.name, response={"error": "Sandbox unavailable."})
                         )
                         continue
 
-                result = await dispatchToolCall(
-                    fc, mcpClients, user=user, state=state, db=db, sandbox_id=sandbox_id
-                )
+                result = await dispatchToolCall(fc, mcpClients, user=user, state=state, db=db, sandbox_id=sandbox_id)
                 loop.emit("tool_result", toolName=fc.name, result=result, turnNumber=turn)
                 yield {"type": "tool_result", "tool": fc.name, "result": result, "turn": turn}
                 responses.append(types.Part.from_function_response(name=fc.name, response=result))
 
             if state.hasChanged():
-                responses.append(
-                    types.Part.from_text(text=f"\n[HARNESS STATE]\n{state.toContext()}\n[/HARNESS STATE]")
-                )
+                responses.append(types.Part.from_text(text=f"\n[HARNESS STATE]\n{state.toContext()}\n[/HARNESS STATE]"))
                 state.resetChanged()
 
             loop.emit(
