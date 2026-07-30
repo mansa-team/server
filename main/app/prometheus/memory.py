@@ -162,7 +162,7 @@ class PrometheusMemory:
         if memoryType:
             queryFilter = queryFilter.filter(PrometheusMemoryModel.memoryType == memoryType)
 
-        memories = queryFilter.limit().all()
+        memories = queryFilter.limit(limit).all()
         if not memories:
             return []
 

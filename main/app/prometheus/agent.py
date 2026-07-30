@@ -34,6 +34,8 @@ _mcp._filter_to_supported_schema = _safe_filter
 
 logger = logging.getLogger(__name__)
 
+MAX_TURNS = 30
+
 SYSTEM_PROMPT = """
 Current date: __DATE__
 
@@ -279,7 +281,7 @@ class Prometheus:
                 fullText = ""
                 turn = 0
 
-                while True:
+                while turn < MAX_TURNS:
                     chunks_text = ""
                     function_calls: list = []
                     async for chunk in stream:
@@ -371,6 +373,10 @@ class Prometheus:
 
                     turn += 1
                     stream = await chat.send_message_stream(responses)
+
+                if turn >= MAX_TURNS:
+                    logger.warning("Prometheus hit max turns (%d) for session %s", MAX_TURNS, sessionId)
+                    yield {"type": "turn_limit", "maxTurns": MAX_TURNS}
 
             PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
             if fullText:
