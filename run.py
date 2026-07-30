@@ -4,8 +4,9 @@ from fastapi import FastAPI, BackgroundTasks
 
 from contextlib import asynccontextmanager
 import asyncio
+import time
 
-from config import Config, LOCALHOST_ADDRESSES
+from config import Config, LOCALHOST_ADDRESSES, engine, stocksEngine
 from main.utils.connectivity import checkMySqlConnection, checkServiceConnection
 from main.utils.service_manager import ServiceManager
 from main.utils.migrator import runMigrations
@@ -17,6 +18,8 @@ from main.service.user_service import UserService
 from main.service.prometheus_service import PrometheusService
 from main.service.scraper_service import ScraperService, runScraper
 from main.service.stocksapi_service import StocksAPIService
+
+from sqlalchemy import text
 
 logger = logging.getLogger(__name__)
 appStartTime = datetime.now()
@@ -85,6 +88,35 @@ async def status():
     minutes, seconds = divmod(remainder, 60)
     days, hours = divmod(hours, 24)
 
+    databases = {}
+    dbConfigs = [
+        ("user_db", engine),
+        ("stocks_db", stocksEngine),
+    ]
+
+    for name, dbEngine in dbConfigs:
+        if not dbEngine:
+            databases[name] = {"status": "not_configured"}
+            continue
+        try:
+            startTime = time.time()
+            with dbEngine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            latency = (time.time() - startTime) * 1000
+            pool = dbEngine.pool
+            databases[name] = {
+                "status": "connected",
+                "latency_ms": round(latency, 2),
+                "pool": {
+                    "size": pool.size(),
+                    "checked_in": pool.checkedin(),
+                    "checked_out": pool.checkedout(),
+                    "overflow": pool.overflow(),
+                },
+            }
+        except Exception as e:
+            databases[name] = {"status": "error", "error": str(e)}
+
     services = {}
     serviceConfigs = [
         ("authentication", Config.USER),
@@ -115,6 +147,7 @@ async def status():
     return {
         "status": "healthy",
         "uptime": f"{days}d {hours}h {minutes}m {seconds}s",
+        "databases": databases,
         "services": services,
     }
 
