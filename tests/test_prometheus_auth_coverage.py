@@ -45,8 +45,7 @@ class TestPrometheusSendMessage:
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.Client")
-    async def test_send_message_basic(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
+    async def test_send_message_basic(self, mock_genai, mock_config, mock_chat):
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_URL": "http://localhost:8888"}
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
@@ -74,8 +73,7 @@ class TestPrometheusSendMessage:
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.Client")
-    async def test_send_message_saves_user_message_on_error(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
+    async def test_send_message_saves_user_message_on_error(self, mock_genai, mock_config, mock_chat):
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_URL": "http://localhost:8888"}
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
@@ -97,8 +95,7 @@ class TestPrometheusSendMessage:
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.Client")
-    async def test_send_message_with_history(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
+    async def test_send_message_with_history(self, mock_genai, mock_config, mock_chat):
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_URL": "http://localhost:8888"}
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
@@ -117,18 +114,29 @@ class TestPrometheusSendMessage:
         assert results[-1]["text"] == "Reply with history"
 
     @pytest.mark.anyio
+    @patch("main.app.prometheus.agent.FieldRegistry")
+    @patch("main.app.prometheus.agent.MCPClientPool")
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.Client")
-    async def test_stream_message_yields_text_chunks(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
+    async def test_stream_message_yields_text_chunks(self, mock_genai, mock_config, mock_chat, mock_pool_cls, mock_field_cls):
         """streamMessage must yield dict chunks from async iterator."""
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
 
-        # Build a fake async iterator for send_message_stream
+        mock_pool_instance = MagicMock()
+        mock_pool_instance.clients = {"stocks": MagicMock(), "searxng": MagicMock()}
+        mock_pool_cls.return_value = mock_pool_instance
+        mock_pool_instance.getClients = AsyncMock(return_value=(
+            {"stocks": MagicMock(), "searxng": MagicMock()},
+            [MagicMock(), MagicMock()],
+        ))
+
+        mock_field_instance = MagicMock()
+        mock_field_cls.return_value = mock_field_instance
+
         class FakeChunk:
             def __init__(self, text=None, function_calls=None):
                 self.text = text
@@ -144,19 +152,8 @@ class TestPrometheusSendMessage:
         mock_chat_session.send_message_stream = AsyncMock(return_value=fake_aiter())
 
         from main.app.prometheus.agent import Prometheus
-        from contextlib import asynccontextmanager
 
         gen = Prometheus()
-
-        @asynccontextmanager
-        async def fake_open_mcp():
-            stocks = MagicMock()
-            searxng = MagicMock()
-            stocks.session = MagicMock()
-            searxng.session = MagicMock()
-            yield {"stocks": stocks, "searxng": searxng}, [stocks.session, searxng.session]
-
-        gen.openMCPClients = fake_open_mcp
         gen.makeChat = MagicMock(return_value=mock_chat_session)
 
         results = []
@@ -168,19 +165,28 @@ class TestPrometheusSendMessage:
         assert results[1] == {"type": "text", "text": "world"}
 
     @pytest.mark.anyio
+    @patch("main.app.prometheus.agent.FieldRegistry")
+    @patch("main.app.prometheus.agent.MCPClientPool")
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.Client")
-    async def test_stream_message_handles_function_calls(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
+    async def test_stream_message_handles_function_calls(self, mock_genai, mock_config, mock_chat, mock_pool_cls, mock_field_cls):
         """streamMessage must handle function_calls as a list (not dict)."""
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
 
-        from contextlib import asynccontextmanager
-        from unittest.mock import patch as _patch
+        mock_pool_instance = MagicMock()
+        mock_pool_instance.clients = {"stocks": MagicMock(), "searxng": MagicMock()}
+        mock_pool_cls.return_value = mock_pool_instance
+        mock_pool_instance.getClients = AsyncMock(return_value=(
+            {"stocks": MagicMock(), "searxng": MagicMock()},
+            [MagicMock(), MagicMock()],
+        ))
+
+        mock_field_instance = MagicMock()
+        mock_field_cls.return_value = mock_field_instance
 
         class FakeChunk:
             def __init__(self, text=None, function_calls=None):
@@ -191,7 +197,6 @@ class TestPrometheusSendMessage:
             name = "search"
             args = {"query": "test"}
 
-        # First stream: function call only (no text), second stream: text response
         call_count = 0
 
         async def fake_aiter_first():
@@ -212,28 +217,15 @@ class TestPrometheusSendMessage:
         mock_chat_session.send_message_stream = AsyncMock(side_effect=fake_stream)
 
         from main.app.prometheus.agent import Prometheus
-        from contextlib import asynccontextmanager
 
         gen = Prometheus()
-
-        @asynccontextmanager
-        async def fake_open_mcp():
-            stocks = MagicMock()
-            searxng = MagicMock()
-            stocks.session = MagicMock()
-            searxng.session = MagicMock()
-            yield {"stocks": stocks, "searxng": searxng}, [stocks.session, searxng.session]
-
-        gen.openMCPClients = fake_open_mcp
         gen.makeChat = MagicMock(return_value=mock_chat_session)
 
         results = []
         async for event in gen.streamMessage(query="search test", sessionId="s2", db=MagicMock()):
             results.append(event)
 
-        # Should have text from second stream after tool call
         assert any(e.get("text") == "Result: found it" for e in results)
-        # executeToolCall should have been called (tool loop ran)
         assert call_count == 2
 
 

@@ -149,6 +149,10 @@ class FieldRegistry:
         if hasattr(self, "metricRegex"):
             del self.metricRegex
 
+    def warmup(self):
+        self.fetchFields()
+        self.fetchedAt = time.time()
+
 
 def charCount(text: str) -> int:
     return countTokens(text)
