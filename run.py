@@ -26,7 +26,8 @@ appStartTime = datetime.now()
 async def lifespan(app: FastAPI):
     dbConnected = False
     for i in range(10):
-        if checkDatabaseConnection():
+        dbResults = checkDatabaseConnection()
+        if all(r["status"] == "connected" for r in dbResults.values()):
             dbConnected = True
             break
         logger.info(f"Retrying database connection ({i + 1}/10)")
@@ -85,7 +86,7 @@ async def status():
     minutes, seconds = divmod(remainder, 60)
     days, hours = divmod(hours, 24)
 
-    dbOk = checkDatabaseConnection()
+    databases = checkDatabaseConnection()
 
     services = {}
     for name, config in [
@@ -105,8 +106,9 @@ async def status():
         services["scraper"] = {"status": "running", "type": "local"}
 
     return {
-        "status": "healthy" if dbOk else "degraded",
+        "status": "healthy" if all(r["status"] == "connected" for r in databases.values()) else "degraded",
         "uptime": f"{days}d {hours}h {minutes}m {seconds}s",
+        "databases": databases,
         "services": services,
     }
 
