@@ -354,7 +354,25 @@ def extract(db, userId, sessionId, userRoles) -> list[PrometheusMemoryModel]:
         response = getClient().models.generate_content(
             model="gemini-flash-lite-latest",
             contents=[EXTRACT_PROMPT + "\n\n" + transcript],
-            config=types.GenerateContentConfig(response_mime_type="application/json", temperature=0.2),
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                temperature=0.2,
+                response_schema=types.Schema(
+                    type=types.Type.ARRAY,
+                    items=types.Schema(
+                        type=types.Type.OBJECT,
+                        properties={
+                            "key": types.Schema(type=types.Type.STRING),
+                            "value": types.Schema(type=types.Type.STRING),
+                            "type": types.Schema(
+                                type=types.Type.STRING,
+                                enum=["preference", "analysis", "feedback", "context"],
+                            ),
+                        },
+                        required=["key", "value", "type"],
+                    ),
+                ),
+            ),
         )
         candidates = json.loads(response.text)
     except Exception as e:

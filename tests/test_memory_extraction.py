@@ -3,6 +3,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from google.genai import types
+
 from main.app.prometheus.memory import (
     MEMORY_EXTRACTION_TOKEN_BUDGET,
     extract,
@@ -36,7 +38,12 @@ def makeClient(result_count=1):
     client.models = type("M", (), {})()
     resp = FakeResponse()
     resp.text = json.dumps([{"key": f"k{i}", "value": f"v{i}", "type": "context"} for i in range(result_count)])
-    client.models.generate_content = lambda **kw: resp
+
+    def generate_content(**kw):
+        client.last_config = kw.get("config")
+        return resp
+
+    client.models.generate_content = generate_content
     return client
 
 
@@ -70,6 +77,7 @@ def test_below_token_budget_skips_api_call(db):
 
 
 def test_at_budget_calls_api_and_upserts_inferred(db):
+    client = makeClient()
     with (
         patch("main.app.prometheus.memory.Roles.checkAccess", side_effect=premiumAccess),
         patch(
@@ -77,7 +85,7 @@ def test_at_budget_calls_api_and_upserts_inferred(db):
         ),
         patch("main.app.prometheus.compact.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
         patch("main.app.prometheus.memory.embed", return_value=[object()]),
-        patch("main.app.prometheus.memory.getClient", return_value=makeClient()),
+        patch("main.app.prometheus.memory.getClient", return_value=client),
         patch("main.app.prometheus.memory.PrometheusMemory.countMemories", return_value=0),
         patch(
             "main.app.prometheus.memory.PrometheusMemory.upsertMemory", new=MagicMock(wraps=FakeMemory().upsertMemory)
@@ -86,6 +94,13 @@ def test_at_budget_calls_api_and_upserts_inferred(db):
         result = extract(db, 1, "s1", ["PREMIUM"])
         assert result
         assert up.call_args.kwargs["source"] == "inferred"
+
+        schema = client.last_config.response_schema
+        assert schema is not None
+        assert schema.type == types.Type.ARRAY
+        assert schema.items.type == types.Type.OBJECT
+        assert schema.items.required == ["key", "value", "type"]
+        assert set(schema.items.properties["type"].enum) == {"preference", "analysis", "feedback", "context"}
 
 
 def test_free_users_get_at_most_5_upserts(db):
