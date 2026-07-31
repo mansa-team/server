@@ -11,13 +11,11 @@ ci c:
 	$(PS) -File ci.ps1
 
 run r:
-	docker rm -f $$(docker ps -aq) 2>/dev/null || true
 	docker compose down --remove-orphans
 	docker compose up -d --build
 	docker logs -f server-api-1
 
 down d:
-	docker rm -f $$(docker ps -aq) 2>/dev/null || true
 	docker compose down --remove-orphans
 
 logs-% l-%:
