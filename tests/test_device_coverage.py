@@ -12,127 +12,99 @@ from main.app.authentication.device import (
 
 class TestDetectBrowser:
     def test_edge_new(self):
-        # Code checks "edg/" or "edge/" but regex uses edg[eo]/ — edg/ falls through to no match
         ua = "mozilla/5.0 (windows nt 10.0; win64; x64) edg/120.0.0.0"
-        name, version = detectBrowser(ua)
-        assert name == "Edge"
-        # edg/ doesn't match edg[eo]/ regex, so version is empty
-        assert version == ""
+        assert detectBrowser(ua) == "Edge"
 
     def test_edge_with_edge_suffix(self):
         ua = "mozilla/5.0 (windows nt 10.0; win64; x64) edge/18.17763"
-        name, version = detectBrowser(ua)
-        assert name == "Edge"
+        assert detectBrowser(ua) == "Edge"
 
     def test_chrome(self):
         ua = "mozilla/5.0 (windows nt 10.0; win64; x64) chrome/120.0.0.0 safari/537.36"
-        assert detectBrowser(ua) == ("Chrome", "120.0.0.0")
+        assert detectBrowser(ua) == "Chrome"
 
     def test_firefox(self):
         ua = "mozilla/5.0 (windows nt 10.0; rv:109.0) firefox/121.0"
-        assert detectBrowser(ua) == ("Firefox", "121.0")
+        assert detectBrowser(ua) == "Firefox"
 
     def test_firefox_fx_prefix(self):
-        # fx/ triggers Firefox branch but regex only matches firefox/
         ua = "mozilla/5.0 (windows nt 10.0; rv:109.0) fx/121.0"
-        name, version = detectBrowser(ua)
-        assert name == "Firefox"
-        assert version == ""
+        assert detectBrowser(ua) == "Firefox"
 
     def test_safari(self):
         ua = "mozilla/5.0 (macintosh; intel mac os x 10_15_7) version/17.2 safari/605.1.15"
-        assert detectBrowser(ua) == ("Safari", "17.2")
+        assert detectBrowser(ua) == "Safari"
 
     def test_opera(self):
-        # Opera branch checks "opera/" then regex searches version/
         ua = "mozilla/5.0 (windows nt 10.0; win64; x64) opera/106.0.0.0"
-        name, version = detectBrowser(ua)
-        assert name == "Opera"
-        assert version == ""
+        assert detectBrowser(ua) == "Opera"
 
     def test_opera_mini(self):
         ua = "opera mini/10.0.0"
-        name, version = detectBrowser(ua)
-        assert name == "Opera"
+        assert detectBrowser(ua) == "Opera"
 
     def test_brave(self):
         ua = "mozilla/5.0 (windows nt 10.0; win64; x64) brave/120.0.0.0"
-        assert detectBrowser(ua) == ("Brave", "120.0.0.0")
+        assert detectBrowser(ua) == "Brave"
 
     def test_unknown_browser(self):
         ua = "some random agent"
-        assert detectBrowser(ua) == ("Unknown", "")
+        assert detectBrowser(ua) == "Unknown"
 
 
 class TestDetectOS:
     def test_windows_10(self):
-        # Windows patterns have no capture group, so version is always ""
         ua = "windows nt 10.0"
-        name, version = detectOS(ua)
-        assert name == "Windows"
-        assert version == ""
+        assert detectOS(ua) == "Windows"
 
     def test_windows_81(self):
-        ua = "windows nt 6.3"
-        assert detectOS(ua) == ("Windows", "")
+        assert detectOS("windows nt 6.3") == "Windows"
 
     def test_windows_8(self):
-        ua = "windows nt 6.2"
-        assert detectOS(ua) == ("Windows", "")
+        assert detectOS("windows nt 6.2") == "Windows"
 
     def test_windows_7(self):
-        ua = "windows nt 6.1"
-        assert detectOS(ua) == ("Windows", "")
+        assert detectOS("windows nt 6.1") == "Windows"
 
     def test_windows_phone(self):
         ua = "windows phone 10.0"
-        name, version = detectOS(ua)
-        assert name == "Windows Phone"
-        assert version == "10.0"
+        assert detectOS(ua) == "Windows Phone"
 
     def test_macos(self):
         ua = "mac os x 10_15_7"
-        name, version = detectOS(ua)
-        assert name == "macOS"
-        assert version == "10.15.7"
+        assert detectOS(ua) == "macOS"
 
     def test_ios(self):
         ua = "iphone os 16_0"
-        name, version = detectOS(ua)
-        assert name == "iOS"
-        assert version == "16.0"
+        assert detectOS(ua) == "iOS"
 
     def test_ipados(self):
         ua = "ipad os 16_0"
-        name, version = detectOS(ua)
-        assert name == "iPadOS"
-        assert version == "16.0"
+        assert detectOS(ua) == "iPadOS"
 
     def test_android(self):
         ua = "android 13"
-        name, version = detectOS(ua)
-        assert name == "Android"
-        assert version == "13"
+        assert detectOS(ua) == "Android"
 
     def test_linux(self):
         ua = "linux x86_64"
-        assert detectOS(ua) == ("Linux", "")
+        assert detectOS(ua) == "Linux"
 
     def test_chrome_os(self):
         ua = "cros x86_64"
-        assert detectOS(ua) == ("Chrome OS", "")
+        assert detectOS(ua) == "Chrome OS"
 
     def test_freebsd(self):
         ua = "freebsd amd64"
-        assert detectOS(ua) == ("FreeBSD", "")
+        assert detectOS(ua) == "FreeBSD"
 
     def test_netbsd(self):
         ua = "netbsd x86_64"
-        assert detectOS(ua) == ("NetBSD", "")
+        assert detectOS(ua) == "NetBSD"
 
     def test_unknown_os(self):
         ua = "some random agent"
-        assert detectOS(ua) == ("Unknown", "")
+        assert detectOS(ua) == "Unknown"
 
 
 class TestDetectDeviceType:
@@ -173,7 +145,6 @@ class TestParseUserAgent:
         assert result.browser == "Unknown"
         assert result.os == "Unknown"
         assert result.deviceType == "desktop"
-        assert result.deviceName == "Unknown Device"
 
     def test_none_ua(self):
         result = parseUserAgent(None)

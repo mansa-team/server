@@ -13,7 +13,6 @@ class TestDeviceDetection:
         result = parseUserAgent(ua)
 
         assert result.browser == "Chrome"
-        assert "135" in result.browserVersion
         assert result.os == "Windows"
         assert result.deviceType == "desktop"
 
@@ -22,7 +21,6 @@ class TestDeviceDetection:
         result = parseUserAgent(ua)
 
         assert result.browser == "Firefox"
-        assert "126" in result.browserVersion
         assert result.os == "Windows"
 
     def test_parse_safari_mac(self):
