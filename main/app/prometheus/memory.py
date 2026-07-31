@@ -97,7 +97,7 @@ class PrometheusMemory:
             existing.source = source  # type: ignore[assignment]
             existing.contentHash = newHash  # type: ignore[assignment]
             existing.embedding = embedding  # type: ignore[assignment]
-            existing.baseScore = existing.baseScore * 1.1  # type: ignore[assignment]
+            existing.score = existing.score * 1.1  # type: ignore[assignment]
             existing.accessCount += 1  # type: ignore[assignment]
             existing.lastAccessedAt = datetime.now()  # type: ignore[assignment]
 
@@ -113,7 +113,7 @@ class PrometheusMemory:
             similar.source = source  # type: ignore[assignment]
             similar.contentHash = contentHash(value)  # type: ignore[assignment]
             similar.embedding = embedding  # type: ignore[assignment]
-            similar.baseScore = similar.baseScore * 1.1  # type: ignore[assignment]
+            similar.score = similar.score * 1.1  # type: ignore[assignment]
             similar.accessCount += 1  # type: ignore[assignment]
             similar.lastAccessedAt = datetime.now()  # type: ignore[assignment]
 
@@ -136,7 +136,7 @@ class PrometheusMemory:
             source=source,
             embedding=embedding,
             contentHash=contentHash(value),
-            baseScore=INITIAL_STABILITY.get(str(memoryType), DEFAULT_INITIAL_STABILITY),
+            score=INITIAL_STABILITY.get(str(memoryType), DEFAULT_INITIAL_STABILITY),
             lastAccessedAt=datetime.now(),
         )
         db.add(memory)
@@ -223,12 +223,12 @@ class PrometheusMemory:
                 PrometheusMemoryModel.memoryKey,
                 PrometheusMemoryModel.memoryValue,
                 PrometheusMemoryModel.memoryType,
-                PrometheusMemoryModel.baseScore,
+                PrometheusMemoryModel.score,
                 matchExpr.label("score"),
             )
             .filter(PrometheusMemoryModel.userId == userId)
             .filter(PrometheusMemoryModel.archivedAt.is_(None))
-            .order_by(desc("score"), desc(PrometheusMemoryModel.baseScore))
+            .order_by(desc("score"), desc(PrometheusMemoryModel.score))
             .limit(limit)
             .all()
         )
@@ -240,7 +240,7 @@ class PrometheusMemory:
                 "memoryValue": r.memoryValue,
                 "memoryType": r.memoryType,
                 "score": float(r.score),
-                "relevanceScore": float(r.baseScore),
+                "relevanceScore": float(r.score),
             }
             for r in results
         ]
@@ -251,7 +251,7 @@ class PrometheusMemory:
             db.query(PrometheusMemoryModel)
             .filter(PrometheusMemoryModel.userId == userId)
             .filter(PrometheusMemoryModel.archivedAt.is_(None))
-            .order_by(PrometheusMemoryModel.baseScore.desc())
+            .order_by(PrometheusMemoryModel.score.desc())
             .offset(offset)
             .limit(limit)
             .all()

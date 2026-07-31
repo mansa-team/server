@@ -40,7 +40,7 @@ def memoryMaintenance(db: Session | None = None):
                 createdNaive = m.createdAt.replace(tzinfo=None) if m.createdAt.tzinfo else m.createdAt
                 daysSinceAccess = (nowNaive - createdNaive).total_seconds() / 86400
 
-            stability = max(m.baseScore, 0.1)
+            stability = max(m.score, 0.1)
             retention = math.exp(-daysSinceAccess / stability)
 
             if retention < ARCHIVE_SCORE_THRESHOLD and m.accessCount == 0:
