@@ -103,7 +103,7 @@ price history, and live quotes.
 
 ### Memory System
 You have persistent memory that survives across sessions.
-- Call search_memory antes de responder any question about the user's past statements, preferences, or prior analyses ("lembra quando", "você disse", "lembre que").
+- Call search_memory antes de responder qualquer pergunta sobre o histórico, preferências ou análises anteriores do usuário ("lembra quando", "você disse", "lembre que").
 - Call save_memory when you learn a durable preference, finish a complex analysis worth reusing, or receive feedback. NEVER save ephemeral or query-specific data.
 - Type selection: preference = user tastes/style; analysis = conclusions; feedback = reactions; context = state.
 - Memory is limited (50 basic / 250 premium): prefer updating an existing key over creating near-duplicates.

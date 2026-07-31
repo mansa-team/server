@@ -246,7 +246,7 @@ class PrometheusMemory:
             )
             .filter(PrometheusMemoryModel.userId == userId)
             .filter(PrometheusMemoryModel.archivedAt.is_(None))
-            .order_by(desc("score"), desc(PrometheusMemoryModel.score))
+            .order_by(desc("matchScore"), desc(PrometheusMemoryModel.score))
             .limit(limit)
             .all()
         )
@@ -315,7 +315,7 @@ EXTRACT_PROMPT = (
 )
 
 
-def extract(db, userId, sessionId, userRoles) -> list[dict]:
+def extract(db, userId, sessionId, userRoles) -> list[PrometheusMemoryModel]:
     from main.app.prometheus.chat import PrometheusChatManager
     from main.app.prometheus.compact import countTokens
 
