@@ -8,7 +8,6 @@ DEFAULT_TTL = 300
 DEFAULT_MAX_SIZE = 1000
 
 TTL_MAP = {
-    "live": 0,
     "cotations": 300,
     "fundamental": 300,
     "historical": 3600,
@@ -37,8 +36,6 @@ class ResponseCache:
                 return None
             endpoint = key.split(":")[0]
             ttl = self.ttlMap.get(endpoint, self.defaultTTL)
-            if ttl <= 0:
-                return None
             if time.time() - self.times[key] > ttl:
                 del self.store[key]
                 del self.times[key]
