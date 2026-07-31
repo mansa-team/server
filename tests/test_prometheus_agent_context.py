@@ -6,7 +6,6 @@ from datetime import datetime
 from unittest.mock import patch, MagicMock
 
 from main.app.prometheus.agent import Prometheus
-from main.app.prometheus.state import HarnessState
 from main.models.prometheus import PrometheusSession
 
 
@@ -43,8 +42,7 @@ class TestBuildSystemPrompt:
         prompt = Prometheus.buildSystemPrompt(
             userId=1,
             db=dbSession,
-            state=HarnessState(),
-            sessionId=fake_session_with_120_messages.sessionId,
+            sessionId="test-empty",
         )
         # format is [1] summary, [2] summary, ...
         episode_count = sum(1 for line in prompt.split("\n") if line.startswith("[") and line[1].isdigit())
@@ -55,7 +53,6 @@ class TestBuildSystemPrompt:
         prompt = Prometheus.buildSystemPrompt(
             userId=1,
             db=dbSession,
-            state=HarnessState(),
             sessionId=fake_session_with_120_messages.sessionId,
         )
         lines = prompt.split("\n")
@@ -77,8 +74,7 @@ class TestBuildSystemPrompt:
         prompt = Prometheus.buildSystemPrompt(
             userId=1,
             db=dbSession,
-            state=HarnessState(),
-            sessionId="test-empty",
+            sessionId=fake_session_with_120_messages.sessionId,
         )
         # no lines starting with [N]
         assert not any(ln.startswith("[") and ln[1].isdigit() for ln in prompt.split("\n"))

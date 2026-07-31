@@ -2,10 +2,8 @@ import asyncio
 import inspect
 import pytest
 from main.app.prometheus.tools import (
-    get_state,
     search_memory,
     save_memory,
-    set_state,
     TOOL_REGISTRY,
 )
 
@@ -76,7 +74,7 @@ class TestMemoryToolFunctions:
 
     def test_memory_tools_is_list_of_callables(self):
         assert isinstance(TOOL_REGISTRY, dict)
-        assert len(TOOL_REGISTRY) >= 4
+        assert len(TOOL_REGISTRY) >= 2
         for name, fn in TOOL_REGISTRY.items():
             assert callable(fn)
 
@@ -84,65 +82,17 @@ class TestMemoryToolFunctions:
         assert {"search_memory", "save_memory"}.issubset(set(TOOL_REGISTRY.keys()))
 
 
-# --- State tool tests ---
-
-
-class TestStateToolFunctions:
-    def test_get_state_has_docstring(self):
-        assert get_state.__doc__ is not None
-
-    def test_set_state_has_docstring(self):
-        assert set_state.__doc__ is not None
-
-    def test_get_state_signature(self):
-        sig = inspect.signature(get_state)
-        params = list(sig.parameters.keys())
-        assert "key" in params
-
-    def test_set_state_signature(self):
-        sig = inspect.signature(set_state)
-        params = list(sig.parameters.keys())
-        assert "key" in params
-        assert "value" in params
-
-    def test_get_state_gemini_safe(self):
-        _assert_gemini_safe(get_state)
-
-    def test_set_state_gemini_safe(self):
-        _assert_gemini_safe(set_state)
-
-    def test_get_state_no_state_returns_error(self):
-        result = asyncio.run(get_state())
-        assert "error" in result
-
-    def test_set_state_no_state_returns_error(self):
-        result = asyncio.run(set_state(key="k", value="v"))
-        assert "error" in result
-
-
 # --- Gemini compatibility for ALL tools ---
 
 
 class TestGeminiCompatibility:
     """Every function in TOOL_REGISTRY must have Gemini-safe signatures.
-    Custom classes (HarnessState, etc.) must NOT appear in parameter types —
+    Custom classes must NOT appear in parameter types —
     they go in **_ and are injected by dispatchToolCall."""
 
     @pytest.mark.parametrize("name,fn", list(TOOL_REGISTRY.items()))
     def test_tool_has_gemini_safe_signature(self, name, fn):
         _assert_gemini_safe(fn)
-
-    def test_no_harnessstate_in_any_signature(self):
-        """Regression: HarnessState must never leak into tool signatures."""
-        for name, fn in TOOL_REGISTRY.items():
-            hints = inspect.get_annotations(fn)
-            for param, hint in hints.items():
-                # Check inner args of Union/Optional types
-                args = getattr(hint, "__args__", (hint,))
-                for a in args:
-                    assert "HarnessState" not in getattr(a, "__name__", str(a)), (
-                        f"{name}({param}): HarnessState leaked into signature"
-                    )
 
 
 # --- Registry tests ---

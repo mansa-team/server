@@ -16,7 +16,6 @@ from main.app.prometheus.compact import PrometheusCompactor, FieldRegistry
 from main.app.prometheus.mcp import MCPClientPool
 from main.app.prometheus.events import LoopLogger
 from main.app.prometheus.sandbox import SandboxManager
-from main.app.prometheus.state import HarnessState
 from main.app.prometheus.tools import TOOL_REGISTRY, dispatchToolCall
 
 _original_filter = _mcp._filter_to_supported_schema
@@ -108,7 +107,6 @@ You have persistent memory that survives across sessions. Use it to:
 - Persist conclusions from complex analyses for future reference.
 - Build context about recurring tickers or themes the user cares about.
 
-State is temporary (current tool calls only). Memory is permanent (all sessions).
 When you learn something valuable, save it.
 
 ### Code Sandbox
@@ -197,7 +195,6 @@ class Prometheus:
         cls,
         userId: int | None = None,
         db=None,
-        state: HarnessState | None = None,
         sessionId: str | None = None,
         query: str | None = None,
     ) -> str:
@@ -222,15 +219,15 @@ class Prometheus:
             sections.append(f"\n[HISTÓRICO DA SESSÃO]\n{episodeBlock}")
         if memoryBlock:
             sections.append(f"\n[MEMÓRIAS DO USUÁRIO]\n{memoryBlock}\n[/MEMÓRIAS DO USUÁRIO]")
-        if state and state.toContext():
-            sections.append(f"\n[HARNESS STATE]\n{state.toContext()}\n[/HARNESS STATE]")
         return "".join(sections)
 
     def makeChat(self, sessions, history, *, system_prompt=None, disable_automatic_function_calling=False):
         all_tools = list(sessions) + list(TOOL_REGISTRY.values())
+
         kwargs = dict(system_instruction=system_prompt, tools=all_tools, temperature=0.5, max_output_tokens=65536)
         if disable_automatic_function_calling:
             kwargs["automatic_function_calling"] = types.AutomaticFunctionCallingConfig(disable=True)
+
         return self.client.aio.chats.create(
             model="gemini-flash-lite-latest", history=history, config=types.GenerateContentConfig(**kwargs)
         )
@@ -253,12 +250,10 @@ class Prometheus:
         episodes = PrometheusCompactor().getEpisodes(db, str(sessionId))
         last_ep_time = episodes[-1].get("time") if episodes else None
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50, since=last_ep_time)
-        state = HarnessState()
         loop = LoopLogger(history)
         system_prompt = Prometheus.buildSystemPrompt(
             user.get("userId") if user else None,
             db,
-            state=state,
             sessionId=str(sessionId),
             query=query,
         )
@@ -266,9 +261,10 @@ class Prometheus:
         mcpClients, sessions = await MCPClientPool().getClients()
         chat = self.makeChat(sessions, history, system_prompt=system_prompt, disable_automatic_function_calling=True)
         stream = await chat.send_message_stream(query)
-        fullText = ""
-        turn = 0
 
+        fullText = ""
+
+        turn = 0
         while turn < MAX_TURNS:
             chunks_text = ""
             function_calls: list = []
@@ -316,14 +312,10 @@ class Prometheus:
                         )
                         continue
 
-                result = await dispatchToolCall(fc, mcpClients, user=user, state=state, db=db, sandbox_id=sandbox_id)
+                result = await dispatchToolCall(fc, mcpClients, user=user, db=db, sandbox_id=sandbox_id)
                 loop.emit("tool_result", toolName=fc.name, result=result, turnNumber=turn)
                 yield {"type": "tool_result", "tool": fc.name, "result": result, "turn": turn}
                 responses.append(types.Part.from_function_response(name=fc.name, response=result))
-
-            if state.hasChanged():
-                responses.append(types.Part.from_text(text=f"\n[HARNESS STATE]\n{state.toContext()}\n[/HARNESS STATE]"))
-                state.resetChanged()
 
             loop.emit(
                 "turn_end",
