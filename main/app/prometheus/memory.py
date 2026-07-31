@@ -95,9 +95,9 @@ class PrometheusMemory:
             existing.memoryValue = value  # type: ignore[assignment]
             existing.memoryType = memoryType  # type: ignore[assignment]
             existing.source = source  # type: ignore[assignment]
-            existing.contentHash = newHash
+            existing.contentHash = newHash  # type: ignore[assignment]
             existing.embedding = embedding  # type: ignore[assignment]
-            existing.baseScore = existing.baseScore * 1.1  # type: ignore[arg-type]
+            existing.baseScore = existing.baseScore * 1.1  # type: ignore[assignment]
             existing.accessCount += 1  # type: ignore[assignment]
             existing.lastAccessedAt = datetime.now()  # type: ignore[assignment]
 
@@ -111,9 +111,9 @@ class PrometheusMemory:
             similar.memoryValue = value  # type: ignore[assignment]
             similar.memoryType = memoryType  # type: ignore[assignment]
             similar.source = source  # type: ignore[assignment]
-            similar.contentHash = contentHash(value)
+            similar.contentHash = contentHash(value)  # type: ignore[assignment]
             similar.embedding = embedding  # type: ignore[assignment]
-            similar.baseScore = similar.baseScore * 1.1  # type: ignore[arg-type]
+            similar.baseScore = similar.baseScore * 1.1  # type: ignore[assignment]
             similar.accessCount += 1  # type: ignore[assignment]
             similar.lastAccessedAt = datetime.now()  # type: ignore[assignment]
 
@@ -180,7 +180,7 @@ class PrometheusMemory:
                         "relevanceScore": getRelevanceScore(m, now),
                     }
                 )
-            scored.sort(key=lambda x: x["score"], reverse=True)
+            scored.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
             return scored[:limit]
 
         memoriesWithEmb = [m for m in memories if m.embedding is not None]

@@ -19,10 +19,13 @@ class TestStatusEndpoint:
         assert resp.status_code == 200
 
     def test_status_has_healthy(self, statusClient):
-        with patch("run.checkDatabaseConnection", return_value={
-            "user_db": {"status": "connected"},
-            "stocks_db": {"status": "connected"},
-        }):
+        with patch(
+            "run.checkDatabaseConnection",
+            return_value={
+                "user_db": {"status": "connected"},
+                "stocks_db": {"status": "connected"},
+            },
+        ):
             data = statusClient.get("/status").json()
             assert data["status"] == "healthy"
 

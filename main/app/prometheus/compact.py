@@ -110,7 +110,7 @@ class FieldRegistry:
             with urlopen(req, timeout=5) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
 
-            fields = []
+            fields: list[str] = []
             historical = data.get("historical", {})
             if isinstance(historical, dict):
                 fields.extend(historical.keys())
@@ -311,7 +311,7 @@ class PrometheusCompactor:
             return None
 
         episodes = self.getEpisodes(db, sessionId)
-        chunk = self.getCompactableChunk(session.history, episodes)
+        chunk = self.getCompactableChunk(list(session.history) if session.history else [], episodes)
 
         if not self.shouldCompact(chunk):
             return None
@@ -331,7 +331,7 @@ class PrometheusCompactor:
         if len(existing) > EPISODE_CAP:
             existing = self.consolidate(existing)
 
-        session.summary = json.dumps(existing)
+        session.summary = json.dumps(existing)  # type: ignore[assignment]
         db.commit()
 
         logger.info(
@@ -348,7 +348,7 @@ class PrometheusCompactor:
         if not session or not session.summary:
             return []
         try:
-            episodes = json.loads(session.summary)
+            episodes = json.loads(str(session.summary))
             return episodes if isinstance(episodes, list) else []
         except (json.JSONDecodeError, TypeError):
             return []

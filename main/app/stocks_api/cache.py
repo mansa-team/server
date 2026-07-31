@@ -8,8 +8,6 @@ import numpy as np
 from sqlalchemy.engine import Engine
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from main.app.stocks_api.compress import rebuildAbbrevs
-
 logger = logging.getLogger(__name__)
 
 CATEGORY_COLS = frozenset(["TICKER", "NOME"])
@@ -33,8 +31,8 @@ def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def buildCotationDateIndex(df: pd.DataFrame, col: str) -> dict:
-    index = {}
+def buildCotationDateIndex(df: pd.DataFrame, col: str) -> dict[str, tuple[str, str]]:
+    index: dict[str, tuple[str, str]] = {}
     if col not in df.columns:
         return index
     for idx, val in df[col].items():
@@ -87,6 +85,8 @@ class StocksCacheManager:
                 self.STOCKS_CACHE = df
                 self.tickerIndex = newTickerIndex
                 self.cotationDateIndex = newCotationDateIndex
+
+            from main.app.stocks_api.compress import rebuildAbbrevs
 
             rebuildAbbrevs()
 

@@ -123,9 +123,7 @@ class TestDispatchRoutesMemoryTools:
         with patch.dict(TOOL_REGISTRY, {"search_memory": mock_fn}):
             result = await dispatchToolCall(mock_fc, {}, user={"userId": 1})
 
-        mock_fn.assert_called_once_with(
-            query="PETR4", user={"userId": 1}, db=None, sandbox_id=None, userId=1
-        )
+        mock_fn.assert_called_once_with(query="PETR4", user={"userId": 1}, db=None, sandbox_id=None, userId=1)
         assert result == {"memories": []}
 
     @pytest.mark.anyio

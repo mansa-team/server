@@ -115,8 +115,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\compact.py": {
-    "mtime": 1785373165.1512082,
-    "ast_hash": "076d8b07d0eca0c56c1a7fbc87e49059",
+    "mtime": 1785466932.0122986,
+    "ast_hash": "3ddd18a06a257e7c0dcbfc69aa3dbeb4",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\events.py": {
@@ -130,8 +130,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\memory.py": {
-    "mtime": 1785378215.128376,
-    "ast_hash": "afbbb59e009c87f09fe0c896a8fffa25",
+    "mtime": 1785467004.795293,
+    "ast_hash": "b493f7e44b98e5679496e3b6ea01303a",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\sandbox.py": {
@@ -160,13 +160,13 @@
     "semantic_hash": "0cbeed2304027b45b74b36f17b47cca7"
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\cache.py": {
-    "mtime": 1785384630.084178,
-    "ast_hash": "ae6878e0ee3dae52899fd16fb1796df2",
+    "mtime": 1785467044.1697998,
+    "ast_hash": "b5c3360602fb5c4ce2bb037dff703238",
     "semantic_hash": ""
   },
-  "D:\\Repositories\\server\\main\\app\\stocks_api\\compressor.py": {
-    "mtime": 1784758622.9283924,
-    "ast_hash": "ff8cd6bbf19bb2572e32729fbfef2952",
+  "D:\\Repositories\\server\\main\\app\\stocks_api\\compress.py": {
+    "mtime": 1785467462.1971838,
+    "ast_hash": "cece1c3b7893d8e854f1495e52e5d83d",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\key.py": {
@@ -205,8 +205,8 @@
     "semantic_hash": "c365428011da624ff286fe1037a179f4"
   },
   "D:\\Repositories\\server\\main\\controller\\stocksapi_controller.py": {
-    "mtime": 1785372768.7907863,
-    "ast_hash": "9160349c6dfda1938893b338d8a91d62",
+    "mtime": 1785460214.7918122,
+    "ast_hash": "67be7ca5f56d9e47d551b7ee439a72a6",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\user_controller.py": {
@@ -433,26 +433,6 @@
     "mtime": 1782691503.0008502,
     "ast_hash": "a747b8dce6f5be90f82ace23efd8961a",
     "semantic_hash": "a747b8dce6f5be90f82ace23efd8961a"
-  },
-  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-07-29-compact-algorithmic-compression.md": {
-    "mtime": 1785366417.367416,
-    "ast_hash": "e4b0ae5647db0de574c2b8cdbdbbf001",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-07-29-prometheus-performance.md": {
-    "mtime": 1785372152.5395224,
-    "ast_hash": "be317c8634ee3ef0f0f02b94d23cf085",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-07-29-stocks-api-perf-optimizations.md": {
-    "mtime": 1785376433.6602018,
-    "ast_hash": "131432fad0b057a4de2ab35a76c879c7",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\docs\\superpowers\\specs\\2026-07-29-prometheus-performance-design.md": {
-    "mtime": 1785371645.816033,
-    "ast_hash": "351bdc7b5642164da718426368e1bf41",
-    "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\index.html": {
     "mtime": 1784348155.0821807,
