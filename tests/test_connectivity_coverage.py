@@ -18,7 +18,8 @@ class TestCheckMySqlConnection:
         from main.utils.connectivity import checkDatabaseConnection
 
         result = checkDatabaseConnection()
-        assert result is True
+        assert result["user_db"]["status"] == "connected"
+        assert result["stocks_db"]["status"] == "connected"
         mockConn.execute.assert_called_once()
 
     @patch("main.utils.connectivity.stocksEngine", MagicMock())
@@ -29,7 +30,7 @@ class TestCheckMySqlConnection:
         from main.utils.connectivity import checkDatabaseConnection
 
         result = checkDatabaseConnection()
-        assert result is False
+        assert result["user_db"]["status"] == "error"
 
     @patch("main.utils.connectivity.stocksEngine", MagicMock())
     @patch("main.utils.connectivity.engine")
@@ -39,7 +40,7 @@ class TestCheckMySqlConnection:
         from main.utils.connectivity import checkDatabaseConnection
 
         result = checkDatabaseConnection()
-        assert result is False
+        assert result["user_db"]["status"] == "error"
 
     @patch("main.utils.connectivity.stocksEngine", MagicMock())
     @patch("main.utils.connectivity.engine")
@@ -49,7 +50,7 @@ class TestCheckMySqlConnection:
         from main.utils.connectivity import checkDatabaseConnection
 
         result = checkDatabaseConnection()
-        assert result is False
+        assert result["user_db"]["status"] == "error"
 
     @patch("main.utils.connectivity.engine", None)
     @patch("main.utils.connectivity.stocksEngine", MagicMock())
@@ -57,7 +58,7 @@ class TestCheckMySqlConnection:
         from main.utils.connectivity import checkDatabaseConnection
 
         result = checkDatabaseConnection()
-        assert result is False
+        assert result["user_db"]["status"] == "not_configured"
 
     @patch("main.utils.connectivity.engine")
     @patch("main.utils.connectivity.stocksEngine")
@@ -70,7 +71,7 @@ class TestCheckMySqlConnection:
         from main.utils.connectivity import checkDatabaseConnection
 
         result = checkDatabaseConnection()
-        assert result is False
+        assert result["stocks_db"]["status"] == "error"
 
     @patch("main.utils.connectivity.engine")
     @patch("main.utils.connectivity.stocksEngine")
@@ -83,7 +84,7 @@ class TestCheckMySqlConnection:
         from main.utils.connectivity import checkDatabaseConnection
 
         result = checkDatabaseConnection()
-        assert result is False
+        assert result["stocks_db"]["status"] == "error"
 
     @patch("main.utils.connectivity.engine")
     @patch("main.utils.connectivity.stocksEngine")
@@ -96,7 +97,7 @@ class TestCheckMySqlConnection:
         from main.utils.connectivity import checkDatabaseConnection
 
         result = checkDatabaseConnection()
-        assert result is False
+        assert result["stocks_db"]["status"] == "error"
 
     @patch("main.utils.connectivity.engine")
     @patch("main.utils.connectivity.stocksEngine", None)
@@ -108,7 +109,7 @@ class TestCheckMySqlConnection:
         from main.utils.connectivity import checkDatabaseConnection
 
         result = checkDatabaseConnection()
-        assert result is False
+        assert result["stocks_db"]["status"] == "not_configured"
 
 
 class TestCheckServiceConnection:
