@@ -1,3 +1,4 @@
+import json
 import time
 import logging
 import asyncio
@@ -12,6 +13,24 @@ logger = logging.getLogger(__name__)
 HEALTH_CHECK_INTERVAL = 60
 
 
+def _parseServers():
+    try:
+        servers = json.loads(Config.PROMETHEUS.MCP_SERVERS)
+        if isinstance(servers, list):
+            return servers
+    except (json.JSONDecodeError, TypeError):
+        pass
+    return []
+
+
+def _buildClient(server):
+    url = server["url"]
+    headers = server.get("headers", {})
+    if headers:
+        return Client(transport=StreamableHttpTransport(url, headers=headers))
+    return Client(url)
+
+
 class MCPClientPool:
     instance = None
     clients = None
@@ -24,26 +43,33 @@ class MCPClientPool:
         return cls.instance
 
     async def initialize(self):
-        stocks = Client(
-            transport=StreamableHttpTransport(
-                f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/mcp",
-                headers={"X-MCP": "true"},
-            )
-        )
-        searxng = Client(f"{Config.PROMETHEUS['SEARXNG_URL']}/mcp/")
-        async with stocks, searxng:
-            for s in [stocks.session, searxng.session]:
-                type(s).__deepcopy__ = lambda self, memo=None: self
-            self.clients = {"stocks": stocks, "searxng": searxng}
-            self.lastHealthCheck = time.time()
-            logger.info("MCPClientPool: initialized with stocks + searxng")
+        servers = _parseServers()
+        if not servers:
+            logger.warning("MCPClientPool: MCP_SERVERS is empty")
+            return
+
+        clients = {}
+        for server in servers:
+            name = server["name"]
+            try:
+                client = _buildClient(server)
+                await client.__aenter__()
+                type(client.session).__deepcopy__ = lambda self, memo=None: self
+                clients[name] = client
+                logger.info("MCPClientPool: %s connected", name)
+            except Exception as e:
+                logger.error("MCPClientPool: %s connect failed: %s", name, e)
+
+        self.clients = clients
+        self.lastHealthCheck = time.time()
+        logger.info("MCPClientPool: initialized with %s", list(clients.keys()))
 
     async def getClients(self):
         if self.clients is None:
             await self.initialize()
         if time.time() - self.lastHealthCheck > HEALTH_CHECK_INTERVAL:
             asyncio.create_task(self.healthCheck())
-        return self.clients, [self.clients["stocks"].session, self.clients["searxng"].session]
+        return self.clients, [c.session for c in self.clients.values()]
 
     async def healthCheck(self):
         async with self.lock:
@@ -58,20 +84,19 @@ class MCPClientPool:
                     await self.reconnect(name)
 
     async def reconnect(self, name):
+        servers = {s["name"]: s for s in _parseServers()}
+        server = servers.get(name)
+        if not server:
+            logger.error("MCPClientPool: %s not found in MCP_SERVERS", name)
+            return
         try:
-            if name == "stocks":
-                new = Client(
-                    transport=StreamableHttpTransport(
-                        f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/mcp",
-                        headers={"X-MCP": "true"},
-                    )
-                )
-            else:
-                new = Client(f"{Config.PROMETHEUS['SEARXNG_URL']}/mcp/")
-            async with new:
-                type(new.session).__deepcopy__ = lambda self, memo=None: self
-                self.clients[name] = new
-                logger.info("MCPClientPool: %s reconnected", name)
+            if name in self.clients:
+                await self.clients[name].__aexit__(None, None, None)
+            new = _buildClient(server)
+            await new.__aenter__()
+            type(new.session).__deepcopy__ = lambda self, memo=None: self
+            self.clients[name] = new
+            logger.info("MCPClientPool: %s reconnected", name)
         except Exception as e:
             logger.error("MCPClientPool: %s reconnect failed: %s", name, e)
 
