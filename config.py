@@ -88,7 +88,6 @@ class PrometheusSettings(BaseMansaSettings):
     SANDBOX_MEMORY: int = Field(default=512, validation_alias=AliasChoices("SANDBOX_MEMORY"))
     SANDBOX_CPU: int = Field(default=1, validation_alias=AliasChoices("SANDBOX_CPU"))
     SANDBOX_TTL: int = Field(default=5, validation_alias=AliasChoices("SANDBOX_TTL"))
-    MCP_SERVERS: str = Field(default="[]", validation_alias=AliasChoices("MCP_SERVERS"))
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

@@ -1,4 +1,3 @@
-import json
 import time
 import logging
 import asyncio
@@ -12,15 +11,14 @@ logger = logging.getLogger(__name__)
 
 HEALTH_CHECK_INTERVAL = 60
 
-
-def _parseServers():
-    try:
-        servers = json.loads(Config.PROMETHEUS.MCP_SERVERS)
-        if isinstance(servers, list):
-            return servers
-    except (json.JSONDecodeError, TypeError):
-        pass
-    return []
+MCP_SERVERS = [
+    {
+        "name": "stocks",
+        "url": f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/mcp",
+        "headers": {"X-MCP": "true"},
+    },
+    {"name": "searxng", "url": f"{Config.PROMETHEUS['SEARXNG_URL']}/mcp/"},
+]
 
 
 def _buildClient(server):
@@ -43,13 +41,8 @@ class MCPClientPool:
         return cls.instance
 
     async def initialize(self):
-        servers = _parseServers()
-        if not servers:
-            logger.warning("MCPClientPool: MCP_SERVERS is empty")
-            return
-
         clients = {}
-        for server in servers:
+        for server in MCP_SERVERS:
             name = server["name"]
             try:
                 client = _buildClient(server)
@@ -84,7 +77,7 @@ class MCPClientPool:
                     await self.reconnect(name)
 
     async def reconnect(self, name):
-        servers = {s["name"]: s for s in _parseServers()}
+        servers = {s["name"]: s for s in MCP_SERVERS}
         server = servers.get(name)
         if not server:
             logger.error("MCPClientPool: %s not found in MCP_SERVERS", name)
