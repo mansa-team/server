@@ -244,6 +244,14 @@ class Prometheus:
             session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
             if session and session.history:
                 PrometheusCompactor().compact(db, str(sessionId))
+
+            if session and user:
+                try:
+                    from main.app.prometheus.memory import extract
+
+                    extract(db, user.get("userId"), str(sessionId), user.get("roles", []))
+                except Exception as e:
+                    logger.debug("Memory extraction skipped: %s", e)
         except Exception:
             logger.debug("Pre-turn compaction skipped", exc_info=True)
 
