@@ -21,7 +21,7 @@ MCP_SERVERS = [
 ]
 
 
-def _buildClient(server):
+def buildClient(server):
     url = server["url"]
     headers = server.get("headers", {})
     if headers:
@@ -45,7 +45,7 @@ class MCPClientPool:
         for server in MCP_SERVERS:
             name = server["name"]
             try:
-                client = _buildClient(server)
+                client = buildClient(server)
                 await client.__aenter__()
                 type(client.session).__deepcopy__ = lambda self, memo=None: self
                 clients[name] = client
@@ -85,7 +85,7 @@ class MCPClientPool:
         try:
             if name in self.clients:
                 await self.clients[name].__aexit__(None, None, None)
-            new = _buildClient(server)
+            new = buildClient(server)
             await new.__aenter__()
             type(new.session).__deepcopy__ = lambda self, memo=None: self
             self.clients[name] = new

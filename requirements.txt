@@ -8,6 +8,7 @@ pydantic_settings
 alembic
 
 # SCRAPER-B3
+lxml
 cloudscraper
 tenacity
 apscheduler
