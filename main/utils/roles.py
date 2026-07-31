@@ -5,28 +5,10 @@ from fastapi import HTTPException, Depends
 class Permission(IntFlag):
     NONE = 0
 
-    VIEW_PROFILE = auto()
-    USE_THOTH = auto()
-    USE_MAAT = auto()
-
     USE_PROMETHEUS = auto()
-    USE_OGUM = auto()
-
-    VIEW_DEVELOPER_TAB = auto()
-    STARTER_API_ACCESS = auto()
     GENERATE_API_KEYS = auto()
 
     PROMETHEUS_EXTENDED_MEMORIES = auto()
-
-    ENTERPRISE_API_ACCESS = auto()
-    EXPORT_BULK_DATA = auto()
-    REQUEST_CUSTOM_FIELDS = auto()
-    API_SUPPORT_CHAT_ACCESS = auto()
-    NO_API_ATTRIBUTION_NEEDED = auto()
-
-    MANAGE_USERS = auto()
-    SYSTEM_CONFIG = auto()
-    SYSTEM_STATS = auto()
 
     @classmethod
     def ALL(cls):
@@ -34,20 +16,13 @@ class Permission(IntFlag):
 
 
 class Roles(IntFlag):
-    USER = Permission.VIEW_PROFILE | Permission.USE_THOTH | Permission.USE_MAAT
+    USER = Permission.NONE
 
-    PREMIUM = USER | Permission.USE_PROMETHEUS | Permission.USE_OGUM | Permission.PROMETHEUS_EXTENDED_MEMORIES
+    PREMIUM = USER | Permission.USE_PROMETHEUS | Permission.PROMETHEUS_EXTENDED_MEMORIES
 
-    DEVELOPER_STARTER = USER | Permission.VIEW_DEVELOPER_TAB | Permission.STARTER_API_ACCESS
+    DEVELOPER_STARTER = USER | Permission.GENERATE_API_KEYS
 
-    DEVELOPER_ENTERPRISE = (
-        DEVELOPER_STARTER
-        | Permission.ENTERPRISE_API_ACCESS
-        | Permission.EXPORT_BULK_DATA
-        | Permission.REQUEST_CUSTOM_FIELDS
-        | Permission.API_SUPPORT_CHAT_ACCESS
-        | Permission.NO_API_ATTRIBUTION_NEEDED
-    )
+    DEVELOPER_ENTERPRISE = DEVELOPER_STARTER
 
     ADMIN = Permission.ALL()
 
