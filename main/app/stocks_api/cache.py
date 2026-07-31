@@ -8,6 +8,7 @@ import numpy as np
 from sqlalchemy.engine import Engine
 from apscheduler.schedulers.background import BackgroundScheduler
 
+from main.app.stocks_api.compress import rebuildAbbrevs
 
 logger = logging.getLogger(__name__)
 
@@ -86,8 +87,6 @@ class StocksCacheManager:
                 self.STOCKS_CACHE = df
                 self.tickerIndex = newTickerIndex
                 self.cotationDateIndex = newCotationDateIndex
-
-            from main.app.stocks_api.compressor import rebuildAbbrevs
 
             rebuildAbbrevs()
 

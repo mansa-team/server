@@ -7,7 +7,7 @@ from config import getSession
 from main.app.stocks_api.query import stocksQuery
 from main.app.stocks_api.key import verifyAPIKey, createKey
 from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
-from main.app.stocks_api.compressor import compressResponse, getNest
+from main.app.stocks_api.compress import compressResponse, getNest
 from main.app.stocks_api.cache import stocksCache
 from main.app.stocks_api.response_cache import ResponseCache
 from main.app.user.user import UserManager
