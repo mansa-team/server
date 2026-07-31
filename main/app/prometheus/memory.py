@@ -361,6 +361,9 @@ def extract(db, userId, sessionId, userRoles) -> list[dict]:
         logger.warning("Memory extraction LLM call failed: %s", e)
         return []
 
+    if not isinstance(candidates, list):
+        return []
+
     created = []
     for cand in (candidates or [])[:n]:
         try:

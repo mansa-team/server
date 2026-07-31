@@ -120,3 +120,23 @@ def test_premium_users_get_at_most_10_upserts(db):
     ):
         extract(db, 1, "s1", ["PREMIUM"])
         assert fake.calls == 10
+
+
+def test_non_list_llm_response_returns_empty_without_raising(db):
+    client = type("C", (), {})()
+    client.models = type("M", (), {})()
+    resp = FakeResponse()
+    resp.text = json.dumps({"memories": [{"key": "a", "value": "b", "type": "context"}]})
+    client.models.generate_content = lambda **kw: resp
+    with (
+        patch("main.app.prometheus.memory.Roles.checkAccess", side_effect=premiumAccess),
+        patch(
+            "main.app.prometheus.chat.PrometheusChatManager.getHistory", return_value=makeHistory(3, "palavra " * 3000)
+        ),
+        patch("main.app.prometheus.compact.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
+        patch("main.app.prometheus.memory.embed", return_value=[object()]),
+        patch("main.app.prometheus.memory.getClient", return_value=client),
+        patch("main.app.prometheus.memory.PrometheusMemory.countMemories", return_value=0),
+        patch("main.app.prometheus.memory.PrometheusMemory.upsertMemory", new=FakeMemory().upsertMemory),
+    ):
+        assert extract(db, 1, "s1", ["PREMIUM"]) == []
