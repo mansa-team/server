@@ -83,7 +83,7 @@ def test_at_budget_calls_api_and_upserts_inferred(db):
         patch(
             "main.app.prometheus.chat.PrometheusChatManager.getHistory", return_value=makeHistory(3, "palavra " * 3000)
         ),
-        patch("main.app.prometheus.compact.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
+        patch("main.app.prometheus.memory.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
         patch("main.app.prometheus.memory.embed", return_value=[object()]),
         patch("main.app.prometheus.memory.getClient", return_value=client),
         patch("main.app.prometheus.memory.PrometheusMemory.countMemories", return_value=0),
@@ -110,7 +110,7 @@ def test_free_users_get_at_most_5_upserts(db):
         patch(
             "main.app.prometheus.chat.PrometheusChatManager.getHistory", return_value=makeHistory(3, "palavra " * 3000)
         ),
-        patch("main.app.prometheus.compact.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
+        patch("main.app.prometheus.memory.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
         patch("main.app.prometheus.memory.embed", return_value=[object()]),
         patch("main.app.prometheus.memory.getClient", return_value=makeClient(12)),
         patch("main.app.prometheus.memory.PrometheusMemory.countMemories", return_value=0),
@@ -127,7 +127,7 @@ def test_premium_users_get_at_most_10_upserts(db):
         patch(
             "main.app.prometheus.chat.PrometheusChatManager.getHistory", return_value=makeHistory(3, "palavra " * 3000)
         ),
-        patch("main.app.prometheus.compact.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
+        patch("main.app.prometheus.memory.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
         patch("main.app.prometheus.memory.embed", return_value=[object()]),
         patch("main.app.prometheus.memory.getClient", return_value=makeClient(12)),
         patch("main.app.prometheus.memory.PrometheusMemory.countMemories", return_value=0),
@@ -148,7 +148,7 @@ def test_non_list_llm_response_returns_empty_without_raising(db):
         patch(
             "main.app.prometheus.chat.PrometheusChatManager.getHistory", return_value=makeHistory(3, "palavra " * 3000)
         ),
-        patch("main.app.prometheus.compact.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
+        patch("main.app.prometheus.memory.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
         patch("main.app.prometheus.memory.embed", return_value=[object()]),
         patch("main.app.prometheus.memory.getClient", return_value=client),
         patch("main.app.prometheus.memory.PrometheusMemory.countMemories", return_value=0),

@@ -11,6 +11,8 @@ from sqlalchemy.orm import Session
 from main.models.memory import PrometheusMemory as PrometheusMemoryModel
 from main.utils.roles import Permission, Roles
 from main.app.prometheus.vector import batchCosineSimilarity, contentHash, decodeEmbeddings, getRelevanceScore, embed
+from main.app.prometheus.chat import PrometheusChatManager
+from main.app.prometheus.compact import countTokens
 
 logger = logging.getLogger(__name__)
 
@@ -316,9 +318,6 @@ EXTRACT_PROMPT = (
 
 
 def extract(db, userId, sessionId, userRoles) -> list[PrometheusMemoryModel]:
-    from main.app.prometheus.chat import PrometheusChatManager
-    from main.app.prometheus.compact import countTokens
-
     if not Roles.checkAccess(userRoles, Permission.USE_PROMETHEUS):
         return []
     cap = (
