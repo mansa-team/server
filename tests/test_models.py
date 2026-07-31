@@ -35,37 +35,6 @@ class TestUserModel:
         assert "USER" in roles
         assert "PREMIUM" in roles
 
-    def test_add_role_new(self, dbSession, sampleUserData):
-        user = User(**sampleUserData)
-        user.roles = "USER"
-        UserManager.addRole(user, "ADMIN")
-        assert "ADMIN" in UserManager.getRolesList(user)
-
-    def test_add_role_existing(self, dbSession, sampleUserData):
-        user = User(**sampleUserData)
-        user.roles = "USER,ADMIN"
-        initialRoles = UserManager.getRolesList(user)
-        UserManager.addRole(user, "ADMIN")
-        assert UserManager.getRolesList(user) == initialRoles
-
-    def test_has_role_true(self, dbSession, sampleUserData):
-        user = User(**sampleUserData)
-        user.roles = "USER,ADMIN"
-        assert UserManager.hasRole(user, "ADMIN") is True
-
-    def test_has_role_false(self, dbSession, sampleUserData):
-        user = User(**sampleUserData)
-        user.roles = "USER"
-        assert UserManager.hasRole(user, "ADMIN") is False
-
-    def test_has_role_with_enum(self, dbSession, sampleUserData):
-        class MockEnum:
-            name = "ADMIN"
-
-        user = User(**sampleUserData)
-        user.roles = "ADMIN"
-        assert UserManager.hasRole(user, MockEnum()) is True
-
     def test_toDict(self, dbSession, sampleUserData):
         user = User(**sampleUserData)
         user.roles = "USER,ADMIN"

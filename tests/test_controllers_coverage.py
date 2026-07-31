@@ -552,46 +552,6 @@ class TestGetMe:
         assert data["userId"] == 1
 
 
-class TestUpgradeEndpoints:
-    """Covers lines 31-32, 36, 43-44, 48: upgrade developer starter/enterprise."""
-
-    def test_upgrade_developer_starter_success(self):
-        """Covers lines 31-32."""
-        client, _, mock_db = _make_user_client(mock_current_user={"userId": 1, "username": "alice", "roles": ["USER"]})
-        with patch("main.controller.user_controller.UserManager") as mock_um:
-            mock_um.addRoleToUser.return_value = True
-            resp = client.post("/user/upgrade/developer/starter")
-            assert resp.status_code == 200
-            assert "Successfully upgraded" in resp.json()["message"]
-
-    def test_upgrade_developer_starter_already_developer(self):
-        """Covers line 36."""
-        client, _, mock_db = _make_user_client(mock_current_user={"userId": 1, "username": "alice", "roles": ["USER"]})
-        with patch("main.controller.user_controller.UserManager") as mock_um:
-            mock_um.addRoleToUser.return_value = False
-            resp = client.post("/user/upgrade/developer/starter")
-            assert resp.status_code == 200
-            assert "already a developer" in resp.json()["message"]
-
-    def test_upgrade_developer_enterprise_success(self):
-        """Covers lines 43-44."""
-        client, _, mock_db = _make_user_client(mock_current_user={"userId": 1, "username": "alice", "roles": ["USER"]})
-        with patch("main.controller.user_controller.UserManager") as mock_um:
-            mock_um.addRoleToUser.return_value = True
-            resp = client.post("/user/upgrade/developer/enterprise")
-            assert resp.status_code == 200
-            assert "Successfully upgraded" in resp.json()["message"]
-
-    def test_upgrade_developer_enterprise_already_developer(self):
-        """Covers line 48."""
-        client, _, mock_db = _make_user_client(mock_current_user={"userId": 1, "username": "alice", "roles": ["USER"]})
-        with patch("main.controller.user_controller.UserManager") as mock_um:
-            mock_um.addRoleToUser.return_value = False
-            resp = client.post("/user/upgrade/developer/enterprise")
-            assert resp.status_code == 200
-            assert "already a developer" in resp.json()["message"]
-
-
 class TestAdminAccess:
     """Covers lines 53-54, 56: admin access granted / denied."""
 
@@ -1193,9 +1153,7 @@ class TestStocksApiGenerateKey:
 
     def test_generate_key_permission_error(self):
         """Covers lines 52-53: user without GENERATE_API_KEYS permission gets 403."""
-        client, _, _ = _make_stocksapi_client(
-            mock_current_user={"userId": 1, "username": "alice", "roles": ["DEVELOPER_STARTER"]}
-        )
+        client, _, _ = _make_stocksapi_client(mock_current_user={"userId": 1, "username": "alice", "roles": ["USER"]})
         resp = client.get("/stocks/key/generate")
         assert resp.status_code == 403
 
@@ -1226,52 +1184,6 @@ class TestStocksApiGenerateKey:
 # =========================================================================
 # 5. app/user/user.py — 31 uncovered lines
 # =========================================================================
-class TestAddRoleToUser:
-    """Covers lines 13, 17, 19-20, 22-27: UserManager.addRoleToUser."""
-
-    def test_add_role_success(self):
-        """Covers lines 17, 22-27: user found, role not present, role added."""
-        mock_db = MagicMock()
-        mock_user = MagicMock()
-        mock_user.userId = 1
-        mock_user.roles = "USER"
-
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_user
-
-        from main.app.user.user import UserManager
-
-        result = UserManager.addRoleToUser(mock_db, 1, "DEVELOPER_STARTER")
-
-        assert result is True
-        assert "DEVELOPER_STARTER" in mock_user.roles
-        mock_db.commit.assert_called_once()
-
-    def test_add_role_already_has_role(self):
-        """Covers line 27: user already has the role."""
-        mock_db = MagicMock()
-        mock_user = MagicMock()
-        mock_user.roles = "USER,ADMIN"
-
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_user
-
-        from main.app.user.user import UserManager
-
-        result = UserManager.addRoleToUser(mock_db, 1, "ADMIN")
-
-        assert result is False
-
-    def test_add_role_user_not_found(self):
-        """Covers lines 19-20: user not found raises 404."""
-        mock_db = MagicMock()
-        mock_db.query.return_value.filter.return_value.first.return_value = None
-
-        from main.app.user.user import UserManager
-
-        with pytest.raises(Exception) as exc_info:
-            UserManager.addRoleToUser(mock_db, 999, "ADMIN")
-        assert exc_info.value.status_code == 404
-
-
 class TestGetCurrentUser:
     """Covers lines 34, 36-38, 40-44, 46, 48-49, 51, 58-59, 61, 63-67: UserManager.getCurrentUser."""
 
