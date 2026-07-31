@@ -42,7 +42,7 @@ class TestBuildSystemPrompt:
         prompt = Prometheus.buildSystemPrompt(
             userId=1,
             db=dbSession,
-            sessionId="test-empty",
+            sessionId=fake_session_with_120_messages.sessionId,
         )
         # format is [1] summary, [2] summary, ...
         episode_count = sum(1 for line in prompt.split("\n") if line.startswith("[") and line[1].isdigit())
@@ -74,7 +74,7 @@ class TestBuildSystemPrompt:
         prompt = Prometheus.buildSystemPrompt(
             userId=1,
             db=dbSession,
-            sessionId=fake_session_with_120_messages.sessionId,
+            sessionId="test-empty",
         )
         # no lines starting with [N]
         assert not any(ln.startswith("[") and ln[1].isdigit() for ln in prompt.split("\n"))
