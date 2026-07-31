@@ -22,7 +22,7 @@ def runScraper():
 class ScraperService:
     @staticmethod
     def initialize():
-        schedules = Config.SCRAPER["SCHEDULER"].split(";")
+        schedules = Config.SCRAPER.SCHEDULER.split(";")
         scheduler = BackgroundScheduler()
 
         if not schedules:

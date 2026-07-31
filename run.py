@@ -38,29 +38,29 @@ async def lifespan(app: FastAPI):
     else:
         runMigrations()
 
-    if Config.USER["ENABLED"]:
-        if Config.USER["HOST"] in LOCALHOST_ADDRESSES:
-            AuthenticationService.initialize(Config.USER["PORT"])
-            UserService.initialize(Config.USER["PORT"])
+    if Config.USER.ENABLED:
+        if Config.USER.HOST in LOCALHOST_ADDRESSES:
+            AuthenticationService.initialize(Config.USER.PORT)
+            UserService.initialize(Config.USER.PORT)
         else:
             if not checkServiceConnection("USER"):
                 logger.error("Remote connection to the USER Service failed")
 
-    if Config.STOCKS_API["ENABLED"]:
-        if Config.STOCKS_API["HOST"] in LOCALHOST_ADDRESSES:
-            StocksAPIService.initialize(Config.STOCKS_API["PORT"])
+    if Config.STOCKS_API.ENABLED:
+        if Config.STOCKS_API.HOST in LOCALHOST_ADDRESSES:
+            StocksAPIService.initialize(Config.STOCKS_API.PORT)
         else:
             if not checkServiceConnection("STOCKS_API"):
                 logger.error("Remote connection to the STOCKS_API Service failed")
 
-    if Config.PROMETHEUS["ENABLED"]:
-        if Config.PROMETHEUS["HOST"] in LOCALHOST_ADDRESSES:
-            PrometheusService.initialize(Config.PROMETHEUS["PORT"])
+    if Config.PROMETHEUS.ENABLED:
+        if Config.PROMETHEUS.HOST in LOCALHOST_ADDRESSES:
+            PrometheusService.initialize(Config.PROMETHEUS.PORT)
         else:
             if not checkServiceConnection("PROMETHEUS"):
                 logger.error("Remote connection to the PROMETHEUS Service failed")
 
-    if Config.SCRAPER["ENABLED"]:
+    if Config.SCRAPER.ENABLED:
         ScraperService.initialize()
 
     ServiceManager.runAll()
@@ -94,15 +94,15 @@ async def status():
         ("stocks_api", Config.STOCKS_API),
         ("prometheus", Config.PROMETHEUS),
     ]:
-        if not config["ENABLED"]:
+        if not config.ENABLED:
             services[name] = {"status": "disabled"}
             continue
-        isLocal = config["HOST"] in LOCALHOST_ADDRESSES
-        services[name] = {"status": "running", "port": config["PORT"], "type": "local" if isLocal else "remote"}
+        isLocal = config.HOST in LOCALHOST_ADDRESSES
+        services[name] = {"status": "running", "port": config.PORT, "type": "local" if isLocal else "remote"}
         if not isLocal:
-            services[name]["host"] = config["HOST"]
+            services[name]["host"] = config.HOST
 
-    if Config.SCRAPER["ENABLED"]:
+    if Config.SCRAPER.ENABLED:
         services["scraper"] = {"status": "running", "type": "local"}
 
     return {

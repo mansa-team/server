@@ -3,18 +3,15 @@ from config import Config, StocksApiSettings, PrometheusSettings, ScraperSetting
 
 
 class TestConfig:
-    def test_stocks_api_getitem(self):
+    def test_stocks_api_attributes(self):
         settings = StocksApiSettings()
-        # Test __getitem__ mapping
-        assert settings["KEY_SYSTEM"] == settings.KEY_SYSTEM
-        assert settings["DEFAULT_QUOTA"] == settings.DEFAULT_QUOTA
+        assert settings.KEY_SYSTEM is not None
+        assert settings.DEFAULT_QUOTA is not None
 
-    def test_prometheus_getitem(self):
+    def test_prometheus_attributes(self):
         settings = PrometheusSettings()
-        # Test __getitem__ mapping
-        assert settings["GEMINI_API_KEY"] == settings.GEMINI_API_KEY
+        assert settings.GEMINI_API_KEY is not None
 
-    def test_scraper_getitem(self):
+    def test_scraper_attributes(self):
         settings = ScraperSettings()
-        # Test __getitem__ returns getattr
-        assert settings["ENABLED"] == settings.ENABLED
+        assert settings.ENABLED is not None

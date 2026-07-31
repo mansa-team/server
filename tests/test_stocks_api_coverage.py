@@ -158,7 +158,7 @@ class TestVerifyAPIKey:
         """When KEY.SYSTEM is falsy, return None (line 16)."""
         from main.app.stocks_api.key import verifyAPIKey
 
-        mock_config.STOCKS_API = {"KEY.SYSTEM": False}
+        mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=False)
         mock_db = MagicMock()
 
         result = asyncio.run(verifyAPIKey(apiKey=None, db=mock_db))
@@ -170,7 +170,7 @@ class TestVerifyAPIKey:
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
 
-        mock_config.STOCKS_API = {"KEY.SYSTEM": True}
+        mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = MagicMock()
 
         with pytest.raises(HTTPException) as exc_info:
@@ -183,7 +183,7 @@ class TestVerifyAPIKey:
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
 
-        mock_config.STOCKS_API = {"KEY.SYSTEM": True}
+        mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = MagicMock()
         # Atomic UPDATE returns 0 rows (key not found or quota exceeded)
         mock_db.execute.return_value.rowcount = 0
@@ -200,7 +200,7 @@ class TestVerifyAPIKey:
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
 
-        mock_config.STOCKS_API = {"KEY.SYSTEM": True}
+        mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = MagicMock()
         # Atomic UPDATE returns 0 rows (quota exceeded)
         mock_db.execute.return_value.rowcount = 0
@@ -217,7 +217,7 @@ class TestVerifyAPIKey:
         """Happy path: atomic UPDATE succeeds, returns key (lines 22-33)."""
         from main.app.stocks_api.key import verifyAPIKey
 
-        mock_config.STOCKS_API = {"KEY.SYSTEM": True}
+        mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = MagicMock()
         # Atomic UPDATE returns 1 row (success)
         mock_db.execute.return_value.rowcount = 1
@@ -232,7 +232,7 @@ class TestVerifyAPIKey:
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
 
-        mock_config.STOCKS_API = {"KEY.SYSTEM": True}
+        mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = MagicMock()
         # Atomic UPDATE returns 0 rows (quota exceeded)
         mock_db.execute.return_value.rowcount = 0
@@ -251,7 +251,7 @@ class TestVerifyAPIKey:
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
 
-        mock_config.STOCKS_API = {"KEY.SYSTEM": True}
+        mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = MagicMock()
         mock_db.execute.side_effect = Exception("DB connection lost")
 
@@ -292,7 +292,7 @@ class TestCreateKey:
         """New key created when no existing key for user (lines 57-59)."""
         from main.app.stocks_api.key import createKey
 
-        mock_config.STOCKS_API = {"DEFAULT.QUOTA": 200}
+        mock_config.STOCKS_API = MagicMock(DEFAULT_QUOTA=200)
         mock_db = MagicMock()
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
@@ -307,7 +307,7 @@ class TestCreateKey:
         """Existing key is updated (lines 54-56)."""
         from main.app.stocks_api.key import createKey, hashKey
 
-        mock_config.STOCKS_API = {"DEFAULT.QUOTA": 150}
+        mock_config.STOCKS_API = MagicMock(DEFAULT_QUOTA=150)
         mock_db = MagicMock()
         mock_existing = MagicMock()
         mock_db.query.return_value.filter.return_value.first.return_value = mock_existing
@@ -325,7 +325,7 @@ class TestCreateKey:
         from main.app.stocks_api.key import createKey
         from fastapi import HTTPException
 
-        mock_config.STOCKS_API = {"DEFAULT.QUOTA": 100}
+        mock_config.STOCKS_API = MagicMock(DEFAULT_QUOTA=100)
         mock_db = MagicMock()
         mock_db.query.side_effect = Exception("DB error")
 

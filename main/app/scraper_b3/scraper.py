@@ -444,7 +444,7 @@ class B3Scraper:
 
         return data
 
-    def scrapeStocks(self, maxWorkers=Config.SCRAPER["MAX_WORKERS"]):
+    def scrapeStocks(self, maxWorkers=Config.SCRAPER.MAX_WORKERS):
         startTime = time.time()
         stocksDF = self.getInitialData()
         stocksDF["TIME"] = pd.to_datetime(self.scraperDate)
@@ -523,7 +523,7 @@ class B3Scraper:
         return df
 
     def exportJson(self, df):
-        if Config.SCRAPER["JSON"] and not df.empty:
+        if Config.SCRAPER.JSON and not df.empty:
             df = df.copy()
             for col in df.select_dtypes(include=["datetime"]).columns:
                 df[col] = df[col].astype(str)
@@ -531,7 +531,7 @@ class B3Scraper:
             df.to_json(f"b3_stocks.json", orient="records", force_ascii=False, default_handler=str)
 
     def exportMysql(self, df):
-        if not Config.SCRAPER["MYSQL"] or df.empty:
+        if not Config.SCRAPER.MYSQL or df.empty:
             return
 
         try:

@@ -31,7 +31,7 @@ class TestAtomicQuotaIncrement:
 
         # Mock Config to enable API key system
         with patch("main.app.stocks_api.key.Config") as mock_config:
-            mock_config.STOCKS_API = {"KEY.SYSTEM": True}
+            mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
 
             # Run the atomic increment
             from sqlalchemy import update
@@ -227,7 +227,7 @@ class TestVerifyAPIKeyIntegration:
         dbSession.commit()
 
         with patch("main.app.stocks_api.key.Config") as mock_config:
-            mock_config.STOCKS_API = {"KEY.SYSTEM": True}
+            mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
 
             result = asyncio.run(verifyAPIKey(apiKey="test_key_12345", db=dbSession))
 
@@ -242,7 +242,7 @@ class TestVerifyAPIKeyIntegration:
         dbSession.commit()
 
         with patch("main.app.stocks_api.key.Config") as mock_config:
-            mock_config.STOCKS_API = {"KEY.SYSTEM": True}
+            mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
 
             with pytest.raises(HTTPException) as exc_info:
                 asyncio.run(verifyAPIKey(apiKey="test_key_12345", db=dbSession))
@@ -253,7 +253,7 @@ class TestVerifyAPIKeyIntegration:
     def test_verify_api_key_invalid(self, dbSession):
         """Test API key verification with invalid key."""
         with patch("main.app.stocks_api.key.Config") as mock_config:
-            mock_config.STOCKS_API = {"KEY.SYSTEM": True}
+            mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
 
             with pytest.raises(HTTPException) as exc_info:
                 asyncio.run(verifyAPIKey(apiKey="invalid_key", db=dbSession))
@@ -264,7 +264,7 @@ class TestVerifyAPIKeyIntegration:
     def test_verify_api_key_missing(self, dbSession):
         """Test API key verification with missing key."""
         with patch("main.app.stocks_api.key.Config") as mock_config:
-            mock_config.STOCKS_API = {"KEY.SYSTEM": True}
+            mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
 
             with pytest.raises(HTTPException) as exc_info:
                 asyncio.run(verifyAPIKey(apiKey=None, db=dbSession))
@@ -275,7 +275,7 @@ class TestVerifyAPIKeyIntegration:
     def test_verify_api_key_disabled(self, dbSession):
         """Test that API key system can be disabled."""
         with patch("main.app.stocks_api.key.Config") as mock_config:
-            mock_config.STOCKS_API = {"KEY.SYSTEM": False}
+            mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=False)
 
             result = asyncio.run(verifyAPIKey(apiKey="any_key", db=dbSession))
             assert result is None

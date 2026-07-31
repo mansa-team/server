@@ -9,7 +9,7 @@ import inspect
 import pytest
 import sys
 import os
-from unittest.mock import patch, AsyncMock
+from unittest.mock import patch, AsyncMock, MagicMock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
@@ -83,7 +83,7 @@ class TestMakeChatIncludesMemoryTools:
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
     def test_makeChat_tools_include_memory_tools(self, mock_genai, mock_config, mock_types):
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
+        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="key")
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
         from main.app.prometheus.agent import Prometheus

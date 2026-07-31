@@ -21,7 +21,7 @@ def hashKey(key: str) -> str:
 
 
 async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depends(getSession)):
-    if not Config.STOCKS_API["KEY.SYSTEM"]:
+    if not Config.STOCKS_API.KEY_SYSTEM:
         return None
 
     if not apiKey:
@@ -62,7 +62,7 @@ def generateSecureKey(length: int = 32) -> str:
 def createKey(db: Session, userId: int):
     rawKey = generateSecureKey(32)
     hashedKey = hashKey(rawKey)
-    quota = Config.STOCKS_API["DEFAULT.QUOTA"]
+    quota = Config.STOCKS_API.DEFAULT_QUOTA
 
     try:
         existingKey = db.query(StocksAPIKey).filter(StocksAPIKey.userId == userId).first()
