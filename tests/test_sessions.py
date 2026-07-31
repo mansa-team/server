@@ -77,8 +77,6 @@ class TestSessionExpiration:
         assert SESSION_EXPIRY_DAYS == 30
 
     def test_session_can_expire(self):
-        from pytz import timezone
-
         now = datetime.now()
         expired_date = now - timedelta(days=SESSION_EXPIRY_DAYS + 1)
 
@@ -96,8 +94,6 @@ class TestSessionExpiration:
         assert session.expiresAt < now
 
     def test_session_still_valid_within_expiry(self):
-        from pytz import timezone
-
         now = datetime.now()
         valid_date = now - timedelta(days=SESSION_EXPIRY_DAYS - 1)
 
@@ -114,8 +110,6 @@ class TestSessionExpiration:
         assert session.expiresAt > now
 
     def test_session_exactly_at_boundary(self):
-        from pytz import timezone
-
         now = datetime.now()
         boundary_date = now - timedelta(days=SESSION_EXPIRY_DAYS)
 
@@ -132,8 +126,6 @@ class TestSessionExpiration:
         assert session.expiresAt.date() <= now.date()
 
     def test_created_at_future_date(self):
-        from pytz import timezone
-
         future = datetime.now() + timedelta(days=1)
 
         session = UserSession(

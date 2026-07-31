@@ -12,7 +12,6 @@ lxml
 cloudscraper
 tenacity
 apscheduler
-pytz
 
 # STOCKS-API
 fastapi

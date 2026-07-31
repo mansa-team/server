@@ -1,12 +1,12 @@
 import math
 from datetime import datetime, timedelta
-import pytz
+from zoneinfo import ZoneInfo
 import pytest
 from main.app.prometheus.vector import getRelevanceScore
 
 
-SAO_PAULO_TZ = pytz.timezone("America/Sao_Paulo")
-NOW = SAO_PAULO_TZ.localize(datetime(2026, 7, 14, 12, 0, 0))
+SAO_PAULO_TZ = ZoneInfo("America/Sao_Paulo")
+NOW = datetime(2026, 7, 14, 12, 0, 0, tzinfo=SAO_PAULO_TZ)
 
 
 class _FakeMemory:
