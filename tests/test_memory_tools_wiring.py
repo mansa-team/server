@@ -82,8 +82,7 @@ class TestMakeChatIncludesMemoryTools:
     @patch("main.app.prometheus.agent.types")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.Client")
-    def test_makeChat_tools_include_memory_tools(self, mock_mcp, mock_genai, mock_config, mock_types):
+    def test_makeChat_tools_include_memory_tools(self, mock_genai, mock_config, mock_types):
         mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
@@ -124,9 +123,7 @@ class TestDispatchRoutesMemoryTools:
         with patch.dict(TOOL_REGISTRY, {"search_memory": mock_fn}):
             result = await dispatchToolCall(mock_fc, {}, user={"userId": 1})
 
-        mock_fn.assert_called_once_with(
-            query="PETR4", user={"userId": 1}, state=None, db=None, sandbox_id=None, userId=1
-        )
+        mock_fn.assert_called_once_with(query="PETR4", user={"userId": 1}, db=None, sandbox_id=None, userId=1)
         assert result == {"memories": []}
 
     @pytest.mark.anyio
@@ -146,7 +143,6 @@ class TestDispatchRoutesMemoryTools:
             value="PETR4",
             type="preference",
             user={"userId": 1},
-            state=None,
             db=None,
             sandbox_id=None,
             userId=1,

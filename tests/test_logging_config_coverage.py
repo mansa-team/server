@@ -47,48 +47,54 @@ class TestDiscordHandlerEmit:
         record = self._make_record(level=logging.WARNING)
         handler.emit(record)
 
-    @patch("main.utils.logging_config.discordExecutor")
     @patch("main.utils.logging_config.Config")
-    def test_submit_called_on_error(self, mockConfig, mockExecutor):
+    def test_message_queued_on_error(self, mockConfig):
         mockConfig.DISCORD.ENABLED = True
         mockConfig.DISCORD.WEBHOOK_URL = "https://hook.test/123"
+        from main.utils.logging_config import queue, lock
+
         handler = self._make_handler()
+        with lock:
+            queue.clear()
         record = self._make_record(level=logging.ERROR, msg="something broke")
         handler.emit(record)
-        mockExecutor.submit.assert_called_once()
+        with lock:
+            assert len(queue) == 1
 
-    @patch("main.utils.logging_config.discordExecutor")
     @patch("main.utils.logging_config.Config")
-    def test_message_truncation(self, mockConfig, mockExecutor):
+    def test_message_truncation(self, mockConfig):
         mockConfig.DISCORD.ENABLED = True
         mockConfig.DISCORD.WEBHOOK_URL = "https://hook.test/123"
+        from main.utils.logging_config import queue, lock
+
         handler = self._make_handler()
+        with lock:
+            queue.clear()
         long_msg = "x" * 3000
         record = self._make_record(level=logging.ERROR, msg=long_msg)
         handler.emit(record)
-        # Verify submit was called (truncation happens before submit)
-        mockExecutor.submit.assert_called_once()
-        call_args = mockExecutor.submit.call_args
-        payload = call_args[1]["json"] if "json" in call_args[1] else call_args[0][2]
-        assert len(payload["content"]) <= 2000
+        with lock:
+            assert len(queue) == 1
+            assert len(queue[0]) <= 2000
 
-    @patch("main.utils.logging_config.discordExecutor")
     @patch("main.utils.logging_config.Config")
-    def test_exception_in_submit(self, mockConfig, mockExecutor):
+    def test_emit_does_not_raise(self, mockConfig):
         mockConfig.DISCORD.ENABLED = True
         mockConfig.DISCORD.WEBHOOK_URL = "https://hook.test/123"
-        mockExecutor.submit.side_effect = RuntimeError("executor full")
         handler = self._make_handler()
         record = self._make_record(level=logging.ERROR, msg="test")
         # Should not raise
         handler.emit(record)
 
-    @patch("main.utils.logging_config.discordExecutor")
     @patch("main.utils.logging_config.Config")
-    def test_with_exception_info(self, mockConfig, mockExecutor):
+    def test_with_exception_info(self, mockConfig):
         mockConfig.DISCORD.ENABLED = True
         mockConfig.DISCORD.WEBHOOK_URL = "https://hook.test/123"
+        from main.utils.logging_config import queue, lock
+
         handler = self._make_handler()
+        with lock:
+            queue.clear()
         try:
             raise ValueError("test error")
         except ValueError:
@@ -97,7 +103,9 @@ class TestDiscordHandlerEmit:
             exc_info = sys.exc_info()
         record = self._make_record(level=logging.ERROR, msg="failed", exc_info=exc_info)
         handler.emit(record)
-        mockExecutor.submit.assert_called_once()
+        with lock:
+            assert len(queue) == 1
+            assert "ValueError" in queue[0]
 
 
 class TestSetupLogging:

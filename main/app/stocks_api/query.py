@@ -30,31 +30,36 @@ def sanitizeNanValues(obj):
     return obj
 
 
-def filterCotationColumn(series: pd.Series, startDate, endDate) -> pd.Series:
+def filterCotationColumn(series: pd.Series, startDate, endDate, dateIndex: dict | None = None) -> pd.Series:
     if not startDate or not endDate:
         return series
 
-    rowIndices = []
-    flatEntries = []
-    for rowIdx, entries in enumerate(series):
-        if isinstance(entries, list) and entries:
-            for entry in entries:
-                rowIndices.append(rowIdx)
-                flatEntries.append(entry)
+    startDateStr = startDate.strftime("%d-%m-%Y")
+    endDateStr = endDate.strftime("%d-%m-%Y")
 
-    if not flatEntries:
+    if dateIndex:
+        candidateIdx = [
+            idx
+            for idx, (minD, maxD) in dateIndex.items()
+            if idx in series.index and minD <= endDateStr and maxD >= startDateStr
+        ]
+        if not candidateIdx:
+            return pd.Series(
+                [entries if not isinstance(entries, list) else [] for entries in series], index=series.index
+            )
+        series = series.loc[candidateIdx]
+
+    exploded = series.explode()
+    if exploded.empty or exploded.isna().all():
         return series
 
-    flatDf = pd.DataFrame(flatEntries)
-    flatDf["_rowIdx"] = rowIndices
-
-    dates = pd.to_datetime(flatDf["DATA"], format="%d-%m-%Y", errors="coerce")
+    dates = pd.to_datetime(exploded.str.get("DATA"), format="%d-%m-%Y", errors="coerce")
     mask = (dates.dt.date >= startDate) & (dates.dt.date <= endDate)
-    filtered = flatDf[mask]
+    filtered = exploded[mask]
 
     result = [entries if not isinstance(entries, list) else [] for entries in series]
-    for rowIdx, group in filtered.groupby("_rowIdx"):
-        result[int(rowIdx)] = group.drop(columns="_rowIdx").to_dict(orient="records")
+    for idx, group in filtered.groupby(level=0):
+        result[series.index.get_loc(idx)] = group.tolist()
 
     return pd.Series(result, index=series.index)
 
@@ -319,7 +324,8 @@ class StocksQueryManager:
 
             startDate, endDate = parseDateRange(dates)
             if startDate and endDate and targetCol in df.columns:
-                df[targetCol] = filterCotationColumn(df[targetCol], startDate, endDate)
+                dateIndex = self.cacheManager.cotationDateIndex.get(targetCol)
+                df[targetCol] = filterCotationColumn(df[targetCol], startDate, endDate, dateIndex=dateIndex)
 
             return {
                 "search": search or "all",

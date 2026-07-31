@@ -19,8 +19,15 @@ class TestStatusEndpoint:
         assert resp.status_code == 200
 
     def test_status_has_healthy(self, statusClient):
-        data = statusClient.get("/status").json()
-        assert data["status"] == "healthy"
+        with patch(
+            "run.checkDatabaseConnection",
+            return_value={
+                "user_db": {"status": "connected"},
+                "stocks_db": {"status": "connected"},
+            },
+        ):
+            data = statusClient.get("/status").json()
+            assert data["status"] == "healthy"
 
     def test_status_has_uptime_format(self, statusClient):
         data = statusClient.get("/status").json()
@@ -35,7 +42,7 @@ class TestStatusEndpoint:
     def test_status_services_contain_expected_keys(self, statusClient):
         data = statusClient.get("/status").json()
         services = data["services"]
-        for name in ["authentication", "user", "stocks_api", "prometheus", "scraper"]:
+        for name in ["user", "stocks_api", "prometheus"]:
             assert name in services, f"Missing service: {name}"
 
     def test_status_local_service_has_port_and_type(self, statusClient):

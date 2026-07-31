@@ -6,7 +6,6 @@ from datetime import datetime
 from unittest.mock import patch, MagicMock
 
 from main.app.prometheus.agent import Prometheus
-from main.app.prometheus.state import HarnessState
 from main.models.prometheus import PrometheusSession
 
 
@@ -43,7 +42,6 @@ class TestBuildSystemPrompt:
         prompt = Prometheus.buildSystemPrompt(
             userId=1,
             db=dbSession,
-            state=HarnessState(),
             sessionId=fake_session_with_120_messages.sessionId,
         )
         # format is [1] summary, [2] summary, ...
@@ -55,7 +53,6 @@ class TestBuildSystemPrompt:
         prompt = Prometheus.buildSystemPrompt(
             userId=1,
             db=dbSession,
-            state=HarnessState(),
             sessionId=fake_session_with_120_messages.sessionId,
         )
         lines = prompt.split("\n")
@@ -77,7 +74,6 @@ class TestBuildSystemPrompt:
         prompt = Prometheus.buildSystemPrompt(
             userId=1,
             db=dbSession,
-            state=HarnessState(),
             sessionId="test-empty",
         )
         # no lines starting with [N]

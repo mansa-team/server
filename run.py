@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 import asyncio
 
 from config import Config, LOCALHOST_ADDRESSES
-from main.utils.connectivity import checkMySqlConnection, checkServiceConnection
+from main.utils.connectivity import checkDatabaseConnection, checkServiceConnection
 from main.utils.service_manager import ServiceManager
 from main.utils.migrator import runMigrations
 from main.utils.request_id import RequestIDMiddleware
@@ -26,7 +26,8 @@ appStartTime = datetime.now()
 async def lifespan(app: FastAPI):
     dbConnected = False
     for i in range(10):
-        if checkMySqlConnection():
+        dbResults = checkDatabaseConnection()
+        if all(r["status"] == "connected" for r in dbResults.values()):
             dbConnected = True
             break
         logger.info(f"Retrying database connection ({i + 1}/10)")
@@ -85,36 +86,29 @@ async def status():
     minutes, seconds = divmod(remainder, 60)
     days, hours = divmod(hours, 24)
 
+    databases = checkDatabaseConnection()
+
     services = {}
-    serviceConfigs = [
-        ("authentication", Config.USER),
+    for name, config in [
         ("user", Config.USER),
         ("stocks_api", Config.STOCKS_API),
         ("prometheus", Config.PROMETHEUS),
-    ]
-
-    for name, config in serviceConfigs:
+    ]:
         if not config["ENABLED"]:
             services[name] = {"status": "disabled"}
             continue
-
         isLocal = config["HOST"] in LOCALHOST_ADDRESSES
-        services[name] = {
-            "status": "running",
-            "port": config["PORT"],
-            "type": "local" if isLocal else "remote",
-        }
+        services[name] = {"status": "running", "port": config["PORT"], "type": "local" if isLocal else "remote"}
         if not isLocal:
             services[name]["host"] = config["HOST"]
 
     if Config.SCRAPER["ENABLED"]:
         services["scraper"] = {"status": "running", "type": "local"}
-    else:
-        services["scraper"] = {"status": "disabled"}
 
     return {
-        "status": "healthy",
+        "status": "healthy" if all(r["status"] == "connected" for r in databases.values()) else "degraded",
         "uptime": f"{days}d {hours}h {minutes}m {seconds}s",
+        "databases": databases,
         "services": services,
     }
 

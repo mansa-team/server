@@ -8,7 +8,6 @@ import numpy as np
 from sqlalchemy.engine import Engine
 from apscheduler.schedulers.background import BackgroundScheduler
 
-
 logger = logging.getLogger(__name__)
 
 CATEGORY_COLS = frozenset(["TICKER", "NOME"])
@@ -32,12 +31,35 @@ def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def buildCotationDateIndex(df: pd.DataFrame, col: str) -> dict[str, tuple[str, str]]:
+    index: dict[str, tuple[str, str]] = {}
+    if col not in df.columns:
+        return index
+    for idx, val in df[col].items():
+        if pd.isna(val) or not isinstance(val, str):
+            continue
+        try:
+            entries = orjson.loads(val)
+        except (ValueError, TypeError):
+            continue
+        if not isinstance(entries, list):
+            continue
+        dates = []
+        for entry in entries:
+            if isinstance(entry, dict) and "DATA" in entry:
+                dates.append(entry["DATA"])
+        if dates:
+            index[idx] = (min(dates), max(dates))
+    return index
+
+
 class StocksCacheManager:
     def __init__(self, db: Engine, cacheLock: threading.Lock):
         self.db = db
         self.cacheLock = cacheLock
         self.STOCKS_CACHE = None
         self.tickerIndex: dict = {}
+        self.cotationDateIndex: dict[str, dict] = {}
 
     def cacheScheduler(self):
         thread = threading.Thread(target=self.getCachedStocks, name="stocks-cache-init", daemon=True)
@@ -53,13 +75,18 @@ class StocksCacheManager:
 
             df = optimizeDtypes(df)
 
+            newCotationDateIndex = {}
+            for cotationCol in ["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA"]:
+                newCotationDateIndex[cotationCol] = buildCotationDateIndex(df, cotationCol)
+
             newTickerIndex = {str(ticker).upper(): idx for idx, ticker in enumerate(df["TICKER"])}
 
             with self.cacheLock:
                 self.STOCKS_CACHE = df
                 self.tickerIndex = newTickerIndex
+                self.cotationDateIndex = newCotationDateIndex
 
-            from main.app.stocks_api.compressor import rebuildAbbrevs
+            from main.app.stocks_api.compress import rebuildAbbrevs
 
             rebuildAbbrevs()
 

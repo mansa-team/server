@@ -6,7 +6,7 @@ from requests.exceptions import ConnectionError, Timeout, RequestException
 
 
 class TestCheckMySqlConnection:
-    """checkMySqlConnection — success, errors, engine=None paths."""
+    """checkDatabaseConnection — success, errors, engine=None paths."""
 
     @patch("main.utils.connectivity.stocksEngine", MagicMock())
     @patch("main.utils.connectivity.engine")
@@ -15,10 +15,11 @@ class TestCheckMySqlConnection:
         mockEngine.connect.return_value.__enter__ = MagicMock(return_value=mockConn)
         mockEngine.connect.return_value.__exit__ = MagicMock(return_value=False)
 
-        from main.utils.connectivity import checkMySqlConnection
+        from main.utils.connectivity import checkDatabaseConnection
 
-        result = checkMySqlConnection()
-        assert result is True
+        result = checkDatabaseConnection()
+        assert result["user_db"]["status"] == "connected"
+        assert result["stocks_db"]["status"] == "connected"
         mockConn.execute.assert_called_once()
 
     @patch("main.utils.connectivity.stocksEngine", MagicMock())
@@ -26,38 +27,38 @@ class TestCheckMySqlConnection:
     def test_user_db_connection_error(self, mockEngine):
         mockEngine.connect.side_effect = ConnectionError("refused")
 
-        from main.utils.connectivity import checkMySqlConnection
+        from main.utils.connectivity import checkDatabaseConnection
 
-        result = checkMySqlConnection()
-        assert result is False
+        result = checkDatabaseConnection()
+        assert result["user_db"]["status"] == "error"
 
     @patch("main.utils.connectivity.stocksEngine", MagicMock())
     @patch("main.utils.connectivity.engine")
     def test_user_db_timeout(self, mockEngine):
         mockEngine.connect.side_effect = Timeout("timed out")
 
-        from main.utils.connectivity import checkMySqlConnection
+        from main.utils.connectivity import checkDatabaseConnection
 
-        result = checkMySqlConnection()
-        assert result is False
+        result = checkDatabaseConnection()
+        assert result["user_db"]["status"] == "error"
 
     @patch("main.utils.connectivity.stocksEngine", MagicMock())
     @patch("main.utils.connectivity.engine")
     def test_user_db_generic_exception(self, mockEngine):
         mockEngine.connect.side_effect = RuntimeError("something broke")
 
-        from main.utils.connectivity import checkMySqlConnection
+        from main.utils.connectivity import checkDatabaseConnection
 
-        result = checkMySqlConnection()
-        assert result is False
+        result = checkDatabaseConnection()
+        assert result["user_db"]["status"] == "error"
 
     @patch("main.utils.connectivity.engine", None)
     @patch("main.utils.connectivity.stocksEngine", MagicMock())
     def test_user_engine_none(self):
-        from main.utils.connectivity import checkMySqlConnection
+        from main.utils.connectivity import checkDatabaseConnection
 
-        result = checkMySqlConnection()
-        assert result is False
+        result = checkDatabaseConnection()
+        assert result["user_db"]["status"] == "not_configured"
 
     @patch("main.utils.connectivity.engine")
     @patch("main.utils.connectivity.stocksEngine")
@@ -67,10 +68,10 @@ class TestCheckMySqlConnection:
         mockUser.connect.return_value.__exit__ = MagicMock(return_value=False)
         mockStocks.connect.side_effect = ConnectionError("refused")
 
-        from main.utils.connectivity import checkMySqlConnection
+        from main.utils.connectivity import checkDatabaseConnection
 
-        result = checkMySqlConnection()
-        assert result is False
+        result = checkDatabaseConnection()
+        assert result["stocks_db"]["status"] == "error"
 
     @patch("main.utils.connectivity.engine")
     @patch("main.utils.connectivity.stocksEngine")
@@ -80,10 +81,10 @@ class TestCheckMySqlConnection:
         mockUser.connect.return_value.__exit__ = MagicMock(return_value=False)
         mockStocks.connect.side_effect = Timeout("timed out")
 
-        from main.utils.connectivity import checkMySqlConnection
+        from main.utils.connectivity import checkDatabaseConnection
 
-        result = checkMySqlConnection()
-        assert result is False
+        result = checkDatabaseConnection()
+        assert result["stocks_db"]["status"] == "error"
 
     @patch("main.utils.connectivity.engine")
     @patch("main.utils.connectivity.stocksEngine")
@@ -93,10 +94,10 @@ class TestCheckMySqlConnection:
         mockUser.connect.return_value.__exit__ = MagicMock(return_value=False)
         mockStocks.connect.side_effect = RuntimeError("broke")
 
-        from main.utils.connectivity import checkMySqlConnection
+        from main.utils.connectivity import checkDatabaseConnection
 
-        result = checkMySqlConnection()
-        assert result is False
+        result = checkDatabaseConnection()
+        assert result["stocks_db"]["status"] == "error"
 
     @patch("main.utils.connectivity.engine")
     @patch("main.utils.connectivity.stocksEngine", None)
@@ -105,10 +106,10 @@ class TestCheckMySqlConnection:
         mockUser.connect.return_value.__enter__ = MagicMock(return_value=mockConn)
         mockUser.connect.return_value.__exit__ = MagicMock(return_value=False)
 
-        from main.utils.connectivity import checkMySqlConnection
+        from main.utils.connectivity import checkDatabaseConnection
 
-        result = checkMySqlConnection()
-        assert result is False
+        result = checkDatabaseConnection()
+        assert result["stocks_db"]["status"] == "not_configured"
 
 
 class TestCheckServiceConnection:

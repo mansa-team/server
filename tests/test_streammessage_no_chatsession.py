@@ -28,8 +28,8 @@ class TestStreamMessageNoChatSession:
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.Client")
-    async def test_stream_message_yields_text_chunks(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
+    @patch("main.app.prometheus.agent.MCPClientPool")
+    async def test_stream_message_yields_text_chunks(self, mock_pool, mock_genai, mock_config, mock_chat):
         """streamMessage yields text chunks via inlined MCP setup."""
         mock_config.PROMETHEUS = {
             "GEMINI_API.KEY": "test-key",
@@ -39,16 +39,15 @@ class TestStreamMessageNoChatSession:
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
 
-        # Set up mock MCP clients
+        # Set up mock MCP pool
         mock_stocks = MagicMock()
-        mock_stocks.__aenter__ = AsyncMock(return_value=mock_stocks)
-        mock_stocks.__aexit__ = AsyncMock(return_value=False)
-
         mock_searxng = MagicMock()
-        mock_searxng.__aenter__ = AsyncMock(return_value=mock_searxng)
-        mock_searxng.__aexit__ = AsyncMock(return_value=False)
-
-        mock_mcp_client.side_effect = [mock_stocks, mock_searxng]
+        mock_pool.return_value.clients = {"stocks": mock_stocks, "searxng": mock_searxng}
+        mock_session_stocks = MagicMock()
+        mock_session_searxng = MagicMock()
+        mock_pool.return_value.getClients = AsyncMock(
+            return_value=({"stocks": mock_stocks, "searxng": mock_searxng}, [mock_session_stocks, mock_session_searxng])
+        )
 
         # Set up mock chat session
         async def fake_aiter():
@@ -72,8 +71,8 @@ class TestStreamMessageNoChatSession:
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.Client")
-    async def test_stream_message_does_not_call_chatSession(self, mock_mcp_client, mock_genai, mock_config, mock_chat):
+    @patch("main.app.prometheus.agent.MCPClientPool")
+    async def test_stream_message_does_not_call_chatSession(self, mock_pool, mock_genai, mock_config, mock_chat):
         """chatSession attribute must not exist — MCP setup is inlined."""
         mock_config.PROMETHEUS = {
             "GEMINI_API.KEY": "test-key",
@@ -93,9 +92,9 @@ class TestStreamMessageNoChatSession:
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.Client")
+    @patch("main.app.prometheus.agent.MCPClientPool")
     async def test_stream_message_handles_function_calls_without_chatsession(
-        self, mock_mcp_client, mock_genai, mock_config, mock_chat
+        self, mock_pool, mock_genai, mock_config, mock_chat
     ):
         """streamMessage handles function call loops via inlined MCP setup."""
         mock_config.PROMETHEUS = {
@@ -106,16 +105,15 @@ class TestStreamMessageNoChatSession:
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
 
-        # Set up mock MCP clients with call_tool support
+        # Set up mock MCP pool
         mock_stocks = MagicMock()
-        mock_stocks.__aenter__ = AsyncMock(return_value=mock_stocks)
-        mock_stocks.__aexit__ = AsyncMock(return_value=False)
-
         mock_searxng = MagicMock()
-        mock_searxng.__aenter__ = AsyncMock(return_value=mock_searxng)
-        mock_searxng.__aexit__ = AsyncMock(return_value=False)
-
-        mock_mcp_client.side_effect = [mock_stocks, mock_searxng]
+        mock_pool.return_value.clients = {"stocks": mock_stocks, "searxng": mock_searxng}
+        mock_session_stocks = MagicMock()
+        mock_session_searxng = MagicMock()
+        mock_pool.return_value.getClients = AsyncMock(
+            return_value=({"stocks": mock_stocks, "searxng": mock_searxng}, [mock_session_stocks, mock_session_searxng])
+        )
 
         class FakeFunctionCall:
             name = "search"

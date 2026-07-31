@@ -58,7 +58,7 @@ class TestMergeBoostsScore:
         initial_score = _get_memory(dbSession).baseScore
 
         MemoryService.upsertMemory(dbSession, USER_ID, "petrobras preferencia", "v2")
-        assert _get_memory(dbSession).baseScore == min(initial_score + 0.1, 1.0)
+        assert _get_memory(dbSession).baseScore == initial_score * 1.1
 
 
 class TestMergeIncrementsAccess:

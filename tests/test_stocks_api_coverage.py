@@ -74,7 +74,7 @@ class TestStocksCacheManager:
         mgr.db.connect.return_value.__exit__ = MagicMock(return_value=False)
         df = pd.DataFrame({"TICKER": ["A", "B"], "NOME": ["X", "Y"], "TIME": ["t1", "t2"]})
         with patch("main.app.stocks_api.cache.pd.read_sql", return_value=df):
-            mgr.getCachedStocks(columns=None)
+            mgr.getCachedStocks(columns=None, force_refresh=True)
 
         # getCachedStocks stores in self.STOCKS_CACHE
         assert mgr.STOCKS_CACHE is not None
@@ -88,7 +88,7 @@ class TestStocksCacheManager:
         mgr.db.connect.return_value.__exit__ = MagicMock(return_value=False)
         df = pd.DataFrame({"TICKER": ["A"], "NOME": ["X"], "TIME": ["t1"], "PRECO": [10.0]})
         with patch("main.app.stocks_api.cache.pd.read_sql", return_value=df) as mock_read:
-            mgr.getCachedStocks(columns=["PRECO", ""])
+            mgr.getCachedStocks(columns=["PRECO", ""], force_refresh=True)
             mock_read.assert_called_once()
 
     # --- getCachedStocks: NaN preserved (sanitizeNanValues handles at serialization) ---
@@ -99,7 +99,7 @@ class TestStocksCacheManager:
         mgr.db.connect.return_value.__exit__ = MagicMock(return_value=False)
         df = pd.DataFrame({"TICKER": ["A"], "VAL": [np.nan]})
         with patch("main.app.stocks_api.cache.pd.read_sql", return_value=df):
-            mgr.getCachedStocks(columns=["VAL"])
+            mgr.getCachedStocks(columns=["VAL"], force_refresh=True)
             assert mgr.STOCKS_CACHE is not None
             # NaN is kept in cache; sanitizeNanValues converts to None at serialization
             assert pd.isna(mgr.STOCKS_CACHE["VAL"].iloc[0])
@@ -112,7 +112,7 @@ class TestStocksCacheManager:
         mgr.db.connect.return_value.__exit__ = MagicMock(return_value=False)
         df = pd.DataFrame({"TICKER": ["PETR4", "VALE3"], "NOME": ["Petrobras", "Vale"]})
         with patch("main.app.stocks_api.cache.pd.read_sql", return_value=df):
-            mgr.getCachedStocks(columns=None)
+            mgr.getCachedStocks(columns=None, force_refresh=True)
             assert mgr.tickerIndex == {"PETR4": 0, "VALE3": 1}
 
     # --- getCachedStocks: exception (lines 75-76) -------------------------
@@ -120,7 +120,7 @@ class TestStocksCacheManager:
         mgr = self._make_manager()
         mgr.db.connect.side_effect = Exception("DB error")
         # Should not raise, just log
-        mgr.getCachedStocks(columns=["PRECO"])
+        mgr.getCachedStocks(columns=["PRECO"], force_refresh=True)
 
     # --- getCachedStocks: inf preserved (sanitizeNanValues handles at serialization) ---
     def test_getCachedStocks_replaces_inf(self):
@@ -130,7 +130,7 @@ class TestStocksCacheManager:
         mgr.db.connect.return_value.__exit__ = MagicMock(return_value=False)
         df = pd.DataFrame({"TICKER": ["A"], "VAL": [np.inf]})
         with patch("main.app.stocks_api.cache.pd.read_sql", return_value=df):
-            mgr.getCachedStocks(columns=["VAL"])
+            mgr.getCachedStocks(columns=["VAL"], force_refresh=True)
             assert mgr.STOCKS_CACHE is not None
             assert pd.isna(mgr.STOCKS_CACHE["VAL"].iloc[0]) or np.isinf(mgr.STOCKS_CACHE["VAL"].iloc[0])
 
@@ -141,7 +141,7 @@ class TestStocksCacheManager:
         mgr.db.connect.return_value.__exit__ = MagicMock(return_value=False)
         df = pd.DataFrame({"TICKER": ["A"], "VAL": [-np.inf]})
         with patch("main.app.stocks_api.cache.pd.read_sql", return_value=df):
-            mgr.getCachedStocks(columns=["VAL"])
+            mgr.getCachedStocks(columns=["VAL"], force_refresh=True)
             assert mgr.STOCKS_CACHE is not None
             assert pd.isna(mgr.STOCKS_CACHE["VAL"].iloc[0]) or np.isinf(mgr.STOCKS_CACHE["VAL"].iloc[0])
 
@@ -990,6 +990,7 @@ class TestQueryCotations:
         mock_cache = MagicMock(spec=StocksCacheManager)
         mock_cache.STOCKS_CACHE = cache_df
         mock_cache.tickerIndex = {}
+        mock_cache.cotationDateIndex = {}
         return StocksQueryManager(mock_cache)
 
     def _make_cotations_df(self, with_padrao=True, with_ajustada=True):

@@ -7,12 +7,15 @@ from config import getSession
 from main.app.stocks_api.query import stocksQuery
 from main.app.stocks_api.key import verifyAPIKey, createKey
 from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
-from main.app.stocks_api.compressor import compressResponse, getNest
+from main.app.stocks_api.compress import compressResponse, getNest
 from main.app.stocks_api.cache import stocksCache
+from main.app.stocks_api.response_cache import ResponseCache
 from main.app.user.user import UserManager
 from main.utils.roles import Permission, Roles
 
 logger = logging.getLogger(__name__)
+
+responseCache = ResponseCache()
 
 router = APIRouter(prefix="/stocks", tags=["Stocks API"])
 
@@ -124,7 +127,15 @@ def getHistorical(
     - Get PETR4 net income 2022-2024: search="PETR4", fields="LUCRO LIQUIDO", dates="2022,2024"
     - Get all revenue data for VALE3: search="VALE3", fields="RECEITA LIQUIDA"
     - Compare top 10 by EBITDA: fields="EBITDA", orderBy="EBITDA", limit=10"""
-    result = stocksQuery.queryHistorical(search, fields, dates, orderBy, limit)
+    cacheKey = responseCache.makeKey(
+        "historical", search=search, fields=fields, dates=dates, orderBy=orderBy, limit=limit
+    )
+    cached = responseCache.get(cacheKey)
+    if cached is not None:
+        result = cached
+    else:
+        result = stocksQuery.queryHistorical(search, fields, dates, orderBy, limit)
+        responseCache.set(cacheKey, result)
     if compact or getattr(request.state, "compressed", False):
         result = compressResponse(result, "get_historical", {"search": search, "fields": fields, "dates": dates})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
@@ -191,7 +202,15 @@ def getFundamental(
     - Get all stocks' dividend yield latest: fields="DY"
     - Compare P/L across tickers: search="PETR4,VALE3,ITUB4", fields="P/L", orderBy="P/L"
     - Q1 2024 fundamental snapshot: fields="P/L,ROE", dates="2024-01-01,2024-03-31" """
-    result = stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
+    cacheKey = responseCache.makeKey(
+        "fundamental", search=search, fields=fields, dates=dates, orderBy=orderBy, limit=limit
+    )
+    cached = responseCache.get(cacheKey)
+    if cached is not None:
+        result = cached
+    else:
+        result = stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
+        responseCache.set(cacheKey, result)
     if compact or getattr(request.state, "compressed", False):
         result = compressResponse(result, "get_fundamental", {"search": search, "fields": fields, "dates": dates})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
@@ -245,7 +264,13 @@ def getCotations(
     - Get PETR4 full price history: search="PETR4"
     - Get PETR4 + VALE3 2023 prices: search="PETR4,VALE3", dates="2023-01-01,2023-12-31"
     - Get inflation-adjusted prices: search="ITUB4", adjusted=true"""
-    result = stocksQuery.queryCotations(search, dates, adjusted)
+    cacheKey = responseCache.makeKey("cotations", search=search, dates=dates, adjusted=adjusted)
+    cached = responseCache.get(cacheKey)
+    if cached is not None:
+        result = cached
+    else:
+        result = stocksQuery.queryCotations(search, dates, adjusted)
+        responseCache.set(cacheKey, result)
     if compact or getattr(request.state, "compressed", False):
         result = compressResponse(result, "get_cotations", {"search": search, "dates": dates})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})

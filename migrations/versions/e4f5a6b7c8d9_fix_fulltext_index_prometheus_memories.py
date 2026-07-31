@@ -8,6 +8,7 @@ Create Date: 2026-07-22 03:00:00.000000
 
 from typing import Sequence, Union
 
+import sqlalchemy as sa
 from alembic import op
 
 
@@ -21,25 +22,18 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     # The original migration (b1c2d3e4f5a6) ran partially — table created but FULLTEXT index failed.
     # Check if index already exists before adding (idempotent).
-    op.execute(
-        """
-        SELECT COUNT(*) INTO @exists
-        FROM information_schema.statistics
-        WHERE table_schema = DATABASE()
-          AND table_name = 'prometheus_memories'
-          AND index_name = 'ft_memory';
-        """
-    )
-    op.execute(
-        """
-        SET @sql = IF(@exists = 0,
-            'ALTER TABLE prometheus_memories ADD FULLTEXT INDEX ft_memory (memoryKey, memoryValue)',
-            'SELECT 1');
-        PREPARE stmt FROM @sql;
-        EXECUTE stmt;
-        DEALLOCATE PREPARE stmt;
-        """
-    )
+    # ponytail: PREPARE/EXECUTE fails through SQLAlchemy — just check in Python.
+    conn = op.get_bind()
+    exists = conn.execute(
+        sa.text(
+            "SELECT COUNT(*) FROM information_schema.statistics "
+            "WHERE table_schema = DATABASE() "
+            "AND table_name = 'prometheus_memories' "
+            "AND index_name = 'ft_memory'"
+        )
+    ).scalar()
+    if not exists:
+        op.execute("ALTER TABLE prometheus_memories ADD FULLTEXT INDEX ft_memory (memoryKey, memoryValue)")
 
 
 def downgrade() -> None:

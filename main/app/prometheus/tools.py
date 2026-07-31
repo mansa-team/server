@@ -84,39 +84,6 @@ async def save_memory(key: str, value: str, type: str, **_) -> dict:
 
 
 #
-# harness state
-#
-async def get_state(key: str = "", **_) -> dict:
-    """Retrieve values from the harness state. Use this to recall intermediate results,
-    analysis progress, or user preferences stored during this session.
-
-    Args:
-        key: Optional key to retrieve. If empty, returns all state.
-    """
-    state = _.get("state")
-    if not state:
-        return {"error": "State not available"}
-    if key:
-        return {key: state.get(key)}
-    return state.toDict()
-
-
-async def set_state(key: str, value: str, **_) -> dict:
-    """Store a value in the harness state for this session. Use this to save
-    intermediate analysis results, track progress, or remember user preferences.
-
-    Args:
-        key: State key (e.g., "current_step", "petr4_pe_ratio")
-        value: Value to store (will be converted to string)
-    """
-    state = _.get("state")
-    if not state:
-        return {"error": "State not available"}
-    state.set(key, value)
-    return {"status": "ok", "key": key}
-
-
-#
 # sandbox
 #
 async def execute_code(code: str, timeout: int = 30, **_) -> dict:
@@ -177,8 +144,6 @@ async def list_files(path: str = "/workspace", **_) -> dict:
 TOOL_REGISTRY: dict[str, Any] = {
     "search_memory": search_memory,
     "save_memory": save_memory,
-    "get_state": get_state,
-    "set_state": set_state,
     "execute_code": execute_code,
     "read_file": read_file,
     "write_file": write_file,
@@ -190,7 +155,6 @@ async def dispatchToolCall(
     functionCall,
     mcpClients,
     user=None,
-    state=None,
     db=None,
     sandbox_id: str | None = None,
 ) -> dict:
@@ -201,7 +165,6 @@ async def dispatchToolCall(
     if name in TOOL_REGISTRY:
         fn = TOOL_REGISTRY[name]
         args["user"] = user
-        args["state"] = state
         args["db"] = db
         args["sandbox_id"] = sandbox_id
         args["userId"] = user.get("userId", 0) if user else 0

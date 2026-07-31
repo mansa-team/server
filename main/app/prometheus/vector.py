@@ -38,12 +38,13 @@ def contentHash(text: str) -> str:
 
 def getRelevanceScore(memory, now: datetime) -> float:
     if memory.lastAccessedAt is None:
-        return memory.baseScore
-    lastAccessed = memory.lastAccessedAt
-
-    if lastAccessed.tzinfo is not None:
-        lastAccessed = lastAccessed.replace(tzinfo=None)
+        lastAccessed = memory.createdAt.replace(tzinfo=None) if memory.createdAt.tzinfo else memory.createdAt
+    else:
+        lastAccessed = memory.lastAccessedAt
+        if lastAccessed.tzinfo is not None:
+            lastAccessed = lastAccessed.replace(tzinfo=None)
     nowNaive = now.replace(tzinfo=None) if now.tzinfo is not None else now
     days = max((nowNaive - lastAccessed).total_seconds() / 86400, 0)
-    timeFactor = 1.0 / (1.0 + math.log1p(days) * 0.7)
-    return memory.baseScore * timeFactor
+    stability = max(getattr(memory, "baseScore", 7.0), 0.1)
+
+    return math.exp(-days / stability)

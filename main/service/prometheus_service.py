@@ -1,4 +1,5 @@
 import logging
+import math
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
@@ -14,16 +15,7 @@ from main.models.memory import PrometheusMemory
 
 logger = logging.getLogger(__name__)
 
-DECAY_FACTORS = {
-    "preference": 0.99,  # sticky — decays slowly
-    "analysis": 0.95,  # medium — decays normally
-    "feedback": 0.97,  # medium-sticky
-    "context": 0.90,  # ephemeral — decays fast
-}
-
-DEFAULT_DECAY_FACTOR = 0.95
 ARCHIVE_SCORE_THRESHOLD = 0.1
-ARCHIVE_DAYS_THRESHOLD = 90
 
 
 def memoryMaintenance(db: Session | None = None):
@@ -38,33 +30,26 @@ def memoryMaintenance(db: Session | None = None):
         if not active:
             return
 
-        decayed = 0
         archived = 0
 
         for m in active:
-            factor = DECAY_FACTORS.get(str(m.memoryType), DEFAULT_DECAY_FACTOR)
-            m.baseScore = m.baseScore * factor  # type: ignore[assignment]
-
-            lastAccessed = m.lastAccessedAt
-            if lastAccessed is not None:
-                if lastAccessed.tzinfo is not None:
-                    lastAccessed = lastAccessed.replace(tzinfo=None)
+            if m.lastAccessedAt is not None:
+                lastAccessed = m.lastAccessedAt.replace(tzinfo=None) if m.lastAccessedAt.tzinfo else m.lastAccessedAt
                 daysSinceAccess = (nowNaive - lastAccessed).total_seconds() / 86400
             else:
                 createdNaive = m.createdAt.replace(tzinfo=None) if m.createdAt.tzinfo else m.createdAt
                 daysSinceAccess = (nowNaive - createdNaive).total_seconds() / 86400
 
-            if (
-                m.baseScore < ARCHIVE_SCORE_THRESHOLD
-                and m.accessCount == 0
-                and daysSinceAccess > ARCHIVE_DAYS_THRESHOLD
-            ):
+            stability = max(m.baseScore, 0.1)
+            retention = math.exp(-daysSinceAccess / stability)
+
+            if retention < ARCHIVE_SCORE_THRESHOLD and m.accessCount == 0:
                 m.archivedAt = datetime.now()  # type: ignore[assignment]
                 archived += 1
-            else:
-                decayed += 1
 
         db.commit()
+        if archived:
+            logger.info(f"Archived {archived} dead memories")
     except Exception as e:
         logger.error(f"Memory maintenance exception: {e}")
     finally:

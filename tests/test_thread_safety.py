@@ -6,6 +6,7 @@ Issue 6: requests.Session usage is thread-safe via per-thread sessions
          stored in threading.local().
 """
 
+import logging
 import threading
 import time
 from unittest.mock import patch, MagicMock
@@ -87,84 +88,75 @@ class TestGetSession:
 class TestDiscordHandlerThreadPool:
     """Verify that DiscordHandler submits to a bounded executor, not raw threads."""
 
-    def test_executor_exists_and_is_bounded(self):
-        """The module-level discordExecutor must exist with max_workers <= 5."""
-        from main.utils.logging_config import discordExecutor
+    def test_queue_and_lock_exist(self):
+        """The module-level queue, lock, and event must exist."""
+        from main.utils.logging_config import queue, lock, event
 
-        assert discordExecutor is not None
-        # ThreadPoolExecutor exposes _max_workers
-        assert discordExecutor._max_workers == 5
+        assert queue is not None
+        assert lock is not None
+        assert event is not None
 
-    def test_emit_submits_to_executor(self):
-        """DiscordHandler.emit() must use discordExecutor.submit, not Thread.start."""
-        from main.utils.logging_config import discordExecutor
+    def test_emit_adds_to_queue(self):
+        """DiscordHandler.emit() must add messages to the module queue."""
+        from main.utils.logging_config import DiscordHandler, queue, lock
 
         with patch("main.utils.logging_config.Config") as mock_cfg:
             mock_cfg.DISCORD.ENABLED = True
             mock_cfg.DISCORD.WEBHOOK_URL = "https://discord.example.com/hook"
 
-            with patch.object(discordExecutor, "submit") as mock_submit:
-                import logging
-                from main.utils.logging_config import DiscordHandler
+            handler = DiscordHandler()
+            with lock:
+                queue.clear()
+            record = logging.LogRecord(
+                name="test.module",
+                level=logging.ERROR,
+                pathname="test.py",
+                lineno=1,
+                msg="test error %s",
+                args=("detail",),
+                exc_info=None,
+            )
+            handler.emit(record)
 
-                handler = DiscordHandler()
+            with lock:
+                assert len(queue) == 1
+
+    def test_concurrent_emits_are_thread_safe(self):
+        """Many concurrent emit() calls must not corrupt the queue."""
+        from main.utils.logging_config import DiscordHandler, queue, lock
+
+        with patch("main.utils.logging_config.Config") as mock_cfg:
+            mock_cfg.DISCORD.ENABLED = True
+            mock_cfg.DISCORD.WEBHOOK_URL = "https://discord.example.com/hook"
+
+            handler = DiscordHandler()
+
+            with lock:
+                queue.clear()
+
+            def _emit():
                 record = logging.LogRecord(
-                    name="test.module",
+                    name="test",
                     level=logging.ERROR,
                     pathname="test.py",
                     lineno=1,
-                    msg="test error %s",
-                    args=("detail",),
+                    msg="concurrent test",
+                    args=(),
                     exc_info=None,
                 )
                 handler.emit(record)
 
-                mock_submit.assert_called_once()
-                # First arg should be requests.post
-                import requests
+            # Fire 20 concurrent emits
+            workers = [threading.Thread(target=_emit) for _ in range(20)]
+            for w in workers:
+                w.start()
+            for w in workers:
+                w.join(timeout=5)
 
-                assert mock_submit.call_args[0][0] is requests.post
-
-    def test_concurrent_emits_do_not_spawn_unbounded_threads(self):
-        """Many concurrent emit() calls must not create more threads than max_workers."""
-        from main.utils.logging_config import discordExecutor
-
-        with patch("main.utils.logging_config.Config") as mock_cfg:
-            mock_cfg.DISCORD.ENABLED = True
-            mock_cfg.DISCORD.WEBHOOK_URL = "https://discord.example.com/hook"
-
-            with patch.object(discordExecutor, "submit"):
-                import logging
-                from main.utils.logging_config import DiscordHandler
-
-                handler = DiscordHandler()
-                threads_before = threading.active_count()
-
-                def _emit():
-                    record = logging.LogRecord(
-                        name="test",
-                        level=logging.ERROR,
-                        pathname="test.py",
-                        lineno=1,
-                        msg="concurrent test",
-                        args=(),
-                        exc_info=None,
-                    )
-                    handler.emit(record)
-
-                # Fire 20 concurrent emits
-                workers = [threading.Thread(target=_emit) for _ in range(20)]
-                for w in workers:
-                    w.start()
-                for w in workers:
-                    w.join(timeout=5)
-
-                # After all done, active threads shouldn't have grown by 20
-                # (the pool reuses its 5 worker threads)
-                threads_after = threading.active_count()
-                growth = threads_after - threads_before
-                # Allow some slack for pytest internals, but certainly not +20
-                assert growth < 10, f"Thread count grew by {growth} — expected bounded pool, not unbounded threads"
+            with lock:
+                # Queue may deduplicate identical messages, but no corruption
+                assert len(queue) >= 1
+                assert all(isinstance(msg, str) for msg in queue)
 
 
 # ---------------------------------------------------------------------------
