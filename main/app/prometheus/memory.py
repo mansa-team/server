@@ -224,7 +224,7 @@ class PrometheusMemory:
                 PrometheusMemoryModel.memoryValue,
                 PrometheusMemoryModel.memoryType,
                 PrometheusMemoryModel.score,
-                matchExpr.label("score"),
+                matchExpr.label("matchScore"),
             )
             .filter(PrometheusMemoryModel.userId == userId)
             .filter(PrometheusMemoryModel.archivedAt.is_(None))
@@ -239,7 +239,7 @@ class PrometheusMemory:
                 "memoryKey": r.memoryKey,
                 "memoryValue": r.memoryValue,
                 "memoryType": r.memoryType,
-                "score": float(r.score),
+                "score": float(r.matchScore),
                 "relevanceScore": float(r.score),
             }
             for r in results
