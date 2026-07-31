@@ -62,10 +62,16 @@ class TestExtractMetrics:
 
 
 class TestFieldRegistry:
-    def test_singleton(self):
+    def test_module_level_instance_is_shared(self):
+        from main.app.prometheus.compact import fieldRegistry
+
+        compactor = PrometheusCompactor()
+        assert compactor.registry is fieldRegistry
+
+    def test_new_instances_are_distinct(self):
         r1 = FieldRegistry()
         r2 = FieldRegistry()
-        assert r1 is r2
+        assert r1 is not r2
 
     def test_fallback_fields_on_api_failure(self):
         registry = FieldRegistry()

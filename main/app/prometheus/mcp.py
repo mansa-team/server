@@ -14,10 +14,10 @@ HEALTH_CHECK_INTERVAL = 60
 MCP_SERVERS = [
     {
         "name": "stocks",
-        "url": f"http://{Config.STOCKS_API['HOST']}:{Config.STOCKS_API['PORT']}/stocks/mcp",
+        "url": f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/mcp",
         "headers": {"X-MCP": "true"},
     },
-    {"name": "searxng", "url": f"{Config.PROMETHEUS['SEARXNG_URL']}/mcp/"},
+    {"name": "searxng", "url": f"{Config.PROMETHEUS.SEARXNG_URL}/mcp/"},
 ]
 
 
@@ -30,15 +30,10 @@ def buildClient(server):
 
 
 class MCPClientPool:
-    instance = None
-    clients = None
-    lastHealthCheck = 0.0
-    lock = asyncio.Lock()
-
-    def __new__(cls):
-        if cls.instance is None:
-            cls.instance = super().__new__(cls)
-        return cls.instance
+    def __init__(self):
+        self.clients = None
+        self.lastHealthCheck = 0.0
+        self.lock = asyncio.Lock()
 
     async def initialize(self):
         clients = {}
@@ -101,3 +96,6 @@ class MCPClientPool:
                 except Exception:
                     pass
             self.clients = None
+
+
+clientPool = MCPClientPool()

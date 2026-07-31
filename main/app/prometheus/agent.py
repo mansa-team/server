@@ -12,8 +12,8 @@ import google.genai._mcp_utils as _mcp
 from main.models.prometheus import PrometheusSession
 from main.app.prometheus.memory import PrometheusMemory
 from main.app.prometheus.chat import PrometheusChatManager
-from main.app.prometheus.compact import PrometheusCompactor, FieldRegistry
-from main.app.prometheus.mcp import MCPClientPool
+from main.app.prometheus.compact import PrometheusCompactor, fieldRegistry
+from main.app.prometheus.mcp import clientPool
 from main.app.prometheus.events import LoopLogger
 from main.app.prometheus.sandbox import SandboxManager
 from main.app.prometheus.tools import TOOL_REGISTRY, dispatchToolCall
@@ -188,7 +188,7 @@ Use with stat cards for portfolio snapshots.
 
 class Prometheus:
     def __init__(self):
-        self.client = genai.Client(api_key=Config.PROMETHEUS["GEMINI_API.KEY"])
+        self.client = genai.Client(api_key=Config.PROMETHEUS.GEMINI_API_KEY)
 
     @classmethod
     def buildSystemPrompt(
@@ -233,10 +233,10 @@ class Prometheus:
         )
 
     async def streamMessage(self, query=None, sessionId=None, db=None, user=None) -> AsyncIterator[dict]:
-        if MCPClientPool().clients is None:
+        if clientPool.clients is None:
             try:
-                await MCPClientPool().initialize()
-                FieldRegistry().warmup()
+                await clientPool.initialize()
+                fieldRegistry.warmup()
             except Exception as e:
                 logger.warning("Pool/registry startup failed: %s", e)
 
@@ -258,7 +258,7 @@ class Prometheus:
             query=query,
         )
 
-        mcpClients, sessions = await MCPClientPool().getClients()
+        mcpClients, sessions = await clientPool.getClients()
         chat = self.makeChat(sessions, history, system_prompt=system_prompt, disable_automatic_function_calling=True)
         stream = await chat.send_message_stream(query)
 

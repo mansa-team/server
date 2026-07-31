@@ -1,3 +1,4 @@
+from config import Config
 import re
 import json
 import uuid
@@ -86,21 +87,13 @@ FALLBACK_FIELDS = [
 
 
 class FieldRegistry:
-    instance = None
     fields: list[str] | None = None
     fetchedAt: float = 0
     ttl: float = 3600
 
-    def __new__(cls):
-        if cls.instance is None:
-            cls.instance = super().__new__(cls)
-        return cls.instance
-
     def buildUrl(self) -> str:
-        from config import Config
-
-        host = Config.STOCKS_API["HOST"]
-        port = Config.STOCKS_API["PORT"]
+        host = Config.STOCKS_API.HOST
+        port = Config.STOCKS_API.PORT
         return f"http://{host}:{port}/stocks/fields"
 
     def fetchFields(self) -> list[str]:
@@ -152,6 +145,9 @@ class FieldRegistry:
     def warmup(self):
         self.fetchFields()
         self.fetchedAt = time.time()
+
+
+fieldRegistry = FieldRegistry()
 
 
 def charCount(text: str) -> int:
@@ -238,7 +234,7 @@ def buildSummary(
 
 class PrometheusCompactor:
     def __init__(self):
-        self.registry = FieldRegistry()
+        self.registry = fieldRegistry
 
     def shouldCompact(self, history: list) -> bool:
         if not history:

@@ -28,13 +28,10 @@ class TestStreamMessageNoChatSession:
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.MCPClientPool")
+    @patch("main.app.prometheus.agent.clientPool")
     async def test_stream_message_yields_text_chunks(self, mock_pool, mock_genai, mock_config, mock_chat):
         """streamMessage yields text chunks via inlined MCP setup."""
-        mock_config.PROMETHEUS = {
-            "GEMINI_API.KEY": "test-key",
-            "SEARXNG_URL": "http://localhost:8888",
-        }
+        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
@@ -42,10 +39,10 @@ class TestStreamMessageNoChatSession:
         # Set up mock MCP pool
         mock_stocks = MagicMock()
         mock_searxng = MagicMock()
-        mock_pool.return_value.clients = {"stocks": mock_stocks, "searxng": mock_searxng}
+        mock_pool.clients = {"stocks": mock_stocks, "searxng": mock_searxng}
         mock_session_stocks = MagicMock()
         mock_session_searxng = MagicMock()
-        mock_pool.return_value.getClients = AsyncMock(
+        mock_pool.getClients = AsyncMock(
             return_value=({"stocks": mock_stocks, "searxng": mock_searxng}, [mock_session_stocks, mock_session_searxng])
         )
 
@@ -71,14 +68,10 @@ class TestStreamMessageNoChatSession:
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.MCPClientPool")
+    @patch("main.app.prometheus.agent.clientPool")
     async def test_stream_message_does_not_call_chatSession(self, mock_pool, mock_genai, mock_config, mock_chat):
         """chatSession attribute must not exist — MCP setup is inlined."""
-        mock_config.PROMETHEUS = {
-            "GEMINI_API.KEY": "test-key",
-            "SEARXNG_HOST": "localhost",
-            "SEARXNG_PORT": 8888,
-        }
+        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
@@ -92,15 +85,12 @@ class TestStreamMessageNoChatSession:
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.MCPClientPool")
+    @patch("main.app.prometheus.agent.clientPool")
     async def test_stream_message_handles_function_calls_without_chatsession(
         self, mock_pool, mock_genai, mock_config, mock_chat
     ):
         """streamMessage handles function call loops via inlined MCP setup."""
-        mock_config.PROMETHEUS = {
-            "GEMINI_API.KEY": "test-key",
-            "SEARXNG_URL": "http://localhost:8888",
-        }
+        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
@@ -108,10 +98,10 @@ class TestStreamMessageNoChatSession:
         # Set up mock MCP pool
         mock_stocks = MagicMock()
         mock_searxng = MagicMock()
-        mock_pool.return_value.clients = {"stocks": mock_stocks, "searxng": mock_searxng}
+        mock_pool.clients = {"stocks": mock_stocks, "searxng": mock_searxng}
         mock_session_stocks = MagicMock()
         mock_session_searxng = MagicMock()
-        mock_pool.return_value.getClients = AsyncMock(
+        mock_pool.getClients = AsyncMock(
             return_value=({"stocks": mock_stocks, "searxng": mock_searxng}, [mock_session_stocks, mock_session_searxng])
         )
 
