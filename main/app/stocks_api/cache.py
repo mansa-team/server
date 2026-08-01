@@ -10,8 +10,6 @@ import numpy as np
 from sqlalchemy.engine import Engine
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from main.app.stocks_api.compress import rebuildAbbrevs
-
 logger = logging.getLogger(__name__)
 
 CATEGORY_COLS = frozenset(["TICKER", "NOME"])
@@ -70,6 +68,8 @@ class StocksCacheManager:
             with self.cacheLock:
                 self.STOCKS_CACHE = df
                 self.tickerIndex = newTickerIndex
+
+            from main.app.stocks_api.compress import rebuildAbbrevs
 
             rebuildAbbrevs()
 
