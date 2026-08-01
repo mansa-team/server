@@ -56,8 +56,10 @@ services:
     volumes:
       - .:/app
       - workspaces:/data/workspaces
+      - stocks-cache:/app/cache
 
 volumes:
   db_data:
   forgevm-data:
   workspaces:
+  stocks-cache:
