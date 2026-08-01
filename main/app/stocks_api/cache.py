@@ -26,6 +26,7 @@ COMPRESS_COLS = frozenset(["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTOR
 CACHE_FEATHER_PATH = Path("/app/cache/stocks_cache.feather")
 CACHE_NESTED_PATH = Path("/app/cache/stocks_nested.feather")
 STALE_AFTER_SECONDS = 6 * 3600
+CACHE_LOAD_LOCK = threading.Lock()
 
 
 def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
@@ -100,16 +101,35 @@ class StocksCacheManager:
 
     def getCachedStocks(self, columns: list[str] | None = None, force_refresh: bool = False):
         try:
-            if not CACHE_FEATHER_PATH.exists():
-                subprocess.run(
-                    [
-                        sys.executable,
-                        "-c",
-                        "from main.app.stocks_api.cache import buildFeatherCache; buildFeatherCache()",
-                    ],
-                    check=True,
-                )
-            self.loadFromFeather()
+            if CACHE_FEATHER_PATH.exists() and not force_refresh:
+                self.loadFromFeather()
+
+                ageSeconds = time.time() - os.path.getmtime(CACHE_FEATHER_PATH)
+                if ageSeconds > STALE_AFTER_SECONDS:
+                    logger.info(f"Feather is {int(ageSeconds // 3600)}h old, refreshing in background")
+                    threading.Thread(
+                        target=self.getCachedStocks,
+                        kwargs={"force_refresh": True},
+                        name="stocks-cache-refresh",
+                        daemon=True,
+                    ).start()
+                return
+
+            if CACHE_LOAD_LOCK.acquire(blocking=False):
+                try:
+                    subprocess.run(
+                        [
+                            sys.executable,
+                            "-c",
+                            "from main.app.stocks_api.cache import buildFeatherCache; buildFeatherCache()",
+                        ],
+                        check=True,
+                    )
+                finally:
+                    CACHE_LOAD_LOCK.release()
+                self.loadFromFeather()
+            else:
+                logger.info("Cache load already in progress, skipping")
         except Exception as e:
             logger.error(f"Error updating stocks cache: {str(e)}", exc_info=True)
 

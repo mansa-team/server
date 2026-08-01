@@ -7,19 +7,6 @@ from main.app.stocks_api.cache import StocksCacheManager, COMPRESS_COLS
 from main.app.stocks_api.query import StocksQueryManager
 
 
-class FakeConn:
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *a):
-        return False
-
-
-class FakeDB:
-    def connect(self):
-        return FakeConn()
-
-
 def test_filter_cotation_column_does_not_accept_date_index():
     series = pd.Series([[{"DATA": "01-01-2024", "PRECO": 10.0}, {"DATA": "15-06-2026", "PRECO": 11.0}]])
     manager = StocksQueryManager(type("Fake", (), {"STOCKS_CACHE": None, "tickerIndex": {}, "nestedSample": None})())
@@ -62,9 +49,8 @@ def test_get_cached_stocks_does_not_build_date_index(monkeypatch, tmp_path):
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     cache_mod.buildFeatherCache()
-    monkeypatch.setattr(cache_mod.os.path, "exists", lambda p: False)
     monkeypatch.setattr(cache_mod.subprocess, "run", lambda *a, **k: None)
-    m = StocksCacheManager(FakeDB(), threading.Lock())
+    m = StocksCacheManager(None, threading.Lock())
     m.getCachedStocks()
     assert not hasattr(m, "cotationDateIndex")
 
@@ -91,9 +77,8 @@ def test_get_cached_stocks_compresses_json_columns(monkeypatch, tmp_path):
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     cache_mod.buildFeatherCache()
-    monkeypatch.setattr(cache_mod.os.path, "exists", lambda p: False)
     monkeypatch.setattr(cache_mod.subprocess, "run", lambda *a, **k: None)
-    m = StocksCacheManager(FakeDB(), threading.Lock())
+    m = StocksCacheManager(None, threading.Lock())
     m.getCachedStocks()
     df = m.STOCKS_CACHE
     assert isinstance(df["COTACAO 10Y PADRAO"].iloc[0], bytes)
@@ -141,8 +126,7 @@ def test_get_nest_keeps_compressed_column_subfields(monkeypatch, tmp_path):
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     cache_mod.buildFeatherCache()
-    monkeypatch.setattr(cache_mod.os.path, "exists", lambda p: True)
-    m = StocksCacheManager(FakeDB(), threading.Lock())
+    m = StocksCacheManager(None, threading.Lock())
     m.getCachedStocks()
     from unittest.mock import patch
     from main.app.stocks_api.cache import stocksCache
