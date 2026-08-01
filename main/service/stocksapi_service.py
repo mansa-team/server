@@ -20,7 +20,7 @@ class StocksAPIService:
 
         service.include_router(stocksRouter)
         service.add_middleware(GZipMiddleware, minimum_size=1000)
-        
+
         mcp = FastApiMCP(
             service,
             name="Mansa's Stocks API MCP",
