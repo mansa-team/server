@@ -76,7 +76,7 @@ class TestStocksCacheManager:
             patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
-            mgr.getCachedStocks(columns=None, force_refresh=True)
+            mgr.getCachedStocks(force_refresh=True)
 
         # getCachedStocks stores in self.STOCKS_CACHE
         assert mgr.STOCKS_CACHE is not None
@@ -90,7 +90,7 @@ class TestStocksCacheManager:
             patch("main.app.stocks_api.cache.pd.read_feather", return_value=df) as mock_read,
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
-            mgr.getCachedStocks(columns=["PRECO", ""], force_refresh=True)
+            mgr.getCachedStocks(force_refresh=True)
             mock_read.assert_called()
 
     # --- getCachedStocks: NaN preserved (sanitizeNanValues handles at serialization) ---
@@ -101,7 +101,7 @@ class TestStocksCacheManager:
             patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
-            mgr.getCachedStocks(columns=["VAL"], force_refresh=True)
+            mgr.getCachedStocks(force_refresh=True)
             assert mgr.STOCKS_CACHE is not None
             # NaN is kept in cache; sanitizeNanValues converts to None at serialization
             assert pd.isna(mgr.STOCKS_CACHE["VAL"].iloc[0])
@@ -114,7 +114,7 @@ class TestStocksCacheManager:
             patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
-            mgr.getCachedStocks(columns=None, force_refresh=True)
+            mgr.getCachedStocks(force_refresh=True)
             assert mgr.tickerIndex == {"PETR4": 0, "VALE3": 1}
 
     # --- getCachedStocks: exception (lines 75-76) -------------------------
@@ -125,7 +125,7 @@ class TestStocksCacheManager:
             patch("main.app.stocks_api.cache.pd.read_feather", side_effect=Exception("feather error")),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
-            mgr.getCachedStocks(columns=["PRECO"], force_refresh=True)
+            mgr.getCachedStocks(force_refresh=True)
 
     # --- getCachedStocks: inf preserved (sanitizeNanValues handles at serialization) ---
     def test_getCachedStocks_replaces_inf(self):
@@ -135,7 +135,7 @@ class TestStocksCacheManager:
             patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
-            mgr.getCachedStocks(columns=["VAL"], force_refresh=True)
+            mgr.getCachedStocks(force_refresh=True)
             assert mgr.STOCKS_CACHE is not None
             assert pd.isna(mgr.STOCKS_CACHE["VAL"].iloc[0]) or np.isinf(mgr.STOCKS_CACHE["VAL"].iloc[0])
 
@@ -146,7 +146,7 @@ class TestStocksCacheManager:
             patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
-            mgr.getCachedStocks(columns=["VAL"], force_refresh=True)
+            mgr.getCachedStocks(force_refresh=True)
             assert mgr.STOCKS_CACHE is not None
             assert pd.isna(mgr.STOCKS_CACHE["VAL"].iloc[0]) or np.isinf(mgr.STOCKS_CACHE["VAL"].iloc[0])
 

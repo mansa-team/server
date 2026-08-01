@@ -51,6 +51,7 @@ def buildFeatherCache():
     chunks = []
     sampleCols = None
     nestedSample = None
+    compressor = zstd.ZstdCompressor(level=3)
     with stocksEngine.connect() as conn:
         reader = pd.read_sql("SELECT * FROM b3_stocks", conn, chunksize=5000)
         for chunk in reader:
@@ -62,7 +63,7 @@ def buildFeatherCache():
                     nestedSample = candidate.head(20).copy()
             for col in sampleCols or ():
                 chunk[col] = chunk[col].map(
-                    lambda s: zstd.ZstdCompressor(level=3).compress(s.encode("utf-8")) if isinstance(s, str) else None
+                    lambda s: compressor.compress(s.encode("utf-8")) if isinstance(s, str) else None
                 )
             chunks.append(chunk)
     df = pd.concat(chunks, ignore_index=True)
@@ -114,7 +115,7 @@ class StocksCacheManager:
 
         logger.info(f"Stocks cache loaded from feather ({len(df)} records, {len(newTickerIndex)} tickers)")
 
-    def getCachedStocks(self, columns: list[str] | None = None, force_refresh: bool = False):
+    def getCachedStocks(self, force_refresh: bool = False):
         try:
             if CACHE_FEATHER_PATH.exists() and not force_refresh:
                 self.loadFromFeather()

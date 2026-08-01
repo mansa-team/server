@@ -54,8 +54,6 @@ def filterCotationColumn(series: pd.Series, startDate, endDate) -> pd.Series:
 
 
 class StocksQueryManager:
-    filterCotationColumn = staticmethod(filterCotationColumn)
-
     def __init__(self, cacheManager):
         self.cacheManager = cacheManager
 
