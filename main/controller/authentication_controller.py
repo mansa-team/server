@@ -1,10 +1,12 @@
 import logging
-from datetime import datetime, timedelta
 from config import getSession, LOCALHOST_ADDRESSES
+
+from datetime import datetime, timedelta
 from main.utils.logging_config import limiter
 
 from fastapi import APIRouter, Response, HTTPException, Request, Depends, Body
 from fastapi.responses import RedirectResponse
+from fastapi_sso.sso.base import SSOLoginError
 from sqlalchemy.orm import Session
 
 from main.app.authentication.authentication import AuthenticationManager
@@ -17,7 +19,6 @@ from main.app.authentication.constants import (
     TOKEN_EXPIRY_HOURS,
 )
 from main.app.authentication.session import SessionManager
-from fastapi_sso.sso.base import SSOLoginError
 
 logger = logging.getLogger(__name__)
 

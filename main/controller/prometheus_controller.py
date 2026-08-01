@@ -1,15 +1,15 @@
-import json
 import logging
-import traceback
-from config import getSession
 from main.utils.logging_config import limiter
-from main.utils.roles import Roles, Permission
-
-from sqlalchemy.orm import Session
-from main.models.prometheus import PrometheusSession
+from config import getSession
+import traceback
+import json
 
 from fastapi import APIRouter, Depends, Request, HTTPException, Query, Body
 from fastapi.responses import StreamingResponse
+from sqlalchemy.orm import Session
+
+from main.models.prometheus import PrometheusSession
+from main.utils.roles import Roles, Permission
 
 from main.app.prometheus.agent import Prometheus
 from main.app.prometheus.chat import PrometheusChatManager

@@ -1,5 +1,6 @@
-import json
 import logging
+from config import Config, SessionLocal
+import json
 import unicodedata
 from datetime import datetime
 
@@ -9,9 +10,9 @@ from sqlalchemy import func, desc
 from sqlalchemy.dialects.mysql import match as mysqlMatch
 from sqlalchemy.orm import Session
 
-from config import SessionLocal
 from main.models.memory import PrometheusMemory as PrometheusMemoryModel
 from main.utils.roles import Permission, Roles
+
 from main.app.prometheus.vector import batchCosineSimilarity, contentHash, decodeEmbeddings, getRelevanceScore, embed
 from main.app.prometheus.chat import PrometheusChatManager
 from main.app.prometheus.compact import countTokens
@@ -39,8 +40,6 @@ client = None
 def getClient():
     global client
     if client is None:
-        from config import Config
-
         client = genai.Client(api_key=Config.PROMETHEUS.GEMINI_API_KEY)
     return client
 

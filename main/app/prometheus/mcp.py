@@ -1,11 +1,10 @@
-import time
 import logging
+from config import Config
+import time
 import asyncio
 
 from fastmcp import Client
 from fastmcp.client.client import StreamableHttpTransport
-
-from config import Config
 
 logger = logging.getLogger(__name__)
 

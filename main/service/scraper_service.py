@@ -1,9 +1,10 @@
 import logging
+from config import Config
+
 import time
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from config import Config
 from main.app.scraper_b3.scraper import B3Scraper
 
 logger = logging.getLogger(__name__)

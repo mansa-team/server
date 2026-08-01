@@ -1,15 +1,14 @@
 from config import Config, getSession
 
+from typing import cast
+import secrets
+import hashlib
+
 from fastapi import HTTPException, Depends
 from fastapi.security import APIKeyHeader
 from sqlalchemy import update
 from sqlalchemy.engine import CursorResult
 from sqlalchemy.orm import Session
-
-from typing import cast
-
-import secrets
-import hashlib
 
 from main.models import StocksAPIKey
 

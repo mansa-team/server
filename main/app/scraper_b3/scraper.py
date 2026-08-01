@@ -1,24 +1,23 @@
 import logging
-from config import Config
-from main.app.scraper_b3.xango import calculateInvestingScore
+from config import Config, stocksEngine
 
-from io import StringIO
-import time
 import warnings
+import time
 from datetime import datetime
-import pandas as pd
-import numpy as np
+from io import StringIO
+import re
 import json
 
+import pandas as pd
+import numpy as np
 import cloudscraper
 import requests
-import re
-
-from sqlalchemy import text
-from config import stocksEngine
-
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_not_exception_type
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+from sqlalchemy import text
+
+from main.app.scraper_b3.xango import calculateInvestingScore
 
 logger = logging.getLogger(__name__)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)

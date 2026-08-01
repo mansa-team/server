@@ -1,6 +1,6 @@
-import asyncio
 import logging
 from config import Config
+import asyncio
 import time
 from datetime import datetime
 from collections.abc import AsyncIterator

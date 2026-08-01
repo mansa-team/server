@@ -1,8 +1,12 @@
 import logging
+from config import getSession
+
 from fastapi import APIRouter, Depends, Query, HTTPException, Request
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from config import getSession
+
+
+from main.utils.roles import Permission, Roles
 
 from main.app.stocks_api.query import stocksQuery
 from main.app.stocks_api.key import verifyAPIKey, createKey
@@ -10,8 +14,8 @@ from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
 from main.app.stocks_api.compress import compressResponse, getNest
 from main.app.stocks_api.cache import stocksCache
 from main.app.stocks_api.response_cache import ResponseCache
-from main.app.user.user import UserManager
-from main.utils.roles import Permission, Roles
+
+from main.app.user.user import UserManager #shoul fix, should not use a direct import, always inheret based on the service host/port, never directly, i could not be running the user service and the server would crash
 
 logger = logging.getLogger(__name__)
 
