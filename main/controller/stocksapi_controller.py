@@ -1,27 +1,20 @@
 import logging
-from config import getSession
 
 from fastapi import APIRouter, Depends, Query, HTTPException, Request
 from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
 
-
-from main.utils.roles import Permission, Roles
 
 from main.app.stocks_api.query import stocksQuery
-from main.app.stocks_api.key import verifyAPIKey, createKey
+from main.app.stocks_api.key import verifyAPIKey
 from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
 from main.app.stocks_api.compress import compressResponse, getNest
 from main.app.stocks_api.cache import stocksCache
 from main.app.stocks_api.response_cache import ResponseCache
 
-from main.app.user.user import (
-    UserManager,
-)  # should fix: direct import breaks when user service runs on another host/port — should call it via its service endpoint instead
-
 logger = logging.getLogger(__name__)
 
 responseCache = ResponseCache()
+
 
 router = APIRouter(prefix="/stocks", tags=["Stocks API"])
 
@@ -323,17 +316,3 @@ def getLiveCotation(
     if compact or getattr(request.state, "compressed", False):
         result = compressResponse(result, "get_live_price", {"search": search})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=15"})
-
-
-@router.get("/key/generate")
-def generateKey(currentUser: dict = Depends(UserManager.getCurrentUser), db: Session = Depends(getSession)):
-    if not Roles.checkAccess(currentUser.get("roles", []), Permission.GENERATE_API_KEYS):
-        raise HTTPException(
-            status_code=403, detail="You do not have permission to generate API keys. Update to a Developer account."
-        )
-
-    userId = currentUser.get("userId")
-    if userId is None:
-        raise HTTPException(status_code=401, detail="User not authenticated")
-    newKey = createKey(db, userId)
-    return {"message": "Key successfully generated", "apiKey": newKey, "owner": currentUser.get("username")}
