@@ -7,7 +7,7 @@ from google.genai import types
 
 from main.app.prometheus.memory import (
     MEMORY_EXTRACTION_TOKEN_BUDGET,
-    extract,
+    PrometheusMemory,
 )
 
 
@@ -60,7 +60,7 @@ def test_no_prometheus_access_skips_without_api_call(db):
         patch("main.app.prometheus.memory.Roles.checkAccess", return_value=False) as ca,
         patch("main.app.prometheus.memory.getClient") as gc,
     ):
-        assert extract(db, 1, "s1", ["USER"]) == []
+        assert PrometheusMemory.extract(db, 1, "s1", ["USER"]) == []
         ca.assert_called()
         gc.assert_not_called()
 
@@ -72,7 +72,7 @@ def test_below_token_budget_skips_api_call(db):
         patch("main.app.prometheus.memory.getClient") as gc,
         patch("main.app.prometheus.memory.PrometheusMemory.countMemories", return_value=0),
     ):
-        assert extract(db, 1, "s1", ["PREMIUM"]) == []
+        assert PrometheusMemory.extract(db, 1, "s1", ["PREMIUM"]) == []
         gc.assert_not_called()
 
 
@@ -91,7 +91,7 @@ def test_at_budget_calls_api_and_upserts_inferred(db):
             "main.app.prometheus.memory.PrometheusMemory.upsertMemory", new=MagicMock(wraps=FakeMemory().upsertMemory)
         ) as up,
     ):
-        result = extract(db, 1, "s1", ["PREMIUM"])
+        result = PrometheusMemory.extract(db, 1, "s1", ["PREMIUM"])
         assert result
         assert up.call_args.kwargs["source"] == "inferred"
 
@@ -116,7 +116,7 @@ def test_free_users_get_at_most_5_upserts(db):
         patch("main.app.prometheus.memory.PrometheusMemory.countMemories", return_value=0),
         patch("main.app.prometheus.memory.PrometheusMemory.upsertMemory", new=fake.upsertMemory),
     ):
-        extract(db, 1, "s1", ["USER"])
+        PrometheusMemory.extract(db, 1, "s1", ["USER"])
         assert fake.calls == 5
 
 
@@ -133,7 +133,7 @@ def test_premium_users_get_at_most_10_upserts(db):
         patch("main.app.prometheus.memory.PrometheusMemory.countMemories", return_value=0),
         patch("main.app.prometheus.memory.PrometheusMemory.upsertMemory", new=fake.upsertMemory),
     ):
-        extract(db, 1, "s1", ["PREMIUM"])
+        PrometheusMemory.extract(db, 1, "s1", ["PREMIUM"])
         assert fake.calls == 10
 
 
@@ -154,4 +154,4 @@ def test_non_list_llm_response_returns_empty_without_raising(db):
         patch("main.app.prometheus.memory.PrometheusMemory.countMemories", return_value=0),
         patch("main.app.prometheus.memory.PrometheusMemory.upsertMemory", new=FakeMemory().upsertMemory),
     ):
-        assert extract(db, 1, "s1", ["PREMIUM"]) == []
+        assert PrometheusMemory.extract(db, 1, "s1", ["PREMIUM"]) == []

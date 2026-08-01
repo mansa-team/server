@@ -61,7 +61,7 @@ def test_streammessage_triggers_memory_extraction(client):
         patch("main.app.prometheus.agent.genai"),
         patch("main.app.prometheus.agent.PrometheusCompactor"),
         patch("main.app.prometheus.agent.Prometheus.makeChat", return_value=mockChatSession),
-        patch("main.app.prometheus.memory.extract") as mockExtract,
+        patch("main.app.prometheus.memory.PrometheusMemory.extract") as mockExtract,
     ):
         mockConfig.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
         mockConfig.DEBUG_MODE = True

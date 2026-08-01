@@ -248,9 +248,7 @@ class Prometheus:
 
             if session and user:
                 try:
-                    from main.app.prometheus.memory import extract
-
-                    extract(db, user.get("userId"), str(sessionId), user.get("roles", []))
+                    PrometheusMemory.extract(db, user.get("userId"), str(sessionId), user.get("roles", []))
                 except Exception as e:
                     logger.debug("Memory extraction skipped: %s", e)
         except Exception:
