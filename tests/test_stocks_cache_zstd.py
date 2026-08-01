@@ -45,7 +45,7 @@ def test_get_cached_stocks_does_not_build_date_index(monkeypatch, tmp_path):
             "COTACAO 10Y PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 1.0}]'],
         }
     )
-    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: df)
+    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: iter([df]))
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     cache_mod.buildFeatherCache()
@@ -73,7 +73,7 @@ def makeDf():
 def test_get_cached_stocks_compresses_json_columns(monkeypatch, tmp_path):
     import main.app.stocks_api.cache as cache_mod
 
-    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: makeDf())
+    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: iter([makeDf()]))
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     cache_mod.buildFeatherCache()
@@ -90,7 +90,7 @@ def test_get_cached_stocks_compresses_json_columns(monkeypatch, tmp_path):
 def test_get_cached_stocks_keeps_raw_nested_sample(monkeypatch, tmp_path):
     import main.app.stocks_api.cache as cache_mod
 
-    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: makeDf())
+    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: iter([makeDf()]))
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     cache_mod.buildFeatherCache()
@@ -122,7 +122,7 @@ def test_get_nest_keeps_compressed_column_subfields(monkeypatch, tmp_path):
             "COTACAO 10Y PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 1.0}]'],
         }
     )
-    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: df)
+    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: iter([df]))
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     cache_mod.buildFeatherCache()

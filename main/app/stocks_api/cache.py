@@ -48,17 +48,24 @@ def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def buildFeatherCache():
-    # subprocess entry: heavy read+compress happens here so the peak memory dies with this process
+    chunks = []
+    sampleCols = None
+    nestedSample = None
     with stocksEngine.connect() as conn:
-        df = pd.read_sql("SELECT * FROM b3_stocks", conn)
+        reader = pd.read_sql("SELECT * FROM b3_stocks", conn, chunksize=5000)
+        for chunk in reader:
+            if sampleCols is None:
+                sampleCols = [c for c in COMPRESS_COLS if c in chunk.columns]
+                nestedSample = chunk[sampleCols].head(5).copy() if sampleCols else None
+            for col in sampleCols or ():
+                chunk[col] = chunk[col].map(
+                    lambda s: zstd.ZstdCompressor(level=3).compress(s.encode("utf-8")) if isinstance(s, str) else None
+                )
+            chunks.append(chunk)
+    df = pd.concat(chunks, ignore_index=True)
+    del chunks
     df = optimizeDtypes(df)
-    sampleCols = [c for c in COMPRESS_COLS if c in df.columns]
-    nestedSample = df[sampleCols].head(5).copy() if sampleCols else None
-    for col in sampleCols:
-        df[col] = df[col].map(
-            lambda s: zstd.ZstdCompressor(level=3).compress(s.encode("utf-8")) if isinstance(s, str) else None
-        )
-    # write to temp files + os.replace so a mid-write kill never leaves a truncated file with a fresh mtime
+
     CACHE_FEATHER_PATH.parent.mkdir(parents=True, exist_ok=True)
     tmpNested = CACHE_NESTED_PATH.with_suffix(".tmp")
     tmpMain = CACHE_FEATHER_PATH.with_suffix(".tmp")
