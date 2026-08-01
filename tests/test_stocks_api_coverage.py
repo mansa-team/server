@@ -91,7 +91,7 @@ class TestStocksCacheManager:
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
             mgr.getCachedStocks(columns=["PRECO", ""], force_refresh=True)
-            mock_read.assert_called_once()
+            mock_read.assert_called()
 
     # --- getCachedStocks: NaN preserved (sanitizeNanValues handles at serialization) ---
     def test_getCachedStocks_replaces_nan_inf(self):

@@ -58,10 +58,15 @@ def buildFeatherCache():
         df[col] = df[col].map(
             lambda s: zstd.ZstdCompressor(level=3).compress(s.encode("utf-8")) if isinstance(s, str) else None
         )
+    # write to temp files + os.replace so a mid-write kill never leaves a truncated file with a fresh mtime
     CACHE_FEATHER_PATH.parent.mkdir(parents=True, exist_ok=True)
-    df.to_feather(CACHE_FEATHER_PATH)
+    tmpNested = CACHE_NESTED_PATH.with_suffix(".tmp")
+    tmpMain = CACHE_FEATHER_PATH.with_suffix(".tmp")
     if nestedSample is not None:
-        nestedSample.to_feather(CACHE_NESTED_PATH)
+        nestedSample.to_feather(tmpNested)
+        os.replace(tmpNested, CACHE_NESTED_PATH)
+    df.to_feather(tmpMain)
+    os.replace(tmpMain, CACHE_FEATHER_PATH)
     print(f"feather written to {CACHE_FEATHER_PATH} ({len(df)} records)")
 
 

@@ -54,12 +54,12 @@ def test_stale_feather_serves_snapshot_and_spawns_refresh(monkeypatch, tmp_path)
     monkeypatch.setattr(
         cache_mod.threading.Thread,
         "start",
-        lambda self: spawned.append(self._target.__name__),
+        lambda self: spawned.append((self._target.__name__, self._kwargs.get("force_refresh"))),
     )
     manager = cache_mod.StocksCacheManager(None, threading.Lock())
     manager.getCachedStocks()
     assert manager.STOCKS_CACHE is fake_df
-    assert spawned == ["getCachedStocks"]
+    assert spawned == [("getCachedStocks", True)]
 
 
 def test_fresh_feather_serves_snapshot_without_refresh(monkeypatch, tmp_path):
