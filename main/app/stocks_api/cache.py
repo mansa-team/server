@@ -27,7 +27,7 @@ def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
 
     try:
         for col in df.select_dtypes(include=["object"]).columns:
-            if col not in CATEGORY_COLS and df[col].notna().all():
+            if col not in CATEGORY_COLS and col not in COMPRESS_COLS and df[col].notna().all():
                 df[col] = df[col].astype("string[pyarrow]")
     except Exception as e:
         logger.debug(f"Arrow string optimization skipped: {e}")
