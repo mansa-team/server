@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from config import Config
 import time
@@ -19,6 +20,27 @@ from main.app.prometheus.sandbox import SandboxManager
 from main.app.prometheus.tools import TOOL_REGISTRY, dispatchToolCall
 
 _original_filter = _mcp._filter_to_supported_schema
+
+pendingExtractions: set[asyncio.Task] = set()
+
+
+def onExtractionDone(task: asyncio.Task):
+    pendingExtractions.discard(task)
+    try:
+        task.exception()
+    except Exception as e:
+        logger.debug("Memory extraction failed: %s", e)
+
+
+def spawnExtraction(userId, sessionId, userRoles):
+    try:
+        task = asyncio.get_running_loop().create_task(
+            asyncio.to_thread(PrometheusMemory.extract, None, userId, sessionId, userRoles)
+        )
+        pendingExtractions.add(task)
+        task.add_done_callback(onExtractionDone)
+    except Exception as e:
+        logger.debug("Memory extraction spawn skipped: %s", e)
 
 
 def _safe_filter(schema):
@@ -95,7 +117,7 @@ price history, and live quotes.
 
 - Field names are uppercase with spaces (e.g., "P/L", "LUCRO LIQUIDO", "CAGR LUCROS 10 ANOS").
 - Historical fields are year-based (e.g., LUCRO LIQUIDO, RECEITA LIQUIDA, DIVIDENDOS).
-- Fundamental fields are date-based (e.g., P/L, ROE, DY, INVESTING SCORE, CAGR, margins).
+- Fundamental fields are date-based (e.g., P/L, ROE, DY, XANGO INVESTING SCORE, CAGR, margins).
 - ALWAYS discover available field names first before querying — never guess.
 - NEVER mix historical and fundamental fields in a single query — use separate calls.
 - For rankings: use XANGO INVESTING SCORE (0 - 100), CAGR LUCROS 10 ANOS and similar fields as sort criteria.
@@ -247,10 +269,7 @@ class Prometheus:
                 PrometheusCompactor().compact(db, str(sessionId))
 
             if session and user:
-                try:
-                    PrometheusMemory.extract(db, user.get("userId"), str(sessionId), user.get("roles", []))
-                except Exception as e:
-                    logger.debug("Memory extraction skipped: %s", e)
+                spawnExtraction(user.get("userId"), str(sessionId), user.get("roles", []))
         except Exception:
             logger.debug("Pre-turn compaction skipped", exc_info=True)
 

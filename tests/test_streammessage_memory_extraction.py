@@ -1,4 +1,5 @@
 import sys
+import time
 import types
 from unittest.mock import patch, MagicMock, AsyncMock
 
@@ -74,6 +75,8 @@ def test_streammessage_triggers_memory_extraction(client):
             json={"query": "lembre que prefiro FIIs", "sessionId": "s1"},
         )
         assert resp.status_code == 200
+
+    time.sleep(0.3)  # extraction runs in a background thread, give the executor a beat
 
     assert mockExtract.call_count == 1
     assert mockExtract.call_args.args[1] == 1
