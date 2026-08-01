@@ -1,4 +1,5 @@
 import math
+import zlib
 from fastapi import HTTPException
 import pandas as pd
 import json
@@ -74,6 +75,8 @@ class StocksQueryManager:
             return sanitizeNanValues(obj)
 
         def parseJSON(x):
+            if isinstance(x, bytes):
+                x = zlib.decompress(x).decode("utf-8")
             try:
                 return orjson.loads(x)
             except (ValueError, TypeError):
@@ -84,7 +87,7 @@ class StocksQueryManager:
                 df[col] = df[col].apply(
                     lambda x: (
                         cleanJSON(parseJSON(x))
-                        if isinstance(x, str) and x.startswith(("{", "["))
+                        if (isinstance(x, str) and x.startswith(("{", "["))) or isinstance(x, bytes)
                         else sanitizeNanValues(x)
                     )
                 )

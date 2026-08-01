@@ -1,4 +1,5 @@
 import logging
+import zlib
 from config import stocksEngine
 import orjson
 
@@ -11,6 +12,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 logger = logging.getLogger(__name__)
 
 CATEGORY_COLS = frozenset(["TICKER", "NOME"])
+
+COMPRESS_COLS = frozenset(["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"])
 
 
 def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
@@ -37,6 +40,7 @@ class StocksCacheManager:
         self.cacheLock = cacheLock
         self.STOCKS_CACHE = None
         self.tickerIndex: dict = {}
+        self.nestedSample = None
 
     def cacheScheduler(self):
         thread = threading.Thread(target=self.getCachedStocks, name="stocks-cache-init", daemon=True)
@@ -51,6 +55,12 @@ class StocksCacheManager:
                 df = pd.read_sql("SELECT * FROM b3_stocks", conn)
 
             df = optimizeDtypes(df)
+
+            sampleCols = [c for c in COMPRESS_COLS if c in df.columns]
+            if sampleCols:
+                self.nestedSample = df[sampleCols].head(5).copy()
+                for col in sampleCols:
+                    df[col] = df[col].map(lambda s: zlib.compress(s.encode("utf-8")) if isinstance(s, str) else None)
 
             newTickerIndex = {str(ticker).upper(): idx for idx, ticker in enumerate(df["TICKER"])}
 

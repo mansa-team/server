@@ -1,8 +1,9 @@
 import threading
+import zlib
 
 import pandas as pd
 
-from main.app.stocks_api.cache import StocksCacheManager
+from main.app.stocks_api.cache import StocksCacheManager, COMPRESS_COLS
 from main.app.stocks_api.query import StocksQueryManager
 
 
@@ -57,3 +58,50 @@ def test_get_cached_stocks_does_not_build_date_index(monkeypatch):
     m = StocksCacheManager(FakeDB(), threading.Lock())
     m.getCachedStocks()
     assert not hasattr(m, "cotationDateIndex")
+
+
+def makeDf():
+    return pd.DataFrame(
+        {
+            "TICKER": ["PETR4", "VALE3"],
+            "NOME": ["PETROBRAS PN", "VALE ON"],
+            "TIME": ["29-07-2026", "29-07-2026"],
+            "COTACAO 10Y PADRAO": [
+                '[{"DATA": "01-01-2024", "PRECO": 10.0}, {"DATA": "15-06-2026", "PRECO": 11.0}]',
+                '[{"DATA": "01-01-2024", "PRECO": 20.0}, {"DATA": "10-07-2026", "PRECO": 22.0}]',
+            ],
+            "NOTICIAS": ['[{"TITULO": "a"}]', None],
+        }
+    )
+
+
+def test_get_cached_stocks_compresses_json_columns(monkeypatch):
+    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: makeDf())
+    m = StocksCacheManager(FakeDB(), threading.Lock())
+    m.getCachedStocks()
+    df = m.STOCKS_CACHE
+    assert isinstance(df["COTACAO 10Y PADRAO"].iloc[0], bytes)
+    assert zlib.decompress(df["COTACAO 10Y PADRAO"].iloc[0]).decode("utf-8").startswith("[{")
+    assert isinstance(df["NOTICIAS"].iloc[0], bytes)
+    assert df["NOTICIAS"].iloc[1] is None  # NaN/None cells stay None
+
+
+def test_get_cached_stocks_keeps_raw_nested_sample(monkeypatch):
+    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: makeDf())
+    m = StocksCacheManager(FakeDB(), threading.Lock())
+    m.getCachedStocks()
+    assert m.nestedSample is not None
+    assert isinstance(m.nestedSample["COTACAO 10Y PADRAO"].iloc[0], str)
+    assert m.nestedSample["COTACAO 10Y PADRAO"].iloc[0].startswith("[{")
+
+
+def test_deserialize_json_columns_decompresses_bytes():
+    df = pd.DataFrame(
+        {
+            "TICKER": ["PETR4"],
+            "COTACAO 10Y PADRAO": [zlib.compress(b'[{"DATA": "01-01-2024", "PRECO": 10.0}]')],
+        }
+    )
+    manager = StocksQueryManager(type("Fake", (), {"STOCKS_CACHE": None, "tickerIndex": {}, "nestedSample": None})())
+    out = manager.deserializeJsonColumns(df)
+    assert out["COTACAO 10Y PADRAO"].iloc[0] == [{"DATA": "01-01-2024", "PRECO": 10.0}]
