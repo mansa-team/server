@@ -1321,3 +1321,19 @@ class TestQueryLiveCotation:
         """GET /cotations without search returns 422."""
         resp = stocks_http_client.get("/stocks/cotations")
         assert resp.status_code == 422
+
+
+# ===========================================================================
+# Tests for stocksapi_controller.py – /stocks/health cache freshness
+# ===========================================================================
+def test_health_reports_cache_age(stocks_http_client, monkeypatch):
+    from main.app.stocks_api.cache import stocksCache
+    from datetime import datetime, timezone, timedelta
+
+    monkeypatch.setattr(stocksCache, "STOCKS_CACHE", object())
+    monkeypatch.setattr(stocksCache, "lastCacheUpdate", datetime.now(timezone.utc) - timedelta(hours=3))
+    resp = stocks_http_client.get("/stocks/health")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["cacheReady"] is True
+    assert body["cacheAgeHours"] == 3.0

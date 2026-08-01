@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import logging
 
 from fastapi import APIRouter, Depends, Query, HTTPException, Request
@@ -21,7 +22,17 @@ router = APIRouter(prefix="/stocks", tags=["Stocks API"])
 
 @router.get("/health")
 def health():
-    return {"status": "ok", "service": "stocksapi"}
+    updatedAt = stocksCache.lastCacheUpdate
+    ageHours = None
+    if updatedAt is not None:
+        ageHours = round((datetime.now(timezone.utc) - updatedAt).total_seconds() / 3600, 2)
+    return {
+        "status": "ok",
+        "service": "stocksapi",
+        "cacheReady": stocksCache.STOCKS_CACHE is not None,
+        "cacheUpdatedAt": updatedAt.isoformat() if updatedAt is not None else None,
+        "cacheAgeHours": ageHours,
+    }
 
 
 @router.get("/fields", operation_id="list_fields")
