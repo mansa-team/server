@@ -990,7 +990,6 @@ class TestQueryCotations:
         mock_cache = MagicMock(spec=StocksCacheManager)
         mock_cache.STOCKS_CACHE = cache_df
         mock_cache.tickerIndex = {}
-        mock_cache.cotationDateIndex = {}
         return StocksQueryManager(mock_cache)
 
     def _make_cotations_df(self, with_padrao=True, with_ajustada=True):

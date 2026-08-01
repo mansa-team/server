@@ -30,31 +30,19 @@ def sanitizeNanValues(obj):
     return obj
 
 
-def filterCotationColumn(series: pd.Series, startDate, endDate, dateIndex: dict | None = None) -> pd.Series:
+def filterCotationColumn(series: pd.Series, startDate, endDate) -> pd.Series:
     if not startDate or not endDate:
         return series
 
     startDateStr = startDate.strftime("%d-%m-%Y")
     endDateStr = endDate.strftime("%d-%m-%Y")
 
-    if dateIndex:
-        candidateIdx = [
-            idx
-            for idx, (minD, maxD) in dateIndex.items()
-            if idx in series.index and minD <= endDateStr and maxD >= startDateStr
-        ]
-        if not candidateIdx:
-            return pd.Series(
-                [entries if not isinstance(entries, list) else [] for entries in series], index=series.index
-            )
-        series = series.loc[candidateIdx]
-
     exploded = series.explode()
     if exploded.empty or exploded.isna().all():
         return series
 
     dates = pd.to_datetime(exploded.str.get("DATA"), format="%d-%m-%Y", errors="coerce")
-    mask = (dates.dt.date >= startDate) & (dates.dt.date <= endDate)
+    mask = (dates >= pd.Timestamp(startDate)) & (dates <= pd.Timestamp(endDate))
     filtered = exploded[mask]
 
     result = [entries if not isinstance(entries, list) else [] for entries in series]
@@ -65,6 +53,8 @@ def filterCotationColumn(series: pd.Series, startDate, endDate, dateIndex: dict 
 
 
 class StocksQueryManager:
+    filterCotationColumn = staticmethod(filterCotationColumn)
+
     def __init__(self, cacheManager):
         self.cacheManager = cacheManager
 
@@ -324,8 +314,7 @@ class StocksQueryManager:
 
             startDate, endDate = parseDateRange(dates)
             if startDate and endDate and targetCol in df.columns:
-                dateIndex = self.cacheManager.cotationDateIndex.get(targetCol)
-                df[targetCol] = filterCotationColumn(df[targetCol], startDate, endDate, dateIndex=dateIndex)
+                df[targetCol] = filterCotationColumn(df[targetCol], startDate, endDate)
 
             return {
                 "search": search or "all",
