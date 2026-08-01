@@ -6,6 +6,7 @@ from datetime import datetime
 from google import genai
 from google.genai import types
 from sqlalchemy import func, desc
+from sqlalchemy.dialects.mysql import match as mysqlMatch
 from sqlalchemy.orm import Session
 
 from main.models.memory import PrometheusMemory as PrometheusMemoryModel
@@ -232,37 +233,63 @@ class PrometheusMemory:
 
     @classmethod
     def fullTextSearch(cls, db: Session, userId: int, query: str, limit: int) -> list[dict]:
-        matchExpr = func.match(
-            PrometheusMemoryModel.memoryKey,
-            PrometheusMemoryModel.memoryValue,
-        ).against(query, modifier="IN BOOLEAN MODE")
-
-        results = (
-            db.query(
-                PrometheusMemoryModel.id,
+        if db.bind is not None and db.bind.dialect.name == "mysql":
+            matchExpr = mysqlMatch(
                 PrometheusMemoryModel.memoryKey,
                 PrometheusMemoryModel.memoryValue,
-                PrometheusMemoryModel.memoryType,
-                PrometheusMemoryModel.score,
-                matchExpr.label("matchScore"),
+                against=query,
+                in_boolean_mode=True,
             )
+            results = (
+                db.query(
+                    PrometheusMemoryModel.id,
+                    PrometheusMemoryModel.memoryKey,
+                    PrometheusMemoryModel.memoryValue,
+                    PrometheusMemoryModel.memoryType,
+                    PrometheusMemoryModel.score,
+                    matchExpr.label("matchScore"),
+                )
+                .filter(PrometheusMemoryModel.userId == userId)
+                .filter(PrometheusMemoryModel.archivedAt.is_(None))
+                .order_by(desc("matchScore"), desc(PrometheusMemoryModel.score))
+                .limit(limit)
+                .all()
+            )
+            return [
+                {
+                    "id": r.id,
+                    "memoryKey": r.memoryKey,
+                    "memoryValue": r.memoryValue,
+                    "memoryType": r.memoryType,
+                    "score": float(r.matchScore),
+                    "relevanceScore": float(r.score),
+                }
+                for r in results
+            ]
+
+        like = f"%{query}%"
+        results = (
+            db.query(PrometheusMemoryModel)
             .filter(PrometheusMemoryModel.userId == userId)
             .filter(PrometheusMemoryModel.archivedAt.is_(None))
-            .order_by(desc("matchScore"), desc(PrometheusMemoryModel.score))
+            .filter(
+                PrometheusMemoryModel.memoryKey.like(like)
+                | PrometheusMemoryModel.memoryValue.like(like)
+            )
+            .order_by(PrometheusMemoryModel.score.desc())
             .limit(limit)
             .all()
         )
-
         return [
             {
-                "id": r.id,
-                "memoryKey": r.memoryKey,
-                "memoryValue": r.memoryValue,
-                "memoryType": r.memoryType,
-                "score": float(r.matchScore),
-                "relevanceScore": float(r.score),
+                "id": m.id,
+                "memoryKey": m.memoryKey,
+                "memoryValue": m.memoryValue,
+                "memoryType": m.memoryType,
+                "score": float(m.score),
+                "relevanceScore": float(m.score),
             }
-            for r in results
+            for m in results
         ]
 
     @classmethod
