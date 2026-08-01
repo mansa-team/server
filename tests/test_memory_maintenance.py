@@ -2,7 +2,6 @@ import math
 import pytest
 from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
-from zoneinfo import ZoneInfo
 
 from main.app.prometheus.memory import PrometheusMemory as MemoryManager
 from main.service.prometheus_service import (
@@ -13,16 +12,11 @@ from main.models.memory import PrometheusMemory
 
 
 @pytest.fixture
-def brt():
-    return ZoneInfo("America/Sao_Paulo")
-
-
-@pytest.fixture
-def create_memories(dbSession, brt):
+def create_memories(dbSession):
     """Helper to create memories with controlled stability, lastAccessedAt, accessCount."""
 
     def _create(userId, key, score=7.0, daysOld=0, accessCount=0):
-        now = datetime.now(tz=brt)
+        now = datetime.now()
         lastAccessed = now - timedelta(days=daysOld)
         memory = PrometheusMemory(
             userId=userId,
@@ -103,10 +97,10 @@ class TestArchive:
         dbSession.refresh(mem)
         assert mem.archivedAt is None
 
-    def test_already_archived_not_double_archived(self, dbSession, create_memories, brt):
+    def test_already_archived_not_double_archived(self, dbSession, create_memories):
         """Already archived memories are skipped."""
         mem = create_memories(1, "k1", score=7.0, daysOld=100, accessCount=0)
-        mem.archivedAt = datetime.now(tz=brt) - timedelta(days=5)
+        mem.archivedAt = datetime.now() - timedelta(days=5)
         dbSession.commit()
         memoryMaintenance(dbSession)
         dbSession.refresh(mem)
