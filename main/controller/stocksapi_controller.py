@@ -15,7 +15,9 @@ from main.app.stocks_api.compress import compressResponse, getNest
 from main.app.stocks_api.cache import stocksCache
 from main.app.stocks_api.response_cache import ResponseCache
 
-from main.app.user.user import UserManager #shoul fix, should not use a direct import, always inheret based on the service host/port, never directly, i could not be running the user service and the server would crash
+from main.app.user.user import (
+    UserManager,
+)  # shoul fix, should not use a direct import, always inheret based on the service host/port, never directly, i could not be running the user service and the server would crash
 
 logger = logging.getLogger(__name__)
 
