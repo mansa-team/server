@@ -100,6 +100,27 @@ def test_get_cached_stocks_keeps_raw_nested_sample(monkeypatch, tmp_path):
     assert nested["COTACAO 10Y PADRAO"].iloc[0].startswith("[{")
 
 
+def test_nested_sample_skips_all_null_leading_rows(monkeypatch, tmp_path):
+    import main.app.stocks_api.cache as cache_mod
+
+    empty = pd.DataFrame(
+        {
+            "TICKER": ["AAA1", "BBB2"],
+            "NOME": ["x", "y"],
+            "COTACAO 10Y PADRAO": [None, None],
+            "NOTICIAS": [None, None],
+        }
+    )
+    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: iter([empty, makeDf()]))
+    cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
+    cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
+    cache_mod.buildFeatherCache()
+    nested = pd.read_feather(cache_mod.CACHE_NESTED_PATH)
+    assert nested is not None
+    assert isinstance(nested["COTACAO 10Y PADRAO"].iloc[0], str)
+    assert nested["COTACAO 10Y PADRAO"].iloc[0].startswith("[{")
+
+
 def test_deserialize_json_columns_decompresses_bytes():
     df = pd.DataFrame(
         {
