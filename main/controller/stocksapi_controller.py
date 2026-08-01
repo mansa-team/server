@@ -17,7 +17,7 @@ from main.app.stocks_api.response_cache import ResponseCache
 
 from main.app.user.user import (
     UserManager,
-)  # shoul fix, should not use a direct import, always inheret based on the service host/port, never directly, i could not be running the user service and the server would crash
+)  # should fix: direct import breaks when user service runs on another host/port — should call it via its service endpoint instead
 
 logger = logging.getLogger(__name__)
 
