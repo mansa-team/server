@@ -99,7 +99,7 @@ def detectNestedFields(df: pd.DataFrame) -> dict[str, dict[str, Any]]:
         if col in skip or df[col].dtype not in ("object", "string", "string[pyarrow]"):
             continue
 
-        sample = df[col].dropna().head(5)
+        sample = df[col].head(5).dropna()
         if not sample.size:
             continue
 
