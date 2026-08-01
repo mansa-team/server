@@ -12,8 +12,8 @@ import google.genai._mcp_utils as _mcp
 from main.models.prometheus import PrometheusSession
 from main.app.prometheus.memory import PrometheusMemory
 from main.app.prometheus.chat import PrometheusChatManager
-from main.app.prometheus.compact import PrometheusCompactor, FieldRegistry
-from main.app.prometheus.mcp import MCPClientPool
+from main.app.prometheus.compact import PrometheusCompactor, fieldRegistry
+from main.app.prometheus.mcp import clientPool
 from main.app.prometheus.events import LoopLogger
 from main.app.prometheus.sandbox import SandboxManager
 from main.app.prometheus.tools import TOOL_REGISTRY, dispatchToolCall
@@ -102,12 +102,13 @@ price history, and live quotes.
 - Always fetch real data before responding — never fabricate or guess financial figures.
 
 ### Memory System
-You have persistent memory that survives across sessions. Use it to:
-- Remember user preferences and analysis style after learning something important.
-- Persist conclusions from complex analyses for future reference.
-- Build context about recurring tickers or themes the user cares about.
-
-When you learn something valuable, save it.
+You have persistent memory that survives across sessions.
+- Call search_memory antes de responder qualquer pergunta sobre o histórico, preferências ou análises anteriores do usuário ("lembra quando", "você disse", "lembre que").
+- Call save_memory when you learn a durable preference, finish a complex analysis worth reusing, or receive feedback. NEVER save ephemeral or query-specific data.
+- Type selection: preference = user tastes/style; analysis = conclusions; feedback = reactions; context = state.
+- Memory is limited (50 basic / 250 premium): prefer updating an existing key over creating near-duplicates.
+- Example good save: key "estilo de investimento", value "Usuário prefere value investing, foco em ON com governança forte", type "preference".
+- Example bad save: key "resposta de hoje", value "PETR4 subiu 2%", type "context".
 
 ### Code Sandbox
 You have an isolated Python sandbox for quantitative analysis. Use it for:
@@ -188,7 +189,7 @@ Use with stat cards for portfolio snapshots.
 
 class Prometheus:
     def __init__(self):
-        self.client = genai.Client(api_key=Config.PROMETHEUS["GEMINI_API.KEY"])
+        self.client = genai.Client(api_key=Config.PROMETHEUS.GEMINI_API_KEY)
 
     @classmethod
     def buildSystemPrompt(
@@ -233,10 +234,10 @@ class Prometheus:
         )
 
     async def streamMessage(self, query=None, sessionId=None, db=None, user=None) -> AsyncIterator[dict]:
-        if MCPClientPool().clients is None:
+        if clientPool.clients is None:
             try:
-                await MCPClientPool().initialize()
-                FieldRegistry().warmup()
+                await clientPool.initialize()
+                fieldRegistry.warmup()
             except Exception as e:
                 logger.warning("Pool/registry startup failed: %s", e)
 
@@ -244,6 +245,12 @@ class Prometheus:
             session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
             if session and session.history:
                 PrometheusCompactor().compact(db, str(sessionId))
+
+            if session and user:
+                try:
+                    PrometheusMemory.extract(db, user.get("userId"), str(sessionId), user.get("roles", []))
+                except Exception as e:
+                    logger.debug("Memory extraction skipped: %s", e)
         except Exception:
             logger.debug("Pre-turn compaction skipped", exc_info=True)
 
@@ -258,7 +265,7 @@ class Prometheus:
             query=query,
         )
 
-        mcpClients, sessions = await MCPClientPool().getClients()
+        mcpClients, sessions = await clientPool.getClients()
         chat = self.makeChat(sessions, history, system_prompt=system_prompt, disable_automatic_function_calling=True)
         stream = await chat.send_message_stream(query)
 

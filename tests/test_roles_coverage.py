@@ -1,17 +1,13 @@
 """Tests for main/utils/roles.py — covers requirePermission and edge cases."""
 
 import pytest
-from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
 from main.utils.roles import Permission, Roles
 
 
 class TestCheckAccess:
     def test_admin_always_passes(self):
-        assert Roles.checkAccess(["ADMIN"], Permission.VIEW_PROFILE) is True
-
-    def test_user_has_view_profile(self):
-        assert Roles.checkAccess(["USER"], Permission.VIEW_PROFILE) is True
+        assert Roles.checkAccess(["ADMIN"], Permission.GENERATE_API_KEYS) is True
 
     def test_user_lacks_prometheus(self):
         assert Roles.checkAccess(["USER"], Permission.USE_PROMETHEUS) is False
@@ -19,34 +15,34 @@ class TestCheckAccess:
     def test_premium_has_prometheus(self):
         assert Roles.checkAccess(["PREMIUM"], Permission.USE_PROMETHEUS) is True
 
-    def test_developer_starter_has_api(self):
-        assert Roles.checkAccess(["DEVELOPER_STARTER"], Permission.STARTER_API_ACCESS) is True
+    def test_premium_has_extended_memories(self):
+        assert Roles.checkAccess(["PREMIUM"], Permission.PROMETHEUS_EXTENDED_MEMORIES) is True
 
-    def test_developer_starter_lacks_enterprise(self):
-        assert Roles.checkAccess(["DEVELOPER_STARTER"], Permission.ENTERPRISE_API_ACCESS) is False
+    def test_developer_starter_has_api_keys(self):
+        assert Roles.checkAccess(["DEVELOPER_STARTER"], Permission.GENERATE_API_KEYS) is True
 
-    def test_developer_enterprise_has_all_dev(self):
-        assert Roles.checkAccess(["DEVELOPER_ENTERPRISE"], Permission.ENTERPRISE_API_ACCESS) is True
-        assert Roles.checkAccess(["DEVELOPER_ENTERPRISE"], Permission.EXPORT_BULK_DATA) is True
+    def test_developer_enterprise_has_api_keys(self):
+        assert Roles.checkAccess(["DEVELOPER_ENTERPRISE"], Permission.GENERATE_API_KEYS) is True
+
+    def test_developer_starter_lacks_prometheus(self):
+        assert Roles.checkAccess(["DEVELOPER_STARTER"], Permission.USE_PROMETHEUS) is False
 
     def test_unknown_role_ignored(self):
-        assert Roles.checkAccess(["NONEXISTENT"], Permission.VIEW_PROFILE) is False
+        assert Roles.checkAccess(["NONEXISTENT"], Permission.USE_PROMETHEUS) is False
 
     def test_multiple_roles_combined(self):
         assert Roles.checkAccess(["USER", "PREMIUM"], Permission.USE_PROMETHEUS) is True
 
     def test_empty_roles(self):
-        assert Roles.checkAccess([], Permission.VIEW_PROFILE) is False
+        assert Roles.checkAccess([], Permission.USE_PROMETHEUS) is False
 
     def test_admin_skips_other_roles(self):
-        assert Roles.checkAccess(["ADMIN", "USER"], Permission.SYSTEM_CONFIG) is True
+        assert Roles.checkAccess(["ADMIN", "USER"], Permission.GENERATE_API_KEYS) is True
 
 
 class TestRequirePermission:
     def test_raises_403_when_missing(self):
         import asyncio
-
-        from main.utils.roles import Roles
 
         checker = Roles.requirePermission(Permission.USE_PROMETHEUS)
 
@@ -63,8 +59,6 @@ class TestRequirePermission:
 
     def test_passes_when_has_permission(self):
         import asyncio
-
-        from main.utils.roles import Roles
 
         checker = Roles.requirePermission(Permission.USE_PROMETHEUS)
 

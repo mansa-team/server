@@ -1,13 +1,18 @@
+import json
 import logging
 import unicodedata
 from datetime import datetime
 
+from google import genai
+from google.genai import types
 from sqlalchemy import func, desc
 from sqlalchemy.orm import Session
 
 from main.models.memory import PrometheusMemory as PrometheusMemoryModel
 from main.utils.roles import Permission, Roles
 from main.app.prometheus.vector import batchCosineSimilarity, contentHash, decodeEmbeddings, getRelevanceScore, embed
+from main.app.prometheus.chat import PrometheusChatManager
+from main.app.prometheus.compact import countTokens
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +26,21 @@ INITIAL_STABILITY = {
     "context": 3.0,  # ephemeral - forgets fast
 }
 DEFAULT_INITIAL_STABILITY = 7.0
+
+MEMORY_EXTRACTION_TOKEN_BUDGET = 32000
+MEMORY_EXTRACT_FREE_CAP = 5
+MEMORY_EXTRACT_PREMIUM_CAP = 10
+
+client = None
+
+
+def getClient():
+    global client
+    if client is None:
+        from config import Config
+
+        client = genai.Client(api_key=Config.PROMETHEUS.GEMINI_API_KEY)
+    return client
 
 
 def normalizeKey(key: str) -> set[str]:
@@ -97,7 +117,7 @@ class PrometheusMemory:
             existing.source = source  # type: ignore[assignment]
             existing.contentHash = newHash  # type: ignore[assignment]
             existing.embedding = embedding  # type: ignore[assignment]
-            existing.baseScore = existing.baseScore * 1.1  # type: ignore[assignment]
+            existing.score = existing.score * 1.1  # type: ignore[assignment]
             existing.accessCount += 1  # type: ignore[assignment]
             existing.lastAccessedAt = datetime.now()  # type: ignore[assignment]
 
@@ -113,7 +133,7 @@ class PrometheusMemory:
             similar.source = source  # type: ignore[assignment]
             similar.contentHash = contentHash(value)  # type: ignore[assignment]
             similar.embedding = embedding  # type: ignore[assignment]
-            similar.baseScore = similar.baseScore * 1.1  # type: ignore[assignment]
+            similar.score = similar.score * 1.1  # type: ignore[assignment]
             similar.accessCount += 1  # type: ignore[assignment]
             similar.lastAccessedAt = datetime.now()  # type: ignore[assignment]
 
@@ -136,7 +156,7 @@ class PrometheusMemory:
             source=source,
             embedding=embedding,
             contentHash=contentHash(value),
-            baseScore=INITIAL_STABILITY.get(str(memoryType), DEFAULT_INITIAL_STABILITY),
+            score=INITIAL_STABILITY.get(str(memoryType), DEFAULT_INITIAL_STABILITY),
             lastAccessedAt=datetime.now(),
         )
         db.add(memory)
@@ -223,12 +243,12 @@ class PrometheusMemory:
                 PrometheusMemoryModel.memoryKey,
                 PrometheusMemoryModel.memoryValue,
                 PrometheusMemoryModel.memoryType,
-                PrometheusMemoryModel.baseScore,
-                matchExpr.label("score"),
+                PrometheusMemoryModel.score,
+                matchExpr.label("matchScore"),
             )
             .filter(PrometheusMemoryModel.userId == userId)
             .filter(PrometheusMemoryModel.archivedAt.is_(None))
-            .order_by(desc("score"), desc(PrometheusMemoryModel.baseScore))
+            .order_by(desc("matchScore"), desc(PrometheusMemoryModel.score))
             .limit(limit)
             .all()
         )
@@ -239,8 +259,8 @@ class PrometheusMemory:
                 "memoryKey": r.memoryKey,
                 "memoryValue": r.memoryValue,
                 "memoryType": r.memoryType,
-                "score": float(r.score),
-                "relevanceScore": float(r.baseScore),
+                "score": float(r.matchScore),
+                "relevanceScore": float(r.score),
             }
             for r in results
         ]
@@ -251,7 +271,7 @@ class PrometheusMemory:
             db.query(PrometheusMemoryModel)
             .filter(PrometheusMemoryModel.userId == userId)
             .filter(PrometheusMemoryModel.archivedAt.is_(None))
-            .order_by(PrometheusMemoryModel.baseScore.desc())
+            .order_by(PrometheusMemoryModel.score.desc())
             .offset(offset)
             .limit(limit)
             .all()
@@ -286,3 +306,96 @@ class PrometheusMemory:
         db.commit()
 
         return True
+
+    @staticmethod
+    def extract(db, userId, sessionId, userRoles) -> list[PrometheusMemoryModel]:
+        if not Roles.checkAccess(userRoles, Permission.USE_PROMETHEUS):
+            return []
+        cap = (
+            MEMORY_EXTRACT_PREMIUM_CAP
+            if Roles.checkAccess(userRoles, Permission.PROMETHEUS_EXTENDED_MEMORIES)
+            else MEMORY_EXTRACT_FREE_CAP
+        )
+
+        watermark = (
+            db.query(func.max(PrometheusMemoryModel.createdAt)).filter(PrometheusMemoryModel.userId == userId).scalar()
+        )
+        msgs = PrometheusChatManager.getHistory(db, sessionId, limit=200, since=watermark)
+
+        acc = []
+        tokens = 0
+        for msg in reversed(msgs):
+            text = (msg.get("parts") or [{}])[0].get("text", "")
+            acc.append(text)
+            tokens += countTokens(text)
+            if tokens >= MEMORY_EXTRACTION_TOKEN_BUDGET:
+                break
+
+        if tokens < MEMORY_EXTRACTION_TOKEN_BUDGET:
+            return []
+
+        remaining = PrometheusMemory.getMemoryLimit(userRoles) - PrometheusMemory.countMemories(db, userId)
+        if remaining <= 0:
+            return []
+        n = min(cap, remaining)
+
+        transcript = "\n".join(reversed(acc))
+        try:
+            response = getClient().models.generate_content(
+                model="gemini-flash-lite-latest",
+                contents=[EXTRACT_PROMPT + "\n\n" + transcript],
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    temperature=0.2,
+                    response_schema=types.Schema(
+                        type=types.Type.ARRAY,
+                        items=types.Schema(
+                            type=types.Type.OBJECT,
+                            properties={
+                                "key": types.Schema(type=types.Type.STRING),
+                                "value": types.Schema(type=types.Type.STRING),
+                                "type": types.Schema(
+                                    type=types.Type.STRING,
+                                    enum=["preference", "analysis", "feedback", "context"],
+                                ),
+                            },
+                            required=["key", "value", "type"],
+                        ),
+                    ),
+                ),
+            )
+            candidates = json.loads(response.text)
+        except Exception as e:
+            logger.warning("Memory extraction LLM call failed: %s", e)
+            return []
+
+        if not isinstance(candidates, list):
+            return []
+
+        created = []
+        for cand in (candidates or [])[:n]:
+            try:
+                embedding = embed([cand.get("value", "")])[0]
+                result = PrometheusMemory.upsertMemory(
+                    db,
+                    userId,
+                    key=cand.get("key", ""),
+                    value=cand.get("value", ""),
+                    memoryType=cand.get("type", "context"),
+                    source="inferred",
+                    embedding=embedding,
+                    userRoles=userRoles,
+                )
+                created.append(result["memory"])
+            except Exception as e:
+                logger.warning("Memory upsert failed: %s", e)
+        return created
+
+
+EXTRACT_PROMPT = (
+    "Extraia memorias duradouras desta conversa para uso em sessoes futuras. "
+    "Inclua: preferencias do usuario, conclusoes de analises, tickers/temas recorrentes, feedback. "
+    "Retorne SOMENTE JSON no formato: "
+    '[{"key": "rotulo curto", "value": "detalhe", "type": "preference|analysis|feedback|context"}]. '
+    "Apenas fatos presentes no texto. Maximo 10 itens. Ignore conversa efemera."
+)

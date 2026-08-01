@@ -45,6 +45,6 @@ def getRelevanceScore(memory, now: datetime) -> float:
             lastAccessed = lastAccessed.replace(tzinfo=None)
     nowNaive = now.replace(tzinfo=None) if now.tzinfo is not None else now
     days = max((nowNaive - lastAccessed).total_seconds() / 86400, 0)
-    stability = max(getattr(memory, "baseScore", 7.0), 0.1)
+    stability = max(getattr(memory, "score", 7.0), 0.1)
 
     return math.exp(-days / stability)

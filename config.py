@@ -1,6 +1,6 @@
 import os
 import socket
-from typing import ClassVar, Optional
+from typing import Optional
 from pydantic import Field, AliasChoices
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import create_engine, QueuePool
@@ -21,10 +21,7 @@ applyIPv4Force()
 
 
 class BaseMansaSettings(BaseSettings):
-    alias_map: ClassVar[dict[str, str]] = {}
-
-    def __getitem__(self, item):
-        return getattr(self, self.alias_map.get(item, item))
+    pass
 
 
 class MysqlSettings(BaseMansaSettings):
@@ -53,12 +50,6 @@ class UserSettings(BaseMansaSettings):
     GOOGLE_REDIRECT_URI: str = Field(default="", validation_alias=AliasChoices("GOOGLE_REDIRECT.URI"))
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    alias_map: ClassVar[dict[str, str]] = {
-        "GOOGLE_CLIENT.ID": "GOOGLE_CLIENT_ID",
-        "GOOGLE_CLIENT.SECRET": "GOOGLE_CLIENT_SECRET",
-        "GOOGLE_REDIRECT.URI": "GOOGLE_REDIRECT_URI",
-    }
-
 
 class StocksApiSettings(BaseMansaSettings):
     ENABLED: bool = Field(default=True, validation_alias=AliasChoices("STOCKSAPI_ENABLED"))
@@ -69,12 +60,6 @@ class StocksApiSettings(BaseMansaSettings):
     DEFAULT_QUOTA: int = Field(default=100, validation_alias=AliasChoices("STOCKSAPI_DEFAULT.QUOTA"))
     QUOTA_RESETDAYS: int = Field(default=30, validation_alias=AliasChoices("STOCKSAPI_QUOTA.RESETDAYS"))
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-
-    alias_map: ClassVar[dict[str, str]] = {
-        "KEY.SYSTEM": "KEY_SYSTEM",
-        "DEFAULT.QUOTA": "DEFAULT_QUOTA",
-        "QUOTA.RESETDAYS": "QUOTA_RESETDAYS",
-    }
 
 
 class PrometheusSettings(BaseMansaSettings):
@@ -90,8 +75,6 @@ class PrometheusSettings(BaseMansaSettings):
     SANDBOX_TTL: int = Field(default=5, validation_alias=AliasChoices("SANDBOX_TTL"))
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
-
-    alias_map: ClassVar[dict[str, str]] = {"GEMINI_API.KEY": "GEMINI_API_KEY"}
 
 
 class ScraperSettings(BaseMansaSettings):

@@ -22,7 +22,7 @@ def lockFor(userId: int) -> asyncio.Lock:
 
 
 def getClient() -> AsyncClient:
-    return AsyncClient(base_url=Config.PROMETHEUS["FORGEVM_URL"], timeout=30)
+    return AsyncClient(base_url=Config.PROMETHEUS.FORGEVM_URL, timeout=30)
 
 
 def hostPath(userId: int, sandboxPath: str) -> Path:
@@ -50,10 +50,10 @@ class SandboxManager:
         client = getClient()
         try:
             sandbox = await client.spawn(
-                image=Config.PROMETHEUS["SANDBOX_IMAGE"],
-                memory_mb=Config.PROMETHEUS["SANDBOX_MEMORY"],
-                vcpus=Config.PROMETHEUS["SANDBOX_CPU"],
-                ttl=f"{Config.PROMETHEUS['SANDBOX_TTL']}m",
+                image=Config.PROMETHEUS.SANDBOX_IMAGE,
+                memory_mb=Config.PROMETHEUS.SANDBOX_MEMORY,
+                vcpus=Config.PROMETHEUS.SANDBOX_CPU,
+                ttl=f"{Config.PROMETHEUS.SANDBOX_TTL}m",
             )
             sandboxId = sandbox.id  # type: ignore[attr-defined]
             logger.info("Sandbox created: %s for user %d", sandboxId, userId)
@@ -83,7 +83,7 @@ class SandboxManager:
                 client = getClient()
                 try:
                     sandbox = await client.get(mapping.sandboxId)
-                    await sandbox.extend_ttl(f"{Config.PROMETHEUS['SANDBOX_TTL']}m")
+                    await sandbox.extend_ttl(f"{Config.PROMETHEUS.SANDBOX_TTL}m")
                     await sandbox.exec(command="echo", args=["ok"], timeout="3s")
 
                     logger.info("Reusing sandbox %s for user %d", mapping.sandboxId, userId)

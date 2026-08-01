@@ -13,7 +13,7 @@ class PrometheusMemory(Base):
     memoryValue = Column(Text, nullable=False)
     memoryType = Column(String(20), default="context")
     source = Column(String(20), default="inferred")
-    baseScore = Column(Float, default=1.0)
+    score = Column(Float, default=1.0)
     accessCount = Column(Integer, default=0)
     embedding = Column(VectorType(384))  # type: ignore[var-annotated]
     contentHash = Column(String(32))
@@ -28,6 +28,6 @@ class PrometheusMemory(Base):
 
     __table_args__ = (
         UniqueConstraint("userId", "memoryKey", name="uk_prometheus_memories"),
-        Index("idx_relevance", "userId", "baseScore"),
+        Index("idx_relevance", "userId", "score"),
         Index("idx_type", "userId", "memoryType"),
     )

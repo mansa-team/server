@@ -13,7 +13,7 @@ import os
 import json
 from unittest.mock import patch, MagicMock, AsyncMock
 from datetime import datetime, timedelta
-from pytz import timezone
+from zoneinfo import ZoneInfo
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
@@ -29,7 +29,7 @@ class TestPrometheusInit:
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
     def test_init_creates_client(self, mock_genai, mock_config):
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "test-key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
+        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
         mock_config.DEBUG_MODE = True
 
         from main.app.prometheus.agent import Prometheus
@@ -46,7 +46,7 @@ class TestPrometheusSendMessage:
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
     async def test_send_message_basic(self, mock_genai, mock_config, mock_chat):
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_URL": "http://localhost:8888"}
+        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
@@ -74,7 +74,7 @@ class TestPrometheusSendMessage:
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
     async def test_send_message_saves_user_message_on_error(self, mock_genai, mock_config, mock_chat):
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_URL": "http://localhost:8888"}
+        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
@@ -96,7 +96,7 @@ class TestPrometheusSendMessage:
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
     async def test_send_message_with_history(self, mock_genai, mock_config, mock_chat):
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_URL": "http://localhost:8888"}
+        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
@@ -114,8 +114,8 @@ class TestPrometheusSendMessage:
         assert results[-1]["text"] == "Reply with history"
 
     @pytest.mark.anyio
-    @patch("main.app.prometheus.agent.FieldRegistry")
-    @patch("main.app.prometheus.agent.MCPClientPool")
+    @patch("main.app.prometheus.agent.fieldRegistry")
+    @patch("main.app.prometheus.agent.clientPool")
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
@@ -123,23 +123,18 @@ class TestPrometheusSendMessage:
         self, mock_genai, mock_config, mock_chat, mock_pool_cls, mock_field_cls
     ):
         """streamMessage must yield dict chunks from async iterator."""
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
+        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
 
-        mock_pool_instance = MagicMock()
-        mock_pool_instance.clients = {"stocks": MagicMock(), "searxng": MagicMock()}
-        mock_pool_cls.return_value = mock_pool_instance
-        mock_pool_instance.getClients = AsyncMock(
+        mock_pool_cls.clients = {"stocks": MagicMock(), "searxng": MagicMock()}
+        mock_pool_cls.getClients = AsyncMock(
             return_value=(
                 {"stocks": MagicMock(), "searxng": MagicMock()},
                 [MagicMock(), MagicMock()],
             )
         )
-
-        mock_field_instance = MagicMock()
-        mock_field_cls.return_value = mock_field_instance
 
         class FakeChunk:
             def __init__(self, text=None, function_calls=None):
@@ -169,8 +164,8 @@ class TestPrometheusSendMessage:
         assert results[1] == {"type": "text", "text": "world"}
 
     @pytest.mark.anyio
-    @patch("main.app.prometheus.agent.FieldRegistry")
-    @patch("main.app.prometheus.agent.MCPClientPool")
+    @patch("main.app.prometheus.agent.fieldRegistry")
+    @patch("main.app.prometheus.agent.clientPool")
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
@@ -178,23 +173,18 @@ class TestPrometheusSendMessage:
         self, mock_genai, mock_config, mock_chat, mock_pool_cls, mock_field_cls
     ):
         """streamMessage must handle function_calls as a list (not dict)."""
-        mock_config.PROMETHEUS = {"GEMINI_API.KEY": "key", "SEARXNG_HOST": "localhost", "SEARXNG_PORT": 8888}
+        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
 
-        mock_pool_instance = MagicMock()
-        mock_pool_instance.clients = {"stocks": MagicMock(), "searxng": MagicMock()}
-        mock_pool_cls.return_value = mock_pool_instance
-        mock_pool_instance.getClients = AsyncMock(
+        mock_pool_cls.clients = {"stocks": MagicMock(), "searxng": MagicMock()}
+        mock_pool_cls.getClients = AsyncMock(
             return_value=(
                 {"stocks": MagicMock(), "searxng": MagicMock()},
                 [MagicMock(), MagicMock()],
             )
         )
-
-        mock_field_instance = MagicMock()
-        mock_field_cls.return_value = mock_field_instance
 
         class FakeChunk:
             def __init__(self, text=None, function_calls=None):
@@ -641,7 +631,7 @@ class TestSessionManager:
         mock_device.os = "Windows"
         mock_parse_ua.return_value = mock_device
 
-        mock_now = datetime(2026, 3, 23, 12, 0, 0, tzinfo=timezone("America/Sao_Paulo"))
+        mock_now = datetime(2026, 3, 23, 12, 0, 0, tzinfo=ZoneInfo("America/Sao_Paulo"))
         mock_datetime.now.return_value = mock_now
 
         mock_db = MagicMock()
@@ -663,7 +653,7 @@ class TestSessionManager:
         mock_secrets.token_hex.return_value = "b" * 64
         mock_parse_ua.return_value = MagicMock(deviceType="mobile", browser="Safari", os="iOS")
 
-        mock_now = datetime(2026, 3, 23, 12, 0, 0, tzinfo=timezone("America/Sao_Paulo"))
+        mock_now = datetime(2026, 3, 23, 12, 0, 0, tzinfo=ZoneInfo("America/Sao_Paulo"))
         mock_datetime.now.return_value = mock_now
 
         custom_expiry = mock_now + timedelta(days=7)
@@ -791,7 +781,7 @@ class TestSessionManager:
         from main.app.authentication.session import SessionManager
 
         mock_db = MagicMock()
-        mock_now = datetime(2026, 3, 23, 12, 0, 0, tzinfo=timezone("America/Sao_Paulo"))
+        mock_now = datetime(2026, 3, 23, 12, 0, 0, tzinfo=ZoneInfo("America/Sao_Paulo"))
         mock_datetime.now.return_value = mock_now
         mock_db.query.return_value.filter.return_value.update.return_value = 3
 
@@ -804,7 +794,7 @@ class TestSessionManager:
         from main.app.authentication.session import SessionManager
 
         mock_db = MagicMock()
-        mock_now = datetime(2026, 3, 23, 12, 0, 0, tzinfo=timezone("America/Sao_Paulo"))
+        mock_now = datetime(2026, 3, 23, 12, 0, 0, tzinfo=ZoneInfo("America/Sao_Paulo"))
         mock_datetime.now.return_value = mock_now
         mock_db.query.return_value.filter.return_value.update.return_value = 0
 
@@ -817,7 +807,7 @@ class TestSessionManager:
         mock_db = MagicMock()
         mock_session = MagicMock()
         mock_session.isActive = True
-        mock_session.expiresAt = datetime(2026, 12, 31, tzinfo=timezone("America/Sao_Paulo"))
+        mock_session.expiresAt = datetime(2026, 12, 31, tzinfo=ZoneInfo("America/Sao_Paulo"))
         mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = mock_session
 
         result = SessionManager.validateSession(mock_db, "sess-123", userId=1)
@@ -838,7 +828,7 @@ class TestSessionManager:
         mock_db = MagicMock()
         mock_session = MagicMock()
         mock_session.isActive = False
-        mock_session.expiresAt = datetime(2026, 12, 31, tzinfo=timezone("America/Sao_Paulo"))
+        mock_session.expiresAt = datetime(2026, 12, 31, tzinfo=ZoneInfo("America/Sao_Paulo"))
         mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = mock_session
 
         result = SessionManager.validateSession(mock_db, "sess-123", userId=1)
@@ -850,7 +840,7 @@ class TestSessionManager:
         mock_db = MagicMock()
         mock_session = MagicMock()
         mock_session.isActive = True
-        mock_session.expiresAt = datetime(2020, 1, 1, tzinfo=timezone("America/Sao_Paulo"))
+        mock_session.expiresAt = datetime(2020, 1, 1, tzinfo=ZoneInfo("America/Sao_Paulo"))
         mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = mock_session
 
         result = SessionManager.validateSession(mock_db, "sess-123", userId=1)
@@ -899,11 +889,11 @@ class TestSSO:
     def test_get_google_sso_with_redirect(self, mock_google_sso, mock_config):
         from main.app.authentication.sso import getGoogleSSO
 
-        mock_config.USER = {
-            "GOOGLE_CLIENT_ID": "cid",
-            "GOOGLE_CLIENT_SECRET": "csecret",
-            "GOOGLE_REDIRECT_URI": "http://callback",
-        }
+        mock_config.USER = MagicMock(
+            GOOGLE_CLIENT_ID="cid",
+            GOOGLE_CLIENT_SECRET="csecret",
+            GOOGLE_REDIRECT_URI="http://callback",
+        )
 
         result = getGoogleSSO(redirectUri="http://custom-callback")
 
@@ -918,11 +908,11 @@ class TestSSO:
     def test_get_google_sso_default_redirect(self, mock_google_sso, mock_config):
         from main.app.authentication.sso import getGoogleSSO
 
-        mock_config.USER = {
-            "GOOGLE_CLIENT_ID": "cid",
-            "GOOGLE_CLIENT_SECRET": "csecret",
-            "GOOGLE_REDIRECT_URI": "http://default-callback",
-        }
+        mock_config.USER = MagicMock(
+            GOOGLE_CLIENT_ID="cid",
+            GOOGLE_CLIENT_SECRET="csecret",
+            GOOGLE_REDIRECT_URI="http://default-callback",
+        )
 
         result = getGoogleSSO()
 

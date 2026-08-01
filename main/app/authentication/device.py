@@ -5,99 +5,75 @@ from dataclasses import dataclass
 @dataclass
 class DeviceInfo:
     browser: str
-    browserVersion: str
     os: str
-    osVersion: str
     deviceType: str
-    deviceName: str
 
 
 def parseUserAgent(userAgent: str) -> DeviceInfo:
     if not userAgent:
         return DeviceInfo(
             browser="Unknown",
-            browserVersion="",
             os="Unknown",
-            osVersion="",
             deviceType="desktop",
-            deviceName="Unknown Device",
         )
 
     userAgent = userAgent.lower()
 
-    browser, browserVersion = detectBrowser(userAgent)
-    os, osVersion = detectOS(userAgent)
+    browser = detectBrowser(userAgent)
+    os = detectOS(userAgent)
     deviceType = detectDeviceType(userAgent)
-
-    deviceName = f"{browser} on {os} {osVersion}".strip() if browser and os else "Unknown Device"
 
     return DeviceInfo(
         browser=browser,
-        browserVersion=browserVersion,
         os=os,
-        osVersion=osVersion,
         deviceType=deviceType,
-        deviceName=deviceName,
     )
 
 
-def detectBrowser(ua: str) -> tuple[str, str]:
+def detectBrowser(ua: str) -> str:
     if "edg/" in ua or "edge/" in ua:
-        match = re.search(r"edg[eo]/(\d+[\.\d]*)", ua)
-        return ("Edge", match.group(1) if match else "")
+        return "Edge"
 
     if "chrome/" in ua and "chromium/" not in ua:
-        match = re.search(r"chrome/(\d+[\.\d]*)", ua)
-        return ("Chrome", match.group(1) if match else "")
+        return "Chrome"
 
     if "firefox/" in ua or "fx/" in ua:
-        match = re.search(r"firefox/(\d+[\.\d]*)", ua)
-        return ("Firefox", match.group(1) if match else "")
+        return "Firefox"
 
     if "safari/" in ua and "chrome/" not in ua:
-        match = re.search(r"version/(\d+[\.\d]*)", ua)
-        return ("Safari", match.group(1) if match else "")
+        return "Safari"
 
     if "opera/" in ua or "opera mini" in ua:
-        match = re.search(r"version/(\d+[\.\d]*)", ua)
-        return ("Opera", match.group(1) if match else "")
+        return "Opera"
 
     if "brave/" in ua:
-        match = re.search(r"brave/(\d+[\.\d]*)", ua)
-        return ("Brave", match.group(1) if match else "")
+        return "Brave"
 
-    return ("Unknown", "")
+    return "Unknown"
 
 
-def detectOS(ua: str) -> tuple[str, str]:
+def detectOS(ua: str) -> str:
     osPatterns = [
-        (r"windows nt 10\.0", "Windows", "10/11"),
-        (r"windows nt 6\.3", "Windows", "8.1"),
-        (r"windows nt 6\.2", "Windows", "8"),
-        (r"windows nt 6\.1", "Windows", "7"),
-        (r"windows phone (\d+[\.\d]*)", "Windows Phone", r"\1"),
-        (r"mac os x (\d+[\._\d]*)", "macOS", r"\1"),
-        (r"iphone os (\d+[\._\d]*)", "iOS", r"\1"),
-        (r"ipad.*os (\d+[\._\d]*)", "iPadOS", r"\1"),
-        (r"android (\d+[\.\d]*)", "Android", r"\1"),
-        (r"linux", "Linux", ""),
-        (r"cros", "Chrome OS", ""),
-        (r"freebsd", "FreeBSD", ""),
-        (r"netbsd", "NetBSD", ""),
+        (r"windows nt 10\.0", "Windows"),
+        (r"windows nt 6\.3", "Windows"),
+        (r"windows nt 6\.2", "Windows"),
+        (r"windows nt 6\.1", "Windows"),
+        (r"windows phone (\d+[\.\d]*)", "Windows Phone"),
+        (r"mac os x (\d+[\._\d]*)", "macOS"),
+        (r"iphone os (\d+[\._\d]*)", "iOS"),
+        (r"ipad.*os (\d+[\._\d]*)", "iPadOS"),
+        (r"android (\d+[\.\d]*)", "Android"),
+        (r"linux", "Linux"),
+        (r"cros", "Chrome OS"),
+        (r"freebsd", "FreeBSD"),
+        (r"netbsd", "NetBSD"),
     ]
 
-    for pattern, osName, versionPattern in osPatterns:
-        match = re.search(pattern, ua)
-        if match:
-            version = ""
-            if versionPattern and match.groups():
-                try:
-                    version = match.group(1).replace("_", ".")
-                except IndexError:
-                    pass
-            return (osName, version)
+    for pattern, osName in osPatterns:
+        if re.search(pattern, ua):
+            return osName
 
-    return ("Unknown", "")
+    return "Unknown"
 
 
 def detectDeviceType(ua: str) -> str:

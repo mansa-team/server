@@ -55,10 +55,10 @@ class TestDifferentKeysNoMerge:
 class TestMergeBoostsScore:
     def test_merge_boosts_score(self, dbSession):
         _create_memory(dbSession, key="petrobras_preferencia", value="v1")
-        initial_score = _get_memory(dbSession).baseScore
+        initial_score = _get_memory(dbSession).score
 
         MemoryService.upsertMemory(dbSession, USER_ID, "petrobras preferencia", "v2")
-        assert _get_memory(dbSession).baseScore == initial_score * 1.1
+        assert _get_memory(dbSession).score == initial_score * 1.1
 
 
 class TestMergeIncrementsAccess:
