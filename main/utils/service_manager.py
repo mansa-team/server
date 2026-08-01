@@ -13,12 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 class ServiceManager:
-    _instances: dict[int, FastAPI] = {}
+    instances: dict[int, FastAPI] = {}
 
     @classmethod
     def getApp(cls, port: int) -> FastAPI:
-        if port in cls._instances:
-            return cls._instances[port]
+        if port in cls.instances:
+            return cls.instances[port]
 
         app = FastAPI(title=f"Mansa Service {port}")
         app.state.limiter = limiter
@@ -35,8 +35,8 @@ class ServiceManager:
             allow_headers=["*"],
         )
 
-        cls._instances[port] = app
-        return cls._instances[port]
+        cls.instances[port] = app
+        return cls.instances[port]
 
     @classmethod
     def runAll(cls):
@@ -45,7 +45,7 @@ class ServiceManager:
         def runUvicorn(app: FastAPI, port: int, logLevel: str):
             uvicorn.run(app, host="0.0.0.0", port=port, log_level=logLevel)  # nosec: B104
 
-        for port, app in cls._instances.items():
+        for port, app in cls.instances.items():
             thread = threading.Thread(target=runUvicorn, args=(app, port, logLevel), daemon=True)
             thread.start()
 

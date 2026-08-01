@@ -1,4 +1,5 @@
 from fastapi_mcp import FastApiMCP
+from fastapi.middleware.gzip import GZipMiddleware
 from starlette.requests import Request
 
 from main.utils.service_manager import ServiceManager
@@ -18,7 +19,8 @@ class StocksAPIService:
             return await call_next(request)
 
         service.include_router(stocksRouter)
-
+        service.add_middleware(GZipMiddleware, minimum_size=1000)
+        
         mcp = FastApiMCP(
             service,
             name="Mansa's Stocks API MCP",
