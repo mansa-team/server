@@ -24,7 +24,9 @@ def test_filter_cotation_column_does_not_accept_date_index():
     series = pd.Series([[{"DATA": "01-01-2024", "PRECO": 10.0}, {"DATA": "15-06-2026", "PRECO": 11.0}]])
     manager = StocksQueryManager(type("Fake", (), {"STOCKS_CACHE": None, "tickerIndex": {}, "nestedSample": None})())
     try:
-        manager.filterCotationColumn(series, pd.Timestamp("2026-01-01"), pd.Timestamp("2026-12-31"), {"0": ("01-01-2020", "01-01-2027")})
+        manager.filterCotationColumn(
+            series, pd.Timestamp("2026-01-01"), pd.Timestamp("2026-12-31"), {"0": ("01-01-2020", "01-01-2027")}
+        )
     except TypeError:
         pass
     else:
@@ -105,3 +107,28 @@ def test_deserialize_json_columns_decompresses_bytes():
     manager = StocksQueryManager(type("Fake", (), {"STOCKS_CACHE": None, "tickerIndex": {}, "nestedSample": None})())
     out = manager.deserializeJsonColumns(df)
     assert out["COTACAO 10Y PADRAO"].iloc[0] == [{"DATA": "01-01-2024", "PRECO": 10.0}]
+
+
+def test_get_nest_keeps_compressed_column_subfields(monkeypatch):
+    df = pd.DataFrame(
+        {
+            "TICKER": ["PETR4"],
+            "NOME": ["PETROBRAS PN"],
+            "COTACAO 10Y PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 1.0}]'],
+        }
+    )
+    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: df)
+    m = StocksCacheManager(FakeDB(), threading.Lock())
+    m.getCachedStocks()
+    from unittest.mock import patch
+    from main.app.stocks_api.cache import stocksCache
+    from main.app.stocks_api.compress import getNest, rebuildAbbrevs
+
+    with (
+        patch.object(stocksCache, "STOCKS_CACHE", m.STOCKS_CACHE),
+        patch.object(stocksCache, "nestedSample", m.nestedSample),
+    ):
+        rebuildAbbrevs()
+        nest = getNest()
+    assert "COTACAO 10Y PADRAO" in nest
+    assert set(nest["COTACAO 10Y PADRAO"]["subfields"]) >= {"DATA", "PRECO"}

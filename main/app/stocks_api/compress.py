@@ -38,6 +38,9 @@ def getNest() -> dict:
     if nest is None:
         if stocksCache.STOCKS_CACHE is not None:
             nest = detectNestedFields(stocksCache.STOCKS_CACHE)
+            if stocksCache.nestedSample is not None:
+                for col, info in detectNestedFields(stocksCache.nestedSample).items():
+                    nest.setdefault(col, info)
         else:
             nest = {}
     return nest
