@@ -1,5 +1,5 @@
 import threading
-import zlib
+import zstandard as zstd
 
 import pandas as pd
 
@@ -48,7 +48,9 @@ def test_filter_cotation_column_filters_by_date_without_index():
     ]
 
 
-def test_get_cached_stocks_does_not_build_date_index(monkeypatch):
+def test_get_cached_stocks_does_not_build_date_index(monkeypatch, tmp_path):
+    import main.app.stocks_api.cache as cache_mod
+
     df = pd.DataFrame(
         {
             "TICKER": ["PETR4"],
@@ -57,6 +59,11 @@ def test_get_cached_stocks_does_not_build_date_index(monkeypatch):
         }
     )
     monkeypatch.setattr(pd, "read_sql", lambda *a, **k: df)
+    cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
+    cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
+    cache_mod.buildFeatherCache()
+    monkeypatch.setattr(cache_mod.os.path, "exists", lambda p: False)
+    monkeypatch.setattr(cache_mod.subprocess, "run", lambda *a, **k: None)
     m = StocksCacheManager(FakeDB(), threading.Lock())
     m.getCachedStocks()
     assert not hasattr(m, "cotationDateIndex")
@@ -77,31 +84,42 @@ def makeDf():
     )
 
 
-def test_get_cached_stocks_compresses_json_columns(monkeypatch):
+def test_get_cached_stocks_compresses_json_columns(monkeypatch, tmp_path):
+    import main.app.stocks_api.cache as cache_mod
+
     monkeypatch.setattr(pd, "read_sql", lambda *a, **k: makeDf())
+    cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
+    cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
+    cache_mod.buildFeatherCache()
+    monkeypatch.setattr(cache_mod.os.path, "exists", lambda p: False)
+    monkeypatch.setattr(cache_mod.subprocess, "run", lambda *a, **k: None)
     m = StocksCacheManager(FakeDB(), threading.Lock())
     m.getCachedStocks()
     df = m.STOCKS_CACHE
     assert isinstance(df["COTACAO 10Y PADRAO"].iloc[0], bytes)
-    assert zlib.decompress(df["COTACAO 10Y PADRAO"].iloc[0]).decode("utf-8").startswith("[{")
+    assert zstd.ZstdDecompressor().decompress(df["COTACAO 10Y PADRAO"].iloc[0]).decode("utf-8").startswith("[{")
     assert isinstance(df["NOTICIAS"].iloc[0], bytes)
     assert df["NOTICIAS"].iloc[1] is None  # NaN/None cells stay None
 
 
-def test_get_cached_stocks_keeps_raw_nested_sample(monkeypatch):
+def test_get_cached_stocks_keeps_raw_nested_sample(monkeypatch, tmp_path):
+    import main.app.stocks_api.cache as cache_mod
+
     monkeypatch.setattr(pd, "read_sql", lambda *a, **k: makeDf())
-    m = StocksCacheManager(FakeDB(), threading.Lock())
-    m.getCachedStocks()
-    assert m.nestedSample is not None
-    assert isinstance(m.nestedSample["COTACAO 10Y PADRAO"].iloc[0], str)
-    assert m.nestedSample["COTACAO 10Y PADRAO"].iloc[0].startswith("[{")
+    cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
+    cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
+    cache_mod.buildFeatherCache()
+    nested = pd.read_feather(cache_mod.CACHE_NESTED_PATH)
+    assert nested is not None
+    assert isinstance(nested["COTACAO 10Y PADRAO"].iloc[0], str)
+    assert nested["COTACAO 10Y PADRAO"].iloc[0].startswith("[{")
 
 
 def test_deserialize_json_columns_decompresses_bytes():
     df = pd.DataFrame(
         {
             "TICKER": ["PETR4"],
-            "COTACAO 10Y PADRAO": [zlib.compress(b'[{"DATA": "01-01-2024", "PRECO": 10.0}]')],
+            "COTACAO 10Y PADRAO": [zstd.ZstdCompressor(level=3).compress(b'[{"DATA": "01-01-2024", "PRECO": 10.0}]')],
         }
     )
     manager = StocksQueryManager(type("Fake", (), {"STOCKS_CACHE": None, "tickerIndex": {}, "nestedSample": None})())
@@ -109,7 +127,9 @@ def test_deserialize_json_columns_decompresses_bytes():
     assert out["COTACAO 10Y PADRAO"].iloc[0] == [{"DATA": "01-01-2024", "PRECO": 10.0}]
 
 
-def test_get_nest_keeps_compressed_column_subfields(monkeypatch):
+def test_get_nest_keeps_compressed_column_subfields(monkeypatch, tmp_path):
+    import main.app.stocks_api.cache as cache_mod
+
     df = pd.DataFrame(
         {
             "TICKER": ["PETR4"],
@@ -118,6 +138,10 @@ def test_get_nest_keeps_compressed_column_subfields(monkeypatch):
         }
     )
     monkeypatch.setattr(pd, "read_sql", lambda *a, **k: df)
+    cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
+    cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
+    cache_mod.buildFeatherCache()
+    monkeypatch.setattr(cache_mod.os.path, "exists", lambda p: True)
     m = StocksCacheManager(FakeDB(), threading.Lock())
     m.getCachedStocks()
     from unittest.mock import patch

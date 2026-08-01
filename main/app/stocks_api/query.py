@@ -1,5 +1,5 @@
 import math
-import zlib
+import zstandard as zstd
 from fastapi import HTTPException
 import pandas as pd
 import json
@@ -76,7 +76,7 @@ class StocksQueryManager:
 
         def parseJSON(x):
             if isinstance(x, bytes):
-                x = zlib.decompress(x).decode("utf-8")
+                x = zstd.ZstdDecompressor().decompress(x).decode("utf-8")
             try:
                 return orjson.loads(x)
             except (ValueError, TypeError):

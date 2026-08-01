@@ -20,6 +20,7 @@ uvicorn
 pyarrow
 orjson
 requests
+zstandard
 
 # PROMETHEUS
 sentence-transformers

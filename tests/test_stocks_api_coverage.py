@@ -60,7 +60,9 @@ class TestStocksCacheManager:
         mock_sched = MagicMock()
         mock_sched_cls.return_value = mock_sched
 
-        mgr.cacheScheduler()
+        # spawned init thread must never run against the real feather/subprocess path
+        with patch("main.app.stocks_api.cache.threading.Thread"):
+            mgr.cacheScheduler()
 
         mock_sched_cls.assert_called_once()
         mock_sched.add_job.assert_called_once()
@@ -69,11 +71,11 @@ class TestStocksCacheManager:
     # --- getCachedStocks: no columns (lines 61-62) -----------------------
     def test_getCachedStocks_no_columns(self):
         mgr = self._make_manager()
-        mock_conn = MagicMock()
-        mgr.db.connect.return_value.__enter__ = MagicMock(return_value=mock_conn)
-        mgr.db.connect.return_value.__exit__ = MagicMock(return_value=False)
         df = pd.DataFrame({"TICKER": ["A", "B"], "NOME": ["X", "Y"], "TIME": ["t1", "t2"]})
-        with patch("main.app.stocks_api.cache.pd.read_sql", return_value=df):
+        with (
+            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
+            patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
+        ):
             mgr.getCachedStocks(columns=None, force_refresh=True)
 
         # getCachedStocks stores in self.STOCKS_CACHE
@@ -83,22 +85,22 @@ class TestStocksCacheManager:
     # --- getCachedStocks: with columns and validation (lines 52-58) ------
     def test_getCachedStocks_with_valid_columns(self):
         mgr = self._make_manager()
-        mock_conn = MagicMock()
-        mgr.db.connect.return_value.__enter__ = MagicMock(return_value=mock_conn)
-        mgr.db.connect.return_value.__exit__ = MagicMock(return_value=False)
         df = pd.DataFrame({"TICKER": ["A"], "NOME": ["X"], "TIME": ["t1"], "PRECO": [10.0]})
-        with patch("main.app.stocks_api.cache.pd.read_sql", return_value=df) as mock_read:
+        with (
+            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df) as mock_read,
+            patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
+        ):
             mgr.getCachedStocks(columns=["PRECO", ""], force_refresh=True)
             mock_read.assert_called_once()
 
     # --- getCachedStocks: NaN preserved (sanitizeNanValues handles at serialization) ---
     def test_getCachedStocks_replaces_nan_inf(self):
         mgr = self._make_manager()
-        mock_conn = MagicMock()
-        mgr.db.connect.return_value.__enter__ = MagicMock(return_value=mock_conn)
-        mgr.db.connect.return_value.__exit__ = MagicMock(return_value=False)
         df = pd.DataFrame({"TICKER": ["A"], "VAL": [np.nan]})
-        with patch("main.app.stocks_api.cache.pd.read_sql", return_value=df):
+        with (
+            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
+            patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
+        ):
             mgr.getCachedStocks(columns=["VAL"], force_refresh=True)
             assert mgr.STOCKS_CACHE is not None
             # NaN is kept in cache; sanitizeNanValues converts to None at serialization
@@ -107,40 +109,43 @@ class TestStocksCacheManager:
     # --- getCachedStocks: tickerIndex built (line 66) ---------------------
     def test_getCachedStocks_builds_ticker_index(self):
         mgr = self._make_manager()
-        mock_conn = MagicMock()
-        mgr.db.connect.return_value.__enter__ = MagicMock(return_value=mock_conn)
-        mgr.db.connect.return_value.__exit__ = MagicMock(return_value=False)
         df = pd.DataFrame({"TICKER": ["PETR4", "VALE3"], "NOME": ["Petrobras", "Vale"]})
-        with patch("main.app.stocks_api.cache.pd.read_sql", return_value=df):
+        with (
+            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
+            patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
+        ):
             mgr.getCachedStocks(columns=None, force_refresh=True)
             assert mgr.tickerIndex == {"PETR4": 0, "VALE3": 1}
 
     # --- getCachedStocks: exception (lines 75-76) -------------------------
     def test_getCachedStocks_exception_logged(self):
         mgr = self._make_manager()
-        mgr.db.connect.side_effect = Exception("DB error")
         # Should not raise, just log
-        mgr.getCachedStocks(columns=["PRECO"], force_refresh=True)
+        with (
+            patch("main.app.stocks_api.cache.pd.read_feather", side_effect=Exception("feather error")),
+            patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
+        ):
+            mgr.getCachedStocks(columns=["PRECO"], force_refresh=True)
 
     # --- getCachedStocks: inf preserved (sanitizeNanValues handles at serialization) ---
     def test_getCachedStocks_replaces_inf(self):
         mgr = self._make_manager()
-        mock_conn = MagicMock()
-        mgr.db.connect.return_value.__enter__ = MagicMock(return_value=mock_conn)
-        mgr.db.connect.return_value.__exit__ = MagicMock(return_value=False)
         df = pd.DataFrame({"TICKER": ["A"], "VAL": [np.inf]})
-        with patch("main.app.stocks_api.cache.pd.read_sql", return_value=df):
+        with (
+            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
+            patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
+        ):
             mgr.getCachedStocks(columns=["VAL"], force_refresh=True)
             assert mgr.STOCKS_CACHE is not None
             assert pd.isna(mgr.STOCKS_CACHE["VAL"].iloc[0]) or np.isinf(mgr.STOCKS_CACHE["VAL"].iloc[0])
 
     def test_getCachedStocks_replaces_neg_inf(self):
         mgr = self._make_manager()
-        mock_conn = MagicMock()
-        mgr.db.connect.return_value.__enter__ = MagicMock(return_value=mock_conn)
-        mgr.db.connect.return_value.__exit__ = MagicMock(return_value=False)
         df = pd.DataFrame({"TICKER": ["A"], "VAL": [-np.inf]})
-        with patch("main.app.stocks_api.cache.pd.read_sql", return_value=df):
+        with (
+            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
+            patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
+        ):
             mgr.getCachedStocks(columns=["VAL"], force_refresh=True)
             assert mgr.STOCKS_CACHE is not None
             assert pd.isna(mgr.STOCKS_CACHE["VAL"].iloc[0]) or np.isinf(mgr.STOCKS_CACHE["VAL"].iloc[0])
