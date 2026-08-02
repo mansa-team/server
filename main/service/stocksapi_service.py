@@ -29,7 +29,7 @@ class StocksAPIService:
         service = ServiceManager.getApp(port)
         service.add_middleware(MCPDetectMiddleware)
         service.include_router(stocksRouter)
-        service.add_middleware(GZipMiddleware, minimum_size=4096)
+        service.add_middleware(GZipMiddleware, minimum_size=4096, compresslevel=3)
 
         mcp = FastApiMCP(
             service,
