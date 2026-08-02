@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 import logging
 
+from cashews import cache
 from fastapi import APIRouter, Depends, Query, HTTPException, Request
 from fastapi.responses import JSONResponse
 
@@ -13,8 +14,13 @@ from main.app.stocks_api.cache import stocksCache
 
 logger = logging.getLogger(__name__)
 
+cache.setup("mem://")
 
 router = APIRouter(prefix="/stocks", tags=["Stocks API"])
+
+
+def compressionState(request: Request) -> bool:
+    return bool(getattr(request.state, "compressed", False))
 
 
 @router.get("/health")
@@ -79,6 +85,7 @@ def listFields():
 
 
 @router.get("/historical", operation_id="get_historical")
+@cache(ttl="1h", key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}:{compressed}")
 async def getHistorical(
     request: Request,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -87,6 +94,7 @@ async def getHistorical(
     orderBy: str = Query(None),
     limit: int = Query(None, ge=1, le=1000),
     compact: bool = Query(False),
+    compressed: bool = Depends(compressionState),
     apiKey: str = Depends(verifyAPIKey),
 ):
     """Get year-based historical financial data for Brazilian B3 stocks.
@@ -135,12 +143,13 @@ async def getHistorical(
     - Get all revenue data for VALE3: search="VALE3", fields="RECEITA LIQUIDA"
     - Compare top 10 by EBITDA: fields="EBITDA", orderBy="EBITDA", limit=10"""
     result = await stocksQuery.queryHistorical(search, fields, dates, orderBy, limit)
-    if compact or getattr(request.state, "compressed", False):
+    if compact or compressed:
         result = compressResponse(result, "get_historical", {"search": search, "fields": fields, "dates": dates})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
 
 
 @router.get("/fundamental", operation_id="get_fundamental")
+@cache(ttl="5m", key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}:{compressed}")
 async def getFundamental(
     request: Request,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -149,6 +158,7 @@ async def getFundamental(
     orderBy: str = Query(None),
     limit: int = Query(None, ge=1, le=1000),
     compact: bool = Query(False),
+    compressed: bool = Depends(compressionState),
     apiKey: str = Depends(verifyAPIKey),
 ):
     """Get point-in-time fundamental/valuation data for Brazilian B3 stocks.
@@ -202,18 +212,20 @@ async def getFundamental(
     - Compare P/L across tickers: search="PETR4,VALE3,ITUB4", fields="P/L", orderBy="P/L"
     - Q1 2024 fundamental snapshot: fields="P/L,ROE", dates="2024-01-01,2024-03-31" """
     result = await stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
-    if compact or getattr(request.state, "compressed", False):
+    if compact or compressed:
         result = compressResponse(result, "get_fundamental", {"search": search, "fields": fields, "dates": dates})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
 
 
 @router.get("/cotations", operation_id="get_cotations")
+@cache(ttl="5m", key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}:{compressed}")
 async def getCotations(
     request: Request,
     search: str = Query(..., min_length=1, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     dates: str = Query(None, max_length=21),
     adjusted: bool = Query(False),
     compact: bool = Query(False),
+    compressed: bool = Depends(compressionState),
     apiKey: str = Depends(verifyAPIKey),
 ):
     """Get 10-year daily price history (cotation) for Brazilian B3 stocks.
@@ -256,16 +268,18 @@ async def getCotations(
     - Get PETR4 + VALE3 2023 prices: search="PETR4,VALE3", dates="2023-01-01,2023-12-31"
     - Get inflation-adjusted prices: search="ITUB4", adjusted=true"""
     result = await stocksQuery.queryCotations(search, dates, adjusted)
-    if compact or getattr(request.state, "compressed", False):
+    if compact or compressed:
         result = compressResponse(result, "get_cotations", {"search": search, "dates": dates})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
 
 
 @router.get("/cotations/live", operation_id="get_live_price")
+@cache(ttl="15s", key="stocks:live:{search}:{compact}:{compressed}")
 async def getLiveCotation(
     request: Request,
     search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),
     compact: bool = Query(False),
+    compressed: bool = Depends(compressionState),
     apiKey: str = Depends(verifyAPIKey),
 ):
     """Get real-time price quotation for a single Brazilian B3 stock.
@@ -299,6 +313,6 @@ async def getLiveCotation(
     - Real-time data is only available during B3 market hours (10:00-17:30 BRT).
     - Outside market hours, returns the last available closing price."""
     result = await stocksQuery.queryLiveCotation(search)
-    if compact or getattr(request.state, "compressed", False):
+    if compact or compressed:
         result = compressResponse(result, "get_live_price", {"search": search})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=15"})

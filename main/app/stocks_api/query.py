@@ -5,8 +5,6 @@ import pandas as pd
 import json
 import orjson
 
-from cashews import cache
-
 from main.utils.http_session import getSession
 
 from main.app.stocks_api.cache import stocksCache
@@ -15,8 +13,6 @@ from main.app.stocks_api.util import categorizeColumns, parseDateRange
 import logging
 
 logger = logging.getLogger(__name__)
-
-cache.setup("mem://")
 
 
 def sanitizeNanValues(obj):
@@ -113,7 +109,6 @@ class StocksQueryManager:
         mask = df["TICKER"].str.upper().apply(lambda t: any(t.startswith(term) for term in searchTerms))
         return df[mask]
 
-    @cache(ttl="1h", key="historical:{search}:{fields}:{dates}:{orderBy}:{limit}")
     async def queryHistorical(
         self,
         search: str | None = None,
@@ -194,7 +189,6 @@ class StocksQueryManager:
             logger.exception("Cached historical query failed")
             raise HTTPException(status_code=500, detail="Internal server error while processing historical data")
 
-    @cache(ttl="5m", key="fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}")
     async def queryFundamental(
         self,
         search: str | None = None,
@@ -284,7 +278,6 @@ class StocksQueryManager:
             logger.exception("Cached fundamental query failed")
             raise HTTPException(status_code=500, detail="Internal server error while processing fundamental data")
 
-    @cache(ttl="5m", key="cotations:{search}:{dates}:{adjusted}")
     async def queryCotations(
         self,
         search: str | None = None,
@@ -338,7 +331,6 @@ class StocksQueryManager:
             logger.exception("Cached cotations query failed")
             raise HTTPException(status_code=500, detail="Internal server error while processing cotations data")
 
-    @cache(ttl="15s", key="live:{search}")
     async def queryLiveCotation(self, search: str):
         try:
             resp = getSession().get(

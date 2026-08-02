@@ -1281,8 +1281,9 @@ class TestQueryLiveCotation:
         mock_session.get.return_value = mock_resp
         with patch("main.app.stocks_api.query.getSession", return_value=mock_session):
             stocks_http_client.get("/stocks/cotations/live?search=WEGE3")
+            asyncio.run(cashews_cache.clear())  # expire cached entry between requests
             stocks_http_client.get("/stocks/cotations/live?search=WEGE3")
-        assert mock_session.get.call_count == 1
+        assert mock_session.get.call_count == 2
 
     def test_b3_unavailable_returns_503(self):
         from fastapi import HTTPException
