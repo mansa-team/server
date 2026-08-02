@@ -1,5 +1,6 @@
 import re
 import calendar
+import json
 from collections import defaultdict
 from datetime import date
 from typing import Any
@@ -103,18 +104,22 @@ def detectNestedFields(df: pd.DataFrame) -> dict[str, dict[str, Any]]:
         if not sample.size:
             continue
 
-        try:
-            first = orjson.loads(sample.iloc[0]) if isinstance(sample.iloc[0], str) else sample.iloc[0]
-        except (ValueError, TypeError):
-            continue
-
-        if not isinstance(first, list) or not first or not isinstance(first[0], dict):
+        first = None
+        for item in sample:
+            try:
+                parsed = json.loads(item) if isinstance(item, str) else item
+            except (ValueError, TypeError):
+                continue
+            if isinstance(parsed, list) and parsed and isinstance(parsed[0], dict):
+                first = parsed
+                break
+        if first is None:
             continue
 
         keys: set[str] = set()
         for item in sample:
             try:
-                rows = orjson.loads(item) if isinstance(item, str) else item
+                rows = json.loads(item) if isinstance(item, str) else item
                 if isinstance(rows, list):
                     for row in rows:
                         if isinstance(row, dict):

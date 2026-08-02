@@ -152,6 +152,34 @@ def test_nested_sample_captures_sparse_columns_across_chunks(monkeypatch, tmp_pa
     assert nested["NOTICIAS"].iloc[0].startswith("[{")
 
 
+def test_detect_nested_fields_tolerates_loose_nan_json():
+    from main.app.stocks_api.util import detectNestedFields
+
+    df = pd.DataFrame(
+        {
+            "TICKER": ["PETR4"],
+            "HISTORICO DIVIDENDOS": ['[{"DATA COM": "01-01-2024", "VALOR ORIGINAL": NaN}]'],
+        }
+    )
+    nest = detectNestedFields(df)
+    assert "HISTORICO DIVIDENDOS" in nest
+    assert set(nest["HISTORICO DIVIDENDOS"]["subfields"]) >= {"DATA COM", "VALOR ORIGINAL"}
+
+
+def test_detect_nested_fields_skips_empty_array_head():
+    from main.app.stocks_api.util import detectNestedFields
+
+    df = pd.DataFrame(
+        {
+            "TICKER": ["PETR4", "VALE3"],
+            "NOTICIAS": ["[]", '[{"TITULO": "a", "LINK": "http://x"}]'],
+        }
+    )
+    nest = detectNestedFields(df)
+    assert "NOTICIAS" in nest
+    assert set(nest["NOTICIAS"]["subfields"]) >= {"TITULO", "LINK"}
+
+
 def test_deserialize_json_columns_decompresses_bytes():
     df = pd.DataFrame(
         {
