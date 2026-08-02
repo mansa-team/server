@@ -1,15 +1,15 @@
-import json
 import logging
-import traceback
-from config import getSession
 from main.utils.logging_config import limiter
-from main.utils.roles import Roles, Permission
-
-from sqlalchemy.orm import Session
-from main.models.prometheus import PrometheusSession
+from config import getSession
+import traceback
+import json
 
 from fastapi import APIRouter, Depends, Request, HTTPException, Query, Body
 from fastapi.responses import StreamingResponse
+from sqlalchemy.orm import Session
+
+from main.models.prometheus import PrometheusSession
+from main.utils.roles import Roles, Permission
 
 from main.app.prometheus.agent import Prometheus
 from main.app.prometheus.chat import PrometheusChatManager
@@ -46,16 +46,6 @@ def getSessions(
         "limit": limit,
         "offset": offset,
     }
-
-
-@router.post("/sessions")
-def createSession(
-    db: Session = Depends(getSession),
-    title: str = Body(..., min_length=1, max_length=200, embed=True),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
-):
-    sessionId = PrometheusChatManager.createSession(db, user["userId"], title)
-    return {"success": True, "sessionId": sessionId}
 
 
 @router.put("/sessions/{sessionId}")

@@ -1,4 +1,5 @@
 import math
+import zstandard as zstd
 from fastapi import HTTPException
 import pandas as pd
 import json
@@ -30,31 +31,19 @@ def sanitizeNanValues(obj):
     return obj
 
 
-def filterCotationColumn(series: pd.Series, startDate, endDate, dateIndex: dict | None = None) -> pd.Series:
+def filterCotationColumn(series: pd.Series, startDate, endDate) -> pd.Series:
     if not startDate or not endDate:
         return series
 
     startDateStr = startDate.strftime("%d-%m-%Y")
     endDateStr = endDate.strftime("%d-%m-%Y")
 
-    if dateIndex:
-        candidateIdx = [
-            idx
-            for idx, (minD, maxD) in dateIndex.items()
-            if idx in series.index and minD <= endDateStr and maxD >= startDateStr
-        ]
-        if not candidateIdx:
-            return pd.Series(
-                [entries if not isinstance(entries, list) else [] for entries in series], index=series.index
-            )
-        series = series.loc[candidateIdx]
-
     exploded = series.explode()
     if exploded.empty or exploded.isna().all():
         return series
 
     dates = pd.to_datetime(exploded.str.get("DATA"), format="%d-%m-%Y", errors="coerce")
-    mask = (dates.dt.date >= startDate) & (dates.dt.date <= endDate)
+    mask = (dates >= pd.Timestamp(startDate)) & (dates <= pd.Timestamp(endDate))
     filtered = exploded[mask]
 
     result = [entries if not isinstance(entries, list) else [] for entries in series]
@@ -84,6 +73,8 @@ class StocksQueryManager:
             return sanitizeNanValues(obj)
 
         def parseJSON(x):
+            if isinstance(x, bytes):
+                x = zstd.ZstdDecompressor().decompress(x).decode("utf-8")
             try:
                 return orjson.loads(x)
             except (ValueError, TypeError):
@@ -94,7 +85,7 @@ class StocksQueryManager:
                 df[col] = df[col].apply(
                     lambda x: (
                         cleanJSON(parseJSON(x))
-                        if isinstance(x, str) and x.startswith(("{", "["))
+                        if (isinstance(x, str) and x.startswith(("{", "["))) or isinstance(x, bytes)
                         else sanitizeNanValues(x)
                     )
                 )
@@ -118,7 +109,7 @@ class StocksQueryManager:
         mask = df["TICKER"].str.upper().apply(lambda t: any(t.startswith(term) for term in searchTerms))
         return df[mask]
 
-    def queryHistorical(
+    async def queryHistorical(
         self,
         search: str | None = None,
         fields: str | None = None,
@@ -198,7 +189,7 @@ class StocksQueryManager:
             logger.exception("Cached historical query failed")
             raise HTTPException(status_code=500, detail="Internal server error while processing historical data")
 
-    def queryFundamental(
+    async def queryFundamental(
         self,
         search: str | None = None,
         fields: str | None = None,
@@ -287,7 +278,7 @@ class StocksQueryManager:
             logger.exception("Cached fundamental query failed")
             raise HTTPException(status_code=500, detail="Internal server error while processing fundamental data")
 
-    def queryCotations(
+    async def queryCotations(
         self,
         search: str | None = None,
         dates: str | None = None,
@@ -324,8 +315,7 @@ class StocksQueryManager:
 
             startDate, endDate = parseDateRange(dates)
             if startDate and endDate and targetCol in df.columns:
-                dateIndex = self.cacheManager.cotationDateIndex.get(targetCol)
-                df[targetCol] = filterCotationColumn(df[targetCol], startDate, endDate, dateIndex=dateIndex)
+                df[targetCol] = filterCotationColumn(df[targetCol], startDate, endDate)
 
             return {
                 "search": search or "all",
@@ -341,7 +331,7 @@ class StocksQueryManager:
             logger.exception("Cached cotations query failed")
             raise HTTPException(status_code=500, detail="Internal server error while processing cotations data")
 
-    def queryLiveCotation(self, search: str):
+    async def queryLiveCotation(self, search: str):
         try:
             resp = getSession().get(
                 f"https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/{search.upper()}",

@@ -138,11 +138,10 @@ class TestDeleteMemory:
         assert MemoryManager.deleteMemory(dbSession, 2, memoryId) is False
 
 
-@pytest.mark.skip(reason="SQLite does not support MySQL FULLTEXT MATCH AGAINST syntax")
 class TestSearchFulltext:
     def test_search_after_create(self, dbSession):
         MemoryManager.upsertMemory(dbSession, 1, "ticker", "PETR4 preferido")
         MemoryManager.upsertMemory(dbSession, 1, "style", "Value Investing")
-        results = MemoryManager._fulltextSearch(dbSession, 1, "PETR4", 10)
+        results = MemoryManager.fullTextSearch(dbSession, 1, "PETR4", 10)
         assert len(results) >= 1
         assert any("PETR4" in r["memoryValue"] for r in results)

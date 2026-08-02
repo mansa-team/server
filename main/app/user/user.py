@@ -1,8 +1,11 @@
 import logging
 from config import getSession
-from main.models import User
+
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
+
+from main.models import User
+
 from main.app.authentication.util import extractTokenPayload
 
 logger = logging.getLogger(__name__)

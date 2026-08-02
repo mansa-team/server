@@ -1,15 +1,18 @@
-import json
 import logging
+from config import Config, SessionLocal
+import json
 import unicodedata
 from datetime import datetime
 
 from google import genai
 from google.genai import types
 from sqlalchemy import func, desc
+from sqlalchemy.dialects.mysql import match as mysqlMatch
 from sqlalchemy.orm import Session
 
 from main.models.memory import PrometheusMemory as PrometheusMemoryModel
 from main.utils.roles import Permission, Roles
+
 from main.app.prometheus.vector import batchCosineSimilarity, contentHash, decodeEmbeddings, getRelevanceScore, embed
 from main.app.prometheus.chat import PrometheusChatManager
 from main.app.prometheus.compact import countTokens
@@ -37,8 +40,6 @@ client = None
 def getClient():
     global client
     if client is None:
-        from config import Config
-
         client = genai.Client(api_key=Config.PROMETHEUS.GEMINI_API_KEY)
     return client
 
@@ -232,37 +233,60 @@ class PrometheusMemory:
 
     @classmethod
     def fullTextSearch(cls, db: Session, userId: int, query: str, limit: int) -> list[dict]:
-        matchExpr = func.match(
-            PrometheusMemoryModel.memoryKey,
-            PrometheusMemoryModel.memoryValue,
-        ).against(query, modifier="IN BOOLEAN MODE")
-
-        results = (
-            db.query(
-                PrometheusMemoryModel.id,
+        if db.bind is not None and db.bind.dialect.name == "mysql":
+            matchExpr = mysqlMatch(
                 PrometheusMemoryModel.memoryKey,
                 PrometheusMemoryModel.memoryValue,
-                PrometheusMemoryModel.memoryType,
-                PrometheusMemoryModel.score,
-                matchExpr.label("matchScore"),
+                against=query,
+                in_boolean_mode=True,
             )
+            results = (
+                db.query(
+                    PrometheusMemoryModel.id,
+                    PrometheusMemoryModel.memoryKey,
+                    PrometheusMemoryModel.memoryValue,
+                    PrometheusMemoryModel.memoryType,
+                    PrometheusMemoryModel.score,
+                    matchExpr.label("matchScore"),
+                )
+                .filter(PrometheusMemoryModel.userId == userId)
+                .filter(PrometheusMemoryModel.archivedAt.is_(None))
+                .order_by(desc("matchScore"), desc(PrometheusMemoryModel.score))
+                .limit(limit)
+                .all()
+            )
+            return [
+                {
+                    "id": r.id,
+                    "memoryKey": r.memoryKey,
+                    "memoryValue": r.memoryValue,
+                    "memoryType": r.memoryType,
+                    "score": float(r.matchScore),
+                    "relevanceScore": float(r.score),
+                }
+                for r in results
+            ]
+
+        like = f"%{query}%"
+        results = (
+            db.query(PrometheusMemoryModel)
             .filter(PrometheusMemoryModel.userId == userId)
             .filter(PrometheusMemoryModel.archivedAt.is_(None))
-            .order_by(desc("matchScore"), desc(PrometheusMemoryModel.score))
+            .filter(PrometheusMemoryModel.memoryKey.like(like) | PrometheusMemoryModel.memoryValue.like(like))
+            .order_by(PrometheusMemoryModel.score.desc())
             .limit(limit)
             .all()
         )
-
         return [
             {
-                "id": r.id,
-                "memoryKey": r.memoryKey,
-                "memoryValue": r.memoryValue,
-                "memoryType": r.memoryType,
-                "score": float(r.matchScore),
-                "relevanceScore": float(r.score),
+                "id": m.id,
+                "memoryKey": m.memoryKey,
+                "memoryValue": m.memoryValue,
+                "memoryType": m.memoryType,
+                "score": float(m.score),
+                "relevanceScore": float(m.score),
             }
-            for r in results
+            for m in results
         ]
 
     @classmethod
@@ -308,88 +332,98 @@ class PrometheusMemory:
         return True
 
     @staticmethod
-    def extract(db, userId, sessionId, userRoles) -> list[PrometheusMemoryModel]:
-        if not Roles.checkAccess(userRoles, Permission.USE_PROMETHEUS):
-            return []
-        cap = (
-            MEMORY_EXTRACT_PREMIUM_CAP
-            if Roles.checkAccess(userRoles, Permission.PROMETHEUS_EXTENDED_MEMORIES)
-            else MEMORY_EXTRACT_FREE_CAP
-        )
-
-        watermark = (
-            db.query(func.max(PrometheusMemoryModel.createdAt)).filter(PrometheusMemoryModel.userId == userId).scalar()
-        )
-        msgs = PrometheusChatManager.getHistory(db, sessionId, limit=200, since=watermark)
-
-        acc = []
-        tokens = 0
-        for msg in reversed(msgs):
-            text = (msg.get("parts") or [{}])[0].get("text", "")
-            acc.append(text)
-            tokens += countTokens(text)
-            if tokens >= MEMORY_EXTRACTION_TOKEN_BUDGET:
-                break
-
-        if tokens < MEMORY_EXTRACTION_TOKEN_BUDGET:
-            return []
-
-        remaining = PrometheusMemory.getMemoryLimit(userRoles) - PrometheusMemory.countMemories(db, userId)
-        if remaining <= 0:
-            return []
-        n = min(cap, remaining)
-
-        transcript = "\n".join(reversed(acc))
+    def extract(db: Session | None = None, userId=None, sessionId=None, userRoles=None) -> list[PrometheusMemoryModel]:
+        ownSession = db is None
+        if ownSession:
+            db = SessionLocal()
         try:
-            response = getClient().models.generate_content(
-                model="gemini-flash-lite-latest",
-                contents=[EXTRACT_PROMPT + "\n\n" + transcript],
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    temperature=0.2,
-                    response_schema=types.Schema(
-                        type=types.Type.ARRAY,
-                        items=types.Schema(
-                            type=types.Type.OBJECT,
-                            properties={
-                                "key": types.Schema(type=types.Type.STRING),
-                                "value": types.Schema(type=types.Type.STRING),
-                                "type": types.Schema(
-                                    type=types.Type.STRING,
-                                    enum=["preference", "analysis", "feedback", "context"],
-                                ),
-                            },
-                            required=["key", "value", "type"],
+            assert db is not None
+            if not Roles.checkAccess(userRoles, Permission.USE_PROMETHEUS):
+                return []
+            cap = (
+                MEMORY_EXTRACT_PREMIUM_CAP
+                if Roles.checkAccess(userRoles, Permission.PROMETHEUS_EXTENDED_MEMORIES)
+                else MEMORY_EXTRACT_FREE_CAP
+            )
+
+            watermark = (
+                db.query(func.max(PrometheusMemoryModel.createdAt))
+                .filter(PrometheusMemoryModel.userId == userId)
+                .scalar()
+            )
+            msgs = PrometheusChatManager.getHistory(db, sessionId, limit=200, since=watermark)
+
+            acc = []
+            tokens = 0
+            for msg in reversed(msgs):
+                text = (msg.get("parts") or [{}])[0].get("text", "")
+                acc.append(text)
+                tokens += countTokens(text)
+                if tokens >= MEMORY_EXTRACTION_TOKEN_BUDGET:
+                    break
+
+            if tokens < MEMORY_EXTRACTION_TOKEN_BUDGET:
+                return []
+
+            remaining = PrometheusMemory.getMemoryLimit(userRoles) - PrometheusMemory.countMemories(db, userId)
+            if remaining <= 0:
+                return []
+            n = min(cap, remaining)
+
+            transcript = "\n".join(reversed(acc))
+            try:
+                response = getClient().models.generate_content(
+                    model="gemini-flash-lite-latest",
+                    contents=[EXTRACT_PROMPT + "\n\n" + transcript],
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        temperature=0.2,
+                        response_schema=types.Schema(
+                            type=types.Type.ARRAY,
+                            items=types.Schema(
+                                type=types.Type.OBJECT,
+                                properties={
+                                    "key": types.Schema(type=types.Type.STRING),
+                                    "value": types.Schema(type=types.Type.STRING),
+                                    "type": types.Schema(
+                                        type=types.Type.STRING,
+                                        enum=["preference", "analysis", "feedback", "context"],
+                                    ),
+                                },
+                                required=["key", "value", "type"],
+                            ),
                         ),
                     ),
-                ),
-            )
-            candidates = json.loads(response.text)
-        except Exception as e:
-            logger.warning("Memory extraction LLM call failed: %s", e)
-            return []
-
-        if not isinstance(candidates, list):
-            return []
-
-        created = []
-        for cand in (candidates or [])[:n]:
-            try:
-                embedding = embed([cand.get("value", "")])[0]
-                result = PrometheusMemory.upsertMemory(
-                    db,
-                    userId,
-                    key=cand.get("key", ""),
-                    value=cand.get("value", ""),
-                    memoryType=cand.get("type", "context"),
-                    source="inferred",
-                    embedding=embedding,
-                    userRoles=userRoles,
                 )
-                created.append(result["memory"])
+                candidates = json.loads(response.text)
             except Exception as e:
-                logger.warning("Memory upsert failed: %s", e)
-        return created
+                logger.warning("Memory extraction LLM call failed: %s", e)
+                return []
+
+            if not isinstance(candidates, list):
+                return []
+
+            created = []
+            for cand in (candidates or [])[:n]:
+                try:
+                    embedding = embed([cand.get("value", "")])[0]
+                    result = PrometheusMemory.upsertMemory(
+                        db,
+                        userId,
+                        key=cand.get("key", ""),
+                        value=cand.get("value", ""),
+                        memoryType=cand.get("type", "context"),
+                        source="inferred",
+                        embedding=embedding,
+                        userRoles=userRoles,
+                    )
+                    created.append(result["memory"])
+                except Exception as e:
+                    logger.warning("Memory upsert failed: %s", e)
+            return created
+        finally:
+            if ownSession and db is not None:
+                db.close()
 
 
 EXTRACT_PROMPT = (

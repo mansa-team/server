@@ -1,9 +1,9 @@
+import logging
 from config import Config
 import re
 import json
 import uuid
 import time
-import logging
 from datetime import datetime
 from urllib.request import urlopen, Request
 

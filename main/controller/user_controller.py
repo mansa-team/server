@@ -1,9 +1,11 @@
 import logging
 from config import getSession
-from main.app.user.user import UserManager
-from sqlalchemy.orm import Session
 
 from fastapi import APIRouter, Request, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+
+from main.app.user.user import UserManager
+
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import extractTokenPayload
 

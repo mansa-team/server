@@ -1,17 +1,16 @@
 import logging
+from config import SessionLocal
 import math
-
-from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
 
-from config import SessionLocal
-from main.utils.service_manager import ServiceManager
-from main.controller.prometheus_controller import router as prometheusRouter
-from main.utils.models.loader import getEmbeddingModel
-
 from sqlalchemy.orm import Session
+from apscheduler.schedulers.background import BackgroundScheduler
+from main.utils.service_manager import ServiceManager
+
 from main.models.memory import PrometheusMemory
 
+from main.controller.prometheus_controller import router as prometheusRouter
+from main.utils.models.loader import getEmbeddingModel
 
 logger = logging.getLogger(__name__)
 

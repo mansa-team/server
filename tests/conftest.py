@@ -79,23 +79,17 @@ def samplePrometheusSessionData():
 
 @pytest.fixture
 def stocks_http_client():
-    """TestClient with stocks router + verifyAPIKey + getCurrentUser overrides."""
+    """TestClient with stocks router + verifyAPIKey override."""
     from fastapi import FastAPI
     from fastapi.testclient import TestClient as _TestClient
     from main.controller.stocksapi_controller import router as stocksRouter
     from main.utils.errors import registerErrorHandlers
-    from main.app.user.user import UserManager
     from main.app.stocks_api.key import verifyAPIKey
 
     app = FastAPI()
     app.include_router(stocksRouter)
     registerErrorHandlers(app)
     app.dependency_overrides[verifyAPIKey] = lambda: "test-key"
-    app.dependency_overrides[UserManager.getCurrentUser] = lambda: {
-        "userId": 1,
-        "username": "test",
-        "roles": ["USER"],
-    }
 
     with _TestClient(app, raise_server_exceptions=False) as c:
         yield c

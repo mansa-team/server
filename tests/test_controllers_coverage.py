@@ -75,11 +75,10 @@ def _make_prometheus_client(mock_current_user=None, mock_permission_user=None):
     return _TestClient(app, raise_server_exceptions=False), app, mock_session
 
 
-def _make_stocksapi_client(mock_current_user=None, mock_api_key=None):
+def _make_stocksapi_client(mock_api_key=None):
     """Return (client, app) with stocks router and mocked deps."""
     from main.controller.stocksapi_controller import router as stocksRouter
     from main.utils.errors import registerErrorHandlers
-    from main.app.user.user import UserManager
 
     app = FastAPI()
     app.include_router(stocksRouter)
@@ -87,9 +86,6 @@ def _make_stocksapi_client(mock_current_user=None, mock_api_key=None):
 
     mock_session = MagicMock()
     app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
-
-    if mock_current_user is not None:
-        app.dependency_overrides[UserManager.getCurrentUser] = lambda: mock_current_user
 
     if mock_api_key is not None:
         from main.app.stocks_api.key import verifyAPIKey
@@ -824,20 +820,6 @@ class TestPrometheusGetSessions:
             assert data["success"] is True
 
 
-class TestPrometheusCreateSession:
-    """Covers line 52: POST /prometheus/sessions."""
-
-    def test_create_session(self):
-        """Covers line 52."""
-        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm:
-            mock_pcm.createSession.return_value = "new-session-id"
-
-            client, _, _ = _make_prometheus_client()
-            resp = client.post("/prometheus/sessions", json={"title": "New Chat"})
-            assert resp.status_code == 200
-            assert resp.json()["sessionId"] == "new-session-id"
-
-
 class TestPrometheusUpdateSessionTitle:
     """Covers lines 62-63, 65-68: PUT /prometheus/sessions/{sessionId}."""
 
@@ -1121,7 +1103,7 @@ class TestStocksApiHistorical:
     def test_get_historical(self):
         """Covers line 35."""
         with patch("main.controller.stocksapi_controller.stocksQuery") as mock_query:
-            mock_query.queryHistorical.return_value = {"data": [{"ticker": "PETR4", "price": 30.0}]}
+            mock_query.queryHistorical = AsyncMock(return_value={"data": [{"ticker": "PETR4", "price": 30.0}]})
 
             client, _, _ = _make_stocksapi_client(mock_api_key="key")
             resp = client.get("/stocks/historical?search=PETR4&limit=10")
@@ -1135,50 +1117,12 @@ class TestStocksApiFundamental:
     def test_get_fundamental(self):
         """Covers line 47."""
         with patch("main.controller.stocksapi_controller.stocksQuery") as mock_query:
-            mock_query.queryFundamental.return_value = {"data": [{"ticker": "VALE3", "pl": 5.0}]}
+            mock_query.queryFundamental = AsyncMock(return_value={"data": [{"ticker": "VALE3", "pl": 5.0}]})
 
             client, _, _ = _make_stocksapi_client(mock_api_key="key")
             resp = client.get("/stocks/fundamental?search=VALE3&limit=5")
             assert resp.status_code == 200
             mock_query.queryFundamental.assert_called_once()
-
-
-class TestStocksApiGenerateKey:
-    """Covers lines 52-53, 57-63: GET /stocks/key/generate.
-
-    NOTE: stocksapi_controller.py line 52 references Permission.GENERATE_API_KEYS
-    which does NOT exist in the Permission enum. This means the route always throws
-    AttributeError → 500 via generic error handler. We test the actual behavior.
-    """
-
-    def test_generate_key_permission_error(self):
-        """Covers lines 52-53: user without GENERATE_API_KEYS permission gets 403."""
-        client, _, _ = _make_stocksapi_client(mock_current_user={"userId": 1, "username": "alice", "roles": ["USER"]})
-        resp = client.get("/stocks/key/generate")
-        assert resp.status_code == 403
-
-    def test_generate_key_admin_bypasses_permission_check(self):
-        """Covers lines 57-60: admin bypasses permission check and generates key."""
-        with patch("main.controller.stocksapi_controller.createKey") as mock_create:
-            mock_create.return_value = "new-api-key-123"
-
-            client, _, _ = _make_stocksapi_client(
-                mock_current_user={"userId": 1, "username": "admin", "roles": ["ADMIN"]}
-            )
-            resp = client.get("/stocks/key/generate")
-            assert resp.status_code == 200
-            assert resp.json()["apiKey"] == "new-api-key-123"
-
-    def test_generate_key_exception(self):
-        """Covers lines 61-63: exception during key generation (admin path)."""
-        with patch("main.controller.stocksapi_controller.createKey") as mock_create:
-            mock_create.side_effect = RuntimeError("DB failure")
-
-            client, _, _ = _make_stocksapi_client(
-                mock_current_user={"userId": 1, "username": "admin", "roles": ["ADMIN"]}
-            )
-            resp = client.get("/stocks/key/generate")
-            assert resp.status_code == 500
 
 
 # =========================================================================

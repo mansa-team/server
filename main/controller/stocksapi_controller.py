@@ -1,28 +1,45 @@
+from datetime import datetime, timezone
 import logging
-from fastapi import APIRouter, Depends, Query, HTTPException, Request
-from fastapi.responses import JSONResponse
-from sqlalchemy.orm import Session
-from config import getSession
+
+import orjson
+from cashews import cache
+from fastapi import APIRouter, Depends, Query, HTTPException, Response
+from fastapi.responses import Response as FastAPIResponse
+
 
 from main.app.stocks_api.query import stocksQuery
-from main.app.stocks_api.key import verifyAPIKey, createKey
+from main.app.stocks_api.key import verifyAPIKey
 from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
 from main.app.stocks_api.compress import compressResponse, getNest
 from main.app.stocks_api.cache import stocksCache
-from main.app.stocks_api.response_cache import ResponseCache
-from main.app.user.user import UserManager
-from main.utils.roles import Permission, Roles
 
 logger = logging.getLogger(__name__)
 
-responseCache = ResponseCache()
+cache.setup("mem://")
 
 router = APIRouter(prefix="/stocks", tags=["Stocks API"])
 
 
+class JSONBytesResponse(FastAPIResponse):
+    media_type = "application/json"
+
+    def render(self, content):
+        return content if isinstance(content, bytes) else str(content).encode(self.charset)
+
+
 @router.get("/health")
 def health():
-    return {"status": "ok", "service": "stocksapi"}
+    updatedAt = stocksCache.lastCacheUpdate
+    ageHours = None
+    if updatedAt is not None:
+        ageHours = round((datetime.now(timezone.utc) - updatedAt).total_seconds() / 3600, 2)
+    return {
+        "status": "ok",
+        "service": "stocksapi",
+        "cacheReady": stocksCache.STOCKS_CACHE is not None,
+        "cacheUpdatedAt": updatedAt.isoformat() if updatedAt is not None else None,
+        "cacheAgeHours": ageHours,
+    }
 
 
 @router.get("/fields", operation_id="list_fields")
@@ -71,9 +88,10 @@ def listFields():
     return {"historical": historical, "fundamental": fundamental, "abbreviations": abbreviations, "nested": nested}
 
 
-@router.get("/historical", operation_id="get_historical")
-def getHistorical(
-    request: Request,
+@router.get("/historical", operation_id="get_historical", response_class=JSONBytesResponse)
+@cache(ttl="1h", key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
+async def getHistorical(
+    response: Response,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     fields: str = Query(None, max_length=500, pattern=r"^[A-Za-z0-9,\s/.-]+$"),
     dates: str = Query(None, max_length=21),
@@ -127,23 +145,17 @@ def getHistorical(
     - Get PETR4 net income 2022-2024: search="PETR4", fields="LUCRO LIQUIDO", dates="2022,2024"
     - Get all revenue data for VALE3: search="VALE3", fields="RECEITA LIQUIDA"
     - Compare top 10 by EBITDA: fields="EBITDA", orderBy="EBITDA", limit=10"""
-    cacheKey = responseCache.makeKey(
-        "historical", search=search, fields=fields, dates=dates, orderBy=orderBy, limit=limit
-    )
-    cached = responseCache.get(cacheKey)
-    if cached is not None:
-        result = cached
-    else:
-        result = stocksQuery.queryHistorical(search, fields, dates, orderBy, limit)
-        responseCache.set(cacheKey, result)
-    if compact or getattr(request.state, "compressed", False):
+    result = await stocksQuery.queryHistorical(search, fields, dates, orderBy, limit)
+    if compact:
         result = compressResponse(result, "get_historical", {"search": search, "fields": fields, "dates": dates})
-    return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
+    response.headers["Cache-Control"] = "public, max-age=300"
+    return orjson.dumps(result)
 
 
-@router.get("/fundamental", operation_id="get_fundamental")
-def getFundamental(
-    request: Request,
+@router.get("/fundamental", operation_id="get_fundamental", response_class=JSONBytesResponse)
+@cache(ttl="5m", key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
+async def getFundamental(
+    response: Response,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     fields: str = Query(None, max_length=500, pattern=r"^[A-Za-z0-9,\s/.-]+$"),
     dates: str = Query(None, max_length=21),
@@ -202,23 +214,17 @@ def getFundamental(
     - Get all stocks' dividend yield latest: fields="DY"
     - Compare P/L across tickers: search="PETR4,VALE3,ITUB4", fields="P/L", orderBy="P/L"
     - Q1 2024 fundamental snapshot: fields="P/L,ROE", dates="2024-01-01,2024-03-31" """
-    cacheKey = responseCache.makeKey(
-        "fundamental", search=search, fields=fields, dates=dates, orderBy=orderBy, limit=limit
-    )
-    cached = responseCache.get(cacheKey)
-    if cached is not None:
-        result = cached
-    else:
-        result = stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
-        responseCache.set(cacheKey, result)
-    if compact or getattr(request.state, "compressed", False):
+    result = await stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
+    if compact:
         result = compressResponse(result, "get_fundamental", {"search": search, "fields": fields, "dates": dates})
-    return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
+    response.headers["Cache-Control"] = "public, max-age=300"
+    return orjson.dumps(result)
 
 
-@router.get("/cotations", operation_id="get_cotations")
-def getCotations(
-    request: Request,
+@router.get("/cotations", operation_id="get_cotations", response_class=JSONBytesResponse)
+@cache(ttl="5m", key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}")
+async def getCotations(
+    response: Response,
     search: str = Query(..., min_length=1, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     dates: str = Query(None, max_length=21),
     adjusted: bool = Query(False),
@@ -264,21 +270,17 @@ def getCotations(
     - Get PETR4 full price history: search="PETR4"
     - Get PETR4 + VALE3 2023 prices: search="PETR4,VALE3", dates="2023-01-01,2023-12-31"
     - Get inflation-adjusted prices: search="ITUB4", adjusted=true"""
-    cacheKey = responseCache.makeKey("cotations", search=search, dates=dates, adjusted=adjusted)
-    cached = responseCache.get(cacheKey)
-    if cached is not None:
-        result = cached
-    else:
-        result = stocksQuery.queryCotations(search, dates, adjusted)
-        responseCache.set(cacheKey, result)
-    if compact or getattr(request.state, "compressed", False):
+    result = await stocksQuery.queryCotations(search, dates, adjusted)
+    if compact:
         result = compressResponse(result, "get_cotations", {"search": search, "dates": dates})
-    return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
+    response.headers["Cache-Control"] = "public, max-age=300"
+    return orjson.dumps(result)
 
 
-@router.get("/cotations/live", operation_id="get_live_price")
-def getLiveCotation(
-    request: Request,
+@router.get("/cotations/live", operation_id="get_live_price", response_class=JSONBytesResponse)
+@cache(ttl="15s", key="stocks:live:{search}:{compact}")
+async def getLiveCotation(
+    response: Response,
     search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),
     compact: bool = Query(False),
     apiKey: str = Depends(verifyAPIKey),
@@ -313,21 +315,8 @@ def getLiveCotation(
     - Only one ticker per request (max 7 chars for the search param).
     - Real-time data is only available during B3 market hours (10:00-17:30 BRT).
     - Outside market hours, returns the last available closing price."""
-    result = stocksQuery.queryLiveCotation(search)
-    if compact or getattr(request.state, "compressed", False):
+    result = await stocksQuery.queryLiveCotation(search)
+    if compact:
         result = compressResponse(result, "get_live_price", {"search": search})
-    return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=15"})
-
-
-@router.get("/key/generate")
-def generateKey(currentUser: dict = Depends(UserManager.getCurrentUser), db: Session = Depends(getSession)):
-    if not Roles.checkAccess(currentUser.get("roles", []), Permission.GENERATE_API_KEYS):
-        raise HTTPException(
-            status_code=403, detail="You do not have permission to generate API keys. Update to a Developer account."
-        )
-
-    userId = currentUser.get("userId")
-    if userId is None:
-        raise HTTPException(status_code=401, detail="User not authenticated")
-    newKey = createKey(db, userId)
-    return {"message": "Key successfully generated", "apiKey": newKey, "owner": currentUser.get("username")}
+    response.headers["Cache-Control"] = "public, max-age=15"
+    return orjson.dumps(result)
