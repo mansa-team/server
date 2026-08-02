@@ -343,6 +343,17 @@ class Prometheus:
                 yield {"type": "tool_result", "tool": fc.name, "result": result, "turn": turn}
                 responses.append(types.Part.from_function_response(name=fc.name, response=result))
 
+                if sessionId:
+                    try:
+                        PrometheusChatManager.saveLoopEvent(
+                            db,
+                            str(sessionId),
+                            "tool_result",
+                            {"toolName": fc.name, "result": result, "turn": turn},
+                        )
+                    except Exception as e:
+                        logger.error(f"Failed to persist tool_result event: {e}")
+
             loop.emit(
                 "turn_end",
                 turnNumber=turn,
