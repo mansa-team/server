@@ -10,8 +10,6 @@
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings
 - [ ] Make an Password Recovery system and 2FA using the Email Protocol
 
-- [ ] optimize the gil processing and serialization from the stocksapi
-
 - [ ] Use the ForgeVM architecture to expose MetaTrader5 terminals
 
 - [ ] Abacate Pay

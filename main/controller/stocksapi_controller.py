@@ -21,8 +21,6 @@ router = APIRouter(prefix="/stocks", tags=["Stocks API"])
 
 
 class JSONBytesResponse(FastAPIResponse):
-    """Sends pre-serialized JSON bytes without re-encoding (cache-friendly)."""
-
     media_type = "application/json"
 
     def render(self, content):
