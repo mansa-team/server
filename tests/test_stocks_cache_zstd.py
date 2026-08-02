@@ -9,6 +9,24 @@ from main.app.stocks_api.cache import StocksCacheManager, COMPRESS_COLS
 from main.app.stocks_api.query import StocksQueryManager, filterCotationColumn
 
 
+class _FakeConn:
+    def __enter__(self):
+        return None
+
+    def __exit__(self, *exc_info):
+        return False
+
+
+class _FakeEngine:
+    def connect(self):
+        return _FakeConn()
+
+
+@pytest.fixture(autouse=True)
+def _fakeStocksEngine(monkeypatch):
+    monkeypatch.setattr(cache_mod, "stocksEngine", _FakeEngine())
+
+
 def test_filter_cotation_column_filters_by_date_without_index():
     series = pd.Series(
         [

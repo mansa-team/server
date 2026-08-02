@@ -16,7 +16,7 @@ def test_optimize_dtypes_skips_pyarrow_for_compress_cols():
         }
     )
     result = optimizeDtypes(df)
-    assert str(result["COTACAO 10Y PADRAO"].dtype) == "object"
+    assert str(result["COTACAO 10Y PADRAO"].dtype) in ("object", "str")
     assert str(result["NOME"].dtype) == "category"
 
 

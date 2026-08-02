@@ -44,7 +44,9 @@ def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
         df[col] = pd.to_numeric(df[col], downcast="float")
 
     try:
-        for col in df.select_dtypes(include=["object"]).columns:
+        for col in df.columns:
+            if str(df[col].dtype) not in ("object", "str"):
+                continue
             if col not in CATEGORY_COLS and col not in COMPRESS_COLS and df[col].notna().all():
                 df[col] = df[col].astype("string[pyarrow]")
     except Exception as e:
@@ -92,8 +94,12 @@ def tryBuildLock():
     if fcntl is None:
         return open(os.devnull, "w")
     lockPath = CACHE_FEATHER_PATH.parent / "refresh.lock"
-    lockPath.parent.mkdir(parents=True, exist_ok=True)
-    lockFile = open(lockPath, "w")
+    try:
+        lockPath.parent.mkdir(parents=True, exist_ok=True)
+        lockFile = open(lockPath, "w")
+    except OSError:
+        # lock dir unavailable (e.g. read-only CI) — proceed unlocked; the build itself fails loudly if it cannot write
+        return open(os.devnull, "w")
     try:
         fcntl.flock(lockFile, fcntl.LOCK_EX | fcntl.LOCK_NB)
         return lockFile
