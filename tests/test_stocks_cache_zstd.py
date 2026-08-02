@@ -1,6 +1,7 @@
 import threading
 import zstandard as zstd
 
+import pytest
 import pandas as pd
 
 import main.app.stocks_api.cache as cache_mod
@@ -38,6 +39,32 @@ def test_get_cached_stocks_does_not_build_date_index(monkeypatch, tmp_path):
     m = StocksCacheManager(None, threading.Lock())
     m.getCachedStocks()
     assert not hasattr(m, "cotationDateIndex")
+
+
+def test_get_cached_stocks_skips_build_when_another_process_holds_lock(monkeypatch, tmp_path):
+    fcntl = pytest.importorskip("fcntl")
+    df = pd.DataFrame(
+        {
+            "TICKER": ["PETR4"],
+            "NOME": ["PETROBRAS PN"],
+            "COTACAO 10Y PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 1.0}]'],
+        }
+    )
+    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: iter([df]))
+    cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
+    cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
+    cache_mod.buildFeatherCache()
+
+    lockFile = open(tmp_path / "refresh.lock", "w")
+    fcntl.flock(lockFile, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    try:
+        calls = []
+        monkeypatch.setattr(cache_mod.subprocess, "run", lambda *a, **k: calls.append(1))
+        m = StocksCacheManager(None, threading.Lock())
+        m.getCachedStocks(force_refresh=True)
+        assert calls == []
+    finally:
+        lockFile.close()
 
 
 def makeDf():

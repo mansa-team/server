@@ -17,6 +17,11 @@ import zstandard as zstd
 from datetime import datetime, timezone
 from pathlib import Path
 
+try:
+    import fcntl
+except ImportError:
+    fcntl = None
+
 logger = logging.getLogger(__name__)
 
 CATEGORY_COLS = frozenset(["TICKER", "NOME"])
@@ -82,6 +87,21 @@ def buildFeatherCache():
     logger.info(f"feather written to {CACHE_FEATHER_PATH} ({len(df)} records)")
 
 
+def tryBuildLock():
+    """Non-blocking cross-process lock around the feather build. Returns the lock file or None if busy."""
+    if fcntl is None:
+        return open(os.devnull, "w")  # non-POSIX: no cross-process lock
+    lockPath = CACHE_FEATHER_PATH.parent / "refresh.lock"
+    lockPath.parent.mkdir(parents=True, exist_ok=True)
+    lockFile = open(lockPath, "w")
+    try:
+        fcntl.flock(lockFile, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return lockFile
+    except OSError:
+        lockFile.close()
+        return None
+
+
 class StocksCacheManager:
     def __init__(self, db: Engine, cacheLock: threading.Lock):
         self.db = db
@@ -134,14 +154,21 @@ class StocksCacheManager:
 
             if CACHE_LOAD_LOCK.acquire(blocking=False):
                 try:
-                    subprocess.run(
-                        [
-                            sys.executable,
-                            "-c",
-                            "from main.app.stocks_api.cache import buildFeatherCache; buildFeatherCache()",
-                        ],
-                        check=True,
-                    )
+                    lockFile = tryBuildLock()
+                    if lockFile is None:
+                        logger.info("Cache build already in progress in another process, skipping")
+                        return
+                    try:
+                        subprocess.run(
+                            [
+                                sys.executable,
+                                "-c",
+                                "from main.app.stocks_api.cache import buildFeatherCache; buildFeatherCache()",
+                            ],
+                            check=True,
+                        )
+                    finally:
+                        lockFile.close()
                 finally:
                     CACHE_LOAD_LOCK.release()
                 self.loadFromFeather()
