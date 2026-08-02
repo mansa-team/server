@@ -15,7 +15,6 @@ from main.app.prometheus.memory import PrometheusMemory
 from main.app.prometheus.chat import PrometheusChatManager
 from main.app.prometheus.compact import PrometheusCompactor, fieldRegistry
 from main.app.prometheus.mcp import clientPool
-from main.app.prometheus.events import LoopLogger
 from main.app.prometheus.sandbox import SandboxManager
 from main.app.prometheus.tools import TOOL_REGISTRY, dispatchToolCall
 
@@ -276,7 +275,6 @@ class Prometheus:
         episodes = PrometheusCompactor().getEpisodes(db, str(sessionId))
         last_ep_time = episodes[-1].get("time") if episodes else None
         history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50, since=last_ep_time)
-        loop = LoopLogger(history)
         system_prompt = Prometheus.buildSystemPrompt(
             user.get("userId") if user else None,
             db,
@@ -313,7 +311,14 @@ class Prometheus:
             sandbox_id = None
             for fc in function_calls:
                 tools_used.append(fc.name)
-                loop.emit("tool_call", toolName=fc.name, args=fc.args or {}, turnNumber=turn)
+                history.append(
+                    {
+                        "role": "loop_event",
+                        "eventType": "tool_call",
+                        "metadata": {"toolName": fc.name, "args": fc.args or {}, "turnNumber": turn},
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                )
                 yield {"type": "tool_call", "tool": fc.name, "args": fc.args or {}, "turn": turn}
 
                 if sessionId:
@@ -339,7 +344,14 @@ class Prometheus:
                         continue
 
                 result = await dispatchToolCall(fc, mcpClients, user=user, db=db, sandbox_id=sandbox_id)
-                loop.emit("tool_result", toolName=fc.name, result=result, turnNumber=turn)
+                history.append(
+                    {
+                        "role": "loop_event",
+                        "eventType": "tool_result",
+                        "metadata": {"toolName": fc.name, "result": result, "turnNumber": turn},
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                )
                 yield {"type": "tool_result", "tool": fc.name, "result": result, "turn": turn}
                 responses.append(types.Part.from_function_response(name=fc.name, response=result))
 
@@ -354,11 +366,17 @@ class Prometheus:
                     except Exception as e:
                         logger.error(f"Failed to persist tool_result event: {e}")
 
-            loop.emit(
-                "turn_end",
-                turnNumber=turn,
-                durationMs=int(time.time() * 1000) - turn_start,
-                toolsUsed=tools_used,
+            history.append(
+                {
+                    "role": "loop_event",
+                    "eventType": "turn_end",
+                    "metadata": {
+                        "turnNumber": turn,
+                        "durationMs": int(time.time() * 1000) - turn_start,
+                        "toolsUsed": tools_used,
+                    },
+                    "timestamp": datetime.now().isoformat(),
+                }
             )
             yield {
                 "type": "turn_end",
