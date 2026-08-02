@@ -1,3 +1,4 @@
+import time
 import pytest
 from unittest.mock import patch, MagicMock
 from main.app.prometheus.compact import (
@@ -7,7 +8,6 @@ from main.app.prometheus.compact import (
     extractSnapshots,
     extractToolCalls,
     buildSummary,
-    charCount,
     countTokens,
     getTokenizer,
     FieldRegistry,
@@ -75,7 +75,6 @@ class TestFieldRegistry:
 
     def test_fallback_fields_on_api_failure(self):
         registry = FieldRegistry()
-        registry.invalidate()
         fields = registry.fetchFields()
         assert "P/L" in fields
         assert "ROE" in fields
@@ -91,11 +90,23 @@ class TestFieldRegistry:
         idx_pl = regex.pattern.find("P/L")
         assert idx_cagr < idx_pl
 
-    def test_invalidate(self):
+    def test_get_fields_refetches_when_ttl_expired(self):
         registry = FieldRegistry()
         registry.fields = ["P/L"]
-        registry.invalidate()
-        assert registry.fields is None
+        registry.fetchedAt = 0
+        with patch.object(registry, "fetchFields", return_value=["ROE"]):
+            fields = registry.getFields()
+        assert fields == ["ROE"]
+        assert registry.fetchedAt > 0
+
+    def test_get_fields_caches_within_ttl(self):
+        registry = FieldRegistry()
+        registry.fields = ["P/L"]
+        registry.fetchedAt = time.time()
+        with patch.object(registry, "fetchFields") as mockFetch:
+            fields = registry.getFields()
+        assert fields == ["P/L"]
+        mockFetch.assert_not_called()
 
 
 class TestExtractDecisions:
@@ -146,29 +157,6 @@ class TestBuildSummary:
         assert "no extractable data" in result
 
 
-class TestCharCount:
-    def test_basic(self):
-        with patch("main.app.prometheus.compact.getTokenizer") as mockGet:
-            mockTok = MagicMock()
-            mockTok.count_tokens.return_value.total_tokens = 3
-            mockGet.return_value = mockTok
-            assert charCount("hello world") == 3
-
-    def test_empty(self):
-        assert charCount("") == 0
-
-    def test_fallback_when_no_tokenizer(self):
-        with patch("main.app.prometheus.compact.getTokenizer", return_value=None):
-            assert charCount("12345678") == 2
-
-    def test_fallback_on_exception(self):
-        with patch("main.app.prometheus.compact.getTokenizer") as mockGet:
-            mockTok = MagicMock()
-            mockTok.count_tokens.side_effect = RuntimeError("broken")
-            mockGet.return_value = mockTok
-            assert charCount("12345678") == 2
-
-
 class TestCountTokens:
     def test_empty(self):
         assert countTokens("") == 0
@@ -183,6 +171,13 @@ class TestCountTokens:
     def test_without_tokenizer(self):
         with patch("main.app.prometheus.compact.getTokenizer", return_value=None):
             assert countTokens("1234567890") == 3
+
+    def test_fallback_on_exception(self):
+        with patch("main.app.prometheus.compact.getTokenizer") as mockGet:
+            mockTok = MagicMock()
+            mockTok.count_tokens.side_effect = RuntimeError("broken")
+            mockGet.return_value = mockTok
+            assert countTokens("12345678") == 2
 
 
 class TestGetTokenizer:

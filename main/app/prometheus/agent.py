@@ -259,7 +259,7 @@ class Prometheus:
         if clientPool.clients is None:
             try:
                 await clientPool.initialize()
-                fieldRegistry.warmup()
+                fieldRegistry.getFields()
             except Exception as e:
                 logger.warning("Pool/registry startup failed: %s", e)
 
