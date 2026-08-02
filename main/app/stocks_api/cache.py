@@ -16,11 +16,12 @@ import time
 import zstandard as zstd
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
+import sys
 
-try:
+fcntl: Any = None
+if sys.platform != "win32":
     import fcntl
-except ImportError:
-    fcntl = None
 
 logger = logging.getLogger(__name__)
 
@@ -88,9 +89,8 @@ def buildFeatherCache():
 
 
 def tryBuildLock():
-    """Non-blocking cross-process lock around the feather build. Returns the lock file or None if busy."""
     if fcntl is None:
-        return open(os.devnull, "w")  # non-POSIX: no cross-process lock
+        return open(os.devnull, "w")
     lockPath = CACHE_FEATHER_PATH.parent / "refresh.lock"
     lockPath.parent.mkdir(parents=True, exist_ok=True)
     lockFile = open(lockPath, "w")

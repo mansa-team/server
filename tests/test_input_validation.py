@@ -78,7 +78,7 @@ class TestLoginValidation:
 
 
 class TestPrometheusSessionValidation:
-    """POST /prometheus/sessions — validates title via Body(...)"""
+    """POST /prometheus/sessions was removed — sessions are created lazily on first message"""
 
     def test_valid_create_session(self, client):
         response = client.post(
@@ -86,24 +86,8 @@ class TestPrometheusSessionValidation:
             json={"title": "New Chat"},
             headers={"X-Access-Token": "valid-token"},
         )
-        # Should not be 422 — may be 200/201 or 401 depending on auth
-        assert response.status_code != 422
-
-    def test_empty_title(self, client):
-        response = client.post(
-            "/prometheus/sessions",
-            json={"title": ""},
-            headers={"X-Access-Token": "valid-token"},
-        )
-        assert response.status_code == 422
-
-    def test_title_too_long(self, client):
-        response = client.post(
-            "/prometheus/sessions",
-            json={"title": "T" * 201},
-            headers={"X-Access-Token": "valid-token"},
-        )
-        assert response.status_code == 422
+        # Endpoint removed — 405 Method Not Allowed is the expected behavior
+        assert response.status_code == 405
 
 
 class TestUpdateTitleValidation:
