@@ -820,20 +820,6 @@ class TestPrometheusGetSessions:
             assert data["success"] is True
 
 
-class TestPrometheusCreateSession:
-    """Covers line 52: POST /prometheus/sessions."""
-
-    def test_create_session(self):
-        """Covers line 52."""
-        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm:
-            mock_pcm.createSession.return_value = "new-session-id"
-
-            client, _, _ = _make_prometheus_client()
-            resp = client.post("/prometheus/sessions", json={"title": "New Chat"})
-            assert resp.status_code == 200
-            assert resp.json()["sessionId"] == "new-session-id"
-
-
 class TestPrometheusUpdateSessionTitle:
     """Covers lines 62-63, 65-68: PUT /prometheus/sessions/{sessionId}."""
 

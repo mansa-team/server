@@ -48,16 +48,6 @@ def getSessions(
     }
 
 
-@router.post("/sessions")
-def createSession(
-    db: Session = Depends(getSession),
-    title: str = Body(..., min_length=1, max_length=200, embed=True),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
-):
-    sessionId = PrometheusChatManager.createSession(db, user["userId"], title)
-    return {"success": True, "sessionId": sessionId}
-
-
 @router.put("/sessions/{sessionId}")
 def updateSessionTitle(
     sessionId: str,
