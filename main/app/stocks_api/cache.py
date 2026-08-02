@@ -50,17 +50,18 @@ def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
 def buildFeatherCache():
     chunks = []
     sampleCols = None
-    nestedSample = None
+    sampleParts: dict[str, pd.Series] = {}
     compressor = zstd.ZstdCompressor(level=3)
     with stocksEngine.connect() as conn:
         reader = pd.read_sql("SELECT * FROM b3_stocks", conn, chunksize=5000)
         for chunk in reader:
             if sampleCols is None:
                 sampleCols = [c for c in COMPRESS_COLS if c in chunk.columns]
-            if nestedSample is None and sampleCols:
-                candidate = chunk[sampleCols].dropna(how="all")
-                if not candidate.empty:
-                    nestedSample = candidate.head(20).copy()
+            for col in sampleCols or ():
+                if col not in sampleParts:
+                    nonNull = chunk[col].dropna()
+                    if not nonNull.empty:
+                        sampleParts[col] = nonNull.head(20).reset_index(drop=True)
             for col in sampleCols or ():
                 chunk[col] = chunk[col].map(
                     lambda s: compressor.compress(s.encode("utf-8")) if isinstance(s, str) else None
@@ -69,6 +70,7 @@ def buildFeatherCache():
     df = pd.concat(chunks, ignore_index=True)
     del chunks
     df = optimizeDtypes(df)
+    nestedSample = pd.DataFrame(sampleParts) if sampleParts else None
 
     CACHE_FEATHER_PATH.parent.mkdir(parents=True, exist_ok=True)
     tmpNested = CACHE_NESTED_PATH.with_suffix(".tmp")

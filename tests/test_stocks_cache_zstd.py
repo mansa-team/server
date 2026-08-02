@@ -119,6 +119,39 @@ def test_nested_sample_skips_all_null_leading_rows(monkeypatch, tmp_path):
     assert nested["COTACAO 10Y PADRAO"].iloc[0].startswith("[{")
 
 
+def test_nested_sample_captures_sparse_columns_across_chunks(monkeypatch, tmp_path):
+    import main.app.stocks_api.cache as cache_mod
+
+    first = pd.DataFrame(
+        {
+            "TICKER": ["PETR4", "VALE3"],
+            "NOME": ["PETROBRAS PN", "VALE ON"],
+            "COTACAO 10Y PADRAO": [
+                '[{"DATA": "01-01-2024", "PRECO": 10.0}]',
+                '[{"DATA": "01-01-2024", "PRECO": 20.0}]',
+            ],
+            "NOTICIAS": [None, None],
+        }
+    )
+    later = pd.DataFrame(
+        {
+            "TICKER": ["WEGE3"],
+            "NOME": ["WEG ON"],
+            "COTACAO 10Y PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 30.0}]'],
+            "NOTICIAS": ['[{"TITULO": "noticia", "LINK": "http://x"}]'],
+        }
+    )
+    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: iter([first, later]))
+    cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
+    cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
+    cache_mod.buildFeatherCache()
+    nested = pd.read_feather(cache_mod.CACHE_NESTED_PATH)
+    assert nested is not None
+    assert isinstance(nested["COTACAO 10Y PADRAO"].iloc[0], str)
+    assert isinstance(nested["NOTICIAS"].iloc[0], str)
+    assert nested["NOTICIAS"].iloc[0].startswith("[{")
+
+
 def test_deserialize_json_columns_decompresses_bytes():
     df = pd.DataFrame(
         {
