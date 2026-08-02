@@ -7,7 +7,6 @@ from sqlalchemy.orm import Session
 from main.app.user.user import UserManager
 
 from main.app.authentication.session import SessionManager
-from main.app.authentication.util import extractTokenPayload
 
 logger = logging.getLogger(__name__)
 
@@ -38,9 +37,8 @@ def getSessions(
     db: Session = Depends(getSession),
     limit: int = Query(20, ge=1, le=100, description="Number of items per page"),
     offset: int = Query(0, ge=0, description="Number of items to skip"),
-    payload: dict = Depends(extractTokenPayload),
 ):
-    currentSessionId = payload.get("sessionId")
+    currentSessionId = currentUser.get("sessionId")
 
     sessions = SessionManager.getUserSessions(db, currentUser["userId"])
     activeCount = sum(1 for s in sessions if s.isActive)
