@@ -109,7 +109,6 @@ class SandboxManager:
                 PrometheusSandbox(
                     userId=userId,
                     sandboxId=sandboxId,
-                    workspacePath=f"/data/workspaces/{userId}",
                 )
             )
             db.commit()

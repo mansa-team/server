@@ -30,7 +30,6 @@ class TestPrometheusSandboxModel:
         sandbox = PrometheusSandbox(
             userId=1,
             sandboxId="sb-test-123",
-            workspacePath="/data/workspaces/1",
         )
         dbSession.add(sandbox)
         dbSession.commit()
@@ -42,7 +41,6 @@ class TestPrometheusSandboxModel:
         sandbox = PrometheusSandbox(
             userId=1,
             sandboxId="sb-test-456",
-            workspacePath="/data/workspaces/1",
         )
         dbSession.add(sandbox)
         dbSession.commit()
@@ -51,7 +49,7 @@ class TestPrometheusSandboxModel:
 
     def test_one_sandbox_per_user(self, dbSession):
         """Enforce one active sandbox per user via application logic."""
-        s1 = PrometheusSandbox(userId=1, sandboxId="sb-a", workspacePath="/data/workspaces/1")
+        s1 = PrometheusSandbox(userId=1, sandboxId="sb-a")
         dbSession.add(s1)
         dbSession.commit()
         existing = dbSession.query(PrometheusSandbox).filter_by(userId=1).first()
@@ -76,7 +74,7 @@ class TestSandboxPersistence:
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_get_or_create_reuses_existing(self, mock_get_client, dbSession):
         # Pre-create a mapping
-        existing = PrometheusSandbox(userId=1, sandboxId="sb-existing", workspacePath="/data/workspaces/1")
+        existing = PrometheusSandbox(userId=1, sandboxId="sb-existing")
         dbSession.add(existing)
         dbSession.commit()
 
@@ -92,7 +90,7 @@ class TestSandboxPersistence:
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_get_or_create_respawns_when_dead(self, mock_get_client, dbSession):
         # Pre-create a mapping for a dead sandbox
-        existing = PrometheusSandbox(userId=1, sandboxId="sb-dead", workspacePath="/data/workspaces/1")
+        existing = PrometheusSandbox(userId=1, sandboxId="sb-dead")
         dbSession.add(existing)
         dbSession.commit()
 
