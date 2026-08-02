@@ -19,16 +19,6 @@ class UserManager:
         return [role.strip() for role in user.roles.split(",")]
 
     @staticmethod
-    def toDict(user: User) -> dict:
-        return {
-            "userId": user.userId,
-            "username": user.username,
-            "email": user.email,
-            "roles": UserManager.getRolesList(user),
-            "createdAt": user.createdAt.isoformat() if user.createdAt else None,
-        }
-
-    @staticmethod
     def getCurrentUser(
         payload: dict = Depends(extractTokenPayload),
         db: Session = Depends(getSession),

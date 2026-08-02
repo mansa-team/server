@@ -35,16 +35,6 @@ class TestUserModel:
         assert "USER" in roles
         assert "PREMIUM" in roles
 
-    def test_toDict(self, dbSession, sampleUserData):
-        user = User(**sampleUserData)
-        user.roles = "USER,ADMIN"
-        result = UserManager.toDict(user)
-
-        assert result["username"] == "testuser"
-        assert result["email"] == "test@example.com"
-        assert "ADMIN" in result["roles"]
-        assert "USER" in result["roles"]
-
 
 class TestStocksAPIKeyModel:
     def test_create_api_key(self, dbSession, sampleAPIKeyData):
