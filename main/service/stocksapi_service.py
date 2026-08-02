@@ -1,6 +1,5 @@
 from fastapi_mcp import FastApiMCP
 from fastapi.middleware.gzip import GZipMiddleware
-from starlette.requests import Request
 
 from main.utils.service_manager import ServiceManager
 from main.controller.stocksapi_controller import router as stocksRouter
@@ -8,16 +7,27 @@ from main.controller.stocksapi_controller import router as stocksRouter
 from main.app.stocks_api.cache import stocksCache
 
 
+class MCPDetectMiddleware:
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            headers = dict(scope.get("headers") or [])
+            if headers.get(b"x-mcp") == b"true":
+                scope.setdefault("state", {})["compressed"] = True
+                # X-MCP requests are always compact — force the flag so cache keys and handlers agree
+                qs = scope.get("query_string", b"").decode("latin-1")
+                if "compact=" not in qs:
+                    scope["query_string"] = (qs + ("&" if qs else "") + "compact=true").encode("latin-1")
+        await self.app(scope, receive, send)
+
+
 class StocksAPIService:
     @staticmethod
     def initialize(port: int):
         service = ServiceManager.getApp(port)
-
-        @service.middleware("http")
-        async def mcpDetect(request: Request, call_next):
-            request.state.compressed = request.headers.get("x-mcp") == "true"
-            return await call_next(request)
-
+        service.add_middleware(MCPDetectMiddleware)
         service.include_router(stocksRouter)
         service.add_middleware(GZipMiddleware, minimum_size=4096)
 
