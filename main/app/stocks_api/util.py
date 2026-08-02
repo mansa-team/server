@@ -104,28 +104,16 @@ def detectNestedFields(df: pd.DataFrame) -> dict[str, dict[str, Any]]:
         if not sample.size:
             continue
 
-        first = None
+        keys: set[str] = set()
         for item in sample:
             try:
                 parsed = json.loads(item) if isinstance(item, str) else item
             except (ValueError, TypeError):
                 continue
             if isinstance(parsed, list) and parsed and isinstance(parsed[0], dict):
-                first = parsed
-                break
-        if first is None:
-            continue
-
-        keys: set[str] = set()
-        for item in sample:
-            try:
-                rows = json.loads(item) if isinstance(item, str) else item
-                if isinstance(rows, list):
-                    for row in rows:
-                        if isinstance(row, dict):
-                            keys.update(row.keys())
-            except (ValueError, TypeError):
-                continue
+                for row in parsed:
+                    if isinstance(row, dict):
+                        keys.update(row.keys())
 
         if not keys:
             continue

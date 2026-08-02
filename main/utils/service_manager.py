@@ -36,7 +36,7 @@ class ServiceManager:
         )
 
         cls.instances[port] = app
-        return cls.instances[port]
+        return app
 
     @classmethod
     def runAll(cls):

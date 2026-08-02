@@ -62,7 +62,6 @@ def buildFeatherCache():
                     nonNull = chunk[col].dropna()
                     if not nonNull.empty:
                         sampleParts[col] = nonNull.head(20).reset_index(drop=True)
-            for col in sampleCols or ():
                 chunk[col] = chunk[col].map(
                     lambda s: compressor.compress(s.encode("utf-8")) if isinstance(s, str) else None
                 )
@@ -80,7 +79,7 @@ def buildFeatherCache():
         os.replace(tmpNested, CACHE_NESTED_PATH)
     df.to_feather(tmpMain)
     os.replace(tmpMain, CACHE_FEATHER_PATH)
-    print(f"feather written to {CACHE_FEATHER_PATH} ({len(df)} records)")
+    logger.info(f"feather written to {CACHE_FEATHER_PATH} ({len(df)} records)")
 
 
 class StocksCacheManager:

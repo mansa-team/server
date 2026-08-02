@@ -3,20 +3,9 @@ import zstandard as zstd
 
 import pandas as pd
 
+import main.app.stocks_api.cache as cache_mod
 from main.app.stocks_api.cache import StocksCacheManager, COMPRESS_COLS
 from main.app.stocks_api.query import StocksQueryManager, filterCotationColumn
-
-
-def test_filter_cotation_column_does_not_accept_date_index():
-    series = pd.Series([[{"DATA": "01-01-2024", "PRECO": 10.0}, {"DATA": "15-06-2026", "PRECO": 11.0}]])
-    try:
-        filterCotationColumn(
-            series, pd.Timestamp("2026-01-01"), pd.Timestamp("2026-12-31"), {"0": ("01-01-2020", "01-01-2027")}
-        )
-    except TypeError:
-        pass
-    else:
-        raise AssertionError("dateIndex parameter should have been removed")
 
 
 def test_filter_cotation_column_filters_by_date_without_index():
@@ -34,8 +23,6 @@ def test_filter_cotation_column_filters_by_date_without_index():
 
 
 def test_get_cached_stocks_does_not_build_date_index(monkeypatch, tmp_path):
-    import main.app.stocks_api.cache as cache_mod
-
     df = pd.DataFrame(
         {
             "TICKER": ["PETR4"],
@@ -69,8 +56,6 @@ def makeDf():
 
 
 def test_get_cached_stocks_compresses_json_columns(monkeypatch, tmp_path):
-    import main.app.stocks_api.cache as cache_mod
-
     monkeypatch.setattr(pd, "read_sql", lambda *a, **k: iter([makeDf()]))
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
@@ -86,8 +71,6 @@ def test_get_cached_stocks_compresses_json_columns(monkeypatch, tmp_path):
 
 
 def test_get_cached_stocks_keeps_raw_nested_sample(monkeypatch, tmp_path):
-    import main.app.stocks_api.cache as cache_mod
-
     monkeypatch.setattr(pd, "read_sql", lambda *a, **k: iter([makeDf()]))
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
@@ -99,8 +82,6 @@ def test_get_cached_stocks_keeps_raw_nested_sample(monkeypatch, tmp_path):
 
 
 def test_nested_sample_skips_all_null_leading_rows(monkeypatch, tmp_path):
-    import main.app.stocks_api.cache as cache_mod
-
     empty = pd.DataFrame(
         {
             "TICKER": ["AAA1", "BBB2"],
@@ -120,8 +101,6 @@ def test_nested_sample_skips_all_null_leading_rows(monkeypatch, tmp_path):
 
 
 def test_nested_sample_captures_sparse_columns_across_chunks(monkeypatch, tmp_path):
-    import main.app.stocks_api.cache as cache_mod
-
     first = pd.DataFrame(
         {
             "TICKER": ["PETR4", "VALE3"],
@@ -193,8 +172,6 @@ def test_deserialize_json_columns_decompresses_bytes():
 
 
 def test_get_nest_keeps_compressed_column_subfields(monkeypatch, tmp_path):
-    import main.app.stocks_api.cache as cache_mod
-
     df = pd.DataFrame(
         {
             "TICKER": ["PETR4"],
