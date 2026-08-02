@@ -35,4 +35,3 @@ slowapi
 fastapi-sso
 bcrypt
 PyJWT
-itsdangerous
