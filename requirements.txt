@@ -21,6 +21,7 @@ pyarrow
 orjson
 requests
 zstandard
+cashews
 
 # PROMETHEUS
 sentence-transformers

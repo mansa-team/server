@@ -1103,7 +1103,7 @@ class TestStocksApiHistorical:
     def test_get_historical(self):
         """Covers line 35."""
         with patch("main.controller.stocksapi_controller.stocksQuery") as mock_query:
-            mock_query.queryHistorical.return_value = {"data": [{"ticker": "PETR4", "price": 30.0}]}
+            mock_query.queryHistorical = AsyncMock(return_value={"data": [{"ticker": "PETR4", "price": 30.0}]})
 
             client, _, _ = _make_stocksapi_client(mock_api_key="key")
             resp = client.get("/stocks/historical?search=PETR4&limit=10")
@@ -1117,7 +1117,7 @@ class TestStocksApiFundamental:
     def test_get_fundamental(self):
         """Covers line 47."""
         with patch("main.controller.stocksapi_controller.stocksQuery") as mock_query:
-            mock_query.queryFundamental.return_value = {"data": [{"ticker": "VALE3", "pl": 5.0}]}
+            mock_query.queryFundamental = AsyncMock(return_value={"data": [{"ticker": "VALE3", "pl": 5.0}]})
 
             client, _, _ = _make_stocksapi_client(mock_api_key="key")
             resp = client.get("/stocks/fundamental?search=VALE3&limit=5")

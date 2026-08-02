@@ -10,11 +10,8 @@ from main.app.stocks_api.key import verifyAPIKey
 from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
 from main.app.stocks_api.compress import compressResponse, getNest
 from main.app.stocks_api.cache import stocksCache
-from main.app.stocks_api.response_cache import ResponseCache
 
 logger = logging.getLogger(__name__)
-
-responseCache = ResponseCache()
 
 
 router = APIRouter(prefix="/stocks", tags=["Stocks API"])
@@ -82,7 +79,7 @@ def listFields():
 
 
 @router.get("/historical", operation_id="get_historical")
-def getHistorical(
+async def getHistorical(
     request: Request,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     fields: str = Query(None, max_length=500, pattern=r"^[A-Za-z0-9,\s/.-]+$"),
@@ -137,22 +134,14 @@ def getHistorical(
     - Get PETR4 net income 2022-2024: search="PETR4", fields="LUCRO LIQUIDO", dates="2022,2024"
     - Get all revenue data for VALE3: search="VALE3", fields="RECEITA LIQUIDA"
     - Compare top 10 by EBITDA: fields="EBITDA", orderBy="EBITDA", limit=10"""
-    cacheKey = responseCache.makeKey(
-        "historical", search=search, fields=fields, dates=dates, orderBy=orderBy, limit=limit
-    )
-    cached = responseCache.get(cacheKey)
-    if cached is not None:
-        result = cached
-    else:
-        result = stocksQuery.queryHistorical(search, fields, dates, orderBy, limit)
-        responseCache.set(cacheKey, result)
+    result = await stocksQuery.queryHistorical(search, fields, dates, orderBy, limit)
     if compact or getattr(request.state, "compressed", False):
         result = compressResponse(result, "get_historical", {"search": search, "fields": fields, "dates": dates})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
 
 
 @router.get("/fundamental", operation_id="get_fundamental")
-def getFundamental(
+async def getFundamental(
     request: Request,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     fields: str = Query(None, max_length=500, pattern=r"^[A-Za-z0-9,\s/.-]+$"),
@@ -212,22 +201,14 @@ def getFundamental(
     - Get all stocks' dividend yield latest: fields="DY"
     - Compare P/L across tickers: search="PETR4,VALE3,ITUB4", fields="P/L", orderBy="P/L"
     - Q1 2024 fundamental snapshot: fields="P/L,ROE", dates="2024-01-01,2024-03-31" """
-    cacheKey = responseCache.makeKey(
-        "fundamental", search=search, fields=fields, dates=dates, orderBy=orderBy, limit=limit
-    )
-    cached = responseCache.get(cacheKey)
-    if cached is not None:
-        result = cached
-    else:
-        result = stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
-        responseCache.set(cacheKey, result)
+    result = await stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
     if compact or getattr(request.state, "compressed", False):
         result = compressResponse(result, "get_fundamental", {"search": search, "fields": fields, "dates": dates})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
 
 
 @router.get("/cotations", operation_id="get_cotations")
-def getCotations(
+async def getCotations(
     request: Request,
     search: str = Query(..., min_length=1, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     dates: str = Query(None, max_length=21),
@@ -274,20 +255,14 @@ def getCotations(
     - Get PETR4 full price history: search="PETR4"
     - Get PETR4 + VALE3 2023 prices: search="PETR4,VALE3", dates="2023-01-01,2023-12-31"
     - Get inflation-adjusted prices: search="ITUB4", adjusted=true"""
-    cacheKey = responseCache.makeKey("cotations", search=search, dates=dates, adjusted=adjusted)
-    cached = responseCache.get(cacheKey)
-    if cached is not None:
-        result = cached
-    else:
-        result = stocksQuery.queryCotations(search, dates, adjusted)
-        responseCache.set(cacheKey, result)
+    result = await stocksQuery.queryCotations(search, dates, adjusted)
     if compact or getattr(request.state, "compressed", False):
         result = compressResponse(result, "get_cotations", {"search": search, "dates": dates})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=300"})
 
 
 @router.get("/cotations/live", operation_id="get_live_price")
-def getLiveCotation(
+async def getLiveCotation(
     request: Request,
     search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),
     compact: bool = Query(False),
@@ -323,13 +298,7 @@ def getLiveCotation(
     - Only one ticker per request (max 7 chars for the search param).
     - Real-time data is only available during B3 market hours (10:00-17:30 BRT).
     - Outside market hours, returns the last available closing price."""
-    cacheKey = responseCache.makeKey("realtime_cotations", search=search)
-    cached = responseCache.get(cacheKey)
-    if cached is not None:
-        result = cached
-    else:
-        result = stocksQuery.queryLiveCotation(search)
-        responseCache.set(cacheKey, result)
+    result = await stocksQuery.queryLiveCotation(search)
     if compact or getattr(request.state, "compressed", False):
         result = compressResponse(result, "get_live_price", {"search": search})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=15"})
