@@ -26,7 +26,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 def isSecureScheme(request: Request) -> bool:
-    return request.url.scheme == "https" if request.url.scheme else False
+    return request.url.scheme == "https"
 
 
 def issueSessionCookie(response, request, db, user) -> str:
