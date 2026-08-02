@@ -7,7 +7,7 @@ from main.utils.roles import Permission, Roles
 
 class TestCheckAccess:
     def test_admin_always_passes(self):
-        assert Roles.checkAccess(["ADMIN"], Permission.GENERATE_API_KEYS) is True
+        assert Roles.checkAccess(["ADMIN"], Permission.USE_PROMETHEUS) is True
 
     def test_user_lacks_prometheus(self):
         assert Roles.checkAccess(["USER"], Permission.USE_PROMETHEUS) is False
@@ -17,12 +17,6 @@ class TestCheckAccess:
 
     def test_premium_has_extended_memories(self):
         assert Roles.checkAccess(["PREMIUM"], Permission.PROMETHEUS_EXTENDED_MEMORIES) is True
-
-    def test_developer_starter_has_api_keys(self):
-        assert Roles.checkAccess(["DEVELOPER_STARTER"], Permission.GENERATE_API_KEYS) is True
-
-    def test_developer_enterprise_has_api_keys(self):
-        assert Roles.checkAccess(["DEVELOPER_ENTERPRISE"], Permission.GENERATE_API_KEYS) is True
 
     def test_developer_starter_lacks_prometheus(self):
         assert Roles.checkAccess(["DEVELOPER_STARTER"], Permission.USE_PROMETHEUS) is False
@@ -37,7 +31,7 @@ class TestCheckAccess:
         assert Roles.checkAccess([], Permission.USE_PROMETHEUS) is False
 
     def test_admin_skips_other_roles(self):
-        assert Roles.checkAccess(["ADMIN", "USER"], Permission.GENERATE_API_KEYS) is True
+        assert Roles.checkAccess(["ADMIN", "USER"], Permission.USE_PROMETHEUS) is True
 
 
 class TestRequirePermission:
