@@ -114,24 +114,6 @@ class SessionManager:
         return True
 
     @staticmethod
-    def cleanupExpiredSessions(db: Session) -> int:
-        now = datetime.now()
-        count = (
-            db.query(UserSession)
-            .filter(
-                UserSession.isActive,
-                UserSession.expiresAt < now,
-            )
-            .update({UserSession.isActive: False}, synchronize_session=False)
-        )
-        db.commit()
-
-        if count > 0:
-            logger.info(f"Cleaned up {count} expired sessions")
-
-        return count
-
-    @staticmethod
     def validateSession(db: Session, sessionId: str, userId: int) -> bool:
         session = SessionManager.getSessionById(db, sessionId, userId)
         if not session:

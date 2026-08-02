@@ -764,31 +764,6 @@ class TestSessionManager:
         result = SessionManager.updateLastActive(mock_db, "nonexistent")
         assert result is False
 
-    @patch("main.app.authentication.session.datetime")
-    def test_cleanup_expired_sessions(self, mock_datetime):
-        from main.app.authentication.session import SessionManager
-
-        mock_db = MagicMock()
-        mock_now = datetime(2026, 3, 23, 12, 0, 0, tzinfo=ZoneInfo("America/Sao_Paulo"))
-        mock_datetime.now.return_value = mock_now
-        mock_db.query.return_value.filter.return_value.update.return_value = 3
-
-        count = SessionManager.cleanupExpiredSessions(mock_db)
-        assert count == 3
-        mock_db.commit.assert_called_once()
-
-    @patch("main.app.authentication.session.datetime")
-    def test_cleanup_expired_sessions_none_expired(self, mock_datetime):
-        from main.app.authentication.session import SessionManager
-
-        mock_db = MagicMock()
-        mock_now = datetime(2026, 3, 23, 12, 0, 0, tzinfo=ZoneInfo("America/Sao_Paulo"))
-        mock_datetime.now.return_value = mock_now
-        mock_db.query.return_value.filter.return_value.update.return_value = 0
-
-        count = SessionManager.cleanupExpiredSessions(mock_db)
-        assert count == 0
-
     def test_validate_session_active(self):
         from main.app.authentication.session import SessionManager
 
