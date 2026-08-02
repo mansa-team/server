@@ -11,6 +11,8 @@ import pandas as pd
 
 PREPOSITIONS = frozenset({"DE", "DO", "DA", "DOS", "DAS", "E", "O", "A", "EM", "COM", "POR", "PARA"})
 URL_HINTS = frozenset({"link", "url", "href"})
+# Tuple (not frozenset): scraper reorderColumns relies on this exact order for column layout.
+JSON_COLUMNS = ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS")
 
 
 def dedupAbbrev(used: set, abbrev: str) -> str:

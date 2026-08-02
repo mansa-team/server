@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 
-from main.app.stocks_api.cache import COMPRESS_COLS, StocksCacheManager, optimizeDtypes
+from main.app.stocks_api.cache import StocksCacheManager, optimizeDtypes
 
 
 def test_optimize_dtypes_skips_pyarrow_for_compress_cols():

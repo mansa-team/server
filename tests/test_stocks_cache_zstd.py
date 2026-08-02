@@ -5,7 +5,7 @@ import pytest
 import pandas as pd
 
 import main.app.stocks_api.cache as cache_mod
-from main.app.stocks_api.cache import StocksCacheManager, COMPRESS_COLS
+from main.app.stocks_api.cache import StocksCacheManager
 from main.app.stocks_api.query import StocksQueryManager, filterCotationColumn
 
 

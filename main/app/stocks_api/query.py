@@ -8,7 +8,7 @@ import orjson
 from main.utils.http_session import getSession
 
 from main.app.stocks_api.cache import stocksCache
-from main.app.stocks_api.util import categorizeColumns, parseDateRange
+from main.app.stocks_api.util import JSON_COLUMNS, categorizeColumns, parseDateRange
 
 import logging
 
@@ -57,8 +57,6 @@ class StocksQueryManager:
     def __init__(self, cacheManager):
         self.cacheManager = cacheManager
 
-    SPECIAL_COLS = frozenset(["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"])
-
     def deserializeJsonColumns(self, df: pd.DataFrame) -> pd.DataFrame:
         if df.empty:
             return df
@@ -81,7 +79,7 @@ class StocksQueryManager:
                 return json.loads(x)
 
         for col in df.columns:
-            if col in self.SPECIAL_COLS and (df[col].dtype == "object" or pd.api.types.is_string_dtype(df[col])):
+            if col in JSON_COLUMNS and (df[col].dtype == "object" or pd.api.types.is_string_dtype(df[col])):
                 df[col] = df[col].apply(
                     lambda x: (
                         cleanJSON(parseJSON(x))
