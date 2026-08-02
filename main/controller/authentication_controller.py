@@ -32,7 +32,7 @@ def isSecureScheme(request: Request) -> bool:
 def issueSessionCookie(response, request, db, user) -> str:
     userAgent = request.headers.get("User-Agent", "")
     expiresAt = datetime.now() + timedelta(hours=TOKEN_EXPIRY_HOURS)
-    session = SessionManager.createSession(db, user["userId"], userAgent, request, expiresAt)
+    session = SessionManager.createSession(db, user["userId"], userAgent, expiresAt)
     accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
 
     # Set domain so cookie works across ports in dev (API:3200 → frontend:5173)
