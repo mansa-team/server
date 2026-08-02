@@ -19,7 +19,7 @@ class StocksAPIService:
             return await call_next(request)
 
         service.include_router(stocksRouter)
-        service.add_middleware(GZipMiddleware, minimum_size=1000)
+        service.add_middleware(GZipMiddleware, minimum_size=4096)
 
         mcp = FastApiMCP(
             service,
