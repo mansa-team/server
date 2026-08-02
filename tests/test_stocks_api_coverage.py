@@ -1240,6 +1240,42 @@ class TestQueryLiveCotation:
         assert result["search"] == "WEGE3"
         assert result["data"][0]["TICKER"] == "WEGE3"
 
+    def test_live_route_cached_within_ttl(self, stocks_http_client):
+        from main.controller.stocksapi_controller import responseCache
+
+        responseCache.store.clear()
+        responseCache.times.clear()
+        responseCache.accessOrder.clear()
+        mock_session = MagicMock()
+        mock_resp = MagicMock()
+        mock_resp.json.return_value = self._mock_b3_response()
+        mock_resp.raise_for_status = MagicMock()
+        mock_session.get.return_value = mock_resp
+        with patch("main.app.stocks_api.query.getSession", return_value=mock_session):
+            resp1 = stocks_http_client.get("/stocks/cotations/live?search=WEGE3")
+            resp2 = stocks_http_client.get("/stocks/cotations/live?search=WEGE3")
+        assert resp1.status_code == 200
+        assert resp2.status_code == 200
+        assert mock_session.get.call_count == 1
+
+    def test_live_route_refetches_after_ttl(self, stocks_http_client):
+        from main.controller.stocksapi_controller import responseCache
+
+        responseCache.store.clear()
+        responseCache.times.clear()
+        responseCache.accessOrder.clear()
+        mock_session = MagicMock()
+        mock_resp = MagicMock()
+        mock_resp.json.return_value = self._mock_b3_response()
+        mock_resp.raise_for_status = MagicMock()
+        mock_session.get.return_value = mock_resp
+        with patch("main.app.stocks_api.query.getSession", return_value=mock_session):
+            stocks_http_client.get("/stocks/cotations/live?search=WEGE3")
+            key = responseCache.makeKey("realtime_cotations", search="WEGE3")
+            responseCache.times[key] = responseCache.times[key] - 16
+            stocks_http_client.get("/stocks/cotations/live?search=WEGE3")
+        assert mock_session.get.call_count == 2
+
     def test_b3_unavailable_returns_503(self):
         from fastapi import HTTPException
 

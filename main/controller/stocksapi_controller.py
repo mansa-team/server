@@ -323,7 +323,13 @@ def getLiveCotation(
     - Only one ticker per request (max 7 chars for the search param).
     - Real-time data is only available during B3 market hours (10:00-17:30 BRT).
     - Outside market hours, returns the last available closing price."""
-    result = stocksQuery.queryLiveCotation(search)
+    cacheKey = responseCache.makeKey("realtime_cotations", search=search)
+    cached = responseCache.get(cacheKey)
+    if cached is not None:
+        result = cached
+    else:
+        result = stocksQuery.queryLiveCotation(search)
+        responseCache.set(cacheKey, result)
     if compact or getattr(request.state, "compressed", False):
         result = compressResponse(result, "get_live_price", {"search": search})
     return JSONResponse(content=result, headers={"Cache-Control": "public, max-age=15"})

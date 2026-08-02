@@ -12,6 +12,7 @@ TTL_MAP = {
     "fundamental": 300,
     "historical": 3600,
     "fields": 3600,
+    "realtime_cotations": 15,
 }
 
 
