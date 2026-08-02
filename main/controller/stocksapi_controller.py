@@ -1,8 +1,10 @@
 from datetime import datetime, timezone
 import logging
 
+import orjson
 from cashews import cache
 from fastapi import APIRouter, Depends, Query, HTTPException, Response
+from fastapi.responses import Response as FastAPIResponse
 
 
 from main.app.stocks_api.query import stocksQuery
@@ -16,6 +18,15 @@ logger = logging.getLogger(__name__)
 cache.setup("mem://")
 
 router = APIRouter(prefix="/stocks", tags=["Stocks API"])
+
+
+class JSONBytesResponse(FastAPIResponse):
+    """Sends pre-serialized JSON bytes without re-encoding (cache-friendly)."""
+
+    media_type = "application/json"
+
+    def render(self, content):
+        return content if isinstance(content, bytes) else str(content).encode(self.charset)
 
 
 @router.get("/health")
@@ -79,7 +90,7 @@ def listFields():
     return {"historical": historical, "fundamental": fundamental, "abbreviations": abbreviations, "nested": nested}
 
 
-@router.get("/historical", operation_id="get_historical")
+@router.get("/historical", operation_id="get_historical", response_class=JSONBytesResponse)
 @cache(ttl="1h", key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 async def getHistorical(
     response: Response,
@@ -140,10 +151,10 @@ async def getHistorical(
     if compact:
         result = compressResponse(result, "get_historical", {"search": search, "fields": fields, "dates": dates})
     response.headers["Cache-Control"] = "public, max-age=300"
-    return result
+    return orjson.dumps(result)
 
 
-@router.get("/fundamental", operation_id="get_fundamental")
+@router.get("/fundamental", operation_id="get_fundamental", response_class=JSONBytesResponse)
 @cache(ttl="5m", key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 async def getFundamental(
     response: Response,
@@ -209,10 +220,10 @@ async def getFundamental(
     if compact:
         result = compressResponse(result, "get_fundamental", {"search": search, "fields": fields, "dates": dates})
     response.headers["Cache-Control"] = "public, max-age=300"
-    return result
+    return orjson.dumps(result)
 
 
-@router.get("/cotations", operation_id="get_cotations")
+@router.get("/cotations", operation_id="get_cotations", response_class=JSONBytesResponse)
 @cache(ttl="5m", key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}")
 async def getCotations(
     response: Response,
@@ -265,10 +276,10 @@ async def getCotations(
     if compact:
         result = compressResponse(result, "get_cotations", {"search": search, "dates": dates})
     response.headers["Cache-Control"] = "public, max-age=300"
-    return result
+    return orjson.dumps(result)
 
 
-@router.get("/cotations/live", operation_id="get_live_price")
+@router.get("/cotations/live", operation_id="get_live_price", response_class=JSONBytesResponse)
 @cache(ttl="15s", key="stocks:live:{search}:{compact}")
 async def getLiveCotation(
     response: Response,
@@ -310,4 +321,4 @@ async def getLiveCotation(
     if compact:
         result = compressResponse(result, "get_live_price", {"search": search})
     response.headers["Cache-Control"] = "public, max-age=15"
-    return result
+    return orjson.dumps(result)
