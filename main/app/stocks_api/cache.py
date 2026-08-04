@@ -60,8 +60,17 @@ def buildFeatherCache():
     sampleParts: dict[str, pd.Series] = {}
     compressor = zstd.ZstdCompressor(level=3)
     with stocksEngine.connect() as conn:
-        reader = pd.read_sql("SELECT * FROM b3_stocks", conn, chunksize=5000)
-        for chunk in reader:
+        # stream_results keeps a server-side cursor: pandas' buffered read_sql pulls the
+        # entire ~13GB table client-side and dies with "Lost connection during query"
+        # (2013) on slow WAN links; streaming delivers rows incrementally instead.
+        stream = conn.execution_options(stream_results=True)
+        result = stream.exec_driver_sql("SELECT * FROM b3_stocks")
+        columns = list(result.keys())
+        while True:
+            batch = result.fetchmany(5000)
+            if not batch:
+                break
+            chunk = pd.DataFrame.from_records((tuple(r) for r in batch), columns=columns)
             if sampleCols is None:
                 sampleCols = [c for c in JSON_COLUMNS if c in chunk.columns]
             for col in sampleCols or ():
