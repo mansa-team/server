@@ -19,11 +19,6 @@
     "ast_hash": "a69a0edf127343d048dfb0b99e8316d2",
     "semantic_hash": ""
   },
-  "D:\\Repositories\\server\\scaling_benchmark.py": {
-    "mtime": 1785703434.7038815,
-    "ast_hash": "397c76b218a780558e92651a20414341",
-    "semantic_hash": ""
-  },
   "D:\\Repositories\\server\\frontend\\components.json": {
     "mtime": 1785640862.6044843,
     "ast_hash": "e3fcf5839b4172c81114f80fd960058f",
@@ -210,8 +205,8 @@
     "semantic_hash": "0cbeed2304027b45b74b36f17b47cca7"
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\cache.py": {
-    "mtime": 1785878720.6109698,
-    "ast_hash": "d08b5b2ebf28b82560811330ccaa608d",
+    "mtime": 1785989305.1866548,
+    "ast_hash": "8b767d6d04e7023cbfa0b08102eca3db",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\compress.py": {
@@ -492,31 +487,6 @@
   "D:\\Repositories\\server\\frontend\\index.html": {
     "mtime": 1785641936.6961534,
     "ast_hash": "7bbc5e5a7693a5828d34f9f4d7eb8125",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\latency_benchmark.png": {
-    "mtime": 1785699821.2672274,
-    "ast_hash": "ff0fc15286693a448686dd1e85d73ec9",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\latency_benchmark_linkedin.png": {
-    "mtime": 1785698505.4226882,
-    "ast_hash": "ce96ea8398474d2c22240151d4966bcd",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\lru_cache.png": {
-    "mtime": 1785648277.2345347,
-    "ast_hash": "f0b301b51e5a302a8864694f33d0e3cc",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\response_cache.png": {
-    "mtime": 1785647695.2563562,
-    "ast_hash": "27ca289c1d6f5e5ae1e16208b2a408d5",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\scaling_benchmark.png": {
-    "mtime": 1785698514.2168736,
-    "ast_hash": "931e287591bdc2178e3cd92af53d0d39",
     "semantic_hash": ""
   }
 }

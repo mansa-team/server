@@ -304,105 +304,6 @@
       "norm_label": "triggerscraper()"
     },
     {
-      "label": "scaling_benchmark.py",
-      "file_type": "code",
-      "source_file": "scaling_benchmark.py",
-      "source_location": "L1",
-      "id": "scaling_benchmark_py",
-      "community": 489,
-      "norm_label": "scaling_benchmark.py"
-    },
-    {
-      "label": "stats()",
-      "file_type": "code",
-      "source_file": "scaling_benchmark.py",
-      "source_location": "L19",
-      "id": "server_scaling_benchmark_stats",
-      "community": 489,
-      "norm_label": "stats()"
-    },
-    {
-      "label": "hammer_measured()",
-      "file_type": "code",
-      "source_file": "scaling_benchmark.py",
-      "source_location": "L32",
-      "id": "server_scaling_benchmark_hammer_measured",
-      "community": 489,
-      "norm_label": "hammer_measured()"
-    },
-    {
-      "label": "main()",
-      "file_type": "code",
-      "source_file": "scaling_benchmark.py",
-      "source_location": "L50",
-      "id": "server_scaling_benchmark_main",
-      "community": 489,
-      "norm_label": "main()"
-    },
-    {
-      "label": "Fire n requests with c concurrent workers, measuring ttfb + total per request.",
-      "file_type": "rationale",
-      "source_file": "scaling_benchmark.py",
-      "source_location": "L33",
-      "id": "server_scaling_benchmark_rationale_33",
-      "community": 489,
-      "norm_label": "fire n requests with c concurrent workers, measuring ttfb + total per request."
-    },
-    {
-      "label": "_probe_host.py",
-      "file_type": "code",
-      "source_file": "_probe_host.py",
-      "source_location": "L1",
-      "id": "probe_host_py",
-      "community": 514,
-      "norm_label": "_probe_host.py"
-    },
-    {
-      "label": "sec()",
-      "file_type": "code",
-      "source_file": "_probe_host.py",
-      "source_location": "L6",
-      "id": "server_probe_host_sec",
-      "community": 514,
-      "norm_label": "sec()"
-    },
-    {
-      "label": "_probe_stocks.py",
-      "file_type": "code",
-      "source_file": "_probe_stocks.py",
-      "source_location": "L1",
-      "id": "probe_stocks_py",
-      "community": 515,
-      "norm_label": "_probe_stocks.py"
-    },
-    {
-      "label": "sec()",
-      "file_type": "code",
-      "source_file": "_probe_stocks.py",
-      "source_location": "L6",
-      "id": "server_probe_stocks_sec",
-      "community": 515,
-      "norm_label": "sec()"
-    },
-    {
-      "label": "_probe_stream.py",
-      "file_type": "code",
-      "source_file": "_probe_stream.py",
-      "source_location": "L1",
-      "id": "probe_stream_py",
-      "community": 516,
-      "norm_label": "_probe_stream.py"
-    },
-    {
-      "label": "sec()",
-      "file_type": "code",
-      "source_file": "_probe_stream.py",
-      "source_location": "L5",
-      "id": "server_probe_stream_sec",
-      "community": 516,
-      "norm_label": "sec()"
-    },
-    {
       "label": "components.json",
       "file_type": "code",
       "source_file": "frontend/components.json",
@@ -2568,7 +2469,7 @@
       "source_file": "main/app/prometheus/vector.py",
       "source_location": "L1",
       "id": "main_app_prometheus_vector_py",
-      "community": 13,
+      "community": 53,
       "norm_label": "vector.py"
     },
     {
@@ -2586,7 +2487,7 @@
       "source_file": "main/app/prometheus/vector.py",
       "source_location": "L14",
       "id": "prometheus_vector_decodeembeddings",
-      "community": 13,
+      "community": 53,
       "norm_label": "decodeembeddings()"
     },
     {
@@ -2854,7 +2755,7 @@
       "label": "tryBuildLock()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/cache.py",
-      "source_location": "L101",
+      "source_location": "L98",
       "id": "stocks_api_cache_trybuildlock",
       "community": 82,
       "norm_label": "trybuildlock()"
@@ -2863,7 +2764,7 @@
       "label": "StocksCacheManager",
       "file_type": "code",
       "source_file": "main/app/stocks_api/cache.py",
-      "source_location": "L119",
+      "source_location": "L116",
       "id": "stocks_api_cache_stockscachemanager",
       "community": 42,
       "norm_label": "stockscachemanager"
@@ -2872,7 +2773,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/cache.py",
-      "source_location": "L120",
+      "source_location": "L117",
       "id": "stocks_api_cache_stockscachemanager_init",
       "community": 42,
       "norm_label": ".__init__()"
@@ -2881,7 +2782,7 @@
       "label": ".cacheScheduler()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/cache.py",
-      "source_location": "L128",
+      "source_location": "L125",
       "id": "stocks_api_cache_stockscachemanager_cachescheduler",
       "community": 82,
       "norm_label": ".cachescheduler()"
@@ -2890,7 +2791,7 @@
       "label": ".loadFromFeather()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/cache.py",
-      "source_location": "L135",
+      "source_location": "L132",
       "id": "stocks_api_cache_stockscachemanager_loadfromfeather",
       "community": 82,
       "norm_label": ".loadfromfeather()"
@@ -2899,7 +2800,7 @@
       "label": ".getCachedStocks()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/cache.py",
-      "source_location": "L153",
+      "source_location": "L150",
       "id": "stocks_api_cache_stockscachemanager_getcachedstocks",
       "community": 82,
       "norm_label": ".getcachedstocks()"
@@ -5909,6 +5810,105 @@
       "id": "docs_user_license",
       "community": 23,
       "norm_label": "license"
+    },
+    {
+      "label": "scaling_benchmark.py",
+      "file_type": "code",
+      "source_file": "scaling_benchmark.py",
+      "source_location": "L1",
+      "community": 489,
+      "norm_label": "scaling_benchmark.py",
+      "id": "scaling_benchmark_py"
+    },
+    {
+      "label": "stats()",
+      "file_type": "code",
+      "source_file": "scaling_benchmark.py",
+      "source_location": "L19",
+      "community": 489,
+      "norm_label": "stats()",
+      "id": "server_scaling_benchmark_stats"
+    },
+    {
+      "label": "hammer_measured()",
+      "file_type": "code",
+      "source_file": "scaling_benchmark.py",
+      "source_location": "L32",
+      "community": 489,
+      "norm_label": "hammer_measured()",
+      "id": "server_scaling_benchmark_hammer_measured"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "scaling_benchmark.py",
+      "source_location": "L50",
+      "community": 489,
+      "norm_label": "main()",
+      "id": "server_scaling_benchmark_main"
+    },
+    {
+      "label": "Fire n requests with c concurrent workers, measuring ttfb + total per request.",
+      "file_type": "rationale",
+      "source_file": "scaling_benchmark.py",
+      "source_location": "L33",
+      "community": 489,
+      "norm_label": "fire n requests with c concurrent workers, measuring ttfb + total per request.",
+      "id": "server_scaling_benchmark_rationale_33"
+    },
+    {
+      "label": "_probe_host.py",
+      "file_type": "code",
+      "source_file": "_probe_host.py",
+      "source_location": "L1",
+      "community": 514,
+      "norm_label": "_probe_host.py",
+      "id": "probe_host_py"
+    },
+    {
+      "label": "sec()",
+      "file_type": "code",
+      "source_file": "_probe_host.py",
+      "source_location": "L6",
+      "community": 514,
+      "norm_label": "sec()",
+      "id": "server_probe_host_sec"
+    },
+    {
+      "label": "_probe_stocks.py",
+      "file_type": "code",
+      "source_file": "_probe_stocks.py",
+      "source_location": "L1",
+      "community": 515,
+      "norm_label": "_probe_stocks.py",
+      "id": "probe_stocks_py"
+    },
+    {
+      "label": "sec()",
+      "file_type": "code",
+      "source_file": "_probe_stocks.py",
+      "source_location": "L6",
+      "community": 515,
+      "norm_label": "sec()",
+      "id": "server_probe_stocks_sec"
+    },
+    {
+      "label": "_probe_stream.py",
+      "file_type": "code",
+      "source_file": "_probe_stream.py",
+      "source_location": "L1",
+      "community": 516,
+      "norm_label": "_probe_stream.py",
+      "id": "probe_stream_py"
+    },
+    {
+      "label": "sec()",
+      "file_type": "code",
+      "source_file": "_probe_stream.py",
+      "source_location": "L5",
+      "community": 516,
+      "norm_label": "sec()",
+      "id": "server_probe_stream_sec"
     },
     {
       "label": "BaseMansaSettings",
@@ -20621,7 +20621,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L8",
-      "community": 105,
+      "community": 499,
       "norm_label": "testgetmemorylimit",
       "id": "tests_test_memory_manager_testgetmemorylimit"
     },
@@ -20630,7 +20630,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L9",
-      "community": 105,
+      "community": 499,
       "norm_label": ".test_basic_user()",
       "id": "tests_test_memory_manager_testgetmemorylimit_test_basic_user"
     },
@@ -20639,7 +20639,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L12",
-      "community": 105,
+      "community": 499,
       "norm_label": ".test_premium_user()",
       "id": "tests_test_memory_manager_testgetmemorylimit_test_premium_user"
     },
@@ -20648,7 +20648,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L15",
-      "community": 105,
+      "community": 499,
       "norm_label": ".test_admin_user()",
       "id": "tests_test_memory_manager_testgetmemorylimit_test_admin_user"
     },
@@ -20756,7 +20756,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L101",
-      "community": 499,
+      "community": 105,
       "norm_label": "testgetusermemories",
       "id": "tests_test_memory_manager_testgetusermemories"
     },
@@ -20765,7 +20765,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L102",
-      "community": 499,
+      "community": 105,
       "norm_label": ".test_returns_memories()",
       "id": "tests_test_memory_manager_testgetusermemories_test_returns_memories"
     },
@@ -20774,7 +20774,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L109",
-      "community": 499,
+      "community": 105,
       "norm_label": ".test_pagination()",
       "id": "tests_test_memory_manager_testgetusermemories_test_pagination"
     },
@@ -20783,7 +20783,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L115",
-      "community": 499,
+      "community": 105,
       "norm_label": ".test_excludes_archived()",
       "id": "tests_test_memory_manager_testgetusermemories_test_excludes_archived"
     },
@@ -36641,7 +36641,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L11",
-      "community": 105,
+      "community": 499,
       "norm_label": "non-extended role gets basic limit.",
       "id": "tests_test_memory_manager_rationale_11"
     },
@@ -36650,7 +36650,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L15",
-      "community": 105,
+      "community": 499,
       "norm_label": "premium user gets extended limit.",
       "id": "tests_test_memory_manager_rationale_15"
     },
@@ -36659,7 +36659,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L19",
-      "community": 105,
+      "community": 499,
       "norm_label": "admin gets extended limit (has all permissions).",
       "id": "tests_test_memory_manager_rationale_19"
     },
@@ -36740,7 +36740,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L107",
-      "community": 499,
+      "community": 105,
       "norm_label": "returns paginated memories.",
       "id": "tests_test_memory_manager_rationale_107"
     },
@@ -36749,7 +36749,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L115",
-      "community": 499,
+      "community": 105,
       "norm_label": "offset and limit work.",
       "id": "tests_test_memory_manager_rationale_115"
     },
@@ -36758,7 +36758,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_manager.py",
       "source_location": "L122",
-      "community": 499,
+      "community": 105,
       "norm_label": "archived memories excluded.",
       "id": "tests_test_memory_manager_rationale_122"
     },
@@ -48444,98 +48444,6 @@
       "weight": 1.0,
       "source": "server_run_status",
       "target": "utils_connectivity_checksingledb"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scaling_benchmark.py",
-      "source_location": "L19",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "scaling_benchmark_py",
-      "target": "server_scaling_benchmark_stats"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scaling_benchmark.py",
-      "source_location": "L32",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "scaling_benchmark_py",
-      "target": "server_scaling_benchmark_hammer_measured"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "scaling_benchmark.py",
-      "source_location": "L50",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "scaling_benchmark_py",
-      "target": "server_scaling_benchmark_main"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scaling_benchmark.py",
-      "source_location": "L73",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_scaling_benchmark_main",
-      "target": "server_scaling_benchmark_stats"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "scaling_benchmark.py",
-      "source_location": "L67",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_scaling_benchmark_main",
-      "target": "server_scaling_benchmark_hammer_measured"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "scaling_benchmark.py",
-      "source_location": "L33",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "server_scaling_benchmark_rationale_33",
-      "target": "server_scaling_benchmark_hammer_measured"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "_probe_host.py",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "probe_host_py",
-      "target": "server_probe_host_sec",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "_probe_stocks.py",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "probe_stocks_py",
-      "target": "server_probe_stocks_sec",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "_probe_stream.py",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "probe_stream_py",
-      "target": "server_probe_stream_sec",
-      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -67026,6 +66934,98 @@
       "confidence_score": 1.0,
       "source": "docs_user_workflow",
       "target": "docs_user_codeblock_16"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scaling_benchmark.py",
+      "source_location": "L19",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "scaling_benchmark_py",
+      "target": "server_scaling_benchmark_stats"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scaling_benchmark.py",
+      "source_location": "L32",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "scaling_benchmark_py",
+      "target": "server_scaling_benchmark_hammer_measured"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scaling_benchmark.py",
+      "source_location": "L50",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "scaling_benchmark_py",
+      "target": "server_scaling_benchmark_main"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scaling_benchmark.py",
+      "source_location": "L73",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_scaling_benchmark_main",
+      "target": "server_scaling_benchmark_stats"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scaling_benchmark.py",
+      "source_location": "L67",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_scaling_benchmark_main",
+      "target": "server_scaling_benchmark_hammer_measured"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "scaling_benchmark.py",
+      "source_location": "L33",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "server_scaling_benchmark_rationale_33",
+      "target": "server_scaling_benchmark_hammer_measured"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "_probe_host.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "probe_host_py",
+      "target": "server_probe_host_sec"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "_probe_stocks.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "probe_stocks_py",
+      "target": "server_probe_stocks_sec"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "_probe_stream.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "probe_stream_py",
+      "target": "server_probe_stream_sec"
     },
     {
       "relation": "method",
@@ -120367,5 +120367,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "5f102135f0eb36d3302bdb5b1863b66d31c706be"
+  "built_at_commit": "a56812109ce9ef851134739415ceaabfe2132b19"
 }

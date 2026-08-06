@@ -1,7 +1,7 @@
-# Graph Report - server  (2026-08-04)
+# Graph Report - server  (2026-08-06)
 
 ## Corpus Check
-- 98 files · ~38,434 words
+- 94 files · ~30,112 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5f102135`
+- Built from commit: `a5681210`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -605,8 +605,8 @@ Cohesion: 0.08
 Nodes (13): LoopEvent, LoopEvent model for observable agent loops., LoopLogger, LoopLogger — batched event logging for observable agent loops., Queue events during a loop, flush to DB at end., Log a generic event with optional metadata., Log a tool invocation., Log end of a turn with timing. (+5 more)
 
 ### Community 13 - "Prometheus Tools"
-Cohesion: 0.22
-Nodes (10): batchCosineSimilarity(), decodeEmbeddings(), Empty matrix → empty array., Single row matches cosine_similarity., Multiple rows ranked correctly., Zero query → all zeros., TestBatchCosineSimilarity, batch_cosine_similarity() (+2 more)
+Cohesion: 0.27
+Nodes (9): batchCosineSimilarity(), Empty matrix → empty array., Single row matches cosine_similarity., Multiple rows ranked correctly., Zero query → all zeros., TestBatchCosineSimilarity, batch_cosine_similarity(), batchCosineSimilarity() (+1 more)
 
 ### Community 14 - "User Roles & Permissions"
 Cohesion: 0.05
@@ -765,8 +765,8 @@ Cohesion: 0.08
 Nodes (7): Cover all methods in chat.py (lines 11-120)., Cover all methods in chat.py (lines 11-120)., Cover all methods in chat.py (lines 11-120)., Cover all methods in chat.py (lines 11-120)., Cover all methods in chat.py (lines 11-120)., Cover all methods in chat.py (lines 11-120)., TestPrometheusChatManager
 
 ### Community 53 - "Community 53"
-Cohesion: 0.13
-Nodes (21): applyUpdate(), archiveDead(), count_memories(), countMemories(), decayScores(), deleteMemory(), extract(), findSimilarKey() (+13 more)
+Cohesion: 0.12
+Nodes (22): applyUpdate(), archiveDead(), count_memories(), countMemories(), decayScores(), deleteMemory(), extract(), findSimilarKey() (+14 more)
 
 ### Community 54 - "Community 54"
 Cohesion: 0.1
@@ -958,7 +958,7 @@ Nodes (13): Covers lines 100-104, 106: GET /user/sessions/current., Covers lines
 
 ### Community 105 - "Community 105"
 Cohesion: 0.09
-Nodes (13): MemoryManager, All memory operations. Stateless class methods., Non-extended role gets basic limit., Soft-deletes a memory., Returns False for non-existent memory., Cannot delete another user's memory., Premium user gets extended limit., Admin gets extended limit (has all permissions). (+5 more)
+Nodes (13): MemoryManager, All memory operations. Stateless class methods., Returns paginated memories., Offset and limit work., Archived memories excluded., Soft-deletes a memory., Returns False for non-existent memory., Cannot delete another user's memory. (+5 more)
 
 ### Community 106 - "Community 106"
 Cohesion: 0.22
@@ -1618,7 +1618,7 @@ Nodes (16): Covers lines 13, 17, 19-20, 22-27: UserManager.addRoleToUser., Cover
 
 ### Community 499 - "Community 499"
 Cohesion: 0.29
-Nodes (4): Returns paginated memories., Offset and limit work., Archived memories excluded., TestGetUserMemories
+Nodes (4): Non-extended role gets basic limit., Premium user gets extended limit., Admin gets extended limit (has all permissions)., TestGetMemoryLimit
 
 ### Community 500 - "Community 500"
 Cohesion: 0.47
@@ -1665,7 +1665,7 @@ Cohesion: 0.67
 Nodes (3): checkMySqlConnection — success, errors, engine=None paths., checkMySqlConnection — success, errors, engine=None paths., TestCheckMySqlConnection
 
 ## Knowledge Gaps
-- **2653 isolated node(s):** `Fire n requests with c concurrent workers, measuring ttfb + total per request.`, `$schema`, `style`, `rsc`, `tsx` (+2648 more)
+- **2653 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+2648 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **224 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -1673,11 +1673,11 @@ Nodes (3): checkMySqlConnection — success, errors, engine=None paths., checkMy
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Pytest Testing` connect `Community 49` to `Authentication Core`, `Frontend Components`, `Community 129`, `Community 132`, `Data Models & Types`, `Community 138`, `Community 18`, `Community 147`, `Community 24`, `Community 25`, `Community 27`, `Community 157`, `Community 29`, `Community 32`, `Community 33`, `Community 162`, `Community 40`, `Community 43`, `Community 44`, `Community 45`, `Community 51`, `Community 54`, `Community 183`, `Community 184`, `Community 59`, `Community 67`, `Community 213`, `Community 93`, `Community 477`, `Community 482`, `Community 99`, `Community 100`, `Community 102`, `Community 487`, `Community 105`, `Community 234`, `Community 115`, `Community 502`, `Community 119`, `Community 120`, `Community 122`, `Community 124`, `Community 125`, `Community 126`?**
-  _High betweenness centrality (0.159) - this node is a cross-community bridge._
+  _High betweenness centrality (0.160) - this node is a cross-community bridge._
 - **Why does `FastAPI` connect `Community 157` to `Community 129`, `Community 132`, `Community 18`, `Community 147`, `Community 21`, `Community 33`, `Community 34`, `Community 37`, `Community 40`, `Community 169`, `Community 43`, `Community 45`, `Community 181`, `Community 58`, `Community 63`, `Community 71`, `Community 78`, `Community 81`, `Community 84`, `Community 120`, `Community 477`, `Community 222`, `Community 95`, `Community 482`, `Community 487`, `Community 504`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
+  _High betweenness centrality (0.053) - this node is a cross-community bridge._
 - **Why does `UserManager` connect `Community 21` to `Prometheus Agent`, `Community 263`, `Prometheus Memory`, `Community 141`, `User Roles & Permissions`, `Community 16`, `Community 148`, `Community 22`, `Community 37`, `Community 47`, `Community 181`, `Community 55`, `Community 56`, `Community 58`, `Community 61`, `Community 68`, `Community 85`, `Community 86`, `Community 216`, `Community 221`, `Community 99`, `Community 487`, `Community 104`, `Community 492`, `Community 493`, `Community 110`, `Community 498`, `Community 126`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+  _High betweenness centrality (0.040) - this node is a cross-community bridge._
 - **Are the 72 inferred relationships involving `StocksCacheManager` (e.g. with `TestStocksCacheManager` and `TestVerifyAPIKey`) actually correct?**
   _`StocksCacheManager` has 72 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 52 inferred relationships involving `HarnessState` (e.g. with `Prometheus` and `.streamMessage()`) actually correct?**
