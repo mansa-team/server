@@ -45,10 +45,12 @@ def test_runner_exception_still_publishes_done():
         bus = StreamBus()
 
         async def runner():
+            yield {"type": "text", "text": "boom"}
             raise RuntimeError("boom")
 
         bus.startRun("s1", runner)
         q, ch = bus.subscribe("s1")
+        assert await asyncio.wait_for(q.get(), 1) == {"type": "text", "text": "boom"}
         assert await asyncio.wait_for(q.get(), 1) == {"type": "done"}
         assert ch.finished is True
         bus.unsubscribe("s1", q)
