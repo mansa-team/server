@@ -1,18 +1,21 @@
-import logging
-from main.utils.logging_config import limiter
-from config import getSession
-import traceback
+import asyncio
 import json
+import logging
+from collections.abc import AsyncIterator
 
-from fastapi import APIRouter, Depends, Request, HTTPException, Query, Body
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
+
+from config import SessionLocal, getSession
+from main.utils.logging_config import limiter
 
 from main.models.prometheus import PrometheusSession
 from main.utils.roles import Roles, Permission
 
 from main.app.prometheus.agent import Prometheus
 from main.app.prometheus.chat import PrometheusChatManager
+from main.app.prometheus.stream_bus import streamBus
 
 logger = logging.getLogger(__name__)
 
@@ -108,15 +111,53 @@ async def chat_stream(
     else:
         verifySessionOwnsership(db, sessionId, user["userId"])
 
-    async def eventStream():
+    async def runner() -> AsyncIterator[dict]:
+        runDb = SessionLocal()
         try:
-            yield f"data: {json.dumps({'type': 'session', 'sessionId': sessionId})}\n\n"
-            async for event in Prometheus().streamMessage(query, sessionId=sessionId, db=db, user=user):
-                yield f"data: {json.dumps(event)}\n\n"
+            yield {"type": "session", "sessionId": sessionId}
+            async for event in Prometheus().streamMessage(query, sessionId=sessionId, db=runDb, user=user):
+                yield event
         except Exception as e:
-            logger.error(f"Stream error: {e}\n{traceback.format_exc()}")
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+            logger.error("Stream run error for session %s: %s", sessionId, e)
+            yield {"type": "error", "message": str(e)}
         finally:
-            yield "data: [DONE]\n\n"
+            runDb.close()
 
-    return StreamingResponse(eventStream(), media_type="text/event-stream")
+    streamBus.startRun(sessionId, runner)
+
+    return StreamingResponse(_forward(sessionId, cursor=0), media_type="text/event-stream")
+
+
+@router.get("/chat/stream/{sessionId}")
+async def resumeChatStream(
+    sessionId: str,
+    request: Request,
+    db: Session = Depends(getSession),
+    cursor: int = Query(0, ge=0),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
+):
+    # No rate limiter: this route only subscribes to an existing run; the
+    # POST 5/minute limiter gates starting new runs.
+    verifySessionOwnsership(db, sessionId, user["userId"])
+    return StreamingResponse(_forward(sessionId, cursor=cursor), media_type="text/event-stream")
+
+
+async def _forward(sessionId: str, cursor: int = 0) -> AsyncIterator[str]:
+    sub = streamBus.subscribe(sessionId, cursor)
+    if sub is None:
+        yield "data: [DONE]\n\n"
+        return
+    q, _ch = sub
+    try:
+        while True:
+            try:
+                event = await asyncio.wait_for(q.get(), timeout=30)
+            except asyncio.TimeoutError:
+                yield ": keepalive\n\n"  # SSE comment line keeps proxies happy
+                continue
+            yield f"data: {json.dumps(event)}\n\n"
+            if event.get("type") == "done":
+                yield "data: [DONE]\n\n"
+                return
+    finally:
+        streamBus.unsubscribe(sessionId, q)
