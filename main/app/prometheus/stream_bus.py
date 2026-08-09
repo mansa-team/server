@@ -59,7 +59,9 @@ class StreamBus:
 
     def startRun(self, sessionId: str, runner_factory: Callable[[], AsyncIterator[dict]]) -> None:
         ch = self.getOrCreate(sessionId)
-        if ch.task and not ch.task.done():
+        if ch.task:
+            # cancel() on a finished task is a no-op, so this resets the log
+            # for EVERY new run, not just ones replacing an active run.
             ch.task.cancel()
             ch.events.clear()
             ch.finished = False

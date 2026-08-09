@@ -131,7 +131,6 @@ async def chat_stream(
 @router.get("/chat/stream/{sessionId}")
 async def resumeChatStream(
     sessionId: str,
-    request: Request,
     db: Session = Depends(getSession),
     cursor: int = Query(0, ge=0),
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
@@ -153,6 +152,13 @@ async def _forward(sessionId: str, cursor: int = 0) -> AsyncIterator[str]:
             try:
                 event = await asyncio.wait_for(q.get(), timeout=30)
             except asyncio.TimeoutError:
+                if _ch.finished:
+                    # Channel is done but this subscriber missed the done event
+                    # (queue overflow or cursor == len(events)): terminate instead
+                    # of streaming keepalives forever.
+                    yield "data: " + json.dumps({"type": "done"}) + "\n\n"
+                    yield "data: [DONE]\n\n"
+                    return
                 yield ": keepalive\n\n"  # SSE comment line keeps proxies happy
                 continue
             yield f"data: {json.dumps(event)}\n\n"
