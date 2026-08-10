@@ -3,10 +3,15 @@ import json
 
 import main.controller.prometheus_controller as controller_mod
 import pytest
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
+from config import getSession
 from main.app.prometheus.agent import Prometheus
 from main.app.prometheus.stream_bus import streamBus
 from main.controller.prometheus_controller import _forward
+from main.models.base import Base
 
 
 class FakePrometheus(Prometheus):
@@ -20,6 +25,25 @@ def _isolate_bus():
     streamBus._channels.clear()
     yield
     streamBus._channels.clear()
+
+
+@pytest.fixture(autouse=True)
+def _sqlite_db(client, monkeypatch):
+    """Route the prometheus router + background runner to in-memory sqlite so
+    these tests don't need a live MySQL server (docker 'db' host)."""
+    engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
+    Base.metadata.create_all(engine)
+    session_factory = sessionmaker(bind=engine)
+
+    client.app.dependency_overrides[getSession] = lambda: session_factory()
+    # The runner in prometheus_controller creates its own SessionLocal() from
+    # config; patch it so the background run also uses sqlite.
+    monkeypatch.setattr(controller_mod, "SessionLocal", session_factory)
+
+    yield
+
+    client.app.dependency_overrides.pop(getSession, None)
+    engine.dispose()
 
 
 def _payloads(resp):

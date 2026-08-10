@@ -35,7 +35,7 @@ def stubFastmcp():
             sys.modules.pop(name, None)
 
 
-def test_streammessage_triggers_memory_extraction(client):
+def test_streammessage_triggers_memory_extraction(client, monkeypatch):
     # Shared in-memory sqlite with StaticPool so the TestClient portal thread
     # sees the same DB as the test thread (plain :memory: is per-connection).
     engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
@@ -44,6 +44,12 @@ def test_streammessage_triggers_memory_extraction(client):
     dbSession.add(PrometheusSession(sessionId="s1", userId=1, title="Test", summary="", history=[]))
     dbSession.commit()
     client.app.dependency_overrides[getSession] = lambda: dbSession
+
+    # The runner in prometheus_controller creates its own SessionLocal() from
+    # config (MySQL 'db'); patch it so the background run uses the same sqlite.
+    import main.controller.prometheus_controller as controller_mod
+
+    monkeypatch.setattr(controller_mod, "SessionLocal", lambda: dbSession)
 
     class FakeChunk:
         def __init__(self):
