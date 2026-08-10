@@ -5,16 +5,37 @@ import pytest
 import pandas as pd
 
 import main.app.stocks_api.cache as cache_mod
-from main.app.stocks_api.cache import StocksCacheManager, COMPRESS_COLS
+from main.app.stocks_api.cache import StocksCacheManager
 from main.app.stocks_api.query import StocksQueryManager, filterCotationColumn
 
 
+class _FakeResult:
+    def __init__(self, frames):
+        self._batches = [list(f.itertuples(index=False, name=None)) for f in frames]
+        self._columns = list(frames[0].columns) if frames else []
+
+    def keys(self):
+        return self._columns
+
+    def fetchmany(self, n):
+        return self._batches.pop(0) if self._batches else []
+
+
 class _FakeConn:
+    def __init__(self, frames=None):
+        self._frames = frames or []
+
     def __enter__(self):
-        return None
+        return self
 
     def __exit__(self, *exc_info):
         return False
+
+    def execution_options(self, **kw):
+        return self
+
+    def exec_driver_sql(self, sql):
+        return _FakeResult(self._frames)
 
 
 class _FakeEngine:
@@ -49,7 +70,7 @@ def test_get_cached_stocks_does_not_build_date_index(monkeypatch, tmp_path):
             "COTACAO 10Y PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 1.0}]'],
         }
     )
-    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: iter([df]))
+    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: _FakeConn([df]))
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     cache_mod.buildFeatherCache()
@@ -68,7 +89,7 @@ def test_get_cached_stocks_skips_build_when_another_process_holds_lock(monkeypat
             "COTACAO 10Y PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 1.0}]'],
         }
     )
-    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: iter([df]))
+    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: _FakeConn([df]))
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     cache_mod.buildFeatherCache()
@@ -101,7 +122,7 @@ def makeDf():
 
 
 def test_get_cached_stocks_compresses_json_columns(monkeypatch, tmp_path):
-    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: iter([makeDf()]))
+    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: _FakeConn([makeDf()]))
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     cache_mod.buildFeatherCache()
@@ -116,7 +137,7 @@ def test_get_cached_stocks_compresses_json_columns(monkeypatch, tmp_path):
 
 
 def test_get_cached_stocks_keeps_raw_nested_sample(monkeypatch, tmp_path):
-    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: iter([makeDf()]))
+    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: _FakeConn([makeDf()]))
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     cache_mod.buildFeatherCache()
@@ -131,11 +152,12 @@ def test_nested_sample_skips_all_null_leading_rows(monkeypatch, tmp_path):
         {
             "TICKER": ["AAA1", "BBB2"],
             "NOME": ["x", "y"],
+            "TIME": [None, None],
             "COTACAO 10Y PADRAO": [None, None],
             "NOTICIAS": [None, None],
         }
     )
-    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: iter([empty, makeDf()]))
+    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: _FakeConn([empty, makeDf()]))
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     cache_mod.buildFeatherCache()
@@ -165,7 +187,7 @@ def test_nested_sample_captures_sparse_columns_across_chunks(monkeypatch, tmp_pa
             "NOTICIAS": ['[{"TITULO": "noticia", "LINK": "http://x"}]'],
         }
     )
-    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: iter([first, later]))
+    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: _FakeConn([first, later]))
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     cache_mod.buildFeatherCache()
@@ -224,7 +246,7 @@ def test_get_nest_keeps_compressed_column_subfields(monkeypatch, tmp_path):
             "COTACAO 10Y PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 1.0}]'],
         }
     )
-    monkeypatch.setattr(pd, "read_sql", lambda *a, **k: iter([df]))
+    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: _FakeConn([df]))
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     cache_mod.buildFeatherCache()

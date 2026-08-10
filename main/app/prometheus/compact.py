@@ -136,22 +136,8 @@ class FieldRegistry:
             self.metricRegex = self.buildMetricRegex()
         return self.metricRegex
 
-    def invalidate(self):
-        self.fields = None
-        self.fetchedAt = 0
-        if hasattr(self, "metricRegex"):
-            del self.metricRegex
-
-    def warmup(self):
-        self.fetchFields()
-        self.fetchedAt = time.time()
-
 
 fieldRegistry = FieldRegistry()
-
-
-def charCount(text: str) -> int:
-    return countTokens(text)
 
 
 def extractTickers(text: str) -> list[str]:
@@ -239,7 +225,7 @@ class PrometheusCompactor:
     def shouldCompact(self, history: list) -> bool:
         if not history:
             return False
-        total = sum(charCount(m.get("content", "")) for m in history)
+        total = sum(countTokens(m.get("content", "")) for m in history)
         return total >= EPISODE_TOKEN_BUDGET
 
     def getCompactableChunk(self, history: list, episodes: list) -> list[dict]:

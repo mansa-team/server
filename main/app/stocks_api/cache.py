@@ -1,5 +1,6 @@
 import logging
 from config import stocksEngine
+from main.app.stocks_api.util import JSON_COLUMNS
 import orjson
 import threading
 
@@ -27,8 +28,6 @@ logger = logging.getLogger(__name__)
 
 CATEGORY_COLS = frozenset(["TICKER", "NOME"])
 
-COMPRESS_COLS = frozenset(["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"])
-
 CACHE_FEATHER_PATH = Path("/app/cache/stocks_cache.feather")
 CACHE_NESTED_PATH = Path("/app/cache/stocks_nested.feather")
 STALE_AFTER_SECONDS = 6 * 3600
@@ -47,7 +46,7 @@ def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
         for col in df.columns:
             if str(df[col].dtype) not in ("object", "str"):
                 continue
-            if col not in CATEGORY_COLS and col not in COMPRESS_COLS and df[col].notna().all():
+            if col not in CATEGORY_COLS and col not in JSON_COLUMNS and df[col].notna().all():
                 df[col] = df[col].astype("string[pyarrow]")
     except Exception as e:
         logger.debug(f"Arrow string optimization skipped: {e}")
@@ -61,10 +60,16 @@ def buildFeatherCache():
     sampleParts: dict[str, pd.Series] = {}
     compressor = zstd.ZstdCompressor(level=3)
     with stocksEngine.connect() as conn:
-        reader = pd.read_sql("SELECT * FROM b3_stocks", conn, chunksize=5000)
-        for chunk in reader:
+        stream = conn.execution_options(stream_results=True)
+        result = stream.exec_driver_sql("SELECT * FROM b3_stocks")
+        columns = list(result.keys())
+        while True:
+            batch = result.fetchmany(5000)
+            if not batch:
+                break
+            chunk = pd.DataFrame.from_records((tuple(r) for r in batch), columns=columns)
             if sampleCols is None:
-                sampleCols = [c for c in COMPRESS_COLS if c in chunk.columns]
+                sampleCols = [c for c in JSON_COLUMNS if c in chunk.columns]
             for col in sampleCols or ():
                 if col not in sampleParts:
                     nonNull = chunk[col].dropna()

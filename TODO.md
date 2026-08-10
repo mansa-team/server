@@ -1,10 +1,7 @@
 - [ ] OpenUI and shadcn/ui
-- [ ] Autoresume sse instance in the sample frontend if the page is reloaded (find way to do that without sql)
 
 - [ ] Upload and Serve endpoints for files in the workspace
 - [ ] Make the user able to manage their files in the workspace via endpoints related to workspace management /worksapce
-- [ ] Make my own Tokenizer tailored for financial speech
-- [ ] Add a good system prompt
   
 - [ ] Github OAuth
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings

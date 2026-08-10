@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 import hashlib
 from sqlalchemy.orm import Session
 from main.models.user_session import UserSession
-from main.app.authentication.device import parseUserAgent
 from main.app.authentication.constants import SESSION_EXPIRY_DAYS
 
 logger = logging.getLogger(__name__)
@@ -24,13 +23,10 @@ class SessionManager:
         db: Session,
         userId: int,
         userAgent: str,
-        request,
         expiresAt: datetime | None = None,
     ) -> UserSession:
         sessionId = secrets.token_urlsafe(32)
         accessTokenHash = hashlib.sha256(secrets.token_hex(32).encode()).hexdigest()[:64]
-
-        deviceInfo = parseUserAgent(userAgent)
 
         now = datetime.now()
         if expiresAt is None:
@@ -40,9 +36,6 @@ class SessionManager:
             sessionId=sessionId,
             userId=userId,
             accessTokenHash=accessTokenHash,
-            deviceType=deviceInfo.deviceType,
-            browser=deviceInfo.browser,
-            operatingSystem=deviceInfo.os,
             userAgent=userAgent,
             isActive=True,
             createdAt=now,
@@ -119,24 +112,6 @@ class SessionManager:
         session.lastActivityAt = datetime.now()  # type: ignore[assignment]
         db.commit()
         return True
-
-    @staticmethod
-    def cleanupExpiredSessions(db: Session) -> int:
-        now = datetime.now()
-        count = (
-            db.query(UserSession)
-            .filter(
-                UserSession.isActive,
-                UserSession.expiresAt < now,
-            )
-            .update({UserSession.isActive: False}, synchronize_session=False)
-        )
-        db.commit()
-
-        if count > 0:
-            logger.info(f"Cleaned up {count} expired sessions")
-
-        return count
 
     @staticmethod
     def validateSession(db: Session, sessionId: str, userId: int) -> bool:

@@ -18,6 +18,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from sqlalchemy import text
 
 from main.app.scraper_b3.xango import calculateInvestingScore
+from main.app.stocks_api.util import JSON_COLUMNS
 
 logger = logging.getLogger(__name__)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
@@ -493,11 +494,10 @@ class B3Scraper:
     def reorderColumns(self, df):
         if df.empty:
             return df
-        special = ["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"]
         allCols = df.columns.tolist()
-        historicalCols = sorted([c for c in allCols if re.match(r".*\d{4}$", c) and c not in special])
-        metadataCols = [c for c in allCols if c not in historicalCols and c not in special]
-        orderedCols = metadataCols + historicalCols + [c for c in special if c in allCols]
+        historicalCols = sorted([c for c in allCols if re.match(r".*\d{4}$", c) and c not in JSON_COLUMNS])
+        metadataCols = [c for c in allCols if c not in historicalCols and c not in JSON_COLUMNS]
+        orderedCols = metadataCols + historicalCols + [c for c in JSON_COLUMNS if c in allCols]
         return df[[c for c in orderedCols if c in df.columns]]
 
     def serializeComplexTypes(self, df):
@@ -508,15 +508,13 @@ class B3Scraper:
         df["TICKER"] = df.index
         df = df.reset_index(drop=True)
 
-        specialCols = ["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"]
-
         def convertValue(val):
             if isinstance(val, (dict, list)):
                 return json.dumps(val, ensure_ascii=False, default=str)
             return val
 
         for col in df.columns:
-            if col in specialCols and df[col].dtype == "object":
+            if col in JSON_COLUMNS and df[col].dtype == "object":
                 df[col] = df[col].apply(convertValue)
 
         return df
@@ -550,7 +548,7 @@ class B3Scraper:
                         )
                         conn.execute(text(f"ALTER TABLE b3_stocks ADD COLUMN `{col}` {dtype} NULL"))
 
-                for col in ["COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"]:
+                for col in JSON_COLUMNS:
                     if col in df.columns:
                         conn.execute(text(f"ALTER TABLE b3_stocks MODIFY COLUMN `{col}` LONGTEXT NULL"))
 
@@ -595,8 +593,6 @@ class B3Scraper:
                 currentDate = pd.to_datetime(self.scraperDate)
                 existingCols = pd.read_sql("SELECT * FROM b3_stocks LIMIT 1", con=conn).columns.tolist()
 
-                excludeCols = {"COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS"}
-
                 historicalPatterns = [
                     "RECEITA LIQUIDA",
                     "LUCRO LIQUIDO",
@@ -613,7 +609,7 @@ class B3Scraper:
                 historicalCols = [
                     col
                     for col in existingCols
-                    if any(pattern in col for pattern in historicalPatterns) and col not in excludeCols
+                    if any(pattern in col for pattern in historicalPatterns) and col not in JSON_COLUMNS
                 ]
 
                 if historicalCols:

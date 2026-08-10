@@ -6,7 +6,6 @@ class Permission(IntFlag):
     NONE = 0
 
     USE_PROMETHEUS = auto()
-    GENERATE_API_KEYS = auto()
 
     PROMETHEUS_EXTENDED_MEMORIES = auto()
 
@@ -20,7 +19,7 @@ class Roles(IntFlag):
 
     PREMIUM = USER | Permission.USE_PROMETHEUS | Permission.PROMETHEUS_EXTENDED_MEMORIES
 
-    DEVELOPER_STARTER = USER | Permission.GENERATE_API_KEYS
+    DEVELOPER_STARTER = USER
 
     DEVELOPER_ENTERPRISE = DEVELOPER_STARTER
 

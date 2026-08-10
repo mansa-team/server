@@ -20,11 +20,7 @@ def applyIPv4Force():
 applyIPv4Force()
 
 
-class BaseMansaSettings(BaseSettings):
-    pass
-
-
-class MysqlSettings(BaseMansaSettings):
+class MysqlSettings(BaseSettings):
     USER_USER: Optional[str] = Field(default=None, validation_alias=AliasChoices("USER_MYSQL_USER"))
     USER_PASSWORD: Optional[str] = Field(default=None, validation_alias=AliasChoices("USER_MYSQL_PASSWORD"))
     USER_HOST: Optional[str] = Field(default=None, validation_alias=AliasChoices("USER_MYSQL_HOST"))
@@ -39,7 +35,7 @@ class MysqlSettings(BaseMansaSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
-class UserSettings(BaseMansaSettings):
+class UserSettings(BaseSettings):
     ENABLED: bool = Field(default=True, validation_alias=AliasChoices("USER_ENABLED"))
     HOST: str = Field(default="localhost", validation_alias=AliasChoices("USER_HOST"))
     PORT: int = Field(default=3200, validation_alias=AliasChoices("USER_PORT"))
@@ -51,7 +47,7 @@ class UserSettings(BaseMansaSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
-class StocksApiSettings(BaseMansaSettings):
+class StocksApiSettings(BaseSettings):
     ENABLED: bool = Field(default=True, validation_alias=AliasChoices("STOCKSAPI_ENABLED"))
     HOST: str = Field(default="localhost", validation_alias=AliasChoices("STOCKSAPI_HOST"))
     PORT: int = Field(default=3200, validation_alias=AliasChoices("STOCKSAPI_PORT"))
@@ -62,7 +58,7 @@ class StocksApiSettings(BaseMansaSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
-class PrometheusSettings(BaseMansaSettings):
+class PrometheusSettings(BaseSettings):
     ENABLED: bool = Field(default=True, validation_alias=AliasChoices("PROMETHEUS_ENABLED"))
     HOST: str = Field(default="localhost", validation_alias=AliasChoices("PROMETHEUS_HOST"))
     PORT: int = Field(default=3200, validation_alias=AliasChoices("PROMETHEUS_PORT"))
@@ -77,7 +73,7 @@ class PrometheusSettings(BaseMansaSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
-class ScraperSettings(BaseMansaSettings):
+class ScraperSettings(BaseSettings):
     ENABLED: bool = Field(default=False, validation_alias=AliasChoices("SCRAPER_ENABLED"))
     SCHEDULER: str = Field(default="", validation_alias=AliasChoices("SCRAPER_SCHEDULER"))
     JSON: bool = Field(default=False, validation_alias=AliasChoices("JSON_EXPORT"))
@@ -86,7 +82,7 @@ class ScraperSettings(BaseMansaSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
-class DiscordSettings(BaseMansaSettings):
+class DiscordSettings(BaseSettings):
     ENABLED: bool = Field(default=False, validation_alias=AliasChoices("DISCORD_ENABLED"))
     WEBHOOK_URL: str = Field(default="", validation_alias=AliasChoices("DISCORD_WEBHOOK_URL"))
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")

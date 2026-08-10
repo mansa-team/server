@@ -162,7 +162,7 @@ class TestStocksCacheManager:
 
 
 # ===========================================================================
-# Tests for key.py â€“ verifyAPIKey, generateSecureKey, createKey
+# Tests for key.py – verifyAPIKey
 # ===========================================================================
 class TestVerifyAPIKey:
     """Tests covering key.py lines 15-40.
@@ -272,80 +272,6 @@ class TestVerifyAPIKey:
 
         with pytest.raises(HTTPException) as exc_info:
             asyncio.run(verifyAPIKey(apiKey="key", db=mock_db))
-        assert exc_info.value.status_code == 500
-        mock_db.rollback.assert_called_once()
-
-
-class TestGenerateSecureKey:
-    """Tests covering key.py line 44."""
-
-    def test_generate_secure_key_length(self):
-        from main.app.stocks_api.key import generateSecureKey
-
-        key = generateSecureKey(32)
-        assert isinstance(key, str)
-        assert len(key) == 32
-
-    def test_generate_secure_key_custom_length(self):
-        from main.app.stocks_api.key import generateSecureKey
-
-        key = generateSecureKey(16)
-        assert len(key) == 16
-
-    def test_generate_secure_key_unique(self):
-        from main.app.stocks_api.key import generateSecureKey
-
-        keys = {generateSecureKey(32) for _ in range(50)}
-        assert len(keys) == 50  # all unique
-
-
-class TestCreateKey:
-    """Tests covering key.py lines 48-66."""
-
-    @patch("main.app.stocks_api.key.Config")
-    def test_create_key_new_user(self, mock_config):
-        """New key created when no existing key for user (lines 57-59)."""
-        from main.app.stocks_api.key import createKey
-
-        mock_config.STOCKS_API = MagicMock(DEFAULT_QUOTA=200)
-        mock_db = MagicMock()
-        mock_db.query.return_value.filter.return_value.first.return_value = None
-
-        result = createKey(mock_db, userId=42)
-        assert isinstance(result, str)
-        assert len(result) == 32
-        mock_db.add.assert_called_once()
-        mock_db.commit.assert_called_once()
-
-    @patch("main.app.stocks_api.key.Config")
-    def test_create_key_existing_user_updates(self, mock_config):
-        """Existing key is updated (lines 54-56)."""
-        from main.app.stocks_api.key import createKey, hashKey
-
-        mock_config.STOCKS_API = MagicMock(DEFAULT_QUOTA=150)
-        mock_db = MagicMock()
-        mock_existing = MagicMock()
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_existing
-
-        result = createKey(mock_db, userId=1)
-        assert isinstance(result, str)
-        # The stored key should be the hashed version; the returned key is the raw key
-        assert mock_existing.apiKey == hashKey(result)
-        assert mock_existing.requestLimit == 150
-        mock_db.commit.assert_called_once()
-
-    @patch("main.app.stocks_api.key.Config")
-    def test_create_key_exception_rollback(self, mock_config):
-        """Exception during creation triggers rollback and 500 (lines 64-66)."""
-        from main.app.stocks_api.key import createKey
-        from fastapi import HTTPException
-
-        mock_config.STOCKS_API = MagicMock(DEFAULT_QUOTA=100)
-        mock_db = MagicMock()
-        mock_db.query.side_effect = Exception("DB error")
-
-        with pytest.raises(HTTPException) as exc_info:
-            createKey(mock_db, userId=1)
         assert exc_info.value.status_code == 500
         mock_db.rollback.assert_called_once()
 

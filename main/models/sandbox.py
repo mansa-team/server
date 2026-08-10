@@ -8,6 +8,5 @@ class PrometheusSandbox(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     userId = Column(Integer, nullable=False, index=True, unique=True)
     sandboxId = Column(String(255), nullable=False)
-    workspacePath = Column(String(500), nullable=False)
     lastActivity = Column(DateTime, server_default=func.now(), onupdate=func.now())
     createdAt = Column(DateTime, server_default=func.now())

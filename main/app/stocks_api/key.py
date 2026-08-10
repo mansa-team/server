@@ -1,7 +1,6 @@
 from config import Config, getSession
 
 from typing import cast
-import secrets
 import hashlib
 
 from fastapi import HTTPException, Depends
@@ -52,30 +51,3 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depend
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail="API key verification failed")
-
-
-def generateSecureKey(length: int = 32) -> str:
-    return secrets.token_hex(length // 2)
-
-
-def createKey(db: Session, userId: int):
-    rawKey = generateSecureKey(32)
-    hashedKey = hashKey(rawKey)
-    quota = Config.STOCKS_API.DEFAULT_QUOTA
-
-    try:
-        existingKey = db.query(StocksAPIKey).filter(StocksAPIKey.userId == userId).first()
-
-        if existingKey:
-            existingKey.apiKey = hashedKey
-            existingKey.requestLimit = quota
-        else:
-            newKeyObj = StocksAPIKey(apiKey=hashedKey, userId=userId, requestLimit=quota, currentUsage=0)
-            db.add(newKeyObj)
-
-        db.commit()
-        return rawKey
-
-    except Exception:
-        db.rollback()
-        raise HTTPException(status_code=500, detail="Failed to create API key")
