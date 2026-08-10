@@ -28,6 +28,14 @@ def _isolate_bus():
 
 
 @pytest.fixture(autouse=True)
+def _no_gemini_client(monkeypatch):
+    """chat_stream builds Prometheus() per run; __init__ creates a genai.Client
+    which requires a real Gemini API key that CI doesn't have. These tests mock
+    streamMessage, so the constructor is a no-op."""
+    monkeypatch.setattr(Prometheus, "__init__", lambda self: None)
+
+
+@pytest.fixture(autouse=True)
 def _sqlite_db(client, monkeypatch):
     """Route the prometheus router + background runner to in-memory sqlite so
     these tests don't need a live MySQL server (docker 'db' host)."""
