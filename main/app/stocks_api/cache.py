@@ -6,6 +6,7 @@ import threading
 
 import pandas as pd
 import numpy as np
+import pyarrow as pa
 
 from sqlalchemy.engine import Engine
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -55,44 +56,79 @@ def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def buildFeatherCache():
-    chunks = []
     sampleCols = None
     sampleParts: dict[str, pd.Series] = {}
     compressor = zstd.ZstdCompressor(level=3)
-    with stocksEngine.connect() as conn:
-        stream = conn.execution_options(stream_results=True)
-        result = stream.exec_driver_sql("SELECT * FROM b3_stocks")
-        columns = list(result.keys())
-        while True:
-            batch = result.fetchmany(5000)
-            if not batch:
-                break
-            chunk = pd.DataFrame.from_records((tuple(r) for r in batch), columns=columns)
-            if sampleCols is None:
-                sampleCols = [c for c in JSON_COLUMNS if c in chunk.columns]
-            for col in sampleCols or ():
-                if col not in sampleParts:
-                    nonNull = chunk[col].dropna()
-                    if not nonNull.empty:
-                        sampleParts[col] = nonNull.head(20).reset_index(drop=True)
-                chunk[col] = chunk[col].map(
-                    lambda s: compressor.compress(s.encode("utf-8")) if isinstance(s, str) else None
-                )
-            chunks.append(chunk)
-    df = pd.concat(chunks, ignore_index=True)
-    del chunks
-    df = optimizeDtypes(df)
-    nestedSample = pd.DataFrame(sampleParts) if sampleParts else None
 
     CACHE_FEATHER_PATH.parent.mkdir(parents=True, exist_ok=True)
     tmpNested = CACHE_NESTED_PATH.with_suffix(".tmp")
     tmpMain = CACHE_FEATHER_PATH.with_suffix(".tmp")
+
+    writer = None
+    sink = None
+    schema = None
+    total = 0
+    try:
+        with stocksEngine.connect() as conn:
+            stream = conn.execution_options(stream_results=True)
+            result = stream.exec_driver_sql("SELECT * FROM b3_stocks")
+            columns = list(result.keys())
+            while True:
+                batch = result.fetchmany(2000)
+                if not batch:
+                    break
+                chunk = pd.DataFrame.from_records((tuple(r) for r in batch), columns=columns)
+                if sampleCols is None:
+                    sampleCols = [c for c in JSON_COLUMNS if c in chunk.columns]
+                for col in sampleCols or ():
+                    if col not in sampleParts:
+                        nonNull = chunk[col].dropna()
+                        if not nonNull.empty:
+                            sampleParts[col] = nonNull.head(20).reset_index(drop=True)
+                    chunk[col] = chunk[col].map(
+                        lambda s: compressor.compress(s.encode("utf-8")) if isinstance(s, str) else None
+                    )
+                chunk = optimizeDtypes(chunk)
+                # IPC file format only supports ONE dictionary per field across
+                # batches; category columns have per-chunk dictionaries, so write
+                # them as plain strings (tickerIndex str()s them anyway).
+                for col in CATEGORY_COLS:
+                    if col in chunk.columns and str(chunk[col].dtype) == "category":
+                        chunk[col] = chunk[col].astype(str)
+                if schema is None:
+                    t0 = pa.Table.from_pandas(chunk, preserve_index=False)
+                    # Pin JSON columns to binary and all-null columns to string:
+                    # an all-None first chunk infers null type, then a later
+                    # chunk with values would fail the cast (or mismatch schema).
+                    fields = []
+                    for n in t0.column_names:
+                        t = t0.schema.field(n).type
+                        if n in (sampleCols or ()):
+                            fields.append(pa.field(n, pa.binary()))
+                        elif pa.types.is_null(t):
+                            fields.append(pa.field(n, pa.string()))
+                        else:
+                            fields.append(pa.field(n, t))
+                    schema = pa.schema(fields)
+                    sink = pa.OSFile(str(tmpMain), "wb")
+                    writer = pa.ipc.new_file(sink, schema)
+                table = pa.Table.from_pandas(chunk, schema=schema, preserve_index=False)
+                writer.write_table(table)
+                total += len(chunk)
+                del chunk, table
+    finally:
+        if writer is not None:
+            writer.close()
+        if sink is not None:
+            sink.close()
+
+    nestedSample = pd.DataFrame(sampleParts) if sampleParts else None
     if nestedSample is not None:
         nestedSample.to_feather(tmpNested)
         os.replace(tmpNested, CACHE_NESTED_PATH)
-    df.to_feather(tmpMain)
-    os.replace(tmpMain, CACHE_FEATHER_PATH)
-    logger.info(f"feather written to {CACHE_FEATHER_PATH} ({len(df)} records)")
+    if writer is not None:
+        os.replace(tmpMain, CACHE_FEATHER_PATH)
+        logger.info(f"feather written to {CACHE_FEATHER_PATH} ({total} records)")
 
 
 def tryBuildLock():
