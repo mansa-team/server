@@ -55,6 +55,20 @@ def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def _arrowTypeFor(dbType: str):
+    """Map a MySQL DATA_TYPE to a pyarrow type for columns that are all-None
+    in the first chunk (sparse columns like 'DIVIDENDOS 2027'). The first
+    chunk cannot tell us the real dtype - the DB schema can."""
+    base = dbType.split()[0]
+    if base in ("float", "double", "decimal"):
+        return pa.float64()
+    if base in ("tinyint", "smallint", "mediumint", "int", "bigint"):
+        return pa.int64()
+    if base in ("date", "datetime", "timestamp"):
+        return pa.timestamp("us")
+    return pa.string()
+
+
 def buildFeatherCache():
     sampleCols = None
     sampleParts: dict[str, pd.Series] = {}
@@ -70,52 +84,58 @@ def buildFeatherCache():
     total = 0
     try:
         with stocksEngine.connect() as conn:
+            try:
+                typeRows = conn.exec_driver_sql("SHOW COLUMNS FROM b3_stocks").fetchall()
+                colTypes = {r[0]: str(r[1]).lower().split("(")[0].strip() for r in typeRows}
+            except Exception:
+                colTypes = {}
             stream = conn.execution_options(stream_results=True)
             result = stream.exec_driver_sql("SELECT * FROM b3_stocks")
-            columns = list(result.keys())
-            while True:
-                batch = result.fetchmany(2000)
-                if not batch:
-                    break
-                chunk = pd.DataFrame.from_records((tuple(r) for r in batch), columns=columns)
-                if sampleCols is None:
-                    sampleCols = [c for c in JSON_COLUMNS if c in chunk.columns]
-                for col in sampleCols or ():
-                    if col not in sampleParts:
-                        nonNull = chunk[col].dropna()
-                        if not nonNull.empty:
-                            sampleParts[col] = nonNull.head(20).reset_index(drop=True)
-                    chunk[col] = chunk[col].map(
-                        lambda s: compressor.compress(s.encode("utf-8")) if isinstance(s, str) else None
-                    )
-                chunk = optimizeDtypes(chunk)
-                # IPC file format only supports ONE dictionary per field across
-                # batches; category columns have per-chunk dictionaries, so write
-                # them as plain strings (tickerIndex str()s them anyway).
-                for col in CATEGORY_COLS:
-                    if col in chunk.columns and str(chunk[col].dtype) == "category":
-                        chunk[col] = chunk[col].astype(str)
-                if schema is None:
-                    t0 = pa.Table.from_pandas(chunk, preserve_index=False)
-                    # Pin JSON columns to binary and all-null columns to string:
-                    # an all-None first chunk infers null type, then a later
-                    # chunk with values would fail the cast (or mismatch schema).
-                    fields = []
-                    for n in t0.column_names:
-                        t = t0.schema.field(n).type
-                        if n in (sampleCols or ()):
-                            fields.append(pa.field(n, pa.binary()))
-                        elif pa.types.is_null(t):
-                            fields.append(pa.field(n, pa.string()))
-                        else:
-                            fields.append(pa.field(n, t))
-                    schema = pa.schema(fields)
-                    sink = pa.OSFile(str(tmpMain), "wb")
-                    writer = pa.ipc.new_file(sink, schema)
-                table = pa.Table.from_pandas(chunk, schema=schema, preserve_index=False)
-                writer.write_table(table)
-                total += len(chunk)
-                del chunk, table
+            try:
+                columns = list(result.keys())
+                while True:
+                    batch = result.fetchmany(2000)
+                    if not batch:
+                        break
+                    chunk = pd.DataFrame.from_records((tuple(r) for r in batch), columns=columns)
+                    if sampleCols is None:
+                        sampleCols = [c for c in JSON_COLUMNS if c in chunk.columns]
+                    for col in sampleCols or ():
+                        if col not in sampleParts:
+                            nonNull = chunk[col].dropna()
+                            if not nonNull.empty:
+                                sampleParts[col] = nonNull.head(20).reset_index(drop=True)
+                        chunk[col] = chunk[col].map(
+                            lambda s: compressor.compress(s.encode("utf-8")) if isinstance(s, str) else None
+                        )
+                    chunk = optimizeDtypes(chunk)
+
+                    for col in CATEGORY_COLS:
+                        if col in chunk.columns and str(chunk[col].dtype) == "category":
+                            chunk[col] = chunk[col].astype(str)
+                    if schema is None:
+                        t0 = pa.Table.from_pandas(chunk, preserve_index=False)
+                        fields = []
+                        for n in t0.column_names:
+                            t = t0.schema.field(n).type
+                            if n in (sampleCols or ()):
+                                fields.append(pa.field(n, pa.binary()))
+                            elif pa.types.is_null(t):
+                                fields.append(pa.field(n, _arrowTypeFor(colTypes.get(n, "varchar"))))
+                            else:
+                                fields.append(pa.field(n, t))
+                        schema = pa.schema(fields)
+                        sink = pa.OSFile(str(tmpMain), "wb")
+                        writer = pa.ipc.new_file(sink, schema)
+                    table = pa.Table.from_pandas(chunk, schema=schema, preserve_index=False)
+                    writer.write_table(table)
+                    total += len(chunk)
+                    del chunk, table
+            finally:
+                try:
+                    result.close()
+                except Exception:
+                    pass
     finally:
         if writer is not None:
             writer.close()

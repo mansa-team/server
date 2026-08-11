@@ -20,10 +20,17 @@ class _FakeResult:
     def fetchmany(self, n):
         return self._batches.pop(0) if self._batches else []
 
+    def fetchall(self):
+        rows = []
+        while self._batches:
+            rows.extend(self._batches.pop(0))
+        return rows
+
 
 class _FakeConn:
-    def __init__(self, frames=None):
+    def __init__(self, frames=None, col_types=None):
         self._frames = frames or []
+        self._col_types = col_types or {}
 
     def __enter__(self):
         return self
@@ -35,6 +42,11 @@ class _FakeConn:
         return self
 
     def exec_driver_sql(self, sql):
+        if "SHOW COLUMNS" in sql:
+            typeDf = pd.DataFrame(
+                {"Field": list(self._col_types), "Type": list(self._col_types.values())}
+            )
+            return _FakeResult([typeDf])
         return _FakeResult(self._frames)
 
 
@@ -196,6 +208,37 @@ def test_nested_sample_captures_sparse_columns_across_chunks(monkeypatch, tmp_pa
     assert isinstance(nested["COTACAO 10Y PADRAO"].iloc[0], str)
     assert isinstance(nested["NOTICIAS"].iloc[0], str)
     assert nested["NOTICIAS"].iloc[0].startswith("[{")
+
+
+def test_build_null_first_chunk_numeric_column_uses_db_type(monkeypatch, tmp_path):
+    """Regression: sparse NUMERIC columns (e.g. 'DIVIDENDOS 2027') that are
+    all-None in the first chunk must be pinned to their DB type (float), not
+    blindly widened to string — that broke later chunks with real values:
+    pyarrow.lib.ArrowTypeError: ('Expected a string or bytes dtype, got
+    float32', 'Conversion failed for column DIVIDENDOS 2027 with type
+    float32')."""
+    first = pd.DataFrame(
+        {
+            "TICKER": ["PETR4", "VALE3"],
+            "NOME": ["PETROBRAS PN", "VALE ON"],
+            "DIVIDENDOS 2027": [None, None],
+        }
+    )
+    later = pd.DataFrame(
+        {
+            "TICKER": ["WEGE3"],
+            "NOME": ["WEG ON"],
+            "DIVIDENDOS 2027": [1.25],
+        }
+    )
+    conn = _FakeConn([first, later], col_types={"DIVIDENDOS 2027": "double"})
+    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: conn)
+    cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
+    cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
+    cache_mod.buildFeatherCache()
+    df = pd.read_feather(cache_mod.CACHE_FEATHER_PATH)
+    assert df["DIVIDENDOS 2027"].iloc[2] == 1.25
+    assert str(df["DIVIDENDOS 2027"].dtype).startswith("float")
 
 
 def test_detect_nested_fields_tolerates_loose_nan_json():
