@@ -55,10 +55,7 @@ def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def _arrowTypeFor(dbType: str):
-    """Map a MySQL DATA_TYPE to a pyarrow type for columns that are all-None
-    in the first chunk (sparse columns like 'DIVIDENDOS 2027'). The first
-    chunk cannot tell us the real dtype - the DB schema can."""
+def arrowTypeFor(dbType: str):
     base = dbType.split()[0]
     if base in ("float", "double", "decimal"):
         return pa.float64()
@@ -121,7 +118,7 @@ def buildFeatherCache():
                             if n in (sampleCols or ()):
                                 fields.append(pa.field(n, pa.binary()))
                             elif pa.types.is_null(t):
-                                fields.append(pa.field(n, _arrowTypeFor(colTypes.get(n, "varchar"))))
+                                fields.append(pa.field(n, arrowTypeFor(colTypes.get(n, "varchar"))))
                             else:
                                 fields.append(pa.field(n, t))
                         schema = pa.schema(fields)
