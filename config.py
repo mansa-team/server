@@ -69,6 +69,7 @@ class PrometheusSettings(BaseSettings):
     SANDBOX_MEMORY: int = Field(default=512, validation_alias=AliasChoices("SANDBOX_MEMORY"))
     SANDBOX_CPU: int = Field(default=1, validation_alias=AliasChoices("SANDBOX_CPU"))
     SANDBOX_TTL: int = Field(default=5, validation_alias=AliasChoices("SANDBOX_TTL"))
+    WORKSPACE_MAX_UPLOAD_MB: int = Field(default=10, validation_alias=AliasChoices("WORKSPACE_MAX_UPLOAD_MB"))
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
