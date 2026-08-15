@@ -15,7 +15,7 @@ from main.models.base import Base
 
 
 class FakePrometheus(Prometheus):
-    async def streamMessage(self, query=None, sessionId=None, db=None, user=None):
+    async def streamMessage(self, query=None, sessionId=None, db=None, user=None, file=None):
         yield {"type": "text", "text": "first"}
         yield {"type": "text", "text": " second"}
 
@@ -62,7 +62,7 @@ def _payloads(resp):
 def test_post_stream_then_resume_replays_from_cursor(client, monkeypatch):
     monkeypatch.setattr(Prometheus, "streamMessage", FakePrometheus.streamMessage)
 
-    with client.stream("POST", "/prometheus/chat/stream", json={"query": "oi"}) as r:
+    with client.stream("POST", "/prometheus/chat/stream", data={"query": "oi"}, files={}) as r:
         assert r.status_code == 200
         payloads = _payloads(r)
 
@@ -88,7 +88,7 @@ def test_resume_unknown_session_is_forbidden(client):
 
 def test_resume_requires_valid_cursor(client, monkeypatch):
     monkeypatch.setattr(Prometheus, "streamMessage", FakePrometheus.streamMessage)
-    with client.stream("POST", "/prometheus/chat/stream", json={"query": "oi"}) as r:
+    with client.stream("POST", "/prometheus/chat/stream", data={"query": "oi"}, files={}) as r:
         sid = _payloads(r)[0]["sessionId"]
 
     with client.stream("GET", f"/prometheus/chat/stream/{sid}?cursor=-1") as r2:
@@ -101,12 +101,12 @@ def test_second_post_to_same_session_replaces_log(client, monkeypatch):
     replayed (which would terminate the stream at the stale done)."""
     monkeypatch.setattr(Prometheus, "streamMessage", FakePrometheus.streamMessage)
 
-    with client.stream("POST", "/prometheus/chat/stream", json={"query": "oi"}) as r:
+    with client.stream("POST", "/prometheus/chat/stream", data={"query": "oi"}, files={}) as r:
         assert r.status_code == 200
         first = _payloads(r)
     sid = first[0]["sessionId"]
 
-    with client.stream("POST", "/prometheus/chat/stream", json={"query": "oi", "sessionId": sid}) as r2:
+    with client.stream("POST", "/prometheus/chat/stream", data={"query": "oi", "sessionId": sid}, files={}) as r2:
         assert r2.status_code == 200
         second = _payloads(r2)
 

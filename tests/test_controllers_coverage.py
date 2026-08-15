@@ -965,7 +965,7 @@ class TestPrometheusChat:
     def test_chat_new_session(self):
         """Covers lines 118-119: sessionId is None, new session created."""
 
-        async def fake_stream(query, sessionId=None, db=None, user=None):
+        async def fake_stream(query, sessionId=None, db=None, user=None, file=None):
             yield {"type": "text", "text": "AI response here"}
 
         with (
@@ -977,7 +977,7 @@ class TestPrometheusChat:
             mock_prom.return_value.streamMessage = fake_stream
 
             client, _, _ = _make_prometheus_client()
-            resp = client.post("/prometheus/chat/stream", json={"query": "Hello AI"})
+            resp = client.post("/prometheus/chat/stream", data={"query": "Hello AI"}, files={})
             assert resp.status_code == 200
             mock_pcm.createSession.assert_called_once()
 
@@ -1001,7 +1001,7 @@ class TestPrometheusChat:
         }
         app.dependency_overrides[extractTokenPayload] = lambda: {"userId": 1}
 
-        async def fake_stream(query, sessionId=None, db=None, user=None):
+        async def fake_stream(query, sessionId=None, db=None, user=None, file=None):
             yield {"type": "text", "text": "Response"}
 
         with (
@@ -1020,7 +1020,9 @@ class TestPrometheusChat:
             mock_prom.return_value.streamMessage = fake_stream
 
             client = _TestClient(app, raise_server_exceptions=False)
-            resp = client.post("/prometheus/chat/stream", json={"query": "Follow up", "sessionId": "existing-sid"})
+            resp = client.post(
+                "/prometheus/chat/stream", data={"query": "Follow up", "sessionId": "existing-sid"}, files={}
+            )
             assert resp.status_code == 200
             mock_pcm.verifySessionOwnership.assert_called_once()
 
@@ -1057,13 +1059,13 @@ class TestPrometheusChat:
             mock_pcm.verifySessionOwnership.return_value = False
 
             client = _TestClient(app, raise_server_exceptions=False)
-            resp = client.post("/prometheus/chat/stream", json={"query": "Hack", "sessionId": "others-sid"})
+            resp = client.post("/prometheus/chat/stream", data={"query": "Hack", "sessionId": "others-sid"}, files={})
             assert resp.status_code == 403
 
     def test_chat_generic_exception(self):
         """Generic Exception in chat propagates via SSE error event."""
 
-        async def failing_stream(query, sessionId=None, db=None, user=None):
+        async def failing_stream(query, sessionId=None, db=None, user=None, file=None):
             raise RuntimeError("Gemini API down")
             yield  # make it async generator
 
@@ -1076,7 +1078,7 @@ class TestPrometheusChat:
             mock_prom.return_value.streamMessage = failing_stream
 
             client, _, _ = _make_prometheus_client()
-            resp = client.post("/prometheus/chat/stream", json={"query": "crash"})
+            resp = client.post("/prometheus/chat/stream", data={"query": "crash"}, files={})
             assert resp.status_code == 200  # SSE stream returns 200, error is in the stream data
 
 

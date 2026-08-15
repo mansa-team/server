@@ -267,7 +267,7 @@ class Prometheus:
             model="gemini-flash-lite-latest", history=history, config=types.GenerateContentConfig(**kwargs)
         )
 
-    async def streamMessage(self, query=None, sessionId=None, db=None, user=None) -> AsyncIterator[dict]:
+    async def streamMessage(self, query=None, sessionId=None, db=None, user=None, file=None) -> AsyncIterator[dict]:
         if clientPool.clients is None:
             try:
                 await clientPool.initialize()
@@ -296,11 +296,20 @@ class Prometheus:
 
         # Persist the user turn up front so it survives mid-stream errors; the assistant
         # text is saved in the finally block below.
-        PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
+        userText = str(query)
+        if file and file.get("name"):
+            userText += f"\n\n[Arquivo anexado: {file['name']}]"
+        PrometheusChatManager.saveMessage(db, str(sessionId), "user", userText)
 
         mcpClients, sessions = await clientPool.getClients()
         chat = self.makeChat(sessions, history, system_prompt=system_prompt, disable_automatic_function_calling=True)
-        stream = await chat.send_message_stream(query)
+        if file:
+            parts = [types.Part.from_text(text=query)]
+            if file.get("content") and file.get("mime"):
+                parts.append(types.Part.from_bytes(data=file["content"], mime_type=file["mime"]))
+            stream = await chat.send_message_stream(parts)
+        else:
+            stream = await chat.send_message_stream(query)
 
         fullText = ""
 

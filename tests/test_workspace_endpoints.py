@@ -1,4 +1,8 @@
-"""Tests for /prometheus/workspace/* endpoints (upload, delete, download, list)."""
+"""Tests for /prometheus/workspace/* endpoints (delete, download, list).
+
+NOTE: the direct /workspace/upload route was REMOVED by design — the agent
+owns the workspace via the write_file tool (user directive 2026-08-15).
+"""
 
 import io
 from unittest.mock import patch, MagicMock
@@ -35,41 +39,6 @@ def _make_client():
         mock_roles.requirePermission.return_value = mock_checker
 
         return _TestClient(app, raise_server_exceptions=False)
-
-
-class TestWorkspaceUpload:
-    def test_upload_file(self):
-        with patch("main.controller.prometheus_controller.SandboxManager.write_bytes", return_value=True) as m:
-            client = _make_client()
-            resp = client.post(
-                "/prometheus/workspace/upload",
-                data={"path": "/workspace/data.csv"},
-                files={"file": ("data.csv", io.BytesIO(b"a,b\n1,2\n"), "text/csv")},
-            )
-        assert resp.status_code == 200
-        assert resp.json()["success"] is True
-        m.assert_called_once()
-
-    def test_upload_rejects_huge_file(self):
-        with patch("main.controller.prometheus_controller.Config") as mock_cfg:
-            mock_cfg.PROMETHEUS.WORKSPACE_MAX_UPLOAD_MB = 1
-            client = _make_client()
-            resp = client.post(
-                "/prometheus/workspace/upload",
-                data={"path": "/workspace/big.bin"},
-                files={"file": ("big.bin", io.BytesIO(b"\x00" * (1024 * 1024 + 1)), "application/octet-stream")},
-            )
-        assert resp.status_code == 413
-
-    def test_upload_invalid_path_rejected(self):
-        with patch("main.controller.prometheus_controller.SandboxManager.write_bytes", return_value=False):
-            client = _make_client()
-            resp = client.post(
-                "/prometheus/workspace/upload",
-                data={"path": "/workspace/../../evil.txt"},
-                files={"file": ("evil.txt", io.BytesIO(b"x"), "text/plain")},
-            )
-        assert resp.status_code == 400
 
 
 class TestWorkspaceDelete:

@@ -103,8 +103,9 @@ def deleteSession(
 async def chat_stream(
     request: Request,
     db: Session = Depends(getSession),
-    query: str = Body(..., min_length=1, max_length=10000, embed=True),
-    sessionId: str = Body(default=None, embed=True),
+    query: str = Form(..., min_length=1, max_length=10000),
+    sessionId: str = Form(default=None),
+    file: UploadFile | None = File(default=None),
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
 ):
     if not sessionId:
@@ -112,11 +113,28 @@ async def chat_stream(
     else:
         verifySessionOwnsership(db, sessionId, user["userId"])
 
+    file_data = None
+    if file is not None:
+        maxBytes = Config.PROMETHEUS.WORKSPACE_MAX_UPLOAD_MB * 1024 * 1024
+        content = await file.read(maxBytes + 1)
+        if len(content) > maxBytes:
+            raise HTTPException(
+                status_code=413,
+                detail=f"File exceeds {Config.PROMETHEUS.WORKSPACE_MAX_UPLOAD_MB}MB limit",
+            )
+        file_data = {
+            "name": file.filename,
+            "content": content,
+            "mime": file.content_type or "application/octet-stream",
+        }
+
     async def runner() -> AsyncIterator[dict]:
         runDb = SessionLocal()
         try:
             yield {"type": "session", "sessionId": sessionId}
-            async for event in Prometheus().streamMessage(query, sessionId=sessionId, db=runDb, user=user):
+            async for event in Prometheus().streamMessage(
+                query, sessionId=sessionId, db=runDb, user=user, file=file_data
+            ):
                 yield event
         except Exception as e:
             logger.error("Stream run error for session %s: %s", sessionId, e)
@@ -140,29 +158,6 @@ async def resumeChatStream(
     # POST 5/minute limiter gates starting new runs.
     verifySessionOwnsership(db, sessionId, user["userId"])
     return StreamingResponse(_forward(sessionId, cursor=cursor), media_type="text/event-stream")
-
-
-@router.post("/workspace/upload")
-@limiter.limit("10/minute")
-async def uploadWorkspaceFile(
-    request: Request,
-    db: Session = Depends(getSession),
-    path: str = Form(...),
-    file: UploadFile = File(...),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
-):
-    maxBytes = Config.PROMETHEUS.WORKSPACE_MAX_UPLOAD_MB * 1024 * 1024
-    content = await file.read(maxBytes + 1)
-    if len(content) > maxBytes:
-        raise HTTPException(
-            status_code=413,
-            detail=f"File exceeds {Config.PROMETHEUS.WORKSPACE_MAX_UPLOAD_MB}MB limit",
-        )
-
-    ok = SandboxManager.write_bytes(user["userId"], path, content)
-    if not ok:
-        raise HTTPException(status_code=400, detail="Invalid workspace path")
-    return {"success": True, "path": path, "size": len(content)}
 
 
 @router.delete("/workspace/delete")

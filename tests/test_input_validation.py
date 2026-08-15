@@ -111,12 +111,13 @@ class TestUpdateTitleValidation:
 
 
 class TestChatValidation:
-    """POST /prometheus/chat/stream — validates query via Body(...)"""
+    """POST /prometheus/chat/stream — validates query via Form(...)"""
 
     def test_empty_text(self, client):
         response = client.post(
             "/prometheus/chat/stream",
-            json={"query": ""},
+            data={"query": ""},
+            files={},
             headers={"X-Access-Token": "valid-token"},
         )
         assert response.status_code == 422
@@ -124,7 +125,8 @@ class TestChatValidation:
     def test_text_too_long(self, client):
         response = client.post(
             "/prometheus/chat/stream",
-            json={"query": "X" * 10001},
+            data={"query": "X" * 10001},
+            files={},
             headers={"X-Access-Token": "valid-token"},
         )
         assert response.status_code == 422
@@ -132,7 +134,8 @@ class TestChatValidation:
     def test_max_length_boundary(self, client):
         response = client.post(
             "/prometheus/chat/stream",
-            json={"query": "X" * 10000},
+            data={"query": "X" * 10000},
+            files={},
             headers={"X-Access-Token": "valid-token"},
         )
         # Should not be 422 — may be other error
