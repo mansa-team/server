@@ -201,7 +201,10 @@ def listWorkspaceFiles(
     path: str = Query("/workspace", max_length=1000),
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
 ):
-    return SandboxManager.list_files(user["userId"], path)
+    try:
+        return SandboxManager.list_files(user["userId"], path)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid workspace path")
 
 
 async def _forward(sessionId: str, cursor: int = 0) -> AsyncIterator[str]:

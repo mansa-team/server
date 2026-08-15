@@ -144,3 +144,8 @@ class TestWorkspaceList:
         assert resp.status_code == 200
         assert resp.json() == {"entries": []}
         m.assert_called_once_with(1, "/workspace")
+
+    def test_list_rejects_traversal(self):
+        client = _make_client()
+        resp = client.get("/prometheus/workspace/list", params={"path": "/workspace/../../etc"})
+        assert resp.status_code == 400
