@@ -183,6 +183,34 @@ class SandboxManager:
         return {"entries": entries}
 
     @staticmethod
+    def write_bytes(userId: int, path: str, content: bytes) -> bool:
+        try:
+            host = hostPath(userId, path)
+            host.parent.mkdir(parents=True, exist_ok=True)
+            host.write_bytes(content)
+            return True
+        except Exception as e:
+            logger.warning("Failed to write %s: %s", path, e)
+            return False
+
+    @staticmethod
+    def delete_file(userId: int, path: str) -> bool:
+        try:
+            host = hostPath(userId, path)
+            if not host.exists():
+                return False
+            if host.is_dir():
+                if any(host.rglob("*")):
+                    return False  # refuse non-empty dirs
+                host.rmdir()
+                return True
+            host.unlink()
+            return True
+        except Exception as e:
+            logger.warning("Failed to delete %s: %s", path, e)
+            return False
+
+    @staticmethod
     async def syncToSandbox(sandboxId: str, userId: int) -> int:
         workspace = WORKSPACE_ROOT / str(userId)
         if not workspace.exists():
