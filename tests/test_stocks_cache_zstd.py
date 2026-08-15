@@ -43,9 +43,7 @@ class _FakeConn:
 
     def exec_driver_sql(self, sql):
         if "SHOW COLUMNS" in sql:
-            typeDf = pd.DataFrame(
-                {"Field": list(self._col_types), "Type": list(self._col_types.values())}
-            )
+            typeDf = pd.DataFrame({"Field": list(self._col_types), "Type": list(self._col_types.values())})
             return _FakeResult([typeDf])
         return _FakeResult(self._frames)
 
