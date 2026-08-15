@@ -231,10 +231,6 @@ class Prometheus:
     ) -> str:
         memoryBlock = ""
         if userId and db:
-            # Intentional: the query is NOT passed here so the memory block is deterministic
-            # per user (ranked by relevanceScore), keeping the system instruction stable so
-            # the SDK's implicit prompt cache can hit. Query-specific retrieval remains
-            # available via the search_memory tool.
             memories = PrometheusMemory.search(db, userId, "", limit=10)
             if memories:
                 memoryBlock = "\n".join(f"- [{m['memoryType']}] {m['memoryKey']}: {m['memoryValue']}" for m in memories)
@@ -294,11 +290,9 @@ class Prometheus:
             sessionId=str(sessionId),
         )
 
-        # Persist the user turn up front so it survives mid-stream errors; the assistant
-        # text is saved in the finally block below.
         userText = str(query)
         if file and file.get("name"):
-            userText += f"\n\n[Arquivo anexado: {file['name']}]"
+            userText += f"\n\n[ATTACHED FILES: {file['name']}]"
         PrometheusChatManager.saveMessage(db, str(sessionId), "user", userText)
 
         mcpClients, sessions = await clientPool.getClients()
@@ -430,8 +424,6 @@ class Prometheus:
                 logger.warning("Prometheus hit max turns (%d) for session %s", MAX_TURNS, sessionId)
                 yield {"type": "turn_limit", "maxTurns": MAX_TURNS}
         finally:
-            # Persist whatever assistant text accumulated — full answer on success, partial
-            # text on mid-stream error (the error then re-raises to the controller).
             if fullText:
                 try:
                     PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", fullText)

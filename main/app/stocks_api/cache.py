@@ -156,7 +156,6 @@ def tryBuildLock():
         lockPath.parent.mkdir(parents=True, exist_ok=True)
         lockFile = open(lockPath, "w")
     except OSError:
-        # lock dir unavailable (e.g. read-only CI) — proceed unlocked; the build itself fails loudly if it cannot write
         return open(os.devnull, "w")
     try:
         fcntl.flock(lockFile, fcntl.LOCK_EX | fcntl.LOCK_NB)
