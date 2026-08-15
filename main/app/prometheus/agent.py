@@ -52,15 +52,14 @@ _mcp._filter_to_supported_schema = _safe_filter
 
 logger = logging.getLogger(__name__)
 
-_client: genai.Client | None = None
+client: genai.Client | None = None
 
 
-def _get_client() -> genai.Client:
-    """Lazy module-level singleton so the genai client is created once, not per request."""
-    global _client
-    if _client is None:
-        _client = genai.Client(api_key=Config.PROMETHEUS.GEMINI_API_KEY)
-    return _client
+def getClient() -> genai.Client:
+    global client
+    if client is None:
+        client = genai.Client(api_key=Config.PROMETHEUS.GEMINI_API_KEY)
+    return client
 
 
 MAX_TURNS = 30
@@ -221,7 +220,7 @@ Use with stat cards for portfolio snapshots.
 
 class Prometheus:
     def __init__(self):
-        self.client = _get_client()
+        self.client = getClient()
 
     @classmethod
     def buildSystemPrompt(

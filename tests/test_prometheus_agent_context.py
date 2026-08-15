@@ -105,7 +105,7 @@ class TestLazyClientSingleton:
 
     @patch("main.app.prometheus.agent.genai")
     @patch("main.app.prometheus.agent.Config")
-    @patch("main.app.prometheus.agent._client", None)
+    @patch("main.app.prometheus.agent.client", None)
     def test_client_created_once_and_shared(self, mock_config, mock_genai):
         mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
         first = Prometheus()

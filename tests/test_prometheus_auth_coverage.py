@@ -28,7 +28,7 @@ class TestPrometheusInit:
 
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent._client", None)
+    @patch("main.app.prometheus.agent.client", None)
     def test_init_creates_client(self, mock_genai, mock_config):
         # _client is a lazy module-level singleton (created once per process);
         # reset it so construction goes through the mocked genai.Client.
