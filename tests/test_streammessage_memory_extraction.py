@@ -78,7 +78,8 @@ def test_streammessage_triggers_memory_extraction(client, monkeypatch):
 
         resp = client.post(
             "/prometheus/chat/stream",
-            json={"query": "lembre que prefiro FIIs", "sessionId": "s1"},
+            data={"query": "lembre que prefiro FIIs", "sessionId": "s1"},
+            files={},
         )
         assert resp.status_code == 200
 

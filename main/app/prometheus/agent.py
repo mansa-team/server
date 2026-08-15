@@ -23,25 +23,6 @@ _original_filter = _mcp._filter_to_supported_schema
 pendingExtractions: set[asyncio.Task] = set()
 
 
-def onExtractionDone(task: asyncio.Task):
-    pendingExtractions.discard(task)
-    try:
-        task.exception()
-    except Exception as e:
-        logger.debug("Memory extraction failed: %s", e)
-
-
-def spawnExtraction(userId, sessionId, userRoles):
-    try:
-        task = asyncio.get_running_loop().create_task(
-            asyncio.to_thread(PrometheusMemory.extract, None, userId, sessionId, userRoles)
-        )
-        pendingExtractions.add(task)
-        task.add_done_callback(onExtractionDone)
-    except Exception as e:
-        logger.debug("Memory extraction spawn skipped: %s", e)
-
-
 def _safe_filter(schema):
     if not isinstance(schema, dict):
         return schema
@@ -51,6 +32,16 @@ def _safe_filter(schema):
 _mcp._filter_to_supported_schema = _safe_filter
 
 logger = logging.getLogger(__name__)
+
+client: genai.Client | None = None
+
+
+def getClient() -> genai.Client:
+    global client
+    if client is None:
+        client = genai.Client(api_key=Config.PROMETHEUS.GEMINI_API_KEY)
+    return client
+
 
 MAX_TURNS = 30
 
@@ -210,7 +201,7 @@ Use with stat cards for portfolio snapshots.
 
 class Prometheus:
     def __init__(self):
-        self.client = genai.Client(api_key=Config.PROMETHEUS.GEMINI_API_KEY)
+        self.client = getClient()
 
     @classmethod
     def buildSystemPrompt(
@@ -218,11 +209,10 @@ class Prometheus:
         userId: int | None = None,
         db=None,
         sessionId: str | None = None,
-        query: str | None = None,
     ) -> str:
         memoryBlock = ""
         if userId and db:
-            memories = PrometheusMemory.search(db, userId, query or "", limit=10)
+            memories = PrometheusMemory.search(db, userId, "", limit=10)
             if memories:
                 memoryBlock = "\n".join(f"- [{m['memoryType']}] {m['memoryKey']}: {m['memoryValue']}" for m in memories)
 
@@ -254,7 +244,7 @@ class Prometheus:
             model="gemini-flash-lite-latest", history=history, config=types.GenerateContentConfig(**kwargs)
         )
 
-    async def streamMessage(self, query=None, sessionId=None, db=None, user=None) -> AsyncIterator[dict]:
+    async def streamMessage(self, query=None, sessionId=None, db=None, user=None, file=None) -> AsyncIterator[dict]:
         if clientPool.clients is None:
             try:
                 await clientPool.initialize()
@@ -268,7 +258,20 @@ class Prometheus:
                 PrometheusCompactor().compact(db, str(sessionId))
 
             if session and user:
-                spawnExtraction(user.get("userId"), str(sessionId), user.get("roles", []))
+                try:
+                    async def extract() -> None:
+                        try:
+                            await asyncio.to_thread(
+                                PrometheusMemory.extract, None, user.get("userId"), str(sessionId), user.get("roles", [])
+                            )
+                        except Exception as e:
+                            logger.debug("Memory extraction failed: %s", e)
+
+                    task = asyncio.get_running_loop().create_task(extract())
+                    pendingExtractions.add(task)
+                    task.add_done_callback(pendingExtractions.discard)
+                except Exception as e:
+                    logger.debug("Memory extraction spawn skipped: %s", e)
         except Exception:
             logger.debug("Pre-turn compaction skipped", exc_info=True)
 
@@ -279,134 +282,144 @@ class Prometheus:
             user.get("userId") if user else None,
             db,
             sessionId=str(sessionId),
-            query=query,
         )
+
+        userText = str(query)
+        if file and file.get("name"):
+            userText += f"\n\n[ATTACHED FILES: {file['name']}]"
+        PrometheusChatManager.saveMessage(db, str(sessionId), "user", userText)
 
         mcpClients, sessions = await clientPool.getClients()
         chat = self.makeChat(sessions, history, system_prompt=system_prompt, disable_automatic_function_calling=True)
-        stream = await chat.send_message_stream(query)
+        parts = [types.Part.from_text(text=query)]
+        if file and file.get("content") and file.get("mime"):
+            parts.append(types.Part.from_bytes(data=file["content"], mime_type=file["mime"]))
+        stream = await chat.send_message_stream(parts)
 
         fullText = ""
 
-        turn = 0
-        while turn < MAX_TURNS:
-            chunks_text = ""
-            function_calls: list = []
-            async for chunk in stream:
-                if hasattr(chunk, "text") and chunk.text:
-                    chunks_text += chunk.text
-                    yield {"type": "text", "text": chunk.text}
-                if hasattr(chunk, "function_calls") and chunk.function_calls:
-                    fcs = chunk.function_calls
-                    function_calls.extend(fcs.values() if isinstance(fcs, dict) else fcs)
-            fullText += chunks_text
+        try:
+            turn = 0
+            while turn < MAX_TURNS:
+                function_calls: list = []
+                async for chunk in stream:
+                    if hasattr(chunk, "text") and chunk.text:
+                        fullText += chunk.text
+                        yield {"type": "text", "text": chunk.text}
+                    if hasattr(chunk, "function_calls") and chunk.function_calls:
+                        fcs = chunk.function_calls
+                        function_calls.extend(fcs.values() if isinstance(fcs, dict) else fcs)
 
-            if not function_calls:
-                break
+                if not function_calls:
+                    break
 
-            turn_start = int(time.time() * 1000)
-            tools_used = []
-            responses = []
+                turn_start = int(time.time() * 1000)
+                tools_used = []
+                responses = []
 
-            sandbox_id = None
-            for fc in function_calls:
-                tools_used.append(fc.name)
-                history.append(
-                    {
-                        "role": "loop_event",
-                        "eventType": "tool_call",
-                        "metadata": {"toolName": fc.name, "args": fc.args or {}, "turnNumber": turn},
-                        "timestamp": datetime.now().isoformat(),
-                    }
-                )
-                yield {"type": "tool_call", "tool": fc.name, "args": fc.args or {}, "turn": turn}
-
-                if sessionId:
-                    try:
-                        PrometheusChatManager.saveLoopEvent(
-                            db,
-                            str(sessionId),
-                            "tool_call",
-                            {"toolName": fc.name, "args": fc.args or {}, "turn": turn},
-                        )
-                    except Exception as e:
-                        logger.error(f"Failed to persist tool_call event: {e}")
-
-                if fc.name == "execute_code":
-                    try:
-                        sandbox_id = await SandboxManager.getOrCreate(user.get("userId", 0), db)
-                        logger.info("Sandbox ready: %s", sandbox_id)
-                    except Exception as e:
-                        logger.warning("Sandbox creation failed: %s", e)
-                        responses.append(
-                            types.Part.from_function_response(name=fc.name, response={"error": "Sandbox unavailable."})
-                        )
-                        continue
-
-                result = await dispatchToolCall(fc, mcpClients, user=user, db=db, sandbox_id=sandbox_id)
-                history.append(
-                    {
-                        "role": "loop_event",
-                        "eventType": "tool_result",
-                        "metadata": {"toolName": fc.name, "result": result, "turnNumber": turn},
-                        "timestamp": datetime.now().isoformat(),
-                    }
-                )
-                yield {"type": "tool_result", "tool": fc.name, "result": result, "turn": turn}
-                responses.append(types.Part.from_function_response(name=fc.name, response=result))
-
-                if sessionId:
-                    try:
-                        PrometheusChatManager.saveLoopEvent(
-                            db,
-                            str(sessionId),
-                            "tool_result",
-                            {"toolName": fc.name, "result": result, "turn": turn},
-                        )
-                    except Exception as e:
-                        logger.error(f"Failed to persist tool_result event: {e}")
-
-            history.append(
-                {
-                    "role": "loop_event",
-                    "eventType": "turn_end",
-                    "metadata": {
-                        "turnNumber": turn,
-                        "durationMs": int(time.time() * 1000) - turn_start,
-                        "toolsUsed": tools_used,
-                    },
-                    "timestamp": datetime.now().isoformat(),
-                }
-            )
-            yield {
-                "type": "turn_end",
-                "turn": turn,
-                "durationMs": int(time.time() * 1000) - turn_start,
-                "toolsUsed": len(tools_used),
-            }
-
-            if sessionId:
-                try:
-                    PrometheusChatManager.saveLoopEvent(
-                        db,
-                        str(sessionId),
-                        "turn_end",
+                sandbox_id = None
+                for fc in function_calls:
+                    tools_used.append(fc.name)
+                    history.append(
                         {
+                            "role": "loop_event",
+                            "eventType": "tool_call",
+                            "metadata": {"toolName": fc.name, "args": fc.args or {}, "turnNumber": turn},
+                            "timestamp": datetime.now().isoformat(),
+                        }
+                    )
+                    yield {"type": "tool_call", "tool": fc.name, "args": fc.args or {}, "turn": turn}
+
+                    if sessionId:
+                        try:
+                            PrometheusChatManager.saveLoopEvent(
+                                db,
+                                str(sessionId),
+                                "tool_call",
+                                {"toolName": fc.name, "args": fc.args or {}, "turn": turn},
+                            )
+                        except Exception as e:
+                            logger.error(f"Failed to persist tool_call event: {e}")
+
+                    if fc.name == "execute_code":
+                        try:
+                            sandbox_id = await SandboxManager.getOrCreate(user.get("userId", 0), db)
+                            logger.info("Sandbox ready: %s", sandbox_id)
+                        except Exception as e:
+                            logger.warning("Sandbox creation failed: %s", e)
+                            responses.append(
+                                types.Part.from_function_response(
+                                    name=fc.name, response={"error": "Sandbox unavailable."}
+                                )
+                            )
+                            continue
+
+                    result = await dispatchToolCall(fc, mcpClients, user=user, db=db, sandbox_id=sandbox_id)
+                    history.append(
+                        {
+                            "role": "loop_event",
+                            "eventType": "tool_result",
+                            "metadata": {"toolName": fc.name, "result": result, "turnNumber": turn},
+                            "timestamp": datetime.now().isoformat(),
+                        }
+                    )
+                    yield {"type": "tool_result", "tool": fc.name, "result": result, "turn": turn}
+                    responses.append(types.Part.from_function_response(name=fc.name, response=result))
+
+                    if sessionId:
+                        try:
+                            PrometheusChatManager.saveLoopEvent(
+                                db,
+                                str(sessionId),
+                                "tool_result",
+                                {"toolName": fc.name, "result": result, "turn": turn},
+                            )
+                        except Exception as e:
+                            logger.error(f"Failed to persist tool_result event: {e}")
+
+                history.append(
+                    {
+                        "role": "loop_event",
+                        "eventType": "turn_end",
+                        "metadata": {
                             "turnNumber": turn,
                             "durationMs": int(time.time() * 1000) - turn_start,
                             "toolsUsed": tools_used,
                         },
-                    )
+                        "timestamp": datetime.now().isoformat(),
+                    }
+                )
+                yield {
+                    "type": "turn_end",
+                    "turn": turn,
+                    "durationMs": int(time.time() * 1000) - turn_start,
+                    "toolsUsed": len(tools_used),
+                }
+
+                if sessionId:
+                    try:
+                        PrometheusChatManager.saveLoopEvent(
+                            db,
+                            str(sessionId),
+                            "turn_end",
+                            {
+                                "turnNumber": turn,
+                                "durationMs": int(time.time() * 1000) - turn_start,
+                                "toolsUsed": tools_used,
+                            },
+                        )
+                    except Exception as e:
+                        logger.error(f"Failed to persist turn_end event: {e}")
+
+                turn += 1
+                stream = await chat.send_message_stream(responses)
+
+            if turn >= MAX_TURNS:
+                logger.warning("Prometheus hit max turns (%d) for session %s", MAX_TURNS, sessionId)
+                yield {"type": "turn_limit", "maxTurns": MAX_TURNS}
+        finally:
+            if fullText:
+                try:
+                    PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", fullText)
                 except Exception as e:
-                    logger.error(f"Failed to persist turn_end event: {e}")
-
-            turn += 1
-            stream = await chat.send_message_stream(responses)
-
-        if turn >= MAX_TURNS:
-            logger.warning("Prometheus hit max turns (%d) for session %s", MAX_TURNS, sessionId)
-            yield {"type": "turn_limit", "maxTurns": MAX_TURNS}
-
-        PrometheusChatManager.saveMessage(db, str(sessionId), "user", str(query))
-        if fullText:
-            PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", fullText)
+                    logger.error("Failed to persist assistant message: %s", e)

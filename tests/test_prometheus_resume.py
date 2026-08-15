@@ -10,12 +10,11 @@ from sqlalchemy.pool import StaticPool
 from config import getSession
 from main.app.prometheus.agent import Prometheus
 from main.app.prometheus.stream_bus import streamBus
-from main.controller.prometheus_controller import _forward
 from main.models.base import Base
 
 
 class FakePrometheus(Prometheus):
-    async def streamMessage(self, query=None, sessionId=None, db=None, user=None):
+    async def streamMessage(self, query=None, sessionId=None, db=None, user=None, file=None):
         yield {"type": "text", "text": "first"}
         yield {"type": "text", "text": " second"}
 
@@ -62,7 +61,7 @@ def _payloads(resp):
 def test_post_stream_then_resume_replays_from_cursor(client, monkeypatch):
     monkeypatch.setattr(Prometheus, "streamMessage", FakePrometheus.streamMessage)
 
-    with client.stream("POST", "/prometheus/chat/stream", json={"query": "oi"}) as r:
+    with client.stream("POST", "/prometheus/chat/stream", data={"query": "oi"}, files={}) as r:
         assert r.status_code == 200
         payloads = _payloads(r)
 
@@ -88,7 +87,7 @@ def test_resume_unknown_session_is_forbidden(client):
 
 def test_resume_requires_valid_cursor(client, monkeypatch):
     monkeypatch.setattr(Prometheus, "streamMessage", FakePrometheus.streamMessage)
-    with client.stream("POST", "/prometheus/chat/stream", json={"query": "oi"}) as r:
+    with client.stream("POST", "/prometheus/chat/stream", data={"query": "oi"}, files={}) as r:
         sid = _payloads(r)[0]["sessionId"]
 
     with client.stream("GET", f"/prometheus/chat/stream/{sid}?cursor=-1") as r2:
@@ -101,12 +100,12 @@ def test_second_post_to_same_session_replaces_log(client, monkeypatch):
     replayed (which would terminate the stream at the stale done)."""
     monkeypatch.setattr(Prometheus, "streamMessage", FakePrometheus.streamMessage)
 
-    with client.stream("POST", "/prometheus/chat/stream", json={"query": "oi"}) as r:
+    with client.stream("POST", "/prometheus/chat/stream", data={"query": "oi"}, files={}) as r:
         assert r.status_code == 200
         first = _payloads(r)
     sid = first[0]["sessionId"]
 
-    with client.stream("POST", "/prometheus/chat/stream", json={"query": "oi", "sessionId": sid}) as r2:
+    with client.stream("POST", "/prometheus/chat/stream", data={"query": "oi", "sessionId": sid}, files={}) as r2:
         assert r2.status_code == 200
         second = _payloads(r2)
 
@@ -117,15 +116,15 @@ def test_second_post_to_same_session_replaces_log(client, monkeypatch):
 
 def test_forward_terminates_when_finished_channel_has_empty_replay(monkeypatch):
     """Regression (I2): resuming a finished channel at cursor == len(events)
-    yields an empty replay, so _forward must terminate via the finished check
-    instead of streaming keepalives forever. No DB needed - drives _forward
-    directly against a prepared StreamBus."""
+    yields an empty replay, so forward must terminate via the finished check
+    instead of streaming keepalives forever. No DB needed - drives
+    streamBus.forward directly against a prepared StreamBus."""
     real_wait_for = asyncio.wait_for
 
     async def quick_wait_for(coro, timeout=None):
         return await real_wait_for(coro, timeout=0.05)
 
-    monkeypatch.setattr(controller_mod.asyncio, "wait_for", quick_wait_for)
+    monkeypatch.setattr(asyncio, "wait_for", quick_wait_for)
 
     async def scenario():
         async def runner():
@@ -141,7 +140,7 @@ def test_forward_terminates_when_finished_channel_has_empty_replay(monkeypatch):
         assert ch.finished is True
 
         # events = [text, done]; cursor=2 replays nothing.
-        return [line async for line in _forward("s1", cursor=2)]
+        return [line async for line in streamBus.forward("s1", cursor=2)]
 
     lines = asyncio.run(scenario())
     data = [ln for ln in lines if ln.startswith("data: ")]

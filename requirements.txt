@@ -30,6 +30,7 @@ fastmcp==3.4.5
 mcp==1.29.0
 google-genai[local-tokenizer]
 forgevm
+python-multipart
 
 # USER
 slowapi
