@@ -308,11 +308,9 @@ class Prometheus:
         try:
             turn = 0
             while turn < MAX_TURNS:
-                chunks_text = ""
                 function_calls: list = []
                 async for chunk in stream:
                     if hasattr(chunk, "text") and chunk.text:
-                        chunks_text += chunk.text
                         fullText += chunk.text
                         yield {"type": "text", "text": chunk.text}
                     if hasattr(chunk, "function_calls") and chunk.function_calls:
