@@ -23,25 +23,6 @@ _original_filter = _mcp._filter_to_supported_schema
 pendingExtractions: set[asyncio.Task] = set()
 
 
-def onExtractionDone(task: asyncio.Task):
-    pendingExtractions.discard(task)
-    try:
-        task.exception()
-    except Exception as e:
-        logger.debug("Memory extraction failed: %s", e)
-
-
-def spawnExtraction(userId, sessionId, userRoles):
-    try:
-        task = asyncio.get_running_loop().create_task(
-            asyncio.to_thread(PrometheusMemory.extract, None, userId, sessionId, userRoles)
-        )
-        pendingExtractions.add(task)
-        task.add_done_callback(onExtractionDone)
-    except Exception as e:
-        logger.debug("Memory extraction spawn skipped: %s", e)
-
-
 def _safe_filter(schema):
     if not isinstance(schema, dict):
         return schema
@@ -277,7 +258,20 @@ class Prometheus:
                 PrometheusCompactor().compact(db, str(sessionId))
 
             if session and user:
-                spawnExtraction(user.get("userId"), str(sessionId), user.get("roles", []))
+                try:
+                    async def extract() -> None:
+                        try:
+                            await asyncio.to_thread(
+                                PrometheusMemory.extract, None, user.get("userId"), str(sessionId), user.get("roles", [])
+                            )
+                        except Exception as e:
+                            logger.debug("Memory extraction failed: %s", e)
+
+                    task = asyncio.get_running_loop().create_task(extract())
+                    pendingExtractions.add(task)
+                    task.add_done_callback(pendingExtractions.discard)
+                except Exception as e:
+                    logger.debug("Memory extraction spawn skipped: %s", e)
         except Exception:
             logger.debug("Pre-turn compaction skipped", exc_info=True)
 

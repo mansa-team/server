@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 from collections.abc import AsyncIterator, Callable
 
@@ -60,8 +61,6 @@ class StreamBus:
     def startRun(self, sessionId: str, runner_factory: Callable[[], AsyncIterator[dict]]) -> None:
         ch = self.getOrCreate(sessionId)
         if ch.task:
-            # cancel() on a finished task is a no-op, so this resets the log
-            # for EVERY new run, not just ones replacing an active run.
             ch.task.cancel()
             ch.events.clear()
             ch.finished = False
@@ -80,6 +79,30 @@ class StreamBus:
                     ch.publish({"type": "done"})
 
         ch.task = asyncio.get_running_loop().create_task(_run())
+
+    async def forward(self, sessionId: str, cursor: int = 0) -> AsyncIterator[str]:
+        sub = self.subscribe(sessionId, cursor)
+        if sub is None:
+            yield "data: [DONE]\n\n"
+            return
+        q, ch = sub
+        try:
+            while True:
+                try:
+                    event = await asyncio.wait_for(q.get(), timeout=30)
+                except asyncio.TimeoutError:
+                    if ch.finished:
+                        yield "data: " + json.dumps({"type": "done"}) + "\n\n"
+                        yield "data: [DONE]\n\n"
+                        return
+                    yield ": keepalive\n\n"
+                    continue
+                yield f"data: {json.dumps(event)}\n\n"
+                if event.get("type") == "done":
+                    yield "data: [DONE]\n\n"
+                    return
+        finally:
+            self.unsubscribe(sessionId, q)
 
 
 streamBus = StreamBus()

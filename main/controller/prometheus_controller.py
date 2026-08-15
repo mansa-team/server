@@ -1,5 +1,3 @@
-import asyncio
-import json
 import logging
 from collections.abc import AsyncIterator
 
@@ -144,7 +142,7 @@ async def chat_stream(
 
     streamBus.startRun(sessionId, runner)
 
-    return StreamingResponse(_forward(sessionId, cursor=0), media_type="text/event-stream")
+    return StreamingResponse(streamBus.forward(sessionId, cursor=0), media_type="text/event-stream")
 
 
 @router.get("/chat/stream/{sessionId}")
@@ -157,7 +155,7 @@ async def resumeChatStream(
     # No rate limiter: this route only subscribes to an existing run; the
     # POST 5/minute limiter gates starting new runs.
     verifySessionOwnsership(db, sessionId, user["userId"])
-    return StreamingResponse(_forward(sessionId, cursor=cursor), media_type="text/event-stream")
+    return StreamingResponse(streamBus.forward(sessionId, cursor=cursor), media_type="text/event-stream")
 
 
 @router.delete("/workspace/delete")
@@ -200,31 +198,3 @@ def listWorkspaceFiles(
         return SandboxManager.list_files(user["userId"], path)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid workspace path")
-
-
-async def _forward(sessionId: str, cursor: int = 0) -> AsyncIterator[str]:
-    sub = streamBus.subscribe(sessionId, cursor)
-    if sub is None:
-        yield "data: [DONE]\n\n"
-        return
-    q, _ch = sub
-    try:
-        while True:
-            try:
-                event = await asyncio.wait_for(q.get(), timeout=30)
-            except asyncio.TimeoutError:
-                if _ch.finished:
-                    # Channel is done but this subscriber missed the done event
-                    # (queue overflow or cursor == len(events)): terminate instead
-                    # of streaming keepalives forever.
-                    yield "data: " + json.dumps({"type": "done"}) + "\n\n"
-                    yield "data: [DONE]\n\n"
-                    return
-                yield ": keepalive\n\n"  # SSE comment line keeps proxies happy
-                continue
-            yield f"data: {json.dumps(event)}\n\n"
-            if event.get("type") == "done":
-                yield "data: [DONE]\n\n"
-                return
-    finally:
-        streamBus.unsubscribe(sessionId, q)

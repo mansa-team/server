@@ -10,7 +10,6 @@ from sqlalchemy.pool import StaticPool
 from config import getSession
 from main.app.prometheus.agent import Prometheus
 from main.app.prometheus.stream_bus import streamBus
-from main.controller.prometheus_controller import _forward
 from main.models.base import Base
 
 
@@ -117,15 +116,15 @@ def test_second_post_to_same_session_replaces_log(client, monkeypatch):
 
 def test_forward_terminates_when_finished_channel_has_empty_replay(monkeypatch):
     """Regression (I2): resuming a finished channel at cursor == len(events)
-    yields an empty replay, so _forward must terminate via the finished check
-    instead of streaming keepalives forever. No DB needed - drives _forward
-    directly against a prepared StreamBus."""
+    yields an empty replay, so forward must terminate via the finished check
+    instead of streaming keepalives forever. No DB needed - drives
+    streamBus.forward directly against a prepared StreamBus."""
     real_wait_for = asyncio.wait_for
 
     async def quick_wait_for(coro, timeout=None):
         return await real_wait_for(coro, timeout=0.05)
 
-    monkeypatch.setattr(controller_mod.asyncio, "wait_for", quick_wait_for)
+    monkeypatch.setattr(asyncio, "wait_for", quick_wait_for)
 
     async def scenario():
         async def runner():
@@ -141,7 +140,7 @@ def test_forward_terminates_when_finished_channel_has_empty_replay(monkeypatch):
         assert ch.finished is True
 
         # events = [text, done]; cursor=2 replays nothing.
-        return [line async for line in _forward("s1", cursor=2)]
+        return [line async for line in streamBus.forward("s1", cursor=2)]
 
     lines = asyncio.run(scenario())
     data = [ln for ln in lines if ln.startswith("data: ")]
