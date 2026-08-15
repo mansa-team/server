@@ -303,13 +303,10 @@ class Prometheus:
 
         mcpClients, sessions = await clientPool.getClients()
         chat = self.makeChat(sessions, history, system_prompt=system_prompt, disable_automatic_function_calling=True)
-        if file:
-            parts = [types.Part.from_text(text=query)]
-            if file.get("content") and file.get("mime"):
-                parts.append(types.Part.from_bytes(data=file["content"], mime_type=file["mime"]))
-            stream = await chat.send_message_stream(parts)
-        else:
-            stream = await chat.send_message_stream(query)
+        parts = [types.Part.from_text(text=query)]
+        if file and file.get("content") and file.get("mime"):
+            parts.append(types.Part.from_bytes(data=file["content"], mime_type=file["mime"]))
+        stream = await chat.send_message_stream(parts)
 
         fullText = ""
 
