@@ -3,11 +3,11 @@ import json
 import logging
 from collections.abc import AsyncIterator
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, Query, Request, UploadFile
+from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.orm import Session
 
-from config import SessionLocal, getSession
+from config import SessionLocal, getSession, Config
 from main.utils.logging_config import limiter
 
 from main.models.prometheus import PrometheusSession
@@ -16,6 +16,7 @@ from main.utils.roles import Roles, Permission
 from main.app.prometheus.agent import Prometheus
 from main.app.prometheus.chat import PrometheusChatManager
 from main.app.prometheus.stream_bus import streamBus
+from main.app.prometheus.sandbox import SandboxManager, hostPath
 
 logger = logging.getLogger(__name__)
 
@@ -139,6 +140,68 @@ async def resumeChatStream(
     # POST 5/minute limiter gates starting new runs.
     verifySessionOwnsership(db, sessionId, user["userId"])
     return StreamingResponse(_forward(sessionId, cursor=cursor), media_type="text/event-stream")
+
+
+@router.post("/workspace/upload")
+@limiter.limit("10/minute")
+async def uploadWorkspaceFile(
+    request: Request,
+    db: Session = Depends(getSession),
+    path: str = Form(...),
+    file: UploadFile = File(...),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
+):
+    content = await file.read()
+    maxBytes = Config.PROMETHEUS.WORKSPACE_MAX_UPLOAD_MB * 1024 * 1024
+    if len(content) > maxBytes:
+        raise HTTPException(
+            status_code=413,
+            detail=f"File exceeds {Config.PROMETHEUS.WORKSPACE_MAX_UPLOAD_MB}MB limit",
+        )
+
+    ok = SandboxManager.write_bytes(user["userId"], path, content)
+    if not ok:
+        raise HTTPException(status_code=400, detail="Invalid workspace path")
+    return {"success": True, "path": path, "size": len(content)}
+
+
+@router.delete("/workspace/delete")
+@limiter.limit("30/minute")
+def deleteWorkspaceFile(
+    request: Request,
+    db: Session = Depends(getSession),
+    path: str = Body(..., min_length=1, max_length=1000, embed=True),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
+):
+    ok = SandboxManager.delete_file(user["userId"], path)
+    if not ok:
+        raise HTTPException(status_code=404, detail="File not found or directory not empty")
+    return {"success": True, "path": path}
+
+
+@router.get("/workspace/download")
+def downloadWorkspaceFile(
+    db: Session = Depends(getSession),
+    path: str = Query(..., min_length=1, max_length=1000),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
+):
+    try:
+        host = hostPath(user["userId"], path)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid workspace path")
+
+    if not host.exists() or not host.is_file():
+        raise HTTPException(status_code=404, detail="File not found")
+    return FileResponse(host, filename=host.name)
+
+
+@router.get("/workspace/list")
+def listWorkspaceFiles(
+    db: Session = Depends(getSession),
+    path: str = Query("/workspace", max_length=1000),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
+):
+    return SandboxManager.list_files(user["userId"], path)
 
 
 async def _forward(sessionId: str, cursor: int = 0) -> AsyncIterator[str]:
