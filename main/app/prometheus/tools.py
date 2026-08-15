@@ -6,7 +6,7 @@ from forgevm.exceptions import SandboxNotFound
 from sqlalchemy.orm import Session
 
 from main.app.prometheus.memory import PrometheusMemory
-from main.app.prometheus.sandbox import SandboxManager
+from main.app.prometheus.sandbox import SandboxManager, hostPath
 from main.app.prometheus.vector import embed
 
 logger = logging.getLogger(__name__)
@@ -141,6 +141,30 @@ async def list_files(path: str = "/workspace", **_) -> dict:
     return SandboxManager.list_files(userId, path)
 
 
+async def serve_file(path: str, **_) -> dict:
+    """Get a download link for a workspace file to share with the user.
+
+    Use this when the user should be able to download or view a file you
+    created (reports, CSVs, charts). Returns a markdown link the user can
+    click; embed the markdown value in your reply.
+
+    Args:
+        path: Path to the file (e.g., /workspace/report.csv)
+    """
+    userId = _.get("userId", 0)
+    try:
+        host = hostPath(userId, path)
+    except ValueError:
+        return {"error": "Invalid workspace path"}
+    if not host.exists() or not host.is_file():
+        return {"error": f"File not found: {path}"}
+
+    from urllib.parse import quote
+
+    url = f"/prometheus/workspace/download?path={quote(path, safe='/')}"
+    return {"url": url, "markdown": f"[{host.name}]({url})"}
+
+
 TOOL_REGISTRY: dict[str, Any] = {
     "search_memory": search_memory,
     "save_memory": save_memory,
@@ -148,6 +172,7 @@ TOOL_REGISTRY: dict[str, Any] = {
     "read_file": read_file,
     "write_file": write_file,
     "list_files": list_files,
+    "serve_file": serve_file,
 }
 
 
