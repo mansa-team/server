@@ -114,7 +114,10 @@ async def read_file(path: str, **_) -> dict:
         path: Path to the file (e.g., /workspace/results.json or results.json)
     """
     userId = _.get("userId", 0)
-    content = SandboxManager.read_file(userId, path)
+    try:
+        content = SandboxManager.read_file(userId, path)
+    except ValueError:
+        return {"error": "Invalid workspace path"}
     return {"content": content}
 
 
@@ -127,7 +130,10 @@ async def write_file(path: str, content: str, **_) -> dict:
         content: File content as a string
     """
     userId = _.get("userId", 0)
-    ok = SandboxManager.write_file(userId, path, content)
+    try:
+        ok = SandboxManager.write_file(userId, path, content)
+    except ValueError:
+        return {"error": "Invalid workspace path"}
     return {"success": ok}
 
 
@@ -138,7 +144,10 @@ async def list_files(path: str = "/workspace", **_) -> dict:
         path: Directory path to list (default: /workspace)
     """
     userId = _.get("userId", 0)
-    return SandboxManager.list_files(userId, path)
+    try:
+        return SandboxManager.list_files(userId, path)
+    except ValueError:
+        return {"error": "Invalid workspace path"}
 
 
 async def serve_file(path: str, **_) -> dict:

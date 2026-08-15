@@ -173,3 +173,38 @@ class TestServeFileGeminiSafe:
         from main.app.prometheus.tools import TOOL_REGISTRY
 
         assert "serve_file" in TOOL_REGISTRY
+
+
+class TestWorkspaceToolsTraversal:
+    def test_read_file_rejects_traversal(self):
+        from main.app.prometheus.tools import read_file
+
+        with patch(
+            "main.app.prometheus.tools.SandboxManager.read_file",
+            side_effect=ValueError("bad path"),
+        ):
+            result = asyncio.run(read_file("/workspace/../../etc/passwd", userId=1))
+
+        assert result["error"] == "Invalid workspace path"
+
+    def test_write_file_rejects_traversal(self):
+        from main.app.prometheus.tools import write_file
+
+        with patch(
+            "main.app.prometheus.tools.SandboxManager.write_file",
+            side_effect=ValueError("bad path"),
+        ):
+            result = asyncio.run(write_file("/workspace/../../etc/evil", "x", userId=1))
+
+        assert result["error"] == "Invalid workspace path"
+
+    def test_list_files_rejects_traversal(self):
+        from main.app.prometheus.tools import list_files
+
+        with patch(
+            "main.app.prometheus.tools.SandboxManager.list_files",
+            side_effect=ValueError("bad path"),
+        ):
+            result = asyncio.run(list_files("/workspace/../../etc", userId=1))
+
+        assert result["error"] == "Invalid workspace path"
