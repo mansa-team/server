@@ -78,3 +78,37 @@ class TestBuildSystemPrompt:
         )
         # no lines starting with [N]
         assert not any(ln.startswith("[") and ln[1].isdigit() for ln in prompt.split("\n"))
+
+    def test_memory_search_called_without_query(self, dbSession):
+        """The query must never reach memory search — stable ranking keeps the prompt cacheable."""
+        with patch("main.app.prometheus.agent.PrometheusMemory.search", return_value=[]) as mock_search:
+            Prometheus.buildSystemPrompt(userId=1, db=dbSession, sessionId=None)
+            mock_search.assert_called_once_with(dbSession, 1, "", limit=10)
+
+    def test_system_prompt_is_stable_across_calls(self, dbSession, fake_session_with_120_messages):
+        """Same session + user must produce byte-identical prompts (no query-dependent memory block)."""
+        first = Prometheus.buildSystemPrompt(
+            userId=1,
+            db=dbSession,
+            sessionId=fake_session_with_120_messages.sessionId,
+        )
+        second = Prometheus.buildSystemPrompt(
+            userId=1,
+            db=dbSession,
+            sessionId=fake_session_with_120_messages.sessionId,
+        )
+        assert first == second
+
+
+class TestLazyClientSingleton:
+    """Prometheus() must share one genai client via the module-level lazy singleton."""
+
+    @patch("main.app.prometheus.agent.genai")
+    @patch("main.app.prometheus.agent.Config")
+    @patch("main.app.prometheus.agent._client", None)
+    def test_client_created_once_and_shared(self, mock_config, mock_genai):
+        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
+        first = Prometheus()
+        second = Prometheus()
+        assert first.client is second.client
+        mock_genai.Client.assert_called_once_with(api_key="test-key")

@@ -137,3 +137,76 @@ class TestStreamMessageNoChatSession:
         assert any(e.get("text") == "Result: found it" for e in results)
         # Tool loop should have run
         assert call_count == 2
+
+    @pytest.mark.anyio
+    @patch("main.app.prometheus.agent.PrometheusChatManager")
+    @patch("main.app.prometheus.agent.Config")
+    @patch("main.app.prometheus.agent.genai")
+    @patch("main.app.prometheus.agent.clientPool")
+    async def test_user_message_saved_before_stream_error(self, mock_pool, mock_genai, mock_config, mock_chat):
+        """If the stream raises on first send, the user query must already be persisted."""
+        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
+        mock_config.DEBUG_MODE = True
+        mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
+        mock_chat.getHistory.return_value = []
+
+        mock_stocks = MagicMock()
+        mock_searxng = MagicMock()
+        mock_pool.clients = {"stocks": mock_stocks, "searxng": mock_searxng}
+        mock_pool.getClients = AsyncMock(
+            return_value=({"stocks": mock_stocks, "searxng": mock_searxng}, [MagicMock(), MagicMock()])
+        )
+
+        mock_chat_session = MagicMock()
+        mock_chat_session.send_message_stream = AsyncMock(side_effect=RuntimeError("gemini down"))
+
+        gen = Prometheus()
+        gen.makeChat = MagicMock(return_value=mock_chat_session)
+
+        db = MagicMock()
+        with pytest.raises(RuntimeError):
+            async for _ in gen.streamMessage(query="important question", sessionId="s-err1", db=db):
+                pass
+
+        # user turn persisted up front; no assistant text accumulated, so only one save
+        mock_chat.saveMessage.assert_called_once_with(db, "s-err1", "user", "important question")
+
+    @pytest.mark.anyio
+    @patch("main.app.prometheus.agent.PrometheusChatManager")
+    @patch("main.app.prometheus.agent.Config")
+    @patch("main.app.prometheus.agent.genai")
+    @patch("main.app.prometheus.agent.clientPool")
+    async def test_partial_assistant_text_persisted_on_stream_error(
+        self, mock_pool, mock_genai, mock_config, mock_chat
+    ):
+        """A mid-stream error must persist partial assistant text, then re-raise."""
+        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
+        mock_config.DEBUG_MODE = True
+        mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
+        mock_chat.getHistory.return_value = []
+
+        mock_stocks = MagicMock()
+        mock_searxng = MagicMock()
+        mock_pool.clients = {"stocks": mock_stocks, "searxng": mock_searxng}
+        mock_pool.getClients = AsyncMock(
+            return_value=({"stocks": mock_stocks, "searxng": mock_searxng}, [MagicMock(), MagicMock()])
+        )
+
+        async def fake_stream_with_error(msg):
+            yield FakeChunk(text="partial answer ")
+            raise RuntimeError("connection lost")
+
+        mock_chat_session = MagicMock()
+        mock_chat_session.send_message_stream = AsyncMock(side_effect=fake_stream_with_error)
+
+        gen = Prometheus()
+        gen.makeChat = MagicMock(return_value=mock_chat_session)
+
+        db = MagicMock()
+        with pytest.raises(RuntimeError):
+            async for _ in gen.streamMessage(query="partial question", sessionId="s-err2", db=db):
+                pass
+
+        calls = [c.args for c in mock_chat.saveMessage.call_args_list]
+        assert (db, "s-err2", "user", "partial question") in calls
+        assert (db, "s-err2", "assistant", "partial answer ") in calls
