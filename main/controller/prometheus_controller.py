@@ -151,8 +151,8 @@ async def uploadWorkspaceFile(
     file: UploadFile = File(...),
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
 ):
-    content = await file.read()
     maxBytes = Config.PROMETHEUS.WORKSPACE_MAX_UPLOAD_MB * 1024 * 1024
+    content = await file.read(maxBytes + 1)
     if len(content) > maxBytes:
         raise HTTPException(
             status_code=413,
