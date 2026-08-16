@@ -259,10 +259,15 @@ class Prometheus:
 
             if session and user:
                 try:
+
                     async def extract() -> None:
                         try:
                             await asyncio.to_thread(
-                                PrometheusMemory.extract, None, user.get("userId"), str(sessionId), user.get("roles", [])
+                                PrometheusMemory.extract,
+                                None,
+                                user.get("userId"),
+                                str(sessionId),
+                                user.get("roles", []),
                             )
                         except Exception as e:
                             logger.debug("Memory extraction failed: %s", e)

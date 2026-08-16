@@ -107,7 +107,7 @@ class StocksQueryManager:
         mask = df["TICKER"].str.upper().apply(lambda t: any(t.startswith(term) for term in searchTerms))
         return df[mask]
 
-    async def queryHistorical(
+    def queryHistorical(
         self,
         search: str | None = None,
         fields: str | None = None,
@@ -183,11 +183,13 @@ class StocksQueryManager:
                 "count": len(df),
                 "data": sanitizeNanValues(df.to_dict(orient="records")),
             }
+        except HTTPException:
+            raise
         except Exception as e:
             logger.exception("Cached historical query failed")
             raise HTTPException(status_code=500, detail="Internal server error while processing historical data")
 
-    async def queryFundamental(
+    def queryFundamental(
         self,
         search: str | None = None,
         fields: str | None = None,
@@ -276,7 +278,7 @@ class StocksQueryManager:
             logger.exception("Cached fundamental query failed")
             raise HTTPException(status_code=500, detail="Internal server error while processing fundamental data")
 
-    async def queryCotations(
+    def queryCotations(
         self,
         search: str | None = None,
         dates: str | None = None,
@@ -329,7 +331,7 @@ class StocksQueryManager:
             logger.exception("Cached cotations query failed")
             raise HTTPException(status_code=500, detail="Internal server error while processing cotations data")
 
-    async def queryLiveCotation(self, search: str):
+    def queryLiveCotation(self, search: str):
         try:
             resp = getSession().get(
                 f"https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/{search.upper()}",
