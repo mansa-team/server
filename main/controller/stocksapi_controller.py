@@ -12,6 +12,7 @@ from main.app.stocks_api.key import verifyAPIKey
 from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
 from main.app.stocks_api.compress import compressResponse, getNest
 from main.app.stocks_api.cache import stocksCache
+from main.app.stocks_api.sync_cache import sync_cache
 
 logger = logging.getLogger(__name__)
 
@@ -89,8 +90,8 @@ def listFields():
 
 
 @router.get("/historical", operation_id="get_historical", response_class=JSONBytesResponse)
-@cache(ttl="1h", key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
-async def getHistorical(
+@sync_cache(ttl="1h", key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
+def getHistorical(
     response: Response,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     fields: str = Query(None, max_length=500, pattern=r"^[A-Za-z0-9,\s/.-]+$"),
@@ -110,7 +111,8 @@ async def getHistorical(
     - `search` (optional): Comma-separated ticker symbols to filter.
       Examples: "PETR4", "PETR4,VALE3", "ITUB4,BBDC4". Case-insensitive.
       Supports prefix matching (e.g. "PET" matches PETR4, PETR3).
-      If omitted, returns all stocks in the database.
+      If omitted, returns all stocks in the database. An empty request (no
+      search/fields/dates) returns HTTP 400.
 
     - `fields` (optional): Comma-separated metric names (WITHOUT year suffix).
       Examples: "LUCRO LIQUIDO", "LUCRO LIQUIDO,RECEITA LIQUIDA,EBITDA".
@@ -145,16 +147,16 @@ async def getHistorical(
     - Get PETR4 net income 2022-2024: search="PETR4", fields="LUCRO LIQUIDO", dates="2022,2024"
     - Get all revenue data for VALE3: search="VALE3", fields="RECEITA LIQUIDA"
     - Compare top 10 by EBITDA: fields="EBITDA", orderBy="EBITDA", limit=10"""
-    result = await stocksQuery.queryHistorical(search, fields, dates, orderBy, limit)
+    response.headers["Cache-Control"] = "public, max-age=300"
+    result = stocksQuery.queryHistorical(search, fields, dates, orderBy, limit)
     if compact:
         result = compressResponse(result, "get_historical", {"search": search, "fields": fields, "dates": dates})
-    response.headers["Cache-Control"] = "public, max-age=300"
     return orjson.dumps(result)
 
 
 @router.get("/fundamental", operation_id="get_fundamental", response_class=JSONBytesResponse)
-@cache(ttl="5m", key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
-async def getFundamental(
+@sync_cache(ttl="5m", key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
+def getFundamental(
     response: Response,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     fields: str = Query(None, max_length=500, pattern=r"^[A-Za-z0-9,\s/.-]+$"),
@@ -189,7 +191,8 @@ async def getFundamental(
         Example: "2024-01-15" → closest snapshot to Jan 15, 2024.
       * "START,END" → range: returns all snapshots between START and END dates.
         Example: "2024-01-01,2024-06-30" → all Q1-Q2 2024 snapshots.
-      If omitted, returns the most recent snapshot for each stock.
+      If omitted, returns the most recent snapshot for each stock. An empty
+      request (no search/fields/dates) returns HTTP 400.
 
     - `orderBy` (optional): Sort results by a column name (descending).
     - `limit` (optional): Maximum number of stocks to return (1-1000).
@@ -214,16 +217,16 @@ async def getFundamental(
     - Get all stocks' dividend yield latest: fields="DY"
     - Compare P/L across tickers: search="PETR4,VALE3,ITUB4", fields="P/L", orderBy="P/L"
     - Q1 2024 fundamental snapshot: fields="P/L,ROE", dates="2024-01-01,2024-03-31" """
-    result = await stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
+    response.headers["Cache-Control"] = "public, max-age=300"
+    result = stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
     if compact:
         result = compressResponse(result, "get_fundamental", {"search": search, "fields": fields, "dates": dates})
-    response.headers["Cache-Control"] = "public, max-age=300"
     return orjson.dumps(result)
 
 
 @router.get("/cotations", operation_id="get_cotations", response_class=JSONBytesResponse)
-@cache(ttl="5m", key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}")
-async def getCotations(
+@sync_cache(ttl="5m", key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}")
+def getCotations(
     response: Response,
     search: str = Query(..., min_length=1, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
     dates: str = Query(None, max_length=21),
@@ -270,16 +273,16 @@ async def getCotations(
     - Get PETR4 full price history: search="PETR4"
     - Get PETR4 + VALE3 2023 prices: search="PETR4,VALE3", dates="2023-01-01,2023-12-31"
     - Get inflation-adjusted prices: search="ITUB4", adjusted=true"""
-    result = await stocksQuery.queryCotations(search, dates, adjusted)
+    response.headers["Cache-Control"] = "public, max-age=300"
+    result = stocksQuery.queryCotations(search, dates, adjusted)
     if compact:
         result = compressResponse(result, "get_cotations", {"search": search, "dates": dates})
-    response.headers["Cache-Control"] = "public, max-age=300"
     return orjson.dumps(result)
 
 
 @router.get("/cotations/live", operation_id="get_live_price", response_class=JSONBytesResponse)
-@cache(ttl="15s", key="stocks:live:{search}:{compact}")
-async def getLiveCotation(
+@sync_cache(ttl="15s", key="stocks:live:{search}:{compact}")
+def getLiveCotation(
     response: Response,
     search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),
     compact: bool = Query(False),
@@ -315,8 +318,8 @@ async def getLiveCotation(
     - Only one ticker per request (max 7 chars for the search param).
     - Real-time data is only available during B3 market hours (10:00-17:30 BRT).
     - Outside market hours, returns the last available closing price."""
-    result = await stocksQuery.queryLiveCotation(search)
+    response.headers["Cache-Control"] = "public, max-age=15"
+    result = stocksQuery.queryLiveCotation(search)
     if compact:
         result = compressResponse(result, "get_live_price", {"search": search})
-    response.headers["Cache-Control"] = "public, max-age=15"
     return orjson.dumps(result)
