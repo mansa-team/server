@@ -52,7 +52,7 @@ def countTokens(text: str) -> int:
             result = tok.count_tokens(text)
             return result.total_tokens
         except Exception:
-            pass
+            pass  # nosec: B110 best-effort token estimation, fallback to len//3
     return len(text) // 3
 
 
@@ -100,7 +100,7 @@ class FieldRegistry:
         try:
             url = self.buildUrl()
             req = Request(url, headers={"X-MCP": "true"})
-            with urlopen(req, timeout=5) as resp:
+            with urlopen(req, timeout=5) as resp:  # nosec: B310 internal stocks-api fetch, scheme fixed http, host from Config
                 data = json.loads(resp.read().decode("utf-8"))
 
             fields: list[str] = []

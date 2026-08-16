@@ -93,7 +93,7 @@ class MCPClientPool:
                 try:
                     await client.__aexit__(None, None, None)
                 except Exception:
-                    pass
+                    pass  # nosec: B110 best-effort per-client cleanup
             self.clients = None
 
 

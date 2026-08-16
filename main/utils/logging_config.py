@@ -68,7 +68,7 @@ def setupDiscordHandler():
                 try:
                     requests.post(Config.DISCORD.WEBHOOK_URL, json={"content": msg}, timeout=10)
                 except Exception:
-                    pass
+                    pass  # nosec: B110 per-message send failure swallowed, retried on next tick
                 time.sleep(0.45)  # ~5 msgs/2s, under discord rate limit
 
     t = threading.Thread(target=sender, daemon=True, name="discord-sender")
