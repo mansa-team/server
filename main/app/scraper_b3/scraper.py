@@ -25,6 +25,11 @@ logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
+# Allowlist for column names interpolated into SQL (defense in depth:
+# column names come from the live DB schema, not user input, but a
+# strict pattern prevents any future source from breaking the query)
+SAFE_COLUMN_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 _]*$")
+
 
 def getCurrentSelic():
     selic = pd.DataFrame(
@@ -611,6 +616,7 @@ class B3Scraper:
                     for col in existingCols
                     if any(pattern in col for pattern in historicalPatterns) and col not in JSON_COLUMNS
                 ]
+                historicalCols = [col for col in historicalCols if SAFE_COLUMN_RE.match(col) is not None]
 
                 if historicalCols:
                     conn.execute(
@@ -626,7 +632,8 @@ class B3Scraper:
 
                     for col in historicalCols:
                         conn.execute(
-                            text(f"""
+                            text(
+                                f"""
                             INSERT INTO tmp_prev_historical (TICKER, COL_NAME, VAL)
                             SELECT t1.TICKER, :col, t1.`{col}`
                             FROM b3_stocks t1
@@ -637,7 +644,8 @@ class B3Scraper:
                                 GROUP BY TICKER
                             ) latest ON t1.TICKER = latest.TICKER AND t1.TIME = latest.MAX_TIME
                             WHERE t1.`{col}` IS NOT NULL
-                        """),
+                        """  # nosec: B608
+                            ),
                             {"col": col, "currentDate": currentDate},
                         )
 
@@ -648,7 +656,7 @@ class B3Scraper:
                         SET s.`{col}` = COALESCE(s.`{col}`, prev.VAL)
                         WHERE s.`{col}` IS NULL
                           AND s.TIME >= :currentDate;
-                        """
+                        """  # nosec: B608
                         conn.execute(text(mergeSql), {"col": col, "currentDate": currentDate})
 
                     conn.execute(text("DROP TEMPORARY TABLE tmp_prev_historical"))
