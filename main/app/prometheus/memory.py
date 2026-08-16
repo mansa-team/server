@@ -337,7 +337,9 @@ class PrometheusMemory:
         if ownSession:
             db = SessionLocal()
         try:
-            assert db is not None
+            if db is None:
+                logger.error("Failed to acquire DB session for memory search")
+                return []
             if not Roles.checkAccess(userRoles, Permission.USE_PROMETHEUS):
                 return []
             cap = (

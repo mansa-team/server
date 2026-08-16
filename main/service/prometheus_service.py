@@ -22,7 +22,9 @@ def memoryMaintenance(db: Session | None = None):
     if ownSession:
         db = SessionLocal()
     try:
-        assert db is not None
+        if db is None:
+            logger.error("Failed to acquire DB session for memory maintenance")
+            return
         nowNaive = datetime.now().replace(tzinfo=None)
 
         active = db.query(PrometheusMemory).filter(PrometheusMemory.archivedAt.is_(None)).all()
