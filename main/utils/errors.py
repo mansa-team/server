@@ -4,7 +4,17 @@ from datetime import datetime
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 from main.utils.request_id import requestIdVar
+
+
+class ErrorResponse(BaseModel):
+    success: bool = False
+    error: str
+    detail: str | None = None
+    request_id: str | None = None
+    timestamp: str
+    status_code: int
 
 
 class RequestContextFilter(logging.Filter):
@@ -14,14 +24,13 @@ class RequestContextFilter(logging.Filter):
 
 
 def buildErrorResponse(statusCode: int, error: str, detail: str | None = None) -> dict:
-    return {
-        "success": False,
-        "error": error,
-        "detail": detail,
-        "request_id": requestIdVar.get(""),
-        "timestamp": datetime.now().isoformat(),
-        "status_code": statusCode,
-    }
+    return ErrorResponse(
+        error=error,
+        detail=detail,
+        request_id=requestIdVar.get(""),
+        timestamp=datetime.now().isoformat(),
+        status_code=statusCode,
+    ).model_dump()
 
 
 async def httpExceptionHandler(request: Request, exc):
