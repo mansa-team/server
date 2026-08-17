@@ -1,7 +1,4 @@
 - [ ] OpenUI and shadcn/ui
-
-- [ ] Upload and Serve endpoints for files in the workspace
-- [ ] Make the user able to manage their files in the workspace via endpoints related to workspace management /worksapce
   
 - [ ] Github OAuth
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings
