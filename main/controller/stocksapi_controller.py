@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import logging
 
-import orjson
+
 from cashews import cache
 from fastapi import APIRouter, Depends, Query, HTTPException, Response
 
@@ -143,7 +143,7 @@ def getHistorical(
     result = stocksQuery.queryHistorical(search, fields, dates, orderBy, limit)
     if compact:
         result = compressResponse(result, "get_historical", {"search": search, "fields": fields, "dates": dates})
-    return orjson.dumps(result)
+    return result
 
 
 @router.get("/fundamental", operation_id="get_fundamental")
@@ -213,7 +213,7 @@ def getFundamental(
     result = stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
     if compact:
         result = compressResponse(result, "get_fundamental", {"search": search, "fields": fields, "dates": dates})
-    return orjson.dumps(result)
+    return result
 
 
 @router.get("/cotations", operation_id="get_cotations")
@@ -269,7 +269,7 @@ def getCotations(
     result = stocksQuery.queryCotations(search, dates, adjusted)
     if compact:
         result = compressResponse(result, "get_cotations", {"search": search, "dates": dates})
-    return orjson.dumps(result)
+    return result
 
 
 @router.get("/cotations/live", operation_id="get_live_price")
@@ -314,4 +314,4 @@ def getLiveCotation(
     result = stocksQuery.queryLiveCotation(search)
     if compact:
         result = compressResponse(result, "get_live_price", {"search": search})
-    return orjson.dumps(result)
+    return result
