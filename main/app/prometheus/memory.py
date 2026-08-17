@@ -28,7 +28,6 @@ INITIAL_STABILITY = {
     "feedback": 10.0,  # medium - sticky
     "context": 3.0,  # ephemeral - forgets fast
 }
-DEFAULT_INITIAL_STABILITY = 7.0
 
 MEMORY_EXTRACTION_TOKEN_BUDGET = 32000
 MEMORY_EXTRACT_FREE_CAP = 5
@@ -157,7 +156,7 @@ class PrometheusMemory:
             source=source,
             embedding=embedding,
             contentHash=contentHash(value),
-            score=INITIAL_STABILITY.get(str(memoryType), DEFAULT_INITIAL_STABILITY),
+            score=INITIAL_STABILITY.get(str(memoryType)),
             lastAccessedAt=datetime.now(),
         )
         db.add(memory)
@@ -337,7 +336,9 @@ class PrometheusMemory:
         if ownSession:
             db = SessionLocal()
         try:
-            assert db is not None
+            if db is None:
+                logger.error("Failed to acquire DB session for memory search")
+                return []
             if not Roles.checkAccess(userRoles, Permission.USE_PROMETHEUS):
                 return []
             cap = (

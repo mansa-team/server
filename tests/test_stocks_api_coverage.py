@@ -509,13 +509,13 @@ class TestQueryHistorical:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(mgr.queryHistorical(search="TEST0"))
+            mgr.queryHistorical(search="TEST0")
         assert exc_info.value.status_code == 503
 
     def test_basic_historical_query(self):
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryHistorical(search="TEST0"))
+        result = mgr.queryHistorical(search="TEST0")
         assert result["type"] == "historical"
         assert result["count"] > 0
         assert "data" in result
@@ -525,7 +525,7 @@ class TestQueryHistorical:
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
         mgr.cacheManager.tickerIndex = {"TEST0": 0}
-        result = asyncio.run(mgr.queryHistorical(search="TEST0"))
+        result = mgr.queryHistorical(search="TEST0")
         assert result["search"] == "TEST0"
         assert result["count"] == 1
 
@@ -534,49 +534,49 @@ class TestQueryHistorical:
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
         # categorizeColumns returns key="LUCRO LIQUIDO", not "LUCRO LIQUIDO 2023"
-        result = asyncio.run(mgr.queryHistorical(fields="LUCRO LIQUIDO"))
+        result = mgr.queryHistorical(fields="LUCRO LIQUIDO")
         assert "LUCRO LIQUIDO" in result["fields"]
 
     def test_historical_with_dates(self):
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryHistorical(dates="2023"))
+        result = mgr.queryHistorical(dates="2023")
         assert result["dates"] == [2023, 2023]
 
     def test_historical_with_order_by(self):
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryHistorical(search="TEST0", orderBy="PRECO"))
+        result = mgr.queryHistorical(search="TEST0", orderBy="PRECO")
         assert result["type"] == "historical"
 
     def test_historical_with_limit(self):
         df = _make_stocks_df(rows=5)
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryHistorical(search="TEST", limit=2))
+        result = mgr.queryHistorical(search="TEST", limit=2)
         assert result["count"] == 2
 
     def test_historical_no_historical_fields(self):
-        """No historical data columns -> inner 400 caught by outer except -> 500."""
+        """No historical data columns -> 400 propagates (HTTPException is re-raised)."""
         df = pd.DataFrame({"TICKER": ["A"], "NOME": ["X"], "PRECO": [10.0]})
         mgr = self._make_manager(cache_df=df)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(mgr.queryHistorical(search="TEST0"))
-        # The 400 is raised inside try, caught by the outer except -> 500
-        assert exc_info.value.status_code == 500
+            mgr.queryHistorical(search="TEST0")
+        # HTTPException raised inside try is re-raised as-is (client error, not 500)
+        assert exc_info.value.status_code == 400
 
     def test_historical_sorts_by_time(self):
         df = _make_stocks_df(rows=3)
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryHistorical(search="TEST0"))
+        result = mgr.queryHistorical(search="TEST0")
         assert result["type"] == "historical"
 
     def test_historical_deduplicates_by_ticker(self):
         df = _make_stocks_df(rows=3)
         df = pd.concat([df, df.iloc[[0]]], ignore_index=True)
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryHistorical(search="TEST0"))
+        result = mgr.queryHistorical(search="TEST0")
         tickers = [d["TICKER"] for d in result["data"]]
         assert len(tickers) == len(set(tickers))
 
@@ -595,7 +595,7 @@ class TestQueryHistorical:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(mgr.queryHistorical(search="TEST0"))
+            mgr.queryHistorical(search="TEST0")
         assert exc_info.value.status_code == 500
 
     def test_historical_with_invalid_dates(self):
@@ -605,30 +605,30 @@ class TestQueryHistorical:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException):
-            asyncio.run(mgr.queryHistorical(dates="2020,2021,2022"))
+            mgr.queryHistorical(dates="2020,2021,2022")
 
     def test_historical_search_with_no_results(self):
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
         mgr.cacheManager.tickerIndex = {}
-        result = asyncio.run(mgr.queryHistorical(search="ZZZZ"))
+        result = mgr.queryHistorical(search="ZZZZ")
         assert result["count"] == 0
 
     def test_historical_no_fields_collected(self):
-        """No historical columns at all -> inner 400 caught by outer except -> 500."""
+        """No historical columns at all -> inner 400 propagates (not swallowed as 500)."""
         df = pd.DataFrame({"TICKER": ["A"], "NOME": ["X"]})
         mgr = self._make_manager(cache_df=df)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(mgr.queryHistorical(fields="NONEXISTENT_FIELD"))
-        assert exc_info.value.status_code == 500
+            mgr.queryHistorical(fields="NONEXISTENT_FIELD")
+        assert exc_info.value.status_code == 400
 
     def test_historical_with_date_range(self):
         """Historical query with a year range."""
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryHistorical(dates="2022,2023"))
+        result = mgr.queryHistorical(dates="2022,2023")
         assert result["dates"] == [2022, 2023]
 
     def test_historical_search_multiple_terms_index(self):
@@ -636,7 +636,7 @@ class TestQueryHistorical:
         df = _make_stocks_df(rows=5)
         mgr = self._make_manager(cache_df=df)
         mgr.cacheManager.tickerIndex = {"TEST0": 0, "TEST2": 2, "TEST4": 4}
-        result = asyncio.run(mgr.queryHistorical(search="TEST0,TEST2,TEST4"))
+        result = mgr.queryHistorical(search="TEST0,TEST2,TEST4")
         assert result["count"] == 3
 
     def test_historical_requires_search_fields_or_dates(self):
@@ -646,7 +646,7 @@ class TestQueryHistorical:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(mgr.queryHistorical())
+            mgr.queryHistorical()
         assert exc_info.value.status_code == 400
 
 
@@ -668,13 +668,13 @@ class TestQueryFundamental:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(mgr.queryFundamental(search="TEST0"))
+            mgr.queryFundamental(search="TEST0")
         assert exc_info.value.status_code == 503
 
     def test_basic_fundamental_query(self):
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryFundamental(search="TEST0"))
+        result = mgr.queryFundamental(search="TEST0")
         assert result["type"] == "fundamental"
         assert result["count"] > 0
         assert "data" in result
@@ -683,25 +683,25 @@ class TestQueryFundamental:
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
         mgr.cacheManager.tickerIndex = {"TEST0": 0}
-        result = asyncio.run(mgr.queryFundamental(search="TEST0"))
+        result = mgr.queryFundamental(search="TEST0")
         assert result["search"] == "TEST0"
 
     def test_fundamental_with_fields(self):
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryFundamental(fields="PRECO,P/L"))
+        result = mgr.queryFundamental(fields="PRECO,P/L")
         assert "PRECO" in result["fields"]
 
     def test_fundamental_with_date_range(self):
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryFundamental(dates="2024-01-01,2024-12-31"))
+        result = mgr.queryFundamental(dates="2024-01-01,2024-12-31")
         assert result["type"] == "fundamental"
 
     def test_fundamental_with_single_date(self):
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryFundamental(dates="2024-01-15"))
+        result = mgr.queryFundamental(dates="2024-01-15")
         assert result["type"] == "fundamental"
 
     def test_fundamental_with_invalid_date(self):
@@ -711,33 +711,33 @@ class TestQueryFundamental:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(mgr.queryFundamental(dates="not-a-date,also-not-a-date"))
+            mgr.queryFundamental(dates="not-a-date,also-not-a-date")
         assert exc_info.value.status_code == 400
 
     def test_fundamental_with_order_by(self):
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryFundamental(search="TEST0", orderBy="PRECO"))
+        result = mgr.queryFundamental(search="TEST0", orderBy="PRECO")
         assert result["type"] == "fundamental"
 
     def test_fundamental_with_limit(self):
         df = _make_stocks_df(rows=5)
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryFundamental(fields="PRECO", limit=2))
+        result = mgr.queryFundamental(fields="PRECO", limit=2)
         assert result["count"] == 2
 
     def test_fundamental_deduplicates_without_search(self):
         df = _make_stocks_df(rows=3)
         df = pd.concat([df, df.iloc[[0]]], ignore_index=True)
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryFundamental(fields="PRECO"))
+        result = mgr.queryFundamental(fields="PRECO")
         tickers = [d["TICKER"] for d in result["data"]]
         assert len(tickers) == len(set(tickers))
 
     def test_fundamental_with_search_no_dedup(self):
         df = _make_stocks_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryFundamental(search="TEST"))
+        result = mgr.queryFundamental(search="TEST")
         assert result["type"] == "fundamental"
 
     def test_fundamental_exception_returns_500(self):
@@ -754,7 +754,7 @@ class TestQueryFundamental:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(mgr.queryFundamental(search="TEST0"))
+            mgr.queryFundamental(search="TEST0")
         assert exc_info.value.status_code == 500
 
     def test_fundamental_empty_search_string_no_dedup(self):
@@ -762,7 +762,7 @@ class TestQueryFundamental:
         df = _make_stocks_df(rows=3)
         df = pd.concat([df, df.iloc[[0]]], ignore_index=True)
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryFundamental(search="   "))
+        result = mgr.queryFundamental(search="   ")
         tickers = [d["TICKER"] for d in result["data"]]
         assert len(tickers) == len(set(tickers))
 
@@ -776,7 +776,7 @@ class TestQueryFundamental:
             }
         )
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryFundamental(search="TEST0"))
+        result = mgr.queryFundamental(search="TEST0")
         assert result["type"] == "fundamental"
 
     def test_fundamental_date_range_two_dates(self):
@@ -790,7 +790,7 @@ class TestQueryFundamental:
             }
         )
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryFundamental(dates="2024-01-01,2024-06-30"))
+        result = mgr.queryFundamental(dates="2024-01-01,2024-06-30")
         assert result["count"] >= 1
 
     def test_fundamental_with_invalid_single_date(self):
@@ -800,7 +800,7 @@ class TestQueryFundamental:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(mgr.queryFundamental(dates="not-a-date"))
+            mgr.queryFundamental(dates="not-a-date")
         assert exc_info.value.status_code == 400
 
     def test_fundamental_fields_not_in_columns(self):
@@ -815,7 +815,7 @@ class TestQueryFundamental:
         )
         mgr = self._make_manager(cache_df=df)
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(mgr.queryFundamental(fields="NONEXISTENT,P/L"))
+            mgr.queryFundamental(fields="NONEXISTENT,P/L")
         assert exc_info.value.status_code == 400
         assert "NONEXISTENT" in exc_info.value.detail
         assert "/stocks/fields" in exc_info.value.detail
@@ -825,7 +825,7 @@ class TestQueryFundamental:
         df = _make_stocks_df(rows=5)
         mgr = self._make_manager(cache_df=df)
         mgr.cacheManager.tickerIndex = {"TEST0": 0, "TEST3": 3}
-        result = asyncio.run(mgr.queryFundamental(search="TEST0,TEST3"))
+        result = mgr.queryFundamental(search="TEST0,TEST3")
         assert result["count"] == 2
 
     def test_fundamental_search_fallback_string_match(self):
@@ -833,7 +833,7 @@ class TestQueryFundamental:
         df = _make_stocks_df(rows=3)
         mgr = self._make_manager(cache_df=df)
         mgr.cacheManager.tickerIndex = {}
-        result = asyncio.run(mgr.queryFundamental(search="TEST"))
+        result = mgr.queryFundamental(search="TEST")
         assert result["count"] == 3
 
     def test_fundamental_dates_one_date(self):
@@ -847,7 +847,7 @@ class TestQueryFundamental:
             }
         )
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryFundamental(dates="2024-01-15"))
+        result = mgr.queryFundamental(dates="2024-01-15")
         # Per-ticker: each gets its closest snapshot (Aâ†’2024-01-15, Bâ†’2024-06-15)
         assert result["count"] == 2
 
@@ -871,7 +871,7 @@ class TestQueryFundamental:
             }
         )
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryFundamental(search="TEST0"))
+        result = mgr.queryFundamental(search="TEST0")
         assert "COTACAO 10Y PADRAO" not in result["fields"]
         assert "COTACAO 10Y AJUSTADA" not in result["fields"]
         for d in result["data"]:
@@ -898,7 +898,7 @@ class TestQueryFundamental:
         mgr = StocksQueryManager(cache)
 
         original_dtype = cache.STOCKS_CACHE["TIME"].dtype
-        asyncio.run(mgr.queryFundamental(search="TEST0"))
+        mgr.queryFundamental(search="TEST0")
         assert cache.STOCKS_CACHE["TIME"].dtype == original_dtype
 
     def test_fundamental_requires_search_fields_or_dates(self):
@@ -907,7 +907,7 @@ class TestQueryFundamental:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(mgr.queryFundamental())
+            mgr.queryFundamental()
         assert exc_info.value.status_code == 400
 
 
@@ -955,14 +955,14 @@ class TestQueryCotations:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(mgr.queryCotations(adjusted=False))
+            mgr.queryCotations(adjusted=False)
         assert exc_info.value.status_code == 503
 
     # --- adjusted=False -> PADRAO ---
     def test_cotations_adjusted_false_returns_padrao(self):
         df = self._make_cotations_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryCotations(adjusted=False))
+        result = mgr.queryCotations(adjusted=False)
         assert result["type"] == "cotations"
         assert result["fields"] == ["COTACAO 10Y PADRAO"]
         assert "COTACAO 10Y PADRAO" in result["data"][0]
@@ -972,7 +972,7 @@ class TestQueryCotations:
     def test_cotations_adjusted_true_returns_ajustada(self):
         df = self._make_cotations_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryCotations(adjusted=True))
+        result = mgr.queryCotations(adjusted=True)
         assert result["type"] == "cotations"
         assert result["fields"] == ["COTACAO 10Y AJUSTADA"]
         assert "COTACAO 10Y AJUSTADA" in result["data"][0]
@@ -983,7 +983,7 @@ class TestQueryCotations:
         """4 rows for 2 tickers -> 2 results, one per ticker, both with latest TIME."""
         df = self._make_cotations_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryCotations(adjusted=False))
+        result = mgr.queryCotations(adjusted=False)
         assert result["count"] == 2
         tickers = {d["TICKER"] for d in result["data"]}
         assert tickers == {"TEST0", "TEST1"}
@@ -995,7 +995,7 @@ class TestQueryCotations:
         """dates="2016-12-02" should keep only the 02-12-2016 entry in each JSON list."""
         df = self._make_cotations_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryCotations(adjusted=False, dates="2016-12-02,2016-12-02"))
+        result = mgr.queryCotations(adjusted=False, dates="2016-12-02,2016-12-02")
         assert result["count"] == 2
         for d in result["data"]:
             cotation = d["COTACAO 10Y PADRAO"]
@@ -1006,7 +1006,7 @@ class TestQueryCotations:
     def test_cotations_dates_range_keeps_all_inner_entries(self):
         df = self._make_cotations_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryCotations(adjusted=False, dates="2016-12-01,2016-12-31"))
+        result = mgr.queryCotations(adjusted=False, dates="2016-12-01,2016-12-31")
         assert result["count"] == 2
         for d in result["data"]:
             assert len(d["COTACAO 10Y PADRAO"]) == 2
@@ -1014,7 +1014,7 @@ class TestQueryCotations:
     def test_cotations_no_dates_keeps_all_inner_entries(self):
         df = self._make_cotations_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryCotations(adjusted=False))
+        result = mgr.queryCotations(adjusted=False)
         for d in result["data"]:
             assert len(d["COTACAO 10Y PADRAO"]) == 2
 
@@ -1023,7 +1023,7 @@ class TestQueryCotations:
         df = self._make_cotations_df()
         mgr = self._make_manager(cache_df=df)
         mgr.cacheManager.tickerIndex = {"TEST0": 0, "TEST1": 2}
-        result = asyncio.run(mgr.queryCotations(adjusted=False, search="TEST0"))
+        result = mgr.queryCotations(adjusted=False, search="TEST0")
         assert result["search"] == "TEST0"
         assert result["count"] == 1
         assert result["data"][0]["TICKER"] == "TEST0"
@@ -1032,14 +1032,14 @@ class TestQueryCotations:
         df = self._make_cotations_df()
         mgr = self._make_manager(cache_df=df)
         mgr.cacheManager.tickerIndex = {"TEST0": 0, "TEST1": 2}
-        result = asyncio.run(mgr.queryCotations(adjusted=True, search="TEST0,TEST1"))
+        result = mgr.queryCotations(adjusted=True, search="TEST0,TEST1")
         assert result["count"] == 2
 
     # --- missing column -> empty ---
     def test_cotations_missing_column_returns_empty(self):
         df = self._make_cotations_df(with_padrao=False, with_ajustada=False)
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryCotations(adjusted=False))
+        result = mgr.queryCotations(adjusted=False)
         assert result["count"] == 0
         assert result["data"] == []
         assert result["fields"] == ["COTACAO 10Y PADRAO"]
@@ -1049,20 +1049,20 @@ class TestQueryCotations:
     def test_cotations_dates_param_stored(self):
         df = self._make_cotations_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryCotations(adjusted=False, dates="2020-01-01,2024-12-31"))
+        result = mgr.queryCotations(adjusted=False, dates="2020-01-01,2024-12-31")
         assert result["dates"] == "2020-01-01,2024-12-31"
 
     def test_cotations_dates_default_none(self):
         df = self._make_cotations_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryCotations(adjusted=False))
+        result = mgr.queryCotations(adjusted=False)
         assert result["dates"] is None
 
     # --- default search ---
     def test_cotations_default_search_all(self):
         df = self._make_cotations_df()
         mgr = self._make_manager(cache_df=df)
-        result = asyncio.run(mgr.queryCotations(adjusted=False))
+        result = mgr.queryCotations(adjusted=False)
         assert result["search"] == "all"
 
     # --- exception -> 500 ---
@@ -1073,7 +1073,7 @@ class TestQueryCotations:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(mgr.queryCotations(adjusted=False))
+            mgr.queryCotations(adjusted=False)
         assert exc_info.value.status_code == 500
 
     # --- HTTP integration: /stocks/cotations route (one test, parametrized conceptually) ---
@@ -1155,7 +1155,7 @@ class TestQueryLiveCotation:
     def test_success_returns_correct_shape(self):
         mgr = self._make_manager()
         with self._patch_session():
-            result = asyncio.run(mgr.queryLiveCotation("WEGE3"))
+            result = mgr.queryLiveCotation("WEGE3")
         assert result["type"] == "realtime-cotation"
         assert result["search"] == "WEGE3"
         assert result["count"] == 1
@@ -1172,7 +1172,7 @@ class TestQueryLiveCotation:
     def test_lowercase_ticker_uppercased(self):
         mgr = self._make_manager()
         with self._patch_session():
-            result = asyncio.run(mgr.queryLiveCotation("wege3"))
+            result = mgr.queryLiveCotation("wege3")
         assert result["search"] == "WEGE3"
         assert result["data"][0]["TICKER"] == "WEGE3"
 
@@ -1217,7 +1217,7 @@ class TestQueryLiveCotation:
         mgr = self._make_manager()
         with self._patch_session(side_effect=Exception("connection refused")):
             with pytest.raises(HTTPException) as exc_info:
-                asyncio.run(mgr.queryLiveCotation("WEGE3"))
+                mgr.queryLiveCotation("WEGE3")
         assert exc_info.value.status_code == 503
 
     def test_b3_bad_status_returns_404(self):
@@ -1227,7 +1227,7 @@ class TestQueryLiveCotation:
         payload = {"BizSts": {"cd": "ERR"}, "Trad": []}
         with self._patch_session(response=payload):
             with pytest.raises(HTTPException) as exc_info:
-                asyncio.run(mgr.queryLiveCotation("WEGE3"))
+                mgr.queryLiveCotation("WEGE3")
         assert exc_info.value.status_code == 404
 
     def test_http_route_returns_200(self, stocks_http_client):

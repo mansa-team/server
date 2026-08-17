@@ -28,20 +28,20 @@ class StreamChannel:
 
 class StreamBus:
     def __init__(self) -> None:
-        self._channels: dict[str, StreamChannel] = {}
+        self.channels: dict[str, StreamChannel] = {}
 
     def getOrCreate(self, sessionId: str) -> StreamChannel:
-        ch = self._channels.get(sessionId)
+        ch = self.channels.get(sessionId)
         if ch is None:
             ch = StreamChannel()
-            self._channels[sessionId] = ch
+            self.channels[sessionId] = ch
         return ch
 
     def publish(self, sessionId: str, event: dict) -> None:
         self.getOrCreate(sessionId).publish(event)
 
     def subscribe(self, sessionId: str, cursor: int = 0) -> tuple[asyncio.Queue, StreamChannel] | None:
-        ch = self._channels.get(sessionId)
+        ch = self.channels.get(sessionId)
         if ch is None:
             return None
         q: asyncio.Queue = asyncio.Queue(maxsize=1000)
@@ -54,7 +54,7 @@ class StreamBus:
         return q, ch
 
     def unsubscribe(self, sessionId: str, q: asyncio.Queue) -> None:
-        ch = self._channels.get(sessionId)
+        ch = self.channels.get(sessionId)
         if ch:
             ch.subscribers.discard(q)
 
@@ -65,7 +65,7 @@ class StreamBus:
             ch.events.clear()
             ch.finished = False
 
-        async def _run() -> None:
+        async def run() -> None:
             try:
                 async for event in runner_factory():
                     ch.publish(event)
@@ -78,7 +78,7 @@ class StreamBus:
                     ch.finished = True
                     ch.publish({"type": "done"})
 
-        ch.task = asyncio.get_running_loop().create_task(_run())
+        ch.task = asyncio.get_running_loop().create_task(run())
 
     async def forward(self, sessionId: str, cursor: int = 0) -> AsyncIterator[str]:
         sub = self.subscribe(sessionId, cursor)

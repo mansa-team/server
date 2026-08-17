@@ -7,7 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from main.models.user_session import UserSession
 
 from main.app.authentication.constants import SESSION_EXPIRY_DAYS
-from main.utils.service_manager import ServiceManager
+from main.utils.service_manager import getApp
 from main.controller.user_controller import router as userRouter
 
 logger = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ class UserService:
     @staticmethod
     def initialize(port: int):
         global scheduler
-        service = ServiceManager.getApp(port)
+        service = getApp(port)
         service.include_router(userRouter)
 
         scheduler = BackgroundScheduler()

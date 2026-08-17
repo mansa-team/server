@@ -11,42 +11,39 @@ from slowapi.errors import RateLimitExceeded
 
 logger = logging.getLogger(__name__)
 
+_instances: dict[int, FastAPI] = {}
 
-class ServiceManager:
-    instances: dict[int, FastAPI] = {}
 
-    @classmethod
-    def getApp(cls, port: int) -> FastAPI:
-        if port in cls.instances:
-            return cls.instances[port]
+def getApp(port: int) -> FastAPI:
+    if port in _instances:
+        return _instances[port]
 
-        app = FastAPI(title=f"Mansa Service {port}")
-        app.state.limiter = limiter
+    app = FastAPI(title=f"Mansa Service {port}")
+    app.state.limiter = limiter
 
-        @app.exception_handler(RateLimitExceeded)
-        async def rateLimitExceededHandler(request: Request, exc: RateLimitExceeded):
-            return JSONResponse(status_code=429, content={"detail": "Too many requests", "error": str(exc.detail)})
+    @app.exception_handler(RateLimitExceeded)
+    async def rateLimitExceededHandler(request: Request, exc: RateLimitExceeded):
+        return JSONResponse(status_code=429, content={"detail": "Too many requests", "error": str(exc.detail)})
 
-        app.add_middleware(
-            CORSMiddleware,
-            allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?",
-            allow_credentials=True,
-            allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-            allow_headers=["*"],
-        )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?",
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        allow_headers=["*"],
+    )
 
-        cls.instances[port] = app
-        return app
+    _instances[port] = app
+    return app
 
-    @classmethod
-    def runAll(cls):
-        logLevel = "error" if Config.DEBUG_MODE else "critical"
 
-        def runUvicorn(app: FastAPI, port: int, logLevel: str):
-            uvicorn.run(app, host="0.0.0.0", port=port, log_level=logLevel)  # nosec: B104
+def runAll():
+    logLevel = "error" if Config.DEBUG_MODE else "critical"
 
-        for port, app in cls.instances.items():
-            thread = threading.Thread(target=runUvicorn, args=(app, port, logLevel), daemon=True)
-            thread.start()
+    def runUvicorn(app: FastAPI, port: int, logLevel: str):
+        uvicorn.run(app, host="0.0.0.0", port=port, log_level=logLevel)  # nosec: B104
 
-            logger.info(f"Service running on port {port}")
+    for port, app in _instances.items():
+        thread = threading.Thread(target=runUvicorn, args=(app, port, logLevel), daemon=True)
+        thread.start()
+        logger.info(f"Service running on port {port}")

@@ -7,7 +7,7 @@ import asyncio
 
 from config import Config, LOCALHOST_ADDRESSES
 from main.utils.connectivity import checkDatabaseConnection, checkServiceConnection
-from main.utils.service_manager import ServiceManager
+from main.utils.service_manager import runAll
 from main.utils.migrator import runMigrations
 from main.utils.request_id import RequestIDMiddleware
 from main.utils.errors import registerErrorHandlers
@@ -63,7 +63,7 @@ async def lifespan(app: FastAPI):
     if Config.SCRAPER.ENABLED:
         ScraperService.initialize()
 
-    ServiceManager.runAll()
+    runAll()
     logger.info("All services initialized!")
 
     yield

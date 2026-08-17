@@ -12,14 +12,13 @@ from sqlalchemy.engine import Engine
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import os
-import subprocess
+import subprocess  # nosec: B404 used only with constant args, see line 302
 import sys
 import time
 import zstandard as zstd
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-import sys
 
 fcntl: Any = None
 if sys.platform != "win32":
@@ -132,7 +131,7 @@ def buildFeatherCache():
                 try:
                     result.close()
                 except Exception:
-                    pass
+                    pass  # nosec: B110 best-effort writer/sink close, retried next refresh
     finally:
         if writer is not None:
             writer.close()
@@ -229,7 +228,7 @@ class StocksCacheManager:
                                 "from main.app.stocks_api.cache import buildFeatherCache; buildFeatherCache()",
                             ],
                             check=True,
-                        )
+                        )  # nosec: B603 constant args, no untrusted input
                     finally:
                         lockFile.close()
                 finally:
