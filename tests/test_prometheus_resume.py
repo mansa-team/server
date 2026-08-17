@@ -21,9 +21,9 @@ class FakePrometheus(Prometheus):
 
 @pytest.fixture(autouse=True)
 def _isolate_bus():
-    streamBus._channels.clear()
+    streamBus.channels.clear()
     yield
-    streamBus._channels.clear()
+    streamBus.channels.clear()
 
 
 @pytest.fixture(autouse=True)

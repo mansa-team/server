@@ -4,7 +4,6 @@ import logging
 import orjson
 from cashews import cache
 from fastapi import APIRouter, Depends, Query, HTTPException, Response
-from fastapi.responses import Response as FastAPIResponse
 
 
 from main.app.stocks_api.query import stocksQuery
@@ -19,13 +18,6 @@ logger = logging.getLogger(__name__)
 cache.setup("mem://")
 
 router = APIRouter(prefix="/stocks", tags=["Stocks API"])
-
-
-class JSONBytesResponse(FastAPIResponse):
-    media_type = "application/json"
-
-    def render(self, content):
-        return content if isinstance(content, bytes) else str(content).encode(self.charset)
 
 
 @router.get("/health")
@@ -89,7 +81,7 @@ def listFields():
     return {"historical": historical, "fundamental": fundamental, "abbreviations": abbreviations, "nested": nested}
 
 
-@router.get("/historical", operation_id="get_historical", response_class=JSONBytesResponse)
+@router.get("/historical", operation_id="get_historical")
 @sync_cache(ttl="1h", key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 def getHistorical(
     response: Response,
@@ -154,7 +146,7 @@ def getHistorical(
     return orjson.dumps(result)
 
 
-@router.get("/fundamental", operation_id="get_fundamental", response_class=JSONBytesResponse)
+@router.get("/fundamental", operation_id="get_fundamental")
 @sync_cache(ttl="5m", key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 def getFundamental(
     response: Response,
@@ -224,7 +216,7 @@ def getFundamental(
     return orjson.dumps(result)
 
 
-@router.get("/cotations", operation_id="get_cotations", response_class=JSONBytesResponse)
+@router.get("/cotations", operation_id="get_cotations")
 @sync_cache(ttl="5m", key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}")
 def getCotations(
     response: Response,
@@ -280,7 +272,7 @@ def getCotations(
     return orjson.dumps(result)
 
 
-@router.get("/cotations/live", operation_id="get_live_price", response_class=JSONBytesResponse)
+@router.get("/cotations/live", operation_id="get_live_price")
 @sync_cache(ttl="15s", key="stocks:live:{search}:{compact}")
 def getLiveCotation(
     response: Response,

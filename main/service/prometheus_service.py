@@ -5,7 +5,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 from apscheduler.schedulers.background import BackgroundScheduler
-from main.utils.service_manager import ServiceManager
+from main.utils.service_manager import getApp
 
 from main.models.memory import PrometheusMemory
 
@@ -61,7 +61,7 @@ def memoryMaintenance(db: Session | None = None):
 class PrometheusService:
     @staticmethod
     def initialize(port: int):
-        service = ServiceManager.getApp(port)
+        service = getApp(port)
         service.include_router(prometheusRouter)
 
         getEmbeddingModel()

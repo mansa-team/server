@@ -86,67 +86,69 @@ FALLBACK_FIELDS = [
 ]
 
 
-class FieldRegistry:
-    fields: list[str] | None = None
-    fetchedAt: float = 0
-    ttl: float = 3600
+fieldData: dict | None = None
+metricRegex: re.Pattern | None = None
 
-    def buildUrl(self) -> str:
-        host = Config.STOCKS_API.HOST
-        port = Config.STOCKS_API.PORT
-        return f"http://{host}:{port}/stocks/fields"
 
-    def fetchFields(self) -> list[str]:
-        try:
-            url = self.buildUrl()
-            req = Request(url, headers={"X-MCP": "true"})
-            with urlopen(req, timeout=5) as resp:  # nosec: B310 internal stocks-api fetch, scheme fixed http, host from Config
-                data = json.loads(resp.read().decode("utf-8"))
+def loadFieldData() -> dict:
+    global fieldData
+    if fieldData is None:
+        from config import stocksEngine
+        from main.app.stocks_api.cache import stocksCache
 
-            fields: list[str] = []
-            historical = data.get("historical", {})
-            if isinstance(historical, dict):
-                fields.extend(historical.keys())
-            fundamental = data.get("fundamental", [])
-            if isinstance(fundamental, list):
-                fields.extend(fundamental)
+        fieldData = {"historical": [], "fundamental": []}
+        if stocksCache.STOCKS_CACHE is None:
+            return fieldData
 
-            logger.info("FieldRegistry: fetched %d fields from Stocks API", len(fields))
-            return list(dict.fromkeys(fields))
-        except Exception as e:
-            logger.warning("FieldRegistry: failed to fetch fields, using fallback: %s", e)
-            return list(FALLBACK_FIELDS)
+        cols = stocksCache.STOCKS_CACHE.columns.tolist()
+        historicalFields = {}
+        fundamentalCols = []
+        for col in cols:
+            parts = col.split()
+            if len(parts) >= 2 and parts[-1].isdigit():
+                field = " ".join(parts[:-1])
+                historicalFields[field] = True
+            elif col not in ["TICKER", "NOME", "TIME"]:
+                fundamentalCols.append(col)
 
-    def getFields(self) -> list[str]:
-        now = time.time()
-        if self.fields is None or (now - self.fetchedAt) > self.ttl:
-            self.fields = self.fetchFields()
-            self.fetchedAt = now
-        return self.fields
+        fieldData["historical"] = list(historicalFields.keys())
+        fieldData["fundamental"] = fundamentalCols
+    return fieldData
 
-    def buildMetricRegex(self) -> re.Pattern:
-        fields = self.getFields()
+
+def getHistoricalFields() -> list[str]:
+    return loadFieldData()["historical"]
+
+
+def getFundamentalColumns() -> list[str]:
+    return loadFieldData()["fundamental"]
+
+
+def invalidateFieldData():
+    global fieldData, metricRegex
+    fieldData = None
+    metricRegex = None
+
+
+def getMetricRegex() -> re.Pattern:
+    global metricRegex
+    if metricRegex is None:
+        data = loadFieldData()
+        fields = data["historical"] + data["fundamental"]
         escaped = [re.escape(f) for f in fields if len(f) > 1]
         escaped.sort(key=len, reverse=True)
         pattern = r"\b(" + "|".join(escaped) + r")\b"
-        return re.compile(pattern)
-
-    def getMetricRegex(self) -> re.Pattern:
-        if not hasattr(self, "metricRegex") or self.fields is None:
-            self.metricRegex = self.buildMetricRegex()
-        return self.metricRegex
-
-
-fieldRegistry = FieldRegistry()
+        metricRegex = re.compile(pattern)
+    return metricRegex
 
 
 def extractTickers(text: str) -> list[str]:
     return list(dict.fromkeys(TICKER_RE.findall(text)))
 
 
-def extractMetrics(text: str, registry: FieldRegistry | None = None) -> list[str]:
-    if registry is not None:
-        regex = registry.getMetricRegex()
+def extractMetrics(text: str, useRegistry: bool = False) -> list[str]:
+    if useRegistry:
+        regex = getMetricRegex()
     else:
         escaped = [re.escape(f) for f in FALLBACK_FIELDS if len(f) > 1]
         escaped.sort(key=len, reverse=True)
@@ -219,9 +221,6 @@ def buildSummary(
 
 
 class PrometheusCompactor:
-    def __init__(self):
-        self.registry = fieldRegistry
-
     def shouldCompact(self, history: list) -> bool:
         if not history:
             return False
@@ -245,7 +244,7 @@ class PrometheusCompactor:
         allText = " ".join(m.get("content", "") for m in chunk if m.get("content"))
 
         tickers = extractTickers(allText)
-        metrics = extractMetrics(allText, registry=self.registry)
+        metrics = extractMetrics(allText, useRegistry=True)
         decisions = extractDecisions(userMessages)
         snapshots = extractSnapshots(toolResults)
         tools = extractToolCalls(loopEvents)

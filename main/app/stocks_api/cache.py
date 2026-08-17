@@ -19,7 +19,6 @@ import zstandard as zstd
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-import sys
 
 fcntl: Any = None
 if sys.platform != "win32":

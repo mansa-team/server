@@ -13,23 +13,23 @@ import google.genai._mcp_utils as _mcp
 from main.models.prometheus import PrometheusSession
 from main.app.prometheus.memory import PrometheusMemory
 from main.app.prometheus.chat import PrometheusChatManager
-from main.app.prometheus.compact import PrometheusCompactor, fieldRegistry
+from main.app.prometheus.compact import PrometheusCompactor, loadFieldData
 from main.app.prometheus.mcp import clientPool
 from main.app.prometheus.sandbox import SandboxManager
 from main.app.prometheus.tools import TOOL_REGISTRY, dispatchToolCall
 
-_original_filter = _mcp._filter_to_supported_schema
+originalFilter = _mcp._filter_to_supported_schema
 
 pendingExtractions: set[asyncio.Task] = set()
 
 
-def _safe_filter(schema):
+def safeFilter(schema):
     if not isinstance(schema, dict):
         return schema
-    return _original_filter(schema)
+    return originalFilter(schema)
 
 
-_mcp._filter_to_supported_schema = _safe_filter
+_mcp._filter_to_supported_schema = safeFilter
 
 logger = logging.getLogger(__name__)
 
@@ -248,7 +248,7 @@ class Prometheus:
         if clientPool.clients is None:
             try:
                 await clientPool.initialize()
-                fieldRegistry.getFields()
+                loadFieldData()
             except Exception as e:
                 logger.warning("Pool/registry startup failed: %s", e)
 

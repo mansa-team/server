@@ -13,6 +13,22 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/user", tags=["User"])
 
 
+def sessionToDict(s, isCurrent=False):
+    return {
+        "sessionId": s.sessionId,
+        "deviceName": SessionManager.getDeviceName(s),
+        "browser": s.browser,
+        "os": s.operatingSystem,
+        "deviceType": s.deviceType,
+        "lastActiveAt": s.lastActivityAt.isoformat() if s.lastActivityAt else None,
+        "createdAt": s.createdAt.isoformat() if s.createdAt else None,
+        "isActive": s.isActive,
+        "isCurrent": isCurrent,
+        "userAgent": s.userAgent,
+    }
+
+
+
 @router.get("/health")
 def health(request: Request):
     return {"status": "ok", "service": "user"}
@@ -48,17 +64,7 @@ def getSessions(
 
     return {
         "sessions": [
-            {
-                "sessionId": s.sessionId,
-                "deviceName": SessionManager.getDeviceName(s),
-                "browser": s.browser,
-                "os": s.operatingSystem,
-                "deviceType": s.deviceType,
-                "lastActiveAt": s.lastActivityAt.isoformat() if s.lastActivityAt else None,
-                "createdAt": s.createdAt.isoformat() if s.createdAt else None,
-                "isActive": s.isActive,
-                "isCurrent": s.sessionId == currentSessionId if currentSessionId else False,
-            }
+            sessionToDict(s, s.sessionId == currentSessionId if currentSessionId else False)
             for s in paginatedSessions
         ],
         "total": total,
@@ -78,16 +84,7 @@ def getCurrentSession(
     if not session:
         raise HTTPException(status_code=404, detail="Current session not found")
 
-    return {
-        "sessionId": session.sessionId,
-        "deviceName": SessionManager.getDeviceName(session),
-        "browser": session.browser,
-        "os": session.operatingSystem,
-        "deviceType": session.deviceType,
-        "userAgent": session.userAgent,
-        "lastActiveAt": session.lastActivityAt.isoformat() if session.lastActivityAt else None,
-        "createdAt": session.createdAt.isoformat() if session.createdAt else None,
-    }
+    return sessionToDict(session)
 
 
 @router.delete("/sessions/{sessionId}")

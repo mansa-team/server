@@ -1,7 +1,7 @@
 from fastapi_mcp import FastApiMCP
 from fastapi.middleware.gzip import GZipMiddleware
 
-from main.utils.service_manager import ServiceManager
+from main.utils.service_manager import getApp
 from main.controller.stocksapi_controller import router as stocksRouter
 
 from main.app.stocks_api.cache import stocksCache
@@ -26,7 +26,7 @@ class MCPDetectMiddleware:
 class StocksAPIService:
     @staticmethod
     def initialize(port: int):
-        service = ServiceManager.getApp(port)
+        service = getApp(port)
         service.add_middleware(MCPDetectMiddleware)
         service.include_router(stocksRouter)
         service.add_middleware(GZipMiddleware, minimum_size=4096, compresslevel=3)

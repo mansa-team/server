@@ -10,10 +10,10 @@ from main.app.prometheus.compact import (
     buildSummary,
     countTokens,
     getTokenizer,
-    FieldRegistry,
     FALLBACK_FIELDS,
     PrometheusCompactor,
     EPISODE_CAP,
+    getMetricRegex,
 )
 
 
@@ -59,54 +59,6 @@ class TestExtractMetrics:
     def test_uses_fallback_when_no_registry(self):
         result = extractMetrics("P/L de 5x")
         assert "P/L" in result
-
-
-class TestFieldRegistry:
-    def test_module_level_instance_is_shared(self):
-        from main.app.prometheus.compact import fieldRegistry
-
-        compactor = PrometheusCompactor()
-        assert compactor.registry is fieldRegistry
-
-    def test_new_instances_are_distinct(self):
-        r1 = FieldRegistry()
-        r2 = FieldRegistry()
-        assert r1 is not r2
-
-    def test_fallback_fields_on_api_failure(self):
-        registry = FieldRegistry()
-        fields = registry.fetchFields()
-        assert "P/L" in fields
-        assert "ROE" in fields
-        assert len(fields) >= 20
-
-    def test_build_metric_regex(self):
-        registry = FieldRegistry()
-        registry.fields = ["P/L", "ROE", "DY", "CAGR LUCROS 10 ANOS"]
-        regex = registry.buildMetricRegex()
-        assert "P/L" in regex.pattern
-        assert "ROE" in regex.pattern
-        idx_cagr = regex.pattern.find("CAGR LUCROS 10 ANOS")
-        idx_pl = regex.pattern.find("P/L")
-        assert idx_cagr < idx_pl
-
-    def test_get_fields_refetches_when_ttl_expired(self):
-        registry = FieldRegistry()
-        registry.fields = ["P/L"]
-        registry.fetchedAt = 0
-        with patch.object(registry, "fetchFields", return_value=["ROE"]):
-            fields = registry.getFields()
-        assert fields == ["ROE"]
-        assert registry.fetchedAt > 0
-
-    def test_get_fields_caches_within_ttl(self):
-        registry = FieldRegistry()
-        registry.fields = ["P/L"]
-        registry.fetchedAt = time.time()
-        with patch.object(registry, "fetchFields") as mockFetch:
-            fields = registry.getFields()
-        assert fields == ["P/L"]
-        mockFetch.assert_not_called()
 
 
 class TestExtractDecisions:
@@ -240,7 +192,7 @@ class TestPrometheusCompactor:
             result = self.compactor.extractEpisode(chunk)
             mockExtract.assert_called_once()
             callArgs = mockExtract.call_args
-            assert callArgs[1].get("registry") is not None or callArgs[0][1] is not None
+            assert callArgs[1].get("useRegistry") is True or callArgs[0][1] is True
 
     def test_consolidate_under_cap(self):
         episodes = [{"id": f"ep_{i}", "summary": f"Episode {i}"} for i in range(5)]
@@ -260,10 +212,6 @@ class TestPrometheusCompactor:
         result = self.compactor.consolidate(episodes)
         merged = result[0]
         assert len(merged["keyDecisions"]) == 5
-
-    def test_has_field_registry(self):
-        assert self.compactor.registry is not None
-        assert isinstance(self.compactor.registry, FieldRegistry)
 
     def test_get_episodes_empty_session(self):
         mockDb = MagicMock()

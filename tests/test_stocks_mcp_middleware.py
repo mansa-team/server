@@ -79,7 +79,7 @@ class TestStocksAPIServiceInitialize:
     def test_initialize_wires_router_middleware_and_mcp_mount(self):
         app = FastAPI()
         with (
-            mock.patch("main.service.stocksapi_service.ServiceManager.getApp", return_value=app) as mock_get_app,
+            mock.patch("main.service.stocksapi_service.getApp", return_value=app) as mock_get_app,
             mock.patch.object(stocksCache, "cacheScheduler") as mock_scheduler,
         ):
             StocksAPIService.initialize(39999)
