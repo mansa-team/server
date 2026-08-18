@@ -1,5 +1,3 @@
-- [ ] OpenUI and shadcn/ui
-  
 - [ ] Github OAuth
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings
 - [ ] Make an Password Recovery system and 2FA using the Email Protocol

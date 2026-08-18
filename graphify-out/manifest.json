@@ -50,8 +50,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\App.resume.test.jsx": {
-    "mtime": 1786301174.944186,
-    "ast_hash": "fbbfeb199b290c128c9f52528639eb2e",
+    "mtime": 1786987291.1863744,
+    "ast_hash": "6d91b377e625c4557b45c94c13efb7fe",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\main.jsx": {
@@ -75,13 +75,13 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\components\\MdocMessage.jsx": {
-    "mtime": 1786814804.4387589,
-    "ast_hash": "da3af8747d95785d9121836eb82e48be",
+    "mtime": 1786987145.254399,
+    "ast_hash": "af1f1ebf72920ac108da4c49d4cdbac8",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\components\\MessageList.jsx": {
-    "mtime": 1786821222.7263086,
-    "ast_hash": "b452605e7bc482488e4d63a8dc241f78",
+    "mtime": 1786987180.4653556,
+    "ast_hash": "ad43d2815843620e01c3b577be498647",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\components\\SessionSidebar.jsx": {
@@ -109,6 +109,11 @@
     "ast_hash": "cedd91b920c88fab7a1da7bc1d876a79",
     "semantic_hash": ""
   },
+  "D:\\Repositories\\server\\frontend\\src\\components\\ui\\card.jsx": {
+    "mtime": 1786942763.3927803,
+    "ast_hash": "4814ad5bbeab61dc6f3be6737303e08d",
+    "semantic_hash": ""
+  },
   "D:\\Repositories\\server\\frontend\\src\\components\\ui\\context-menu.jsx": {
     "mtime": 1785641918.039597,
     "ast_hash": "c57e988648a098d8055ec22da70d4c2b",
@@ -132,6 +137,11 @@
   "D:\\Repositories\\server\\frontend\\src\\components\\ui\\separator.jsx": {
     "mtime": 1785640936.8671026,
     "ast_hash": "72fd324120103da27aca78c0019a155e",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\frontend\\src\\lib\\prometheus-components.jsx": {
+    "mtime": 1786941354.6459155,
+    "ast_hash": "9a50212ca0fd600ffd7bf2407bba8b92",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\src\\lib\\utils.js": {
@@ -165,7 +175,7 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\prometheus\\agent.py": {
-    "mtime": 1786911668.173201,
+    "mtime": 1786986973.6696217,
     "ast_hash": "e745fed9187a711f2470513cf32ee5c1",
     "semantic_hash": ""
   },
@@ -265,8 +275,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\stocksapi_controller.py": {
-    "mtime": 1786910450.1948988,
-    "ast_hash": "d8d6cef9351c99f43baf1f82795ec851",
+    "mtime": 1787001738.5619817,
+    "ast_hash": "f5a8bba62d4834f6c4b8902b9d33545e",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\user_controller.py": {
@@ -350,8 +360,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\utils\\errors.py": {
-    "mtime": 1786910321.3720095,
-    "ast_hash": "ec4e3edafb614b6fe5d36ad03a1a46ab",
+    "mtime": 1787000940.049234,
+    "ast_hash": "c2b4821f5e848dfe9154343dcefda2d2",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\utils\\http_session.py": {
@@ -385,7 +395,7 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\utils\\models\\loader.py": {
-    "mtime": 1786897539.3964214,
+    "mtime": 1786986973.324071,
     "ast_hash": "53d7f85c943e3cac2acb81fb5ebe5a79",
     "semantic_hash": ""
   },
@@ -475,8 +485,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\TODO.md": {
-    "mtime": 1786897268.9688492,
-    "ast_hash": "13818cf4bbf70ee14fe0d647c7e27c97",
+    "mtime": 1786988620.230098,
+    "ast_hash": "2d222fe1a0552615d4a4bbdf740368af",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docs\\authentication.md": {
@@ -524,14 +534,19 @@
     "ast_hash": "c9a9738eb866a1790f5deaa70cc2a293",
     "semantic_hash": ""
   },
+  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-08-17-openui-migration.md": {
+    "mtime": 1786937102.5842636,
+    "ast_hash": "a7c372b7b69cde0e9b3980f0836753b2",
+    "semantic_hash": ""
+  },
   "D:\\Repositories\\server\\frontend\\index.html": {
     "mtime": 1785641936.6961534,
     "ast_hash": "7bbc5e5a7693a5828d34f9f4d7eb8125",
     "semantic_hash": ""
   },
-  "D:\\Repositories\\server\\latency_benchmark.png": {
-    "mtime": 1786899358.7689898,
-    "ast_hash": "ed293a820c45972b2fc172cd513c0bc0",
+  "D:\\Repositories\\server\\frontend\\pnpm-workspace.yaml": {
+    "mtime": 1786942994.3379312,
+    "ast_hash": "bfa208c19916cf140e4497bf3b3eaf25",
     "semantic_hash": ""
   }
 }
