@@ -121,9 +121,7 @@ class TestPrometheusSendMessage:
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
-    async def test_stream_message_yields_text_chunks(
-        self, mock_genai, mock_config, mock_chat, mock_pool_cls
-    ):
+    async def test_stream_message_yields_text_chunks(self, mock_genai, mock_config, mock_chat, mock_pool_cls):
         """streamMessage must yield dict chunks from async iterator."""
         mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="key")
         mock_config.DEBUG_MODE = True
@@ -170,9 +168,7 @@ class TestPrometheusSendMessage:
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
-    async def test_stream_message_handles_function_calls(
-        self, mock_genai, mock_config, mock_chat, mock_pool_cls
-    ):
+    async def test_stream_message_handles_function_calls(self, mock_genai, mock_config, mock_chat, mock_pool_cls):
         """streamMessage must handle function_calls as a list (not dict)."""
         mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="key")
         mock_config.DEBUG_MODE = True

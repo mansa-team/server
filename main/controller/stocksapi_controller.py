@@ -1,8 +1,6 @@
 from datetime import datetime, timezone
 import logging
 
-
-from cashews import cache
 from fastapi import APIRouter, Depends, Query, HTTPException, Response
 
 
@@ -14,8 +12,6 @@ from main.app.stocks_api.cache import stocksCache
 from main.app.stocks_api.sync_cache import sync_cache
 
 logger = logging.getLogger(__name__)
-
-cache.setup("mem://")
 
 router = APIRouter(prefix="/stocks", tags=["Stocks API"])
 
