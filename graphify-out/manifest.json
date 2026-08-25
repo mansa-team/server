@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\sync_cache.py": {
-    "mtime": 1787109614.1812122,
-    "ast_hash": "468bad5b746b806e4bf6b39c746782be",
+    "mtime": 1787114285.7881155,
+    "ast_hash": "9dc98677137879aabe58bf4d323f73f6",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\util.py": {
@@ -275,8 +275,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\stocksapi_controller.py": {
-    "mtime": 1787109669.1415472,
-    "ast_hash": "c4fce7b22b64e93f9f191547377f3f75",
+    "mtime": 1787114414.7683158,
+    "ast_hash": "0db02fcde3b2e0d565d4ae3c20f7e8cb",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\user_controller.py": {
@@ -547,6 +547,11 @@
   "D:\\Repositories\\server\\frontend\\pnpm-workspace.yaml": {
     "mtime": 1786942994.3379312,
     "ast_hash": "bfa208c19916cf140e4497bf3b3eaf25",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\latency_benchmark.png": {
+    "mtime": 1787117338.7392259,
+    "ast_hash": "610893fe68e752687a868b2a594c7c6f",
     "semantic_hash": ""
   }
 }

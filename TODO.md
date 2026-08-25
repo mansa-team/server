@@ -10,6 +10,8 @@
 - [ ] drop {service_name}_PORT and {serivce_name}_HOST and replace it with nginx managed services
 - [ ] p99 latency and context switches monitor at /status
 - [ ] feather cache for synced cache and with redis for a flock replacement
+- [ ] prevent scraping by using a cookie token linked session, if theres more than one tab active with a cookie token, one page will be blocked, forcing hte user to use a single tab, similar to how whatsapp web works
+- [ ] api routing via random uuids for page requests that might use the stocks api data, making the requests not reproducable and making hte work of scraping way harder
 
 #
 
