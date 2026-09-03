@@ -9,7 +9,6 @@ import numpy as np
 import pyarrow as pa
 
 from sqlalchemy.engine import Engine
-from apscheduler.schedulers.background import BackgroundScheduler
 
 import os
 import subprocess  # nosec: B404 used only with constant args, see line 302
@@ -65,7 +64,7 @@ def arrowTypeFor(dbType: str):
     return pa.string()
 
 
-def buildFeatherCache():
+def buildFeatherCache(engine: Engine | None = None):
     sampleCols = None
     sampleParts: dict[str, pd.Series] = {}
     compressor = zstd.ZstdCompressor(level=3)
@@ -78,8 +77,9 @@ def buildFeatherCache():
     sink = None
     schema = None
     total = 0
+    resolvedEngine = engine if engine is not None else stocksEngine
     try:
-        with stocksEngine.connect() as conn:
+        with resolvedEngine.connect() as conn:
             try:
                 typeRows = conn.exec_driver_sql("SHOW COLUMNS FROM b3_stocks").fetchall()
                 colTypes = {r[0]: str(r[1]).lower().split("(")[0].strip() for r in typeRows}
@@ -164,6 +164,25 @@ def tryBuildLock():
         return None
 
 
+def sortCacheFrame(df: pd.DataFrame) -> pd.DataFrame:
+    if df.empty or "TIME" not in df.columns or "TICKER" not in df.columns:
+        return df
+    try:
+        return df.sort_values(by=["TICKER", "TIME"], ascending=[True, False], kind="mergesort").reset_index(drop=True)
+    except TypeError:
+        logger.warning("sortCacheFrame: mixed TIME dtypes, keeping load order")
+        return df.reset_index(drop=True)
+
+
+def buildTickerIndex(df: pd.DataFrame) -> dict:
+    index = {}
+    for idx, ticker in enumerate(df["TICKER"]):
+        key = str(ticker).upper()
+        if key not in index:
+            index[key] = idx
+    return index
+
+
 class StocksCacheManager:
     def __init__(self, db: Engine, cacheLock: threading.Lock):
         self.db = db
@@ -174,17 +193,25 @@ class StocksCacheManager:
         self.lastCacheUpdate = None
 
     def cacheScheduler(self):
+        from main.utils.scheduler import STOCKS_REFRESH_JITTER_SECONDS, registerJob
+
         thread = threading.Thread(target=self.getCachedStocks, name="stocks-cache-init", daemon=True)
         thread.start()
-        scheduler = BackgroundScheduler()
-        scheduler.add_job(self.getCachedStocks, "interval", hours=12)
-        scheduler.start()
+        registerJob(
+            self.getCachedStocks,
+            "interval",
+            jobId="stocks_cache_refresh",
+            jobName="Stocks cache refresh",
+            hours=12,
+            jitter=STOCKS_REFRESH_JITTER_SECONDS,
+        )
 
     def loadFromFeather(self):
         df = pd.read_feather(CACHE_FEATHER_PATH)
         nestedSample = pd.read_feather(CACHE_NESTED_PATH) if CACHE_NESTED_PATH.exists() else None
 
-        newTickerIndex = {str(ticker).upper(): idx for idx, ticker in enumerate(df["TICKER"])}
+        df = sortCacheFrame(df)
+        newTickerIndex = buildTickerIndex(df)
 
         with self.cacheLock:
             self.STOCKS_CACHE = df

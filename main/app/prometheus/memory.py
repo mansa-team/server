@@ -32,6 +32,7 @@ INITIAL_STABILITY = {
 MEMORY_EXTRACTION_TOKEN_BUDGET = 32000
 MEMORY_EXTRACT_FREE_CAP = 5
 MEMORY_EXTRACT_PREMIUM_CAP = 10
+MEMORY_SEARCH_PREFILTER_CAP = 500
 
 client = None
 
@@ -204,6 +205,7 @@ class PrometheusMemory:
             return scored[:limit]
 
         memoriesWithEmb = [m for m in memories if m.embedding is not None]
+        memoriesWithEmb = memoriesWithEmb[:MEMORY_SEARCH_PREFILTER_CAP]
         if memoriesWithEmb:
             try:
                 queryEmbedding = embed([query])[0]
@@ -331,7 +333,19 @@ class PrometheusMemory:
         return True
 
     @staticmethod
-    def extract(db: Session | None = None, userId=None, sessionId=None, userRoles=None) -> list[PrometheusMemoryModel]:
+    def countTokensCached(text: str, cache: dict | None) -> int:
+        if cache is None:
+            return countTokens(text)
+        cached = cache.get(text)
+        if cached is None:
+            cached = countTokens(text)
+            cache[text] = cached
+        return cached
+
+    @staticmethod
+    def extract(
+        db: Session | None = None, userId=None, sessionId=None, userRoles=None, tokenCache: dict | None = None
+    ) -> list[PrometheusMemoryModel]:
         ownSession = db is None
         if ownSession:
             db = SessionLocal()
@@ -359,7 +373,7 @@ class PrometheusMemory:
             for msg in reversed(msgs):
                 text = (msg.get("parts") or [{}])[0].get("text", "")
                 acc.append(text)
-                tokens += countTokens(text)
+                tokens += PrometheusMemory.countTokensCached(text, tokenCache)
                 if tokens >= MEMORY_EXTRACTION_TOKEN_BUDGET:
                     break
 
@@ -405,9 +419,18 @@ class PrometheusMemory:
                 return []
 
             created = []
-            for cand in (candidates or [])[:n]:
+            cands = (candidates or [])[:n]
+            try:
+                embeddings = embed([c.get("value", "") for c in cands])
+            except Exception as e:
+                logger.warning("Memory batch embedding failed: %s", e)
+                embeddings = []
+            for idx, cand in enumerate(cands):
                 try:
-                    embedding = embed([cand.get("value", "")])[0]
+                    if idx < len(embeddings):
+                        embedding = embeddings[idx]
+                    else:
+                        embedding = embed([cand.get("value", "")])[0]
                     result = PrometheusMemory.upsertMemory(
                         db,
                         userId,
