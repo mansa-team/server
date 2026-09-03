@@ -4,7 +4,6 @@ from main.utils.logging_config import limiter
 
 import threading
 import uvicorn
-from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -23,7 +22,6 @@ def getApp(port: int) -> FastAPI:
 
     app = FastAPI(title=f"Mansa Service {port}")
     app.state.limiter = limiter
-    app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
     app.add_middleware(RequestIDMiddleware)
 
     @app.exception_handler(RateLimitExceeded)
