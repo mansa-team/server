@@ -6,7 +6,7 @@ from fastapi import HTTPException
 
 from main.app.authentication.util import hashPassword, verifyPassword
 from main.app.user.user import UserManager
-from main.models import User
+from main.models.user import User
 
 logger = logging.getLogger(__name__)
 

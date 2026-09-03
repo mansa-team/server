@@ -1,10 +1,13 @@
-from sqlalchemy import Column, Integer, String, TIMESTAMP, Boolean, ForeignKey
+from sqlalchemy import Column, Index, Integer, String, TIMESTAMP, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from main.models.base import Base
+from main.models.user import User  # noqa: F401 — ensure 'User' in registry for relationship("User")
 
 
 class UserSession(Base):
     __tablename__ = "user_sessions"
+    # M2: composite index for the session GC sweep (isActive + lastActivityAt).
+    __table_args__ = (Index("ix_user_sessions_active_lastactive", "isActive", "lastActivityAt"),)
 
     sessionId = Column(String(64), primary_key=True)
     userId = Column(Integer, ForeignKey("users.userId"), nullable=False, index=True)

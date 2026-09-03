@@ -1,7 +1,7 @@
 import logging
 from config import getSession, LOCALHOST_ADDRESSES
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from main.utils.logging_config import limiter
 
 from fastapi import APIRouter, Response, HTTPException, Request, Depends, Body
@@ -26,18 +26,29 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 def isSecureScheme(request: Request) -> bool:
+    try:
+        forwardedRaw = request.headers.get("X-Forwarded-Proto", "")
+    except Exception:
+        forwardedRaw = ""
+    if isinstance(forwardedRaw, str):
+        proto = forwardedRaw.split(",")[0].strip().lower()
+        if proto in ("http", "https"):
+            return proto == "https"
     return request.url.scheme == "https"
+
+
+def resolveCookieDomain(request: Request) -> str:
+    hostname = request.url.hostname or "localhost"
+    return "localhost" if hostname in ("localhost", "127.0.0.1") else hostname
 
 
 def issueSessionCookie(response, request, db, user) -> str:
     userAgent = request.headers.get("User-Agent", "")
-    expiresAt = datetime.now() + timedelta(hours=TOKEN_EXPIRY_HOURS)
+    expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
     session = SessionManager.createSession(db, user["userId"], userAgent, expiresAt)
     accessToken, _ = createAccessToken(data={"userId": str(user["userId"]), "sessionId": str(session.sessionId)})
 
-    # Set domain so cookie works across ports in dev (API:3200 → frontend:5173)
-    hostname = request.url.hostname or "localhost"
-    cookieDomain = "localhost" if hostname in ("localhost", "127.0.0.1") else hostname
+    cookieDomain = resolveCookieDomain(request)
 
     response.set_cookie(
         key=COOKIE_NAME,
@@ -111,6 +122,8 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
         authHeader = request.headers.get("Authorization")
         if authHeader and authHeader.startswith("Bearer "):
             token = authHeader.split(" ")[1]
+    if not token:
+        token = request.cookies.get(COOKIE_NAME)
 
     if token:
         try:
@@ -127,7 +140,12 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
 
     useCookieSecure = isSecureScheme(request)
     response.delete_cookie(
-        key=COOKIE_NAME, httponly=True, secure=useCookieSecure, samesite=COOKIE_SAMESITE, path=COOKIE_PATH
+        key=COOKIE_NAME,
+        httponly=True,
+        secure=useCookieSecure,
+        samesite=COOKIE_SAMESITE,
+        path=COOKIE_PATH,
+        domain=resolveCookieDomain(request),
     )
     return {"message": "Successfully logged out"}
 

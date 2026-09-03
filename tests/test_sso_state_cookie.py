@@ -12,12 +12,12 @@ import sys
 import os
 from unittest.mock import patch, AsyncMock, MagicMock
 from fastapi import FastAPI
-from fastapi.testclient import TestClient as _TestClient
+from fastapi.testclient import TestClient as TestClient
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
-def _build_app():
+def build_app():
     from main.controller.authentication_controller import router as authRouter
     from main.utils.errors import registerErrorHandlers
     from main.utils.logging_config import limiter
@@ -32,7 +32,7 @@ def _build_app():
     return app
 
 
-def _override_session(app, mock_session):
+def override_session(app, mock_session):
     from config import getSession
 
     app.dependency_overrides[getSession] = lambda: mock_session
@@ -43,7 +43,7 @@ class TestGoogleEndpointSetsState:
 
     def test_passes_redirect_url_as_state(self):
         """State should be the redirect URL directly."""
-        app = _build_app()
+        app = build_app()
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
         mock_sso.__aexit__ = AsyncMock(return_value=False)
@@ -55,7 +55,7 @@ class TestGoogleEndpointSetsState:
         )
 
         with patch("main.controller.authentication_controller.getGoogleSSO", return_value=mock_sso):
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             client.get(
                 "/auth/google?redirect_url=http://localhost:3000/prometheus",
                 follow_redirects=False,
@@ -66,7 +66,7 @@ class TestGoogleEndpointSetsState:
 
     def test_none_when_no_redirect_url(self):
         """Without redirect_url, state should be None."""
-        app = _build_app()
+        app = build_app()
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
         mock_sso.__aexit__ = AsyncMock(return_value=False)
@@ -78,7 +78,7 @@ class TestGoogleEndpointSetsState:
         )
 
         with patch("main.controller.authentication_controller.getGoogleSSO", return_value=mock_sso):
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             client.get("/auth/google", follow_redirects=False)
 
         state = mock_sso.get_login_redirect.call_args[1]["state"]
@@ -86,7 +86,7 @@ class TestGoogleEndpointSetsState:
 
     def test_no_sso_redirect_cookie_set(self):
         """The /google endpoint should NOT set sso_redirect cookie."""
-        app = _build_app()
+        app = build_app()
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
         mock_sso.__aexit__ = AsyncMock(return_value=False)
@@ -98,7 +98,7 @@ class TestGoogleEndpointSetsState:
         )
 
         with patch("main.controller.authentication_controller.getGoogleSSO", return_value=mock_sso):
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             response = client.get(
                 "/auth/google?redirect_url=http://localhost:3000/prometheus",
                 follow_redirects=False,
@@ -114,9 +114,9 @@ class TestCallbackSuccess:
 
     def test_redirects_to_url_in_state(self):
         """On success, redirect to URL from state param — no token in URL."""
-        app = _build_app()
+        app = build_app()
         mock_session = MagicMock()
-        _override_session(app, mock_session)
+        override_session(app, mock_session)
 
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
@@ -144,7 +144,7 @@ class TestCallbackSuccess:
             mock_session.sessionId = "sess-1"
             mock_session_mgr.createSession.return_value = mock_session
 
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             client.cookies.set("sso_state", redirect_url)
             response = client.get(
                 f"/auth/callback?state={redirect_url}&code=fake-auth-code",
@@ -158,9 +158,9 @@ class TestCallbackSuccess:
 
     def test_returns_json_when_no_redirect_in_state(self):
         """When state has no URL, return JSON with token."""
-        app = _build_app()
+        app = build_app()
         mock_session = MagicMock()
-        _override_session(app, mock_session)
+        override_session(app, mock_session)
 
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
@@ -188,7 +188,7 @@ class TestCallbackSuccess:
             mock_session.sessionId = "sess-2"
             mock_session_mgr.createSession.return_value = mock_session
 
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             client.cookies.set("sso_state", state_value)
             response = client.get(
                 f"/auth/callback?state={state_value}&code=fake-auth-code",
@@ -204,9 +204,9 @@ class TestSSOLoginErrorHandling:
 
     def test_stale_state_returns_401(self):
         """Stale sso_state cookie must produce 401, not 500."""
-        app = _build_app()
+        app = build_app()
         mock_session = MagicMock()
-        _override_session(app, mock_session)
+        override_session(app, mock_session)
 
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
@@ -220,7 +220,7 @@ class TestSSOLoginErrorHandling:
         mock_sso.verify_and_process = fake_verify
 
         with patch("main.controller.authentication_controller.getGoogleSSO", return_value=mock_sso):
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             client.cookies.set("sso_state", "stale-url-from-prior-session")
             response = client.get(
                 "/auth/callback?state=fresh-url&code=fake-code",

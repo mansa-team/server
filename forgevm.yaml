@@ -17,7 +17,10 @@ defaults:
   vcpus: 1
 
 auth:
-  enabled: false
+  enabled: true
+  # Token is injected from the FORGEVM_API_TOKEN environment variable.
+  # Set a long random value (e.g. `openssl rand -hex 32`) — never commit it.
+  token: "${FORGEVM_API_TOKEN}"
 
 logging:
   level: "info"
