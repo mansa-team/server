@@ -19,6 +19,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from main.utils.scheduler import STOCKS_REFRESH_JITTER_SECONDS, registerJob
+
 fcntl: Any = None
 if sys.platform != "win32":
     import fcntl
@@ -193,8 +195,6 @@ class StocksCacheManager:
         self.lastCacheUpdate = None
 
     def cacheScheduler(self):
-        from main.utils.scheduler import STOCKS_REFRESH_JITTER_SECONDS, registerJob
-
         thread = threading.Thread(target=self.getCachedStocks, name="stocks-cache-init", daemon=True)
         thread.start()
         registerJob(

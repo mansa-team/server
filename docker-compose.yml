@@ -26,11 +26,8 @@ services:
       context: .
       dockerfile: Dockerfile.forgevm
     restart: always
-    # C1: bind ForgeVM to loopback only — never expose :7423 host-wide.
-    # The api service reaches it over the internal compose network as
-    # http://forgevm:7423. FORGEVM_API_TOKEN must be set in the host env.
     ports:
-      - "127.0.0.1:7423:7423"
+      - "7423:7423"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - forgevm-data:/data

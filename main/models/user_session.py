@@ -6,7 +6,6 @@ from main.models.user import User  # noqa: F401 — ensure 'User' in registry fo
 
 class UserSession(Base):
     __tablename__ = "user_sessions"
-    # M2: composite index for the session GC sweep (isActive + lastActivityAt).
     __table_args__ = (Index("ix_user_sessions_active_lastactive", "isActive", "lastActivityAt"),)
 
     sessionId = Column(String(64), primary_key=True)
