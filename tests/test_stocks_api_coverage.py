@@ -61,7 +61,7 @@ class TestStocksCacheManager:
         return StocksCacheManager(mock_engine, lock)
 
     # --- cacheScheduler (shared scheduler, P5) -------------------------------
-    @patch("main.utils.scheduler.registerJob")
+    @patch("main.app.stocks_api.cache.registerJob")
     def test_cache_scheduler_registers_shared_job(self, mock_register):
         from main.app.stocks_api.cache import StocksCacheManager
 
