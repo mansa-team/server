@@ -50,7 +50,7 @@ def registerSessionCleanupJobs():
     preserved — only the scheduler *instance* is shared. Same 12h cadence
     and stable job id as before; jitter staggers it off other jobs.
     """
-    from main.utils.scheduler import SESSION_CLEANUP_JITTER_SECONDS, registerJob
+    from main.utils.scheduler import registerJob
 
     registerJob(
         removeInactiveSessions,
@@ -58,7 +58,7 @@ def registerSessionCleanupJobs():
         jobId="cleanup_inactive_sessions",
         jobName="Remove inactive sessions",
         hours=12,
-        jitter=SESSION_CLEANUP_JITTER_SECONDS,
+        jitter=300,
     )
     logger.info("Session cleanup scheduled on shared scheduler (every 12h)")
 

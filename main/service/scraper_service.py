@@ -27,7 +27,7 @@ def registerScraperJobs() -> list:
     and stable job ids as before; jitter staggers firings off the other
     services' jobs. Returns the registered job ids.
     """
-    from main.utils.scheduler import SCRAPER_JITTER_SECONDS, registerJob
+    from main.utils.scheduler import registerJob
 
     schedules = Config.SCRAPER.SCHEDULER.split(";")
 
@@ -41,7 +41,7 @@ def registerScraperJobs() -> list:
             hour, minute = map(int, schedule.strip().split(":"))
             registerJob(
                 runScraper,
-                CronTrigger(hour=hour, minute=minute, jitter=SCRAPER_JITTER_SECONDS),
+                CronTrigger(hour=hour, minute=minute, jitter=120),
                 jobId=f"scraper_{idx}",
                 jobName=f"Scraper ({schedule})",
             )

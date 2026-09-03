@@ -11,7 +11,7 @@ from main.models.memory import PrometheusMemory
 from main.controller.prometheus_controller import router as prometheusRouter
 from main.utils.models.loader import getEmbeddingModel
 
-from main.utils.scheduler import MEMORY_MAINTENANCE_JITTER_SECONDS, registerJob
+from main.utils.scheduler import registerJob
 
 logger = logging.getLogger(__name__)
 
@@ -73,5 +73,5 @@ class PrometheusService:
             jobId="memory_maintenance",
             jobName="Memory Maintenance",
             hours=24,
-            jitter=MEMORY_MAINTENANCE_JITTER_SECONDS,
+            jitter=600,
         )

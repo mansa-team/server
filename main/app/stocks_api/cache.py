@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from main.utils.scheduler import STOCKS_REFRESH_JITTER_SECONDS, registerJob
+from main.utils.scheduler import registerJob
 
 fcntl: Any = None
 if sys.platform != "win32":
@@ -203,7 +203,7 @@ class StocksCacheManager:
             jobId="stocks_cache_refresh",
             jobName="Stocks cache refresh",
             hours=12,
-            jitter=STOCKS_REFRESH_JITTER_SECONDS,
+            jitter=600,
         )
 
     def loadFromFeather(self):

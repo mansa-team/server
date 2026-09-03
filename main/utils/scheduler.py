@@ -6,11 +6,6 @@ logger = logging.getLogger(__name__)
 
 sharedScheduler: BackgroundScheduler | None = None
 
-STOCKS_REFRESH_JITTER_SECONDS = 600
-SESSION_CLEANUP_JITTER_SECONDS = 300
-MEMORY_MAINTENANCE_JITTER_SECONDS = 600
-SCRAPER_JITTER_SECONDS = 120
-
 
 def getSharedScheduler() -> BackgroundScheduler:
     global sharedScheduler
