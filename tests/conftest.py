@@ -10,7 +10,7 @@ from main.models.base import Base
 
 
 @pytest.fixture(autouse=True, scope="function")
-def _reset_rate_limiter():
+def reset_rate_limiter():
     """Reset slowapi in-memory rate limiter between every test."""
     from main.utils.logging_config import limiter
 
@@ -30,7 +30,7 @@ def pytest_configure(config):
 
 
 @pytest.fixture(autouse=True)
-def _patch_secret_key(monkeypatch):
+def patch_secret_key(monkeypatch):
     import main.app.authentication.constants as auth_constants
 
     if not auth_constants.SECRET_KEY:
@@ -54,6 +54,37 @@ def dbSession():
     session.close()
     Base.metadata.drop_all(engine)
     engine.dispose()
+
+
+@pytest.fixture(scope="function")
+def stocksDbSession():
+    """Parallel coverability seam for stocks_db (A8).
+
+    Mirrors dbSession but backs config.StocksSessionLocal so tests can
+    override the getStocksSession dependency the same way getSession is
+    overridden for user_db. No existing test is rewritten; new tests use::
+
+        app.dependency_overrides[getStocksSession] = lambda: stocksDbSession
+    """
+    engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
+    Base.metadata.create_all(engine)
+    TestingStocksSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    session = TestingStocksSessionLocal()
+    yield session
+    session.close()
+    Base.metadata.drop_all(engine)
+    engine.dispose()
+
+
+def overrideStocksSession(app, session):
+    """Wire a stocks_db session into a FastAPI app's dependency overrides.
+
+    Import path matches the app dependency name exactly (config.getStocksSession).
+    """
+    from config import getStocksSession
+
+    app.dependency_overrides[getStocksSession] = lambda: session
+    return app
 
 
 @pytest.fixture
@@ -81,7 +112,7 @@ def samplePrometheusSessionData():
 def stocks_http_client():
     """TestClient with stocks router + verifyAPIKey override."""
     from fastapi import FastAPI
-    from fastapi.testclient import TestClient as _TestClient
+    from fastapi.testclient import TestClient as TestClient
     from main.controller.stocksapi_controller import router as stocksRouter
     from main.utils.errors import registerErrorHandlers
     from main.app.stocks_api.key import verifyAPIKey
@@ -91,7 +122,7 @@ def stocks_http_client():
     registerErrorHandlers(app)
     app.dependency_overrides[verifyAPIKey] = lambda: "test-key"
 
-    with _TestClient(app, raise_server_exceptions=False) as c:
+    with TestClient(app, raise_server_exceptions=False) as c:
         yield c
     app.dependency_overrides.clear()
 
@@ -104,7 +135,7 @@ def client():
     don't block input validation tests.
     """
     from fastapi import FastAPI
-    from fastapi.testclient import TestClient as _TestClient
+    from fastapi.testclient import TestClient as TestClient
     from main.controller.authentication_controller import router as authRouter
     from main.controller.user_controller import router as userRouter
     from main.controller.prometheus_controller import router as prometheusRouter
@@ -121,10 +152,10 @@ def client():
     # Mock auth dependency so validation tests aren't blocked by 401
     from main.app.user.user import UserManager
 
-    def _mock_get_current_user():
+    def mock_get_current_user():
         return {"userId": 1, "username": "testuser", "email": "test@example.com", "roles": ["PREMIUM"]}
 
-    testApp.dependency_overrides[UserManager.getCurrentUser] = _mock_get_current_user
+    testApp.dependency_overrides[UserManager.getCurrentUser] = mock_get_current_user
 
-    with _TestClient(testApp, raise_server_exceptions=False) as c:
+    with TestClient(testApp, raise_server_exceptions=False) as c:
         yield c

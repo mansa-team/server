@@ -4,13 +4,14 @@ import math
 from datetime import datetime
 
 from sqlalchemy.orm import Session
-from apscheduler.schedulers.background import BackgroundScheduler
 from main.utils.service_manager import getApp
 
 from main.models.memory import PrometheusMemory
 
 from main.controller.prometheus_controller import router as prometheusRouter
 from main.utils.models.loader import getEmbeddingModel
+
+from main.utils.scheduler import MEMORY_MAINTENANCE_JITTER_SECONDS, registerJob
 
 logger = logging.getLogger(__name__)
 
@@ -66,12 +67,11 @@ class PrometheusService:
 
         getEmbeddingModel()
 
-        scheduler = BackgroundScheduler()
-        scheduler.add_job(
+        registerJob(
             memoryMaintenance,
             "interval",
+            jobId="memory_maintenance",
+            jobName="Memory Maintenance",
             hours=24,
-            id="memory_maintenance",
-            name="Memory Maintenance",
+            jitter=MEMORY_MAINTENANCE_JITTER_SECONDS,
         )
-        scheduler.start()

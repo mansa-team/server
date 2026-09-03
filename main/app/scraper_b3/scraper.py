@@ -17,17 +17,15 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from sqlalchemy import text
 
-from main.app.scraper_b3.xango import calculateInvestingScore
-from main.app.stocks_api.util import JSON_COLUMNS
+from .xango import calculateInvestingScore
+
+JSON_COLUMNS = ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS")
 
 logger = logging.getLogger(__name__)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
-# Allowlist for column names interpolated into SQL (defense in depth:
-# column names come from the live DB schema, not user input, but a
-# strict pattern prevents any future source from breaking the query)
 SAFE_COLUMN_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9 _]*$")
 
 
@@ -42,8 +40,8 @@ def getCurrentSelic():
 
 
 class B3Scraper:
-    def __init__(self):
-        self.engine = stocksEngine
+    def __init__(self, engine=None):
+        self.engine = engine if engine is not None else stocksEngine
         self.currentYear = datetime.now().year
         self.scraperDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.stats = {}

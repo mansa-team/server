@@ -1,8 +1,8 @@
 import logging
 from config import SessionLocal
 
-from datetime import datetime, timedelta
-from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime, timedelta, timezone
+from sqlalchemy import or_
 
 from main.models.user_session import UserSession
 
@@ -16,11 +16,22 @@ logger = logging.getLogger(__name__)
 def removeInactiveSessions():
     db = SessionLocal()
     try:
-        thresholdDate = datetime.now() - timedelta(days=SESSION_EXPIRY_DAYS)
+        # M2: also purge expired-but-still-active rows (validateSession only
+        # lazily deactivates on next touch, so these accumulated forever).
+        # Expired active: isActive & expiresAt < now. Long-dead inactive:
+        # ~isActive & lastActivityAt < now - 30d. Uses the composite index
+        # ix_user_sessions_active_lastactive on (isActive, lastActivityAt).
+        now = datetime.now(timezone.utc)
+        thresholdDate = now - timedelta(days=SESSION_EXPIRY_DAYS)
 
         deleted = (
             db.query(UserSession)
-            .filter(~UserSession.isActive, UserSession.lastActivityAt < thresholdDate)
+            .filter(
+                or_(
+                    (UserSession.isActive & (UserSession.expiresAt < now)),
+                    (~UserSession.isActive & (UserSession.lastActivityAt < thresholdDate)),
+                )
+            )
             .delete(synchronize_session=False)
         )
         db.commit()
@@ -32,23 +43,30 @@ def removeInactiveSessions():
         db.close()
 
 
-scheduler = None
+def registerSessionCleanupJobs():
+    """P5: register the session-cleanup job on the shared scheduler.
+
+    Kept in this service file so per-service management grouping is
+    preserved — only the scheduler *instance* is shared. Same 12h cadence
+    and stable job id as before; jitter staggers it off other jobs.
+    """
+    from main.utils.scheduler import SESSION_CLEANUP_JITTER_SECONDS, registerJob
+
+    registerJob(
+        removeInactiveSessions,
+        "interval",
+        jobId="cleanup_inactive_sessions",
+        jobName="Remove inactive sessions",
+        hours=12,
+        jitter=SESSION_CLEANUP_JITTER_SECONDS,
+    )
+    logger.info("Session cleanup scheduled on shared scheduler (every 12h)")
 
 
 class UserService:
     @staticmethod
     def initialize(port: int):
-        global scheduler
         service = getApp(port)
         service.include_router(userRouter)
 
-        scheduler = BackgroundScheduler()
-        scheduler.add_job(
-            removeInactiveSessions,
-            "interval",
-            hours=12,
-            id="cleanup_inactive_sessions",
-            name="Remove inactive sessions",
-        )
-        scheduler.start()
-        logger.info("Session cleanup scheduler started (every 12h)")
+        registerSessionCleanupJobs()
