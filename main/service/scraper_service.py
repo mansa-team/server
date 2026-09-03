@@ -24,8 +24,7 @@ def registerScraperJobs() -> list:
 
     Kept in this service file so per-service management grouping is
     preserved — only the scheduler *instance* is shared. Same cron times
-    and stable job ids as before; jitter staggers firings off the other
-    services' jobs. Returns the registered job ids.
+    and stable job ids as before. Returns the registered job ids.
     """
     from main.utils.scheduler import registerJob
 
@@ -41,7 +40,7 @@ def registerScraperJobs() -> list:
             hour, minute = map(int, schedule.strip().split(":"))
             registerJob(
                 runScraper,
-                CronTrigger(hour=hour, minute=minute, jitter=120),
+                CronTrigger(hour=hour, minute=minute),
                 jobId=f"scraper_{idx}",
                 jobName=f"Scraper ({schedule})",
             )

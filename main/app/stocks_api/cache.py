@@ -204,7 +204,6 @@ class StocksCacheManager:
             jobId="stocks_cache_refresh",
             jobName="Stocks cache refresh",
             hours=12,
-            jitter=600,
         )
 
     def loadFromFeather(self):

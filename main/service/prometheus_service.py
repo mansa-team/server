@@ -73,5 +73,4 @@ class PrometheusService:
             jobId="memory_maintenance",
             jobName="Memory Maintenance",
             hours=24,
-            jitter=600,
         )

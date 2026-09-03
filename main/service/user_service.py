@@ -51,5 +51,4 @@ class UserService:
             jobId="cleanup_inactive_sessions",
             jobName="Remove inactive sessions",
             hours=12,
-            jitter=300,
         )
