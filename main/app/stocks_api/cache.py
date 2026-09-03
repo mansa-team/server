@@ -125,6 +125,7 @@ def buildFeatherCache(engine: Engine | None = None):
                         schema = pa.schema(fields)
                         sink = pa.OSFile(str(tmpMain), "wb")
                         writer = pa.ipc.new_file(sink, schema)
+                    assert writer is not None
                     table = pa.Table.from_pandas(chunk, schema=schema, preserve_index=False)
                     writer.write_table(table)
                     total += len(chunk)
