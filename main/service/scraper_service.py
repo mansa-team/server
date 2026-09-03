@@ -5,6 +5,7 @@ import time
 from apscheduler.triggers.cron import CronTrigger
 
 from main.app.scraper_b3.scraper import B3Scraper
+from main.utils.scheduler import registerJob
 
 logger = logging.getLogger(__name__)
 
@@ -20,14 +21,6 @@ def runScraper():
 
 
 def registerScraperJobs() -> list:
-    """P5: register the scraper cron jobs on the shared scheduler.
-
-    Kept in this service file so per-service management grouping is
-    preserved — only the scheduler *instance* is shared. Same cron times
-    and stable job ids as before. Returns the registered job ids.
-    """
-    from main.utils.scheduler import registerJob
-
     schedules = Config.SCRAPER.SCHEDULER.split(";")
 
     if not schedules:

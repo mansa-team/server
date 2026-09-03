@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\cache.py": {
-    "mtime": 1788462947.0327363,
-    "ast_hash": "698e1aac1e969f1db00f603b7eeb6de3",
+    "mtime": 1788463311.6798687,
+    "ast_hash": "6a98784ad560b372f318f672671b457c",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\compress.py": {
@@ -330,13 +330,13 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\service\\prometheus_service.py": {
-    "mtime": 1788462636.1664789,
-    "ast_hash": "e4a178df64b56982d0456c02fca22de8",
+    "mtime": 1788463318.2587261,
+    "ast_hash": "4aaa89281f467578d37e11b47bccc0ca",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\service\\scraper_service.py": {
-    "mtime": 1788462648.226825,
-    "ast_hash": "d2fb40b25cd914f101ccf0d18fbe1fc1",
+    "mtime": 1788463347.4746556,
+    "ast_hash": "6a6f2b741d8a52c483f5ff33da8d5377",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\service\\stocksapi_service.py": {
@@ -345,8 +345,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\service\\user_service.py": {
-    "mtime": 1788462660.9279006,
-    "ast_hash": "7e96befeea8433af75e8e88258635978",
+    "mtime": 1788463324.1582181,
+    "ast_hash": "aab8360aeaaa776f5d17e5a0e0caf6dd",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\utils\\connectivity.py": {
@@ -468,11 +468,6 @@
     "mtime": 1788411558.9381454,
     "ast_hash": "57ec88c5e3c30976589788f9c761d7bb",
     "semantic_hash": "57ec88c5e3c30976589788f9c761d7bb"
-  },
-  "D:\\Repositories\\server\\CODE_REVIEW_REPORT_FINAL.md": {
-    "mtime": 1788458018.5198843,
-    "ast_hash": "a3ffc4d9dc0bae26f3aa5fd6f727ae02",
-    "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docker-compose.yml": {
     "mtime": 1788457311.7157784,
