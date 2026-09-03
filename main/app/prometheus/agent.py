@@ -7,7 +7,7 @@ from collections.abc import AsyncIterator
 
 from google import genai
 from google.genai import types
-import google.genai._mcp_utils as _mcp
+import google.genai._mcp_utils as mcp
 
 
 from main.models.prometheus import PrometheusSession
@@ -18,7 +18,7 @@ from main.app.prometheus.mcp import clientPool
 from main.app.prometheus.sandbox import SandboxManager
 from main.app.prometheus.tools import TOOL_REGISTRY, dispatchToolCall
 
-originalFilter = _mcp._filter_to_supported_schema
+originalFilter = mcp._filter_to_supported_schema
 
 pendingExtractions: set[asyncio.Task] = set()
 
@@ -29,7 +29,7 @@ def safeFilter(schema):
     return originalFilter(schema)
 
 
-_mcp._filter_to_supported_schema = safeFilter
+mcp._filter_to_supported_schema = safeFilter
 
 logger = logging.getLogger(__name__)
 
@@ -253,9 +253,10 @@ class Prometheus:
                 logger.warning("Pool/registry startup failed: %s", e)
 
         try:
+            tokenCache: dict = {}
             session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
             if session and session.history:
-                PrometheusCompactor().compact(db, str(sessionId))
+                PrometheusCompactor().compact(db, str(sessionId), tokenCache)
 
             if session and user:
                 try:
@@ -268,6 +269,7 @@ class Prometheus:
                                 user.get("userId"),
                                 str(sessionId),
                                 user.get("roles", []),
+                                tokenCache,
                             )
                         except Exception as e:
                             logger.debug("Memory extraction failed: %s", e)

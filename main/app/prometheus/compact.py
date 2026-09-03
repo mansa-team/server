@@ -5,12 +5,11 @@ import json
 import uuid
 import time
 from datetime import datetime
-from urllib.request import urlopen, Request
 
 from google import genai
 from sqlalchemy.orm import Session as DBSession
 
-from main.models import PrometheusSession
+from main.models.prometheus import PrometheusSession
 
 logger = logging.getLogger(__name__)
 
@@ -90,29 +89,38 @@ fieldData: dict | None = None
 metricRegex: re.Pattern | None = None
 
 
+def getStocksFieldsUrl() -> str:
+    return f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fields"
+
+
 def loadFieldData() -> dict:
+    """Load historical/fundamental field names via STOCKS_API /fields endpoint, caching in ``fieldData``.
+
+    Endpoint-only (box-isolation): Prometheus consumes STOCKS_API solely over HTTP,
+    never via direct imports of ``main.app.stocks_api``. On fetch failure or
+    unreachable service returns ``{"historical": [], "fundamental": []}`` without raising.
+    """
     global fieldData
     if fieldData is None:
-        from config import stocksEngine
-        from main.app.stocks_api.cache import stocksCache
+        try:
+            from main.utils.http_session import getSession
 
-        fieldData = {"historical": [], "fundamental": []}
-        if stocksCache.STOCKS_CACHE is None:
-            return fieldData
-
-        cols = stocksCache.STOCKS_CACHE.columns.tolist()
-        historicalFields = {}
-        fundamentalCols = []
-        for col in cols:
-            parts = col.split()
-            if len(parts) >= 2 and parts[-1].isdigit():
-                field = " ".join(parts[:-1])
-                historicalFields[field] = True
-            elif col not in ["TICKER", "NOME", "TIME"]:
-                fundamentalCols.append(col)
-
-        fieldData["historical"] = list(historicalFields.keys())
-        fieldData["fundamental"] = fundamentalCols
+            response = getSession().get(getStocksFieldsUrl(), timeout=5)
+            response.raise_for_status()
+            payload = response.json()
+            historicalRaw = payload.get("historical", {})
+            if isinstance(historicalRaw, dict):
+                historicalFields = list(historicalRaw.keys())
+            elif isinstance(historicalRaw, list):
+                historicalFields = list(historicalRaw)
+            else:
+                historicalFields = []
+            fundamentalRaw = payload.get("fundamental", [])
+            fundamentalCols = list(fundamentalRaw) if isinstance(fundamentalRaw, list) else []
+            fieldData = {"historical": historicalFields, "fundamental": fundamentalCols}
+        except Exception as e:
+            logger.warning("Failed to load field data from STOCKS_API /fields: %s", e)
+            fieldData = {"historical": [], "fundamental": []}
     return fieldData
 
 
@@ -221,10 +229,21 @@ def buildSummary(
 
 
 class PrometheusCompactor:
-    def shouldCompact(self, history: list) -> bool:
+    def shouldCompact(self, history: list, tokenCache: dict | None = None) -> bool:
         if not history:
             return False
-        total = sum(countTokens(m.get("content", "")) for m in history)
+
+        if tokenCache is None:
+            total = sum(countTokens(m.get("content", "")) for m in history)
+        else:
+            total = 0
+            for m in history:
+                text = m.get("content", "")
+                cached = tokenCache.get(text)
+                if cached is None:
+                    cached = countTokens(text)
+                    tokenCache[text] = cached
+                total += cached
         return total >= EPISODE_TOKEN_BUDGET
 
     def getCompactableChunk(self, history: list, episodes: list) -> list[dict]:
@@ -285,7 +304,7 @@ class PrometheusCompactor:
 
         return [merged] + recent
 
-    def compact(self, db: DBSession, sessionId: str) -> dict | None:
+    def compact(self, db: DBSession, sessionId: str, tokenCache: dict | None = None) -> dict | None:
         session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
 
         if not session or not session.history:
@@ -294,7 +313,7 @@ class PrometheusCompactor:
         episodes = self.getEpisodes(db, sessionId)
         chunk = self.getCompactableChunk(list(session.history) if session.history else [], episodes)
 
-        if not self.shouldCompact(chunk):
+        if not self.shouldCompact(chunk, tokenCache):
             return None
 
         episodeData = self.extractEpisode(chunk)
