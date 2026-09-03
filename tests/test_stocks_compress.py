@@ -53,7 +53,7 @@ ABBR_FALLBACK = {
 
 
 @pytest.fixture(autouse=True)
-def _reset_abbrev_globals():
+def reset_abbrev_globals():
     """compress.py caches abbr/nest in module globals; reset before and after each test."""
     rebuildAbbrevs()
     yield

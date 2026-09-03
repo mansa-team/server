@@ -10,7 +10,7 @@ import os
 from unittest.mock import patch, MagicMock, AsyncMock, PropertyMock
 from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, Request
-from fastapi.testclient import TestClient as _TestClient
+from fastapi.testclient import TestClient as TestClient
 from fastapi.responses import RedirectResponse
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 # ---------------------------------------------------------------------------
 # Helper: build a minimal TestClient for auth_controller with a mock DB dep
 # ---------------------------------------------------------------------------
-def _make_auth_client():
+def make_auth_client():
     """Return (client, app) with auth + user routers and mocked getSession."""
     from main.controller.authentication_controller import router as authRouter
     from main.controller.user_controller import router as userRouter
@@ -32,10 +32,10 @@ def _make_auth_client():
 
     mock_session = MagicMock()
     app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
-    return _TestClient(app, raise_server_exceptions=False), app, mock_session
+    return TestClient(app, raise_server_exceptions=False), app, mock_session
 
 
-def _make_user_client(mock_current_user=None):
+def make_user_client(mock_current_user=None):
     """Return (client, app) with user router and mocked deps."""
     from main.controller.user_controller import router as userRouter
     from main.utils.errors import registerErrorHandlers
@@ -51,10 +51,10 @@ def _make_user_client(mock_current_user=None):
     if mock_current_user is not None:
         app.dependency_overrides[UserManager.getCurrentUser] = lambda: mock_current_user
 
-    return _TestClient(app, raise_server_exceptions=False), app, mock_session
+    return TestClient(app, raise_server_exceptions=False), app, mock_session
 
 
-def _make_prometheus_client(mock_current_user=None, mock_permission_user=None):
+def make_prometheus_client(mock_current_user=None, mock_permission_user=None):
     """Return (client, app) with prometheus router and mocked deps."""
     from main.controller.prometheus_controller import router as promRouter
     from main.utils.errors import registerErrorHandlers
@@ -72,10 +72,10 @@ def _make_prometheus_client(mock_current_user=None, mock_permission_user=None):
     # override key never matches the actual dep, so the line is a no-op. Skip.
     app.dependency_overrides[UserManager.getCurrentUser] = lambda: user
 
-    return _TestClient(app, raise_server_exceptions=False), app, mock_session
+    return TestClient(app, raise_server_exceptions=False), app, mock_session
 
 
-def _make_stocksapi_client(mock_api_key=None):
+def make_stocksapi_client(mock_api_key=None):
     """Return (client, app) with stocks router and mocked deps."""
     from main.controller.stocksapi_controller import router as stocksRouter
     from main.utils.errors import registerErrorHandlers
@@ -92,7 +92,7 @@ def _make_stocksapi_client(mock_api_key=None):
 
         app.dependency_overrides[verifyAPIKey] = lambda: mock_api_key
 
-    return _TestClient(app, raise_server_exceptions=False), app, mock_session
+    return TestClient(app, raise_server_exceptions=False), app, mock_session
 
 
 # =========================================================================
@@ -131,7 +131,7 @@ class TestHealthEndpoint:
 
         app = FastAPI()
         app.include_router(authRouter)
-        client = _TestClient(app, raise_server_exceptions=False)
+        client = TestClient(app, raise_server_exceptions=False)
         response = client.get("/auth/health")
         assert response.status_code == 200
         data = response.json()
@@ -147,7 +147,7 @@ class TestRegisterEndpoint:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_register_success(self, mock_auth_mgr, mock_create_token, mock_session_mgr):
         """Covers lines 44-54, 63: successful registration + auto-login."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
 
         mock_auth_mgr.createUserAccount.return_value = True
         mock_auth_mgr.authenticateUser.return_value = {"userId": 1, "username": "alice", "roles": ["USER"]}
@@ -173,7 +173,7 @@ class TestRegisterEndpoint:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_register_auto_login_fails(self, mock_auth_mgr):
         """Covers line 46: auto-login fails after registration."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
         mock_auth_mgr.createUserAccount.return_value = True
         mock_auth_mgr.authenticateUser.return_value = None
 
@@ -186,7 +186,7 @@ class TestRegisterEndpoint:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_register_value_error(self, mock_auth_mgr):
         """Covers lines 66-68: ValueError during registration."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
         mock_auth_mgr.createUserAccount.side_effect = ValueError("Invalid input")
 
         response = client.post(
@@ -198,7 +198,7 @@ class TestRegisterEndpoint:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_register_generic_exception(self, mock_auth_mgr):
         """Covers lines 69-71: generic Exception during registration."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
         mock_auth_mgr.createUserAccount.side_effect = RuntimeError("DB error")
 
         response = client.post(
@@ -216,7 +216,7 @@ class TestLoginEndpoint:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_login_success(self, mock_auth_mgr, mock_create_token, mock_session_mgr):
         """Covers lines 87-93, 102: successful login."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
         mock_auth_mgr.authenticateUser.return_value = {"userId": 1, "username": "bob", "roles": ["USER"]}
 
         mock_session = MagicMock()
@@ -238,7 +238,7 @@ class TestLoginEndpoint:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_login_wrong_credentials(self, mock_auth_mgr):
         """Covers line 85: authenticateUser returns None."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
         mock_auth_mgr.authenticateUser.return_value = None
 
         response = client.post(
@@ -258,7 +258,7 @@ class TestLogoutEndpoint:
     @patch("main.controller.authentication_controller.verifyAccessToken")
     def test_logout_with_x_access_token(self, mock_verify, mock_session_mgr, mock_secure):
         """Covers lines 109, 115-125: logout with X-Access-Token header."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
         mock_verify.return_value = {"userId": 1, "sessionId": "123"}
         mock_session_mgr.revokeSession.return_value = True
 
@@ -275,7 +275,7 @@ class TestLogoutEndpoint:
     @patch("main.controller.authentication_controller.verifyAccessToken")
     def test_logout_with_bearer_header(self, mock_verify, mock_session_mgr, mock_secure):
         """Covers lines 111-113: token extracted from Authorization Bearer header."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
         mock_verify.return_value = {"userId": 1, "sessionId": "456"}
         mock_session_mgr.revokeSession.return_value = True
 
@@ -290,7 +290,7 @@ class TestLogoutEndpoint:
     @patch("main.controller.authentication_controller.verifyAccessToken")
     def test_logout_with_invalid_session_id(self, mock_verify, mock_session_mgr, mock_secure):
         """sessionId is a string — revokeSession receives it as-is (str type)."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
         mock_verify.return_value = {"userId": 1, "sessionId": "not-a-number"}
 
         response = client.post(
@@ -304,7 +304,7 @@ class TestLogoutEndpoint:
     @patch("main.app.authentication.util.verifyAccessToken")
     def test_logout_with_verification_error(self, mock_verify, mock_secure):
         """Covers lines 126-128: verifyAccessToken raises Exception."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
         mock_verify.side_effect = Exception("token expired")
 
         response = client.post(
@@ -316,7 +316,7 @@ class TestLogoutEndpoint:
     @patch("main.controller.authentication_controller.isSecureScheme", return_value=False)
     def test_logout_without_token(self, mock_secure):
         """Covers lines 109-113: no token provided at all."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
 
         response = client.post("/auth/logout")
         assert response.status_code == 200
@@ -327,7 +327,7 @@ class TestLogoutEndpoint:
     @patch("main.controller.authentication_controller.verifyAccessToken")
     def test_logout_with_missing_user_and_session(self, mock_verify, mock_session_mgr, mock_secure):
         """Covers line 120: userId or sessionId missing from payload."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
         mock_verify.return_value = {"userId": None, "sessionId": None}
 
         response = client.post(
@@ -347,7 +347,7 @@ class TestGoogleLogin:
 
         app = FastAPI()
         app.include_router(authRouter)
-        client = _TestClient(app, raise_server_exceptions=False)
+        client = TestClient(app, raise_server_exceptions=False)
 
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
@@ -367,7 +367,7 @@ class TestGoogleLogin:
 
         app = FastAPI()
         app.include_router(authRouter)
-        client = _TestClient(app, raise_server_exceptions=False)
+        client = TestClient(app, raise_server_exceptions=False)
 
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
@@ -392,7 +392,7 @@ class TestGoogleCallback:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_callback_new_user(self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr):
         """Covers lines 160-168, 170-177, 179-184, 186, 197-198: new Google user."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
 
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
@@ -428,7 +428,7 @@ class TestGoogleCallback:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_callback_existing_user(self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr):
         """Covers lines 164, 171-173: existing Google user, no new account created."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
 
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
@@ -455,7 +455,7 @@ class TestGoogleCallback:
     @patch("main.controller.authentication_controller.getGoogleSSO")
     def test_callback_no_user_info(self, mock_get_sso):
         """Covers line 165: verify_and_process returns None."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
 
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
@@ -472,7 +472,7 @@ class TestGoogleCallback:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_callback_with_state_redirect(self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr):
         """Covers redirect path: sso_redirect cookie triggers RedirectResponse."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
 
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
@@ -505,7 +505,7 @@ class TestGoogleCallback:
     @patch("main.controller.authentication_controller.getGoogleSSO")
     def test_callback_generic_exception(self, mock_get_sso):
         """Covers lines 202-204: generic Exception in callback."""
-        client, _, _ = _make_auth_client()
+        client, _, _ = make_auth_client()
 
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
@@ -528,7 +528,7 @@ class TestUserHealth:
 
         app = FastAPI()
         app.include_router(userRouter)
-        client = _TestClient(app, raise_server_exceptions=False)
+        client = TestClient(app, raise_server_exceptions=False)
         resp = client.get("/user/health")
         assert resp.status_code == 200
         assert resp.json()["status"] == "ok"
@@ -538,7 +538,7 @@ class TestGetMe:
     """Covers line 24: GET /user/me returns currentUser."""
 
     def test_get_me(self):
-        client, _, _ = _make_user_client(
+        client, _, _ = make_user_client(
             mock_current_user={"userId": 1, "username": "alice", "email": "alice@test.com", "roles": ["USER"]}
         )
         resp = client.get("/user/me")
@@ -553,14 +553,14 @@ class TestAdminAccess:
 
     def test_admin_access_granted(self):
         """Covers lines 53-54."""
-        client, _, _ = _make_user_client(mock_current_user={"userId": 1, "username": "admin", "roles": ["ADMIN"]})
+        client, _, _ = make_user_client(mock_current_user={"userId": 1, "username": "admin", "roles": ["ADMIN"]})
         resp = client.get("/user/admin")
         assert resp.status_code == 200
         assert "Admin access granted" in resp.json()["message"]
 
     def test_admin_access_denied(self):
         """Covers line 56."""
-        client, _, _ = _make_user_client(mock_current_user={"userId": 1, "username": "alice", "roles": ["USER"]})
+        client, _, _ = make_user_client(mock_current_user={"userId": 1, "username": "alice", "roles": ["USER"]})
         resp = client.get("/user/admin")
         assert resp.status_code == 403
         # Error handler wraps in ErrorResponse model — detail goes to "error" field
@@ -612,7 +612,7 @@ class TestGetSessions:
         with patch("main.controller.user_controller.SessionManager") as mock_sm:
             mock_sm.getUserSessions.return_value = [mock_session_1, mock_session_2]
 
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             resp = client.get("/user/sessions")
             assert resp.status_code == 200
             data = resp.json()
@@ -652,7 +652,7 @@ class TestGetCurrentSession:
                 "roles": ["USER"],
             }
 
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             resp = client.get("/user/sessions/current")
             assert resp.status_code == 200
             assert resp.json()["sessionId"] == "current-sess"
@@ -675,7 +675,7 @@ class TestGetCurrentSession:
                 "roles": ["USER"],
             }
 
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             resp = client.get("/user/sessions/current")
             assert resp.status_code == 404
 
@@ -705,7 +705,7 @@ class TestRevokeSession:
                 "roles": ["USER"],
             }
 
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             resp = client.delete("/user/sessions/sess-to-revoke")
             assert resp.status_code == 200
             assert "revoked successfully" in resp.json()["message"]
@@ -728,7 +728,7 @@ class TestRevokeSession:
                 "roles": ["USER"],
             }
 
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             resp = client.delete("/user/sessions/nonexistent")
             assert resp.status_code == 404
 
@@ -753,7 +753,7 @@ class TestRevokeSession:
                 "roles": ["USER"],
             }
 
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             resp = client.delete("/user/sessions/sess-fail")
             assert resp.status_code == 500
 
@@ -779,7 +779,7 @@ class TestRevokeAllSessions:
                 "roles": ["USER"],
             }
 
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             resp = client.post("/user/sessions/revoke-all")
             assert resp.status_code == 200
             assert resp.json()["revokedCount"] == 3
@@ -796,7 +796,7 @@ class TestPrometheusHealth:
 
         app = FastAPI()
         app.include_router(promRouter)
-        client = _TestClient(app, raise_server_exceptions=False)
+        client = TestClient(app, raise_server_exceptions=False)
         resp = client.get("/prometheus/health")
         assert resp.status_code == 200
         assert resp.json()["status"] == "ok"
@@ -812,7 +812,7 @@ class TestPrometheusGetSessions:
                 {"sessionId": "s1", "title": "Chat 1", "lastActivity": "2026-01-01T00:00:00"},
             ]
 
-            client, _, _ = _make_prometheus_client()
+            client, _, _ = make_prometheus_client()
             resp = client.get("/prometheus/sessions")
             assert resp.status_code == 200
             data = resp.json()
@@ -829,7 +829,7 @@ class TestPrometheusUpdateSessionTitle:
             mock_pcm.verifySessionOwnership.return_value = True
             mock_pcm.updateSessionTitle.return_value = True
 
-            client, _, _ = _make_prometheus_client()
+            client, _, _ = make_prometheus_client()
             resp = client.put("/prometheus/sessions/s1", json={"title": "Updated"})
             assert resp.status_code == 200
             assert resp.json()["message"] == "Session title updated"
@@ -839,7 +839,7 @@ class TestPrometheusUpdateSessionTitle:
         with patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm:
             mock_pcm.verifySessionOwnership.return_value = False
 
-            client, _, _ = _make_prometheus_client()
+            client, _, _ = make_prometheus_client()
             resp = client.put("/prometheus/sessions/s1", json={"title": "Hacked"})
             assert resp.status_code == 403
 
@@ -849,7 +849,7 @@ class TestPrometheusUpdateSessionTitle:
             mock_pcm.verifySessionOwnership.return_value = True
             mock_pcm.updateSessionTitle.return_value = False
 
-            client, _, _ = _make_prometheus_client()
+            client, _, _ = make_prometheus_client()
             resp = client.put("/prometheus/sessions/s1", json={"title": "Ghost"})
             assert resp.status_code == 404
 
@@ -896,7 +896,7 @@ class TestPrometheusGetHistory:
 
             mock_roles.requirePermission.return_value = mock_checker
 
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             resp = client.get("/prometheus/history/s1")
             assert resp.status_code == 200
             assert resp.json()["history"] == [{"role": "user", "content": "hello"}]
@@ -931,7 +931,7 @@ class TestPrometheusGetHistory:
 
             mock_roles.requirePermission.return_value = mock_checker
 
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             resp = client.get("/prometheus/history/s1")
             assert resp.status_code == 403
 
@@ -944,7 +944,7 @@ class TestPrometheusDeleteSession:
         with patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm:
             mock_pcm.deleteSession.return_value = True
 
-            client, _, _ = _make_prometheus_client()
+            client, _, _ = make_prometheus_client()
             resp = client.delete("/prometheus/sessions/s1")
             assert resp.status_code == 200
             assert resp.json()["message"] == "Session deleted"
@@ -954,7 +954,7 @@ class TestPrometheusDeleteSession:
         with patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm:
             mock_pcm.deleteSession.return_value = False
 
-            client, _, _ = _make_prometheus_client()
+            client, _, _ = make_prometheus_client()
             resp = client.delete("/prometheus/sessions/s1")
             assert resp.status_code == 404
 
@@ -976,7 +976,7 @@ class TestPrometheusChat:
             mock_pcm.getHistory.return_value = []
             mock_prom.return_value.streamMessage = fake_stream
 
-            client, _, _ = _make_prometheus_client()
+            client, _, _ = make_prometheus_client()
             resp = client.post("/prometheus/chat/stream", data={"query": "Hello AI"}, files={})
             assert resp.status_code == 200
             mock_pcm.createSession.assert_called_once()
@@ -1019,7 +1019,7 @@ class TestPrometheusChat:
             mock_pcm.getHistory.return_value = [{"role": "user", "parts": [{"text": "hi"}]}]
             mock_prom.return_value.streamMessage = fake_stream
 
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             resp = client.post(
                 "/prometheus/chat/stream", data={"query": "Follow up", "sessionId": "existing-sid"}, files={}
             )
@@ -1058,7 +1058,7 @@ class TestPrometheusChat:
 
             mock_pcm.verifySessionOwnership.return_value = False
 
-            client = _TestClient(app, raise_server_exceptions=False)
+            client = TestClient(app, raise_server_exceptions=False)
             resp = client.post("/prometheus/chat/stream", data={"query": "Hack", "sessionId": "others-sid"}, files={})
             assert resp.status_code == 403
 
@@ -1077,7 +1077,7 @@ class TestPrometheusChat:
             mock_pcm.getHistory.return_value = []
             mock_prom.return_value.streamMessage = failing_stream
 
-            client, _, _ = _make_prometheus_client()
+            client, _, _ = make_prometheus_client()
             resp = client.post("/prometheus/chat/stream", data={"query": "crash"}, files={})
             assert resp.status_code == 200  # SSE stream returns 200, error is in the stream data
 
@@ -1093,7 +1093,7 @@ class TestStocksApiHealth:
 
         app = FastAPI()
         app.include_router(stocksRouter)
-        client = _TestClient(app, raise_server_exceptions=False)
+        client = TestClient(app, raise_server_exceptions=False)
         resp = client.get("/stocks/health")
         assert resp.status_code == 200
         assert resp.json()["status"] == "ok"
@@ -1107,7 +1107,7 @@ class TestStocksApiHistorical:
         with patch("main.controller.stocksapi_controller.stocksQuery") as mock_query:
             mock_query.queryHistorical = MagicMock(return_value={"data": [{"ticker": "PETR4", "price": 30.0}]})
 
-            client, _, _ = _make_stocksapi_client(mock_api_key="key")
+            client, _, _ = make_stocksapi_client(mock_api_key="key")
             resp = client.get("/stocks/historical?search=PETR4&limit=10")
             assert resp.status_code == 200
             mock_query.queryHistorical.assert_called_once()
@@ -1121,7 +1121,7 @@ class TestStocksApiFundamental:
         with patch("main.controller.stocksapi_controller.stocksQuery") as mock_query:
             mock_query.queryFundamental = MagicMock(return_value={"data": [{"ticker": "VALE3", "pl": 5.0}]})
 
-            client, _, _ = _make_stocksapi_client(mock_api_key="key")
+            client, _, _ = make_stocksapi_client(mock_api_key="key")
             resp = client.get("/stocks/fundamental?search=VALE3&limit=5")
             assert resp.status_code == 200
             mock_query.queryFundamental.assert_called_once()
@@ -1133,7 +1133,7 @@ class TestStocksApiFundamental:
 class TestGetCurrentUser:
     """Covers lines 34, 36-38, 40-44, 46, 48-49, 51, 58-59, 61, 63-67: UserManager.getCurrentUser."""
 
-    def _make_mock_request(self):
+    def make_mock_request(self):
         request = MagicMock()
         return request
 

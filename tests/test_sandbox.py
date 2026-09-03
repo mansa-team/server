@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from main.app.prometheus.sandbox import SandboxManager
 
 
-def _mock_forgevm(mock_cls):
+def mock_forgevm(mock_cls):
     """Wire up mock forgevm AsyncClient that returns sandbox with all methods."""
     mock_client = AsyncMock()
     mock_sandbox = AsyncMock()
@@ -25,7 +25,7 @@ class TestSandboxManager:
     @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_create_sandbox(self, mock_get_client):
-        mock_client, mock_sandbox = _mock_forgevm(mock_get_client)
+        mock_client, mock_sandbox = mock_forgevm(mock_get_client)
         result = await SandboxManager.create(userId=1)
         assert result == "sb-mock-123"
         mock_client.spawn.assert_called_once()
@@ -33,7 +33,7 @@ class TestSandboxManager:
     @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_execute_code(self, mock_get_client):
-        mock_client, mock_sandbox = _mock_forgevm(mock_get_client)
+        mock_client, mock_sandbox = mock_forgevm(mock_get_client)
         result = await SandboxManager.execute(userId=1, code="print('Hello')", sandboxId="sb-mock-123")
         assert result["stdout"] == "Hello\n"
         assert result["stderr"] == ""
@@ -86,7 +86,7 @@ class TestSandboxManager:
     @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_destroy_sandbox(self, mock_get_client):
-        mock_client, mock_sandbox = _mock_forgevm(mock_get_client)
+        mock_client, mock_sandbox = mock_forgevm(mock_get_client)
         await SandboxManager.destroy("sb-mock-123")
         mock_sandbox.destroy.assert_called_once()
 
@@ -105,7 +105,7 @@ class TestSandboxManager:
     @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_execute_passes_timeout(self, mock_get_client):
-        mock_client, mock_sandbox = _mock_forgevm(mock_get_client)
+        mock_client, mock_sandbox = mock_forgevm(mock_get_client)
         await SandboxManager.execute(userId=1, code="import time; time.sleep(99)", sandboxId="sb-mock-123", timeout=10)
         mock_sandbox.exec.assert_called_once_with(
             command="python3", args=["-c", "import time; time.sleep(99)"], timeout="10s"
@@ -114,7 +114,7 @@ class TestSandboxManager:
     @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_create_returns_sandbox_id(self, mock_get_client):
-        mock_client, mock_sandbox = _mock_forgevm(mock_get_client)
+        mock_client, mock_sandbox = mock_forgevm(mock_get_client)
         mock_sandbox.id = "sb-custom-id"
         result = await SandboxManager.create(userId=42)
         assert result == "sb-custom-id"

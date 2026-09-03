@@ -8,7 +8,7 @@ from main.app.stocks_api.sync_cache import sync_cache
 
 
 @pytest.fixture(scope="module", autouse=True)
-def _setup_cache():
+def setup_cache():
     cache.setup("mem://")
     yield
     asyncio.run(cache.clear())

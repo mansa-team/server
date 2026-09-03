@@ -9,13 +9,13 @@ from unittest.mock import patch, MagicMock
 
 import pytest
 from fastapi import FastAPI
-from fastapi.testclient import TestClient as _TestClient
+from fastapi.testclient import TestClient as TestClient
 
 from main.utils.errors import registerErrorHandlers
 from main.app.user.user import UserManager
 
 
-def _make_client():
+def make_client():
     """Minimal app with the prometheus router; auth deps stubbed."""
     from main.controller.prometheus_controller import router as promRouter
 
@@ -38,13 +38,13 @@ def _make_client():
 
         mock_roles.requirePermission.return_value = mock_checker
 
-        return _TestClient(app, raise_server_exceptions=False)
+        return TestClient(app, raise_server_exceptions=False)
 
 
 class TestWorkspaceDelete:
     def test_delete_file(self):
         with patch("main.controller.prometheus_controller.SandboxManager.delete_file", return_value=True) as m:
-            client = _make_client()
+            client = make_client()
             resp = client.request(
                 "DELETE",
                 "/prometheus/workspace/delete",
@@ -56,7 +56,7 @@ class TestWorkspaceDelete:
 
     def test_delete_missing_file_returns_404(self):
         with patch("main.controller.prometheus_controller.SandboxManager.delete_file", return_value=False):
-            client = _make_client()
+            client = make_client()
             resp = client.request(
                 "DELETE",
                 "/prometheus/workspace/delete",
@@ -80,7 +80,7 @@ class TestWorkspaceDownload:
             fake_path.name = "data.csv"
             m_host.return_value = fake_path
 
-            client = _make_client()
+            client = make_client()
             resp = client.get("/prometheus/workspace/download", params={"path": "/workspace/data.csv"})
 
         assert resp.status_code == 200
@@ -92,13 +92,13 @@ class TestWorkspaceDownload:
             fake_path.exists.return_value = False
             m_host.return_value = fake_path
 
-            client = _make_client()
+            client = make_client()
             resp = client.get("/prometheus/workspace/download", params={"path": "/workspace/ghost.csv"})
         assert resp.status_code == 404
 
     def test_download_rejects_traversal(self):
         with patch("main.controller.prometheus_controller.hostPath", side_effect=ValueError("Invalid workspace path")):
-            client = _make_client()
+            client = make_client()
             resp = client.get("/prometheus/workspace/download", params={"path": "/workspace/../../etc/passwd"})
         assert resp.status_code == 400
 
@@ -108,13 +108,13 @@ class TestWorkspaceList:
         with patch(
             "main.controller.prometheus_controller.SandboxManager.list_files", return_value={"entries": []}
         ) as m:
-            client = _make_client()
+            client = make_client()
             resp = client.get("/prometheus/workspace/list")
         assert resp.status_code == 200
         assert resp.json() == {"entries": []}
         m.assert_called_once_with(1, "/workspace")
 
     def test_list_rejects_traversal(self):
-        client = _make_client()
+        client = make_client()
         resp = client.get("/prometheus/workspace/list", params={"path": "/workspace/../../etc"})
         assert resp.status_code == 400

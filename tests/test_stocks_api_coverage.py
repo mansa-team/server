@@ -30,7 +30,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 # ---------------------------------------------------------------------------
 # Helper: build a minimal DataFrame that looks like the stocks cache
 # ---------------------------------------------------------------------------
-def _make_stocks_df(rows=3):
+def make_stocks_df(rows=3):
     """Return a small DataFrame with the columns the query module expects."""
     data = {
         "TICKER": [f"TEST{i}" for i in range(rows)],
@@ -53,34 +53,33 @@ def _make_stocks_df(rows=3):
 class TestStocksCacheManager:
     """Tests covering cache.py lines 28-76."""
 
-    def _make_manager(self):
+    def make_manager(self):
         from main.app.stocks_api.cache import StocksCacheManager
 
         mock_engine = MagicMock()
         lock = threading.Lock()
         return StocksCacheManager(mock_engine, lock)
 
-    # --- cacheScheduler (lines 28-32) ------------------------------------
-    @patch("main.app.stocks_api.cache.BackgroundScheduler")
-    def test_cache_scheduler_starts_apscheduler(self, mock_sched_cls):
+    # --- cacheScheduler (shared scheduler, P5) -------------------------------
+    @patch("main.utils.scheduler.registerJob")
+    def test_cache_scheduler_registers_shared_job(self, mock_register):
         from main.app.stocks_api.cache import StocksCacheManager
 
         mock_engine = MagicMock()
         mgr = StocksCacheManager(mock_engine, threading.Lock())
-        mock_sched = MagicMock()
-        mock_sched_cls.return_value = mock_sched
 
         # spawned init thread must never run against the real feather/subprocess path
         with patch("main.app.stocks_api.cache.threading.Thread"):
             mgr.cacheScheduler()
 
-        mock_sched_cls.assert_called_once()
-        mock_sched.add_job.assert_called_once()
-        mock_sched.start.assert_called_once()
+        mock_register.assert_called_once()
+        _, kwargs = mock_register.call_args
+        assert kwargs["jobId"] == "stocks_cache_refresh"
+        assert kwargs["hours"] == 12
 
     # --- getCachedStocks: no columns (lines 61-62) -----------------------
     def test_getCachedStocks_no_columns(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["A", "B"], "NOME": ["X", "Y"], "TIME": ["t1", "t2"]})
         with (
             patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
@@ -94,7 +93,7 @@ class TestStocksCacheManager:
 
     # --- getCachedStocks: with columns and validation (lines 52-58) ------
     def test_getCachedStocks_with_valid_columns(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["A"], "NOME": ["X"], "TIME": ["t1"], "PRECO": [10.0]})
         with (
             patch("main.app.stocks_api.cache.pd.read_feather", return_value=df) as mock_read,
@@ -105,7 +104,7 @@ class TestStocksCacheManager:
 
     # --- getCachedStocks: NaN preserved (sanitizeNanValues handles at serialization) ---
     def test_getCachedStocks_replaces_nan_inf(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["A"], "VAL": [np.nan]})
         with (
             patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
@@ -118,7 +117,7 @@ class TestStocksCacheManager:
 
     # --- getCachedStocks: tickerIndex built (line 66) ---------------------
     def test_getCachedStocks_builds_ticker_index(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["PETR4", "VALE3"], "NOME": ["Petrobras", "Vale"]})
         with (
             patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
@@ -129,7 +128,7 @@ class TestStocksCacheManager:
 
     # --- getCachedStocks: exception (lines 75-76) -------------------------
     def test_getCachedStocks_exception_logged(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         # Should not raise, just log
         with (
             patch("main.app.stocks_api.cache.pd.read_feather", side_effect=Exception("feather error")),
@@ -139,7 +138,7 @@ class TestStocksCacheManager:
 
     # --- getCachedStocks: inf preserved (sanitizeNanValues handles at serialization) ---
     def test_getCachedStocks_replaces_inf(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["A"], "VAL": [np.inf]})
         with (
             patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
@@ -150,7 +149,7 @@ class TestStocksCacheManager:
             assert pd.isna(mgr.STOCKS_CACHE["VAL"].iloc[0]) or np.isinf(mgr.STOCKS_CACHE["VAL"].iloc[0])
 
     def test_getCachedStocks_replaces_neg_inf(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["A"], "VAL": [-np.inf]})
         with (
             patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
@@ -282,7 +281,7 @@ class TestVerifyAPIKey:
 class TestDeserializeJsonColumns:
     """Tests covering query.py lines 22-48."""
 
-    def _make_manager(self):
+    def make_manager(self):
         from main.app.stocks_api.cache import StocksCacheManager
 
         mock_cache = MagicMock(spec=StocksCacheManager)
@@ -291,40 +290,40 @@ class TestDeserializeJsonColumns:
         return StocksQueryManager(mock_cache)
 
     def test_deserialize_empty_df(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         df = pd.DataFrame()
         result = mgr.deserializeJsonColumns(df)
         assert result.empty
 
     def test_deserialize_returns_copy(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         df = pd.DataFrame({"PRECO": [10.0]})
         result = mgr.deserializeJsonColumns(df)
         assert result is not df
 
     def test_deserialize_json_dict_in_special_col(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         json_str = json.dumps({"key": "value", "nested": {"a": 1}})
         df = pd.DataFrame({"COTACAO 10Y PADRAO": [json_str], "TICKER": ["A"]})
         result = mgr.deserializeJsonColumns(df)
         assert result["COTACAO 10Y PADRAO"].iloc[0] == {"key": "value", "nested": {"a": 1}}
 
     def test_deserialize_json_list_in_special_col(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         json_str = json.dumps([1, 2, 3])
         df = pd.DataFrame({"HISTORICO DIVIDENDOS": [json_str], "TICKER": ["A"]})
         result = mgr.deserializeJsonColumns(df)
         assert result["HISTORICO DIVIDENDOS"].iloc[0] == [1, 2, 3]
 
     def test_deserialize_nan_in_dict_replaced(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         json_str = json.dumps({"key": float("nan")})
         df = pd.DataFrame({"NOTICIAS": [json_str], "TICKER": ["A"]})
         result = mgr.deserializeJsonColumns(df)
         assert result["NOTICIAS"].iloc[0]["key"] is None
 
     def test_deserialize_nan_in_list_replaced(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         json_str = json.dumps([float("nan"), "ok"])
         df = pd.DataFrame({"NOTICIAS": [json_str], "TICKER": ["A"]})
         result = mgr.deserializeJsonColumns(df)
@@ -332,34 +331,34 @@ class TestDeserializeJsonColumns:
         assert result["NOTICIAS"].iloc[0][1] == "ok"
 
     def test_deserialize_nested_nan_in_dict(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         json_str = json.dumps({"outer": {"inner": float("nan")}})
         df = pd.DataFrame({"COTACAO 10Y AJUSTADA": [json_str], "TICKER": ["A"]})
         result = mgr.deserializeJsonColumns(df)
         assert result["COTACAO 10Y AJUSTADA"].iloc[0]["outer"]["inner"] is None
 
     def test_deserialize_non_special_col_not_parsed(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         json_str = json.dumps({"key": "value"})
         df = pd.DataFrame({"PRECO": [json_str], "TICKER": ["A"]})
         result = mgr.deserializeJsonColumns(df)
         assert result["PRECO"].iloc[0] == json_str
 
     def test_deserialize_non_string_value_not_parsed(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         df = pd.DataFrame({"NOTICIAS": [12345], "TICKER": ["A"]})
         result = mgr.deserializeJsonColumns(df)
         assert result["NOTICIAS"].iloc[0] == 12345
 
     def test_deserialize_string_not_json_not_parsed(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         df = pd.DataFrame({"NOTICIAS": ["just text"], "TICKER": ["A"]})
         result = mgr.deserializeJsonColumns(df)
         assert result["NOTICIAS"].iloc[0] == "just text"
 
     def test_deserialize_float_nan_direct(self):
         """replaceNan handles direct float NaN values (line 34)."""
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         json_str = json.dumps(float("nan"))
         df = pd.DataFrame({"NOTICIAS": [json_str], "TICKER": ["A"]})
         result = mgr.deserializeJsonColumns(df)
@@ -373,7 +372,7 @@ class TestDeserializeJsonColumns:
 
     def test_deserialize_non_nan_float(self):
         """Non-JSON-dict/list string is left as-is."""
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         json_str = json.dumps(3.14)  # "3.14"
         df = pd.DataFrame({"NOTICIAS": [json_str], "TICKER": ["A"]})
         result = mgr.deserializeJsonColumns(df)
@@ -382,7 +381,7 @@ class TestDeserializeJsonColumns:
 
     def test_deserialize_pd_na_value(self):
         """pd.NA is not a string, so lambda returns it unchanged."""
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         df = pd.DataFrame({"NOTICIAS": [pd.NA], "TICKER": ["A"]})
         result = mgr.deserializeJsonColumns(df)
         # pd.NA is not a string, so lambda returns x unchanged
@@ -396,7 +395,7 @@ class TestDeserializeJsonColumns:
         Before the fix, is_string_dtype returned False for mixed string/None columns,
         causing JSON parsing to be skipped entirely.
         """
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         json_str = json.dumps([{"DATA": "01-12-2016", "PRECO": 14.92}])
         df = pd.DataFrame(
             {
@@ -413,7 +412,7 @@ class TestDeserializeJsonColumns:
 
     def test_deserialize_multiple_special_cols_with_none(self):
         """All four SPECIAL_COLS should parse correctly when mixed with None."""
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         json_cotacao = json.dumps([{"DATA": "30-01-2017", "PRECO": 14.03}])
         json_noticias = json.dumps({"titulo": "test", "data": "2026-01-01"})
         df = pd.DataFrame(
@@ -439,7 +438,7 @@ class TestDeserializeJsonColumns:
 class TestFilterBySearchTerms:
     """Tests covering query.py lines 50-67."""
 
-    def _make_manager(self):
+    def make_manager(self):
         from main.app.stocks_api.cache import StocksCacheManager
 
         mock_cache = MagicMock(spec=StocksCacheManager)
@@ -448,13 +447,13 @@ class TestFilterBySearchTerms:
         return StocksQueryManager(mock_cache)
 
     def test_filter_empty_search_returns_all(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["A", "B"]})
         result = mgr.filterBySearchTerms(df, "")
         assert len(result) == 2
 
     def test_filter_ticker_index_hit(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         mgr.cacheManager.tickerIndex = {"PETR4": 0, "VALE3": 2}
         df = pd.DataFrame({"TICKER": ["PETR4", "ITUB4", "VALE3"]})
         result = mgr.filterBySearchTerms(df, "PETR4")
@@ -462,14 +461,14 @@ class TestFilterBySearchTerms:
         assert result.iloc[0]["TICKER"] == "PETR4"
 
     def test_filter_multiple_terms_index(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         mgr.cacheManager.tickerIndex = {"PETR4": 0, "VALE3": 2}
         df = pd.DataFrame({"TICKER": ["PETR4", "ITUB4", "VALE3"]})
         result = mgr.filterBySearchTerms(df, "PETR4, VALE3")
         assert len(result) == 2
 
     def test_filter_no_index_match_fallback_to_str(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         mgr.cacheManager.tickerIndex = {}
         df = pd.DataFrame({"TICKER": ["PETR4", "ITUB4", "VALE3"]})
         result = mgr.filterBySearchTerms(df, "PET")
@@ -477,14 +476,14 @@ class TestFilterBySearchTerms:
         assert result.iloc[0]["TICKER"] == "PETR4"
 
     def test_filter_fallback_multiple_terms(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         mgr.cacheManager.tickerIndex = {}
         df = pd.DataFrame({"TICKER": ["PETR4", "PETR3", "VALE3"]})
         result = mgr.filterBySearchTerms(df, "PETR")
         assert len(result) == 2
 
     def test_filter_case_insensitive(self):
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         mgr.cacheManager.tickerIndex = {}
         df = pd.DataFrame({"TICKER": ["PETR4"]})
         result = mgr.filterBySearchTerms(df, "petr")
@@ -494,7 +493,7 @@ class TestFilterBySearchTerms:
 class TestQueryHistorical:
     """Tests covering query.py lines 77-132."""
 
-    def _make_manager(self, cache_df=None):
+    def make_manager(self, cache_df=None):
         from main.app.stocks_api.cache import StocksCacheManager
 
         mock_cache = MagicMock(spec=StocksCacheManager)
@@ -505,7 +504,7 @@ class TestQueryHistorical:
         return StocksQueryManager(mock_cache)
 
     def test_cache_not_initialized_raises_503(self):
-        mgr = self._make_manager(cache_df=None)
+        mgr = self.make_manager(cache_df=None)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
@@ -513,8 +512,8 @@ class TestQueryHistorical:
         assert exc_info.value.status_code == 503
 
     def test_basic_historical_query(self):
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryHistorical(search="TEST0")
         assert result["type"] == "historical"
         assert result["count"] > 0
@@ -522,8 +521,8 @@ class TestQueryHistorical:
         assert "TICKER" in result["data"][0]
 
     def test_historical_with_search(self):
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         mgr.cacheManager.tickerIndex = {"TEST0": 0}
         result = mgr.queryHistorical(search="TEST0")
         assert result["search"] == "TEST0"
@@ -531,34 +530,34 @@ class TestQueryHistorical:
 
     def test_historical_with_fields(self):
         """Pass field name WITHOUT year (how categorizeColumns returns them)."""
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         # categorizeColumns returns key="LUCRO LIQUIDO", not "LUCRO LIQUIDO 2023"
         result = mgr.queryHistorical(fields="LUCRO LIQUIDO")
         assert "LUCRO LIQUIDO" in result["fields"]
 
     def test_historical_with_dates(self):
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryHistorical(dates="2023")
         assert result["dates"] == [2023, 2023]
 
     def test_historical_with_order_by(self):
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryHistorical(search="TEST0", orderBy="PRECO")
         assert result["type"] == "historical"
 
     def test_historical_with_limit(self):
-        df = _make_stocks_df(rows=5)
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df(rows=5)
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryHistorical(search="TEST", limit=2)
         assert result["count"] == 2
 
     def test_historical_no_historical_fields(self):
         """No historical data columns -> 400 propagates (HTTPException is re-raised)."""
         df = pd.DataFrame({"TICKER": ["A"], "NOME": ["X"], "PRECO": [10.0]})
-        mgr = self._make_manager(cache_df=df)
+        mgr = self.make_manager(cache_df=df)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
@@ -567,31 +566,31 @@ class TestQueryHistorical:
         assert exc_info.value.status_code == 400
 
     def test_historical_sorts_by_time(self):
-        df = _make_stocks_df(rows=3)
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df(rows=3)
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryHistorical(search="TEST0")
         assert result["type"] == "historical"
 
     def test_historical_deduplicates_by_ticker(self):
-        df = _make_stocks_df(rows=3)
+        df = make_stocks_df(rows=3)
         df = pd.concat([df, df.iloc[[0]]], ignore_index=True)
-        mgr = self._make_manager(cache_df=df)
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryHistorical(search="TEST0")
         tickers = [d["TICKER"] for d in result["data"]]
         assert len(tickers) == len(set(tickers))
 
     def test_historical_exception_returns_500(self):
         """If an unexpected exception occurs in queryHistorical."""
-        mgr = self._make_manager(cache_df=pd.DataFrame())
+        mgr = self.make_manager(cache_df=pd.DataFrame())
 
-        class _ExplodingDf:
+        class ExplodingDf:
             """A dummy cache object that raises on .columns access."""
 
             @property
             def columns(self):
                 raise Exception("simulated failure")
 
-        mgr.cacheManager.STOCKS_CACHE = _ExplodingDf()
+        mgr.cacheManager.STOCKS_CACHE = ExplodingDf()
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
@@ -601,15 +600,15 @@ class TestQueryHistorical:
     def test_historical_with_invalid_dates(self):
         """Invalid date format raises exception (line 132)."""
         df = pd.DataFrame({"TICKER": ["A"], "NOME": ["X"], "LUCRO LIQUIDO 2023": [100]})
-        mgr = self._make_manager(cache_df=df)
+        mgr = self.make_manager(cache_df=df)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException):
             mgr.queryHistorical(dates="2020,2021,2022")
 
     def test_historical_search_with_no_results(self):
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         mgr.cacheManager.tickerIndex = {}
         result = mgr.queryHistorical(search="ZZZZ")
         assert result["count"] == 0
@@ -617,7 +616,7 @@ class TestQueryHistorical:
     def test_historical_no_fields_collected(self):
         """No historical columns at all -> inner 400 propagates (not swallowed as 500)."""
         df = pd.DataFrame({"TICKER": ["A"], "NOME": ["X"]})
-        mgr = self._make_manager(cache_df=df)
+        mgr = self.make_manager(cache_df=df)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
@@ -626,23 +625,23 @@ class TestQueryHistorical:
 
     def test_historical_with_date_range(self):
         """Historical query with a year range."""
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryHistorical(dates="2022,2023")
         assert result["dates"] == [2022, 2023]
 
     def test_historical_search_multiple_terms_index(self):
         """Multiple search terms, all found in tickerIndex."""
-        df = _make_stocks_df(rows=5)
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df(rows=5)
+        mgr = self.make_manager(cache_df=df)
         mgr.cacheManager.tickerIndex = {"TEST0": 0, "TEST2": 2, "TEST4": 4}
         result = mgr.queryHistorical(search="TEST0,TEST2,TEST4")
         assert result["count"] == 3
 
     def test_historical_requires_search_fields_or_dates(self):
         """Calling with all None returns 400."""
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
@@ -653,7 +652,7 @@ class TestQueryHistorical:
 class TestQueryFundamental:
     """Tests covering query.py lines 142-202."""
 
-    def _make_manager(self, cache_df=None):
+    def make_manager(self, cache_df=None):
         from main.app.stocks_api.cache import StocksCacheManager
 
         mock_cache = MagicMock(spec=StocksCacheManager)
@@ -664,7 +663,7 @@ class TestQueryFundamental:
         return StocksQueryManager(mock_cache)
 
     def test_cache_not_initialized_raises_503(self):
-        mgr = self._make_manager(cache_df=None)
+        mgr = self.make_manager(cache_df=None)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
@@ -672,42 +671,42 @@ class TestQueryFundamental:
         assert exc_info.value.status_code == 503
 
     def test_basic_fundamental_query(self):
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryFundamental(search="TEST0")
         assert result["type"] == "fundamental"
         assert result["count"] > 0
         assert "data" in result
 
     def test_fundamental_with_search(self):
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         mgr.cacheManager.tickerIndex = {"TEST0": 0}
         result = mgr.queryFundamental(search="TEST0")
         assert result["search"] == "TEST0"
 
     def test_fundamental_with_fields(self):
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryFundamental(fields="PRECO,P/L")
         assert "PRECO" in result["fields"]
 
     def test_fundamental_with_date_range(self):
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryFundamental(dates="2024-01-01,2024-12-31")
         assert result["type"] == "fundamental"
 
     def test_fundamental_with_single_date(self):
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryFundamental(dates="2024-01-15")
         assert result["type"] == "fundamental"
 
     def test_fundamental_with_invalid_date(self):
         """Invalid date -> inner 400 passes through (not wrapped as 500)."""
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
@@ -715,42 +714,42 @@ class TestQueryFundamental:
         assert exc_info.value.status_code == 400
 
     def test_fundamental_with_order_by(self):
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryFundamental(search="TEST0", orderBy="PRECO")
         assert result["type"] == "fundamental"
 
     def test_fundamental_with_limit(self):
-        df = _make_stocks_df(rows=5)
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df(rows=5)
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryFundamental(fields="PRECO", limit=2)
         assert result["count"] == 2
 
     def test_fundamental_deduplicates_without_search(self):
-        df = _make_stocks_df(rows=3)
+        df = make_stocks_df(rows=3)
         df = pd.concat([df, df.iloc[[0]]], ignore_index=True)
-        mgr = self._make_manager(cache_df=df)
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryFundamental(fields="PRECO")
         tickers = [d["TICKER"] for d in result["data"]]
         assert len(tickers) == len(set(tickers))
 
     def test_fundamental_with_search_no_dedup(self):
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryFundamental(search="TEST")
         assert result["type"] == "fundamental"
 
     def test_fundamental_exception_returns_500(self):
-        mgr = self._make_manager(cache_df=pd.DataFrame())
+        mgr = self.make_manager(cache_df=pd.DataFrame())
 
-        class _ExplodingDf:
+        class ExplodingDf:
             """A dummy cache object that raises on .columns access."""
 
             @property
             def columns(self):
                 raise Exception("simulated failure")
 
-        mgr.cacheManager.STOCKS_CACHE = _ExplodingDf()
+        mgr.cacheManager.STOCKS_CACHE = ExplodingDf()
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
@@ -759,9 +758,9 @@ class TestQueryFundamental:
 
     def test_fundamental_empty_search_string_no_dedup(self):
         """search.strip() == '' should still dedup (line 181)."""
-        df = _make_stocks_df(rows=3)
+        df = make_stocks_df(rows=3)
         df = pd.concat([df, df.iloc[[0]]], ignore_index=True)
-        mgr = self._make_manager(cache_df=df)
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryFundamental(search="   ")
         tickers = [d["TICKER"] for d in result["data"]]
         assert len(tickers) == len(set(tickers))
@@ -775,7 +774,7 @@ class TestQueryFundamental:
                 "PRECO": [10.0, 20.0],
             }
         )
-        mgr = self._make_manager(cache_df=df)
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryFundamental(search="TEST0")
         assert result["type"] == "fundamental"
 
@@ -789,14 +788,14 @@ class TestQueryFundamental:
                 "PRECO": [10.0, 15.0, 20.0],
             }
         )
-        mgr = self._make_manager(cache_df=df)
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryFundamental(dates="2024-01-01,2024-06-30")
         assert result["count"] >= 1
 
     def test_fundamental_with_invalid_single_date(self):
         """Single invalid date -> inner 400 passes through."""
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
@@ -813,7 +812,7 @@ class TestQueryFundamental:
                 "PRECO": [10.0],
             }
         )
-        mgr = self._make_manager(cache_df=df)
+        mgr = self.make_manager(cache_df=df)
         with pytest.raises(HTTPException) as exc_info:
             mgr.queryFundamental(fields="NONEXISTENT,P/L")
         assert exc_info.value.status_code == 400
@@ -822,16 +821,16 @@ class TestQueryFundamental:
 
     def test_fundamental_search_multiple_terms(self):
         """Multiple search terms with tickerIndex."""
-        df = _make_stocks_df(rows=5)
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df(rows=5)
+        mgr = self.make_manager(cache_df=df)
         mgr.cacheManager.tickerIndex = {"TEST0": 0, "TEST3": 3}
         result = mgr.queryFundamental(search="TEST0,TEST3")
         assert result["count"] == 2
 
     def test_fundamental_search_fallback_string_match(self):
         """Search with no index match falls back to string startswith."""
-        df = _make_stocks_df(rows=3)
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df(rows=3)
+        mgr = self.make_manager(cache_df=df)
         mgr.cacheManager.tickerIndex = {}
         result = mgr.queryFundamental(search="TEST")
         assert result["count"] == 3
@@ -846,7 +845,7 @@ class TestQueryFundamental:
                 "PRECO": [10.0, 15.0],
             }
         )
-        mgr = self._make_manager(cache_df=df)
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryFundamental(dates="2024-01-15")
         # Per-ticker: each gets its closest snapshot (Aâ†’2024-01-15, Bâ†’2024-06-15)
         assert result["count"] == 2
@@ -870,7 +869,7 @@ class TestQueryFundamental:
                 ],
             }
         )
-        mgr = self._make_manager(cache_df=df)
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryFundamental(search="TEST0")
         assert "COTACAO 10Y PADRAO" not in result["fields"]
         assert "COTACAO 10Y AJUSTADA" not in result["fields"]
@@ -902,8 +901,8 @@ class TestQueryFundamental:
         assert cache.STOCKS_CACHE["TIME"].dtype == original_dtype
 
     def test_fundamental_requires_search_fields_or_dates(self):
-        df = _make_stocks_df()
-        mgr = self._make_manager(cache_df=df)
+        df = make_stocks_df()
+        mgr = self.make_manager(cache_df=df)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
@@ -924,7 +923,7 @@ class TestQueryFundamental:
 class TestQueryCotations:
     """Tests for queryCotations and /stocks/cotations."""
 
-    def _make_manager(self, cache_df=None):
+    def make_manager(self, cache_df=None):
         from main.app.stocks_api.cache import StocksCacheManager
         from main.app.stocks_api.query import StocksQueryManager
 
@@ -933,7 +932,7 @@ class TestQueryCotations:
         mock_cache.tickerIndex = {}
         return StocksQueryManager(mock_cache)
 
-    def _make_cotations_df(self, with_padrao=True, with_ajustada=True):
+    def make_cotations_df(self, with_padrao=True, with_ajustada=True):
         """2 tickers x 2 rows. Rows 0,2 are 2024-01-15; rows 1,3 are 2024-06-15.
         Most recent per ticker is the second row (TIME = 2024-06-15)."""
         entries = [{"DATA": "01-12-2016", "PRECO": 14.92}, {"DATA": "02-12-2016", "PRECO": 15.0}]
@@ -951,7 +950,7 @@ class TestQueryCotations:
 
     # --- 503 cache-not-init ---
     def test_cotations_cache_not_initialized_raises_503(self):
-        mgr = self._make_manager(cache_df=None)
+        mgr = self.make_manager(cache_df=None)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
@@ -960,8 +959,8 @@ class TestQueryCotations:
 
     # --- adjusted=False -> PADRAO ---
     def test_cotations_adjusted_false_returns_padrao(self):
-        df = self._make_cotations_df()
-        mgr = self._make_manager(cache_df=df)
+        df = self.make_cotations_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryCotations(adjusted=False)
         assert result["type"] == "cotations"
         assert result["fields"] == ["COTACAO 10Y PADRAO"]
@@ -970,8 +969,8 @@ class TestQueryCotations:
 
     # --- adjusted=True -> AJUSTADA ---
     def test_cotations_adjusted_true_returns_ajustada(self):
-        df = self._make_cotations_df()
-        mgr = self._make_manager(cache_df=df)
+        df = self.make_cotations_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryCotations(adjusted=True)
         assert result["type"] == "cotations"
         assert result["fields"] == ["COTACAO 10Y AJUSTADA"]
@@ -981,8 +980,8 @@ class TestQueryCotations:
     # --- ARCHITECTURAL FIX: most recent row per TICKER (.iloc[0] semantics) ---
     def test_cotations_returns_most_recent_per_ticker(self):
         """4 rows for 2 tickers -> 2 results, one per ticker, both with latest TIME."""
-        df = self._make_cotations_df()
-        mgr = self._make_manager(cache_df=df)
+        df = self.make_cotations_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryCotations(adjusted=False)
         assert result["count"] == 2
         tickers = {d["TICKER"] for d in result["data"]}
@@ -993,8 +992,8 @@ class TestQueryCotations:
     # --- ARCHITECTURAL FIX: dates param filters inner JSON DATA, not outer rows ---
     def test_cotations_dates_filter_inner_json_data(self):
         """dates="2016-12-02" should keep only the 02-12-2016 entry in each JSON list."""
-        df = self._make_cotations_df()
-        mgr = self._make_manager(cache_df=df)
+        df = self.make_cotations_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryCotations(adjusted=False, dates="2016-12-02,2016-12-02")
         assert result["count"] == 2
         for d in result["data"]:
@@ -1004,24 +1003,24 @@ class TestQueryCotations:
             assert cotation[0]["DATA"] == "02-12-2016"
 
     def test_cotations_dates_range_keeps_all_inner_entries(self):
-        df = self._make_cotations_df()
-        mgr = self._make_manager(cache_df=df)
+        df = self.make_cotations_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryCotations(adjusted=False, dates="2016-12-01,2016-12-31")
         assert result["count"] == 2
         for d in result["data"]:
             assert len(d["COTACAO 10Y PADRAO"]) == 2
 
     def test_cotations_no_dates_keeps_all_inner_entries(self):
-        df = self._make_cotations_df()
-        mgr = self._make_manager(cache_df=df)
+        df = self.make_cotations_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryCotations(adjusted=False)
         for d in result["data"]:
             assert len(d["COTACAO 10Y PADRAO"]) == 2
 
     # --- search filter ---
     def test_cotations_with_search_filter(self):
-        df = self._make_cotations_df()
-        mgr = self._make_manager(cache_df=df)
+        df = self.make_cotations_df()
+        mgr = self.make_manager(cache_df=df)
         mgr.cacheManager.tickerIndex = {"TEST0": 0, "TEST1": 2}
         result = mgr.queryCotations(adjusted=False, search="TEST0")
         assert result["search"] == "TEST0"
@@ -1029,16 +1028,16 @@ class TestQueryCotations:
         assert result["data"][0]["TICKER"] == "TEST0"
 
     def test_cotations_with_search_multiple_terms(self):
-        df = self._make_cotations_df()
-        mgr = self._make_manager(cache_df=df)
+        df = self.make_cotations_df()
+        mgr = self.make_manager(cache_df=df)
         mgr.cacheManager.tickerIndex = {"TEST0": 0, "TEST1": 2}
         result = mgr.queryCotations(adjusted=True, search="TEST0,TEST1")
         assert result["count"] == 2
 
     # --- missing column -> empty ---
     def test_cotations_missing_column_returns_empty(self):
-        df = self._make_cotations_df(with_padrao=False, with_ajustada=False)
-        mgr = self._make_manager(cache_df=df)
+        df = self.make_cotations_df(with_padrao=False, with_ajustada=False)
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryCotations(adjusted=False)
         assert result["count"] == 0
         assert result["data"] == []
@@ -1047,21 +1046,21 @@ class TestQueryCotations:
 
     # --- dates param stored in response ---
     def test_cotations_dates_param_stored(self):
-        df = self._make_cotations_df()
-        mgr = self._make_manager(cache_df=df)
+        df = self.make_cotations_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryCotations(adjusted=False, dates="2020-01-01,2024-12-31")
         assert result["dates"] == "2020-01-01,2024-12-31"
 
     def test_cotations_dates_default_none(self):
-        df = self._make_cotations_df()
-        mgr = self._make_manager(cache_df=df)
+        df = self.make_cotations_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryCotations(adjusted=False)
         assert result["dates"] is None
 
     # --- default search ---
     def test_cotations_default_search_all(self):
-        df = self._make_cotations_df()
-        mgr = self._make_manager(cache_df=df)
+        df = self.make_cotations_df()
+        mgr = self.make_manager(cache_df=df)
         result = mgr.queryCotations(adjusted=False)
         assert result["search"] == "all"
 
@@ -1069,7 +1068,7 @@ class TestQueryCotations:
     def test_cotations_exception_returns_500(self):
         exploding = MagicMock()
         exploding.columns = PropertyMock(side_effect=Exception("boom"))
-        mgr = self._make_manager(cache_df=exploding)
+        mgr = self.make_manager(cache_df=exploding)
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
@@ -1084,7 +1083,7 @@ class TestQueryCotations:
         original_cache = stocksQuery.cacheManager.STOCKS_CACHE
         original_index = stocksQuery.cacheManager.tickerIndex
         try:
-            stocksQuery.cacheManager.STOCKS_CACHE = self._make_cotations_df()
+            stocksQuery.cacheManager.STOCKS_CACHE = self.make_cotations_df()
             stocksQuery.cacheManager.tickerIndex = {"TEST0": 0, "TEST1": 2}
             resp = stocks_http_client.get("/stocks/cotations?adjusted=false&dates=2016-12-02,2016-12-02&search=TEST0")
             assert resp.status_code == 200
@@ -1107,7 +1106,7 @@ class TestQueryCotations:
 class TestQueryLiveCotation:
     """Tests for queryLiveCotation and /stocks/cotations/live."""
 
-    def _make_manager(self):
+    def make_manager(self):
         from main.app.stocks_api.cache import StocksCacheManager
         from main.app.stocks_api.query import StocksQueryManager
 
@@ -1116,7 +1115,7 @@ class TestQueryLiveCotation:
         mock_cache.tickerIndex = {}
         return StocksQueryManager(mock_cache)
 
-    def _mock_b3_response(self):
+    def mock_b3_response(self):
         return {
             "BizSts": {"cd": "OK"},
             "Msg": {"dtTm": "2026-06-23 17:14:19"},
@@ -1141,20 +1140,20 @@ class TestQueryLiveCotation:
             ],
         }
 
-    def _patch_session(self, response=None, side_effect=None):
+    def patch_session(self, response=None, side_effect=None):
         mock_session = MagicMock()
         if side_effect:
             mock_session.get.side_effect = side_effect
         else:
             mock_resp = MagicMock()
-            mock_resp.json.return_value = response or self._mock_b3_response()
+            mock_resp.json.return_value = response or self.mock_b3_response()
             mock_resp.raise_for_status = MagicMock()
             mock_session.get.return_value = mock_resp
         return patch("main.app.stocks_api.query.getSession", return_value=mock_session)
 
     def test_success_returns_correct_shape(self):
-        mgr = self._make_manager()
-        with self._patch_session():
+        mgr = self.make_manager()
+        with self.patch_session():
             result = mgr.queryLiveCotation("WEGE3")
         assert result["type"] == "realtime-cotation"
         assert result["search"] == "WEGE3"
@@ -1170,8 +1169,8 @@ class TestQueryLiveCotation:
         assert "prcFlcn" not in row
 
     def test_lowercase_ticker_uppercased(self):
-        mgr = self._make_manager()
-        with self._patch_session():
+        mgr = self.make_manager()
+        with self.patch_session():
             result = mgr.queryLiveCotation("wege3")
         assert result["search"] == "WEGE3"
         assert result["data"][0]["TICKER"] == "WEGE3"
@@ -1184,7 +1183,7 @@ class TestQueryLiveCotation:
         asyncio.run(cashews_cache.clear())
         mock_session = MagicMock()
         mock_resp = MagicMock()
-        mock_resp.json.return_value = self._mock_b3_response()
+        mock_resp.json.return_value = self.mock_b3_response()
         mock_resp.raise_for_status = MagicMock()
         mock_session.get.return_value = mock_resp
         with patch("main.app.stocks_api.query.getSession", return_value=mock_session):
@@ -1202,7 +1201,7 @@ class TestQueryLiveCotation:
         asyncio.run(cashews_cache.clear())
         mock_session = MagicMock()
         mock_resp = MagicMock()
-        mock_resp.json.return_value = self._mock_b3_response()
+        mock_resp.json.return_value = self.mock_b3_response()
         mock_resp.raise_for_status = MagicMock()
         mock_session.get.return_value = mock_resp
         with patch("main.app.stocks_api.query.getSession", return_value=mock_session):
@@ -1214,8 +1213,8 @@ class TestQueryLiveCotation:
     def test_b3_unavailable_returns_503(self):
         from fastapi import HTTPException
 
-        mgr = self._make_manager()
-        with self._patch_session(side_effect=Exception("connection refused")):
+        mgr = self.make_manager()
+        with self.patch_session(side_effect=Exception("connection refused")):
             with pytest.raises(HTTPException) as exc_info:
                 mgr.queryLiveCotation("WEGE3")
         assert exc_info.value.status_code == 503
@@ -1223,15 +1222,15 @@ class TestQueryLiveCotation:
     def test_b3_bad_status_returns_404(self):
         from fastapi import HTTPException
 
-        mgr = self._make_manager()
+        mgr = self.make_manager()
         payload = {"BizSts": {"cd": "ERR"}, "Trad": []}
-        with self._patch_session(response=payload):
+        with self.patch_session(response=payload):
             with pytest.raises(HTTPException) as exc_info:
                 mgr.queryLiveCotation("WEGE3")
         assert exc_info.value.status_code == 404
 
     def test_http_route_returns_200(self, stocks_http_client):
-        with self._patch_session():
+        with self.patch_session():
             resp = stocks_http_client.get("/stocks/cotations/live?search=WEGE3")
             assert resp.status_code == 200
             body = resp.json()

@@ -18,7 +18,7 @@ from main.app.stocks_api.cache import stocksCache
 from main.service.stocksapi_service import MCPDetectMiddleware, StocksAPIService
 
 
-def _run_through(scope):
+def run_through(scope):
     """Run MCPDetectMiddleware over scope with a mocked async downstream app."""
     downstream = mock.AsyncMock()
     middleware = MCPDetectMiddleware(downstream)
@@ -33,7 +33,7 @@ class TestMCPDetectMiddleware:
 
     def test_mcp_header_appends_compact_to_nonempty_query(self):
         scope = {"type": "http", "headers": [(b"x-mcp", b"true")], "query_string": b"a=1", "state": {}}
-        downstream = _run_through(scope)
+        downstream = run_through(scope)
 
         assert scope["state"]["compressed"] is True
         assert scope["query_string"] == b"a=1&compact=true"
@@ -43,7 +43,7 @@ class TestMCPDetectMiddleware:
         scope = {"type": "http", "headers": [(b"x-mcp", b"true")], "query_string": b""}
         assert "state" not in scope
 
-        _run_through(scope)
+        run_through(scope)
 
         assert scope["state"]["compressed"] is True
         assert scope["query_string"] == b"compact=true"
@@ -51,7 +51,7 @@ class TestMCPDetectMiddleware:
     def test_mcp_header_existing_compact_not_duplicated(self):
         scope = {"type": "http", "headers": [(b"x-mcp", b"true")], "query_string": b"compact=false", "state": {}}
 
-        _run_through(scope)
+        run_through(scope)
 
         assert scope["state"]["compressed"] is True
         assert scope["query_string"] == b"compact=false"
@@ -59,7 +59,7 @@ class TestMCPDetectMiddleware:
     def test_no_mcp_header_leaves_scope_untouched(self):
         scope = {"type": "http", "headers": [(b"user-agent", b"test")], "query_string": b"a=1", "state": {}}
 
-        _run_through(scope)
+        run_through(scope)
 
         assert "compressed" not in scope["state"]
         assert scope["query_string"] == b"a=1"
@@ -67,7 +67,7 @@ class TestMCPDetectMiddleware:
     def test_non_http_scope_passes_through_untouched(self):
         scope = {"type": "websocket", "headers": [(b"x-mcp", b"true")], "query_string": b"a=1"}
 
-        _run_through(scope)
+        run_through(scope)
 
         assert scope.get("state", {}).get("compressed") is None
         assert scope["query_string"] == b"a=1"

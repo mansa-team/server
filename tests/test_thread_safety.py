@@ -37,12 +37,12 @@ class TestGetSession:
         # Keep references alive so CPython doesn't reuse memory addresses
         sessions: dict[str, object] = {}
 
-        def _capture(name: str):
+        def capture(name: str):
             s = getSession()
             sessions[name] = s  # store the object itself, not just id()
 
-        t1 = threading.Thread(target=_capture, args=("t1",))
-        t2 = threading.Thread(target=_capture, args=("t2",))
+        t1 = threading.Thread(target=capture, args=("t1",))
+        t2 = threading.Thread(target=capture, args=("t2",))
         t1.start()
         t2.start()
         t1.join()
@@ -57,11 +57,11 @@ class TestGetSession:
         sessions: dict[int, object] = {}
         barrier = threading.Barrier(20)
 
-        def _capture(idx: int):
+        def capture(idx: int):
             barrier.wait()  # all threads start simultaneously
             sessions[idx] = getSession()
 
-        threads = [threading.Thread(target=_capture, args=(i,)) for i in range(20)]
+        threads = [threading.Thread(target=capture, args=(i,)) for i in range(20)]
         for t in threads:
             t.start()
         for t in threads:
@@ -96,7 +96,7 @@ class TestDiscordHandlerThreadPool:
         assert lock is not None
         assert event is not None
 
-    def test_emit_adds_to_queue(self):
+    def testemit_adds_to_queue(self):
         """DiscordHandler.emit() must add messages to the module queue."""
         from main.utils.logging_config import DiscordHandler, queue, lock
 
@@ -121,7 +121,7 @@ class TestDiscordHandlerThreadPool:
             with lock:
                 assert len(queue) == 1
 
-    def test_concurrent_emits_are_thread_safe(self):
+    def test_concurrentemits_are_thread_safe(self):
         """Many concurrent emit() calls must not corrupt the queue."""
         from main.utils.logging_config import DiscordHandler, queue, lock
 
@@ -134,7 +134,7 @@ class TestDiscordHandlerThreadPool:
             with lock:
                 queue.clear()
 
-            def _emit():
+            def emit():
                 record = logging.LogRecord(
                     name="test",
                     level=logging.ERROR,
@@ -147,7 +147,7 @@ class TestDiscordHandlerThreadPool:
                 handler.emit(record)
 
             # Fire 20 concurrent emits
-            workers = [threading.Thread(target=_emit) for _ in range(20)]
+            workers = [threading.Thread(target=emit) for _ in range(20)]
             for w in workers:
                 w.start()
             for w in workers:
@@ -174,12 +174,12 @@ class TestConcurrentGetSession:
 
         results: dict[str, bool] = {}
 
-        def _check(name: str):
+        def check(name: str):
             s = getSession()
             results[name] = isinstance(s, requests.Session)
 
-        t1 = threading.Thread(target=_check, args=("t1",))
-        t2 = threading.Thread(target=_check, args=("t2",))
+        t1 = threading.Thread(target=check, args=("t1",))
+        t2 = threading.Thread(target=check, args=("t2",))
         t1.start()
         t2.start()
         t1.join()

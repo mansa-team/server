@@ -15,7 +15,7 @@ from main.models.memory import PrometheusMemory
 def create_memories(dbSession):
     """Helper to create memories with controlled stability, lastAccessedAt, accessCount."""
 
-    def _create(userId, key, score=7.0, daysOld=0, accessCount=0):
+    def create(userId, key, score=7.0, daysOld=0, accessCount=0):
         now = datetime.now()
         lastAccessed = now - timedelta(days=daysOld)
         memory = PrometheusMemory(
@@ -32,7 +32,7 @@ def create_memories(dbSession):
         dbSession.commit()
         return memory
 
-    return _create
+    return create
 
 
 class TestEbbinghausRetention:

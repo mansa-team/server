@@ -6,12 +6,12 @@ import pytest
 
 
 class TestDiscordHandlerEmit:
-    def _make_handler(self):
+    def make_handler(self):
         from main.utils.logging_config import DiscordHandler
 
         return DiscordHandler()
 
-    def _make_record(self, level=logging.ERROR, msg="test error", exc_info=None):
+    def make_record(self, level=logging.ERROR, msg="test error", exc_info=None):
         record = logging.LogRecord(
             name="test.module",
             level=level,
@@ -26,8 +26,8 @@ class TestDiscordHandlerEmit:
     @patch("main.utils.logging_config.Config")
     def test_discord_disabled(self, mockConfig):
         mockConfig.DISCORD.ENABLED = False
-        handler = self._make_handler()
-        record = self._make_record()
+        handler = self.make_handler()
+        record = self.make_record()
         # Should not raise, early return
         handler.emit(record)
 
@@ -35,16 +35,16 @@ class TestDiscordHandlerEmit:
     def test_discord_no_webhook(self, mockConfig):
         mockConfig.DISCORD.ENABLED = True
         mockConfig.DISCORD.WEBHOOK_URL = None
-        handler = self._make_handler()
-        record = self._make_record()
+        handler = self.make_handler()
+        record = self.make_record()
         handler.emit(record)
 
     @patch("main.utils.logging_config.Config")
     def test_level_below_error(self, mockConfig):
         mockConfig.DISCORD.ENABLED = True
         mockConfig.DISCORD.WEBHOOK_URL = "https://hook.test/123"
-        handler = self._make_handler()
-        record = self._make_record(level=logging.WARNING)
+        handler = self.make_handler()
+        record = self.make_record(level=logging.WARNING)
         handler.emit(record)
 
     @patch("main.utils.logging_config.Config")
@@ -53,10 +53,10 @@ class TestDiscordHandlerEmit:
         mockConfig.DISCORD.WEBHOOK_URL = "https://hook.test/123"
         from main.utils.logging_config import queue, lock
 
-        handler = self._make_handler()
+        handler = self.make_handler()
         with lock:
             queue.clear()
-        record = self._make_record(level=logging.ERROR, msg="something broke")
+        record = self.make_record(level=logging.ERROR, msg="something broke")
         handler.emit(record)
         with lock:
             assert len(queue) == 1
@@ -67,11 +67,11 @@ class TestDiscordHandlerEmit:
         mockConfig.DISCORD.WEBHOOK_URL = "https://hook.test/123"
         from main.utils.logging_config import queue, lock
 
-        handler = self._make_handler()
+        handler = self.make_handler()
         with lock:
             queue.clear()
         long_msg = "x" * 3000
-        record = self._make_record(level=logging.ERROR, msg=long_msg)
+        record = self.make_record(level=logging.ERROR, msg=long_msg)
         handler.emit(record)
         with lock:
             assert len(queue) == 1
@@ -81,8 +81,8 @@ class TestDiscordHandlerEmit:
     def test_emit_does_not_raise(self, mockConfig):
         mockConfig.DISCORD.ENABLED = True
         mockConfig.DISCORD.WEBHOOK_URL = "https://hook.test/123"
-        handler = self._make_handler()
-        record = self._make_record(level=logging.ERROR, msg="test")
+        handler = self.make_handler()
+        record = self.make_record(level=logging.ERROR, msg="test")
         # Should not raise
         handler.emit(record)
 
@@ -92,7 +92,7 @@ class TestDiscordHandlerEmit:
         mockConfig.DISCORD.WEBHOOK_URL = "https://hook.test/123"
         from main.utils.logging_config import queue, lock
 
-        handler = self._make_handler()
+        handler = self.make_handler()
         with lock:
             queue.clear()
         try:
@@ -101,7 +101,7 @@ class TestDiscordHandlerEmit:
             import sys
 
             exc_info = sys.exc_info()
-        record = self._make_record(level=logging.ERROR, msg="failed", exc_info=exc_info)
+        record = self.make_record(level=logging.ERROR, msg="failed", exc_info=exc_info)
         handler.emit(record)
         with lock:
             assert len(queue) == 1
