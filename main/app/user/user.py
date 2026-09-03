@@ -4,7 +4,7 @@ from config import getSession
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 
-from main.models import User
+from main.models.user import User
 
 from main.app.authentication.util import extractTokenPayload
 

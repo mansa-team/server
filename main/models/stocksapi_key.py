@@ -1,6 +1,7 @@
 from sqlalchemy import Integer, String, TIMESTAMP, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from main.models.base import Base
+from main.models.user import User  # noqa: F401 — ensure 'User' in registry for relationship("User")
 from datetime import datetime
 
 
