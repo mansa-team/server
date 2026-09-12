@@ -3,8 +3,20 @@ from config import Config
 import time
 import asyncio
 
-from fastmcp import Client
-from fastmcp.client.client import StreamableHttpTransport
+Client = None
+StreamableHttpTransport = None
+
+
+def ensureFastmcp():
+    global Client, StreamableHttpTransport
+    if Client is None or StreamableHttpTransport is None:
+        from fastmcp import Client as FastmcpClient
+        from fastmcp.client.client import StreamableHttpTransport as FastmcpTransport
+
+        Client = FastmcpClient
+        StreamableHttpTransport = FastmcpTransport
+    return Client, StreamableHttpTransport
+
 
 logger = logging.getLogger(__name__)
 
@@ -14,16 +26,17 @@ MCP_SERVERS = [
         "url": f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/mcp",
         "headers": {"X-MCP": "true"},
     },
-    {"name": "searxng", "url": f"{Config.PROMETHEUS.SEARXNG_URL}/mcp/"}
+    {"name": "searxng", "url": f"{Config.PROMETHEUS.SEARXNG_URL}/mcp/"},
 ]
 
 
 def buildClient(server):
+    clientCls, transportCls = ensureFastmcp()
     url = server["url"]
     headers = server.get("headers", {})
     if headers:
-        return Client(transport=StreamableHttpTransport(url, headers=headers))
-    return Client(url)
+        return clientCls(transport=transportCls(url, headers=headers))
+    return clientCls(url)
 
 
 class MCPClientPool:
