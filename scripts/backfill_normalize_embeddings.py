@@ -2,7 +2,8 @@
 
 import numpy as np
 from config import SessionLocal
-from main.models.prometheus import PrometheusMemory as MemoryModel
+from main.app.prometheus.matrix_cache import clearAll
+from main.models.memory import PrometheusMemory as MemoryModel
 
 BATCH = 500
 
@@ -32,6 +33,7 @@ def main():
             db.commit()
             offset += BATCH
         print(f"renormalized={total}")
+        clearAll()
     finally:
         db.close()
 
