@@ -15,7 +15,7 @@ from main.models.memory import PrometheusMemory as PrometheusMemoryModel
 from main.utils.roles import Permission, Roles
 
 from main.app.prometheus.vector import batchCosineSimilarity, contentHash, decodeEmbeddings, getRelevanceScore, embed
-from main.app.prometheus.matrix_cache import invalidateUser
+from main.app.prometheus.matrix_cache import getMatrix, invalidateUser
 from main.app.prometheus.chat import PrometheusChatManager
 from main.app.prometheus.compact import countTokens
 
@@ -206,12 +206,11 @@ class PrometheusMemory:
         if not candidateRows:
             return []
         candidateIds = [r.id for r in candidateRows]
-        blobRows = db.query(PrometheusMemoryModel).filter(PrometheusMemoryModel.id.in_(candidateIds)).all()
 
         if not query or len(query.strip()) < 3:
             scored = []
             now = datetime.now()
-            for m in blobRows:
+            for m in candidateRows:
                 scored.append(
                     {
                         "id": m.id,
@@ -228,26 +227,32 @@ class PrometheusMemory:
 
         try:
             simById: dict[int, float] = {}
+
+            def loadMatrix() -> tuple[list[int], np.ndarray]:
+                embRows = db.query(PrometheusMemoryModel).filter(PrometheusMemoryModel.id.in_(candidateIds)).all()
+                rowsWithEmb = [m for m in embRows if m.embedding is not None]
+                if not rowsWithEmb:
+                    return ([], np.empty((0, 0), dtype=np.float32))
+                rawEmbs = [m.embedding for m in rowsWithEmb]
+                if isinstance(rawEmbs[0], (bytes, bytearray, memoryview)):
+                    return ([m.id for m in rowsWithEmb], decodeEmbeddings(rawEmbs))  # type: ignore[arg-type]
+                return ([m.id for m in rowsWithEmb], np.array(rawEmbs, dtype=np.float32))
+
             try:
-                rowsWithEmb = [m for m in blobRows if m.embedding is not None]
-                if rowsWithEmb:
+                cachedIds, matrix = getMatrix((userId, memoryType), loadMatrix)
+                if cachedIds and matrix.shape[0] > 0:
                     queryEmbedding = embed([query])[0]
-                    rawEmbs = [m.embedding for m in rowsWithEmb]
-                    if isinstance(rawEmbs[0], (bytes, bytearray, memoryview)):
-                        matrix = decodeEmbeddings(rawEmbs)  # type: ignore[arg-type]
-                    else:
-                        matrix = np.array(rawEmbs, dtype=np.float32)
                     sims = batchCosineSimilarity(queryEmbedding, matrix)
-                    simById = {m.id: float(s) for m, s in zip(rowsWithEmb, sims)}
+                    simById = {mid: float(s) for mid, s in zip(cachedIds, sims)}
             except Exception as e:
                 logger.warning(f"Embedding scoring failed, using full-text and recency only: {e}")
-            vecScores = [simById.get(m.id, 0.0) for m in blobRows]
+            vecScores = [simById.get(m.id, 0.0) for m in candidateRows]
             vecNorm = minMax(vecScores)
             ftRows = cls.fullTextSearch(db, userId, query, MEMORY_SEARCH_PREFILTER_CAP)
             ftRank = {r["memoryKey"]: 1.0 / (i + 1) for i, r in enumerate(ftRows)}
             now = datetime.now(timezone.utc)
             fused = []
-            for m, v in zip(blobRows, vecNorm):
+            for m, v in zip(candidateRows, vecNorm):
                 rec = getRelevanceScore(m, now)
                 f = 0.6 * v + 0.25 * ftRank.get(m.memoryKey, 0.0) + 0.15 * rec
                 fused.append((m, f, simById.get(m.id, 0.0)))

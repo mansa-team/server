@@ -1,17 +1,30 @@
+import threading
+from typing import Any, Callable
+
 import numpy as np
 
-_store: dict[int, tuple[list[int], np.ndarray]] = {}
+matrixStore: dict[Any, tuple[list[int], np.ndarray]] = {}
+matrixLock = threading.Lock()
 
 
-def getMatrix(userId: int, loader) -> tuple[list[int], np.ndarray]:
-    if userId not in _store:
-        _store[userId] = loader()
-    return _store[userId]
+def getMatrix(userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]) -> tuple[list[int], np.ndarray]:
+    with matrixLock:
+        if userId in matrixStore:
+            return matrixStore[userId]
+    freshIds, freshMatrix = loader()
+    with matrixLock:
+        if userId in matrixStore:
+            return matrixStore[userId]
+        matrixStore[userId] = (freshIds, freshMatrix)
+        return matrixStore[userId]
 
 
 def invalidateUser(userId: int) -> None:
-    _store.pop(userId, None)
+    with matrixLock:
+        for cacheKey in [k for k in matrixStore if k == userId or (isinstance(k, tuple) and k and k[0] == userId)]:
+            matrixStore.pop(cacheKey, None)
 
 
 def clearAll() -> None:
-    _store.clear()
+    with matrixLock:
+        matrixStore.clear()
