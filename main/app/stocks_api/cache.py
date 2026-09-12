@@ -195,6 +195,10 @@ class StocksCacheManager:
         self.nestedSample = None
         self.lastCacheUpdate = None
 
+    def snapshot(self) -> tuple:
+        with self.cacheLock:
+            return self.STOCKS_CACHE, self.tickerIndex
+
     def cacheScheduler(self):
         thread = threading.Thread(target=self.getCachedStocks, name="stocks-cache-init", daemon=True)
         thread.start()

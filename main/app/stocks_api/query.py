@@ -91,16 +91,17 @@ class StocksQueryManager:
 
         return df
 
-    def filterBySearchTerms(self, df: pd.DataFrame, search: str) -> pd.DataFrame:
+    def filterBySearchTerms(self, df: pd.DataFrame, search: str, index: dict | None = None) -> pd.DataFrame:
         if not search:
             return df
 
         searchTerms = [s.strip().upper() for s in search.split(",")]
 
+        lookup = index if index is not None else self.cacheManager.tickerIndex
         valid_indices = []
         for term in searchTerms:
-            if term in self.cacheManager.tickerIndex:
-                valid_indices.append(self.cacheManager.tickerIndex[term])
+            if term in lookup:
+                valid_indices.append(lookup[term])
 
         if valid_indices:
             return df.iloc[valid_indices]
@@ -118,11 +119,16 @@ class StocksQueryManager:
     ):
         if not (search or fields or dates):
             raise HTTPException(status_code=400, detail="at least one of search/fields/dates required")
-        if self.cacheManager.STOCKS_CACHE is None:
+        snap = getattr(self.cacheManager, "snapshot", None)
+        pair = snap() if callable(snap) else None
+        if isinstance(pair, tuple):
+            df, tickerIndex = pair
+        else:
+            df, tickerIndex = self.cacheManager.STOCKS_CACHE, self.cacheManager.tickerIndex
+        if df is None:
             raise HTTPException(status_code=503, detail="Cache not initialized")
 
         try:
-            df = self.cacheManager.STOCKS_CACHE
             availableColumns = df.columns.tolist()
             availableColumnsSet = set(availableColumns)
             historicalFields, _ = categorizeColumns(availableColumns)
@@ -160,7 +166,7 @@ class StocksQueryManager:
             ]
 
             if search:
-                df = self.filterBySearchTerms(df, search)
+                df = self.filterBySearchTerms(df, search, tickerIndex)
 
             if orderBy and orderBy in df.columns:
                 df = df.sort_values(by=orderBy, ascending=False)
@@ -197,11 +203,16 @@ class StocksQueryManager:
     ):
         if not (search or fields or dates):
             raise HTTPException(status_code=400, detail="at least one of search/fields/dates required")
-        if self.cacheManager.STOCKS_CACHE is None:
+        snap = getattr(self.cacheManager, "snapshot", None)
+        pair = snap() if callable(snap) else None
+        if isinstance(pair, tuple):
+            df, tickerIndex = pair
+        else:
+            df, tickerIndex = self.cacheManager.STOCKS_CACHE, self.cacheManager.tickerIndex
+        if df is None:
             raise HTTPException(status_code=503, detail="Cache not initialized")
 
         try:
-            df = self.cacheManager.STOCKS_CACHE
             availableColumns = df.columns.tolist()
             availableColumnsSet = set(availableColumns)
             _, fundamentalCols = categorizeColumns(availableColumns)
@@ -223,7 +234,7 @@ class StocksQueryManager:
             cols = ["TICKER", "NOME", "TIME"] + [field for field in fieldList if field in availableColumnsSet]
 
             if search:
-                df = self.filterBySearchTerms(df, search)
+                df = self.filterBySearchTerms(df, search, tickerIndex)
 
             if "TIME" in df.columns and dates:
                 timeCol = pd.to_datetime(df["TIME"])
@@ -279,11 +290,16 @@ class StocksQueryManager:
         dates: str | None = None,
         adjusted: bool = False,
     ):
-        if self.cacheManager.STOCKS_CACHE is None:
+        snap = getattr(self.cacheManager, "snapshot", None)
+        pair = snap() if callable(snap) else None
+        if isinstance(pair, tuple):
+            df, tickerIndex = pair
+        else:
+            df, tickerIndex = self.cacheManager.STOCKS_CACHE, self.cacheManager.tickerIndex
+        if df is None:
             raise HTTPException(status_code=503, detail="Cache not initialized")
 
         try:
-            df = self.cacheManager.STOCKS_CACHE
             targetCol = "COTACAO 10Y AJUSTADA" if adjusted else "COTACAO 10Y PADRAO"
             responseFields = [targetCol]
 
@@ -298,7 +314,7 @@ class StocksQueryManager:
                 }
 
             if search:
-                df = self.filterBySearchTerms(df, search)
+                df = self.filterBySearchTerms(df, search, tickerIndex)
 
             if "TIME" in df.columns:
                 df = df.sort_values(by="TIME", ascending=False, kind="mergesort")
