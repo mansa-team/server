@@ -6,9 +6,10 @@ from datetime import datetime
 
 from google import genai
 from google.genai import types
+import numpy as np
 from sqlalchemy import func, desc
 from sqlalchemy.dialects.mysql import match as mysqlMatch
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, defer
 
 from main.models.memory import PrometheusMemory as PrometheusMemoryModel
 from main.utils.roles import Permission, Roles
@@ -183,14 +184,21 @@ class PrometheusMemory:
         if memoryType:
             queryFilter = queryFilter.filter(PrometheusMemoryModel.memoryType == memoryType)
 
-        memories = queryFilter.all()
-        if not memories:
+        candidateRows = (
+            queryFilter.options(defer(PrometheusMemoryModel.embedding))
+            .order_by(PrometheusMemoryModel.score.desc())
+            .limit(MEMORY_SEARCH_PREFILTER_CAP)
+            .all()
+        )
+        if not candidateRows:
             return []
+        candidateIds = [r.id for r in candidateRows]
+        blobRows = db.query(PrometheusMemoryModel).filter(PrometheusMemoryModel.id.in_(candidateIds)).all()
 
         if not query or len(query.strip()) < 3:
             scored = []
             now = datetime.now()
-            for m in memories:
+            for m in blobRows:
                 scored.append(
                     {
                         "id": m.id,
@@ -199,17 +207,22 @@ class PrometheusMemory:
                         "memoryType": m.memoryType,
                         "score": getRelevanceScore(m, now),
                         "relevanceScore": getRelevanceScore(m, now),
+                        "similarity": 0.0,
                     }
                 )
             scored.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
             return scored[:limit]
 
-        memoriesWithEmb = [m for m in memories if m.embedding is not None]
+        memoriesWithEmb = [m for m in blobRows if m.embedding is not None]
         memoriesWithEmb = memoriesWithEmb[:MEMORY_SEARCH_PREFILTER_CAP]
         if memoriesWithEmb:
             try:
                 queryEmbedding = embed([query])[0]
-                matrix = decodeEmbeddings([m.embedding for m in memoriesWithEmb])  # type: ignore[misc]
+                rawEmbs = [m.embedding for m in memoriesWithEmb]
+                if isinstance(rawEmbs[0], (bytes, bytearray, memoryview)):
+                    matrix = decodeEmbeddings(rawEmbs)  # type: ignore[arg-type]
+                else:
+                    matrix = np.array(rawEmbs, dtype=np.float32)
                 similarities = batchCosineSimilarity(queryEmbedding, matrix)
 
                 results = []
@@ -222,6 +235,7 @@ class PrometheusMemory:
                             "memoryType": m.memoryType,
                             "score": float(similarities[i]),
                             "relevanceScore": getRelevanceScore(m, datetime.now()),
+                            "similarity": float(similarities[i]),
                         }
                     )
                 results.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
