@@ -1,6 +1,12 @@
 import numpy as np
 import pytest
-from main.app.prometheus.vector import decodeEmbeddings, normalizeRows, batchCosineSimilarity
+from main.app.prometheus.vector import (
+    decodeEmbeddings,
+    normalizeRows,
+    batchCosineSimilarity,
+    toVectorString,
+    fromVectorString,
+)
 
 
 def test_normalizeRows_unitNormAndZeroGuard():
@@ -40,3 +46,16 @@ def test_decodeEmbeddings_emptyReturnsZeroRows():
     got = decodeEmbeddings([])
     assert got.shape == (0, 0)
     assert got.dtype == np.float32
+
+
+def test_codec_roundTrip():
+    vec = [0.5, -0.25, 0.125]
+    assert fromVectorString(toVectorString(vec), dims=3) == vec
+
+
+def test_codec_rejectsBadDims():
+    try:
+        fromVectorString("[0.1,0.2]", dims=3)
+    except ValueError:
+        return
+    raise AssertionError("expected ValueError")

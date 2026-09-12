@@ -52,6 +52,18 @@ def contentHash(text: str) -> str:
     return hashlib.md5(text.encode("utf-8"), usedforsecurity=False).hexdigest()
 
 
+def toVectorString(vec: list[float]) -> str:
+    return "[" + ",".join(repr(float(v)) for v in vec) + "]"
+
+
+def fromVectorString(s: str, dims: int = 384) -> list[float]:
+    parts = s.strip().lstrip("[").rstrip("]").split(",")
+    vals = [float(p) for p in parts if p.strip() != ""]
+    if len(vals) != dims:
+        raise ValueError(f"expected {dims} dims, got {len(vals)}")
+    return vals
+
+
 def getRelevanceScore(memory, now: datetime) -> float:
     if memory.lastAccessedAt is None:
         lastAccessed = memory.createdAt.replace(tzinfo=None) if memory.createdAt.tzinfo else memory.createdAt
