@@ -96,7 +96,7 @@ class TestDiscordHandlerThreadPool:
         assert lock is not None
         assert event is not None
 
-    def testemit_adds_to_queue(self):
+    def test_emit_adds_to_queue(self):
         """DiscordHandler.emit() must add messages to the module queue."""
         from main.utils.logging_config import DiscordHandler, queue, lock
 
@@ -121,7 +121,7 @@ class TestDiscordHandlerThreadPool:
             with lock:
                 assert len(queue) == 1
 
-    def test_concurrentemits_are_thread_safe(self):
+    def test_concurrent_emits_are_thread_safe(self):
         """Many concurrent emit() calls must not corrupt the queue."""
         from main.utils.logging_config import DiscordHandler, queue, lock
 
