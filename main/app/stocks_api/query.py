@@ -72,10 +72,6 @@ class StocksQueryManager:
 
         def parseJSON(x, decompressor):
             if isinstance(x, bytes):
-                # P1: caller-owned decompressor (one per request, not per
-                # cell) + only the already-projected JSON_COLUMNS cells of
-                # the sliced rows reach this path. Full Arrow-blob rework
-                # deferred — behavior identical, construction cost removed.
                 x = decompressor.decompress(x).decode("utf-8")
             try:
                 return orjson.loads(x)
@@ -166,9 +162,6 @@ class StocksQueryManager:
             if search:
                 df = self.filterBySearchTerms(df, search)
 
-            # P1: cache is pre-sorted (TICKER asc, TIME desc) at load, so no
-            # per-request TIME sort. orderBy still sorts when requested, and
-            # head(limit) still applies after ordering — same semantics.
             if orderBy and orderBy in df.columns:
                 df = df.sort_values(by=orderBy, ascending=False)
 
@@ -249,9 +242,7 @@ class StocksQueryManager:
                 except Exception as e:
                     logger.exception("Date parsing failed")
                     raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
-                # P1: boolean masks preserve the pre-sorted (TIME desc)
-                # cache order — no full-frame re-sort needed.
-
+                
             if not search or search.strip() == "":
                 df = df.drop_duplicates(subset=["TICKER"], keep="first")
 
@@ -262,8 +253,6 @@ class StocksQueryManager:
                 df = df.head(limit)
 
             if "TIME" in df.columns:
-                # P1: TIME display normalization on the final slice only
-                # (was: whole frame before slicing); output values identical.
                 df = df.copy()
                 df["TIME"] = pd.to_datetime(df["TIME"]).dt.strftime("%Y-%m-%d")
 
@@ -311,11 +300,6 @@ class StocksQueryManager:
             if search:
                 df = self.filterBySearchTerms(df, search)
 
-            # Robust to unsorted input (e.g. tests injecting a raw frame):
-            # sort only the small filtered per-query slice by TIME desc so
-            # keep="first" keeps the most-recent row per TICKER. The P1 win
-            # holds — the full-frame cache sort in loadFromFeather is never
-            # redone here.
             if "TIME" in df.columns:
                 df = df.sort_values(by="TIME", ascending=False, kind="mergesort")
             df = df.drop_duplicates(subset=["TICKER"], keep="first")

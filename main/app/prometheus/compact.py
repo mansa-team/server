@@ -3,12 +3,12 @@ from config import Config
 import re
 import json
 import uuid
-import time
 from datetime import datetime
 
 from google import genai
 from sqlalchemy.orm import Session as DBSession
 
+from main.utils.http_session import getSession
 from main.models.prometheus import PrometheusSession
 
 logger = logging.getLogger(__name__)
@@ -16,16 +16,12 @@ logger = logging.getLogger(__name__)
 EPISODE_TOKEN_BUDGET = 8000
 EPISODE_CAP = 12
 
-TICKER_RE = re.compile(r"\b([A-Z]{4}[0-9])\b")
-
 DECISION_KEYWORDS = re.compile(
     r"(?:prefiro|prefere|quero|gostaria|sempre|nunca|quando|"
     r"não use|use ao invés|troque|prefira|defina|configure|"
     r"prefer|always|never|want|don't use|use instead|define|configure)",
     re.IGNORECASE,
 )
-
-SNAPSHOT_VALUE_RE = re.compile(r"([\w\s/.,]+?):\s*([\-]?[\d.,]+)\s*(x|%|pts|R\$)?")
 
 tokenizer = None
 
@@ -55,36 +51,6 @@ def countTokens(text: str) -> int:
     return len(text) // 3
 
 
-FALLBACK_FIELDS = [
-    "P/L",
-    "P/VP",
-    "P/EBIT",
-    "P/ATIVO",
-    "EV/EBIT",
-    "PSR",
-    "ROE",
-    "ROA",
-    "ROIC",
-    "DY",
-    "MARGEM BRUTA",
-    "MARGEM EBIT",
-    "MARG. LIQUIDA",
-    "MARGEM EBITDA",
-    "LPA",
-    "VPA",
-    "PEG Ratio",
-    "SGR",
-    "INVESTING SCORE",
-    "LIQ. CORRENTE",
-    "DIV. LIQ. / PATRI.",
-    "PASSIVO / ATIVOS",
-    "GIRO ATIVOS",
-    "PRECO DE GRAHAM",
-    "PRECO DE BAZIN",
-    "TAG ALONG",
-]
-
-
 fieldData: dict | None = None
 metricRegex: re.Pattern | None = None
 
@@ -94,17 +60,9 @@ def getStocksFieldsUrl() -> str:
 
 
 def loadFieldData() -> dict:
-    """Load historical/fundamental field names via STOCKS_API /fields endpoint, caching in ``fieldData``.
-
-    Endpoint-only (box-isolation): Prometheus consumes STOCKS_API solely over HTTP,
-    never via direct imports of ``main.app.stocks_api``. On fetch failure or
-    unreachable service returns ``{"historical": [], "fundamental": []}`` without raising.
-    """
     global fieldData
     if fieldData is None:
         try:
-            from main.utils.http_session import getSession
-
             response = getSession().get(getStocksFieldsUrl(), timeout=5)
             response.raise_for_status()
             payload = response.json()
@@ -151,16 +109,13 @@ def getMetricRegex() -> re.Pattern:
 
 
 def extractTickers(text: str) -> list[str]:
-    return list(dict.fromkeys(TICKER_RE.findall(text)))
+    return list(dict.fromkeys(re.compile(r"\b([A-Z]{4}[0-9])\b").findall(text)))
 
 
 def extractMetrics(text: str, useRegistry: bool = False) -> list[str]:
     if useRegistry:
         regex = getMetricRegex()
-    else:
-        escaped = [re.escape(f) for f in FALLBACK_FIELDS if len(f) > 1]
-        escaped.sort(key=len, reverse=True)
-        regex = re.compile(r"\b(" + "|".join(escaped) + r")\b")
+
     return list(dict.fromkeys(regex.findall(text)))
 
 
@@ -182,7 +137,7 @@ def extractSnapshots(toolResults: list[dict]) -> list[str]:
     snapshots = []
     for tr in toolResults:
         content = str(tr.get("content", ""))
-        for match in SNAPSHOT_VALUE_RE.finditer(content):
+        for match in re.compile(r"([\w\s/.,]+?):\s*([\-]?[\d.,]+)\s*(x|%|pts|R\$)?").finditer(content):
             label = match.group(1).strip()
             value = match.group(2)
             unit = match.group(3) or ""

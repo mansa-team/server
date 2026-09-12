@@ -8,15 +8,13 @@ from fastmcp.client.client import StreamableHttpTransport
 
 logger = logging.getLogger(__name__)
 
-HEALTH_CHECK_INTERVAL = 60
-
 MCP_SERVERS = [
     {
         "name": "stocks",
         "url": f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/mcp",
         "headers": {"X-MCP": "true"},
     },
-    {"name": "searxng", "url": f"{Config.PROMETHEUS.SEARXNG_URL}/mcp/"},
+    {"name": "searxng", "url": f"{Config.PROMETHEUS.SEARXNG_URL}/mcp/"}
 ]
 
 
@@ -54,13 +52,13 @@ class MCPClientPool:
     async def getClients(self):
         if self.clients is None:
             await self.initialize()
-        if time.time() - self.lastHealthCheck > HEALTH_CHECK_INTERVAL:
+        if time.time() - self.lastHealthCheck > 60:
             asyncio.create_task(self.healthCheck())
         return self.clients, [c.session for c in self.clients.values()]
 
     async def healthCheck(self):
         async with self.lock:
-            if time.time() - self.lastHealthCheck < HEALTH_CHECK_INTERVAL:
+            if time.time() - self.lastHealthCheck < 60:
                 return
             self.lastHealthCheck = time.time()
             for name, client in self.clients.items():
