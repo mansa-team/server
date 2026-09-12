@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 
 import numpy as np
 
+from main.app.prometheus.vector import batchCosineSimilarity, decodeEmbeddings, embed
+
 DIMS = 384
 
 
@@ -17,8 +19,6 @@ def benchOnce(n: int, useReal: bool) -> dict:
     q = rng.normal(size=(DIMS,)).astype(np.float32)
     q /= float(np.linalg.norm(q))
     t0 = time.perf_counter()
-    from main.app.prometheus.vector import decodeEmbeddings, batchCosineSimilarity
-
     decoded = decodeEmbeddings(blobs)
     decodeMs = (time.perf_counter() - t0) * 1000.0
     t1 = time.perf_counter()
@@ -26,8 +26,6 @@ def benchOnce(n: int, useReal: bool) -> dict:
     searchMs = (time.perf_counter() - t1) * 1000.0
     encodeMs = 0.0
     if useReal:
-        from main.app.prometheus.vector import embed
-
         t2 = time.perf_counter()
         embed(["carteira de dividendos Wege"])
         encodeMs = (time.perf_counter() - t2) * 1000.0
