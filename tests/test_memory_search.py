@@ -69,6 +69,36 @@ def test_search_defersEmbeddingBlob(dbSession, monkeypatch):
     assert set(res[0].keys()) >= {"memoryKey", "memoryValue", "memoryType", "relevanceScore"}
 
 
+def test_search_embedFailureFallsBackToFulltextRecency(dbSession, monkeypatch):
+    from main.app.prometheus.memory import minMax
+
+    assert minMax([0.0, 0.0, 0.0]) == [0.0, 0.0, 0.0]
+
+    def failEmbed(texts):
+        raise RuntimeError("embed down")
+
+    monkeypatch.setattr(memoryMod, "embed", failEmbed)
+    MemoryService.upsertMemory(
+        dbSession,
+        21,
+        "ticker favorito",
+        "minha acao favorita e WEGE3",
+        "preference",
+        embedding=[0.5] * 384,
+    )
+    MemoryService.upsertMemory(
+        dbSession,
+        21,
+        "outro",
+        "texto sem relacao com nada especifico",
+        "preference",
+        embedding=[0.5] * 384,
+    )
+    res = MemoryService.search(dbSession, userId=21, query="WEGE3")
+    assert res[0]["memoryKey"] == "ticker favorito"
+    assert all(r["similarity"] == 0.0 for r in res)
+
+
 def test_search_fusesFulltextOverVectorOnly(dbSession, monkeypatch):
     monkeypatch.setattr(memoryMod, "embed", lambda texts: [[1.0] + [0.0] * 383 for _ in texts])
     MemoryService.upsertMemory(

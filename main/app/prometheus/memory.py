@@ -51,7 +51,7 @@ def minMax(values: list[float]) -> list[float]:
         return []
     lo, hi = min(values), max(values)
     if hi - lo < 1e-9:
-        return [1.0 for _ in values]
+        return [0.0 for _ in values]
     return [(v - lo) / (hi - lo) for v in values]
 
 
