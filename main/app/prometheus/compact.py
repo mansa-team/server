@@ -16,6 +16,8 @@ logger = logging.getLogger(__name__)
 EPISODE_TOKEN_BUDGET = 8000
 EPISODE_CAP = 12
 
+FALLBACK_FIELDS = ("P/L", "P/VP", "ROE", "DY", "LPA", "VPA", "PRECO", "INVESTING SCORE")
+
 DECISION_KEYWORDS = re.compile(
     r"(?:prefiro|prefere|quero|gostaria|sempre|nunca|quando|"
     r"não use|use ao invés|troque|prefira|defina|configure|"
@@ -101,6 +103,8 @@ def getMetricRegex() -> re.Pattern:
     if metricRegex is None:
         data = loadFieldData()
         fields = data["historical"] + data["fundamental"]
+        if not fields:
+            fields = list(FALLBACK_FIELDS)
         escaped = [re.escape(f) for f in fields if len(f) > 1]
         escaped.sort(key=len, reverse=True)
         pattern = r"\b(" + "|".join(escaped) + r")\b"
@@ -115,6 +119,11 @@ def extractTickers(text: str) -> list[str]:
 def extractMetrics(text: str, useRegistry: bool = False) -> list[str]:
     if useRegistry:
         regex = getMetricRegex()
+    else:
+        fallbackEscaped = [re.escape(f) for f in FALLBACK_FIELDS if len(f) > 1]
+        fallbackEscaped.sort(key=len, reverse=True)
+        fallbackPattern = r"\b(" + "|".join(fallbackEscaped) + r")\b"
+        regex = re.compile(fallbackPattern)
 
     return list(dict.fromkeys(regex.findall(text)))
 
