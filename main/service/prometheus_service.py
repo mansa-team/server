@@ -49,7 +49,7 @@ def memoryMaintenance(db: Session | None = None):
 
             if retention < ARCHIVE_SCORE_THRESHOLD and m.accessCount == 0:
                 m.archivedAt = datetime.now()  # type: ignore[assignment]
-                invalidateUser(m.userId)
+                invalidateUser(int(m.userId))
                 archived += 1
 
         db.commit()
