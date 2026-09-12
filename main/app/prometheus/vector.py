@@ -7,8 +7,13 @@ import numpy as np
 from main.utils.models.loader import getEmbeddingModel
 
 
+def normalizeRows(matrix: np.ndarray) -> np.ndarray:
+    norms = np.linalg.norm(matrix, axis=1, keepdims=True)
+    return matrix / np.where(norms == 0, 1.0, norms)
+
+
 def embed(texts: list[str]) -> list[list[float]]:
-    return getEmbeddingModel().encode(texts).tolist()
+    return getEmbeddingModel().encode(texts, normalize_embeddings=True).tolist()
 
 
 def decodeEmbeddings(rawEmbeddings: list[bytes]) -> np.ndarray:
@@ -24,12 +29,10 @@ def batchCosineSimilarity(query: list[float], matrix: np.ndarray) -> np.ndarray:
     if matrix.shape[0] == 0:
         return np.array([], dtype=np.float32)
     q = np.array(query, dtype=np.float32)
-    norms = np.linalg.norm(matrix, axis=1)
-    q_norm = np.linalg.norm(q)
-    if q_norm == 0:
+    qNorm = float(np.linalg.norm(q))
+    if qNorm == 0:
         return np.zeros(matrix.shape[0], dtype=np.float32)
-    norms = np.where(norms == 0, 1e-8, norms)
-    return (matrix @ q) / (norms * q_norm)
+    return normalizeRows(matrix) @ (q / qNorm)
 
 
 def contentHash(text: str) -> str:
