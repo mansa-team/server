@@ -4,7 +4,7 @@ from config import Config, SessionLocal
 import json
 import unicodedata
 from datetime import datetime, timezone
-from typing import Any, Callable
+from typing import Any, Callable, cast
 
 from cashews import Cache
 from google import genai
@@ -27,6 +27,7 @@ matrixCache.setup("mem://")
 
 MATRIX_MISS = object()
 
+
 def matrixKey(userId: Any) -> str:
     if isinstance(userId, tuple):
         uid, memoryType = userId
@@ -43,10 +44,10 @@ def getMatrix(userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]) -
     cacheKey = matrixKey(userId)
     cached = asyncio.run(matrixCache.get(cacheKey, default=MATRIX_MISS))
     if cached is not MATRIX_MISS:
-        return cached  # type: ignore[no-any-return]
+        return cast(tuple[list[int], np.ndarray], cached)
     freshIds, freshMatrix = loader()
     asyncio.run(matrixCache.set(cacheKey, (freshIds, freshMatrix), tags=("matrix", matrixUserTag(userId))))
-    return asyncio.run(matrixCache.get(cacheKey, default=(freshIds, freshMatrix)))
+    return cast(tuple[list[int], np.ndarray], asyncio.run(matrixCache.get(cacheKey, default=(freshIds, freshMatrix))))
 
 
 def invalidateUser(userId: int) -> None:
@@ -55,6 +56,7 @@ def invalidateUser(userId: int) -> None:
 
 def clearAll() -> None:
     asyncio.run(matrixCache.clear())
+
 
 logger = logging.getLogger(__name__)
 
@@ -235,7 +237,7 @@ class PrometheusMemory:
             queryFilter = queryFilter.filter(PrometheusMemoryModel.memoryType == memoryType)
 
         candidateRows = (
-            queryFilter.options(defer(PrometheusMemoryModel.embedding))
+            queryFilter.options(defer(cast(Any, PrometheusMemoryModel.embedding)))
             .order_by(PrometheusMemoryModel.score.desc())
             .limit(MEMORY_SEARCH_PREFILTER_CAP)
             .all()
@@ -272,8 +274,8 @@ class PrometheusMemory:
                     return ([], np.empty((0, 0), dtype=np.float32))
                 rawEmbs = [m.embedding for m in rowsWithEmb]
                 if isinstance(rawEmbs[0], (bytes, bytearray, memoryview)):
-                    return ([m.id for m in rowsWithEmb], decodeEmbeddings(rawEmbs))  # type: ignore[arg-type]
-                return ([m.id for m in rowsWithEmb], np.array(rawEmbs, dtype=np.float32))
+                    return ([cast(int, m.id) for m in rowsWithEmb], decodeEmbeddings(rawEmbs))  # type: ignore[arg-type]
+                return ([cast(int, m.id) for m in rowsWithEmb], np.array(rawEmbs, dtype=np.float32))
 
             try:
                 cachedIds, matrix = getMatrix((userId, memoryType), loadMatrix)
@@ -283,7 +285,7 @@ class PrometheusMemory:
                     simById = {mid: float(s) for mid, s in zip(cachedIds, sims)}
             except Exception as e:
                 logger.warning(f"Embedding scoring failed, using full-text and recency only: {e}")
-            vecScores = [simById.get(m.id, 0.0) for m in candidateRows]
+            vecScores = [simById.get(cast(int, m.id), 0.0) for m in candidateRows]
             vecNorm = minMax(vecScores)
             ftRows = cls.fullTextSearch(db, userId, query, MEMORY_SEARCH_PREFILTER_CAP)
             ftRank = {r["id"]: 1.0 / (i + 1) for i, r in enumerate(ftRows)}
@@ -291,8 +293,8 @@ class PrometheusMemory:
             fused = []
             for m, v in zip(candidateRows, vecNorm):
                 rec = getRelevanceScore(m, now)
-                f = 0.6 * v + 0.25 * ftRank.get(m.id, 0.0) + 0.15 * rec
-                fused.append((m, f, simById.get(m.id, 0.0)))
+                f = 0.6 * v + 0.25 * ftRank.get(cast(int, m.id), 0.0) + 0.15 * rec
+                fused.append((m, f, simById.get(cast(int, m.id), 0.0)))
             fused.sort(key=lambda p: p[1], reverse=True)
             return [
                 {
