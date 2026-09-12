@@ -10,16 +10,7 @@ from cashews import Cache
 from google import genai
 from google.genai import types
 import numpy as np
-from sqlalchemy import func, desc
-from sqlalchemy.dialects.mysql import match as mysqlMatch
-from sqlalchemy.orm import Session, defer
 
-try:
-    from cashews.defaults import _empty as MATRIX_MISS
-except ImportError:  # pragma: no cover - private import fallback
-    MATRIX_MISS = object()
-from google.genai import types
-import numpy as np
 from sqlalchemy import func, desc
 from sqlalchemy.dialects.mysql import match as mysqlMatch
 from sqlalchemy.orm import Session, defer
@@ -34,15 +25,13 @@ from main.app.prometheus.compact import countTokens
 matrixCache = Cache()
 matrixCache.setup("mem://")
 
-MATRIX_CACHE_VERSION = 1
-MATRIX_TAG = "matrix"
-
+MATRIX_MISS = object()
 
 def matrixKey(userId: Any) -> str:
     if isinstance(userId, tuple):
         uid, memoryType = userId
-        return f"matrix:{uid}:{memoryType}:v{MATRIX_CACHE_VERSION}"
-    return f"matrix:{userId}:v{MATRIX_CACHE_VERSION}"
+        return f"matrix:{uid}:{memoryType}:v{1}"
+    return f"matrix:{userId}:v{1}"
 
 
 def matrixUserTag(userId: Any) -> str:
@@ -56,7 +45,7 @@ def getMatrix(userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]) -
     if cached is not MATRIX_MISS:
         return cached  # type: ignore[no-any-return]
     freshIds, freshMatrix = loader()
-    asyncio.run(matrixCache.set(cacheKey, (freshIds, freshMatrix), tags=(MATRIX_TAG, matrixUserTag(userId))))
+    asyncio.run(matrixCache.set(cacheKey, (freshIds, freshMatrix), tags=("matrix", matrixUserTag(userId))))
     return asyncio.run(matrixCache.get(cacheKey, default=(freshIds, freshMatrix)))
 
 

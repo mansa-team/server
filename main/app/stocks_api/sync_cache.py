@@ -5,10 +5,7 @@ from typing import Any, Callable, TypeVar
 from cashews import cache
 from cashews.key import get_cache_key
 
-try:
-    from cashews.defaults import _empty as MISS
-except ImportError:  # pragma: no cover - private import fallback
-    MISS = object()
+MISS = object()
 
 F = TypeVar("F", bound=Callable[..., Any])
 
