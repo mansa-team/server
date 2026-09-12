@@ -15,6 +15,7 @@ from main.models.memory import PrometheusMemory as PrometheusMemoryModel
 from main.utils.roles import Permission, Roles
 
 from main.app.prometheus.vector import batchCosineSimilarity, contentHash, decodeEmbeddings, getRelevanceScore, embed
+from main.app.prometheus.matrix_cache import invalidateUser
 from main.app.prometheus.chat import PrometheusChatManager
 from main.app.prometheus.compact import countTokens
 
@@ -134,6 +135,7 @@ class PrometheusMemory:
 
             db.commit()
             db.refresh(existing)
+            invalidateUser(userId)
 
             return {"status": "updated", "memory": existing}
 
@@ -150,6 +152,7 @@ class PrometheusMemory:
 
             db.commit()
             db.refresh(similar)
+            invalidateUser(userId)
 
             return {"status": "merged", "memory": similar}
 
@@ -173,6 +176,7 @@ class PrometheusMemory:
         db.add(memory)
         db.commit()
         db.refresh(memory)
+        invalidateUser(userId)
         return {"status": "created", "memory": memory}
 
     @classmethod
@@ -362,6 +366,7 @@ class PrometheusMemory:
         memory.archivedAt = datetime.now()  # type: ignore[assignment]
 
         db.commit()
+        invalidateUser(userId)
 
         return True
 

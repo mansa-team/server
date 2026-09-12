@@ -11,6 +11,8 @@ from main.models.memory import PrometheusMemory
 from main.controller.prometheus_controller import router as prometheusRouter
 from main.utils.models.loader import getEmbeddingModel
 
+from main.app.prometheus.matrix_cache import invalidateUser
+
 from main.utils.scheduler import registerJob
 
 logger = logging.getLogger(__name__)
@@ -47,6 +49,7 @@ def memoryMaintenance(db: Session | None = None):
 
             if retention < ARCHIVE_SCORE_THRESHOLD and m.accessCount == 0:
                 m.archivedAt = datetime.now()  # type: ignore[assignment]
+                invalidateUser(m.userId)
                 archived += 1
 
         db.commit()
