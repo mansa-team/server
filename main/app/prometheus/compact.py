@@ -80,7 +80,7 @@ def loadFieldData() -> dict:
             fieldData = {"historical": historicalFields, "fundamental": fundamentalCols}
         except Exception as e:
             logger.warning("Failed to load field data from STOCKS_API /fields: %s", e)
-            fieldData = {"historical": [], "fundamental": []}
+            return {"historical": [], "fundamental": []}
     return fieldData
 
 
