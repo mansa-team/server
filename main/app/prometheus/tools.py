@@ -33,7 +33,7 @@ async def search_memory(query: str, limit: int = 10, **_) -> dict:
     if ownSession:
         db = SessionLocal()
     try:
-        results = PrometheusMemory.search(
+        results = await PrometheusMemory.searchAsync(
             db,  # type: ignore[arg-type]
             user["userId"],
             query,
@@ -65,7 +65,7 @@ async def save_memory(key: str, value: str, type: str, **_) -> dict:
         db = SessionLocal()
     try:
         embedding = embed([value])[0]
-        result = PrometheusMemory.upsertMemory(
+        result = await PrometheusMemory.upsertMemoryAsync(
             db,  # type: ignore[arg-type]
             user["userId"],
             key=key,
