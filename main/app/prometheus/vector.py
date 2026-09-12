@@ -57,7 +57,10 @@ def toVectorString(vec: list[float]) -> str:
 
 
 def fromVectorString(s: str, dims: int = 384) -> list[float]:
-    parts = s.strip().lstrip("[").rstrip("]").split(",")
+    trimmed = s.strip()
+    if len(trimmed) < 2 or not trimmed.startswith("[") or not trimmed.endswith("]"):
+        raise ValueError(f"expected bracketed vector string, got {s!r}")
+    parts = trimmed[1:-1].split(",")
     vals = [float(p) for p in parts if p.strip() != ""]
     if len(vals) != dims:
         raise ValueError(f"expected {dims} dims, got {len(vals)}")
