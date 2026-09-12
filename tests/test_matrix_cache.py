@@ -1,5 +1,5 @@
 import numpy as np
-from main.app.prometheus.matrix_cache import getMatrix, invalidateUser, clearAll
+from main.app.prometheus.memory import getMatrix, invalidateUser, clearAll
 
 
 def test_cache_hitAndInvalidate():

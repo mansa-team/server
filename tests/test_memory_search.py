@@ -5,7 +5,7 @@ from sqlalchemy.dialects import mysql
 from sqlalchemy.dialects.mysql import match as mysqlMatch
 
 import main.app.prometheus.memory as memoryMod
-from main.app.prometheus.matrix_cache import clearAll
+from main.app.prometheus.memory import clearAll
 from main.app.prometheus.memory import PrometheusMemory as MemoryService
 from main.models.memory import PrometheusMemory
 

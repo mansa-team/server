@@ -1,10 +1,23 @@
+import asyncio
 import logging
 from config import Config, SessionLocal
 import json
 import unicodedata
 from datetime import datetime, timezone
+from typing import Any, Callable
 
+from cashews import Cache
 from google import genai
+from google.genai import types
+import numpy as np
+from sqlalchemy import func, desc
+from sqlalchemy.dialects.mysql import match as mysqlMatch
+from sqlalchemy.orm import Session, defer
+
+try:
+    from cashews.defaults import _empty as MATRIX_MISS
+except ImportError:  # pragma: no cover - private import fallback
+    MATRIX_MISS = object()
 from google.genai import types
 import numpy as np
 from sqlalchemy import func, desc
@@ -15,9 +28,44 @@ from main.models.memory import PrometheusMemory as PrometheusMemoryModel
 from main.utils.roles import Permission, Roles
 
 from main.app.prometheus.vector import batchCosineSimilarity, contentHash, decodeEmbeddings, getRelevanceScore, embed
-from main.app.prometheus.matrix_cache import getMatrix, invalidateUser
 from main.app.prometheus.chat import PrometheusChatManager
 from main.app.prometheus.compact import countTokens
+
+matrixCache = Cache()
+matrixCache.setup("mem://")
+
+MATRIX_CACHE_VERSION = 1
+MATRIX_TAG = "matrix"
+
+
+def matrixKey(userId: Any) -> str:
+    if isinstance(userId, tuple):
+        uid, memoryType = userId
+        return f"matrix:{uid}:{memoryType}:v{MATRIX_CACHE_VERSION}"
+    return f"matrix:{userId}:v{MATRIX_CACHE_VERSION}"
+
+
+def matrixUserTag(userId: Any) -> str:
+    uid = userId[0] if isinstance(userId, tuple) else userId
+    return f"matrix-user:{uid}"
+
+
+def getMatrix(userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]) -> tuple[list[int], np.ndarray]:
+    cacheKey = matrixKey(userId)
+    cached = asyncio.run(matrixCache.get(cacheKey, default=MATRIX_MISS))
+    if cached is not MATRIX_MISS:
+        return cached  # type: ignore[no-any-return]
+    freshIds, freshMatrix = loader()
+    asyncio.run(matrixCache.set(cacheKey, (freshIds, freshMatrix), tags=(MATRIX_TAG, matrixUserTag(userId))))
+    return asyncio.run(matrixCache.get(cacheKey, default=(freshIds, freshMatrix)))
+
+
+def invalidateUser(userId: int) -> None:
+    asyncio.run(matrixCache.delete_tags(f"matrix-user:{userId}"))
+
+
+def clearAll() -> None:
+    asyncio.run(matrixCache.clear())
 
 logger = logging.getLogger(__name__)
 

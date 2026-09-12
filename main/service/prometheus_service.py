@@ -11,7 +11,7 @@ from main.models.memory import PrometheusMemory
 from main.controller.prometheus_controller import router as prometheusRouter
 from main.utils.models.loader import getEmbeddingModel
 
-from main.app.prometheus.matrix_cache import invalidateUser
+from main.app.prometheus.memory import invalidateUser
 
 from main.utils.scheduler import registerJob
 
