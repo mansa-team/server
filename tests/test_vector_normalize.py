@@ -54,8 +54,5 @@ def test_codec_roundTrip():
 
 
 def test_codec_rejectsBadDims():
-    try:
+    with pytest.raises(ValueError):
         fromVectorString("[0.1,0.2]", dims=3)
-    except ValueError:
-        return
-    raise AssertionError("expected ValueError")
