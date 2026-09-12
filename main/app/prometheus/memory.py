@@ -249,12 +249,12 @@ class PrometheusMemory:
             vecScores = [simById.get(m.id, 0.0) for m in candidateRows]
             vecNorm = minMax(vecScores)
             ftRows = cls.fullTextSearch(db, userId, query, MEMORY_SEARCH_PREFILTER_CAP)
-            ftRank = {r["memoryKey"]: 1.0 / (i + 1) for i, r in enumerate(ftRows)}
+            ftRank = {r["id"]: 1.0 / (i + 1) for i, r in enumerate(ftRows)}
             now = datetime.now(timezone.utc)
             fused = []
             for m, v in zip(candidateRows, vecNorm):
                 rec = getRelevanceScore(m, now)
-                f = 0.6 * v + 0.25 * ftRank.get(m.memoryKey, 0.0) + 0.15 * rec
+                f = 0.6 * v + 0.25 * ftRank.get(m.id, 0.0) + 0.15 * rec
                 fused.append((m, f, simById.get(m.id, 0.0)))
             fused.sort(key=lambda p: p[1], reverse=True)
             return [
