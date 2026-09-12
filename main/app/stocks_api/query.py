@@ -242,7 +242,7 @@ class StocksQueryManager:
                 except Exception as e:
                     logger.exception("Date parsing failed")
                     raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
-                
+
             if not search or search.strip() == "":
                 df = df.drop_duplicates(subset=["TICKER"], keep="first")
 

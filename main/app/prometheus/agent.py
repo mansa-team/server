@@ -260,6 +260,7 @@ class Prometheus:
 
             if session and user:
                 try:
+
                     async def extract() -> None:
                         try:
                             await asyncio.to_thread(
