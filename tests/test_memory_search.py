@@ -69,9 +69,33 @@ def test_search_defersEmbeddingBlob(dbSession, monkeypatch):
     assert set(res[0].keys()) >= {"memoryKey", "memoryValue", "memoryType", "relevanceScore"}
 
 
-def test_search_fusesFulltextOverVectorOnly(dbSession):
-    MemoryService.upsertMemory(dbSession, 11, "ticker favorito", "minha acao favorita e WEGE3", "preference")
-    MemoryService.upsertMemory(dbSession, 11, "outro", "texto sem relacao com nada especifico", "preference")
+def test_search_fusesFulltextOverVectorOnly(dbSession, monkeypatch):
+    monkeypatch.setattr(memoryMod, "embed", lambda texts: [[1.0] + [0.0] * 383 for _ in texts])
+    MemoryService.upsertMemory(
+        dbSession,
+        11,
+        "ticker favorito",
+        "minha acao favorita e WEGE3",
+        "preference",
+        embedding=[1.0, 1.0] + [0.0] * 382,
+    )
+    MemoryService.upsertMemory(
+        dbSession,
+        11,
+        "outro",
+        "texto sem relacao com nada especifico",
+        "preference",
+        embedding=[1.0] + [0.0] * 383,
+    )
+    for i in range(3):
+        MemoryService.upsertMemory(
+            dbSession,
+            11,
+            f"distrator {i}",
+            "conversa efemera sem tickers relevantes",
+            "context",
+            embedding=[0.0, 0.0, 1.0] + [0.0] * 381,
+        )
     res = MemoryService.search(dbSession, userId=11, query="WEGE3")
     assert res[0]["memoryKey"] == "ticker favorito"
 

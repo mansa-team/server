@@ -2,7 +2,7 @@ import logging
 from config import Config, SessionLocal
 import json
 import unicodedata
-from datetime import datetime
+from datetime import datetime, timezone
 
 from google import genai
 from google.genai import types
@@ -43,6 +43,15 @@ def getClient():
     if client is None:
         client = genai.Client(api_key=Config.PROMETHEUS.GEMINI_API_KEY)
     return client
+
+
+def minMax(values: list[float]) -> list[float]:
+    if not values:
+        return []
+    lo, hi = min(values), max(values)
+    if hi - lo < 1e-9:
+        return [1.0 for _ in values]
+    return [(v - lo) / (hi - lo) for v in values]
 
 
 def normalizeKey(key: str) -> set[str]:
@@ -213,36 +222,46 @@ class PrometheusMemory:
             scored.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
             return scored[:limit]
 
-        memoriesWithEmb = [m for m in blobRows if m.embedding is not None]
-        memoriesWithEmb = memoriesWithEmb[:MEMORY_SEARCH_PREFILTER_CAP]
-        if memoriesWithEmb:
+        try:
+            simById: dict[int, float] = {}
             try:
-                queryEmbedding = embed([query])[0]
-                rawEmbs = [m.embedding for m in memoriesWithEmb]
-                if isinstance(rawEmbs[0], (bytes, bytearray, memoryview)):
-                    matrix = decodeEmbeddings(rawEmbs)  # type: ignore[arg-type]
-                else:
-                    matrix = np.array(rawEmbs, dtype=np.float32)
-                similarities = batchCosineSimilarity(queryEmbedding, matrix)
-
-                results = []
-                for i, m in enumerate(memoriesWithEmb):
-                    results.append(
-                        {
-                            "id": m.id,
-                            "memoryKey": m.memoryKey,
-                            "memoryValue": m.memoryValue,
-                            "memoryType": m.memoryType,
-                            "score": float(similarities[i]),
-                            "relevanceScore": getRelevanceScore(m, datetime.now()),
-                            "similarity": float(similarities[i]),
-                        }
-                    )
-                results.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
-
-                return results[:limit]
+                rowsWithEmb = [m for m in blobRows if m.embedding is not None]
+                if rowsWithEmb:
+                    queryEmbedding = embed([query])[0]
+                    rawEmbs = [m.embedding for m in rowsWithEmb]
+                    if isinstance(rawEmbs[0], (bytes, bytearray, memoryview)):
+                        matrix = decodeEmbeddings(rawEmbs)  # type: ignore[arg-type]
+                    else:
+                        matrix = np.array(rawEmbs, dtype=np.float32)
+                    sims = batchCosineSimilarity(queryEmbedding, matrix)
+                    simById = {m.id: float(s) for m, s in zip(rowsWithEmb, sims)}
             except Exception as e:
-                logger.warning(f"Embedding search failed, falling back to full-text: {e}")
+                logger.warning(f"Embedding scoring failed, using full-text and recency only: {e}")
+            vecScores = [simById.get(m.id, 0.0) for m in blobRows]
+            vecNorm = minMax(vecScores)
+            ftRows = cls.fullTextSearch(db, userId, query, MEMORY_SEARCH_PREFILTER_CAP)
+            ftRank = {r["memoryKey"]: 1.0 / (i + 1) for i, r in enumerate(ftRows)}
+            now = datetime.now(timezone.utc)
+            fused = []
+            for m, v in zip(blobRows, vecNorm):
+                rec = getRelevanceScore(m, now)
+                f = 0.6 * v + 0.25 * ftRank.get(m.memoryKey, 0.0) + 0.15 * rec
+                fused.append((m, f, simById.get(m.id, 0.0)))
+            fused.sort(key=lambda p: p[1], reverse=True)
+            return [
+                {
+                    "id": m.id,
+                    "memoryKey": m.memoryKey,
+                    "memoryValue": m.memoryValue,
+                    "memoryType": m.memoryType,
+                    "score": f,
+                    "relevanceScore": f,
+                    "similarity": sim,
+                }
+                for m, f, sim in fused[:limit]
+            ]
+        except Exception as e:
+            logger.warning(f"Fused search failed, falling back to full-text: {e}")
 
         return cls.fullTextSearch(db, userId, query, limit)
 
