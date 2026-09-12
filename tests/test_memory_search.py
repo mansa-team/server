@@ -1,9 +1,11 @@
 from contextlib import contextmanager
 
+from sqlalchemy import event
 from sqlalchemy.dialects import mysql
 from sqlalchemy.dialects.mysql import match as mysqlMatch
 
 import main.app.prometheus.memory as memoryMod
+from main.app.prometheus.matrix_cache import clearAll
 from main.app.prometheus.memory import PrometheusMemory as MemoryService
 from main.models.memory import PrometheusMemory
 
@@ -56,16 +58,26 @@ def seedMemories(db, userId, n):
 @contextmanager
 def countQueries(db):
     seen = {"blobFetches": 0}
-    yield seen
+
+    def beforeCursor(conn, cursor, statement, params, context, executemany):
+        if "embedding" in statement.lower():
+            seen["blobFetches"] += 1
+
+    event.listen(db.bind, "before_cursor_execute", beforeCursor)
+    try:
+        yield seen
+    finally:
+        event.remove(db.bind, "before_cursor_execute", beforeCursor)
 
 
 def test_search_defersEmbeddingBlob(dbSession, monkeypatch):
+    clearAll()
     seedMemories(dbSession, userId=9, n=5)
     monkeypatch.setattr(memoryMod, "embed", lambda texts: [[0.2] * 384 for _ in texts])
     with countQueries(dbSession) as q:
         res = MemoryService.search(dbSession, userId=9, query="gosto de dividendos")
     assert len(res) > 0
-    assert q["blobFetches"] <= 5
+    assert q["blobFetches"] <= 2
     assert set(res[0].keys()) >= {"memoryKey", "memoryValue", "memoryType", "relevanceScore"}
 
 
