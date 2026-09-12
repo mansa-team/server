@@ -9,7 +9,7 @@ from sqlalchemy import update
 from sqlalchemy.engine import CursorResult
 from sqlalchemy.orm import Session
 
-from main.models import StocksAPIKey
+from main.models.stocksapi_key import StocksAPIKey
 
 apiKeyHeader = APIKeyHeader(name="X-API-Key", auto_error=False)
 

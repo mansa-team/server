@@ -28,7 +28,6 @@ def sessionToDict(s, isCurrent=False):
     }
 
 
-
 @router.get("/health")
 def health(request: Request):
     return {"status": "ok", "service": "user"}
@@ -64,8 +63,7 @@ def getSessions(
 
     return {
         "sessions": [
-            sessionToDict(s, s.sessionId == currentSessionId if currentSessionId else False)
-            for s in paginatedSessions
+            sessionToDict(s, s.sessionId == currentSessionId if currentSessionId else False) for s in paginatedSessions
         ],
         "total": total,
         "active": activeCount,

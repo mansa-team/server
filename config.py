@@ -65,6 +65,7 @@ class PrometheusSettings(BaseSettings):
     GEMINI_API_KEY: str = Field(default="", validation_alias=AliasChoices("GEMINI_API.KEY"))
     SEARXNG_URL: str = Field(default="http://searxng:8888", validation_alias=AliasChoices("SEARXNG_URL"))
     FORGEVM_URL: str = Field(default="http://forgevm:7423", validation_alias=AliasChoices("FORGEVM_URL"))
+    FORGEVM_API_TOKEN: str = Field(default="", validation_alias=AliasChoices("FORGEVM_API_TOKEN"))
     SANDBOX_IMAGE: str = Field(default="sandbox-python:latest", validation_alias=AliasChoices("SANDBOX_IMAGE"))
     SANDBOX_MEMORY: int = Field(default=512, validation_alias=AliasChoices("SANDBOX_MEMORY"))
     SANDBOX_CPU: int = Field(default=1, validation_alias=AliasChoices("SANDBOX_CPU"))
@@ -124,10 +125,19 @@ stocksEngine = create_engine(
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+StocksSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=stocksEngine)
 
 
 def getSession():
     db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+def getStocksSession():
+    db = StocksSessionLocal()
     try:
         yield db
     finally:

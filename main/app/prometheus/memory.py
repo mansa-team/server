@@ -1,14 +1,19 @@
+import asyncio
 import logging
 from config import Config, SessionLocal
 import json
 import unicodedata
-from datetime import datetime
+from datetime import datetime, timezone
+from typing import Any, Callable, cast
 
+from cashews import Cache
 from google import genai
 from google.genai import types
+import numpy as np
+
 from sqlalchemy import func, desc
 from sqlalchemy.dialects.mysql import match as mysqlMatch
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, defer
 
 from main.models.memory import PrometheusMemory as PrometheusMemoryModel
 from main.utils.roles import Permission, Roles
@@ -16,6 +21,42 @@ from main.utils.roles import Permission, Roles
 from main.app.prometheus.vector import batchCosineSimilarity, contentHash, decodeEmbeddings, getRelevanceScore, embed
 from main.app.prometheus.chat import PrometheusChatManager
 from main.app.prometheus.compact import countTokens
+
+matrixCache = Cache()
+matrixCache.setup("mem://")
+
+MATRIX_MISS = object()
+
+
+def matrixKey(userId: Any) -> str:
+    if isinstance(userId, tuple):
+        uid, memoryType = userId
+        return f"matrix:{uid}:{memoryType}:v{1}"
+    return f"matrix:{userId}:v{1}"
+
+
+def matrixUserTag(userId: Any) -> str:
+    uid = userId[0] if isinstance(userId, tuple) else userId
+    return f"matrix-user:{uid}"
+
+
+def getMatrix(userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]) -> tuple[list[int], np.ndarray]:
+    cacheKey = matrixKey(userId)
+    cached = asyncio.run(matrixCache.get(cacheKey, default=MATRIX_MISS))
+    if cached is not MATRIX_MISS:
+        return cast(tuple[list[int], np.ndarray], cached)
+    freshIds, freshMatrix = loader()
+    asyncio.run(matrixCache.set(cacheKey, (freshIds, freshMatrix), tags=("matrix", matrixUserTag(userId))))
+    return cast(tuple[list[int], np.ndarray], asyncio.run(matrixCache.get(cacheKey, default=(freshIds, freshMatrix))))
+
+
+def invalidateUser(userId: int) -> None:
+    asyncio.run(matrixCache.delete_tags(f"matrix-user:{userId}"))
+
+
+def clearAll() -> None:
+    asyncio.run(matrixCache.clear())
+
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +73,7 @@ INITIAL_STABILITY = {
 MEMORY_EXTRACTION_TOKEN_BUDGET = 32000
 MEMORY_EXTRACT_FREE_CAP = 5
 MEMORY_EXTRACT_PREMIUM_CAP = 10
+MEMORY_SEARCH_PREFILTER_CAP = 500
 
 client = None
 
@@ -41,6 +83,15 @@ def getClient():
     if client is None:
         client = genai.Client(api_key=Config.PROMETHEUS.GEMINI_API_KEY)
     return client
+
+
+def minMax(values: list[float]) -> list[float]:
+    if not values:
+        return []
+    lo, hi = min(values), max(values)
+    if hi - lo < 1e-9:
+        return [0.0 for _ in values]
+    return [(v - lo) / (hi - lo) for v in values]
 
 
 def normalizeKey(key: str) -> set[str]:
@@ -123,6 +174,7 @@ class PrometheusMemory:
 
             db.commit()
             db.refresh(existing)
+            invalidateUser(userId)
 
             return {"status": "updated", "memory": existing}
 
@@ -139,6 +191,7 @@ class PrometheusMemory:
 
             db.commit()
             db.refresh(similar)
+            invalidateUser(userId)
 
             return {"status": "merged", "memory": similar}
 
@@ -162,6 +215,7 @@ class PrometheusMemory:
         db.add(memory)
         db.commit()
         db.refresh(memory)
+        invalidateUser(userId)
         return {"status": "created", "memory": memory}
 
     @classmethod
@@ -182,14 +236,20 @@ class PrometheusMemory:
         if memoryType:
             queryFilter = queryFilter.filter(PrometheusMemoryModel.memoryType == memoryType)
 
-        memories = queryFilter.all()
-        if not memories:
+        candidateRows = (
+            queryFilter.options(defer(cast(Any, PrometheusMemoryModel.embedding)))
+            .order_by(PrometheusMemoryModel.score.desc())
+            .limit(MEMORY_SEARCH_PREFILTER_CAP)
+            .all()
+        )
+        if not candidateRows:
             return []
+        candidateIds = [r.id for r in candidateRows]
 
         if not query or len(query.strip()) < 3:
             scored = []
             now = datetime.now()
-            for m in memories:
+            for m in candidateRows:
                 scored.append(
                     {
                         "id": m.id,
@@ -198,35 +258,58 @@ class PrometheusMemory:
                         "memoryType": m.memoryType,
                         "score": getRelevanceScore(m, now),
                         "relevanceScore": getRelevanceScore(m, now),
+                        "similarity": 0.0,
                     }
                 )
             scored.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
             return scored[:limit]
 
-        memoriesWithEmb = [m for m in memories if m.embedding is not None]
-        if memoriesWithEmb:
+        try:
+            simById: dict[int, float] = {}
+
+            def loadMatrix() -> tuple[list[int], np.ndarray]:
+                embRows = db.query(PrometheusMemoryModel).filter(PrometheusMemoryModel.id.in_(candidateIds)).all()
+                rowsWithEmb = [m for m in embRows if m.embedding is not None]
+                if not rowsWithEmb:
+                    return ([], np.empty((0, 0), dtype=np.float32))
+                rawEmbs = [m.embedding for m in rowsWithEmb]
+                if isinstance(rawEmbs[0], (bytes, bytearray, memoryview)):
+                    return ([cast(int, m.id) for m in rowsWithEmb], decodeEmbeddings(rawEmbs))  # type: ignore[arg-type]
+                return ([cast(int, m.id) for m in rowsWithEmb], np.array(rawEmbs, dtype=np.float32))
+
             try:
-                queryEmbedding = embed([query])[0]
-                matrix = decodeEmbeddings([m.embedding for m in memoriesWithEmb])  # type: ignore[misc]
-                similarities = batchCosineSimilarity(queryEmbedding, matrix)
-
-                results = []
-                for i, m in enumerate(memoriesWithEmb):
-                    results.append(
-                        {
-                            "id": m.id,
-                            "memoryKey": m.memoryKey,
-                            "memoryValue": m.memoryValue,
-                            "memoryType": m.memoryType,
-                            "score": float(similarities[i]),
-                            "relevanceScore": getRelevanceScore(m, datetime.now()),
-                        }
-                    )
-                results.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
-
-                return results[:limit]
+                cachedIds, matrix = getMatrix((userId, memoryType), loadMatrix)
+                if cachedIds and matrix.shape[0] > 0:
+                    queryEmbedding = embed([query])[0]
+                    sims = batchCosineSimilarity(queryEmbedding, matrix)
+                    simById = {mid: float(s) for mid, s in zip(cachedIds, sims)}
             except Exception as e:
-                logger.warning(f"Embedding search failed, falling back to full-text: {e}")
+                logger.warning(f"Embedding scoring failed, using full-text and recency only: {e}")
+            vecScores = [simById.get(cast(int, m.id), 0.0) for m in candidateRows]
+            vecNorm = minMax(vecScores)
+            ftRows = cls.fullTextSearch(db, userId, query, MEMORY_SEARCH_PREFILTER_CAP)
+            ftRank = {r["id"]: 1.0 / (i + 1) for i, r in enumerate(ftRows)}
+            now = datetime.now(timezone.utc)
+            fused = []
+            for m, v in zip(candidateRows, vecNorm):
+                rec = getRelevanceScore(m, now)
+                f = 0.6 * v + 0.25 * ftRank.get(cast(int, m.id), 0.0) + 0.15 * rec
+                fused.append((m, f, simById.get(cast(int, m.id), 0.0)))
+            fused.sort(key=lambda p: p[1], reverse=True)
+            return [
+                {
+                    "id": m.id,
+                    "memoryKey": m.memoryKey,
+                    "memoryValue": m.memoryValue,
+                    "memoryType": m.memoryType,
+                    "score": f,
+                    "relevanceScore": f,
+                    "similarity": sim,
+                }
+                for m, f, sim in fused[:limit]
+            ]
+        except Exception as e:
+            logger.warning(f"Fused search failed, falling back to full-text: {e}")
 
         return cls.fullTextSearch(db, userId, query, limit)
 
@@ -327,11 +410,24 @@ class PrometheusMemory:
         memory.archivedAt = datetime.now()  # type: ignore[assignment]
 
         db.commit()
+        invalidateUser(userId)
 
         return True
 
     @staticmethod
-    def extract(db: Session | None = None, userId=None, sessionId=None, userRoles=None) -> list[PrometheusMemoryModel]:
+    def countTokensCached(text: str, cache: dict | None) -> int:
+        if cache is None:
+            return countTokens(text)
+        cached = cache.get(text)
+        if cached is None:
+            cached = countTokens(text)
+            cache[text] = cached
+        return cached
+
+    @staticmethod
+    def extract(
+        db: Session | None = None, userId=None, sessionId=None, userRoles=None, tokenCache: dict | None = None
+    ) -> list[PrometheusMemoryModel]:
         ownSession = db is None
         if ownSession:
             db = SessionLocal()
@@ -359,7 +455,7 @@ class PrometheusMemory:
             for msg in reversed(msgs):
                 text = (msg.get("parts") or [{}])[0].get("text", "")
                 acc.append(text)
-                tokens += countTokens(text)
+                tokens += PrometheusMemory.countTokensCached(text, tokenCache)
                 if tokens >= MEMORY_EXTRACTION_TOKEN_BUDGET:
                     break
 
@@ -405,9 +501,18 @@ class PrometheusMemory:
                 return []
 
             created = []
-            for cand in (candidates or [])[:n]:
+            cands = (candidates or [])[:n]
+            try:
+                embeddings = embed([c.get("value", "") for c in cands])
+            except Exception as e:
+                logger.warning("Memory batch embedding failed: %s", e)
+                embeddings = []
+            for idx, cand in enumerate(cands):
                 try:
-                    embedding = embed([cand.get("value", "")])[0]
+                    if idx < len(embeddings):
+                        embedding = embeddings[idx]
+                    else:
+                        embedding = embed([cand.get("value", "")])[0]
                     result = PrometheusMemory.upsertMemory(
                         db,
                         userId,

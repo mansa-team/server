@@ -5,7 +5,7 @@ import uuid
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 
-from main.models import PrometheusSession
+from main.models.prometheus import PrometheusSession
 
 logger = logging.getLogger(__name__)
 

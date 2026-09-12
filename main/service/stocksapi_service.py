@@ -16,7 +16,6 @@ class MCPDetectMiddleware:
             headers = dict(scope.get("headers") or [])
             if headers.get(b"x-mcp") == b"true":
                 scope.setdefault("state", {})["compressed"] = True
-                # X-MCP requests are always compact — force the flag so cache keys and handlers agree
                 qs = scope.get("query_string", b"").decode("latin-1")
                 if "compact=" not in qs:
                     scope["query_string"] = (qs + ("&" if qs else "") + "compact=true").encode("latin-1")

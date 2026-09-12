@@ -36,6 +36,7 @@ services:
     environment:
       - FORGEVM_DATABASE_PATH=/data/forgevm.db
       - FORGEVM_LOGGING_LEVEL=info
+      - FORGEVM_API_TOKEN=${FORGEVM_API_TOKEN:-}
             
   api:
     build:
@@ -52,6 +53,7 @@ services:
     environment:
       - DEBUG_MODE=TRUE
       - TZ=America/Sao_Paulo
+      - FORGEVM_API_TOKEN=${FORGEVM_API_TOKEN:-}
 
     volumes:
       - .:/app

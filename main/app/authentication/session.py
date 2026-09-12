@@ -1,6 +1,6 @@
 import logging
 import secrets
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import hashlib
 from sqlalchemy.orm import Session
 from main.models.user_session import UserSession
@@ -28,7 +28,7 @@ class SessionManager:
         sessionId = secrets.token_urlsafe(32)
         accessTokenHash = hashlib.sha256(secrets.token_hex(32).encode()).hexdigest()[:64]
 
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         if expiresAt is None:
             expiresAt = now + timedelta(days=SESSION_EXPIRY_DAYS)
 
@@ -109,7 +109,7 @@ class SessionManager:
         if not session:
             return False
 
-        session.lastActivityAt = datetime.now()  # type: ignore[assignment]
+        session.lastActivityAt = datetime.now(timezone.utc)  # type: ignore[assignment]
         db.commit()
         return True
 
@@ -123,8 +123,10 @@ class SessionManager:
             return False
 
         if session.expiresAt:
-            expTime = session.expiresAt.replace(tzinfo=None) if session.expiresAt.tzinfo else session.expiresAt
-            if expTime < datetime.now():
+            expTime = session.expiresAt
+            if expTime.tzinfo is None:
+                expTime = expTime.replace(tzinfo=timezone.utc)
+            if expTime < datetime.now(timezone.utc):
                 session.isActive = False  # type: ignore[assignment]
                 db.commit()
                 return False

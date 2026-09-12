@@ -6,7 +6,7 @@ from main.models.sandbox import PrometheusSandbox
 from main.app.prometheus.sandbox import SandboxManager
 
 
-def _mock_forgevm(mock_cls):
+def mock_forgevm(mock_cls):
     """Wire up mock forgevm AsyncClient that returns sandbox with all methods."""
     mock_client = AsyncMock()
     mock_sandbox = AsyncMock()
@@ -61,7 +61,7 @@ class TestSandboxPersistence:
     @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_get_or_create_creates_new_when_no_existing(self, mock_get_client, dbSession):
-        mock_client, mock_sandbox = _mock_forgevm(mock_get_client)
+        mock_client, mock_sandbox = mock_forgevm(mock_get_client)
         result = await SandboxManager.getOrCreate(userId=1, db=dbSession)
         assert result == "sb-mock-123"
         mock_client.spawn.assert_called_once()
@@ -78,7 +78,7 @@ class TestSandboxPersistence:
         dbSession.add(existing)
         dbSession.commit()
 
-        mock_client, mock_sandbox = _mock_forgevm(mock_get_client)
+        mock_client, mock_sandbox = mock_forgevm(mock_get_client)
         result = await SandboxManager.getOrCreate(userId=1, db=dbSession)
         # Sandbox alive → extend_ttl called, health check exec ok, returns existing sandboxId
         mock_sandbox.extend_ttl.assert_called_once()
@@ -123,7 +123,7 @@ class TestSandboxPersistence:
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_sync_to_sandbox(self, mock_get_client, tmp_path):
         """syncToSandbox pushes host files into the sandbox."""
-        mock_client, mock_sandbox = _mock_forgevm(mock_get_client)
+        mock_client, mock_sandbox = mock_forgevm(mock_get_client)
 
         # Set up host workspace with files
         workspace = tmp_path / "1"
@@ -142,13 +142,13 @@ class TestSandboxPersistence:
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_sync_from_sandbox(self, mock_get_client, tmp_path):
         """syncFromSandbox pulls sandbox files to host."""
-        mock_client, mock_sandbox = _mock_forgevm(mock_get_client)
+        mock_client, mock_sandbox = mock_forgevm(mock_get_client)
         mock_sandbox.glob_files = AsyncMock(return_value=["/workspace/data.csv", "/workspace/main.py"])
 
-        def _read(p):
+        def read(p):
             return f"content of {p}"
 
-        mock_sandbox.read_file = AsyncMock(side_effect=_read)
+        mock_sandbox.read_file = AsyncMock(side_effect=read)
 
         with patch("main.app.prometheus.sandbox.WORKSPACE_ROOT", tmp_path):
             count = await SandboxManager.syncFromSandbox("sb-mock-123", userId=1)
@@ -162,7 +162,7 @@ class TestSandboxPersistence:
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_sync_to_sandbox_empty_workspace(self, mock_get_client, tmp_path):
         """syncToSandbox returns 0 when workspace is empty."""
-        mock_client, mock_sandbox = _mock_forgevm(mock_get_client)
+        mock_client, mock_sandbox = mock_forgevm(mock_get_client)
 
         with patch("main.app.prometheus.sandbox.WORKSPACE_ROOT", tmp_path):
             count = await SandboxManager.syncToSandbox("sb-mock-123", userId=99)

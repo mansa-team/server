@@ -17,7 +17,7 @@ from main.app.prometheus.tools import (
 GEMINI_SAFE_TYPES = (str, int, float, bool, list, dict, type(None))
 
 
-def _assert_gemini_safe(fn):
+def assert_gemini_safe(fn):
     """Assert a tool function has only Gemini-compatible parameter types."""
     sig = inspect.signature(fn)
     for name, param in sig.parameters.items():
@@ -93,7 +93,7 @@ class TestGeminiCompatibility:
 
     @pytest.mark.parametrize("name,fn", list(TOOL_REGISTRY.items()))
     def test_tool_has_gemini_safe_signature(self, name, fn):
-        _assert_gemini_safe(fn)
+        assert_gemini_safe(fn)
 
 
 # --- Registry tests ---
@@ -167,7 +167,7 @@ class TestServeFileGeminiSafe:
     def test_serve_file_signature_is_gemini_safe(self):
         from main.app.prometheus.tools import serve_file
 
-        _assert_gemini_safe(serve_file)
+        assert_gemini_safe(serve_file)
 
     def test_serve_file_registered(self):
         from main.app.prometheus.tools import TOOL_REGISTRY

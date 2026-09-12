@@ -70,19 +70,20 @@ class StocksQueryManager:
                 return [cleanJSON(item) for item in obj]
             return sanitizeNanValues(obj)
 
-        def parseJSON(x):
+        def parseJSON(x, decompressor):
             if isinstance(x, bytes):
-                x = zstd.ZstdDecompressor().decompress(x).decode("utf-8")
+                x = decompressor.decompress(x).decode("utf-8")
             try:
                 return orjson.loads(x)
             except (ValueError, TypeError):
                 return json.loads(x)
 
+        decompressor = zstd.ZstdDecompressor()
         for col in df.columns:
             if col in JSON_COLUMNS and (df[col].dtype == "object" or pd.api.types.is_string_dtype(df[col])):
                 df[col] = df[col].apply(
                     lambda x: (
-                        cleanJSON(parseJSON(x))
+                        cleanJSON(parseJSON(x, decompressor))
                         if (isinstance(x, str) and x.startswith(("{", "["))) or isinstance(x, bytes)
                         else sanitizeNanValues(x)
                     )
@@ -161,9 +162,6 @@ class StocksQueryManager:
             if search:
                 df = self.filterBySearchTerms(df, search)
 
-            if "TIME" in df.columns:
-                df = df.sort_values(by="TIME", ascending=False)
-
             if orderBy and orderBy in df.columns:
                 df = df.sort_values(by=orderBy, ascending=False)
 
@@ -227,30 +225,23 @@ class StocksQueryManager:
             if search:
                 df = self.filterBySearchTerms(df, search)
 
-            if "TIME" in df.columns:
+            if "TIME" in df.columns and dates:
                 timeCol = pd.to_datetime(df["TIME"])
-
-                if dates:
-                    try:
-                        startDate, endDate = parseDateRange(dates)
-                        isRange = "," in dates
-                        if isRange:
-                            mask = (timeCol.dt.date >= startDate) & (timeCol.dt.date <= endDate)
-                            df = df[mask]
-                        else:
-                            targetTs = pd.Timestamp(endDate)
-                            diffs = (timeCol - targetTs).abs()
-                            minDiffPerTicker = diffs.groupby(df["TICKER"]).transform("min")
-                            mask = diffs == minDiffPerTicker
-                            df = df[mask]
-                        timeCol = timeCol.loc[df.index]
-                    except Exception as e:
-                        logger.exception("Date parsing failed")
-                        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
-
-                sortIdx = timeCol.sort_values(ascending=False).index
-                df = df.loc[sortIdx]
-                df["TIME"] = timeCol.sort_values(ascending=False).dt.strftime("%Y-%m-%d")
+                try:
+                    startDate, endDate = parseDateRange(dates)
+                    isRange = "," in dates
+                    if isRange:
+                        mask = (timeCol.dt.date >= startDate) & (timeCol.dt.date <= endDate)
+                        df = df[mask]
+                    else:
+                        targetTs = pd.Timestamp(endDate)
+                        diffs = (timeCol - targetTs).abs()
+                        minDiffPerTicker = diffs.groupby(df["TICKER"]).transform("min")
+                        mask = diffs == minDiffPerTicker
+                        df = df[mask]
+                except Exception as e:
+                    logger.exception("Date parsing failed")
+                    raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
             if not search or search.strip() == "":
                 df = df.drop_duplicates(subset=["TICKER"], keep="first")
@@ -260,6 +251,10 @@ class StocksQueryManager:
 
             if limit:
                 df = df.head(limit)
+
+            if "TIME" in df.columns:
+                df = df.copy()
+                df["TIME"] = pd.to_datetime(df["TIME"]).dt.strftime("%Y-%m-%d")
 
             df = df[[c for c in cols if c in df.columns]]
             df = self.deserializeJsonColumns(df)
@@ -306,7 +301,7 @@ class StocksQueryManager:
                 df = self.filterBySearchTerms(df, search)
 
             if "TIME" in df.columns:
-                df = df.sort_values(by="TIME", ascending=False)
+                df = df.sort_values(by="TIME", ascending=False, kind="mergesort")
             df = df.drop_duplicates(subset=["TICKER"], keep="first")
 
             cols = ["TICKER", "NOME", "TIME", targetCol]

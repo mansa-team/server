@@ -1,4 +1,5 @@
 import logging
+import uuid
 from collections.abc import AsyncIterator
 
 from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, Query, Request, UploadFile
@@ -7,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from config import SessionLocal, getSession, Config
 from main.utils.logging_config import limiter
+from main.utils.request_id import requestIdVar
 
 from main.models.prometheus import PrometheusSession
 from main.utils.roles import Roles, Permission
@@ -126,6 +128,9 @@ async def chat_stream(
             "mime": file.content_type or "application/octet-stream",
         }
 
+    correlationId = requestIdVar.get("") or uuid.uuid4().hex
+    requestIdVar.set(correlationId)
+
     async def runner() -> AsyncIterator[dict]:
         runDb = SessionLocal()
         try:
@@ -135,8 +140,8 @@ async def chat_stream(
             ):
                 yield event
         except Exception as e:
-            logger.error("Stream run error for session %s: %s", sessionId, e)
-            yield {"type": "error", "message": str(e)}
+            logger.exception("Stream run error for session %s (correlation_id=%s)", sessionId, correlationId)
+            yield {"type": "error", "message": "stream failed", "correlationId": correlationId}
         finally:
             runDb.close()
 
@@ -152,8 +157,6 @@ async def resumeChatStream(
     cursor: int = Query(0, ge=0),
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
 ):
-    # No rate limiter: this route only subscribes to an existing run; the
-    # POST 5/minute limiter gates starting new runs.
     verifySessionOwnsership(db, sessionId, user["userId"])
     return StreamingResponse(streamBus.forward(sessionId, cursor=cursor), media_type="text/event-stream")
 

@@ -22,7 +22,11 @@ def lockFor(userId: int) -> asyncio.Lock:
 
 
 def getClient() -> AsyncClient:
-    return AsyncClient(base_url=Config.PROMETHEUS.FORGEVM_URL, timeout=30)
+    return AsyncClient(
+        base_url=Config.PROMETHEUS.FORGEVM_URL,
+        api_key=Config.PROMETHEUS.FORGEVM_API_TOKEN or None,
+        timeout=30,
+    )
 
 
 def hostPath(userId: int, sandboxPath: str) -> Path:

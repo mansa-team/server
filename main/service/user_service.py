@@ -1,13 +1,14 @@
 import logging
 from config import SessionLocal
 
-from datetime import datetime, timedelta
-from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime, timedelta, timezone
+from sqlalchemy import or_
 
 from main.models.user_session import UserSession
 
 from main.app.authentication.constants import SESSION_EXPIRY_DAYS
 from main.utils.service_manager import getApp
+from main.utils.scheduler import registerJob
 from main.controller.user_controller import router as userRouter
 
 logger = logging.getLogger(__name__)
@@ -16,11 +17,17 @@ logger = logging.getLogger(__name__)
 def removeInactiveSessions():
     db = SessionLocal()
     try:
-        thresholdDate = datetime.now() - timedelta(days=SESSION_EXPIRY_DAYS)
+        now = datetime.now(timezone.utc)
+        thresholdDate = now - timedelta(days=SESSION_EXPIRY_DAYS)
 
         deleted = (
             db.query(UserSession)
-            .filter(~UserSession.isActive, UserSession.lastActivityAt < thresholdDate)
+            .filter(
+                or_(
+                    (UserSession.isActive & (UserSession.expiresAt < now)),
+                    (~UserSession.isActive & (UserSession.lastActivityAt < thresholdDate)),
+                )
+            )
             .delete(synchronize_session=False)
         )
         db.commit()
@@ -32,23 +39,16 @@ def removeInactiveSessions():
         db.close()
 
 
-scheduler = None
-
-
 class UserService:
     @staticmethod
     def initialize(port: int):
-        global scheduler
         service = getApp(port)
         service.include_router(userRouter)
 
-        scheduler = BackgroundScheduler()
-        scheduler.add_job(
+        registerJob(
             removeInactiveSessions,
             "interval",
+            jobId="cleanup_inactive_sessions",
+            jobName="Remove inactive sessions",
             hours=12,
-            id="cleanup_inactive_sessions",
-            name="Remove inactive sessions",
         )
-        scheduler.start()
-        logger.info("Session cleanup scheduler started (every 12h)")

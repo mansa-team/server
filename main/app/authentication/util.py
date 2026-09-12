@@ -1,7 +1,7 @@
 import logging
 
 from fastapi import HTTPException, Request
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
 
@@ -34,7 +34,7 @@ def createAccessToken(data: dict | None, expiresDelta: timedelta | None = None):
         expiresDelta = timedelta(hours=TOKEN_EXPIRY_HOURS)
 
     payload = data.copy()
-    payload["exp"] = datetime.now() + expiresDelta
+    payload["exp"] = datetime.now(timezone.utc) + expiresDelta
 
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
     return token, expiresDelta

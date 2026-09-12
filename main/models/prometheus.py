@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, TIMESTAMP, JSON, func
 from sqlalchemy.orm import relationship
 from main.models.base import Base
+from main.models.user import User  # noqa: F401 — ensure 'User' in registry for relationship("User")
 
 
 class PrometheusSession(Base):

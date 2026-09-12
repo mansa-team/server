@@ -11,7 +11,7 @@ from fastapi import HTTPException, Request
 class TestExtractTokenPayload:
     """Tests for extractTokenPayload — the standalone token extraction dependency."""
 
-    def _make_request(self, headers: dict) -> Request:
+    def make_request(self, headers: dict) -> Request:
         """Create a mock Starlette Request with given headers."""
         scope = {"type": "http", "headers": [(k.lower().encode(), v.encode()) for k, v in headers.items()]}
         return Request(scope)
@@ -19,7 +19,7 @@ class TestExtractTokenPayload:
     def test_missing_token_raises_401(self):
         from main.app.authentication.util import extractTokenPayload
 
-        request = self._make_request({})
+        request = self.make_request({})
         with pytest.raises(HTTPException) as exc_info:
             extractTokenPayload(request)
         assert exc_info.value.status_code == 401
@@ -29,7 +29,7 @@ class TestExtractTokenPayload:
         from main.app.authentication.util import extractTokenPayload
 
         mock_payload = {"userId": 1, "sessionId": "abc"}
-        request = self._make_request({"X-Access-Token": "valid_token"})
+        request = self.make_request({"X-Access-Token": "valid_token"})
 
         with patch("main.app.authentication.util.verifyAccessToken", return_value=mock_payload):
             result = extractTokenPayload(request)
@@ -39,7 +39,7 @@ class TestExtractTokenPayload:
         from main.app.authentication.util import extractTokenPayload
 
         mock_payload = {"userId": 2}
-        request = self._make_request({"Authorization": "Bearer my_jwt_token"})
+        request = self.make_request({"Authorization": "Bearer my_jwt_token"})
 
         with patch("main.app.authentication.util.verifyAccessToken", return_value=mock_payload):
             result = extractTokenPayload(request)
@@ -49,7 +49,7 @@ class TestExtractTokenPayload:
         from main.app.authentication.util import extractTokenPayload
 
         mock_payload = {"userId": 3}
-        request = self._make_request({"X-Access-Token": "primary_token", "Authorization": "Bearer secondary_token"})
+        request = self.make_request({"X-Access-Token": "primary_token", "Authorization": "Bearer secondary_token"})
 
         with patch("main.app.authentication.util.verifyAccessToken", return_value=mock_payload) as mock_verify:
             result = extractTokenPayload(request)
@@ -58,7 +58,7 @@ class TestExtractTokenPayload:
     def test_invalid_token_raises_401(self):
         from main.app.authentication.util import extractTokenPayload
 
-        request = self._make_request({"X-Access-Token": "bad_token"})
+        request = self.make_request({"X-Access-Token": "bad_token"})
         with patch("main.app.authentication.util.verifyAccessToken", side_effect=Exception("decode error")):
             with pytest.raises(HTTPException) as exc_info:
                 extractTokenPayload(request)
@@ -68,7 +68,7 @@ class TestExtractTokenPayload:
     def test_empty_user_id_raises_401(self):
         from main.app.authentication.util import extractTokenPayload
 
-        request = self._make_request({"X-Access-Token": "token"})
+        request = self.make_request({"X-Access-Token": "token"})
         with patch("main.app.authentication.util.verifyAccessToken", return_value={"userId": None}):
             with pytest.raises(HTTPException) as exc_info:
                 extractTokenPayload(request)
@@ -78,7 +78,7 @@ class TestExtractTokenPayload:
         """Authorization: Bearer (empty) — no token after Bearer."""
         from main.app.authentication.util import extractTokenPayload
 
-        request = self._make_request({"Authorization": "Bearer "})
+        request = self.make_request({"Authorization": "Bearer "})
         with pytest.raises(HTTPException) as exc_info:
             extractTokenPayload(request)
         assert exc_info.value.status_code == 401
@@ -87,7 +87,7 @@ class TestExtractTokenPayload:
         """Authorization: Basic xxx — not Bearer, so no token found."""
         from main.app.authentication.util import extractTokenPayload
 
-        request = self._make_request({"Authorization": "Basic dXNlcjpwYXNz"})
+        request = self.make_request({"Authorization": "Basic dXNlcjpwYXNz"})
         with pytest.raises(HTTPException) as exc_info:
             extractTokenPayload(request)
         assert exc_info.value.status_code == 401

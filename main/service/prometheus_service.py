@@ -4,13 +4,16 @@ import math
 from datetime import datetime
 
 from sqlalchemy.orm import Session
-from apscheduler.schedulers.background import BackgroundScheduler
 from main.utils.service_manager import getApp
 
 from main.models.memory import PrometheusMemory
 
 from main.controller.prometheus_controller import router as prometheusRouter
 from main.utils.models.loader import getEmbeddingModel
+
+from main.app.prometheus.memory import invalidateUser
+
+from main.utils.scheduler import registerJob
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +49,7 @@ def memoryMaintenance(db: Session | None = None):
 
             if retention < ARCHIVE_SCORE_THRESHOLD and m.accessCount == 0:
                 m.archivedAt = datetime.now()  # type: ignore[assignment]
+                invalidateUser(int(m.userId))
                 archived += 1
 
         db.commit()
@@ -66,12 +70,10 @@ class PrometheusService:
 
         getEmbeddingModel()
 
-        scheduler = BackgroundScheduler()
-        scheduler.add_job(
+        registerJob(
             memoryMaintenance,
             "interval",
+            jobId="memory_maintenance",
+            jobName="Memory Maintenance",
             hours=24,
-            id="memory_maintenance",
-            name="Memory Maintenance",
         )
-        scheduler.start()

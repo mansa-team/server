@@ -20,14 +20,14 @@ class FakePrometheus(Prometheus):
 
 
 @pytest.fixture(autouse=True)
-def _isolate_bus():
+def isolate_bus():
     streamBus.channels.clear()
     yield
     streamBus.channels.clear()
 
 
 @pytest.fixture(autouse=True)
-def _no_gemini_client(monkeypatch):
+def no_gemini_client(monkeypatch):
     """chat_stream builds Prometheus() per run; __init__ creates a genai.Client
     which requires a real Gemini API key that CI doesn't have. These tests mock
     streamMessage, so the constructor is a no-op."""
@@ -35,7 +35,7 @@ def _no_gemini_client(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
-def _sqlite_db(client, monkeypatch):
+def sqlite_db(client, monkeypatch):
     """Route the prometheus router + background runner to in-memory sqlite so
     these tests don't need a live MySQL server (docker 'db' host)."""
     engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
@@ -53,7 +53,7 @@ def _sqlite_db(client, monkeypatch):
     engine.dispose()
 
 
-def _payloads(resp):
+def payloads(resp):
     lines = [line for line in resp.iter_lines() if line.startswith("data: ")]
     return [json.loads(line[6:]) for line in lines if line[6:] != "[DONE]"]
 
@@ -63,18 +63,18 @@ def test_post_stream_then_resume_replays_from_cursor(client, monkeypatch):
 
     with client.stream("POST", "/prometheus/chat/stream", data={"query": "oi"}, files={}) as r:
         assert r.status_code == 200
-        payloads = _payloads(r)
+        result_payloads = payloads(r)
 
-    types = [p["type"] for p in payloads]
+    types = [p["type"] for p in result_payloads]
     assert types[0] == "session"
     assert types[-1] == "done"
-    assert [p["text"] for p in payloads if p["type"] == "text"] == ["first", " second"]
-    sid = payloads[0]["sessionId"]
+    assert [p["text"] for p in result_payloads if p["type"] == "text"] == ["first", " second"]
+    sid = result_payloads[0]["sessionId"]
 
     # Resume with cursor=2: "first" was consumed, replay must start at " second"
     with client.stream("GET", f"/prometheus/chat/stream/{sid}?cursor=2") as r2:
         assert r2.status_code == 200
-        payloads2 = _payloads(r2)
+        payloads2 = payloads(r2)
 
     assert [p["text"] for p in payloads2 if p["type"] == "text"] == [" second"]
     assert payloads2[-1]["type"] == "done"
@@ -88,7 +88,7 @@ def test_resume_unknown_session_is_forbidden(client):
 def test_resume_requires_valid_cursor(client, monkeypatch):
     monkeypatch.setattr(Prometheus, "streamMessage", FakePrometheus.streamMessage)
     with client.stream("POST", "/prometheus/chat/stream", data={"query": "oi"}, files={}) as r:
-        sid = _payloads(r)[0]["sessionId"]
+        sid = payloads(r)[0]["sessionId"]
 
     with client.stream("GET", f"/prometheus/chat/stream/{sid}?cursor=-1") as r2:
         assert r2.status_code == 422
@@ -102,12 +102,12 @@ def test_second_post_to_same_session_replaces_log(client, monkeypatch):
 
     with client.stream("POST", "/prometheus/chat/stream", data={"query": "oi"}, files={}) as r:
         assert r.status_code == 200
-        first = _payloads(r)
+        first = payloads(r)
     sid = first[0]["sessionId"]
 
     with client.stream("POST", "/prometheus/chat/stream", data={"query": "oi", "sessionId": sid}, files={}) as r2:
         assert r2.status_code == 200
-        second = _payloads(r2)
+        second = payloads(r2)
 
     types = [p["type"] for p in second]
     assert types == ["session", "text", "text", "done"]

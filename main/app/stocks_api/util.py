@@ -9,10 +9,12 @@ import orjson
 from fastapi import HTTPException
 import pandas as pd
 
+# Mirrors JSON_COLUMNS in main/app/scraper_b3/scraper.py — duplicated by
+# design (no shared/ kernel). Keep both tuples in sync.
+JSON_COLUMNS = ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS")
+
 PREPOSITIONS = frozenset({"DE", "DO", "DA", "DOS", "DAS", "E", "O", "A", "EM", "COM", "POR", "PARA"})
 URL_HINTS = frozenset({"link", "url", "href"})
-# Tuple (not frozenset): scraper reorderColumns relies on this exact order for column layout.
-JSON_COLUMNS = ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS")
 
 
 def dedupAbbrev(used: set, abbrev: str) -> str:

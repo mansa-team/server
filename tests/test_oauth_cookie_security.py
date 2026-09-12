@@ -9,12 +9,12 @@ import os
 from unittest.mock import patch, MagicMock, AsyncMock
 from datetime import timedelta
 from fastapi import FastAPI
-from fastapi.testclient import TestClient as _TestClient
+from fastapi.testclient import TestClient as TestClient
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
-def _make_callback_client():
+def make_callback_client():
     """Return (client, app, mock_session) for testing Google callback."""
     from main.controller.authentication_controller import router as authRouter
     from main.utils.errors import registerErrorHandlers
@@ -24,10 +24,10 @@ def _make_callback_client():
     registerErrorHandlers(app)
     mock_session = MagicMock()
     app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
-    return _TestClient(app, raise_server_exceptions=False), app, mock_session
+    return TestClient(app, raise_server_exceptions=False), app, mock_session
 
 
-def _setup_callback_mocks(
+def setup_callback_mocks(
     mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=1, email="test@gmail.com"
 ):
     """Helper to setup common mock values for callback tests."""
@@ -64,8 +64,8 @@ class TestOAuthCallbackTokenNotInURL:
         self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr
     ):
         """Token must NOT appear in redirect URL — cookie only."""
-        client, _, _ = _make_callback_client()
-        _setup_callback_mocks(mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=1)
+        client, _, _ = make_callback_client()
+        setup_callback_mocks(mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=1)
 
         redirect_url = "http://localhost:3000/dashboard"
 
@@ -95,8 +95,8 @@ class TestOAuthCallbackTokenNotInURL:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_callback_sets_httponly_cookie(self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr):
         """Cookie must be httponly (not accessible via JavaScript)."""
-        client, _, _ = _make_callback_client()
-        _setup_callback_mocks(
+        client, _, _ = make_callback_client()
+        setup_callback_mocks(
             mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=2, email="user@gmail.com"
         )
 
@@ -122,8 +122,8 @@ class TestOAuthCallbackTokenNotInURL:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_callback_cookies_have_secure_flag(self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr):
         """Cookie should have secure flag (HTTPS only)."""
-        client, _, _ = _make_callback_client()
-        _setup_callback_mocks(
+        client, _, _ = make_callback_client()
+        setup_callback_mocks(
             mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=4, email="secure@gmail.com"
         )
 
@@ -150,8 +150,8 @@ class TestOAuthCallbackTokenNotInURL:
         self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr
     ):
         """When no state param, return JSON response (not redirect)."""
-        client, _, _ = _make_callback_client()
-        _setup_callback_mocks(
+        client, _, _ = make_callback_client()
+        setup_callback_mocks(
             mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=5, email="json@gmail.com"
         )
 
@@ -175,8 +175,8 @@ class TestOAuthCallbackFrontendCompatibility:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_frontend_gets_token_from_cookie(self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr):
         """After OAuth redirect, httponly cookie contains the token."""
-        client, _, _ = _make_callback_client()
-        _setup_callback_mocks(
+        client, _, _ = make_callback_client()
+        setup_callback_mocks(
             mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=6, email="frontend@test.com"
         )
 
@@ -209,8 +209,8 @@ class TestOAuthCallbackFrontendCompatibility:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_open_redirect_blocked(self, mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr):
         """Non-localhost redirect URLs must be rejected."""
-        client, _, _ = _make_callback_client()
-        _setup_callback_mocks(mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=7)
+        client, _, _ = make_callback_client()
+        setup_callback_mocks(mock_auth_mgr, mock_get_sso, mock_create_token, mock_session_mgr, user_id=7)
 
         evil_url = "http://evil.com/steal"
 

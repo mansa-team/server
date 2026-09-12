@@ -24,7 +24,7 @@ class TestMCPClientPool:
         assert pool.clients is None
 
 
-class _FakeSession:
+class FakeSession:
     """Deterministic stand-in for a fastmcp client session."""
 
     def __init__(self, tools_error=None):
@@ -38,12 +38,12 @@ class _FakeSession:
         return ["tools"]
 
 
-class _FakeClient:
+class FakeClient:
     """Deterministic stand-in for a fastmcp Client with async enter/exit."""
 
     def __init__(self, name="fake", session=None, aenter_error=None, aexit_error=None):
         self.name = name
-        self.session = session if session is not None else _FakeSession()
+        self.session = session if session is not None else FakeSession()
         self.aenter_error = aenter_error
         self.aexit_error = aexit_error
         self.entered = 0
@@ -61,13 +61,13 @@ class _FakeClient:
             raise self.aexit_error
 
 
-async def _getClientsAndYield(pool):
+async def getClientsAndYield(pool):
     result = await pool.getClients()
     await asyncio.sleep(0)  # let a scheduled healthCheck task complete
     return result
 
 
-async def _runHealthCheckTwice(pool):
+async def runHealthCheckTwice(pool):
     await asyncio.gather(pool.healthCheck(), pool.healthCheck())
 
 
@@ -91,7 +91,7 @@ class TestBuildClient:
 
 class TestInitialize:
     def test_connects_all_servers(self):
-        fakes = {name: _FakeClient(name) for name in ("stocks", "searxng")}
+        fakes = {name: FakeClient(name) for name in ("stocks", "searxng")}
         pool = MCPClientPool()
         with (
             patch.object(mcp, "buildClient", side_effect=lambda s: fakes[s["name"]]),
@@ -108,8 +108,8 @@ class TestInitialize:
         mock_logger.info.assert_any_call("MCPClientPool: initialized with %s", ["stocks", "searxng"])
 
     def test_continues_on_connect_error(self):
-        bad = _FakeClient("stocks", aenter_error=RuntimeError("boom"))
-        good = _FakeClient("searxng")
+        bad = FakeClient("stocks", aenter_error=RuntimeError("boom"))
+        good = FakeClient("searxng")
         fakes = {"stocks": bad, "searxng": good}
         pool = MCPClientPool()
         with (
@@ -127,14 +127,14 @@ class TestGetClients:
     def test_initializes_when_clients_none(self):
         pool = MCPClientPool()
         pool.clients = None
-        fake = _FakeClient("stocks")
+        fake = FakeClient("stocks")
 
-        async def _initialize():
+        async def initialize():
             pool.clients = {"stocks": fake}
             pool.lastHealthCheck = time.time()
 
         with (
-            patch.object(pool, "initialize", new=AsyncMock(side_effect=_initialize)) as mock_init,
+            patch.object(pool, "initialize", new=AsyncMock(side_effect=initialize)) as mock_init,
             patch.object(pool, "healthCheck", new=AsyncMock()) as mock_hc,
         ):
             clients, sessions = asyncio.run(pool.getClients())
@@ -145,7 +145,7 @@ class TestGetClients:
 
     def test_no_health_check_when_interval_fresh(self):
         pool = MCPClientPool()
-        fake = _FakeClient("stocks")
+        fake = FakeClient("stocks")
         pool.clients = {"stocks": fake}
         pool.lastHealthCheck = time.time()
         with patch.object(pool, "healthCheck", new=AsyncMock()) as mock_hc:
@@ -156,11 +156,11 @@ class TestGetClients:
 
     def test_schedules_health_check_when_interval_elapsed(self):
         pool = MCPClientPool()
-        fake = _FakeClient("stocks")
+        fake = FakeClient("stocks")
         pool.clients = {"stocks": fake}
         pool.lastHealthCheck = 0.0
         with patch.object(pool, "healthCheck", new=AsyncMock()) as mock_hc:
-            clients, sessions = asyncio.run(_getClientsAndYield(pool))
+            clients, sessions = asyncio.run(getClientsAndYield(pool))
         mock_hc.assert_awaited_once()
         assert clients == {"stocks": fake}
         assert sessions == [fake.session]
@@ -169,7 +169,7 @@ class TestGetClients:
 class TestHealthCheck:
     def test_returns_early_when_recently_checked(self):
         pool = MCPClientPool()
-        fake = _FakeClient("stocks")
+        fake = FakeClient("stocks")
         pool.clients = {"stocks": fake}
         pool.lastHealthCheck = time.time()
         with patch.object(pool, "reconnect", new=AsyncMock()) as mock_reconnect:
@@ -179,17 +179,17 @@ class TestHealthCheck:
 
     def test_double_check_guard_skips_second_call(self):
         pool = MCPClientPool()
-        fake = _FakeClient("stocks")
+        fake = FakeClient("stocks")
         pool.clients = {"stocks": fake}
         pool.lastHealthCheck = 0.0
         with patch.object(pool, "reconnect", new=AsyncMock()) as mock_reconnect:
-            asyncio.run(_runHealthCheckTwice(pool))
+            asyncio.run(runHealthCheckTwice(pool))
         assert fake.session.tools_calls == 1  # only the first call ran the tool check
         mock_reconnect.assert_not_awaited()
 
     def test_all_healthy_no_reconnect(self):
         pool = MCPClientPool()
-        s1, s2 = _FakeClient("stocks"), _FakeClient("searxng")
+        s1, s2 = FakeClient("stocks"), FakeClient("searxng")
         pool.clients = {"stocks": s1, "searxng": s2}
         pool.lastHealthCheck = 0.0
         with patch.object(pool, "reconnect", new=AsyncMock()) as mock_reconnect:
@@ -201,8 +201,8 @@ class TestHealthCheck:
 
     def test_unhealthy_reconnects(self):
         pool = MCPClientPool()
-        good = _FakeClient("stocks")
-        bad = _FakeClient("searxng", session=_FakeSession(tools_error=RuntimeError("timeout")))
+        good = FakeClient("stocks")
+        bad = FakeClient("searxng", session=FakeSession(tools_error=RuntimeError("timeout")))
         pool.clients = {"stocks": good, "searxng": bad}
         pool.lastHealthCheck = 0.0
         with (
@@ -219,7 +219,7 @@ class TestHealthCheck:
 class TestReconnect:
     def test_unknown_server_logs_error(self):
         pool = MCPClientPool()
-        fake = _FakeClient("stocks")
+        fake = FakeClient("stocks")
         pool.clients = {"stocks": fake}
         with patch.object(mcp, "buildClient") as mock_build, patch.object(mcp, "logger") as mock_logger:
             asyncio.run(pool.reconnect("ghost"))
@@ -230,8 +230,8 @@ class TestReconnect:
 
     def test_replaces_existing_client(self):
         pool = MCPClientPool()
-        old = _FakeClient("stocks")
-        new = _FakeClient("stocks")
+        old = FakeClient("stocks")
+        new = FakeClient("stocks")
         pool.clients = {"stocks": old}
         server = mcp.MCP_SERVERS[0]
         with (
@@ -247,7 +247,7 @@ class TestReconnect:
 
     def test_adds_missing_client(self):
         pool = MCPClientPool()
-        new = _FakeClient("searxng")
+        new = FakeClient("searxng")
         pool.clients = {}
         with patch.object(mcp, "buildClient", return_value=new) as mock_build:
             asyncio.run(pool.reconnect("searxng"))
@@ -257,8 +257,8 @@ class TestReconnect:
 
     def test_build_error_keeps_old_client(self):
         pool = MCPClientPool()
-        old = _FakeClient("stocks")
-        bad = _FakeClient("stocks", aenter_error=RuntimeError("boom"))
+        old = FakeClient("stocks")
+        bad = FakeClient("stocks", aenter_error=RuntimeError("boom"))
         pool.clients = {"stocks": old}
         with (
             patch.object(mcp, "buildClient", return_value=bad) as mock_build,
@@ -274,7 +274,7 @@ class TestReconnect:
 class TestClose:
     def test_exits_all_clients(self):
         pool = MCPClientPool()
-        f1, f2 = _FakeClient("stocks"), _FakeClient("searxng")
+        f1, f2 = FakeClient("stocks"), FakeClient("searxng")
         pool.clients = {"stocks": f1, "searxng": f2}
         asyncio.run(pool.close())
         assert f1.exited == 1
@@ -283,8 +283,8 @@ class TestClose:
 
     def test_swallows_exit_errors(self):
         pool = MCPClientPool()
-        f1 = _FakeClient("stocks", aexit_error=RuntimeError("boom"))
-        f2 = _FakeClient("searxng")
+        f1 = FakeClient("stocks", aexit_error=RuntimeError("boom"))
+        f2 = FakeClient("searxng")
         pool.clients = {"stocks": f1, "searxng": f2}
         asyncio.run(pool.close())
         assert f1.exited == 1

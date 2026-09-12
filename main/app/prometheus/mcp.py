@@ -3,12 +3,22 @@ from config import Config
 import time
 import asyncio
 
-from fastmcp import Client
-from fastmcp.client.client import StreamableHttpTransport
+Client = None
+StreamableHttpTransport = None
+
+
+def ensureFastmcp():
+    global Client, StreamableHttpTransport
+    if Client is None or StreamableHttpTransport is None:
+        from fastmcp import Client as FastmcpClient
+        from fastmcp.client.client import StreamableHttpTransport as FastmcpTransport
+
+        Client = FastmcpClient
+        StreamableHttpTransport = FastmcpTransport
+    return Client, StreamableHttpTransport
+
 
 logger = logging.getLogger(__name__)
-
-HEALTH_CHECK_INTERVAL = 60
 
 MCP_SERVERS = [
     {
@@ -21,11 +31,12 @@ MCP_SERVERS = [
 
 
 def buildClient(server):
+    clientCls, transportCls = ensureFastmcp()
     url = server["url"]
     headers = server.get("headers", {})
     if headers:
-        return Client(transport=StreamableHttpTransport(url, headers=headers))
-    return Client(url)
+        return clientCls(transport=transportCls(url, headers=headers))
+    return clientCls(url)
 
 
 class MCPClientPool:
@@ -54,13 +65,13 @@ class MCPClientPool:
     async def getClients(self):
         if self.clients is None:
             await self.initialize()
-        if time.time() - self.lastHealthCheck > HEALTH_CHECK_INTERVAL:
+        if time.time() - self.lastHealthCheck > 60:
             asyncio.create_task(self.healthCheck())
         return self.clients, [c.session for c in self.clients.values()]
 
     async def healthCheck(self):
         async with self.lock:
-            if time.time() - self.lastHealthCheck < HEALTH_CHECK_INTERVAL:
+            if time.time() - self.lastHealthCheck < 60:
                 return
             self.lastHealthCheck = time.time()
             for name, client in self.clients.items():
