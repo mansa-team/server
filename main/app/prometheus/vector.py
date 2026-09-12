@@ -20,9 +20,22 @@ def decodeEmbeddings(rawEmbeddings: list[bytes]) -> np.ndarray:
     if not rawEmbeddings:
         return np.empty((0, 0), dtype=np.float32)
 
-    buf = b"".join(rawEmbeddings)
-    dims = len(rawEmbeddings[0]) // 4  # float32 = 4 bytes
-    return np.frombuffer(buf, dtype=np.float32).reshape(len(rawEmbeddings), dims)
+    firstIsBytes = isinstance(rawEmbeddings[0], (bytes, bytearray, memoryview))
+    if firstIsBytes:
+        byteRows = [bytes(r) if isinstance(r, (bytearray, memoryview)) else r for r in rawEmbeddings]
+        if any(not isinstance(r, bytes) for r in byteRows):
+            raise ValueError("Mixed embedding row types: expected all bytes-like or all float sequences")
+        dims = len(byteRows[0]) // 4  # float32 = 4 bytes
+        if any(len(r) // 4 != dims or len(r) % 4 != 0 for r in byteRows):
+            raise ValueError("Inconsistent embedding dims across rows")
+        buf = b"".join(byteRows)
+        return np.frombuffer(buf, dtype=np.float32).reshape(len(byteRows), dims)
+
+    rows = [np.array(r, dtype=np.float32).reshape(-1) for r in rawEmbeddings]
+    dims = int(rows[0].shape[0])
+    if any(int(r.shape[0]) != dims for r in rows):
+        raise ValueError("Inconsistent embedding dims across rows")
+    return np.stack(rows).astype(np.float32)
 
 
 def batchCosineSimilarity(query: list[float], matrix: np.ndarray) -> np.ndarray:

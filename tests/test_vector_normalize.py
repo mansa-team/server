@@ -1,5 +1,6 @@
 import numpy as np
-from main.app.prometheus.vector import normalizeRows, batchCosineSimilarity
+import pytest
+from main.app.prometheus.vector import decodeEmbeddings, normalizeRows, batchCosineSimilarity
 
 
 def test_normalizeRows_unitNormAndZeroGuard():
@@ -17,3 +18,25 @@ def test_dotEqualsCosineOnUnnormalized():
     qn /= np.linalg.norm(qn)
     mn = mat / np.linalg.norm(mat, axis=1, keepdims=True)
     np.testing.assert_allclose(got, mn @ qn, rtol=1e-4, atol=1e-5)
+
+
+def test_decodeEmbeddings_listMatchesBytes():
+    rng = np.random.default_rng(11)
+    mat = rng.normal(size=(4, 8)).astype(np.float32)
+    byteRows = [r.tobytes() for r in mat]
+    listRows = [r.tolist() for r in mat]
+    fromBytes = decodeEmbeddings(byteRows)
+    fromLists = decodeEmbeddings(listRows)
+    np.testing.assert_allclose(fromLists, fromBytes, rtol=1e-6, atol=1e-7)
+    np.testing.assert_allclose(fromLists, mat, rtol=1e-6, atol=1e-7)
+
+
+def test_decodeEmbeddings_mixedDimsRaise():
+    with pytest.raises(ValueError):
+        decodeEmbeddings([[1.0, 2.0, 3.0], [1.0, 2.0]])
+
+
+def test_decodeEmbeddings_emptyReturnsZeroRows():
+    got = decodeEmbeddings([])
+    assert got.shape == (0, 0)
+    assert got.dtype == np.float32
