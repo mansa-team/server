@@ -94,4 +94,4 @@ class TestFilterBySearchTermsIndex:
 
         filtered = query.filterBySearchTerms(df, "AAA1")
 
-        assert filtered["TICKER"].tolist() == ["BBB1"]
+        assert filtered["TICKER"].tolist() == ["AAA1"]

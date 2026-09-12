@@ -95,19 +95,21 @@ class StocksQueryManager:
         if not search:
             return df
 
-        searchTerms = [s.strip().upper() for s in search.split(",")]
+        searchTerms = [s.strip().upper() for s in search.split(",") if s.strip()]
+        if not searchTerms:
+            return df
 
         lookup = index if index is not None else self.cacheManager.tickerIndex
-        valid_indices = []
-        for term in searchTerms:
-            if term in lookup:
-                valid_indices.append(lookup[term])
-
-        if valid_indices:
-            return df.iloc[valid_indices]
-
-        mask = df["TICKER"].str.upper().apply(lambda t: any(t.startswith(term) for term in searchTerms))
-        return df[mask]
+        upperTickers = df["TICKER"].str.upper()
+        exactSet = {t for t in searchTerms if lookup and t in lookup}
+        prefixTerms = [t for t in searchTerms if t not in exactSet]
+        combinedMask = upperTickers.isin(exactSet) if exactSet else None
+        if prefixTerms:
+            prefixMask = upperTickers.apply(lambda t: any(t.startswith(term) for term in prefixTerms))
+            combinedMask = prefixMask if combinedMask is None else (combinedMask | prefixMask)
+        if combinedMask is None:
+            return df.iloc[0:0]
+        return df[combinedMask]
 
     def queryHistorical(
         self,
