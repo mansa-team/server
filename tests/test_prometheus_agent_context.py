@@ -5,7 +5,7 @@ import pytest
 from datetime import datetime
 from unittest.mock import patch, MagicMock
 
-from main.app.prometheus.agent import Prometheus
+from main.app.prometheus.agent import Prometheus, SYSTEM_PROMPT
 from main.models.prometheus import PrometheusSession
 
 
@@ -112,3 +112,14 @@ class TestLazyClientSingleton:
         second = Prometheus()
         assert first.client is second.client
         mock_genai.Client.assert_called_once_with(api_key="test-key")
+
+
+class TestPromptMemoryGuidance:
+    def test_prompt_guides_search_before_answer(self):
+        assert "search_memory" in SYSTEM_PROMPT
+        assert "antes de responder" in SYSTEM_PROMPT
+
+    def test_prompt_guides_save_when_and_types(self):
+        assert "save_memory" in SYSTEM_PROMPT
+        assert "preference" in SYSTEM_PROMPT
+        assert "analysis" in SYSTEM_PROMPT
