@@ -91,6 +91,8 @@ class StocksQueryManager:
         if dedupTickers:
             df = df.drop_duplicates(subset=["TICKER"], keep="first")
         df = self.deserializeJsonColumns(df)
+        if "TIME" in df.columns:
+            df["TIME"] = pd.to_datetime(df["TIME"]).dt.strftime("%Y-%m-%d")
         if cotationCol and cotationCol in df.columns:
             startDate, endDate = parseDateRange(dates)
             if startDate and endDate:
