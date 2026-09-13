@@ -23,7 +23,6 @@ param(
 $ErrorActionPreference = "Continue"
 $script:failed = @()
 $script:passed = @()
-$script:fixed = @()
 
 function Write-Step {
     param([string]$label)
@@ -165,10 +164,6 @@ Write-Host ""
 Write-Host "========================================"
 Write-Host " SUMMARY"
 Write-Host "========================================"
-if ($script:fixed.Count -gt 0) {
-    Write-Host "  Auto-fixed: $($script:fixed.Count)" -ForegroundColor Yellow
-    foreach ($f in $script:fixed) { Write-Host "    - $f" -ForegroundColor Yellow }
-}
 Write-Host "  Passed: $($script:passed.Count)" -ForegroundColor Green
 if ($script:failed.Count -gt 0) {
     Write-Host "  Failed: $($script:failed.Count)" -ForegroundColor Red
