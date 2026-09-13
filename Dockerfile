@@ -38,7 +38,4 @@ WORKDIR /
 
 COPY . .
 
-# defer embedding model download to runtime — saves ~500MB from image
-# RUN python -c "from main.utils.models.loader import getEmbeddingModel; getEmbeddingModel()"
-
 CMD ["python", "run.py"]

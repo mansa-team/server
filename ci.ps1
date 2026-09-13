@@ -45,12 +45,6 @@ function Write-Fail {
     $script:failed += $label
 }
 
-function Write-Fix {
-    param([string]$label)
-    Write-Host "  FIXED  $label" -ForegroundColor Yellow
-    $script:fixed += $label
-}
-
 function Run-Check {
     param([string]$label, [string]$cmd, [bool]$critical = $true)
     Write-Step $label
@@ -120,8 +114,7 @@ if ($runAll -or $Typecheck) {
     if ($Fast) {
         Write-Step "mypy (skipped in fast mode)"
     } else {
-        # Run mypy with --no-error-summary for cleaner output
-        # mypy doesn't have an auto-fix mode, but we show clear errors
+        # mypy has no auto-fix mode; errors print inline below
         Write-Step "mypy Typecheck"
         $mypyOutput = & mypy main/ 2>&1
         $mypyExit = $LASTEXITCODE
