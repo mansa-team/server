@@ -40,25 +40,9 @@ def matrixUserTag(userId: Any) -> str:
     return f"matrix-user:{uid}"
 
 
-def getMatrix(userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]) -> tuple[list[int], np.ndarray]:
-    cacheKey = matrixKey(userId)
-    cached = asyncio.run(matrixCache.get(cacheKey, default=MATRIX_MISS))
-    if cached is not MATRIX_MISS:
-        return cast(tuple[list[int], np.ndarray], cached)
-    freshIds, freshMatrix = loader()
-    asyncio.run(matrixCache.set(cacheKey, (freshIds, freshMatrix), tags=("matrix", matrixUserTag(userId))))
-    return cast(tuple[list[int], np.ndarray], asyncio.run(matrixCache.get(cacheKey, default=(freshIds, freshMatrix))))
-
-
-def invalidateUser(userId: int) -> None:
-    asyncio.run(matrixCache.delete_tags(f"matrix-user:{userId}"))
-
-
-def clearAll() -> None:
-    asyncio.run(matrixCache.clear())
-
-
-async def getMatrixAsync(userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]) -> tuple[list[int], np.ndarray]:
+async def getMatrixAsync(
+    userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]
+) -> tuple[list[int], np.ndarray]:
     cacheKey = matrixKey(userId)
     cached = await matrixCache.get(cacheKey, default=MATRIX_MISS)
     if cached is not MATRIX_MISS:
@@ -74,6 +58,18 @@ async def invalidateUserAsync(userId: int) -> None:
 
 async def clearAllAsync() -> None:
     await matrixCache.clear()
+
+
+def getMatrix(userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]) -> tuple[list[int], np.ndarray]:
+    return asyncio.run(getMatrixAsync(userId, loader))
+
+
+def invalidateUser(userId: int) -> None:
+    asyncio.run(invalidateUserAsync(userId))
+
+
+def clearAll() -> None:
+    asyncio.run(clearAllAsync())
 
 
 logger = logging.getLogger(__name__)
@@ -142,6 +138,67 @@ def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8
     return None
 
 
+def scoreRecency(candidateRows: list[Any], limit: int) -> list[dict]:
+    now = datetime.now()
+    scored = [
+        {
+            "id": m.id,
+            "memoryKey": m.memoryKey,
+            "memoryValue": m.memoryValue,
+            "memoryType": m.memoryType,
+            "score": getRelevanceScore(m, now),
+            "relevanceScore": getRelevanceScore(m, now),
+            "similarity": 0.0,
+        }
+        for m in candidateRows
+    ]
+    scored.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
+    return scored[:limit]
+
+
+def scoreCandidates(
+    candidateRows: list[Any],
+    vecNorm: list[float],
+    simById: dict[int, float],
+    ftRank: dict[int, float],
+    now: datetime,
+    limit: int,
+) -> list[dict]:
+    fused: list[tuple[Any, float, float]] = []
+    for m, v in zip(candidateRows, vecNorm):
+        rec = getRelevanceScore(m, now)
+        f = 0.6 * v + 0.25 * ftRank.get(cast(int, m.id), 0.0) + 0.15 * rec
+        fused.append((m, f, simById.get(cast(int, m.id), 0.0)))
+    fused.sort(key=lambda p: p[1], reverse=True)
+    return [
+        {
+            "id": m.id,
+            "memoryKey": m.memoryKey,
+            "memoryValue": m.memoryValue,
+            "memoryType": m.memoryType,
+            "score": f,
+            "relevanceScore": f,
+            "similarity": sim,
+        }
+        for m, f, sim in fused[:limit]
+    ]
+
+
+def sumTokens(texts: list[str], cache: dict | None) -> int:
+    total = 0
+    if cache is None:
+        for text in texts:
+            total += countTokens(text)
+        return total
+    for text in texts:
+        cached = cache.get(text)
+        if cached is None:
+            cached = countTokens(text)
+            cache[text] = cached
+        total += cached
+    return total
+
+
 class PrometheusMemory:
     @classmethod
     def getMemoryLimit(cls, userRoles: list[str]) -> int:
@@ -170,71 +227,18 @@ class PrometheusMemory:
         embedding=None,
         userRoles: list[str] | None = None,
     ) -> dict:
-        existing = (
-            db.query(PrometheusMemoryModel)
-            .filter(PrometheusMemoryModel.userId == userId, PrometheusMemoryModel.memoryKey == key)
-            .first()
+        return asyncio.run(
+            cls.upsertMemoryAsync(
+                db,
+                userId,
+                key,
+                value,
+                memoryType,
+                source,
+                embedding,
+                userRoles,
+            ),
         )
-
-        if existing:
-            newHash = contentHash(value)
-            if existing.contentHash == newHash:
-                return {"status": "unchanged", "memory": existing}
-
-            existing.memoryValue = value  # type: ignore[assignment]
-            existing.memoryType = memoryType  # type: ignore[assignment]
-            existing.source = source  # type: ignore[assignment]
-            existing.contentHash = newHash  # type: ignore[assignment]
-            existing.embedding = embedding  # type: ignore[assignment]
-            existing.score = existing.score * 1.1  # type: ignore[assignment]
-            existing.accessCount += 1  # type: ignore[assignment]
-            existing.lastAccessedAt = datetime.now()  # type: ignore[assignment]
-
-            db.commit()
-            db.refresh(existing)
-            invalidateUser(userId)
-
-            return {"status": "updated", "memory": existing}
-
-        similar = findSimilarKey(db, userId, key)
-        if similar:
-            similar.memoryValue = value  # type: ignore[assignment]
-            similar.memoryType = memoryType  # type: ignore[assignment]
-            similar.source = source  # type: ignore[assignment]
-            similar.contentHash = contentHash(value)  # type: ignore[assignment]
-            similar.embedding = embedding  # type: ignore[assignment]
-            similar.score = similar.score * 1.1  # type: ignore[assignment]
-            similar.accessCount += 1  # type: ignore[assignment]
-            similar.lastAccessedAt = datetime.now()  # type: ignore[assignment]
-
-            db.commit()
-            db.refresh(similar)
-            invalidateUser(userId)
-
-            return {"status": "merged", "memory": similar}
-
-        if userRoles:
-            limit = cls.getMemoryLimit(userRoles)
-            current = cls.countMemories(db, userId)
-            if current >= limit:
-                return {"status": "limit_reached", "limit": limit, "current": current}
-
-        memory = PrometheusMemoryModel(
-            userId=userId,
-            memoryKey=key,
-            memoryValue=value,
-            memoryType=memoryType,
-            source=source,
-            embedding=embedding,
-            contentHash=contentHash(value),
-            score=INITIAL_STABILITY.get(str(memoryType)),
-            lastAccessedAt=datetime.now(),
-        )
-        db.add(memory)
-        db.commit()
-        db.refresh(memory)
-        invalidateUser(userId)
-        return {"status": "created", "memory": memory}
 
     @classmethod
     async def upsertMemoryAsync(
@@ -323,91 +327,7 @@ class PrometheusMemory:
         limit: int = 10,
         memoryType: str | None = None,
     ) -> list[dict]:
-        queryFilter = (
-            db.query(PrometheusMemoryModel)
-            .filter(PrometheusMemoryModel.userId == userId)
-            .filter(PrometheusMemoryModel.archivedAt.is_(None))
-        )
-
-        if memoryType:
-            queryFilter = queryFilter.filter(PrometheusMemoryModel.memoryType == memoryType)
-
-        candidateRows = (
-            queryFilter.options(defer(cast(Any, PrometheusMemoryModel.embedding)))
-            .order_by(PrometheusMemoryModel.score.desc())
-            .limit(MEMORY_SEARCH_PREFILTER_CAP)
-            .all()
-        )
-        if not candidateRows:
-            return []
-        candidateIds = [r.id for r in candidateRows]
-
-        if not query or len(query.strip()) < 3:
-            scored = []
-            now = datetime.now()
-            for m in candidateRows:
-                scored.append(
-                    {
-                        "id": m.id,
-                        "memoryKey": m.memoryKey,
-                        "memoryValue": m.memoryValue,
-                        "memoryType": m.memoryType,
-                        "score": getRelevanceScore(m, now),
-                        "relevanceScore": getRelevanceScore(m, now),
-                        "similarity": 0.0,
-                    }
-                )
-            scored.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
-            return scored[:limit]
-
-        try:
-            simById: dict[int, float] = {}
-
-            def loadMatrix() -> tuple[list[int], np.ndarray]:
-                embRows = db.query(PrometheusMemoryModel).filter(PrometheusMemoryModel.id.in_(candidateIds)).all()
-                rowsWithEmb = [m for m in embRows if m.embedding is not None]
-                if not rowsWithEmb:
-                    return ([], np.empty((0, 0), dtype=np.float32))
-                rawEmbs = [m.embedding for m in rowsWithEmb]
-                if isinstance(rawEmbs[0], (bytes, bytearray, memoryview)):
-                    return ([cast(int, m.id) for m in rowsWithEmb], decodeEmbeddings(rawEmbs))  # type: ignore[arg-type]
-                return ([cast(int, m.id) for m in rowsWithEmb], np.array(rawEmbs, dtype=np.float32))
-
-            try:
-                cachedIds, matrix = getMatrix((userId, memoryType), loadMatrix)
-                if cachedIds and matrix.shape[0] > 0:
-                    queryEmbedding = embed([query])[0]
-                    sims = batchCosineSimilarity(queryEmbedding, matrix)
-                    simById = {mid: float(s) for mid, s in zip(cachedIds, sims)}
-            except Exception as e:
-                logger.warning(f"Embedding scoring failed, using full-text and recency only: {e}")
-            vecScores = [simById.get(cast(int, m.id), 0.0) for m in candidateRows]
-            vecNorm = minMax(vecScores)
-            ftRows = cls.fullTextSearch(db, userId, query, MEMORY_SEARCH_PREFILTER_CAP)
-            ftRank = {r["id"]: 1.0 / (i + 1) for i, r in enumerate(ftRows)}
-            now = datetime.now(timezone.utc)
-            fused = []
-            for m, v in zip(candidateRows, vecNorm):
-                rec = getRelevanceScore(m, now)
-                f = 0.6 * v + 0.25 * ftRank.get(cast(int, m.id), 0.0) + 0.15 * rec
-                fused.append((m, f, simById.get(cast(int, m.id), 0.0)))
-            fused.sort(key=lambda p: p[1], reverse=True)
-            return [
-                {
-                    "id": m.id,
-                    "memoryKey": m.memoryKey,
-                    "memoryValue": m.memoryValue,
-                    "memoryType": m.memoryType,
-                    "score": f,
-                    "relevanceScore": f,
-                    "similarity": sim,
-                }
-                for m, f, sim in fused[:limit]
-            ]
-        except Exception as e:
-            logger.warning(f"Fused search failed, falling back to full-text: {e}")
-
-        return cls.fullTextSearch(db, userId, query, limit)
+        return asyncio.run(cls.searchAsync(db, userId, query, limit, memoryType))
 
     @classmethod
     async def searchAsync(
@@ -438,22 +358,7 @@ class PrometheusMemory:
         candidateIds = [r.id for r in candidateRows]
 
         if not query or len(query.strip()) < 3:
-            scored = []
-            now = datetime.now()
-            for m in candidateRows:
-                scored.append(
-                    {
-                        "id": m.id,
-                        "memoryKey": m.memoryKey,
-                        "memoryValue": m.memoryValue,
-                        "memoryType": m.memoryType,
-                        "score": getRelevanceScore(m, now),
-                        "relevanceScore": getRelevanceScore(m, now),
-                        "similarity": 0.0,
-                    }
-                )
-            scored.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
-            return scored[:limit]
+            return scoreRecency(candidateRows, limit)
 
         try:
             simById: dict[int, float] = {}
@@ -481,24 +386,7 @@ class PrometheusMemory:
             ftRows = cls.fullTextSearch(db, userId, query, MEMORY_SEARCH_PREFILTER_CAP)
             ftRank = {r["id"]: 1.0 / (i + 1) for i, r in enumerate(ftRows)}
             now = datetime.now(timezone.utc)
-            fused = []
-            for m, v in zip(candidateRows, vecNorm):
-                rec = getRelevanceScore(m, now)
-                f = 0.6 * v + 0.25 * ftRank.get(cast(int, m.id), 0.0) + 0.15 * rec
-                fused.append((m, f, simById.get(cast(int, m.id), 0.0)))
-            fused.sort(key=lambda p: p[1], reverse=True)
-            return [
-                {
-                    "id": m.id,
-                    "memoryKey": m.memoryKey,
-                    "memoryValue": m.memoryValue,
-                    "memoryType": m.memoryType,
-                    "score": f,
-                    "relevanceScore": f,
-                    "similarity": sim,
-                }
-                for m, f, sim in fused[:limit]
-            ]
+            return scoreCandidates(candidateRows, vecNorm, simById, ftRank, now, limit)
         except Exception as e:
             logger.warning(f"Fused search failed, falling back to full-text: {e}")
 
@@ -589,21 +477,7 @@ class PrometheusMemory:
 
     @classmethod
     def deleteMemory(cls, db: Session, userId: int, memoryId: int) -> bool:
-        memory = (
-            db.query(PrometheusMemoryModel)
-            .filter(PrometheusMemoryModel.id == memoryId, PrometheusMemoryModel.userId == userId)
-            .first()
-        )
-
-        if not memory:
-            return False
-
-        memory.archivedAt = datetime.now()  # type: ignore[assignment]
-
-        db.commit()
-        invalidateUser(userId)
-
-        return True
+        return asyncio.run(cls.deleteMemoryAsync(db, userId, memoryId))
 
     @classmethod
     async def deleteMemoryAsync(cls, db: Session, userId: int, memoryId: int) -> bool:
@@ -625,13 +499,7 @@ class PrometheusMemory:
 
     @staticmethod
     def countTokensCached(text: str, cache: dict | None) -> int:
-        if cache is None:
-            return countTokens(text)
-        cached = cache.get(text)
-        if cached is None:
-            cached = countTokens(text)
-            cache[text] = cached
-        return cached
+        return sumTokens([text], cache)
 
     @staticmethod
     def extract(
