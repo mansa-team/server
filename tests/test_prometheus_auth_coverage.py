@@ -304,7 +304,9 @@ class TestPrometheusChatManager:
         mock_session.history = []
         mock_db.query.return_value.filter.return_value.first.return_value = mock_session
 
-        PrometheusChatManager.saveMessage(mock_db, "sess-123", "user", "Hello", metadata={"key": "val"})
+        PrometheusChatManager.appendHistory(
+            mock_db, "sess-123", {"role": "user", "content": "Hello", "metadata": {"key": "val"}}
+        )
 
         assert len(mock_session.history) == 1
         assert mock_session.history[0]["role"] == "user"
@@ -320,13 +322,14 @@ class TestPrometheusChatManager:
         mock_session.history = None
         mock_db.query.return_value.filter.return_value.first.return_value = mock_session
 
-        PrometheusChatManager.saveMessage(mock_db, "sess-123", "assistant", "Reply")
+        PrometheusChatManager.appendHistory(
+            mock_db, "sess-123", {"role": "assistant", "content": "Reply"}
+        )
 
         assert mock_session.history == [
             {
                 "role": "assistant",
                 "content": "Reply",
-                "metadata": None,
                 "timestamp": mock_session.history[0]["timestamp"],
             }
         ]
@@ -338,7 +341,9 @@ class TestPrometheusChatManager:
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
         # Should not raise
-        PrometheusChatManager.saveMessage(mock_db, "nonexistent", "user", "Hello")
+        PrometheusChatManager.appendHistory(
+            mock_db, "nonexistent", {"role": "user", "content": "Hello"}
+        )
 
     def test_get_history_with_messages(self):
         from main.app.prometheus.chat import PrometheusChatManager

@@ -1252,11 +1252,11 @@ class TestVerifyAccessToken:
     def test_expired_token(self):
         """Covers lines 48-49: jwt.ExpiredSignatureError."""
         import jwt as pyjwt
-        from main.app.authentication.constants import SECRET_KEY, ALGORITHM
+        from config import Config
         from main.app.authentication.util import verifyAccessToken
 
         expired_payload = {"userId": "1", "exp": datetime.now() - timedelta(hours=1)}
-        token = pyjwt.encode(expired_payload, SECRET_KEY, algorithm=ALGORITHM)
+        token = pyjwt.encode(expired_payload, Config.USER.JWT_SECRET_KEY, algorithm="HS256")
 
         from fastapi import HTTPException
 

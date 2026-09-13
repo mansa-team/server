@@ -18,6 +18,8 @@ EPISODE_CAP = 12
 
 FALLBACK_FIELDS = ("P/L", "P/VP", "ROE", "DY", "LPA", "VPA", "PRECO", "INVESTING SCORE")
 
+FALLBACK_METRIC_RE = re.compile(r"\b(" + "|".join(re.escape(f) for f in FALLBACK_FIELDS) + r")\b")
+
 DECISION_KEYWORDS = re.compile(
     r"(?:prefiro|prefere|quero|gostaria|sempre|nunca|quando|"
     r"não use|use ao invés|troque|prefira|defina|configure|"
@@ -112,20 +114,18 @@ def getMetricRegex() -> re.Pattern:
     return metricRegex
 
 
+def dedup(items: list) -> list:
+    return list(dict.fromkeys(items))
+
+
 def extractTickers(text: str) -> list[str]:
-    return list(dict.fromkeys(re.compile(r"\b([A-Z]{4}[0-9])\b").findall(text)))
+    return dedup(re.compile(r"\b([A-Z]{4}[0-9])\b").findall(text))
 
 
 def extractMetrics(text: str, useRegistry: bool = False) -> list[str]:
-    if useRegistry:
-        regex = getMetricRegex()
-    else:
-        fallbackEscaped = [re.escape(f) for f in FALLBACK_FIELDS if len(f) > 1]
-        fallbackEscaped.sort(key=len, reverse=True)
-        fallbackPattern = r"\b(" + "|".join(fallbackEscaped) + r")\b"
-        regex = re.compile(fallbackPattern)
+    regex = getMetricRegex() if useRegistry else FALLBACK_METRIC_RE
 
-    return list(dict.fromkeys(regex.findall(text)))
+    return dedup(regex.findall(text))
 
 
 def extractDecisions(userMessages: list[dict]) -> list[str]:
@@ -139,7 +139,7 @@ def extractDecisions(userMessages: list[dict]) -> list[str]:
             sent = sent.strip()
             if sent and DECISION_KEYWORDS.search(sent):
                 decisions.append(sent[:200])
-    return list(dict.fromkeys(decisions))[:10]
+    return dedup(decisions)[:10]
 
 
 def extractSnapshots(toolResults: list[dict]) -> list[str]:
@@ -152,7 +152,7 @@ def extractSnapshots(toolResults: list[dict]) -> list[str]:
             unit = match.group(3) or ""
             if any(kw in label.upper() for kw in ["P/L", "ROE", "DY", "PRECO", "LPA", "VPA"]):
                 snapshots.append(f"{label}: {value}{unit}")
-    return list(dict.fromkeys(snapshots))[:10]
+    return dedup(snapshots)[:10]
 
 
 def extractToolCalls(loopEvents: list[dict]) -> list[str]:
@@ -168,7 +168,7 @@ def extractToolCalls(loopEvents: list[dict]) -> list[str]:
             calls.append(f"{toolName}({ticker})")
         else:
             calls.append(toolName)
-    return list(dict.fromkeys(calls))[:15]
+    return dedup(calls)[:15]
 
 
 def buildSummary(
@@ -233,7 +233,7 @@ class PrometheusCompactor:
         tools = extractToolCalls(loopEvents)
 
         summary = buildSummary(tickers, tools, decisions, metrics, snapshots)
-        entities = list(dict.fromkeys(tickers + metrics))
+        entities = dedup(tickers + metrics)
 
         return {
             "summary": summary,
@@ -262,8 +262,8 @@ class PrometheusCompactor:
             "id": f"ep_{uuid.uuid4().hex[:8]}",
             "time": datetime.now().isoformat(),
             "summary": mergedSummary[:1000],
-            "keyDecisions": list(dict.fromkeys(allDecisions)),
-            "entities": list(dict.fromkeys(allEntities)),
+            "keyDecisions": dedup(allDecisions),
+            "entities": dedup(allEntities),
         }
 
         return [merged] + recent

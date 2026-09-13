@@ -1,6 +1,7 @@
 from config import SessionLocal
 import logging
 from typing import Any
+from urllib.parse import quote
 
 from forgevm.exceptions import SandboxNotFound
 from sqlalchemy.orm import Session
@@ -167,8 +168,6 @@ async def serve_file(path: str, **_) -> dict:
         return {"error": "Invalid workspace path"}
     if not host.exists() or not host.is_file():
         return {"error": f"File not found: {path}"}
-
-    from urllib.parse import quote
 
     url = f"/prometheus/workspace/download?path={quote(path, safe='/')}"
     return {"url": url, "markdown": f"[{host.name}]({url})"}

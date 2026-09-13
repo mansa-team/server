@@ -5,7 +5,8 @@ from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
 
-from main.app.authentication.constants import SECRET_KEY, ALGORITHM, TOKEN_EXPIRY_HOURS, COOKIE_NAME
+from config import Config
+from main.app.authentication.constants import TOKEN_EXPIRY_HOURS, COOKIE_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -36,13 +37,13 @@ def createAccessToken(data: dict | None, expiresDelta: timedelta | None = None):
     payload = data.copy()
     payload["exp"] = datetime.now(timezone.utc) + expiresDelta
 
-    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    token = jwt.encode(payload, Config.USER.JWT_SECRET_KEY, algorithm="HS256")
     return token, expiresDelta
 
 
 def verifyAccessToken(token: str) -> dict:
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, Config.USER.JWT_SECRET_KEY, algorithms=["HS256"])
         return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")

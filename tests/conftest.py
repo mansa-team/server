@@ -31,14 +31,10 @@ def pytest_configure(config):
 
 @pytest.fixture(autouse=True)
 def patch_secret_key(monkeypatch):
-    import main.app.authentication.constants as auth_constants
+    from config import Config
 
-    if not auth_constants.SECRET_KEY:
-        monkeypatch.setattr(auth_constants, "SECRET_KEY", "test-secret-key-not-empty")
-        # util.py imports SECRET_KEY via `from ... import`, creating a separate binding
-        import main.app.authentication.util as auth_util
-
-        monkeypatch.setattr(auth_util, "SECRET_KEY", "test-secret-key-not-empty")
+    if not Config.USER.JWT_SECRET_KEY:
+        monkeypatch.setattr(Config.USER, "JWT_SECRET_KEY", "test-secret-key-not-empty")
 
 
 TEST_DATABASE_URL = "sqlite:///:memory:"

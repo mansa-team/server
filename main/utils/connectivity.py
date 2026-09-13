@@ -3,7 +3,6 @@ import time
 from requests.exceptions import ConnectionError, Timeout, RequestException
 from main.utils.http_session import getSession
 from sqlalchemy import text
-from sqlalchemy.exc import OperationalError
 
 from config import Config, engine, stocksEngine
 
@@ -33,8 +32,6 @@ def checkDatabaseConnection():
                     "overflow": pool.overflow(),
                 },
             }
-        except OperationalError as e:
-            results[name] = {"status": "error", "error": str(e)}
         except Exception as e:
             results[name] = {"status": "error", "error": str(e)}
 

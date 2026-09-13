@@ -49,47 +49,23 @@ class PrometheusChatManager:
         return True
 
     @classmethod
-    def saveMessage(cls, db: Session, sessionId: str, role: str, content: str, metadata: dict | None = None):
+    def appendHistory(cls, db: Session, sessionId: str, entry: dict):
         session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
 
         if session:
             if session.history is None:
                 session.history = []
 
-            message = {
-                "role": role,
-                "content": content,
-                "metadata": metadata,
-                "timestamp": datetime.now().isoformat(),
-            }
+            entry["timestamp"] = datetime.now().isoformat()
 
-            session.history.append(message)
+            session.history.append(entry)
 
             flag_modified(session, "history")
 
             session.lastActivity = datetime.now()  # type: ignore[assignment]
             db.commit()
         else:
-            logger.error(f"Session {sessionId} not found for saveMessage")
-
-    @classmethod
-    def saveLoopEvent(cls, db: Session, sessionId: str, eventType: str, metadata: dict):
-        session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
-
-        if session:
-            if session.history is None:
-                session.history = []
-
-            event = {
-                "role": "loop_event",
-                "eventType": eventType,
-                "metadata": metadata,
-                "timestamp": datetime.now().isoformat(),
-            }
-
-            session.history.append(event)
-            flag_modified(session, "history")
-            db.commit()
+            logger.error(f"Session {sessionId} not found for appendHistory")
 
     @classmethod
     def getHistory(cls, db: Session, sessionId: str, limit: int = 20, since: datetime | None = None):

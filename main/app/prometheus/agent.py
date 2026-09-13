@@ -294,7 +294,7 @@ class Prometheus:
         userText = str(query)
         if file and file.get("name"):
             userText += f"\n\n[ATTACHED FILES: {file['name']}]"
-        PrometheusChatManager.saveMessage(db, str(sessionId), "user", userText)
+        PrometheusChatManager.appendHistory(db, str(sessionId), {"role": "user", "content": userText})
 
         mcpClients, sessions = await clientPool.getClients()
         chat = self.makeChat(sessions, history, system_prompt=system_prompt, disable_automatic_function_calling=True)
@@ -339,11 +339,14 @@ class Prometheus:
 
                     if sessionId:
                         try:
-                            PrometheusChatManager.saveLoopEvent(
+                            PrometheusChatManager.appendHistory(
                                 db,
                                 str(sessionId),
-                                "tool_call",
-                                {"toolName": fc.name, "args": fc.args or {}, "turn": turn},
+                                {
+                                    "role": "loop_event",
+                                    "eventType": "tool_call",
+                                    "metadata": {"toolName": fc.name, "args": fc.args or {}, "turn": turn},
+                                },
                             )
                         except Exception as e:
                             logger.error(f"Failed to persist tool_call event: {e}")
@@ -375,11 +378,14 @@ class Prometheus:
 
                     if sessionId:
                         try:
-                            PrometheusChatManager.saveLoopEvent(
+                            PrometheusChatManager.appendHistory(
                                 db,
                                 str(sessionId),
-                                "tool_result",
-                                {"toolName": fc.name, "result": result, "turn": turn},
+                                {
+                                    "role": "loop_event",
+                                    "eventType": "tool_result",
+                                    "metadata": {"toolName": fc.name, "result": result, "turn": turn},
+                                },
                             )
                         except Exception as e:
                             logger.error(f"Failed to persist tool_result event: {e}")
@@ -405,14 +411,17 @@ class Prometheus:
 
                 if sessionId:
                     try:
-                        PrometheusChatManager.saveLoopEvent(
+                        PrometheusChatManager.appendHistory(
                             db,
                             str(sessionId),
-                            "turn_end",
                             {
-                                "turnNumber": turn,
-                                "durationMs": int(time.time() * 1000) - turn_start,
-                                "toolsUsed": tools_used,
+                                "role": "loop_event",
+                                "eventType": "turn_end",
+                                "metadata": {
+                                    "turnNumber": turn,
+                                    "durationMs": int(time.time() * 1000) - turn_start,
+                                    "toolsUsed": tools_used,
+                                },
                             },
                         )
                     except Exception as e:
@@ -427,6 +436,8 @@ class Prometheus:
         finally:
             if fullText:
                 try:
-                    PrometheusChatManager.saveMessage(db, str(sessionId), "assistant", fullText)
+                    PrometheusChatManager.appendHistory(
+                        db, str(sessionId), {"role": "assistant", "content": fullText}
+                    )
                 except Exception as e:
                     logger.error("Failed to persist assistant message: %s", e)

@@ -22,9 +22,13 @@ def lockFor(userId: int) -> asyncio.Lock:
 
 
 def getClient() -> AsyncClient:
+    forgeUrl = Config.PROMETHEUS.FORGEVM_URL
+    forgeToken = Config.PROMETHEUS.FORGEVM_API_TOKEN
+    if forgeUrl and not forgeToken:
+        raise RuntimeError(f"FORGEVM_URL is set ({forgeUrl}) but FORGEVM_API_TOKEN is empty; set FORGEVM_API_TOKEN or unset FORGEVM_URL for local dev")
     return AsyncClient(
-        base_url=Config.PROMETHEUS.FORGEVM_URL,
-        api_key=Config.PROMETHEUS.FORGEVM_API_TOKEN or None,
+        base_url=forgeUrl,
+        api_key=forgeToken or None,
         timeout=30,
     )
 
