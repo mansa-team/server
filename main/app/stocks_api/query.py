@@ -55,7 +55,7 @@ class StocksQueryManager:
     def __init__(self, cacheManager):
         self.cacheManager = cacheManager
 
-    def _baseFrame(self):
+    def baseFrame(self):
         snap = getattr(self.cacheManager, "snapshot", None)
         pair = snap() if callable(snap) else None
         if isinstance(pair, tuple):
@@ -66,7 +66,7 @@ class StocksQueryManager:
             raise HTTPException(status_code=503, detail="Cache not initialized")
         return df, tickerIndex
 
-    def _finalize(
+    def finalize(
         self,
         df: pd.DataFrame,
         tickerIndex,
@@ -160,7 +160,7 @@ class StocksQueryManager:
     ):
         if not (search or fields or dates):
             raise HTTPException(status_code=400, detail="at least one of search/fields/dates required")
-        df, tickerIndex = self._baseFrame()
+        df, tickerIndex = self.baseFrame()
 
         try:
             availableColumns = df.columns.tolist()
@@ -199,7 +199,7 @@ class StocksQueryManager:
                 if f"{field} {year}" in availableColumnsSet
             ]
 
-            return self._finalize(
+            return self.finalize(
                 df,
                 tickerIndex,
                 search,
@@ -227,7 +227,7 @@ class StocksQueryManager:
     ):
         if not (search or fields or dates):
             raise HTTPException(status_code=400, detail="at least one of search/fields/dates required")
-        df, tickerIndex = self._baseFrame()
+        df, tickerIndex = self.baseFrame()
 
         try:
             availableColumns = df.columns.tolist()
@@ -274,7 +274,7 @@ class StocksQueryManager:
             if not search or search.strip() == "":
                 df = df.drop_duplicates(subset=["TICKER"], keep="first")
 
-            return self._finalize(df, tickerIndex, search, orderBy, limit, cols, fieldList, dates, "fundamental")
+            return self.finalize(df, tickerIndex, search, orderBy, limit, cols, fieldList, dates, "fundamental")
         except HTTPException:
             raise
         except Exception as e:
@@ -287,7 +287,7 @@ class StocksQueryManager:
         dates: str | None = None,
         adjusted: bool = False,
     ):
-        df, tickerIndex = self._baseFrame()
+        df, tickerIndex = self.baseFrame()
 
         try:
             targetCol = "COTACAO 10Y AJUSTADA" if adjusted else "COTACAO 10Y PADRAO"
@@ -310,7 +310,7 @@ class StocksQueryManager:
                 df = df.sort_values(by="TIME", ascending=False, kind="mergesort")
             df = df.drop_duplicates(subset=["TICKER"], keep="first")
 
-            return self._finalize(
+            return self.finalize(
                 df,
                 tickerIndex,
                 search,
