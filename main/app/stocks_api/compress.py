@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from functools import lru_cache
 from typing import Any
 
 from main.app.stocks_api.cache import stocksCache
@@ -18,37 +19,28 @@ SUF = [(1e12, "T"), (1e9, "B"), (1e6, "M"), (1e3, "K")]
 DF = re.compile(r"^\d{2}-\d{2}-(\d{4})$")
 DI = re.compile(r"^(\d{4})-\d{2}-\d{2}$")
 
-abbr: dict | None = None
-nest: dict | None = None
-
-
+@lru_cache(maxsize=1)
 def getAbbr() -> dict:
-    global abbr
-    if abbr is None:
-        if stocksCache.STOCKS_CACHE is not None:
-            h, f = categorizeColumns(stocksCache.STOCKS_CACHE.columns.tolist())
-            abbr = generateAbbreviations(h, f)
-        else:
-            abbr = {"meta": {"TICKER": "TK", "NOME": "NM", "TIME": "TI"}, "historical": {}, "fundamental": {}}
-    return abbr
+    if stocksCache.STOCKS_CACHE is not None:
+        h, f = categorizeColumns(stocksCache.STOCKS_CACHE.columns.tolist())
+        return generateAbbreviations(h, f)
+    return {"meta": {"TICKER": "TK", "NOME": "NM", "TIME": "TI"}, "historical": {}, "fundamental": {}}
 
 
+@lru_cache(maxsize=1)
 def getNest() -> dict:
-    global nest
-    if nest is None:
-        if stocksCache.STOCKS_CACHE is not None:
-            nest = detectNestedFields(stocksCache.STOCKS_CACHE)
-            if stocksCache.nestedSample is not None:
-                for col, info in detectNestedFields(stocksCache.nestedSample).items():
-                    nest.setdefault(col, info)
-        else:
-            nest = {}
-    return nest
+    if stocksCache.STOCKS_CACHE is not None:
+        nest = detectNestedFields(stocksCache.STOCKS_CACHE)
+        if stocksCache.nestedSample is not None:
+            for col, info in detectNestedFields(stocksCache.nestedSample).items():
+                nest.setdefault(col, info)
+        return nest
+    return {}
 
 
 def rebuildAbbrevs() -> None:
-    global abbr, nest
-    abbr = nest = None
+    getAbbr.cache_clear()
+    getNest.cache_clear()
 
 
 def walk(data: Any, fn: Any) -> Any:

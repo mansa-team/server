@@ -5,19 +5,20 @@ by using a single atomic SQL UPDATE instead of read-then-write.
 """
 
 import asyncio
+import hashlib
 import pytest
 from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
 from sqlalchemy import update
 
 from main.models.stocksapi_key import StocksAPIKey
-from main.app.stocks_api.key import verifyAPIKey, hashKey
+from main.app.stocks_api.key import verifyAPIKey
 
 
 @pytest.fixture
 def sampleKeyData():
     """Sample API key data for tests."""
-    return {"apiKey": hashKey("test_key_12345"), "userId": 1, "requestLimit": 100, "currentUsage": 0}
+    return {"apiKey": hashlib.sha256("test_key_12345".encode()).hexdigest(), "userId": 1, "requestLimit": 100, "currentUsage": 0}
 
 
 class TestAtomicQuotaIncrement:
@@ -38,7 +39,7 @@ class TestAtomicQuotaIncrement:
 
             result = dbSession.execute(
                 update(StocksAPIKey)
-                .where(StocksAPIKey.apiKey == hashKey("test_key_12345"))
+                .where(StocksAPIKey.apiKey == hashlib.sha256("test_key_12345".encode()).hexdigest())
                 .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
                 .values(currentUsage=StocksAPIKey.currentUsage + 1)
             )
@@ -61,7 +62,7 @@ class TestAtomicQuotaIncrement:
         # First request should succeed (99 -> 100)
         result1 = dbSession.execute(
             update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == hashKey("test_key_12345"))
+            .where(StocksAPIKey.apiKey == hashlib.sha256("test_key_12345".encode()).hexdigest())
             .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
             .values(currentUsage=StocksAPIKey.currentUsage + 1)
         )
@@ -74,7 +75,7 @@ class TestAtomicQuotaIncrement:
         # Second request should fail (100 is not < 100)
         result2 = dbSession.execute(
             update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == hashKey("test_key_12345"))
+            .where(StocksAPIKey.apiKey == hashlib.sha256("test_key_12345".encode()).hexdigest())
             .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
             .values(currentUsage=StocksAPIKey.currentUsage + 1)
         )
@@ -103,7 +104,7 @@ class TestAtomicQuotaIncrement:
         # Both should succeed because 98 < 100 and 99 < 100
         result1 = dbSession.execute(
             update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == hashKey("test_key_12345"))
+            .where(StocksAPIKey.apiKey == hashlib.sha256("test_key_12345".encode()).hexdigest())
             .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
             .values(currentUsage=StocksAPIKey.currentUsage + 1)
         )
@@ -111,7 +112,7 @@ class TestAtomicQuotaIncrement:
 
         result2 = dbSession.execute(
             update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == hashKey("test_key_12345"))
+            .where(StocksAPIKey.apiKey == hashlib.sha256("test_key_12345".encode()).hexdigest())
             .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
             .values(currentUsage=StocksAPIKey.currentUsage + 1)
         )
@@ -136,7 +137,7 @@ class TestAtomicQuotaIncrement:
         # Request should fail (100 is not < 100)
         result = dbSession.execute(
             update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == hashKey("test_key_12345"))
+            .where(StocksAPIKey.apiKey == hashlib.sha256("test_key_12345".encode()).hexdigest())
             .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
             .values(currentUsage=StocksAPIKey.currentUsage + 1)
         )
@@ -206,7 +207,7 @@ class TestAtomicQuotaIncrement:
 
         result = dbSession.execute(
             update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == hashKey("test_key_12345"))
+            .where(StocksAPIKey.apiKey == hashlib.sha256("test_key_12345".encode()).hexdigest())
             .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
             .values(currentUsage=StocksAPIKey.currentUsage + 1)
         )

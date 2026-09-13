@@ -14,10 +14,6 @@ from main.models.stocksapi_key import StocksAPIKey
 apiKeyHeader = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
-def hashKey(key: str) -> str:
-    return hashlib.sha256(key.encode()).hexdigest()
-
-
 async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depends(getSession)):
     if not Config.STOCKS_API.KEY_SYSTEM:
         return None
@@ -25,7 +21,7 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depend
     if not apiKey:
         raise HTTPException(status_code=401, detail="Missing API key")
 
-    hashedKey = hashKey(apiKey)
+    hashedKey = hashlib.sha256(apiKey.encode()).hexdigest()
 
     try:
         result = db.execute(

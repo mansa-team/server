@@ -15,12 +15,16 @@ def sync_cache(ttl: str, key: str) -> Callable[[F], F]:
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             cache_key = get_cache_key(func, key, args, kwargs)
-            cached = asyncio.run(cache.get(cache_key, default=MISS))
-            if cached is not MISS:
-                return cached
-            result = func(*args, **kwargs)
-            asyncio.run(cache.set(cache_key, result, expire=ttl))
-            return result
+
+            async def cachedCall() -> Any:
+                cached = await cache.get(cache_key, default=MISS)
+                if cached is not MISS:
+                    return cached
+                result = func(*args, **kwargs)
+                await cache.set(cache_key, result, expire=ttl)
+                return result
+
+            return asyncio.run(cachedCall())
 
         return wrapper  # type: ignore[return-value]
 
