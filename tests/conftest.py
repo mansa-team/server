@@ -2,6 +2,7 @@ import pytest
 import sys
 import os
 from sqlalchemy import create_engine
+from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -42,7 +43,11 @@ TEST_DATABASE_URL = "sqlite:///:memory:"
 
 @pytest.fixture(scope="function")
 def dbSession():
-    engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
+    engine = create_engine(
+        TEST_DATABASE_URL,
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
     Base.metadata.create_all(engine)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     session = SessionLocal()
@@ -62,7 +67,11 @@ def stocksDbSession():
 
         app.dependency_overrides[getStocksSession] = lambda: stocksDbSession
     """
-    engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
+    engine = create_engine(
+        TEST_DATABASE_URL,
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
     Base.metadata.create_all(engine)
     TestingStocksSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     session = TestingStocksSessionLocal()

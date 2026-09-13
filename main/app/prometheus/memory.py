@@ -40,36 +40,25 @@ def matrixUserTag(userId: Any) -> str:
     return f"matrix-user:{uid}"
 
 
-async def getMatrixAsync(
-    userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]
-) -> tuple[list[int], np.ndarray]:
+def getMatrix(userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]) -> tuple[list[int], np.ndarray]:
     cacheKey = matrixKey(userId)
-    cached = await matrixCache.get(cacheKey, default=MATRIX_MISS)
+    cached = asyncio.run(matrixCache.get(cacheKey, default=MATRIX_MISS))
     if cached is not MATRIX_MISS:
         return cast(tuple[list[int], np.ndarray], cached)
     freshIds, freshMatrix = loader()
-    await matrixCache.set(cacheKey, (freshIds, freshMatrix), tags=("matrix", matrixUserTag(userId)))
-    return cast(tuple[list[int], np.ndarray], await matrixCache.get(cacheKey, default=(freshIds, freshMatrix)))
-
-
-async def invalidateUserAsync(userId: int) -> None:
-    await matrixCache.delete_tags(f"matrix-user:{userId}")
-
-
-async def clearAllAsync() -> None:
-    await matrixCache.clear()
-
-
-def getMatrix(userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]) -> tuple[list[int], np.ndarray]:
-    return asyncio.run(getMatrixAsync(userId, loader))
+    asyncio.run(matrixCache.set(cacheKey, (freshIds, freshMatrix), tags=("matrix", matrixUserTag(userId))))
+    return cast(
+        tuple[list[int], np.ndarray],
+        asyncio.run(matrixCache.get(cacheKey, default=(freshIds, freshMatrix))),
+    )
 
 
 def invalidateUser(userId: int) -> None:
-    asyncio.run(invalidateUserAsync(userId))
+    asyncio.run(matrixCache.delete_tags(f"matrix-user:{userId}"))
 
 
 def clearAll() -> None:
-    asyncio.run(clearAllAsync())
+    asyncio.run(matrixCache.clear())
 
 
 logger = logging.getLogger(__name__)
@@ -227,31 +216,6 @@ class PrometheusMemory:
         embedding=None,
         userRoles: list[str] | None = None,
     ) -> dict:
-        return asyncio.run(
-            cls.upsertMemoryAsync(
-                db,
-                userId,
-                key,
-                value,
-                memoryType,
-                source,
-                embedding,
-                userRoles,
-            ),
-        )
-
-    @classmethod
-    async def upsertMemoryAsync(
-        cls,
-        db: Session,
-        userId: int,
-        key: str,
-        value: str,
-        memoryType: str = "context",
-        source: str = "inferred",
-        embedding=None,
-        userRoles: list[str] | None = None,
-    ) -> dict:
         existing = (
             db.query(PrometheusMemoryModel)
             .filter(PrometheusMemoryModel.userId == userId, PrometheusMemoryModel.memoryKey == key)
@@ -274,7 +238,7 @@ class PrometheusMemory:
 
             db.commit()
             db.refresh(existing)
-            await invalidateUserAsync(userId)
+            invalidateUser(userId)
 
             return {"status": "updated", "memory": existing}
 
@@ -291,7 +255,7 @@ class PrometheusMemory:
 
             db.commit()
             db.refresh(similar)
-            await invalidateUserAsync(userId)
+            invalidateUser(userId)
 
             return {"status": "merged", "memory": similar}
 
@@ -315,22 +279,11 @@ class PrometheusMemory:
         db.add(memory)
         db.commit()
         db.refresh(memory)
-        await invalidateUserAsync(userId)
+        invalidateUser(userId)
         return {"status": "created", "memory": memory}
 
     @classmethod
     def search(
-        cls,
-        db: Session,
-        userId: int,
-        query: str,
-        limit: int = 10,
-        memoryType: str | None = None,
-    ) -> list[dict]:
-        return asyncio.run(cls.searchAsync(db, userId, query, limit, memoryType))
-
-    @classmethod
-    async def searchAsync(
         cls,
         db: Session,
         userId: int,
@@ -374,7 +327,7 @@ class PrometheusMemory:
                 return ([cast(int, m.id) for m in rowsWithEmb], np.array(rawEmbs, dtype=np.float32))
 
             try:
-                cachedIds, matrix = await getMatrixAsync((userId, memoryType), loadMatrix)
+                cachedIds, matrix = getMatrix((userId, memoryType), loadMatrix)
                 if cachedIds and matrix.shape[0] > 0:
                     queryEmbedding = embed([query])[0]
                     sims = batchCosineSimilarity(queryEmbedding, matrix)
@@ -477,10 +430,6 @@ class PrometheusMemory:
 
     @classmethod
     def deleteMemory(cls, db: Session, userId: int, memoryId: int) -> bool:
-        return asyncio.run(cls.deleteMemoryAsync(db, userId, memoryId))
-
-    @classmethod
-    async def deleteMemoryAsync(cls, db: Session, userId: int, memoryId: int) -> bool:
         memory = (
             db.query(PrometheusMemoryModel)
             .filter(PrometheusMemoryModel.id == memoryId, PrometheusMemoryModel.userId == userId)
@@ -493,7 +442,7 @@ class PrometheusMemory:
         memory.archivedAt = datetime.now()  # type: ignore[assignment]
 
         db.commit()
-        await invalidateUserAsync(userId)
+        invalidateUser(userId)
 
         return True
 

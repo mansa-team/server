@@ -1,4 +1,5 @@
 from config import SessionLocal
+import asyncio
 import logging
 from typing import Any
 from urllib.parse import quote
@@ -34,7 +35,8 @@ async def search_memory(query: str, limit: int = 10, **_) -> dict:
     if ownSession:
         db = SessionLocal()
     try:
-        results = await PrometheusMemory.searchAsync(
+        results = await asyncio.to_thread(
+            PrometheusMemory.search,
             db,  # type: ignore[arg-type]
             user["userId"],
             query,
@@ -66,7 +68,8 @@ async def save_memory(key: str, value: str, type: str, **_) -> dict:
         db = SessionLocal()
     try:
         embedding = embed([value])[0]
-        result = await PrometheusMemory.upsertMemoryAsync(
+        result = await asyncio.to_thread(
+            PrometheusMemory.upsertMemory,
             db,  # type: ignore[arg-type]
             user["userId"],
             key=key,

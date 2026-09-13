@@ -25,31 +25,27 @@ def makeFlatVector():
     return [0.5] * 384
 
 
-class TestSearchAsyncVectorPath:
-    def test_searchAsync_vectorPath(self, dbSession, monkeypatch):
+class TestSearchVectorPath:
+    def test_search_vectorPath(self, dbSession, monkeypatch):
         clearAll()
         monkeypatch.setattr(memoryMod, "embed", lambda texts: [makeQueryVector() for _ in texts])
-        asyncio.run(
-            PrometheusMemory.upsertMemoryAsync(
-                dbSession,
-                31,
-                "ticker favorito",
-                "minha acao favorita e WEGE3",
-                "preference",
-                embedding=makeMatchVector(),
-            ),
+        PrometheusMemory.upsertMemory(
+            dbSession,
+            31,
+            "ticker favorito",
+            "minha acao favorita e WEGE3",
+            "preference",
+            embedding=makeMatchVector(),
         )
-        asyncio.run(
-            PrometheusMemory.upsertMemoryAsync(
-                dbSession,
-                31,
-                "outro",
-                "texto sem relacao com nada especifico",
-                "preference",
-                embedding=makeDistractorVector(),
-            ),
+        PrometheusMemory.upsertMemory(
+            dbSession,
+            31,
+            "outro",
+            "texto sem relacao com nada especifico",
+            "preference",
+            embedding=makeDistractorVector(),
         )
-        res = asyncio.run(PrometheusMemory.searchAsync(dbSession, 31, "WEGE3"))
+        res = PrometheusMemory.search(dbSession, 31, "WEGE3")
         assert res[0]["memoryKey"] == "ticker favorito"
         assert res[0]["similarity"] > 0
 
@@ -58,17 +54,15 @@ class TestUpsertThenSearch:
     def test_upsertThenSearchFindsRow(self, dbSession, monkeypatch):
         clearAll()
         monkeypatch.setattr(memoryMod, "embed", lambda texts: [makeFlatVector() for _ in texts])
-        asyncio.run(
-            PrometheusMemory.upsertMemoryAsync(
-                dbSession,
-                32,
-                "chave teste",
-                "valor de teste WEGE3",
-                "preference",
-                embedding=makeFlatVector(),
-            ),
+        PrometheusMemory.upsertMemory(
+            dbSession,
+            32,
+            "chave teste",
+            "valor de teste WEGE3",
+            "preference",
+            embedding=makeFlatVector(),
         )
-        res = asyncio.run(PrometheusMemory.searchAsync(dbSession, 32, "teste"))
+        res = PrometheusMemory.search(dbSession, 32, "teste")
         assert any(r["memoryKey"] == "chave teste" for r in res)
 
 
