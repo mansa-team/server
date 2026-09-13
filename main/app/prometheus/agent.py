@@ -9,7 +9,6 @@ from google import genai
 from google.genai import types
 import google.genai._mcp_utils as mcp
 
-
 from main.models.prometheus import PrometheusSession
 from main.app.prometheus.memory import PrometheusMemory
 from main.app.prometheus.chat import PrometheusChatManager

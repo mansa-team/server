@@ -3,20 +3,8 @@ from config import Config
 import time
 import asyncio
 
-Client = None
-StreamableHttpTransport = None
-
-
-def ensureFastmcp():
-    global Client, StreamableHttpTransport
-    if Client is None or StreamableHttpTransport is None:
-        from fastmcp import Client as FastmcpClient
-        from fastmcp.client.client import StreamableHttpTransport as FastmcpTransport
-
-        Client = FastmcpClient
-        StreamableHttpTransport = FastmcpTransport
-    return Client, StreamableHttpTransport
-
+from fastmcp import Client
+from fastmcp.client.client import StreamableHttpTransport
 
 logger = logging.getLogger(__name__)
 
@@ -31,12 +19,11 @@ MCP_SERVERS = [
 
 
 def buildClient(server):
-    clientCls, transportCls = ensureFastmcp()
     url = server["url"]
     headers = server.get("headers", {})
     if headers:
-        return clientCls(transport=transportCls(url, headers=headers))
-    return clientCls(url)
+        return Client(transport=StreamableHttpTransport(url, headers=headers))
+    return Client(url)
 
 
 class MCPClientPool:
