@@ -35,40 +35,80 @@ def filterCotationColumn(series: pd.Series, startDate, endDate) -> pd.Series:
     if not startDate or not endDate:
         return series
 
-    startDateStr = startDate.strftime("%d-%m-%Y")
-    endDateStr = endDate.strftime("%d-%m-%Y")
-
     exploded = series.explode()
     if exploded.empty or exploded.isna().all():
         return series
 
     dates = pd.to_datetime(exploded.str.get("DATA"), format="%d-%m-%Y", errors="coerce")
     mask = (dates >= pd.Timestamp(startDate)) & (dates <= pd.Timestamp(endDate))
-    filtered = exploded[mask]
 
-    result = [entries if not isinstance(entries, list) else [] for entries in series]
-    for idx, group in filtered.groupby(level=0):
-        result[series.index.get_loc(idx)] = group.tolist()
-
-    return pd.Series(result, index=series.index)
+    grouped = exploded[mask].groupby(level=0).agg(list)
+    base = pd.Series(
+        [entries if not isinstance(entries, list) else [] for entries in series],
+        index=series.index,
+    )
+    base.update(grouped)
+    return base
 
 
 class StocksQueryManager:
     def __init__(self, cacheManager):
         self.cacheManager = cacheManager
 
+    def _baseFrame(self):
+        snap = getattr(self.cacheManager, "snapshot", None)
+        pair = snap() if callable(snap) else None
+        if isinstance(pair, tuple):
+            df, tickerIndex = pair
+        else:
+            df, tickerIndex = self.cacheManager.STOCKS_CACHE, self.cacheManager.tickerIndex
+        if df is None:
+            raise HTTPException(status_code=503, detail="Cache not initialized")
+        return df, tickerIndex
+
+    def _finalize(
+        self,
+        df: pd.DataFrame,
+        tickerIndex,
+        search: str | None,
+        orderBy: str | None,
+        limit: int | None,
+        cols: list[str] | None,
+        fields,
+        dates,
+        typeName: str,
+        dedupTickers: bool = False,
+        cotationCol: str | None = None,
+    ):
+        if search:
+            df = self.filterBySearchTerms(df, search, tickerIndex)
+        if orderBy and orderBy in df.columns:
+            df = df.sort_values(by=orderBy, ascending=False)
+        if limit:
+            df = df.head(limit)
+        if cols is not None:
+            df = df[[c for c in cols if c in df.columns]]
+        if dedupTickers:
+            df = df.drop_duplicates(subset=["TICKER"], keep="first")
+        df = self.deserializeJsonColumns(df)
+        if cotationCol and cotationCol in df.columns:
+            startDate, endDate = parseDateRange(dates)
+            if startDate and endDate:
+                df[cotationCol] = filterCotationColumn(df[cotationCol], startDate, endDate)
+        return {
+            "search": search or "all",
+            "fields": fields,
+            "dates": dates,
+            "type": typeName,
+            "count": len(df),
+            "data": sanitizeNanValues(df.to_dict(orient="records")),
+        }
+
     def deserializeJsonColumns(self, df: pd.DataFrame) -> pd.DataFrame:
         if df.empty:
             return df
 
         df = df.copy()
-
-        def cleanJSON(obj):
-            if isinstance(obj, dict):
-                return {k: cleanJSON(v) for k, v in obj.items()}
-            if isinstance(obj, list):
-                return [cleanJSON(item) for item in obj]
-            return sanitizeNanValues(obj)
 
         def parseJSON(x, decompressor):
             if isinstance(x, bytes):
@@ -83,7 +123,7 @@ class StocksQueryManager:
             if col in JSON_COLUMNS and (df[col].dtype == "object" or pd.api.types.is_string_dtype(df[col])):
                 df[col] = df[col].apply(
                     lambda x: (
-                        cleanJSON(parseJSON(x, decompressor))
+                        sanitizeNanValues(parseJSON(x, decompressor))
                         if (isinstance(x, str) and x.startswith(("{", "["))) or isinstance(x, bytes)
                         else sanitizeNanValues(x)
                     )
@@ -102,14 +142,11 @@ class StocksQueryManager:
         lookup = index if index is not None else self.cacheManager.tickerIndex
         upperTickers = df["TICKER"].str.upper()
         exactSet = {t for t in searchTerms if lookup and t in lookup}
-        prefixTerms = [t for t in searchTerms if t not in exactSet]
-        combinedMask = upperTickers.isin(exactSet) if exactSet else None
+        prefixTerms = tuple(t for t in searchTerms if t not in exactSet)
+        exactMask = upperTickers.isin(exactSet)
         if prefixTerms:
-            prefixMask = upperTickers.apply(lambda t: any(t.startswith(term) for term in prefixTerms))
-            combinedMask = prefixMask if combinedMask is None else (combinedMask | prefixMask)
-        if combinedMask is None:
-            return df.iloc[0:0]
-        return df[combinedMask]
+            return df[exactMask | upperTickers.str.startswith(prefixTerms)]
+        return df[exactMask]
 
     def queryHistorical(
         self,
@@ -121,14 +158,7 @@ class StocksQueryManager:
     ):
         if not (search or fields or dates):
             raise HTTPException(status_code=400, detail="at least one of search/fields/dates required")
-        snap = getattr(self.cacheManager, "snapshot", None)
-        pair = snap() if callable(snap) else None
-        if isinstance(pair, tuple):
-            df, tickerIndex = pair
-        else:
-            df, tickerIndex = self.cacheManager.STOCKS_CACHE, self.cacheManager.tickerIndex
-        if df is None:
-            raise HTTPException(status_code=503, detail="Cache not initialized")
+        df, tickerIndex = self._baseFrame()
 
         try:
             availableColumns = df.columns.tolist()
@@ -167,28 +197,18 @@ class StocksQueryManager:
                 if f"{field} {year}" in availableColumnsSet
             ]
 
-            if search:
-                df = self.filterBySearchTerms(df, search, tickerIndex)
-
-            if orderBy and orderBy in df.columns:
-                df = df.sort_values(by=orderBy, ascending=False)
-
-            if limit:
-                df = df.head(limit)
-
-            df = df[[c for c in cols if c in df.columns]]
-            df = df.drop_duplicates(subset=["TICKER"], keep="first")
-
-            df = self.deserializeJsonColumns(df)
-
-            return {
-                "search": search or "all",
-                "fields": sorted(fieldList),
-                "dates": [yearStart, yearEnd],
-                "type": "historical",
-                "count": len(df),
-                "data": sanitizeNanValues(df.to_dict(orient="records")),
-            }
+            return self._finalize(
+                df,
+                tickerIndex,
+                search,
+                orderBy,
+                limit,
+                cols,
+                sorted(fieldList),
+                [yearStart, yearEnd],
+                "historical",
+                dedupTickers=True,
+            )
         except HTTPException:
             raise
         except Exception as e:
@@ -205,14 +225,7 @@ class StocksQueryManager:
     ):
         if not (search or fields or dates):
             raise HTTPException(status_code=400, detail="at least one of search/fields/dates required")
-        snap = getattr(self.cacheManager, "snapshot", None)
-        pair = snap() if callable(snap) else None
-        if isinstance(pair, tuple):
-            df, tickerIndex = pair
-        else:
-            df, tickerIndex = self.cacheManager.STOCKS_CACHE, self.cacheManager.tickerIndex
-        if df is None:
-            raise HTTPException(status_code=503, detail="Cache not initialized")
+        df, tickerIndex = self._baseFrame()
 
         try:
             availableColumns = df.columns.tolist()
@@ -259,27 +272,7 @@ class StocksQueryManager:
             if not search or search.strip() == "":
                 df = df.drop_duplicates(subset=["TICKER"], keep="first")
 
-            if orderBy and orderBy in df.columns:
-                df = df.sort_values(by=orderBy, ascending=False)
-
-            if limit:
-                df = df.head(limit)
-
-            if "TIME" in df.columns:
-                df = df.copy()
-                df["TIME"] = pd.to_datetime(df["TIME"]).dt.strftime("%Y-%m-%d")
-
-            df = df[[c for c in cols if c in df.columns]]
-            df = self.deserializeJsonColumns(df)
-
-            return {
-                "search": search or "all",
-                "fields": fieldList,
-                "dates": dates,
-                "type": "fundamental",
-                "count": len(df),
-                "data": sanitizeNanValues(df.to_dict(orient="records")),
-            }
+            return self._finalize(df, tickerIndex, search, orderBy, limit, cols, fieldList, dates, "fundamental")
         except HTTPException:
             raise
         except Exception as e:
@@ -292,14 +285,7 @@ class StocksQueryManager:
         dates: str | None = None,
         adjusted: bool = False,
     ):
-        snap = getattr(self.cacheManager, "snapshot", None)
-        pair = snap() if callable(snap) else None
-        if isinstance(pair, tuple):
-            df, tickerIndex = pair
-        else:
-            df, tickerIndex = self.cacheManager.STOCKS_CACHE, self.cacheManager.tickerIndex
-        if df is None:
-            raise HTTPException(status_code=503, detail="Cache not initialized")
+        df, tickerIndex = self._baseFrame()
 
         try:
             targetCol = "COTACAO 10Y AJUSTADA" if adjusted else "COTACAO 10Y PADRAO"
@@ -322,22 +308,18 @@ class StocksQueryManager:
                 df = df.sort_values(by="TIME", ascending=False, kind="mergesort")
             df = df.drop_duplicates(subset=["TICKER"], keep="first")
 
-            cols = ["TICKER", "NOME", "TIME", targetCol]
-            df = df[[c for c in cols if c in df.columns]]
-            df = self.deserializeJsonColumns(df)
-
-            startDate, endDate = parseDateRange(dates)
-            if startDate and endDate and targetCol in df.columns:
-                df[targetCol] = filterCotationColumn(df[targetCol], startDate, endDate)
-
-            return {
-                "search": search or "all",
-                "fields": responseFields,
-                "dates": dates,
-                "type": "cotations",
-                "count": len(df),
-                "data": sanitizeNanValues(df.to_dict(orient="records")),
-            }
+            return self._finalize(
+                df,
+                tickerIndex,
+                search,
+                None,
+                None,
+                ["TICKER", "NOME", "TIME", targetCol],
+                responseFields,
+                dates,
+                "cotations",
+                cotationCol=targetCol,
+            )
         except HTTPException:
             raise
         except Exception:
