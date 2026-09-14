@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 EPISODE_TOKEN_BUDGET = 8000
 EPISODE_CAP = 12
 
-FALLBACK_FIELDS = ("P/L", "P/VP", "ROE", "DY", "LPA", "VPA", "PRECO", "INVESTING SCORE")
+FALLBACK_FIELDS = ("P/L", "P/VP", "ROE", "DY", "LPA", "VPA", "PRECO", "INVESTING SCORE") # improve ts
 
 DECISION_KEYWORDS = re.compile(
     r"(?:prefiro|prefere|quero|gostaria|sempre|nunca|quando|"

@@ -237,7 +237,7 @@
       "source_file": "config.py",
       "source_location": "L91",
       "id": "server_config_config",
-      "community": 102,
+      "community": 122,
       "norm_label": "config"
     },
     {
@@ -3061,7 +3061,7 @@
       "label": "hostPath()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L36",
+      "source_location": "L38",
       "id": "prometheus_sandbox_hostpath",
       "community": 69,
       "norm_label": "hostpath()"
@@ -3070,7 +3070,7 @@
       "label": "sandboxPath()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L50",
+      "source_location": "L52",
       "id": "prometheus_sandbox_sandboxpath",
       "community": 69,
       "norm_label": "sandboxpath()"
@@ -3079,7 +3079,7 @@
       "label": "SandboxManager",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L55",
+      "source_location": "L57",
       "id": "prometheus_sandbox_sandboxmanager",
       "community": 2,
       "norm_label": "sandboxmanager"
@@ -3088,7 +3088,7 @@
       "label": "create()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L57",
+      "source_location": "L59",
       "id": "prometheus_sandbox_create",
       "community": 69,
       "norm_label": "create()"
@@ -3097,7 +3097,7 @@
       "label": "destroy()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L73",
+      "source_location": "L75",
       "id": "prometheus_sandbox_destroy",
       "community": 69,
       "norm_label": "destroy()"
@@ -3106,7 +3106,7 @@
       "label": "getOrCreate()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L85",
+      "source_location": "L87",
       "id": "prometheus_sandbox_getorcreate",
       "community": 69,
       "norm_label": "getorcreate()"
@@ -3115,7 +3115,7 @@
       "label": "execute()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L132",
+      "source_location": "L134",
       "id": "prometheus_sandbox_execute",
       "community": 69,
       "norm_label": "execute()"
@@ -3124,7 +3124,7 @@
       "label": "read_file()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L168",
+      "source_location": "L170",
       "id": "prometheus_sandbox_read_file",
       "community": 69,
       "norm_label": "read_file()"
@@ -3133,7 +3133,7 @@
       "label": "write_file()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L175",
+      "source_location": "L177",
       "id": "prometheus_sandbox_write_file",
       "community": 69,
       "norm_label": "write_file()"
@@ -3142,7 +3142,7 @@
       "label": "list_files()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L189",
+      "source_location": "L191",
       "id": "prometheus_sandbox_list_files",
       "community": 69,
       "norm_label": "list_files()"
@@ -3151,7 +3151,7 @@
       "label": "delete_file()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L197",
+      "source_location": "L199",
       "id": "prometheus_sandbox_delete_file",
       "community": 69,
       "norm_label": "delete_file()"
@@ -3160,7 +3160,7 @@
       "label": "syncToSandbox()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L214",
+      "source_location": "L216",
       "id": "prometheus_sandbox_synctosandbox",
       "community": 69,
       "norm_label": "synctosandbox()"
@@ -3169,7 +3169,7 @@
       "label": "syncFromSandbox()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L233",
+      "source_location": "L235",
       "id": "prometheus_sandbox_syncfromsandbox",
       "community": 69,
       "norm_label": "syncfromsandbox()"
@@ -4368,7 +4368,7 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L1",
       "id": "main_controller_stocksapi_controller_py",
-      "community": 54,
+      "community": 81,
       "norm_label": "stocksapi_controller.py"
     },
     {
@@ -4377,7 +4377,7 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L23",
       "id": "controller_stocksapi_controller_health",
-      "community": 54,
+      "community": 81,
       "norm_label": "health()"
     },
     {
@@ -4773,7 +4773,7 @@
       "source_file": "main/service/prometheus_service.py",
       "source_location": "L23",
       "id": "service_prometheus_service_memorymaintenance",
-      "community": 234,
+      "community": 518,
       "norm_label": "memorymaintenance()"
     },
     {
@@ -8688,7 +8688,7 @@
       "source_file": "docs/superpowers/plans/2026-09-04-wallet-management.md",
       "source_location": "L1",
       "id": "docs_superpowers_plans_2026_09_04_wallet_management_md",
-      "community": 497,
+      "community": 132,
       "norm_label": "2026-09-04-wallet-management.md"
     },
     {
@@ -8697,7 +8697,7 @@
       "source_file": "docs/superpowers/plans/2026-09-04-wallet-management.md",
       "source_location": "L1",
       "id": "plans_2026_09_04_wallet_management_wallet_management_thoth_iyagba_implementation_plan",
-      "community": 497,
+      "community": 132,
       "norm_label": "wallet management (thoth/iyagba) implementation plan"
     },
     {
@@ -8706,7 +8706,7 @@
       "source_file": "docs/superpowers/plans/2026-09-04-wallet-management.md",
       "source_location": "L13",
       "id": "plans_2026_09_04_wallet_management_global_constraints",
-      "community": 497,
+      "community": 132,
       "norm_label": "global constraints"
     },
     {
@@ -8715,7 +8715,7 @@
       "source_file": "docs/superpowers/plans/2026-09-04-wallet-management.md",
       "source_location": "L35",
       "id": "plans_2026_09_04_wallet_management_file_structure",
-      "community": 497,
+      "community": 132,
       "norm_label": "file structure"
     },
     {
@@ -10091,7 +10091,7 @@
       "file_type": "code",
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L23",
-      "community": 54,
+      "community": 81,
       "norm_label": "jsonbytesresponse",
       "id": "controller_stocksapi_controller_jsonbytesresponse"
     },
@@ -10100,7 +10100,7 @@
       "file_type": "code",
       "source_file": "",
       "source_location": "",
-      "community": 54,
+      "community": 81,
       "norm_label": "fastapiresponse",
       "id": "fastapiresponse"
     },
@@ -10109,7 +10109,7 @@
       "file_type": "code",
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L26",
-      "community": 54,
+      "community": 81,
       "norm_label": ".render()",
       "id": "controller_stocksapi_controller_jsonbytesresponse_render"
     },
@@ -12926,7 +12926,7 @@
       "file_type": "rationale",
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L24",
-      "community": 54,
+      "community": 81,
       "norm_label": "sends pre-serialized json bytes without re-encoding (cache-friendly).",
       "id": "controller_stocksapi_controller_rationale_24"
     },
@@ -13070,7 +13070,7 @@
       "file_type": "code",
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L323",
-      "community": 54,
+      "community": 81,
       "norm_label": "generatekey()",
       "id": "controller_stocksapi_controller_generatekey"
     },
@@ -27083,7 +27083,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L1",
-      "community": 518,
+      "community": 234,
       "norm_label": "test_memory_maintenance.py",
       "id": "tests_test_memory_maintenance_py"
     },
@@ -27092,7 +27092,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L18",
-      "community": 518,
+      "community": 234,
       "norm_label": "brt()",
       "id": "tests_test_memory_maintenance_brt"
     },
@@ -27101,7 +27101,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L23",
-      "community": 518,
+      "community": 234,
       "norm_label": "create_memories()",
       "id": "tests_test_memory_maintenance_create_memories"
     },
@@ -27110,7 +27110,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L46",
-      "community": 518,
+      "community": 234,
       "norm_label": "testdecay",
       "id": "tests_test_memory_maintenance_testdecay"
     },
@@ -27119,7 +27119,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L47",
-      "community": 518,
+      "community": 234,
       "norm_label": ".test_active_memory_decays()",
       "id": "tests_test_memory_maintenance_testdecay_test_active_memory_decays"
     },
@@ -27128,7 +27128,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L54",
-      "community": 518,
+      "community": 234,
       "norm_label": ".test_zero_access_count_still_decays()",
       "id": "tests_test_memory_maintenance_testdecay_test_zero_access_count_still_decays"
     },
@@ -27137,7 +27137,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L61",
-      "community": 518,
+      "community": 234,
       "norm_label": ".test_high_score_decays_proportionally()",
       "id": "tests_test_memory_maintenance_testdecay_test_high_score_decays_proportionally"
     },
@@ -27146,7 +27146,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L67",
-      "community": 518,
+      "community": 234,
       "norm_label": ".test_very_low_score_stays_above_zero()",
       "id": "tests_test_memory_maintenance_testdecay_test_very_low_score_stays_above_zero"
     },
@@ -27155,7 +27155,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L74",
-      "community": 518,
+      "community": 234,
       "norm_label": ".test_multiple_users_all_decayed()",
       "id": "tests_test_memory_maintenance_testdecay_test_multiple_users_all_decayed"
     },
@@ -27290,7 +27290,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L171",
-      "community": 234,
+      "community": 518,
       "norm_label": ".test_no_memories_does_not_crash()",
       "id": "tests_test_memory_maintenance_testemptydatabase_test_no_memories_does_not_crash"
     },
@@ -27299,7 +27299,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L24",
-      "community": 518,
+      "community": 234,
       "norm_label": "helper to create memories with controlled basescore, lastaccessedat, accesscount",
       "id": "tests_test_memory_maintenance_rationale_24"
     },
@@ -27308,7 +27308,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L55",
-      "community": 518,
+      "community": 234,
       "norm_label": "decay applies to all active memories, not just accessed ones.",
       "id": "tests_test_memory_maintenance_rationale_55"
     },
@@ -27317,7 +27317,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L68",
-      "community": 518,
+      "community": 234,
       "norm_label": "basescore should never reach exactly 0 from decay alone.",
       "id": "tests_test_memory_maintenance_rationale_68"
     },
@@ -32258,7 +32258,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L841",
-      "community": 17,
+      "community": 39,
       "norm_label": ".test_fundamental_date_range_two_dates()",
       "id": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_date_range_two_dates"
     },
@@ -32285,7 +32285,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L882",
-      "community": 39,
+      "community": 17,
       "norm_label": ".test_fundamental_search_multiple_terms()",
       "id": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_search_multiple_terms"
     },
@@ -32303,7 +32303,7 @@
       "file_type": "code",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L898",
-      "community": 17,
+      "community": 39,
       "norm_label": ".test_fundamental_dates_one_date()",
       "id": "tests_test_stocks_api_coverage_testqueryfundamental_test_fundamental_dates_one_date"
     },
@@ -32951,7 +32951,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L842",
-      "community": 17,
+      "community": 39,
       "norm_label": "two dates in the range, both valid.",
       "id": "tests_test_stocks_api_coverage_rationale_842"
     },
@@ -32978,7 +32978,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L883",
-      "community": 39,
+      "community": 17,
       "norm_label": "multiple search terms with tickerindex.",
       "id": "tests_test_stocks_api_coverage_rationale_883"
     },
@@ -32996,7 +32996,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L899",
-      "community": 17,
+      "community": 39,
       "norm_label": "len(daterange) == 1 -> per-ticker closest snapshot.",
       "id": "tests_test_stocks_api_coverage_rationale_899"
     },
@@ -34328,7 +34328,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L1",
-      "community": 234,
+      "community": 518,
       "norm_label": "test_type_aware_decay.py",
       "id": "tests_test_type_aware_decay_py"
     },
@@ -34337,7 +34337,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L11",
-      "community": 234,
+      "community": 518,
       "norm_label": "_create()",
       "id": "tests_test_type_aware_decay_create"
     },
@@ -34346,7 +34346,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L29",
-      "community": 234,
+      "community": 518,
       "norm_label": "testtypeawaredecay",
       "id": "tests_test_type_aware_decay_testtypeawaredecay"
     },
@@ -34355,7 +34355,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L30",
-      "community": 234,
+      "community": 518,
       "norm_label": ".test_preference_decays_slowly()",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_preference_decays_slowly"
     },
@@ -34364,7 +34364,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L36",
-      "community": 234,
+      "community": 518,
       "norm_label": ".test_context_decays_fast()",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_context_decays_fast"
     },
@@ -34373,7 +34373,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L42",
-      "community": 234,
+      "community": 518,
       "norm_label": ".test_analysis_decays_normally()",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_analysis_decays_normally"
     },
@@ -34382,7 +34382,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L48",
-      "community": 234,
+      "community": 518,
       "norm_label": ".test_feedback_decays_medium()",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_feedback_decays_medium"
     },
@@ -34391,7 +34391,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L54",
-      "community": 234,
+      "community": 518,
       "norm_label": ".test_unknown_type_uses_default()",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_unknown_type_uses_default"
     },
@@ -34400,7 +34400,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L60",
-      "community": 234,
+      "community": 518,
       "norm_label": ".test_mixed_types_all_correct()",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_mixed_types_all_correct"
     },
@@ -34409,7 +34409,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L76",
-      "community": 234,
+      "community": 518,
       "norm_label": ".test_preference_survives_longer()",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_preference_survives_longer"
     },
@@ -34418,7 +34418,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L77",
-      "community": 234,
+      "community": 518,
       "norm_label": "after 10 cycles, preference (0.99^10) > context (0.90^10).",
       "id": "tests_test_type_aware_decay_rationale_77"
     },
@@ -41132,7 +41132,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L23",
-      "community": 518,
+      "community": 234,
       "norm_label": "helper to create memories with controlled basescore, lastaccessedat, accesscount",
       "id": "tests_test_memory_maintenance_rationale_23"
     },
@@ -41141,7 +41141,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L54",
-      "community": 518,
+      "community": 234,
       "norm_label": "decay applies to all active memories, not just accessed ones.",
       "id": "tests_test_memory_maintenance_rationale_54"
     },
@@ -41150,7 +41150,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L67",
-      "community": 518,
+      "community": 234,
       "norm_label": "basescore should never reach exactly 0 from decay alone.",
       "id": "tests_test_memory_maintenance_rationale_67"
     },
@@ -46424,7 +46424,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L896",
-      "community": 17,
+      "community": 39,
       "norm_label": "search.strip() == '' should still dedup (line 181).",
       "id": "tests_test_stocks_api_coverage_rationale_896"
     },
@@ -46433,7 +46433,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L905",
-      "community": 17,
+      "community": 39,
       "norm_label": "dataframe without time column.",
       "id": "tests_test_stocks_api_coverage_rationale_905"
     },
@@ -46442,7 +46442,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L918",
-      "community": 17,
+      "community": 39,
       "norm_label": "two dates in the range, both valid.",
       "id": "tests_test_stocks_api_coverage_rationale_918"
     },
@@ -46469,7 +46469,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L959",
-      "community": 39,
+      "community": 17,
       "norm_label": "multiple search terms with tickerindex.",
       "id": "tests_test_stocks_api_coverage_rationale_959"
     },
@@ -46487,7 +46487,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L975",
-      "community": 17,
+      "community": 39,
       "norm_label": "len(daterange) == 1 -> per-ticker closest snapshot.",
       "id": "tests_test_stocks_api_coverage_rationale_975"
     },
@@ -47207,7 +47207,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L917",
-      "community": 17,
+      "community": 39,
       "norm_label": "two dates in the range, both valid.",
       "id": "tests_test_stocks_api_coverage_rationale_917"
     },
@@ -47225,7 +47225,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L956",
-      "community": 39,
+      "community": 17,
       "norm_label": "multiple search terms with tickerindex.",
       "id": "tests_test_stocks_api_coverage_rationale_956"
     },
@@ -47243,7 +47243,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L972",
-      "community": 17,
+      "community": 39,
       "norm_label": "len(daterange) == 1 -> single date filter.",
       "id": "tests_test_stocks_api_coverage_rationale_972"
     },
@@ -47495,7 +47495,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L907",
-      "community": 17,
+      "community": 39,
       "norm_label": "two dates in the range, both valid.",
       "id": "tests_test_stocks_api_coverage_rationale_907"
     },
@@ -47513,7 +47513,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L946",
-      "community": 39,
+      "community": 17,
       "norm_label": "multiple search terms with tickerindex.",
       "id": "tests_test_stocks_api_coverage_rationale_946"
     },
@@ -47531,7 +47531,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L962",
-      "community": 17,
+      "community": 39,
       "norm_label": "len(daterange) == 1 -> single date filter.",
       "id": "tests_test_stocks_api_coverage_rationale_962"
     },
@@ -48233,7 +48233,7 @@
       "file_type": "code",
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L63",
-      "community": 54,
+      "community": 81,
       "norm_label": "getrealtimecotation()",
       "id": "controller_stocksapi_controller_getrealtimecotation"
     },
@@ -48341,7 +48341,7 @@
       "file_type": "code",
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L23",
-      "community": 54,
+      "community": 81,
       "norm_label": "apikeytest()",
       "id": "controller_stocksapi_controller_apikeytest"
     },
@@ -50015,7 +50015,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L906",
-      "community": 17,
+      "community": 39,
       "norm_label": "two dates in the range, both valid.",
       "id": "tests_test_stocks_api_coverage_rationale_906"
     },
@@ -50042,7 +50042,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L945",
-      "community": 39,
+      "community": 17,
       "norm_label": "multiple search terms with tickerindex.",
       "id": "tests_test_stocks_api_coverage_rationale_945"
     },
@@ -50060,7 +50060,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L961",
-      "community": 17,
+      "community": 39,
       "norm_label": "len(daterange) == 1 -> single date filter.",
       "id": "tests_test_stocks_api_coverage_rationale_961"
     },
@@ -50276,7 +50276,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L898",
-      "community": 17,
+      "community": 39,
       "norm_label": "two dates in the range, both valid.",
       "id": "tests_test_stocks_api_coverage_rationale_898"
     },
@@ -50303,7 +50303,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L937",
-      "community": 39,
+      "community": 17,
       "norm_label": "multiple search terms with tickerindex.",
       "id": "tests_test_stocks_api_coverage_rationale_937"
     },
@@ -50375,7 +50375,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L935",
-      "community": 39,
+      "community": 17,
       "norm_label": "multiple search terms with tickerindex.",
       "id": "tests_test_stocks_api_coverage_rationale_935"
     },
@@ -50393,7 +50393,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L951",
-      "community": 17,
+      "community": 39,
       "norm_label": "len(daterange) == 1 -> single date filter.",
       "id": "tests_test_stocks_api_coverage_rationale_951"
     },
@@ -50510,7 +50510,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L850",
-      "community": 17,
+      "community": 39,
       "norm_label": "two dates in the range, both valid.",
       "id": "tests_test_stocks_api_coverage_rationale_850"
     },
@@ -50528,7 +50528,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L889",
-      "community": 39,
+      "community": 17,
       "norm_label": "multiple search terms with tickerindex.",
       "id": "tests_test_stocks_api_coverage_rationale_889"
     },
@@ -50672,7 +50672,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L851",
-      "community": 17,
+      "community": 39,
       "norm_label": "two dates in the range, both valid.",
       "id": "tests_test_stocks_api_coverage_rationale_851"
     },
@@ -50699,7 +50699,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L890",
-      "community": 39,
+      "community": 17,
       "norm_label": "multiple search terms with tickerindex.",
       "id": "tests_test_stocks_api_coverage_rationale_890"
     },
@@ -51788,7 +51788,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L845",
-      "community": 17,
+      "community": 39,
       "norm_label": "two dates in the range, both valid.",
       "id": "tests_test_stocks_api_coverage_rationale_845"
     },
@@ -51824,7 +51824,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L900",
-      "community": 17,
+      "community": 39,
       "norm_label": "len(daterange) == 1 -> single date filter.",
       "id": "tests_test_stocks_api_coverage_rationale_900"
     },
@@ -137183,5 +137183,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "c70c13418661d63720e47519841e95aaabdff09f"
+  "built_at_commit": "78084c0d76c87622625b9986338e6ffe40c7a28c"
 }

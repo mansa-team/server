@@ -69,7 +69,6 @@ INITIAL_STABILITY = {
 MEMORY_EXTRACTION_TOKEN_BUDGET = 32000
 MEMORY_EXTRACT_FREE_CAP = 5
 MEMORY_EXTRACT_PREMIUM_CAP = 10
-MEMORY_SEARCH_PREFILTER_CAP = 500
 
 client = None
 
@@ -286,7 +285,7 @@ class PrometheusMemory:
         candidateRows = (
             queryFilter.options(defer(cast(Any, PrometheusMemoryModel.embedding)))
             .order_by(PrometheusMemoryModel.score.desc())
-            .limit(MEMORY_SEARCH_PREFILTER_CAP)
+            .limit(500)
             .all()
         )
         if not candidateRows:
@@ -319,7 +318,7 @@ class PrometheusMemory:
                 logger.warning(f"Embedding scoring failed, using full-text and recency only: {e}")
             vecScores = [simById.get(cast(int, m.id), 0.0) for m in candidateRows]
             vecNorm = minMax(vecScores)
-            ftRows = cls.fullTextSearch(db, userId, query, MEMORY_SEARCH_PREFILTER_CAP)
+            ftRows = cls.fullTextSearch(db, userId, query, 500)
             ftRank = {r["id"]: 1.0 / (i + 1) for i, r in enumerate(ftRows)}
             now = datetime.now(timezone.utc)
             return scoreCandidates(candidateRows, vecNorm, simById, ftRank, now, limit)
