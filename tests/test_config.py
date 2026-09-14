@@ -6,7 +6,7 @@ class TestConfig:
     def test_stocks_api_attributes(self):
         settings = StocksApiSettings()
         assert settings.KEY_SYSTEM is not None
-        assert settings.DEFAULT_QUOTA is not None
+        assert settings.KEY is not None
 
     def test_prometheus_attributes(self):
         settings = PrometheusSettings()
