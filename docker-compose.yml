@@ -3,10 +3,10 @@ services:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: mansa_db
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-mansa_db}
+      MYSQL_USER: ${MYSQL_USER:-user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
     ports:
       - "3306:3306"
     volumes:
@@ -52,14 +52,20 @@ services:
       - DEBUG_MODE=TRUE
       - TZ=America/Sao_Paulo
       - FORGEVM_API_TOKEN=${FORGEVM_API_TOKEN:-}
+      - USER_MYSQL_HOST
+      - USER_MYSQL_USER
+      - USER_MYSQL_PASSWORD
+      - USER_MYSQL_DATABASE
+      - STOCKS_MYSQL_HOST
+      - STOCKS_MYSQL_USER
+      - STOCKS_MYSQL_PASSWORD
+      - STOCKS_MYSQL_DATABASE
 
     volumes:
       - .:/app
       - workspaces:/data/workspaces
-      - stocks-cache:/app/cache
 
 volumes:
   db_data:
   forgevm-data:
   workspaces:
-  stocks-cache:

@@ -112,38 +112,23 @@ jobs:
       - name: Build Docker image
         run: docker build -t mansa-server:test .
 
-      - name: Create docker-compose.ci.yml for testing
+      - name: Export CI database credentials
         run: |
-          cat > docker-compose.ci.yml << 'EOF'
-          services:
-            db:
-              image: mysql:8.0
-              environment:
-                MYSQL_ROOT_PASSWORD: ${{ secrets.USER_MYSQL_PASSWORD }}
-                MYSQL_DATABASE: ${{ secrets.USER_MYSQL_DATABASE }}
-                MYSQL_USER: ${{ secrets.USER_MYSQL_USER }}
-                MYSQL_PASSWORD: ${{ secrets.USER_MYSQL_PASSWORD }}
-              ports:
-                - "3306:3306"
-
-            api:
-              image: mansa-server:test
-              ports:
-                - "8000:8000"
-                - "3200:3200"
-              environment:
-                USER_MYSQL_HOST: ${{ secrets.USER_MYSQL_HOST }}
-                USER_MYSQL_USER: ${{ secrets.USER_MYSQL_USER }}
-                USER_MYSQL_PASSWORD: ${{ secrets.USER_MYSQL_PASSWORD }}
-                USER_MYSQL_DATABASE: ${{ secrets.USER_MYSQL_DATABASE }}
-                STOCKS_MYSQL_HOST: ${{ secrets.STOCKS_MYSQL_HOST }}
-                STOCKS_MYSQL_USER: ${{ secrets.STOCKS_MYSQL_USER }}
-                STOCKS_MYSQL_PASSWORD: ${{ secrets.STOCKS_MYSQL_PASSWORD }}
-                STOCKS_MYSQL_DATABASE: ${{ secrets.STOCKS_MYSQL_DATABASE }}
-                DEBUG_MODE: "TRUE"
-              depends_on:
-                - db
-          EOF
+          echo "MYSQL_ROOT_PASSWORD=${{ secrets.USER_MYSQL_PASSWORD }}" >> $GITHUB_ENV
+          echo "MYSQL_DATABASE=${{ secrets.USER_MYSQL_DATABASE }}" >> $GITHUB_ENV
+          echo "MYSQL_USER=${{ secrets.USER_MYSQL_USER }}" >> $GITHUB_ENV
+          echo "MYSQL_PASSWORD=${{ secrets.USER_MYSQL_PASSWORD }}" >> $GITHUB_ENV
+          echo "USER_MYSQL_HOST=db" >> $GITHUB_ENV
+          echo "USER_MYSQL_USER=${{ secrets.USER_MYSQL_USER }}" >> $GITHUB_ENV
+          echo "USER_MYSQL_PASSWORD=${{ secrets.USER_MYSQL_PASSWORD }}" >> $GITHUB_ENV
+          echo "USER_MYSQL_DATABASE=${{ secrets.USER_MYSQL_DATABASE }}" >> $GITHUB_ENV
+          echo "STOCKS_MYSQL_HOST=db" >> $GITHUB_ENV
+          echo "STOCKS_MYSQL_USER=${{ secrets.STOCKS_MYSQL_USER }}" >> $GITHUB_ENV
+          echo "STOCKS_MYSQL_PASSWORD=${{ secrets.STOCKS_MYSQL_PASSWORD }}" >> $GITHUB_ENV
+          echo "STOCKS_MYSQL_DATABASE=${{ secrets.STOCKS_MYSQL_DATABASE }}" >> $GITHUB_ENV
+          echo "USER_PORT=3200" >> $GITHUB_ENV
+          echo "STOCKSAPI_PORT=3201" >> $GITHUB_ENV
+          echo "PROMETHEUS_PORT=3202" >> $GITHUB_ENV
 
       - name: Install Docker Compose
         run: |
@@ -152,13 +137,13 @@ jobs:
           chmod +x ~/.docker/cli-plugins/docker-compose
 
       - name: Start services
-        run: docker compose -f docker-compose.ci.yml up -d
+        run: docker compose up -d db api
 
       - name: Wait for MySQL to be ready
         run: sleep 15
 
       - name: Show container logs
-        run: docker compose -f docker-compose.ci.yml logs
+        run: docker compose logs
 
       - name: Check health endpoints
         run: |
@@ -167,12 +152,12 @@ jobs:
           curl -f http://localhost:3200/user/health || echo "User health not available"
 
       - name: Show API logs (verify migrations ran)
-        run: docker compose -f docker-compose.ci.yml logs api
+        run: docker compose logs api
 
       - name: Show final container status
         if: always()
-        run: docker compose -f docker-compose.ci.yml ps
+        run: docker compose ps
 
       - name: Stop and remove containers
         if: always()
-        run: docker compose -f docker-compose.ci.yml down -v
+        run: docker compose down -v
