@@ -172,11 +172,14 @@ class SandboxManager:
         return host.read_text(encoding="utf-8")
 
     @staticmethod
-    def write_file(userId: int, path: str, content: str) -> bool:
+    def write_file(userId: int, path: str, content: str | bytes) -> bool:
         try:
             host = hostPath(userId, path)
             host.parent.mkdir(parents=True, exist_ok=True)
-            host.write_text(content, encoding="utf-8")
+            if isinstance(content, bytes):
+                host.write_bytes(content)
+            else:
+                host.write_text(content, encoding="utf-8")
             return True
         except Exception as e:
             logger.warning("Failed to write %s: %s", path, e)
@@ -189,17 +192,6 @@ class SandboxManager:
             return {"entries": []}
         entries = [str(sandboxPath(item, userId)) for item in sorted(host.rglob("*")) if item.is_file()]
         return {"entries": entries}
-
-    @staticmethod
-    def write_bytes(userId: int, path: str, content: bytes) -> bool:
-        try:
-            host = hostPath(userId, path)
-            host.parent.mkdir(parents=True, exist_ok=True)
-            host.write_bytes(content)
-            return True
-        except Exception as e:
-            logger.warning("Failed to write %s: %s", path, e)
-            return False
 
     @staticmethod
     def delete_file(userId: int, path: str) -> bool:

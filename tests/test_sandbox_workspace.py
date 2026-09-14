@@ -1,4 +1,4 @@
-"""Tests for SandboxManager file mutation helpers (delete_file, write_bytes)."""
+"""Tests for SandboxManager file mutation helpers (delete_file, write_file)."""
 
 from pathlib import Path
 from unittest.mock import patch
@@ -17,17 +17,17 @@ def workspace(tmp_path, monkeypatch):
 
 class TestWriteBytes:
     def test_writes_binary_content(self, workspace):
-        ok = SandboxManager.write_bytes(1, "/workspace/data.bin", b"\x00\x01\x02")
+        ok = SandboxManager.write_file(1, "/workspace/data.bin", b"\x00\x01\x02")
         assert ok is True
         assert (workspace / "1" / "data.bin").read_bytes() == b"\x00\x01\x02"
 
     def test_creates_parent_dirs(self, workspace):
-        ok = SandboxManager.write_bytes(1, "/workspace/reports/q1.csv", b"a,b\n")
+        ok = SandboxManager.write_file(1, "/workspace/reports/q1.csv", b"a,b\n")
         assert ok is True
         assert (workspace / "1" / "reports" / "q1.csv").exists()
 
     def test_rejects_traversal(self, workspace):
-        ok = SandboxManager.write_bytes(1, "/workspace/../../evil.txt", b"x")
+        ok = SandboxManager.write_file(1, "/workspace/../../evil.txt", b"x")
         assert ok is False
         assert not (workspace / "evil.txt").exists()
 
