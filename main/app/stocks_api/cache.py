@@ -9,6 +9,7 @@ import numpy as np
 import pyarrow as pa
 
 from sqlalchemy.engine import Engine
+from sqlalchemy.exc import OperationalError
 
 import os
 import subprocess  # nosec: B404 used only with constant args, see line 302
@@ -66,7 +67,7 @@ def arrowTypeFor(dbType: str):
     return pa.string()
 
 
-def buildFeatherCache(engine: Engine | None = None):
+def buildFeatherCache(engine: Engine | None = None, _attempt: int = 0):
     sampleCols = None
     sampleParts: dict[str, pd.Series] = {}
     compressor = zstd.ZstdCompressor(level=3)
@@ -135,6 +136,17 @@ def buildFeatherCache(engine: Engine | None = None):
                     result.close()
                 except Exception:
                     pass  # nosec: B110 best-effort writer/sink close, retried next refresh
+    except OperationalError as e:
+        if _attempt >= 2:
+            raise
+        logger.warning(f"feather build lost connection (attempt {_attempt + 1}/3), retrying with fresh connection")
+        try:
+            resolvedEngine.dispose()
+        except Exception:
+            pass
+        time.sleep(2**_attempt)
+        buildFeatherCache(engine, _attempt + 1)
+        return
     finally:
         if writer is not None:
             writer.close()
