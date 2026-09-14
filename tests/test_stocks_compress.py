@@ -1,7 +1,7 @@
 """Unit tests for main/app/stocks_api/compress.py.
 
 Covers the payload-compaction helpers used by the stocks MCP tools:
-compactValue suffix/date logic, toColumnar, fixHeaders, compactRow,
+compactValue suffix/date logic, compactRow,
 compactCotations, the compressResponse pipeline, and the lazy
 abbr/nest caches (getAbbr/getNest/rebuildAbbrevs).
 
@@ -22,12 +22,9 @@ from main.app.stocks_api.compress import (
     compactRow,
     compactValue,
     compressResponse,
-    fixHeaders,
     getAbbr,
     getNest,
     rebuildAbbrevs,
-    toColumnar,
-    walk,
 )
 
 # Stub abbreviation/nesting tables for direct compactRow tests.
@@ -97,71 +94,6 @@ class TestCompactValue:
     def test_non_matching_string_unchanged(self):
         assert compactValue("hello") == "hello"
         assert compactValue("15-06-202") == "15-06-202"
-
-
-class TestWalk:
-    """walk: recursive dict/list transform."""
-
-    def test_recurses_dicts_and_lists(self):
-        assert walk({"a": [1, {"b": 2}], "c": 3}, lambda v: v * 2) == {"a": [2, {"b": 4}], "c": 6}
-
-    def test_scalar_leaf(self):
-        assert walk("x", lambda v: v.upper()) == "X"
-
-
-class TestToColumnar:
-    """toColumnar: passthrough guards + happy-path columnar output."""
-
-    def test_empty_list_unchanged(self):
-        assert toColumnar([]) == []
-
-    def test_single_row_unchanged(self):
-        data = [{"a": 1}]
-        assert toColumnar(data) == data
-
-    def test_first_row_not_dict_unchanged(self):
-        data = [[1, 2], [3, 4]]
-        assert toColumnar(data) == data
-
-    def test_mismatched_keys_unchanged(self):
-        data = [{"a": 1}, {"b": 2}]
-        assert toColumnar(data) == data
-
-    def test_happy_path(self):
-        data = [{"a": 1, "b": "x"}, {"a": 2, "b": "y"}]
-        assert toColumnar(data) == {"h": "a,b", "d": ["1|x", "2|y"]}
-
-
-class TestFixHeaders:
-    """fixHeaders: in-place COT remap of "h" headers."""
-
-    def test_remaps_cot_headers(self):
-        obj = {"h": "DATA,PRECO"}
-        fixHeaders(obj)
-        assert obj == {"h": "D,P"}
-
-    def test_unknown_pieces_passthrough(self):
-        obj = {"h": "DATA,FOO"}
-        fixHeaders(obj)
-        assert obj == {"h": "D,FOO"}
-
-    def test_nested_dict_value(self):
-        obj = {"inner": {"h": "PRECO"}}
-        fixHeaders(obj)
-        assert obj == {"inner": {"h": "P"}}
-
-    def test_list_of_dicts_not_traversed(self):
-        # edge case: fixHeaders only recurses into dict values whose values
-        # are dicts; a list value is handed to fixHeaders, which is a no-op
-        # because the top-level isinstance(obj, dict) guard fails.
-        obj = {"rows": [{"h": "DATA"}]}
-        fixHeaders(obj)
-        assert obj == {"rows": [{"h": "DATA"}]}
-
-    def test_non_str_h_value_untouched(self):
-        obj = {"h": 5}
-        fixHeaders(obj)
-        assert obj == {"h": 5}
 
 
 class TestCompactRow:
@@ -459,9 +391,11 @@ class TestCompressResponse:
         raw = {"type": "get_live_price", "data": {"TICKER": "PETR4"}}
         assert compressResponse(raw, "get_live_price", {}) == {"data": {"TICKER": "PETR4"}}
 
-    def test_multi_row_columnar_with_fallback_abbrs(self):
+    def test_multi_row_list_of_dicts_with_fallback_abbrs(self):
         # cache absent: fallback abbrs have empty historical/fundamental,
-        # so "P/L" passes through unabbreviated.
+        # so "P/L" passes through unabbreviated. Multi-row results stay
+        # as a list of dicts (generic h/d pipe-encoding removed; only
+        # the nested cotation path uses h/d).
         raw = {
             "count": 2,
             "type": "get_fundamental",
@@ -471,7 +405,7 @@ class TestCompressResponse:
             ],
         }
         out = compressResponse(raw, "get_fundamental", {})
-        assert out == {"data": {"h": "TK,P/L", "d": ["PETR4|5.2", "VALE3|6.5"]}}
+        assert out == {"data": [{"TK": "PETR4", "P/L": 5.2}, {"TK": "VALE3", "P/L": 6.5}]}
 
     def test_single_row_unwrapped_with_cache_abbrevs(self):
         df = pd.DataFrame({"TICKER": ["PETR4"], "P/L": [5.2]})
@@ -509,7 +443,7 @@ class TestCompressResponse:
         with patch.object(stocksCache, "STOCKS_CACHE", df):
             rebuildAbbrevs()
             out = compressResponse(raw, "get_historical", {"search": "PETR4", "dates": "2023,2024"})
-        # note: walk(compactValue) suffixes int leaves, so year values become "50K"/"100K";
+        # note: leaf compaction suffixes int leaves, so year values become "50K"/"100K";
         # the single row is unwrapped from a list but stays under the "data" key
         assert out == {
             "data": {

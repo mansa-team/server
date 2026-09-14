@@ -14,10 +14,10 @@ PRICE = {
     "PRECO MAXIMO": "PMX",
     "PRECO MEDIO": "PMD",
 }
-COT = {"DATA": "D", "PRECO": "P"}
 SUF = [(1e12, "T"), (1e9, "B"), (1e6, "M"), (1e3, "K")]
 DF = re.compile(r"^\d{2}-\d{2}-(\d{4})$")
 DI = re.compile(r"^(\d{4})-\d{2}-\d{2}$")
+
 
 @lru_cache(maxsize=1)
 def getAbbr() -> dict:
@@ -43,14 +43,6 @@ def rebuildAbbrevs() -> None:
     getNest.cache_clear()
 
 
-def walk(data: Any, fn: Any) -> Any:
-    if isinstance(data, dict):
-        return {k: walk(v, fn) for k, v in data.items()}
-    if isinstance(data, list):
-        return [walk(item, fn) for item in data]
-    return fn(data)
-
-
 def compactValue(v: Any) -> Any:
     if isinstance(v, float):
         v = float(f"{v:.10g}")
@@ -70,24 +62,6 @@ def compactValue(v: Any) -> Any:
             p = v.split("-")
             return f"{p[1]}-{p[2]}"
     return v
-
-
-def toColumnar(data: list) -> Any:
-    if len(data) < 2 or not isinstance(data[0], dict):
-        return data
-    keys = list(data[0].keys())
-    if not all(list(row.keys()) == keys for row in data):
-        return data
-    return {"h": ",".join(keys), "d": ["|".join(str(row[k]) for k in keys) for row in data]}
-
-
-def fixHeaders(obj: Any) -> None:
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            if k == "h" and isinstance(v, str):
-                obj[k] = ",".join(COT.get(p.strip(), p.strip()) for p in v.split(","))
-            elif isinstance(v, (dict, list)):
-                fixHeaders(v)
 
 
 def compactRow(row: dict, tool: str, abbrs: dict, nests: dict) -> dict:
@@ -124,12 +98,13 @@ def compactCotations(result: dict) -> dict:
         return result
 
     def toCol(cd: list) -> dict:
+        cot = {"DATA": "D", "PRECO": "P"}
         first = cd[0]
         if not isinstance(first, dict):
             return {"h": "v", "d": ["|".join(str(v) for v in x) for x in cd]}
         hdrs = list(first.keys())
         return {
-            "h": ",".join(COT.get(h, h) for h in hdrs),
+            "h": ",".join(cot.get(h, h) for h in hdrs),
             "d": ["|".join(str(compactValue(x.get(h, ""))) for h in hdrs) for x in cd],
         }
 
@@ -161,7 +136,7 @@ def compressResponse(raw: dict, tool: str, args: dict) -> dict:
     result.pop("type", None)
 
     if tool == "get_cotations":
-        result = compactCotations(result)
+        return compactCotations(result)
     elif tool == "get_live_price" and isinstance(result.get("data"), list):
         result["data"] = [
             {PRICE.get(k, k): v for k, v in x.items()} if isinstance(x, dict) else x for x in result["data"]
@@ -171,11 +146,15 @@ def compressResponse(raw: dict, tool: str, args: dict) -> dict:
     if isinstance(d, list) and d and isinstance(d[0], dict):
         abbrs, nests = getAbbr(), getNest()
         result["data"] = [compactRow(row, tool, abbrs, nests) for row in d]
-        result["data"] = walk(result["data"], compactValue)
-        if isinstance(result["data"], list) and result["data"]:
-            result["data"] = toColumnar(result["data"])
+
+        def compactLeaves(v: Any) -> Any:
+            if isinstance(v, dict):
+                return {k: compactLeaves(x) for k, x in v.items()}
+            if isinstance(v, list):
+                return [compactLeaves(x) for x in v]
+            return compactValue(v)
+
+        result["data"] = compactLeaves(result["data"])
         if isinstance(result["data"], list) and len(result["data"]) == 1:
             result["data"] = result["data"][0]
-
-    fixHeaders(result)
     return result
