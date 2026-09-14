@@ -32,7 +32,12 @@ def quotaUpdate(dbSession, apiKey):
 @pytest.fixture
 def sampleKeyData():
     """Sample API key data for tests."""
-    return {"apiKey": hashlib.sha256("test_key_12345".encode()).hexdigest(), "userId": 1, "requestLimit": 100, "currentUsage": 0}
+    return {
+        "apiKey": hashlib.sha256("test_key_12345".encode()).hexdigest(),
+        "userId": 1,
+        "requestLimit": 100,
+        "currentUsage": 0,
+    }
 
 
 class TestAtomicQuotaIncrement:

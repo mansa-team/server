@@ -64,6 +64,7 @@ class TestStabilityImpact:
         sticky_new = FakeMemory(score=14.0, lastAccessedAt=NOW)
         assert getRelevanceScore(sticky_new, NOW) > getRelevanceScore(ephemeral_old, NOW)
 
+
 class TestDecayMonotonicity:
     def test_older_always_lower_score(self):
         scores = []

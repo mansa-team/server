@@ -291,8 +291,14 @@ class TestCompressResponse:
         "raw,tool,args,expected",
         [
             (
-                {"count": 2, "search": "PETR4", "fields": ["P/L"], "dates": "2024",
-                 "type": "get_fundamental", "data": []},
+                {
+                    "count": 2,
+                    "search": "PETR4",
+                    "fields": ["P/L"],
+                    "dates": "2024",
+                    "type": "get_fundamental",
+                    "data": [],
+                },
                 "get_fundamental",
                 {"search": "PETR4", "fields": ["P/L"], "dates": "2024"},
                 {"data": []},

@@ -9,6 +9,7 @@ class TestPermission:
         assert Permission.USE_PROMETHEUS > 0
         assert Permission.PROMETHEUS_EXTENDED_MEMORIES > 0
 
+
 class TestRoles:
     def test_user_has_no_permissions(self):
         assert Roles.USER == Permission.NONE
