@@ -47,7 +47,7 @@ class TestLogoutCookieDomain:
         mock_session = MagicMock()
         mock_session.sessionId = "sess-123"
         mock_session_mgr.createSession.return_value = mock_session
-        mock_create_token.return_value = ("jwt-token-abc", timedelta(hours=720))
+        mock_create_token.return_value = "jwt-token-abc"
 
         login = client.post("/auth/login", json={"username": "bob", "password": "secret123"})
         assert login.status_code == 200

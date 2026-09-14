@@ -14,7 +14,7 @@ import pandas as pd
 import zstandard as zstd
 
 from main.app.stocks_api.cache import buildTickerIndex, sortCacheFrame
-from main.app.stocks_api.query import StocksQueryManager
+from main.app.stocks_api.query import queryCotations, queryFundamental, queryHistorical
 
 
 def makeFrame():
@@ -42,7 +42,7 @@ def makeFrame():
 
 def makeManager(df):
     df = sortCacheFrame(df)
-    return StocksQueryManager(SimpleNamespace(STOCKS_CACHE=df, tickerIndex=buildTickerIndex(df)))
+    return SimpleNamespace(STOCKS_CACHE=df, tickerIndex=buildTickerIndex(df))
 
 
 class TestSortCacheFrame:
@@ -82,7 +82,7 @@ class TestSortCacheFrame:
 class TestPresortedQueryBehavior:
     def test_historical_keeps_most_recent_per_ticker(self):
         qm = makeManager(makeFrame())
-        res = qm.queryHistorical(fields="PRECO")
+        res = queryHistorical(fields="PRECO", cacheManager=qm)
         assert res["count"] == 2
         assert [r["TICKER"] for r in res["data"]] == ["AAA", "ZZZ"]
         assert res["data"][0]["PRECO 2023"] == 30.0
@@ -90,14 +90,14 @@ class TestPresortedQueryBehavior:
 
     def test_fundamental_range_keeps_latest_and_formats_time(self):
         qm = makeManager(makeFrame())
-        res = qm.queryFundamental(fields="P/L", dates="2024-01-01,2024-12-31")
+        res = queryFundamental(fields="P/L", dates="2024-01-01,2024-12-31", cacheManager=qm)
         assert res["count"] == 2
         assert [r["TIME"] for r in res["data"]] == ["2024-06-01"] * 2
         assert [r["P/L"] for r in res["data"]] == [8.0, 8.0]
 
     def test_cotations_keeps_most_recent_per_ticker(self):
         qm = makeManager(makeFrame())
-        res = qm.queryCotations(search="AAA,ZZZ")
+        res = queryCotations(search="AAA,ZZZ", cacheManager=qm)
         assert res["count"] == 2
         assert res["data"][0]["COTACAO 10Y PADRAO"] == "cot-AAA-2024-06-01"
         assert res["data"][1]["COTACAO 10Y PADRAO"] == "cot-ZZZ-2024-06-01"
@@ -124,11 +124,11 @@ class TestPresortedTimingSmoke:
         qm = makeManager(pd.DataFrame(rows))
 
         start = time.perf_counter()
-        resHist = qm.queryHistorical(fields="PRECO")
+        resHist = queryHistorical(fields="PRECO", cacheManager=qm)
         histElapsed = time.perf_counter() - start
 
         start = time.perf_counter()
-        resCot = qm.queryCotations(search="T0001")
+        resCot = queryCotations(search="T0001", cacheManager=qm)
         cotElapsed = time.perf_counter() - start
 
         assert resHist["count"] == 120

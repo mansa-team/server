@@ -322,9 +322,7 @@ class TestPrometheusChatManager:
         mock_session.history = None
         mock_db.query.return_value.filter.return_value.first.return_value = mock_session
 
-        PrometheusChatManager.appendHistory(
-            mock_db, "sess-123", {"role": "assistant", "content": "Reply"}
-        )
+        PrometheusChatManager.appendHistory(mock_db, "sess-123", {"role": "assistant", "content": "Reply"})
 
         assert mock_session.history == [
             {
@@ -341,9 +339,7 @@ class TestPrometheusChatManager:
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
         # Should not raise
-        PrometheusChatManager.appendHistory(
-            mock_db, "nonexistent", {"role": "user", "content": "Hello"}
-        )
+        PrometheusChatManager.appendHistory(mock_db, "nonexistent", {"role": "user", "content": "Hello"})
 
     def test_get_history_with_messages(self):
         from main.app.prometheus.chat import PrometheusChatManager
@@ -665,14 +661,14 @@ class TestSessionManager:
         # Should have .filter().filter().order_by().limit().all()
         query.filter.return_value.order_by.return_value.limit.return_value.all.assert_called_once()
 
-    def test_get_user_sessions_include_inactive(self):
+    def test_get_user_sessions_active_only(self):
         from main.app.authentication.session import SessionManager
 
         mock_db = MagicMock()
 
-        SessionManager.getUserSessions(mock_db, userId=1, includeInactive=True)
+        SessionManager.getUserSessions(mock_db, userId=1)
 
-        # When includeInactive=True, only one filter is applied
+        # Active-only filter is always applied in a single filter call
         mock_db.query.return_value.filter.return_value.order_by.return_value.limit.return_value.all.assert_called_once()
 
     def test_get_session_by_id(self):
@@ -736,14 +732,14 @@ class TestSessionManager:
         assert count == 5
         mock_db.commit.assert_called_once()
 
-    def test_revoke_all_sessions_with_except(self):
+    def test_revoke_all_sessions_revokes_everything(self):
         from main.app.authentication.session import SessionManager
 
         mock_db = MagicMock()
-        # revokeAllSessions: db.query(...).filter(userId, isActive).filter(except).update(...)
-        mock_db.query.return_value.filter.return_value.filter.return_value.update.return_value = 3
+        # revokeAllSessions: db.query(...).filter(userId, isActive).update(...)
+        mock_db.query.return_value.filter.return_value.update.return_value = 3
 
-        count = SessionManager.revokeAllSessions(mock_db, userId=1, exceptSessionId="keep-this")
+        count = SessionManager.revokeAllSessions(mock_db, userId=1)
         assert count == 3
 
     def test_update_last_active_found(self):

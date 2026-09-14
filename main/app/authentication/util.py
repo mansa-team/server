@@ -38,7 +38,7 @@ def createAccessToken(data: dict | None, expiresDelta: timedelta | None = None):
     payload["exp"] = datetime.now(timezone.utc) + expiresDelta
 
     token = jwt.encode(payload, Config.USER.JWT_SECRET_KEY, algorithm="HS256")
-    return token, expiresDelta
+    return token
 
 
 def verifyAccessToken(token: str) -> dict:

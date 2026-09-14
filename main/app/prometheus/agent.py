@@ -29,7 +29,10 @@ def safeFilter(schema):
 
 
 def persistEvent(db, sessionId, entry):
-                persistEvent(db, sessionId, {"type": "tool_result", "result": result})
+    try:
+        PrometheusChatManager.appendHistory(db, str(sessionId), entry)
+    except Exception as e:
+        logger.error(f"Failed to persist event: {e}")
 
 
 mcp._filter_to_supported_schema = safeFilter
@@ -430,8 +433,6 @@ class Prometheus:
         finally:
             if fullText:
                 try:
-                    PrometheusChatManager.appendHistory(
-                        db, str(sessionId), {"role": "assistant", "content": fullText}
-                    )
+                    PrometheusChatManager.appendHistory(db, str(sessionId), {"role": "assistant", "content": fullText})
                 except Exception as e:
                     logger.error("Failed to persist assistant message: %s", e)

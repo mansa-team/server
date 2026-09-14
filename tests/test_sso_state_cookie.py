@@ -133,7 +133,7 @@ class TestCallbackSuccess:
             patch("main.controller.authentication_controller.getGoogleSSO", return_value=mock_sso),
             patch("main.controller.authentication_controller.AuthenticationManager") as mock_auth_mgr,
             patch("main.controller.authentication_controller.SessionManager") as mock_session_mgr,
-            patch("main.controller.authentication_controller.createAccessToken", return_value=("jwt-test", None)),
+            patch("main.controller.authentication_controller.createAccessToken", return_value="jwt-test"),
         ):
             mock_auth_mgr.authenticateGoogleUser.return_value = {
                 "userId": 1,
@@ -177,7 +177,7 @@ class TestCallbackSuccess:
             patch("main.controller.authentication_controller.getGoogleSSO", return_value=mock_sso),
             patch("main.controller.authentication_controller.AuthenticationManager") as mock_auth_mgr,
             patch("main.controller.authentication_controller.SessionManager") as mock_session_mgr,
-            patch("main.controller.authentication_controller.createAccessToken", return_value=("jwt-none", None)),
+            patch("main.controller.authentication_controller.createAccessToken", return_value="jwt-none"),
         ):
             mock_auth_mgr.authenticateGoogleUser.return_value = {
                 "userId": 2,
@@ -244,3 +244,48 @@ class TestStateSurvivesUrlEncoding:
         encoded = urlencode({"state": state})
         decoded = parse_qs(encoded).get("state", [None])[0]
         assert decoded == state
+
+
+# ---- moved from test_prometheus_auth_coverage.py (TestSSO) ----
+
+
+class TestSSO:
+    """Cover getGoogleSSO (lines 6-14)."""
+
+    @patch("main.app.authentication.sso.Config")
+    @patch("main.app.authentication.sso.GoogleSSO")
+    def test_get_google_sso_with_redirect(self, mock_google_sso, mock_config):
+        from main.app.authentication.sso import getGoogleSSO
+
+        mock_config.USER = MagicMock(
+            GOOGLE_CLIENT_ID="cid",
+            GOOGLE_CLIENT_SECRET="csecret",
+            GOOGLE_REDIRECT_URI="http://callback",
+        )
+
+        result = getGoogleSSO(redirectUri="http://custom-callback")
+
+        mock_google_sso.assert_called_once_with(
+            client_id="cid",
+            client_secret="csecret",
+            redirect_uri="http://custom-callback",
+        )
+
+    @patch("main.app.authentication.sso.Config")
+    @patch("main.app.authentication.sso.GoogleSSO")
+    def test_get_google_sso_default_redirect(self, mock_google_sso, mock_config):
+        from main.app.authentication.sso import getGoogleSSO
+
+        mock_config.USER = MagicMock(
+            GOOGLE_CLIENT_ID="cid",
+            GOOGLE_CLIENT_SECRET="csecret",
+            GOOGLE_REDIRECT_URI="http://default-callback",
+        )
+
+        result = getGoogleSSO()
+
+        mock_google_sso.assert_called_once_with(
+            client_id="cid",
+            client_secret="csecret",
+            redirect_uri="http://default-callback",
+        )

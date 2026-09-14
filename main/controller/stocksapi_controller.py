@@ -5,7 +5,7 @@ from cashews import cache
 from fastapi import APIRouter, Depends, Query, HTTPException, Response
 from fastapi.responses import ORJSONResponse
 
-from main.app.stocks_api.query import stocksQuery
+from main.app.stocks_api.query import queryCotations, queryFundamental, queryHistorical, queryLiveCotation
 from main.app.stocks_api.key import verifyAPIKey
 from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
 from main.app.stocks_api.compress import compressResponse, getNest
@@ -139,7 +139,7 @@ def getHistorical(
     - Get all revenue data for VALE3: search="VALE3", fields="RECEITA LIQUIDA"
     - Compare top 10 by EBITDA: fields="EBITDA", orderBy="EBITDA", limit=10"""
     response.headers["Cache-Control"] = "public, max-age=300"
-    result = stocksQuery.queryHistorical(search, fields, dates, orderBy, limit)
+    result = queryHistorical(search, fields, dates, orderBy, limit)
     if compact:
         result = compressResponse(result, "get_historical", {"search": search, "fields": fields, "dates": dates})
     return result
@@ -209,7 +209,7 @@ def getFundamental(
     - Compare P/L across tickers: search="PETR4,VALE3,ITUB4", fields="P/L", orderBy="P/L"
     - Q1 2024 fundamental snapshot: fields="P/L,ROE", dates="2024-01-01,2024-03-31" """
     response.headers["Cache-Control"] = "public, max-age=300"
-    result = stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
+    result = queryFundamental(search, fields, dates, orderBy, limit)
     if compact:
         result = compressResponse(result, "get_fundamental", {"search": search, "fields": fields, "dates": dates})
     return result
@@ -265,7 +265,7 @@ def getCotations(
     - Get PETR4 + VALE3 2023 prices: search="PETR4,VALE3", dates="2023-01-01,2023-12-31"
     - Get inflation-adjusted prices: search="ITUB4", adjusted=true"""
     response.headers["Cache-Control"] = "public, max-age=300"
-    result = stocksQuery.queryCotations(search, dates, adjusted)
+    result = queryCotations(search, dates, adjusted)
     if compact:
         result = compressResponse(result, "get_cotations", {"search": search, "dates": dates})
     return result
@@ -310,7 +310,7 @@ def getLiveCotation(
     - Real-time data is only available during B3 market hours (10:00-17:30 BRT).
     - Outside market hours, returns the last available closing price."""
     response.headers["Cache-Control"] = "public, max-age=15"
-    result = stocksQuery.queryLiveCotation(search)
+    result = queryLiveCotation(search)
     if compact:
         result = compressResponse(result, "get_live_price", {"search": search})
     return result

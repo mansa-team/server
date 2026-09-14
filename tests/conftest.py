@@ -1,6 +1,9 @@
 import pytest
 import sys
 import os
+from unittest.mock import AsyncMock, MagicMock
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
@@ -164,3 +167,108 @@ def client():
 
     with TestClient(testApp, raise_server_exceptions=False) as c:
         yield c
+
+
+def mock_forgevm(mock_cls):
+    """Wire up mock forgevm AsyncClient that returns sandbox with all methods.
+
+    Shared helper (superset of the former per-file copies): includes
+    extend_ttl + glob_files so persistence tests work unchanged.
+    Call as ``mock_client, mock_sandbox = mock_forgevm(mock_get_client)``.
+    """
+    mock_client = AsyncMock()
+    mock_sandbox = AsyncMock()
+    mock_sandbox.id = "sb-mock-123"
+    mock_sandbox.exec = AsyncMock(return_value=MagicMock(stdout="Hello\n", stderr=""))
+    mock_sandbox.read_file = AsyncMock(return_value="file contents")
+    mock_sandbox.write_file = AsyncMock()
+    mock_sandbox.list_files = AsyncMock(return_value=[{"path": "/workspace/data.csv", "size": 100, "is_dir": False}])
+    mock_sandbox.destroy = AsyncMock()
+    mock_sandbox.extend_ttl = AsyncMock()
+    mock_sandbox.glob_files = AsyncMock(return_value=[])
+    mock_client.spawn = AsyncMock(return_value=mock_sandbox)
+    mock_client.get = AsyncMock(return_value=mock_sandbox)
+    mock_client.close = AsyncMock()
+    mock_cls.return_value = mock_client
+    return mock_client, mock_sandbox
+
+
+# ---------------------------------------------------------------------------
+# Shared controller TestClient builders (moved from test_controllers_coverage.py
+# so all controller test files reuse one copy). Each returns (client, app,
+# mock_session); call sites unpack only what they need.
+# ---------------------------------------------------------------------------
+def make_auth_client():
+    """Return (client, app) with auth + user routers and mocked getSession."""
+    from main.controller.authentication_controller import router as authRouter
+    from main.controller.user_controller import router as userRouter
+    from main.utils.errors import registerErrorHandlers
+
+    app = FastAPI()
+    app.include_router(authRouter)
+    app.include_router(userRouter)
+    registerErrorHandlers(app)
+
+    mock_session = MagicMock()
+    app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
+    return TestClient(app, raise_server_exceptions=False), app, mock_session
+
+
+def make_user_client(mock_current_user=None):
+    """Return (client, app) with user router and mocked deps."""
+    from main.controller.user_controller import router as userRouter
+    from main.utils.errors import registerErrorHandlers
+    from main.app.user.user import UserManager
+
+    app = FastAPI()
+    app.include_router(userRouter)
+    registerErrorHandlers(app)
+
+    mock_session = MagicMock()
+    app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
+
+    if mock_current_user is not None:
+        app.dependency_overrides[UserManager.getCurrentUser] = lambda: mock_current_user
+
+    return TestClient(app, raise_server_exceptions=False), app, mock_session
+
+
+def make_prometheus_client(mock_current_user=None, mock_permission_user=None):
+    """Return (client, app) with prometheus router and mocked deps."""
+    from main.controller.prometheus_controller import router as promRouter
+    from main.utils.errors import registerErrorHandlers
+    from main.app.user.user import UserManager
+
+    app = FastAPI()
+    app.include_router(promRouter)
+    registerErrorHandlers(app)
+
+    mock_session = MagicMock()
+    app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
+
+    user = mock_current_user or {"userId": 1, "username": "testuser", "roles": ["PREMIUM"]}
+    # ponytail: per-call Roles.requirePermission returns a fresh callable;
+    # override key never matches the actual dep, so the line is a no-op. Skip.
+    app.dependency_overrides[UserManager.getCurrentUser] = lambda: user
+
+    return TestClient(app, raise_server_exceptions=False), app, mock_session
+
+
+def make_stocksapi_client(mock_api_key=None):
+    """Return (client, app) with stocks router and mocked deps."""
+    from main.controller.stocksapi_controller import router as stocksRouter
+    from main.utils.errors import registerErrorHandlers
+
+    app = FastAPI()
+    app.include_router(stocksRouter)
+    registerErrorHandlers(app)
+
+    mock_session = MagicMock()
+    app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
+
+    if mock_api_key is not None:
+        from main.app.stocks_api.key import verifyAPIKey
+
+        app.dependency_overrides[verifyAPIKey] = lambda: mock_api_key
+
+    return TestClient(app, raise_server_exceptions=False), app, mock_session

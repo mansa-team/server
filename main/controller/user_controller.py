@@ -16,9 +16,6 @@ router = APIRouter(prefix="/user", tags=["User"])
 def sessionToDict(s, isCurrent=False):
     return {
         "sessionId": s.sessionId,
-        "deviceName": SessionManager.getDeviceName(s),
-        "browser": s.browser,
-        "os": s.operatingSystem,
         "deviceType": s.deviceType,
         "lastActiveAt": s.lastActivityAt.isoformat() if s.lastActivityAt else None,
         "createdAt": s.createdAt.isoformat() if s.createdAt else None,
@@ -112,7 +109,7 @@ def revokeAllSessions(
 ):
     logger.info(f"User {currentUser['userId']} requesting revoke-all for all sessions")
 
-    revokedCount = SessionManager.revokeAllSessions(db, currentUser["userId"], exceptSessionId=None)
+    revokedCount = SessionManager.revokeAllSessions(db, currentUser["userId"])
 
     logger.info(f"Revoked {revokedCount} sessions for user {currentUser['userId']}")
     return {"message": "All sessions revoked successfully", "revokedCount": revokedCount}

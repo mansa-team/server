@@ -15,84 +15,20 @@ from fastapi.responses import RedirectResponse
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+# Shared controller TestClient builders live in conftest (single copy reused by
+# all controller test files): make_auth_client, make_user_client,
+# make_prometheus_client, make_stocksapi_client.
+from tests.conftest import (
+    make_auth_client,
+    make_user_client,
+    make_prometheus_client,
+    make_stocksapi_client,
+)
+
 
 # ---------------------------------------------------------------------------
-# Helper: build a minimal TestClient for auth_controller with a mock DB dep
+# Shared builders imported from conftest (see import above).
 # ---------------------------------------------------------------------------
-def make_auth_client():
-    """Return (client, app) with auth + user routers and mocked getSession."""
-    from main.controller.authentication_controller import router as authRouter
-    from main.controller.user_controller import router as userRouter
-    from main.utils.errors import registerErrorHandlers
-
-    app = FastAPI()
-    app.include_router(authRouter)
-    app.include_router(userRouter)
-    registerErrorHandlers(app)
-
-    mock_session = MagicMock()
-    app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
-    return TestClient(app, raise_server_exceptions=False), app, mock_session
-
-
-def make_user_client(mock_current_user=None):
-    """Return (client, app) with user router and mocked deps."""
-    from main.controller.user_controller import router as userRouter
-    from main.utils.errors import registerErrorHandlers
-    from main.app.user.user import UserManager
-
-    app = FastAPI()
-    app.include_router(userRouter)
-    registerErrorHandlers(app)
-
-    mock_session = MagicMock()
-    app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
-
-    if mock_current_user is not None:
-        app.dependency_overrides[UserManager.getCurrentUser] = lambda: mock_current_user
-
-    return TestClient(app, raise_server_exceptions=False), app, mock_session
-
-
-def make_prometheus_client(mock_current_user=None, mock_permission_user=None):
-    """Return (client, app) with prometheus router and mocked deps."""
-    from main.controller.prometheus_controller import router as promRouter
-    from main.utils.errors import registerErrorHandlers
-    from main.app.user.user import UserManager
-
-    app = FastAPI()
-    app.include_router(promRouter)
-    registerErrorHandlers(app)
-
-    mock_session = MagicMock()
-    app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
-
-    user = mock_current_user or {"userId": 1, "username": "testuser", "roles": ["PREMIUM"]}
-    # ponytail: per-call Roles.requirePermission returns a fresh callable;
-    # override key never matches the actual dep, so the line is a no-op. Skip.
-    app.dependency_overrides[UserManager.getCurrentUser] = lambda: user
-
-    return TestClient(app, raise_server_exceptions=False), app, mock_session
-
-
-def make_stocksapi_client(mock_api_key=None):
-    """Return (client, app) with stocks router and mocked deps."""
-    from main.controller.stocksapi_controller import router as stocksRouter
-    from main.utils.errors import registerErrorHandlers
-
-    app = FastAPI()
-    app.include_router(stocksRouter)
-    registerErrorHandlers(app)
-
-    mock_session = MagicMock()
-    app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
-
-    if mock_api_key is not None:
-        from main.app.stocks_api.key import verifyAPIKey
-
-        app.dependency_overrides[verifyAPIKey] = lambda: mock_api_key
-
-    return TestClient(app, raise_server_exceptions=False), app, mock_session
 
 
 # =========================================================================
@@ -156,7 +92,7 @@ class TestRegisterEndpoint:
         mock_session.sessionId = "sess-123"
         mock_session_mgr.createSession.return_value = mock_session
 
-        mock_create_token.return_value = ("jwt-token-abc", timedelta(hours=720))
+        mock_create_token.return_value = "jwt-token-abc"
 
         response = client.post(
             "/auth/register",
@@ -223,7 +159,7 @@ class TestLoginEndpoint:
         mock_session.sessionId = "sess-456"
         mock_session_mgr.createSession.return_value = mock_session
 
-        mock_create_token.return_value = ("jwt-token-xyz", timedelta(hours=720))
+        mock_create_token.return_value = "jwt-token-xyz"
 
         response = client.post(
             "/auth/login",
@@ -415,7 +351,7 @@ class TestGoogleCallback:
         mock_session = MagicMock()
         mock_session.sessionId = "gsess-123"
         mock_session_mgr.createSession.return_value = mock_session
-        mock_create_token.return_value = ("google-jwt-abc", timedelta(hours=720))
+        mock_create_token.return_value = "google-jwt-abc"
 
         response = client.get("/auth/callback", follow_redirects=False)
         assert response.status_code == 200
@@ -446,7 +382,7 @@ class TestGoogleCallback:
         mock_session = MagicMock()
         mock_session.sessionId = "gsess-456"
         mock_session_mgr.createSession.return_value = mock_session
-        mock_create_token.return_value = ("google-jwt-def", timedelta(hours=720))
+        mock_create_token.return_value = "google-jwt-def"
 
         response = client.get("/auth/callback", follow_redirects=False)
         assert response.status_code == 200
@@ -489,7 +425,7 @@ class TestGoogleCallback:
         mock_session = MagicMock()
         mock_session.sessionId = "gsess-789"
         mock_session_mgr.createSession.return_value = mock_session
-        mock_create_token.return_value = ("google-jwt-ghi", timedelta(hours=720))
+        mock_create_token.return_value = "google-jwt-ghi"
 
         # State IS the redirect URL directly (no encoding needed)
         redirect_url = "http://localhost:3000/dashboard"
@@ -574,7 +510,6 @@ class TestGetSessions:
         """Covers lines 66, 68-72, 74: full sessions listing."""
         mock_session_1 = MagicMock()
         mock_session_1.sessionId = "sess-1"
-        mock_session_1.getDeviceName.return_value = "Chrome on Windows"
         mock_session_1.browser = "Chrome"
         mock_session_1.operatingSystem = "Windows"
         mock_session_1.deviceType = "desktop"
@@ -584,7 +519,6 @@ class TestGetSessions:
 
         mock_session_2 = MagicMock()
         mock_session_2.sessionId = "sess-2"
-        mock_session_2.getDeviceName.return_value = "Safari on macOS"
         mock_session_2.browser = "Safari"
         mock_session_2.operatingSystem = "macOS"
         mock_session_2.deviceType = "mobile"
@@ -628,7 +562,6 @@ class TestGetCurrentSession:
         """Covers lines 100-104, 106: session found."""
         mock_session = MagicMock()
         mock_session.sessionId = "current-sess"
-        mock_session.getDeviceName.return_value = "Chrome on Windows"
         mock_session.browser = "Chrome"
         mock_session.operatingSystem = "Windows"
         mock_session.deviceType = "desktop"
@@ -1104,13 +1037,13 @@ class TestStocksApiHistorical:
 
     def test_get_historical(self):
         """Covers line 35."""
-        with patch("main.controller.stocksapi_controller.stocksQuery") as mock_query:
-            mock_query.queryHistorical = MagicMock(return_value={"data": [{"ticker": "PETR4", "price": 30.0}]})
+        with patch("main.controller.stocksapi_controller.queryHistorical") as mock_query_fn:
+            mock_query_fn.return_value = {"data": [{"ticker": "PETR4", "price": 30.0}]}
 
             client, _, _ = make_stocksapi_client(mock_api_key="key")
             resp = client.get("/stocks/historical?search=PETR4&limit=10")
             assert resp.status_code == 200
-            mock_query.queryHistorical.assert_called_once()
+            mock_query_fn.assert_called_once()
 
 
 class TestStocksApiFundamental:
@@ -1118,13 +1051,13 @@ class TestStocksApiFundamental:
 
     def test_get_fundamental(self):
         """Covers line 47."""
-        with patch("main.controller.stocksapi_controller.stocksQuery") as mock_query:
-            mock_query.queryFundamental = MagicMock(return_value={"data": [{"ticker": "VALE3", "pl": 5.0}]})
+        with patch("main.controller.stocksapi_controller.queryFundamental") as mock_query_fn:
+            mock_query_fn.return_value = {"data": [{"ticker": "VALE3", "pl": 5.0}]}
 
             client, _, _ = make_stocksapi_client(mock_api_key="key")
             resp = client.get("/stocks/fundamental?search=VALE3&limit=5")
             assert resp.status_code == 200
-            mock_query.queryFundamental.assert_called_once()
+            mock_query_fn.assert_called_once()
 
 
 # =========================================================================

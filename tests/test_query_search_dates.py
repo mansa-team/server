@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 import pandas as pd
 
 from main.app.stocks_api.cache import StocksCacheManager, buildTickerIndex
-from main.app.stocks_api.query import StocksQueryManager
+from main.app.stocks_api.query import filterBySearchTerms, queryFundamental
 
 
 def make_multi_df():
@@ -30,35 +30,35 @@ def make_manager(df, index):
 
 def test_exact_search_returns_all_snapshot_rows():
     df = make_multi_df()
-    query = StocksQueryManager(make_manager(df, buildTickerIndex(df)))
+    manager = make_manager(df, buildTickerIndex(df))
 
-    filtered = query.filterBySearchTerms(df, "PETR4", buildTickerIndex(df))
+    filtered = filterBySearchTerms(df, "PETR4", buildTickerIndex(df))
 
     assert filtered["TICKER"].tolist() == ["PETR4", "PETR4", "PETR4"]
 
 
 def test_exact_search_with_dates_returns_matching_rows():
     df = make_multi_df()
-    query = StocksQueryManager(make_manager(df, buildTickerIndex(df)))
+    manager = make_manager(df, buildTickerIndex(df))
 
-    result = query.queryFundamental(search="PETR4", fields="P/L", dates="2024-01-01,2024-02-15")
+    result = queryFundamental(search="PETR4", fields="P/L", dates="2024-01-01,2024-02-15", cacheManager=manager)
 
     assert result["count"] == 2
 
 
 def test_mixed_search_returns_exact_and_prefix():
     df = make_multi_df()
-    query = StocksQueryManager(make_manager(df, buildTickerIndex(df)))
+    manager = make_manager(df, buildTickerIndex(df))
 
-    filtered = query.filterBySearchTerms(df, "PETR4,VALE", buildTickerIndex(df))
+    filtered = filterBySearchTerms(df, "PETR4,VALE", buildTickerIndex(df))
 
     assert set(filtered["TICKER"].tolist()) == {"PETR4", "VALE3"}
 
 
 def test_trailing_comma_does_not_match_everything():
     df = make_multi_df()
-    query = StocksQueryManager(make_manager(df, buildTickerIndex(df)))
+    manager = make_manager(df, buildTickerIndex(df))
 
-    filtered = query.filterBySearchTerms(df, "PETR4,", buildTickerIndex(df))
+    filtered = filterBySearchTerms(df, "PETR4,", buildTickerIndex(df))
 
     assert filtered["TICKER"].tolist() == ["PETR4", "PETR4", "PETR4"]

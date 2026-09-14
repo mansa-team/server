@@ -50,7 +50,7 @@ def setup_callback_mocks(
     mock_session = MagicMock()
     mock_session.sessionId = f"sess-{user_id}"
     mock_session_mgr.createSession.return_value = mock_session
-    mock_create_token.return_value = (f"jwt-token-{user_id}", timedelta(hours=720))
+    mock_create_token.return_value = f"jwt-token-{user_id}"
 
 
 class TestOAuthCallbackTokenNotInURL:

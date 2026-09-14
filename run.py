@@ -3,7 +3,6 @@ from datetime import datetime
 from fastapi import FastAPI, BackgroundTasks
 
 from contextlib import asynccontextmanager
-import asyncio
 
 from tenacity import AsyncRetrying, RetryError, stop_after_attempt, wait_fixed
 

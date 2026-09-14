@@ -11,14 +11,6 @@ logger = logging.getLogger(__name__)
 
 class SessionManager:
     @staticmethod
-    def getDeviceName(session) -> str:
-        if session.browser and session.operatingSystem:
-            return f"{session.browser} on {session.operatingSystem}"
-        elif session.accessTokenHash:
-            return f"Device {session.accessTokenHash[:8]}"
-        return "Unknown Device"
-
-    @staticmethod
     def createSession(
         db: Session,
         userId: int,
@@ -50,10 +42,8 @@ class SessionManager:
         return session
 
     @staticmethod
-    def getUserSessions(db: Session, userId: int, includeInactive: bool = False, limit: int = 50) -> list[UserSession]:
-        query = db.query(UserSession).filter(UserSession.userId == userId)
-        if not includeInactive:
-            query = query.filter(UserSession.isActive)
+    def getUserSessions(db: Session, userId: int, limit: int = 50) -> list[UserSession]:
+        query = db.query(UserSession).filter(UserSession.userId == userId, UserSession.isActive)
         return query.order_by(UserSession.lastActivityAt.desc()).limit(limit).all()
 
     @staticmethod
@@ -88,14 +78,11 @@ class SessionManager:
         return True
 
     @staticmethod
-    def revokeAllSessions(db: Session, userId: int, exceptSessionId: str | None = None) -> int:
+    def revokeAllSessions(db: Session, userId: int) -> int:
         query = db.query(UserSession).filter(
             UserSession.userId == userId,
             UserSession.isActive,
         )
-
-        if exceptSessionId:
-            query = query.filter(UserSession.sessionId != exceptSessionId)
 
         count = query.update({UserSession.isActive: False}, synchronize_session=False)
         db.commit()
