@@ -28,25 +28,18 @@ matrixCache.setup("mem://")
 MATRIX_MISS = object()
 
 
-def matrixKey(userId: Any) -> str:
+def getMatrix(userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]) -> tuple[list[int], np.ndarray]:
     if isinstance(userId, tuple):
         uid, memoryType = userId
-        return f"matrix:{uid}:{memoryType}:v{1}"
-    return f"matrix:{userId}:v{1}"
-
-
-def matrixUserTag(userId: Any) -> str:
-    uid = userId[0] if isinstance(userId, tuple) else userId
-    return f"matrix-user:{uid}"
-
-
-def getMatrix(userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]) -> tuple[list[int], np.ndarray]:
-    cacheKey = matrixKey(userId)
+        cacheKey = f"matrix:{uid}:{memoryType}:v{1}"
+    else:
+        uid = userId
+        cacheKey = f"matrix:{userId}:v{1}"
     cached = asyncio.run(matrixCache.get(cacheKey, default=MATRIX_MISS))
     if cached is not MATRIX_MISS:
         return cast(tuple[list[int], np.ndarray], cached)
     freshIds, freshMatrix = loader()
-    asyncio.run(matrixCache.set(cacheKey, (freshIds, freshMatrix), tags=("matrix", matrixUserTag(userId))))
+    asyncio.run(matrixCache.set(cacheKey, (freshIds, freshMatrix), tags=("matrix", f"matrix-user:{uid}")))
     return cast(
         tuple[list[int], np.ndarray],
         asyncio.run(matrixCache.get(cacheKey, default=(freshIds, freshMatrix))),
@@ -127,20 +120,24 @@ def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8
     return None
 
 
+def scoreRow(m: Any, score: float, relevance: float, similarity: float) -> dict:
+    return {
+        "id": m.id,
+        "memoryKey": m.memoryKey,
+        "memoryValue": m.memoryValue,
+        "memoryType": m.memoryType,
+        "score": score,
+        "relevanceScore": relevance,
+        "similarity": similarity,
+    }
+
+
 def scoreRecency(candidateRows: list[Any], limit: int) -> list[dict]:
     now = datetime.now()
-    scored = [
-        {
-            "id": m.id,
-            "memoryKey": m.memoryKey,
-            "memoryValue": m.memoryValue,
-            "memoryType": m.memoryType,
-            "score": getRelevanceScore(m, now),
-            "relevanceScore": getRelevanceScore(m, now),
-            "similarity": 0.0,
-        }
-        for m in candidateRows
-    ]
+    scored = []
+    for m in candidateRows:
+        s = getRelevanceScore(m, now)
+        scored.append(scoreRow(m, s, s, 0.0))
     scored.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
     return scored[:limit]
 
@@ -159,18 +156,7 @@ def scoreCandidates(
         f = 0.6 * v + 0.25 * ftRank.get(cast(int, m.id), 0.0) + 0.15 * rec
         fused.append((m, f, simById.get(cast(int, m.id), 0.0)))
     fused.sort(key=lambda p: p[1], reverse=True)
-    return [
-        {
-            "id": m.id,
-            "memoryKey": m.memoryKey,
-            "memoryValue": m.memoryValue,
-            "memoryType": m.memoryType,
-            "score": f,
-            "relevanceScore": f,
-            "similarity": sim,
-        }
-        for m, f, sim in fused[:limit]
-    ]
+    return [scoreRow(m, f, f, sim) for m, f, sim in fused[:limit]]
 
 
 def sumTokens(texts: list[str], cache: dict | None) -> int:
@@ -204,6 +190,17 @@ class PrometheusMemory:
             .scalar()
         )
 
+    @staticmethod
+    def touch(m: Any, value: str, memoryType: str, source: str, embedding: Any, newHash: str) -> None:
+        m.memoryValue = value  # type: ignore[assignment]
+        m.memoryType = memoryType  # type: ignore[assignment]
+        m.source = source  # type: ignore[assignment]
+        m.contentHash = newHash  # type: ignore[assignment]
+        m.embedding = embedding  # type: ignore[assignment]
+        m.score = m.score * 1.1  # type: ignore[assignment]
+        m.accessCount += 1  # type: ignore[assignment]
+        m.lastAccessedAt = datetime.now()  # type: ignore[assignment]
+
     @classmethod
     def upsertMemory(
         cls,
@@ -227,14 +224,7 @@ class PrometheusMemory:
             if existing.contentHash == newHash:
                 return {"status": "unchanged", "memory": existing}
 
-            existing.memoryValue = value  # type: ignore[assignment]
-            existing.memoryType = memoryType  # type: ignore[assignment]
-            existing.source = source  # type: ignore[assignment]
-            existing.contentHash = newHash  # type: ignore[assignment]
-            existing.embedding = embedding  # type: ignore[assignment]
-            existing.score = existing.score * 1.1  # type: ignore[assignment]
-            existing.accessCount += 1  # type: ignore[assignment]
-            existing.lastAccessedAt = datetime.now()  # type: ignore[assignment]
+            cls.touch(existing, value, memoryType, source, embedding, newHash)
 
             db.commit()
             db.refresh(existing)
@@ -244,14 +234,7 @@ class PrometheusMemory:
 
         similar = findSimilarKey(db, userId, key)
         if similar:
-            similar.memoryValue = value  # type: ignore[assignment]
-            similar.memoryType = memoryType  # type: ignore[assignment]
-            similar.source = source  # type: ignore[assignment]
-            similar.contentHash = contentHash(value)  # type: ignore[assignment]
-            similar.embedding = embedding  # type: ignore[assignment]
-            similar.score = similar.score * 1.1  # type: ignore[assignment]
-            similar.accessCount += 1  # type: ignore[assignment]
-            similar.lastAccessedAt = datetime.now()  # type: ignore[assignment]
+            cls.touch(similar, value, memoryType, source, embedding, contentHash(value))
 
             db.commit()
             db.refresh(similar)
@@ -447,10 +430,6 @@ class PrometheusMemory:
         return True
 
     @staticmethod
-    def countTokensCached(text: str, cache: dict | None) -> int:
-        return sumTokens([text], cache)
-
-    @staticmethod
     def extract(
         db: Session | None = None, userId=None, sessionId=None, userRoles=None, tokenCache: dict | None = None
     ) -> list[PrometheusMemoryModel]:
@@ -479,7 +458,7 @@ class PrometheusMemory:
             for msg in reversed(msgs):
                 text = (msg.get("parts") or [{}])[0].get("text", "")
                 acc.append(text)
-                tokens += PrometheusMemory.countTokensCached(text, tokenCache)
+                tokens += sumTokens([text], tokenCache)
                 if tokens >= MEMORY_EXTRACTION_TOKEN_BUDGET:
                     break
 

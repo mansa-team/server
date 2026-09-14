@@ -51,7 +51,15 @@ class TestExtractMetrics:
         assert "DY" in result
 
     def test_cagr_metrics(self):
-        result = extractMetrics("INVESTING SCORE de 85 e DY de 12%")
+        oldField, oldRegex = compactMod.fieldData, compactMod.metricRegex
+        compactMod.fieldData = None
+        compactMod.metricRegex = None
+        with patch(
+            "main.app.prometheus.compact.loadFieldData",
+            return_value={"historical": [], "fundamental": []},
+        ):
+            result = extractMetrics("INVESTING SCORE de 85 e DY de 12%")
+        compactMod.fieldData, compactMod.metricRegex = oldField, oldRegex
         assert "INVESTING SCORE" in result
         assert "DY" in result
 
@@ -192,9 +200,7 @@ class TestPrometheusCompactor:
         with patch("main.app.prometheus.compact.extractMetrics") as mockExtract:
             mockExtract.return_value = ["P/L", "ROE"]
             result = self.compactor.extractEpisode(chunk)
-            mockExtract.assert_called_once()
-            callArgs = mockExtract.call_args
-            assert callArgs[1].get("useRegistry") is True or callArgs[0][1] is True
+            mockExtract.assert_called_once_with("P/L de 5x e ROE 15%")
 
     def test_consolidate_under_cap(self):
         episodes = [{"id": f"ep_{i}", "summary": f"Episode {i}"} for i in range(5)]

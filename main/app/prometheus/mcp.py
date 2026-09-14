@@ -26,6 +26,13 @@ def buildClient(server):
     return Client(url)
 
 
+async def connect(server):
+    client = buildClient(server)
+    await client.__aenter__()
+    type(client.session).__deepcopy__ = lambda self, memo=None: self
+    return client
+
+
 class MCPClientPool:
     def __init__(self):
         self.clients = None
@@ -37,10 +44,7 @@ class MCPClientPool:
         for server in MCP_SERVERS:
             name = server["name"]
             try:
-                client = buildClient(server)
-                await client.__aenter__()
-                type(client.session).__deepcopy__ = lambda self, memo=None: self
-                clients[name] = client
+                clients[name] = await connect(server)
                 logger.info("MCPClientPool: %s connected", name)
             except Exception as e:
                 logger.error("MCPClientPool: %s connect failed: %s", name, e)
@@ -77,9 +81,7 @@ class MCPClientPool:
         try:
             if name in self.clients:
                 await self.clients[name].__aexit__(None, None, None)
-            new = buildClient(server)
-            await new.__aenter__()
-            type(new.session).__deepcopy__ = lambda self, memo=None: self
+            new = await connect(server)
             self.clients[name] = new
             logger.info("MCPClientPool: %s reconnected", name)
         except Exception as e:

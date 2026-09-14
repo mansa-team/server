@@ -1,8 +1,9 @@
 import atexit
 import logging
-import threading
 import time
 from collections import deque
+from logging.handlers import QueueHandler, QueueListener
+from queue import Queue
 
 import requests
 
@@ -14,9 +15,7 @@ from slowapi.util import get_remote_address
 limiter = Limiter(key_func=get_remote_address)
 logger = logging.getLogger(__name__)
 
-queue: deque[str] = deque()
-lock = threading.Lock()
-event = threading.Event()
+discordQueue: Queue = Queue()
 
 
 def setupLogging():
@@ -35,6 +34,10 @@ def setupLogging():
 
 
 class DiscordHandler(logging.Handler):
+    def __init__(self):
+        super().__init__()
+        self.recent: deque[str] = deque(maxlen=100)
+
     def emit(self, record: logging.LogRecord):
         if record.levelno < logging.ERROR:
             return
@@ -46,35 +49,28 @@ class DiscordHandler(logging.Handler):
         if not Config.DISCORD.ENABLED or not Config.DISCORD.WEBHOOK_URL:
             return
         text = text[:1980] + "\n...[truncated]" if len(text) > 2000 else text
-        with lock:
-            if text not in queue:
-                queue.append(text)
-        event.set()
+        self.acquire()
+        try:
+            if text in self.recent:
+                return
+            self.recent.append(text)
+        finally:
+            self.release()
+        try:
+            requests.post(Config.DISCORD.WEBHOOK_URL, json={"content": text}, timeout=10)
+        except Exception:
+            pass  # nosec: B110 per-message send failure swallowed, retried on next error
+        time.sleep(0.45)  # ~5 msgs/2s, under discord rate limit
 
 
 def setupDiscordHandler():
     if not (Config.DISCORD.ENABLED and Config.DISCORD.WEBHOOK_URL):
         return
 
-    def sender():
-        while True:
-            event.wait()
-            event.clear()
-            while True:
-                with lock:
-                    if not queue:
-                        break
-                    msg = queue.popleft()
-                try:
-                    requests.post(Config.DISCORD.WEBHOOK_URL, json={"content": msg}, timeout=10)
-                except Exception:
-                    pass  # nosec: B110 per-message send failure swallowed, retried on next tick
-                time.sleep(0.45)  # ~5 msgs/2s, under discord rate limit
-
-    t = threading.Thread(target=sender, daemon=True, name="discord-sender")
-    t.start()
-    atexit.register(lambda: (event.set(), t.join(timeout=3)))
-    logging.getLogger().addHandler(DiscordHandler())
+    listener = QueueListener(discordQueue, DiscordHandler())
+    listener.start()
+    atexit.register(listener.stop)
+    logging.getLogger().addHandler(QueueHandler(discordQueue))
 
 
 setupLogging()

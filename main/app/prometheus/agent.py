@@ -28,6 +28,10 @@ def safeFilter(schema):
     return originalFilter(schema)
 
 
+def persistEvent(db, sessionId, entry):
+                persistEvent(db, sessionId, {"type": "tool_result", "result": result})
+
+
 mcp._filter_to_supported_schema = safeFilter
 
 logger = logging.getLogger(__name__)
@@ -337,18 +341,15 @@ class Prometheus:
                     yield {"type": "tool_call", "tool": fc.name, "args": fc.args or {}, "turn": turn}
 
                     if sessionId:
-                        try:
-                            PrometheusChatManager.appendHistory(
-                                db,
-                                str(sessionId),
-                                {
-                                    "role": "loop_event",
-                                    "eventType": "tool_call",
-                                    "metadata": {"toolName": fc.name, "args": fc.args or {}, "turn": turn},
-                                },
-                            )
-                        except Exception as e:
-                            logger.error(f"Failed to persist tool_call event: {e}")
+                        persistEvent(
+                            db,
+                            str(sessionId),
+                            {
+                                "role": "loop_event",
+                                "eventType": "tool_call",
+                                "metadata": {"toolName": fc.name, "args": fc.args or {}, "turn": turn},
+                            },
+                        )
 
                     if fc.name == "execute_code":
                         try:
@@ -376,18 +377,15 @@ class Prometheus:
                     responses.append(types.Part.from_function_response(name=fc.name, response=result))
 
                     if sessionId:
-                        try:
-                            PrometheusChatManager.appendHistory(
-                                db,
-                                str(sessionId),
-                                {
-                                    "role": "loop_event",
-                                    "eventType": "tool_result",
-                                    "metadata": {"toolName": fc.name, "result": result, "turn": turn},
-                                },
-                            )
-                        except Exception as e:
-                            logger.error(f"Failed to persist tool_result event: {e}")
+                        persistEvent(
+                            db,
+                            str(sessionId),
+                            {
+                                "role": "loop_event",
+                                "eventType": "tool_result",
+                                "metadata": {"toolName": fc.name, "result": result, "turn": turn},
+                            },
+                        )
 
                 history.append(
                     {
@@ -409,22 +407,19 @@ class Prometheus:
                 }
 
                 if sessionId:
-                    try:
-                        PrometheusChatManager.appendHistory(
-                            db,
-                            str(sessionId),
-                            {
-                                "role": "loop_event",
-                                "eventType": "turn_end",
-                                "metadata": {
-                                    "turnNumber": turn,
-                                    "durationMs": int(time.time() * 1000) - turn_start,
-                                    "toolsUsed": tools_used,
-                                },
+                    persistEvent(
+                        db,
+                        str(sessionId),
+                        {
+                            "role": "loop_event",
+                            "eventType": "turn_end",
+                            "metadata": {
+                                "turnNumber": turn,
+                                "durationMs": int(time.time() * 1000) - turn_start,
+                                "toolsUsed": tools_used,
                             },
-                        )
-                    except Exception as e:
-                        logger.error(f"Failed to persist turn_end event: {e}")
+                        },
+                    )
 
                 turn += 1
                 stream = await chat.send_message_stream(responses)

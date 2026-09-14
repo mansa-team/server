@@ -18,8 +18,6 @@ EPISODE_CAP = 12
 
 FALLBACK_FIELDS = ("P/L", "P/VP", "ROE", "DY", "LPA", "VPA", "PRECO", "INVESTING SCORE")
 
-FALLBACK_METRIC_RE = re.compile(r"\b(" + "|".join(re.escape(f) for f in FALLBACK_FIELDS) + r")\b")
-
 DECISION_KEYWORDS = re.compile(
     r"(?:prefiro|prefere|quero|gostaria|sempre|nunca|quando|"
     r"não use|use ao invés|troque|prefira|defina|configure|"
@@ -71,12 +69,7 @@ def loadFieldData() -> dict:
             response.raise_for_status()
             payload = response.json()
             historicalRaw = payload.get("historical", {})
-            if isinstance(historicalRaw, dict):
-                historicalFields = list(historicalRaw.keys())
-            elif isinstance(historicalRaw, list):
-                historicalFields = list(historicalRaw)
-            else:
-                historicalFields = []
+            historicalFields = list(historicalRaw) if isinstance(historicalRaw, (dict, list)) else []
             fundamentalRaw = payload.get("fundamental", [])
             fundamentalCols = list(fundamentalRaw) if isinstance(fundamentalRaw, list) else []
             fieldData = {"historical": historicalFields, "fundamental": fundamentalCols}
@@ -84,20 +77,6 @@ def loadFieldData() -> dict:
             logger.warning("Failed to load field data from STOCKS_API /fields: %s", e)
             return {"historical": [], "fundamental": []}
     return fieldData
-
-
-def getHistoricalFields() -> list[str]:
-    return loadFieldData()["historical"]
-
-
-def getFundamentalColumns() -> list[str]:
-    return loadFieldData()["fundamental"]
-
-
-def invalidateFieldData():
-    global fieldData, metricRegex
-    fieldData = None
-    metricRegex = None
 
 
 def getMetricRegex() -> re.Pattern:
@@ -122,10 +101,8 @@ def extractTickers(text: str) -> list[str]:
     return dedup(re.compile(r"\b([A-Z]{4}[0-9])\b").findall(text))
 
 
-def extractMetrics(text: str, useRegistry: bool = False) -> list[str]:
-    regex = getMetricRegex() if useRegistry else FALLBACK_METRIC_RE
-
-    return dedup(regex.findall(text))
+def extractMetrics(text: str) -> list[str]:
+    return dedup(getMetricRegex().findall(text))
 
 
 def extractDecisions(userMessages: list[dict]) -> list[str]:
@@ -227,7 +204,7 @@ class PrometheusCompactor:
         allText = " ".join(m.get("content", "") for m in chunk if m.get("content"))
 
         tickers = extractTickers(allText)
-        metrics = extractMetrics(allText, useRegistry=True)
+        metrics = extractMetrics(allText)
         decisions = extractDecisions(userMessages)
         snapshots = extractSnapshots(toolResults)
         tools = extractToolCalls(loopEvents)
