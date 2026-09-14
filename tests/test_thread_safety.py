@@ -79,96 +79,8 @@ class TestGetSession:
         session = getSession()
         assert isinstance(session, requests.Session)
 
-
-# ---------------------------------------------------------------------------
-# Issue 5 – DiscordHandler bounded thread pool
-# ---------------------------------------------------------------------------
-
-
-class TestDiscordHandlerThreadPool:
-    """Verify that DiscordHandler submits to a bounded executor, not raw threads."""
-
-    def test_queue_and_lock_exist(self):
-        """The module-level queue, lock, and event must exist."""
-        from main.utils.logging_config import queue, lock, event
-
-        assert queue is not None
-        assert lock is not None
-        assert event is not None
-
-    def test_emit_adds_to_queue(self):
-        """DiscordHandler.emit() must add messages to the module queue."""
-        from main.utils.logging_config import DiscordHandler, queue, lock
-
-        with patch("main.utils.logging_config.Config") as mock_cfg:
-            mock_cfg.DISCORD.ENABLED = True
-            mock_cfg.DISCORD.WEBHOOK_URL = "https://discord.example.com/hook"
-
-            handler = DiscordHandler()
-            with lock:
-                queue.clear()
-            record = logging.LogRecord(
-                name="test.module",
-                level=logging.ERROR,
-                pathname="test.py",
-                lineno=1,
-                msg="test error %s",
-                args=("detail",),
-                exc_info=None,
-            )
-            handler.emit(record)
-
-            with lock:
-                assert len(queue) == 1
-
-    def test_concurrent_emits_are_thread_safe(self):
-        """Many concurrent emit() calls must not corrupt the queue."""
-        from main.utils.logging_config import DiscordHandler, queue, lock
-
-        with patch("main.utils.logging_config.Config") as mock_cfg:
-            mock_cfg.DISCORD.ENABLED = True
-            mock_cfg.DISCORD.WEBHOOK_URL = "https://discord.example.com/hook"
-
-            handler = DiscordHandler()
-
-            with lock:
-                queue.clear()
-
-            def emit():
-                record = logging.LogRecord(
-                    name="test",
-                    level=logging.ERROR,
-                    pathname="test.py",
-                    lineno=1,
-                    msg="concurrent test",
-                    args=(),
-                    exc_info=None,
-                )
-                handler.emit(record)
-
-            # Fire 20 concurrent emits
-            workers = [threading.Thread(target=emit) for _ in range(20)]
-            for w in workers:
-                w.start()
-            for w in workers:
-                w.join(timeout=5)
-
-            with lock:
-                # Queue may deduplicate identical messages, but no corruption
-                assert len(queue) >= 1
-                assert all(isinstance(msg, str) for msg in queue)
-
-
-# ---------------------------------------------------------------------------
-# Integration: concurrent HTTP via getSession
-# ---------------------------------------------------------------------------
-
-
-class TestConcurrentGetSession:
-    """Verify getSession returns thread-local sessions under concurrency."""
-
-    def test_getSession_returns_thread_local_sessions(self):
-        """getSession() must give each thread its own Session."""
+    def test_concurrent_sessions_are_thread_local(self):
+        """getSession() must give each thread its own Session (merged from TestConcurrentGetSession)."""
         from main.utils.http_session import getSession
         import requests
 
@@ -206,3 +118,88 @@ class TestConcurrentGetSession:
             mock_get.assert_called_once()
             mock_session.get.assert_called_once()
             assert result is True
+
+
+# ---------------------------------------------------------------------------
+# Issue 5 – DiscordHandler bounded thread pool
+# ---------------------------------------------------------------------------
+
+
+class TestDiscordHandlerThreadPool:
+    """Verify DiscordHandler posts via the shared discordQueue, thread-safely."""
+
+    def test_queue_and_handler_exist(self):
+        """The module-level discordQueue and DiscordHandler must exist."""
+        from queue import Queue
+
+        from main.utils.logging_config import DiscordHandler, discordQueue
+
+        assert isinstance(discordQueue, Queue)
+        handler = DiscordHandler()
+        assert hasattr(handler, "acquire") and hasattr(handler, "release")
+
+    def test_emit_posts_to_webhook(self):
+        """DiscordHandler.emit() must POST the formatted message to the webhook."""
+        from unittest.mock import patch
+
+        from main.utils.logging_config import DiscordHandler
+
+        with (
+            patch("main.utils.logging_config.Config") as mock_cfg,
+            patch("main.utils.logging_config.requests.post") as mock_post,
+            patch("main.utils.logging_config.time.sleep"),
+        ):
+            mock_cfg.DISCORD.ENABLED = True
+            mock_cfg.DISCORD.WEBHOOK_URL = "https://discord.example.com/hook"
+
+            handler = DiscordHandler()
+            record = logging.LogRecord(
+                name="test.module",
+                level=logging.ERROR,
+                pathname="test.py",
+                lineno=1,
+                msg="test error %s",
+                args=("detail",),
+                exc_info=None,
+            )
+            handler.emit(record)
+
+            mock_post.assert_called_once()
+            assert mock_post.call_args.kwargs["json"]["content"].startswith("[ERROR] [module]")
+
+    def test_concurrent_emits_are_thread_safe(self):
+        """Many concurrent emit() calls must not corrupt handler state."""
+        from unittest.mock import patch
+
+        from main.utils.logging_config import DiscordHandler
+
+        with (
+            patch("main.utils.logging_config.Config") as mock_cfg,
+            patch("main.utils.logging_config.requests.post") as mock_post,
+            patch("main.utils.logging_config.time.sleep"),
+        ):
+            mock_cfg.DISCORD.ENABLED = True
+            mock_cfg.DISCORD.WEBHOOK_URL = "https://discord.example.com/hook"
+
+            handler = DiscordHandler()
+
+            def emit(i):
+                record = logging.LogRecord(
+                    name="test",
+                    level=logging.ERROR,
+                    pathname="test.py",
+                    lineno=1,
+                    msg=f"concurrent test {i}",
+                    args=(),
+                    exc_info=None,
+                )
+                handler.emit(record)
+
+            # Fire 20 concurrent emits with distinct messages (no dedup)
+            workers = [threading.Thread(target=emit, args=(i,)) for i in range(20)]
+            for w in workers:
+                w.start()
+            for w in workers:
+                w.join(timeout=5)
+
+            assert mock_post.call_count == 20

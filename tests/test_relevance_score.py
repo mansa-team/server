@@ -16,39 +16,25 @@ class FakeMemory:
 
 
 class TestTimeDecay:
-    def test_just_accessed_has_full_score(self):
-        mem = FakeMemory(score=7.0, lastAccessedAt=NOW)
-        score = getRelevanceScore(mem, NOW)
-        assert score == pytest.approx(1.0, abs=0.01)
+    @pytest.mark.parametrize(
+        "days,expected,tol",
+        [
+            (0, 1.0, 0.01),
+            (1, 0.867, 0.05),
+            (7, 0.368, 0.05),
+            (30, 0.013, 0.01),
+        ],
+    )
+    def test_decay_matches_formula(self, days, expected, tol):
+        # R = e^(-t/S) with S=7.0
+        mem = FakeMemory(score=7.0, lastAccessedAt=NOW - timedelta(days=days))
+        assert getRelevanceScore(mem, NOW) == pytest.approx(expected, abs=tol)
 
-    def test_one_day_old(self):
-        mem = FakeMemory(score=7.0, lastAccessedAt=NOW - timedelta(days=1))
-        score = getRelevanceScore(mem, NOW)
-        # R = e^(-1/7) ≈ 0.867
-        assert score == pytest.approx(0.867, abs=0.05)
-
-    def test_seven_days_old(self):
-        mem = FakeMemory(score=7.0, lastAccessedAt=NOW - timedelta(days=7))
-        score = getRelevanceScore(mem, NOW)
-        # R = e^(-7/7) = e^(-1) ≈ 0.368
-        assert score == pytest.approx(0.368, abs=0.05)
-
-    def test_thirty_days_old(self):
-        mem = FakeMemory(score=7.0, lastAccessedAt=NOW - timedelta(days=30))
-        score = getRelevanceScore(mem, NOW)
-        # R = e^(-30/7) ≈ 0.013
-        assert score == pytest.approx(0.013, abs=0.01)
-
-    def test_ninety_days_old(self):
-        mem = FakeMemory(score=7.0, lastAccessedAt=NOW - timedelta(days=90))
-        score = getRelevanceScore(mem, NOW)
+    @pytest.mark.parametrize("days,ceiling", [(90, 0.01), (365, 0.001)])
+    def test_old_memories_near_zero(self, days, ceiling):
         # R = e^(-90/7) ≈ 3.3e-6, essentially 0
-        assert score < 0.01
-
-    def test_one_year_old(self):
-        mem = FakeMemory(score=7.0, lastAccessedAt=NOW - timedelta(days=365))
-        score = getRelevanceScore(mem, NOW)
-        assert score < 0.001
+        mem = FakeMemory(score=7.0, lastAccessedAt=NOW - timedelta(days=days))
+        assert getRelevanceScore(mem, NOW) < ceiling
 
     def test_score_always_positive(self):
         for days in [0, 1, 7, 30, 90, 365, 730]:
@@ -77,14 +63,6 @@ class TestStabilityImpact:
         ephemeral_old = FakeMemory(score=3.0, lastAccessedAt=NOW - timedelta(days=30))
         sticky_new = FakeMemory(score=14.0, lastAccessedAt=NOW)
         assert getRelevanceScore(sticky_new, NOW) > getRelevanceScore(ephemeral_old, NOW)
-
-    def test_higher_stability_always_wins_at_same_age(self):
-        """With same access time, higher stability always produces higher retention."""
-        t = NOW - timedelta(days=14)
-        a = FakeMemory(score=3.0, lastAccessedAt=t)
-        b = FakeMemory(score=14.0, lastAccessedAt=t)
-        assert getRelevanceScore(b, NOW) > getRelevanceScore(a, NOW)
-
 
 class TestDecayMonotonicity:
     def test_older_always_lower_score(self):

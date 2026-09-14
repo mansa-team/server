@@ -51,15 +51,6 @@ class TestMemoryToolFunctions:
         hints = save_memory.__annotations__
         assert "return" in hints
 
-    def test_memory_tools_is_list_of_callables(self):
-        assert isinstance(TOOL_REGISTRY, dict)
-        assert len(TOOL_REGISTRY) >= 4
-        for name, fn in TOOL_REGISTRY.items():
-            assert callable(fn)
-
-    def test_memory_tool_names_unchanged(self):
-        assert {"search_memory", "save_memory"}.issubset(set(TOOL_REGISTRY.keys()))
-
 
 class TestToolRegistry:
     """TOOL_REGISTRY pattern must work correctly."""

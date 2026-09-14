@@ -75,10 +75,7 @@ class TestStocksCacheManager:
     # --- cacheScheduler (shared scheduler, P5) -------------------------------
     @patch("main.app.stocks_api.cache.registerJob")
     def test_cache_scheduler_registers_shared_job(self, mock_register):
-        from main.app.stocks_api.cache import StocksCacheManager
-
-        mock_engine = MagicMock()
-        mgr = StocksCacheManager(mock_engine, threading.Lock())
+        mgr = self.make_manager()
 
         # spawned init thread must never run against the real feather/subprocess path
         with patch("main.app.stocks_api.cache.threading.Thread"):

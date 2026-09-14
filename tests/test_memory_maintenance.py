@@ -1,4 +1,3 @@
-import math
 import pytest
 from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
@@ -33,21 +32,6 @@ def create_memories(dbSession):
         return memory
 
     return create
-
-
-class TestEbbinghausRetention:
-    def test_retention_formula(self):
-        """Verify R = e^(-t/S) produces expected values."""
-        assert math.exp(-0 / 7.0) == pytest.approx(1.0, abs=1e-6)
-        assert math.exp(-1 / 7.0) == pytest.approx(0.8669, abs=1e-3)
-        assert math.exp(-7 / 7.0) == pytest.approx(0.3679, abs=1e-3)
-        assert math.exp(-30 / 7.0) == pytest.approx(0.0131, abs=1e-3)
-
-    def test_high_stability_forgotten_slowly(self):
-        """High stability (S=14) retains more than low stability (S=3) at same age."""
-        s_high = math.exp(-7 / 14.0)  # ~0.607
-        s_low = math.exp(-7 / 3.0)  # ~0.097
-        assert s_high > s_low
 
 
 class TestArchive:

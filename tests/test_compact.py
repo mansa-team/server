@@ -19,36 +19,44 @@ from main.app.prometheus.compact import (
 )
 
 
+def mockDbFactory(first=None):
+    """Return a MagicMock db whose query chain resolves first() to `first`."""
+    mockDb = MagicMock()
+    mockDb.query.return_value.filter.return_value.first.return_value = first
+    return mockDb
+
+
 class TestExtractTickers:
-    def test_single_ticker(self):
-        assert extractTickers("Análise de PETR4") == ["PETR4"]
+    @pytest.mark.parametrize(
+        "text,expected",
+        [
+            ("Análise de PETR4", ["PETR4"]),
+            ("PETR4 e VALE3 e ITUB4", ["PETR4", "VALE3", "ITUB4"]),
+            ("PETR4 e depois PETR4", ["PETR4"]),
+            ("O P/L da PETR4 está abaixo de VALE3", ["PETR4", "VALE3"]),
+        ],
+    )
+    def test_ticker_cases(self, text, expected):
+        assert extractTickers(text) == expected
 
-    def test_multiple_tickers(self):
-        result = extractTickers("PETR4 e VALE3 e ITUB4")
-        assert result == ["PETR4", "VALE3", "ITUB4"]
-
-    def test_no_tickers(self):
-        assert extractTickers("nenhum ticker aqui") == []
-
-    def test_deduplication(self):
-        assert extractTickers("PETR4 e depois PETR4") == ["PETR4"]
-
-    def test_does_not_match_4_letter_words(self):
-        assert extractTickers("HIGH e LOW") == []
-
-    def test_ticker_in_context(self):
-        text = "O P/L da PETR4 está abaixo de VALE3"
-        assert extractTickers(text) == ["PETR4", "VALE3"]
+    @pytest.mark.parametrize("text", ["nenhum ticker aqui", "HIGH e LOW"])
+    def test_no_tickers_found(self, text):
+        assert extractTickers(text) == []
 
 
 class TestExtractMetrics:
-    def test_single_metric(self):
-        assert "P/L" in extractMetrics("O P/L está em 5.2x")
-
-    def test_multiple_metrics(self):
-        result = extractMetrics("ROE de 15% e DY de 8%")
-        assert "ROE" in result
-        assert "DY" in result
+    @pytest.mark.parametrize(
+        "text,expected",
+        [
+            ("O P/L está em 5.2x", ["P/L"]),
+            ("ROE de 15% e DY de 8%", ["ROE", "DY"]),
+            ("P/L de 5x", ["P/L"]),
+        ],
+    )
+    def test_metric_cases(self, text, expected):
+        result = extractMetrics(text)
+        for metric in expected:
+            assert metric in result
 
     def test_cagr_metrics(self):
         oldField, oldRegex = compactMod.fieldData, compactMod.metricRegex
@@ -66,22 +74,20 @@ class TestExtractMetrics:
     def test_no_metrics(self):
         assert extractMetrics("texto sem métricas") == []
 
-    def test_uses_fallback_when_no_registry(self):
-        result = extractMetrics("P/L de 5x")
-        assert "P/L" in result
-
 
 class TestExtractDecisions:
-    def test_preference(self):
-        msgs = [{"content": "Prefiro ações de dividendos"}]
-        result = extractDecisions(msgs)
+    @pytest.mark.parametrize(
+        "content,keyword",
+        [
+            ("Prefiro ações de dividendos", "dividendos"),
+            ("Sempre use P/VP abaixo de 1.0", None),
+        ],
+    )
+    def test_decision_cases(self, content, keyword):
+        result = extractDecisions([{"content": content}])
         assert len(result) >= 1
-        assert "dividendos" in result[0].lower()
-
-    def test_always_keyword(self):
-        msgs = [{"content": "Sempre use P/VP abaixo de 1.0"}]
-        result = extractDecisions(msgs)
-        assert len(result) >= 1
+        if keyword is not None:
+            assert keyword in result[0].lower()
 
     def test_no_decisions(self):
         msgs = [{"content": "Qual é o P/L da PETR4?"}]
@@ -92,15 +98,21 @@ class TestExtractDecisions:
 
 
 class TestExtractToolCalls:
-    def test_tool_with_ticker(self):
-        events = [{"eventType": "tool_call", "metadata": {"toolName": "get_fundamental", "args": {"search": "PETR4"}}}]
-        result = extractToolCalls(events)
-        assert "get_fundamental(PETR4)" in result
-
-    def test_tool_without_ticker(self):
-        events = [{"eventType": "tool_call", "metadata": {"toolName": "list_fields", "args": {}}}]
-        result = extractToolCalls(events)
-        assert "list_fields" in result
+    @pytest.mark.parametrize(
+        "event,expected",
+        [
+            (
+                {"eventType": "tool_call", "metadata": {"toolName": "get_fundamental", "args": {"search": "PETR4"}}},
+                "get_fundamental(PETR4)",
+            ),
+            (
+                {"eventType": "tool_call", "metadata": {"toolName": "list_fields", "args": {}}},
+                "list_fields",
+            ),
+        ],
+    )
+    def test_tool_cases(self, event, expected):
+        assert expected in extractToolCalls([event])
 
     def test_skips_non_tool_events(self):
         events = [{"eventType": "turn_end", "metadata": {}}]
@@ -222,47 +234,24 @@ class TestPrometheusCompactor:
         assert len(merged["keyDecisions"]) == 5
 
     def test_get_episodes_empty_session(self):
-        mockDb = MagicMock()
-        mockDb.query.return_value.filter.return_value.first.return_value = None
-        assert self.compactor.getEpisodes(mockDb, "sid1") == []
+        assert self.compactor.getEpisodes(mockDbFactory(None), "sid1") == []
 
-    def test_get_episodes_empty_summary(self):
+    @pytest.mark.parametrize("summary", [None, "{invalid json", '"just a string"'])
+    def test_get_episodes_invalid_summary(self, summary):
         session = MagicMock()
-        session.summary = None
-        mockDb = MagicMock()
-        mockDb.query.return_value.filter.return_value.first.return_value = session
-        assert self.compactor.getEpisodes(mockDb, "sid1") == []
-
-    def test_get_episodes_corrupt_json(self):
-        session = MagicMock()
-        session.summary = "{invalid json"
-        mockDb = MagicMock()
-        mockDb.query.return_value.filter.return_value.first.return_value = session
-        assert self.compactor.getEpisodes(mockDb, "sid1") == []
-
-    def test_get_episodes_non_list_json(self):
-        session = MagicMock()
-        session.summary = '"just a string"'
-        mockDb = MagicMock()
-        mockDb.query.return_value.filter.return_value.first.return_value = session
-        assert self.compactor.getEpisodes(mockDb, "sid1") == []
+        session.summary = summary
+        assert self.compactor.getEpisodes(mockDbFactory(session), "sid1") == []
 
     def test_get_episodes_valid(self):
         session = MagicMock()
         session.summary = '[{"id": "ep_1", "summary": "test"}]'
-        mockDb = MagicMock()
-        mockDb.query.return_value.filter.return_value.first.return_value = session
-        result = self.compactor.getEpisodes(mockDb, "sid1")
+        result = self.compactor.getEpisodes(mockDbFactory(session), "sid1")
         assert len(result) == 1
         assert result[0]["id"] == "ep_1"
 
-    def test_get_compactable_chunk_no_episodes(self):
+    @pytest.mark.parametrize("episodes", [[], [{"id": "ep_1"}]])
+    def test_get_compactable_chunk_no_usable_episodes(self, episodes):
         history = [{"role": "user", "content": "msg1"}]
-        assert self.compactor.getCompactableChunk(history, []) == history
-
-    def test_get_compactable_chunk_no_last_ep_time(self):
-        history = [{"role": "user", "content": "msg1"}]
-        episodes = [{"id": "ep_1"}]
         assert self.compactor.getCompactableChunk(history, episodes) == history
 
     def test_get_compactable_chunk_filters_by_timestamp(self):
@@ -283,31 +272,24 @@ class TestPrometheusCompactor:
         assert result[0]["content"] == "msg10"
 
     def test_compact_returns_none_no_session(self):
-        mockDb = MagicMock()
-        mockDb.query.return_value.filter.return_value.first.return_value = None
-        assert self.compactor.compact(mockDb, "sid1") is None
+        assert self.compactor.compact(mockDbFactory(None), "sid1") is None
 
     def test_compact_returns_none_no_history(self):
         session = MagicMock()
         session.history = []
-        mockDb = MagicMock()
-        mockDb.query.return_value.filter.return_value.first.return_value = session
-        assert self.compactor.compact(mockDb, "sid1") is None
+        assert self.compactor.compact(mockDbFactory(session), "sid1") is None
 
     def test_compact_returns_none_below_budget(self):
         session = MagicMock()
         session.history = [{"role": "user", "content": "short"}]
         session.summary = None
-        mockDb = MagicMock()
-        mockDb.query.return_value.filter.return_value.first.return_value = session
-        assert self.compactor.compact(mockDb, "sid1") is None
+        assert self.compactor.compact(mockDbFactory(session), "sid1") is None
 
     def test_compact_creates_episode_above_budget(self):
         session = MagicMock()
         session.history = [{"role": "user", "content": "x" * 40000}]
         session.summary = None
-        mockDb = MagicMock()
-        mockDb.query.return_value.filter.return_value.first.return_value = session
+        mockDb = mockDbFactory(session)
         result = self.compactor.compact(mockDb, "sid1")
         assert result is not None
         assert result["id"].startswith("ep_")
