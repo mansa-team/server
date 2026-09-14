@@ -2,22 +2,22 @@ import asyncio
 import orjson
 import pytest
 
-from cashews import cache
+from cashews import cache as cashewsCache
 
-from main.app.stocks_api.sync_cache import sync_cache
+from main.app.stocks_api.sync_cache import cache
 
 
 @pytest.fixture(scope="module", autouse=True)
 def setup_cache():
-    cache.setup("mem://")
+    cashewsCache.setup("mem://")
     yield
-    asyncio.run(cache.clear())
+    asyncio.run(cashewsCache.clear())
 
 
 def test_hit_returns_cached_value_without_calling_func():
     calls = []
 
-    @sync_cache(ttl="1h", key="test:simple:{x}")
+    @cache(ttl="1h", key="test:simple:{x}")
     def fn(x):
         calls.append(x)
         return orjson.dumps({"x": x})
@@ -32,7 +32,7 @@ def test_hit_returns_cached_value_without_calling_func():
 def test_distinct_args_get_distinct_cache_entries():
     calls = []
 
-    @sync_cache(ttl="1h", key="test:distinct:{x}")
+    @cache(ttl="1h", key="test:distinct:{x}")
     def fn(x):
         calls.append(x)
         return orjson.dumps({"x": x})
@@ -46,7 +46,7 @@ def test_distinct_args_get_distinct_cache_entries():
 def test_params_not_in_template_are_excluded_from_key():
     calls = []
 
-    @sync_cache(ttl="1h", key="test:exclude:{x}")
+    @cache(ttl="1h", key="test:exclude:{x}")
     def fn(x, junk="ignored"):
         calls.append(x)
         return orjson.dumps({"x": x})
@@ -60,7 +60,7 @@ def test_params_not_in_template_are_excluded_from_key():
 def test_exceptions_propagate_and_are_not_cached():
     calls = []
 
-    @sync_cache(ttl="1h", key="test:exc:{x}")
+    @cache(ttl="1h", key="test:exc:{x}")
     def fn(x):
         calls.append(x)
         raise ValueError("boom")
