@@ -10,7 +10,7 @@ from main.app.stocks_api.key import verifyAPIKey
 from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
 from main.app.stocks_api.compress import compressResponse, getNest
 from main.app.stocks_api.cache import stocksCache
-from main.app.stocks_api.sync_cache import cache
+from main.app.stocks_api.sync_cache import cache as endpointCache
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ def listFields():
 
 
 @router.get("/historical", operation_id="get_historical", response_class=ORJSONResponse)
-@cache(ttl="1h", key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
+@endpointCache(ttl="1h", key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 def getHistorical(
     response: Response,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -146,7 +146,7 @@ def getHistorical(
 
 
 @router.get("/fundamental", operation_id="get_fundamental", response_class=ORJSONResponse)
-@cache(ttl="5m", key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
+@endpointCache(ttl="5m", key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 def getFundamental(
     response: Response,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -216,7 +216,7 @@ def getFundamental(
 
 
 @router.get("/cotations", operation_id="get_cotations", response_class=ORJSONResponse)
-@cache(ttl="5m", key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}")
+@endpointCache(ttl="5m", key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}")
 def getCotations(
     response: Response,
     search: str = Query(..., min_length=1, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -272,7 +272,7 @@ def getCotations(
 
 
 @router.get("/cotations/live", operation_id="get_live_price", response_class=ORJSONResponse)
-@cache(ttl="15s", key="stocks:live:{search}:{compact}")
+@endpointCache(ttl="15s", key="stocks:live:{search}:{compact}")
 def getLiveCotation(
     response: Response,
     search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),
