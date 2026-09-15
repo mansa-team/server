@@ -3,6 +3,7 @@ from config import Config
 import re
 import json
 import uuid
+from collections.abc import MutableMapping
 from datetime import datetime
 
 import requests
@@ -192,7 +193,7 @@ def buildSummary(
 
 
 class PrometheusCompactor:
-    def shouldCompact(self, history: list, tokenCache: dict | None = None) -> bool:
+    def shouldCompact(self, history: list, tokenCache: MutableMapping | None = None) -> bool:
         if not history:
             return False
 
@@ -267,7 +268,7 @@ class PrometheusCompactor:
 
         return [merged] + recent
 
-    def compact(self, db: DBSession, sessionId: str, tokenCache: dict | None = None) -> dict | None:
+    def compact(self, db: DBSession, sessionId: str, tokenCache: MutableMapping | None = None) -> dict | None:
         session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
 
         if not session or not session.history:

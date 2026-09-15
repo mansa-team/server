@@ -10,7 +10,7 @@ from google.genai import types
 import google.genai._mcp_utils as mcp
 
 from main.models.prometheus import PrometheusSession
-from main.app.prometheus.memory import PrometheusMemory
+from main.app.prometheus.memory import PrometheusMemory, newTokenCache
 from main.app.prometheus.chat import PrometheusChatManager
 from main.app.prometheus.compact import PrometheusCompactor, loadFieldData
 from main.app.prometheus.mcp import clientPool
@@ -259,7 +259,7 @@ class Prometheus:
                 logger.warning("Pool/registry startup failed: %s", e)
 
         try:
-            tokenCache: dict = {}
+            tokenCache = newTokenCache()
             session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
             if session and session.history:
                 PrometheusCompactor().compact(db, str(sessionId), tokenCache)

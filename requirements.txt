@@ -6,6 +6,7 @@ pymysql
 pydantic
 pydantic_settings
 alembic
+user-agents
 
 # SCRAPER-B3
 lxml
@@ -32,6 +33,8 @@ mcp==1.29.0
 google-genai[local-tokenizer]
 forgevm
 python-multipart
+cachetools
+rapidfuzz
 
 # USER
 slowapi
@@ -39,11 +42,8 @@ fastapi-sso
 bcrypt
 PyJWT
 itsdangerous
-user-agents
-cachetools
 
-# TASK5
-rapidfuzz
+# TEST-PLUGINS
 pytest-asyncio
 freezegun
 pytest-mock
