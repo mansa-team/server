@@ -97,7 +97,7 @@ class TestInitialize:
             patch.object(mcp, "buildClient", side_effect=lambda s: fakes[s["name"]]),
             patch.object(mcp, "logger") as mock_logger,
         ):
-            await (pool.initialize())
+            await pool.initialize()
         assert set(pool.clients) == {"stocks", "searxng"}
         assert pool.clients["stocks"] is fakes["stocks"]
         assert pool.clients["searxng"] is fakes["searxng"]
@@ -116,7 +116,7 @@ class TestInitialize:
             patch.object(mcp, "buildClient", side_effect=lambda s: fakes[s["name"]]),
             patch.object(mcp, "logger") as mock_logger,
         ):
-            await (pool.initialize())
+            await pool.initialize()
         assert "stocks" not in pool.clients
         assert pool.clients["searxng"] is good
         assert pool.lastHealthCheck > 0
@@ -137,7 +137,7 @@ class TestGetClients:
             patch.object(pool, "initialize", new=AsyncMock(side_effect=initialize)) as mock_init,
             patch.object(pool, "healthCheck", new=AsyncMock()) as mock_hc,
         ):
-            clients, sessions = await (pool.getClients())
+            clients, sessions = await pool.getClients()
         mock_init.assert_awaited_once()
         mock_hc.assert_not_awaited()
         assert clients == {"stocks": fake}
@@ -149,7 +149,7 @@ class TestGetClients:
         pool.clients = {"stocks": fake}
         pool.lastHealthCheck = time.time()
         with patch.object(pool, "healthCheck", new=AsyncMock()) as mock_hc:
-            clients, sessions = await (pool.getClients())
+            clients, sessions = await pool.getClients()
         mock_hc.assert_not_awaited()
         assert clients == {"stocks": fake}
         assert sessions == [fake.session]
@@ -160,7 +160,7 @@ class TestGetClients:
         pool.clients = {"stocks": fake}
         pool.lastHealthCheck = 0.0
         with patch.object(pool, "healthCheck", new=AsyncMock()) as mock_hc:
-            clients, sessions = await (getClientsAndYield(pool))
+            clients, sessions = await getClientsAndYield(pool)
         mock_hc.assert_awaited_once()
         assert clients == {"stocks": fake}
         assert sessions == [fake.session]
@@ -173,7 +173,7 @@ class TestHealthCheck:
         pool.clients = {"stocks": fake}
         pool.lastHealthCheck = time.time()
         with patch.object(pool, "reconnect", new=AsyncMock()) as mock_reconnect:
-            await (pool.healthCheck())
+            await pool.healthCheck()
         assert fake.session.tools_calls == 0
         mock_reconnect.assert_not_awaited()
 
@@ -183,7 +183,7 @@ class TestHealthCheck:
         pool.clients = {"stocks": fake}
         pool.lastHealthCheck = 0.0
         with patch.object(pool, "reconnect", new=AsyncMock()) as mock_reconnect:
-            await (runHealthCheckTwice(pool))
+            await runHealthCheckTwice(pool)
         assert fake.session.tools_calls == 1  # only the first call ran the tool check
         mock_reconnect.assert_not_awaited()
 
@@ -193,7 +193,7 @@ class TestHealthCheck:
         pool.clients = {"stocks": s1, "searxng": s2}
         pool.lastHealthCheck = 0.0
         with patch.object(pool, "reconnect", new=AsyncMock()) as mock_reconnect:
-            await (pool.healthCheck())
+            await pool.healthCheck()
         assert s1.session.tools_calls == 1
         assert s2.session.tools_calls == 1
         mock_reconnect.assert_not_awaited()
@@ -209,7 +209,7 @@ class TestHealthCheck:
             patch.object(pool, "reconnect", new=AsyncMock()) as mock_reconnect,
             patch.object(mcp, "logger") as mock_logger,
         ):
-            await (pool.healthCheck())
+            await pool.healthCheck()
         assert good.session.tools_calls == 1
         assert bad.session.tools_calls == 1
         mock_reconnect.assert_awaited_once_with("searxng")
@@ -222,7 +222,7 @@ class TestReconnect:
         fake = FakeClient("stocks")
         pool.clients = {"stocks": fake}
         with patch.object(mcp, "buildClient") as mock_build, patch.object(mcp, "logger") as mock_logger:
-            await (pool.reconnect("ghost"))
+            await pool.reconnect("ghost")
         mock_build.assert_not_called()
         mock_logger.error.assert_called_once_with("MCPClientPool: %s not found in MCP_SERVERS", "ghost")
         assert pool.clients == {"stocks": fake}
@@ -238,7 +238,7 @@ class TestReconnect:
             patch.object(mcp, "buildClient", return_value=new) as mock_build,
             patch.object(mcp, "logger") as mock_logger,
         ):
-            await (pool.reconnect("stocks"))
+            await pool.reconnect("stocks")
         assert old.exited == 1
         assert new.entered == 1
         assert pool.clients["stocks"] is new
@@ -250,7 +250,7 @@ class TestReconnect:
         new = FakeClient("searxng")
         pool.clients = {}
         with patch.object(mcp, "buildClient", return_value=new) as mock_build:
-            await (pool.reconnect("searxng"))
+            await pool.reconnect("searxng")
         assert pool.clients["searxng"] is new
         assert new.entered == 1
         mock_build.assert_called_once()
@@ -264,7 +264,7 @@ class TestReconnect:
             patch.object(mcp, "buildClient", return_value=bad) as mock_build,
             patch.object(mcp, "logger") as mock_logger,
         ):
-            await (pool.reconnect("stocks"))
+            await pool.reconnect("stocks")
         assert old.exited == 1  # old client torn down before the failed rebuild
         assert pool.clients["stocks"] is old
         mock_build.assert_called_once()
@@ -276,7 +276,7 @@ class TestClose:
         pool = MCPClientPool()
         f1, f2 = FakeClient("stocks"), FakeClient("searxng")
         pool.clients = {"stocks": f1, "searxng": f2}
-        await (pool.close())
+        await pool.close()
         assert f1.exited == 1
         assert f2.exited == 1
         assert pool.clients is None
@@ -286,7 +286,7 @@ class TestClose:
         f1 = FakeClient("stocks", aexit_error=RuntimeError("boom"))
         f2 = FakeClient("searxng")
         pool.clients = {"stocks": f1, "searxng": f2}
-        await (pool.close())
+        await pool.close()
         assert f1.exited == 1
         assert f2.exited == 1
         assert pool.clients is None
@@ -294,5 +294,5 @@ class TestClose:
     async def test_noop_when_no_clients(self):
         pool = MCPClientPool()
         pool.clients = None
-        await (pool.close())
+        await pool.close()
         assert pool.clients is None
