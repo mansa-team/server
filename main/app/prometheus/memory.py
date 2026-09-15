@@ -1,11 +1,13 @@
 import asyncio
 import logging
+from collections.abc import MutableMapping
 from config import Config, SessionLocal
 import json
 import unicodedata
 from datetime import datetime, timezone
 from typing import Any, Callable, cast
 
+from cachetools import TTLCache
 from cashews import Cache
 from google import genai
 from google.genai import types
@@ -80,6 +82,13 @@ INITIAL_STABILITY = {
 MEMORY_EXTRACTION_TOKEN_BUDGET = 32000
 MEMORY_EXTRACT_FREE_CAP = 5
 MEMORY_EXTRACT_PREMIUM_CAP = 10
+
+TOKEN_CACHE_MAXSIZE = 2048
+TOKEN_CACHE_TTL_SECONDS = 3600
+
+
+def newTokenCache() -> TTLCache:
+    return TTLCache(maxsize=TOKEN_CACHE_MAXSIZE, ttl=TOKEN_CACHE_TTL_SECONDS)
 
 client = None
 
@@ -166,7 +175,7 @@ def scoreCandidates(
     return [scoreRow(m, f, f, sim) for m, f, sim in fused[:limit]]
 
 
-def sumTokens(texts: list[str], cache: dict | None) -> int:
+def sumTokens(texts: list[str], cache: MutableMapping | None) -> int:
     total = 0
     if cache is None:
         for text in texts:
@@ -438,7 +447,7 @@ class PrometheusMemory:
 
     @staticmethod
     def extract(
-        db: Session | None = None, userId=None, sessionId=None, userRoles=None, tokenCache: dict | None = None
+        db: Session | None = None, userId=None, sessionId=None, userRoles=None, tokenCache: MutableMapping | None = None
     ) -> list[PrometheusMemoryModel]:
         ownSession = db is None
         if ownSession:
