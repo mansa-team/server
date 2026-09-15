@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 import numpy as np
 from datetime import datetime, timezone
@@ -50,8 +52,8 @@ class TestUpsertMemory:
         assert result["status"] == "unchanged"
 
     def test_limit_enforcement(self, dbSession):
-        for i in range(MEMORY_LIMIT_BASIC):
-            MemoryManager.upsertMemory(dbSession, 1, f"key_{i}", f"val_{i}")
+        for _ in range(MEMORY_LIMIT_BASIC):
+            MemoryManager.upsertMemory(dbSession, 1, f"limit-{uuid.uuid4().hex}", f"val_{uuid.uuid4().hex}")
 
         result = MemoryManager.upsertMemory(
             dbSession,
@@ -64,8 +66,8 @@ class TestUpsertMemory:
         assert result["limit"] == MEMORY_LIMIT_BASIC
 
     def test_limit_not_enforced_without_roles(self, dbSession):
-        for i in range(MEMORY_LIMIT_BASIC):
-            MemoryManager.upsertMemory(dbSession, 1, f"key_{i}", f"val_{i}")
+        for _ in range(MEMORY_LIMIT_BASIC):
+            MemoryManager.upsertMemory(dbSession, 1, f"limit-{uuid.uuid4().hex}", f"val_{uuid.uuid4().hex}")
 
         result = MemoryManager.upsertMemory(dbSession, 1, "extra", "bypassed")
         assert result["status"] == "created"
