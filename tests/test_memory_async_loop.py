@@ -67,26 +67,24 @@ class TestUpsertThenSearch:
 
 
 class TestToolsInsideLoop:
-    def test_saveMemoryToolInsideLoop(self, dbSession, monkeypatch):
-        clearAll()
+    async def test_saveMemoryToolInsideLoop(self, dbSession, monkeypatch):
+        # clearAll() is sync and drives the cache via asyncio.run — run it in a
+        # worker thread since this test itself runs inside an event loop.
+        await asyncio.to_thread(clearAll)
         monkeypatch.setattr(toolsMod, "embed", lambda texts: [makeQueryVector() for _ in texts])
         monkeypatch.setattr(memoryMod, "embed", lambda texts: [makeQueryVector() for _ in texts])
-        saved = asyncio.run(
-            save_memory(
-                "ticker favorito",
-                "minha acao favorita e WEGE3",
-                "preference",
-                user={"userId": 33, "roles": []},
-                db=dbSession,
-            ),
+        saved = await save_memory(
+            "ticker favorito",
+            "minha acao favorita e WEGE3",
+            "preference",
+            user={"userId": 33, "roles": []},
+            db=dbSession,
         )
         assert saved["status"] == "created"
-        found = asyncio.run(
-            search_memory(
-                "WEGE3",
-                user={"userId": 33},
-                db=dbSession,
-            ),
+        found = await search_memory(
+            "WEGE3",
+            user={"userId": 33},
+            db=dbSession,
         )
         assert any(m["memoryKey"] == "ticker favorito" for m in found["memories"])
 

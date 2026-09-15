@@ -7,6 +7,10 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 from sqlalchemy.orm import sessionmaker
+import factory
+from faker import Faker
+
+fake = Faker()
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
@@ -95,25 +99,57 @@ def overrideStocksSession(app, session):
     return app
 
 
-@pytest.fixture
-def sampleUserData():
-    return {
-        "username": "testuser",
-        "email": "test@example.com",
-        "passwordHash": "hashed_password",
-        "googleId": None,
-        "roles": "USER",
-    }
+class UserFactory(factory.DictFactory):
+    username = factory.LazyFunction(lambda: fake.user_name())
+    email = factory.LazyFunction(lambda: fake.email())
+    passwordHash = factory.LazyFunction(lambda: fake.sha256())
+    googleId = None
+    roles = "USER"
+
+
+class APIKeyFactory(factory.DictFactory):
+    apiKey = factory.LazyFunction(lambda: fake.sha256())
+    userId = 1
+    requestLimit = 100
+    currentUsage = 0
+
+
+class PrometheusSessionFactory(factory.DictFactory):
+    sessionId = factory.LazyFunction(lambda: fake.uuid4())
+    userId = 1
+    title = factory.LazyFunction(lambda: fake.sentence(nb_words=3))
+    summary = factory.LazyFunction(lambda: fake.text(max_nb_chars=80))
+    history = factory.LazyFunction(list)
 
 
 @pytest.fixture
-def sampleAPIKeyData():
-    return {"apiKey": "test_api_key_12345", "userId": 1, "requestLimit": 100, "currentUsage": 0}
+def userFactory():
+    return UserFactory
 
 
 @pytest.fixture
-def samplePrometheusSessionData():
-    return {"sessionId": "session_123", "userId": 1, "title": "Test Session", "summary": "Test summary", "history": []}
+def apiKeyFactory():
+    return APIKeyFactory
+
+
+@pytest.fixture
+def prometheusSessionFactory():
+    return PrometheusSessionFactory
+
+
+@pytest.fixture
+def sampleUserData(userFactory):
+    return userFactory()
+
+
+@pytest.fixture
+def sampleAPIKeyData(apiKeyFactory):
+    return apiKeyFactory()
+
+
+@pytest.fixture
+def samplePrometheusSessionData(prometheusSessionFactory):
+    return prometheusSessionFactory()
 
 
 @pytest.fixture
@@ -171,8 +207,6 @@ def client():
 
 def mock_forgevm(mock_cls):
     """Wire up mock forgevm AsyncClient that returns sandbox with all methods.
-
-    Shared helper (superset of the former per-file copies): includes
     extend_ttl + glob_files so persistence tests work unchanged.
     Call as ``mock_client, mock_sandbox = mock_forgevm(mock_get_client)``.
     """

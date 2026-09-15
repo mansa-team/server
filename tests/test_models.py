@@ -13,9 +13,9 @@ class TestUserModel:
         dbSession.commit()
 
         assert user.userId is not None
-        assert user.username == "testuser"
-        assert user.email == "test@example.com"
-        assert user.roles == "USER"
+        assert user.username == sampleUserData["username"]
+        assert user.email == sampleUserData["email"]
+        assert user.roles == sampleUserData["roles"]
 
     def test_get_roles_list_default(self, dbSession, sampleUserData):
         user = User(**sampleUserData)
@@ -42,9 +42,9 @@ class TestStocksAPIKeyModel:
         dbSession.add(key)
         dbSession.commit()
 
-        assert key.apiKey == "test_api_key_12345"
-        assert key.userId == 1
-        assert key.requestLimit == 100
+        assert key.apiKey == sampleAPIKeyData["apiKey"]
+        assert key.userId == sampleAPIKeyData["userId"]
+        assert key.requestLimit == sampleAPIKeyData["requestLimit"]
 
 
 class TestPrometheusSessionModel:
@@ -53,9 +53,9 @@ class TestPrometheusSessionModel:
         dbSession.add(session)
         dbSession.commit()
 
-        assert session.sessionId == "session_123"
-        assert session.userId == 1
-        assert session.title == "Test Session"
+        assert session.sessionId == samplePrometheusSessionData["sessionId"]
+        assert session.userId == samplePrometheusSessionData["userId"]
+        assert session.title == samplePrometheusSessionData["title"]
 
     def test_default_history(self, dbSession, samplePrometheusSessionData):
         session = PrometheusSession(**samplePrometheusSessionData)

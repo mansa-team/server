@@ -4,7 +4,6 @@ Verifies that the TOCTOU race condition in verifyAPIKey is resolved
 by using a single atomic SQL UPDATE instead of read-then-write.
 """
 
-import asyncio
 import hashlib
 import pytest
 from unittest.mock import patch, MagicMock
@@ -30,14 +29,9 @@ def quotaUpdate(dbSession, apiKey):
 
 
 @pytest.fixture
-def sampleKeyData():
-    """Sample API key data for tests."""
-    return {
-        "apiKey": hashlib.sha256("test_key_12345".encode()).hexdigest(),
-        "userId": 1,
-        "requestLimit": 100,
-        "currentUsage": 0,
-    }
+def sampleKeyData(apiKeyFactory):
+    """Sample API key data for tests (deterministic hash via factory override)."""
+    return apiKeyFactory(apiKey=TEST_KEY_HASH)
 
 
 class TestAtomicQuotaIncrement:
@@ -161,7 +155,7 @@ class TestAtomicQuotaIncrement:
 class TestVerifyAPIKeyIntegration:
     """Integration tests for the verifyAPIKey function."""
 
-    def test_verify_api_key_success(self, dbSession, sampleKeyData):
+    async def test_verify_api_key_success(self, dbSession, sampleKeyData):
         """Test successful API key verification."""
         key = StocksAPIKey(**sampleKeyData)
         dbSession.add(key)
@@ -170,13 +164,13 @@ class TestVerifyAPIKeyIntegration:
         with patch("main.app.stocks_api.key.Config") as mock_config:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
 
-            result = asyncio.run(verifyAPIKey(apiKey="test_key_12345", db=dbSession))
+            result = await verifyAPIKey(apiKey="test_key_12345", db=dbSession)
 
             assert result == "test_key_12345"
             dbSession.refresh(key)
             assert key.currentUsage == 1
 
-    def test_verify_api_key_quota_exceeded(self, dbSession, sampleKeyData):
+    async def test_verify_api_key_quota_exceeded(self, dbSession, sampleKeyData):
         """Test API key verification when quota is exceeded."""
         key = StocksAPIKey(**{**sampleKeyData, "currentUsage": 100, "requestLimit": 100})
         dbSession.add(key)
@@ -186,37 +180,37 @@ class TestVerifyAPIKeyIntegration:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
 
             with pytest.raises(HTTPException) as exc_info:
-                asyncio.run(verifyAPIKey(apiKey="test_key_12345", db=dbSession))
+                await verifyAPIKey(apiKey="test_key_12345", db=dbSession)
 
             assert exc_info.value.status_code == 429
             assert "quota exceeded" in exc_info.value.detail
 
-    def test_verify_api_key_invalid(self, dbSession):
+    async def test_verify_api_key_invalid(self, dbSession):
         """Test API key verification with invalid key."""
         with patch("main.app.stocks_api.key.Config") as mock_config:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
 
             with pytest.raises(HTTPException) as exc_info:
-                asyncio.run(verifyAPIKey(apiKey="invalid_key", db=dbSession))
+                await verifyAPIKey(apiKey="invalid_key", db=dbSession)
 
             assert exc_info.value.status_code == 401
             assert "Invalid API key" in exc_info.value.detail
 
-    def test_verify_api_key_missing(self, dbSession):
+    async def test_verify_api_key_missing(self, dbSession):
         """Test API key verification with missing key."""
         with patch("main.app.stocks_api.key.Config") as mock_config:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
 
             with pytest.raises(HTTPException) as exc_info:
-                asyncio.run(verifyAPIKey(apiKey=None, db=dbSession))
+                await verifyAPIKey(apiKey=None, db=dbSession)
 
             assert exc_info.value.status_code == 401
             assert "Missing API key" in exc_info.value.detail
 
-    def test_verify_api_key_disabled(self, dbSession):
+    async def test_verify_api_key_disabled(self, dbSession):
         """Test that API key system can be disabled."""
         with patch("main.app.stocks_api.key.Config") as mock_config:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=False)
 
-            result = asyncio.run(verifyAPIKey(apiKey="any_key", db=dbSession))
+            result = await verifyAPIKey(apiKey="any_key", db=dbSession)
             assert result is None
