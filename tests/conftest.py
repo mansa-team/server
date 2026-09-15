@@ -14,7 +14,7 @@ fake = Faker()
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from main.models.base import Base
+from main.models.base import Base  # noqa: E402
 
 
 @pytest.fixture(autouse=True, scope="function")
