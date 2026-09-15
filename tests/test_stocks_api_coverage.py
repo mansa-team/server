@@ -1277,9 +1277,7 @@ def test_health_reports_cache_age(stocks_http_client, monkeypatch):
     from datetime import datetime, timezone
 
     monkeypatch.setattr(stocksCache, "STOCKS_CACHE", object())
-    monkeypatch.setattr(
-        stocksCache, "lastCacheUpdate", datetime(2026, 3, 23, 9, 0, tzinfo=timezone.utc)
-    )
+    monkeypatch.setattr(stocksCache, "lastCacheUpdate", datetime(2026, 3, 23, 9, 0, tzinfo=timezone.utc))
     resp = stocks_http_client.get("/stocks/health")
     assert resp.status_code == 200
     body = resp.json()
