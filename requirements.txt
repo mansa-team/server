@@ -24,6 +24,7 @@ zstandard
 cashews
 
 # PROMETHEUS
+sse-starlette
 sentence-transformers
 huggingface-hub
 fastmcp==3.4.5

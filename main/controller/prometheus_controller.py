@@ -3,7 +3,7 @@ import uuid
 from collections.abc import AsyncIterator
 
 from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, Query, Request, UploadFile
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
 from config import SessionLocal, getSession, Config
@@ -147,7 +147,7 @@ async def chat_stream(
 
     streamBus.startRun(sessionId, runner)
 
-    return StreamingResponse(streamBus.forward(sessionId, cursor=0), media_type="text/event-stream")
+    return streamBus.streamResponse(sessionId, cursor=0)
 
 
 @router.get("/chat/stream/{sessionId}")
@@ -158,7 +158,7 @@ async def resumeChatStream(
     user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
 ):
     verifySessionOwnsership(db, sessionId, user["userId"])
-    return StreamingResponse(streamBus.forward(sessionId, cursor=cursor), media_type="text/event-stream")
+    return streamBus.streamResponse(sessionId, cursor=cursor)
 
 
 @router.delete("/workspace/delete")
