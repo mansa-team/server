@@ -9,7 +9,7 @@ The system uses a string-based multi-role system to control access. Users can ha
 | Role | Name | Description |
 | :--- | :--- | :--- |
 | **USER** | Standard | Default access to basic features (Thoth and Ma'at). |
-| **PREMIUM** | Premium | Access to Prometheus and Ogum. |
+| **PREMIUM** | Premium | Access to Orunmila and Ogum. |
 | **DEVELOPER_STARTER** | Developer Starter | Access to developer tab and API Key generation. |
 | **DEVELOPER_ENTERPRISE** | Developer Enterprise | Full API access, bulk exports, custom fields. |
 | **ADMIN** | Admin | Full control over the system (includes all roles). |
