@@ -1,9 +1,11 @@
 import pytest
 import sys
 import os
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
+from datetime import datetime, timedelta, timezone
+from unittest.mock import MagicMock
 from zoneinfo import ZoneInfo
+
+from freezegun import freeze_time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
@@ -95,16 +97,18 @@ class TestSessionExpiration:
 class TestSessionManager:
     """Cover all methods in session.py (lines 14-154)."""
 
-    @patch("main.app.authentication.session.datetime")
-    @patch("main.app.authentication.session.secrets")
-    def test_create_session(self, mock_secrets, mock_datetime):
+    @freeze_time("2026-03-23 12:00:00")
+    def test_create_session(self, mocker):
         from main.app.authentication.session import SessionManager
 
-        mock_secrets.token_urlsafe.return_value = "session-id-123"
-        mock_secrets.token_hex.return_value = "a" * 64
-
-        mock_now = datetime(2026, 3, 23, 12, 0, 0, tzinfo=ZoneInfo("America/Sao_Paulo"))
-        mock_datetime.now.return_value = mock_now
+        mocker.patch(
+            "main.app.authentication.session.secrets.token_urlsafe",
+            return_value="session-id-123",
+        )
+        mocker.patch(
+            "main.app.authentication.session.secrets.token_hex",
+            return_value="a" * 64,
+        )
 
         mock_db = MagicMock()
 
@@ -114,17 +118,20 @@ class TestSessionManager:
         mock_db.commit.assert_called_once()
         assert result.sessionId == "session-id-123"
 
-    @patch("main.app.authentication.session.datetime")
-    @patch("main.app.authentication.session.secrets")
-    def test_create_session_custom_expiry(self, mock_secrets, mock_datetime):
+    @freeze_time("2026-03-23 12:00:00")
+    def test_create_session_custom_expiry(self, mocker):
         from main.app.authentication.session import SessionManager
 
-        mock_secrets.token_urlsafe.return_value = "session-id-456"
-        mock_secrets.token_hex.return_value = "b" * 64
+        mocker.patch(
+            "main.app.authentication.session.secrets.token_urlsafe",
+            return_value="session-id-456",
+        )
+        mocker.patch(
+            "main.app.authentication.session.secrets.token_hex",
+            return_value="b" * 64,
+        )
 
-        mock_now = datetime(2026, 3, 23, 12, 0, 0, tzinfo=ZoneInfo("America/Sao_Paulo"))
-        mock_datetime.now.return_value = mock_now
-
+        mock_now = datetime(2026, 3, 23, 12, 0, 0, tzinfo=timezone.utc)
         custom_expiry = mock_now + timedelta(days=7)
         mock_db = MagicMock()
 

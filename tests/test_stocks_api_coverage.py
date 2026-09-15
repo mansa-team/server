@@ -1,6 +1,5 @@
 """Tests to increase coverage for query.py, key.py, and cache.py in stocks_api."""
 
-import asyncio
 import sys
 import os
 import json
@@ -11,6 +10,7 @@ from unittest.mock import patch, MagicMock, AsyncMock, PropertyMock
 
 import pytest
 from fastapi import HTTPException
+from freezegun import freeze_time
 import pandas as pd
 import numpy as np
 
@@ -18,12 +18,12 @@ from main.app.stocks_api import query as queryModule
 
 
 @pytest.fixture(autouse=True)
-def clear_cashews_cache():
+async def clear_cashews_cache():
     from cashews import cache as cashews_cache
 
-    asyncio.run(cashews_cache.clear())
+    await cashews_cache.clear()
     yield
-    asyncio.run(cashews_cache.clear())
+    await cashews_cache.clear()
 
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -174,21 +174,21 @@ class TestStocksCacheManager:
 # ===========================================================================
 class TestVerifyAPIKey:
     """Tests covering key.py lines 15-40.
-    Uses asyncio.run() since pytest-asyncio is not configured."""
+    Native async tests via pytest-asyncio asyncio_mode=auto."""
 
     @patch("main.app.stocks_api.key.Config")
-    def test_verify_api_key_disabled_returns_none(self, mock_config):
+    async def test_verify_api_key_disabled_returns_none(self, mock_config):
         """When KEY.SYSTEM is falsy, return None (line 16)."""
         from main.app.stocks_api.key import verifyAPIKey
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=False)
         mock_db = MagicMock()
 
-        result = asyncio.run(verifyAPIKey(apiKey=None, db=mock_db))
+        result = await verifyAPIKey(apiKey=None, db=mock_db)
         assert result is None
 
     @patch("main.app.stocks_api.key.Config")
-    def test_verify_api_key_missing_raises_401(self, mock_config):
+    async def test_verify_api_key_missing_raises_401(self, mock_config):
         """When key is required but not provided (line 19)."""
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
@@ -197,11 +197,11 @@ class TestVerifyAPIKey:
         mock_db = MagicMock()
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(verifyAPIKey(apiKey=None, db=mock_db))
+            await verifyAPIKey(apiKey=None, db=mock_db)
         assert exc_info.value.status_code == 401
 
     @patch("main.app.stocks_api.key.Config")
-    def test_verify_api_key_invalid_key_raises_401(self, mock_config):
+    async def test_verify_api_key_invalid_key_raises_401(self, mock_config):
         """When atomic UPDATE returns 0 rows and query finds no key -> 401."""
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
@@ -214,11 +214,11 @@ class TestVerifyAPIKey:
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(verifyAPIKey(apiKey="bad_key", db=mock_db))
+            await verifyAPIKey(apiKey="bad_key", db=mock_db)
         assert exc_info.value.status_code == 401
 
     @patch("main.app.stocks_api.key.Config")
-    def test_verify_api_key_quota_exceeded(self, mock_config):
+    async def test_verify_api_key_quota_exceeded(self, mock_config):
         """When atomic UPDATE returns 0 rows and query finds key at limit -> 429."""
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
@@ -232,11 +232,11 @@ class TestVerifyAPIKey:
         mock_db.query.return_value.filter.return_value.first.return_value = mock_key_obj
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(verifyAPIKey(apiKey="valid_key", db=mock_db))
+            await verifyAPIKey(apiKey="valid_key", db=mock_db)
         assert exc_info.value.status_code == 429
 
     @patch("main.app.stocks_api.key.Config")
-    def test_verify_api_key_success(self, mock_config):
+    async def test_verify_api_key_success(self, mock_config):
         """Happy path: atomic UPDATE succeeds, returns key (lines 22-33)."""
         from main.app.stocks_api.key import verifyAPIKey
 
@@ -245,12 +245,12 @@ class TestVerifyAPIKey:
         # Atomic UPDATE returns 1 row (success)
         mock_db.execute.return_value.rowcount = 1
 
-        result = asyncio.run(verifyAPIKey(apiKey="valid_key", db=mock_db))
+        result = await verifyAPIKey(apiKey="valid_key", db=mock_db)
         assert result == "valid_key"
         mock_db.commit.assert_called_once()
 
     @patch("main.app.stocks_api.key.Config")
-    def test_verify_api_key_http_exception_rollback(self, mock_config):
+    async def test_verify_api_key_http_exception_rollback(self, mock_config):
         """HTTPException should cause rollback then re-raise (lines 35-37)."""
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
@@ -264,12 +264,12 @@ class TestVerifyAPIKey:
         mock_db.query.return_value.filter.return_value.first.return_value = mock_key_obj
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(verifyAPIKey(apiKey="key", db=mock_db))
+            await verifyAPIKey(apiKey="key", db=mock_db)
         assert exc_info.value.status_code == 429
         mock_db.rollback.assert_called_once()
 
     @patch("main.app.stocks_api.key.Config")
-    def test_verify_api_key_generic_exception_rollback(self, mock_config):
+    async def test_verify_api_key_generic_exception_rollback(self, mock_config):
         """Generic DB exception should rollback and raise 500 (lines 38-40)."""
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
@@ -279,7 +279,7 @@ class TestVerifyAPIKey:
         mock_db.execute.side_effect = Exception("DB connection lost")
 
         with pytest.raises(HTTPException) as exc_info:
-            asyncio.run(verifyAPIKey(apiKey="key", db=mock_db))
+            await verifyAPIKey(apiKey="key", db=mock_db)
         assert exc_info.value.status_code == 500
         mock_db.rollback.assert_called_once()
 
@@ -1154,12 +1154,10 @@ class TestQueryLiveCotation:
         assert result["search"] == "WEGE3"
         assert result["data"][0]["TICKER"] == "WEGE3"
 
-    def test_live_route_cached_within_ttl(self, stocks_http_client):
-        import asyncio
-
+    async def test_live_route_cached_within_ttl(self, stocks_http_client):
         from cashews import cache as cashews_cache
 
-        asyncio.run(cashews_cache.clear())
+        await cashews_cache.clear()
         mock_session = MagicMock()
         mock_resp = MagicMock()
         mock_resp.json.return_value = self.mock_b3_response()
@@ -1172,12 +1170,10 @@ class TestQueryLiveCotation:
         assert resp2.status_code == 200
         assert mock_session.get.call_count == 1
 
-    def test_live_route_refetches_after_ttl(self, stocks_http_client):
-        import asyncio
-
+    async def test_live_route_refetches_after_ttl(self, stocks_http_client):
         from cashews import cache as cashews_cache
 
-        asyncio.run(cashews_cache.clear())
+        await cashews_cache.clear()
         mock_session = MagicMock()
         mock_resp = MagicMock()
         mock_resp.json.return_value = self.mock_b3_response()
@@ -1185,7 +1181,7 @@ class TestQueryLiveCotation:
         mock_session.get.return_value = mock_resp
         with patch("main.app.stocks_api.query.getSession", return_value=mock_session):
             stocks_http_client.get("/stocks/cotations/live?search=WEGE3")
-            asyncio.run(cashews_cache.clear())  # expire cached entry between requests
+            await cashews_cache.clear()  # expire cached entry between requests
             stocks_http_client.get("/stocks/cotations/live?search=WEGE3")
         assert mock_session.get.call_count == 2
 
@@ -1275,12 +1271,15 @@ class TestQueryLiveCotation:
 # ===========================================================================
 # Tests for stocksapi_controller.py â€“ /stocks/health cache freshness
 # ===========================================================================
+@freeze_time("2026-03-23 12:00:00", tz_offset=0)
 def test_health_reports_cache_age(stocks_http_client, monkeypatch):
     from main.app.stocks_api.cache import stocksCache
-    from datetime import datetime, timezone, timedelta
+    from datetime import datetime, timezone
 
     monkeypatch.setattr(stocksCache, "STOCKS_CACHE", object())
-    monkeypatch.setattr(stocksCache, "lastCacheUpdate", datetime.now(timezone.utc) - timedelta(hours=3))
+    monkeypatch.setattr(
+        stocksCache, "lastCacheUpdate", datetime(2026, 3, 23, 9, 0, tzinfo=timezone.utc)
+    )
     resp = stocks_http_client.get("/stocks/health")
     assert resp.status_code == 200
     body = resp.json()

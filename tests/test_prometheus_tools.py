@@ -1,4 +1,3 @@
-import asyncio
 import inspect
 import pytest
 from unittest.mock import patch, MagicMock
@@ -113,7 +112,7 @@ class TestToolRegistry:
 
 
 class TestServeFile:
-    def test_serve_file_returns_markdown_link(self):
+    async def test_serve_file_returns_markdown_link(self):
         from main.app.prometheus.tools import serve_file
 
         with patch("main.app.prometheus.tools.hostPath") as m_host:
@@ -123,12 +122,12 @@ class TestServeFile:
             fake_path.name = "report.csv"
             m_host.return_value = fake_path
 
-            result = asyncio.run(serve_file("/workspace/report.csv", userId=1))
+            result = await serve_file("/workspace/report.csv", userId=1)
 
         assert result["url"] == "/prometheus/workspace/download?path=/workspace/report.csv"
         assert result["markdown"] == "[report.csv](/prometheus/workspace/download?path=/workspace/report.csv)"
 
-    def test_serve_file_missing_file_returns_error(self):
+    async def test_serve_file_missing_file_returns_error(self):
         from main.app.prometheus.tools import serve_file
 
         with patch("main.app.prometheus.tools.hostPath") as m_host:
@@ -136,19 +135,19 @@ class TestServeFile:
             fake_path.exists.return_value = False
             m_host.return_value = fake_path
 
-            result = asyncio.run(serve_file("/workspace/ghost.csv", userId=1))
+            result = await serve_file("/workspace/ghost.csv", userId=1)
 
         assert "error" in result
 
-    def test_serve_file_rejects_traversal(self):
+    async def test_serve_file_rejects_traversal(self):
         from main.app.prometheus.tools import serve_file
 
         with patch("main.app.prometheus.tools.hostPath", side_effect=ValueError("Invalid workspace path")):
-            result = asyncio.run(serve_file("/workspace/../../etc/passwd", userId=1))
+            result = await serve_file("/workspace/../../etc/passwd", userId=1)
 
         assert "error" in result
 
-    def test_serve_file_quotes_special_chars(self):
+    async def test_serve_file_quotes_special_chars(self):
         from main.app.prometheus.tools import serve_file
 
         with patch("main.app.prometheus.tools.hostPath") as m_host:
@@ -158,7 +157,7 @@ class TestServeFile:
             fake_path.name = "my file.csv"
             m_host.return_value = fake_path
 
-            result = asyncio.run(serve_file("/workspace/my file.csv", userId=1))
+            result = await serve_file("/workspace/my file.csv", userId=1)
 
         assert "my%20file.csv" in result["url"]
 
@@ -176,35 +175,35 @@ class TestServeFileGeminiSafe:
 
 
 class TestWorkspaceToolsTraversal:
-    def test_read_file_rejects_traversal(self):
+    async def test_read_file_rejects_traversal(self):
         from main.app.prometheus.tools import read_file
 
         with patch(
             "main.app.prometheus.tools.SandboxManager.read_file",
             side_effect=ValueError("bad path"),
         ):
-            result = asyncio.run(read_file("/workspace/../../etc/passwd", userId=1))
+            result = await read_file("/workspace/../../etc/passwd", userId=1)
 
         assert result["error"] == "Invalid workspace path"
 
-    def test_write_file_rejects_traversal(self):
+    async def test_write_file_rejects_traversal(self):
         from main.app.prometheus.tools import write_file
 
         with patch(
             "main.app.prometheus.tools.SandboxManager.write_file",
             side_effect=ValueError("bad path"),
         ):
-            result = asyncio.run(write_file("/workspace/../../etc/evil", "x", userId=1))
+            result = await write_file("/workspace/../../etc/evil", "x", userId=1)
 
         assert result["error"] == "Invalid workspace path"
 
-    def test_list_files_rejects_traversal(self):
+    async def test_list_files_rejects_traversal(self):
         from main.app.prometheus.tools import list_files
 
         with patch(
             "main.app.prometheus.tools.SandboxManager.list_files",
             side_effect=ValueError("bad path"),
         ):
-            result = asyncio.run(list_files("/workspace/../../etc", userId=1))
+            result = await list_files("/workspace/../../etc", userId=1)
 
         assert result["error"] == "Invalid workspace path"

@@ -116,7 +116,7 @@ def test_second_post_to_same_session_replaces_log(client, monkeypatch):
     assert [p["text"] for p in second if p["type"] == "text"] == ["first", " second"]
 
 
-def test_forward_terminates_when_finished_channel_has_empty_replay(monkeypatch):
+async def test_forward_terminates_when_finished_channel_has_empty_replay(monkeypatch):
     """Regression (I2): resuming a finished channel at cursor == len(events)
     yields an empty replay, so forward must terminate via the finished check
     instead of streaming keepalives forever. No DB needed - drives
@@ -144,7 +144,7 @@ def test_forward_terminates_when_finished_channel_has_empty_replay(monkeypatch):
         # events = [text, done]; cursor=2 replays nothing.
         return [line async for line in streamBus.forward("s1", cursor=2)]
 
-    lines = asyncio.run(scenario())
+    lines = await scenario()
     data = [ln for ln in lines if ln.startswith("data: ")]
     done_events = [json.loads(ln[6:].strip()) for ln in data if ln[6:].strip() != "[DONE]"]
     assert {"type": "done"} in done_events

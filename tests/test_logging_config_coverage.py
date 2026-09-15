@@ -3,6 +3,7 @@
 import logging
 from unittest.mock import patch, MagicMock
 import pytest
+import responses
 
 
 class TestDiscordHandlerEmit:
@@ -94,15 +95,17 @@ class TestDiscordHandlerEmit:
         content = mockPost.call_args.kwargs["json"]["content"]
         assert len(content) <= 2000
 
-    @patch("main.utils.logging_config.requests.post")
-    @patch("main.utils.logging_config.Config")
-    def test_emit_does_not_raise(self, mockConfig, mockPost):
+    @responses.activate
+    def test_emit_does_not_raise(self, mocker):
+        responses.add(responses.POST, "https://hook.test/123", json={}, status=204)
+        mockConfig = mocker.patch("main.utils.logging_config.Config")
         mockConfig.DISCORD.ENABLED = True
         mockConfig.DISCORD.WEBHOOK_URL = "https://hook.test/123"
         handler = self.make_handler()
         record = self.make_record(level=logging.ERROR, msg="test")
         # Should not raise
         handler.emit(record)
+        assert len(responses.calls) == 1
 
     @patch("main.utils.logging_config.requests.post")
     @patch("main.utils.logging_config.Config")
@@ -124,9 +127,9 @@ class TestDiscordHandlerEmit:
 
 
 class TestSetupLogging:
-    @patch("main.utils.logging_config.QueueListener")
-    @patch("main.utils.logging_config.Config")
-    def test_setup_discord_handler_enabled(self, mockConfig, mockListenerCls):
+    def test_setup_discord_handler_enabled(self, mocker):
+        mockListenerCls = mocker.patch("main.utils.logging_config.QueueListener")
+        mockConfig = mocker.patch("main.utils.logging_config.Config")
         mockConfig.DISCORD.ENABLED = True
         mockConfig.DISCORD.WEBHOOK_URL = "https://hook.test/123"
         from main.utils.logging_config import setupDiscordHandler

@@ -6,7 +6,6 @@ GREEN: All pass when wiring is correct.
 """
 
 import inspect
-import pytest
 import sys
 import os
 from unittest.mock import patch, AsyncMock, MagicMock
@@ -102,7 +101,6 @@ class TestMakeChatIncludesMemoryTools:
 class TestDispatchRoutesMemoryTools:
     """dispatchToolCall must route memory tool names via TOOL_REGISTRY."""
 
-    @pytest.mark.anyio
     async def test_search_memory_routed_via_registry(self):
         from main.app.prometheus.tools import dispatchToolCall
 
@@ -117,7 +115,6 @@ class TestDispatchRoutesMemoryTools:
         mock_fn.assert_called_once_with(query="PETR4", user={"userId": 1}, db=None, sandbox_id=None, userId=1)
         assert result == {"memories": []}
 
-    @pytest.mark.anyio
     async def test_save_memory_routed_via_registry(self):
         from main.app.prometheus.tools import dispatchToolCall
 
@@ -140,7 +137,6 @@ class TestDispatchRoutesMemoryTools:
         )
         assert result["status"] == "created"
 
-    @pytest.mark.anyio
     async def test_non_registry_tool_not_routed(self):
         from main.app.prometheus.tools import dispatchToolCall
 

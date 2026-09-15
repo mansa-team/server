@@ -68,35 +68,26 @@ class TestRoles:
 
 
 class TestRequirePermission:
-    def test_raises_403_when_missing(self):
-        import asyncio
-
+    async def test_raises_403_when_missing(self):
         checker = Roles.requirePermission(Permission.USE_PROMETHEUS)
 
-        async def run():
-            try:
-                await checker({"roles": ["USER"]})
-                return None
-            except HTTPException as e:
-                return e
+        try:
+            await checker({"roles": ["USER"]})
+            result = None
+        except HTTPException as e:
+            result = e
 
-        result = asyncio.run(run())
         assert result is not None
         assert result.status_code == 403
 
-    def test_passes_when_has_permission(self):
-        import asyncio
-
+    async def test_passes_when_has_permission(self):
         checker = Roles.requirePermission(Permission.USE_PROMETHEUS)
 
-        async def run():
-            try:
-                result = await checker({"roles": ["PREMIUM"]})
-                return result
-            except HTTPException:
-                return None
+        try:
+            result = await checker({"roles": ["PREMIUM"]})
+        except HTTPException:
+            result = None
 
-        result = asyncio.run(run())
         assert result is not None
         assert result["roles"] == ["PREMIUM"]
 

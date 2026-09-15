@@ -6,7 +6,6 @@ from main.app.prometheus.sandbox import SandboxManager
 
 
 class TestSandboxManager:
-    @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_create_sandbox(self, mock_get_client):
         mock_client, mock_sandbox = mock_forgevm(mock_get_client)
@@ -14,7 +13,6 @@ class TestSandboxManager:
         assert result == "sb-mock-123"
         mock_client.spawn.assert_called_once()
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_execute_code(self, mock_get_client):
         mock_client, mock_sandbox = mock_forgevm(mock_get_client)
@@ -67,14 +65,12 @@ class TestSandboxManager:
             with pytest.raises(FileNotFoundError):
                 SandboxManager.read_file(userId=1, path="/workspace/nope.txt")
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_destroy_sandbox(self, mock_get_client):
         mock_client, mock_sandbox = mock_forgevm(mock_get_client)
         await SandboxManager.destroy("sb-mock-123")
         mock_sandbox.destroy.assert_called_once()
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_destroy_handles_failure(self, mock_get_client):
         mock_client = AsyncMock()
@@ -86,7 +82,6 @@ class TestSandboxManager:
         # Should not raise
         await SandboxManager.destroy("sb-mock-123")
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_execute_passes_timeout(self, mock_get_client):
         mock_client, mock_sandbox = mock_forgevm(mock_get_client)
@@ -95,7 +90,6 @@ class TestSandboxManager:
             command="python3", args=["-c", "import time; time.sleep(99)"], timeout="10s"
         )
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_create_returns_sandbox_id(self, mock_get_client):
         mock_client, mock_sandbox = mock_forgevm(mock_get_client)
@@ -110,7 +104,6 @@ class TestSandboxManager:
             result = SandboxManager.write_file(userId=1, path="/workspace/\x00bad.txt", content="data")
         assert result is False
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.sandbox.getClient")
     async def test_execute_retries_on_sandbox_not_found(self, mock_get_client):
         """execute() catches SandboxNotFound from exec, calls getOrCreate, retries."""

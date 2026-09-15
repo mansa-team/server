@@ -44,3 +44,9 @@ cachetools
 
 # TASK5
 rapidfuzz
+pytest-asyncio
+freezegun
+pytest-mock
+responses
+factory_boy
+faker

@@ -1,17 +1,17 @@
-import asyncio
 import orjson
 import pytest
+import pytest_asyncio
 
 from cashews import cache as cashewsCache
 
 from main.app.stocks_api.sync_cache import cache
 
 
-@pytest.fixture(scope="module", autouse=True)
-def setup_cache():
+@pytest_asyncio.fixture(scope="module", loop_scope="module", autouse=True)
+async def setup_cache():
     cashewsCache.setup("mem://")
     yield
-    asyncio.run(cashewsCache.clear())
+    await cashewsCache.clear()
 
 
 def test_hit_returns_cached_value_without_calling_func():

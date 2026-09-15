@@ -157,7 +157,6 @@ class TestPrometheusInit:
 class TestPrometheusSendMessage:
     """Cover streamMessage in agent.py."""
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
@@ -185,7 +184,6 @@ class TestPrometheusSendMessage:
             results.append(event)
         assert results[-1]["text"] == "Hello from Gemini"
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
@@ -207,7 +205,6 @@ class TestPrometheusSendMessage:
             async for _ in gen.streamMessage(query="test", sessionId="sess-2", db=MagicMock(), user={"userId": 1}):
                 pass
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
@@ -229,7 +226,6 @@ class TestPrometheusSendMessage:
             results.append(event)
         assert results[-1]["text"] == "Reply with history"
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.agent.clientPool")
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
@@ -276,7 +272,6 @@ class TestPrometheusSendMessage:
         assert results[0] == {"type": "text", "text": "Hello "}
         assert results[1] == {"type": "text", "text": "world"}
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.agent.clientPool")
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
