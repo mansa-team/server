@@ -9,6 +9,7 @@ from typing import Any, Callable, cast
 from cashews import Cache
 from google import genai
 from google.genai import types
+from rapidfuzz import fuzz
 import numpy as np
 
 from sqlalchemy import func, desc
@@ -89,11 +90,11 @@ def minMax(values: list[float]) -> list[float]:
     return [(v - lo) / (hi - lo) for v in values]
 
 
-def normalizeKey(key: str) -> set[str]:
+def normalizeKey(key: str) -> str:
     normalized = key.lower().replace("_", " ")
     normalized = "".join(c for c in unicodedata.normalize("NFKD", normalized) if not unicodedata.combining(c))
 
-    return set(normalized.split())
+    return " ".join(normalized.split())
 
 
 def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8) -> PrometheusMemoryModel | None:
@@ -102,18 +103,15 @@ def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8
         .filter(PrometheusMemoryModel.userId == userId, PrometheusMemoryModel.archivedAt.is_(None))
         .all()
     )
-    newTokens = normalizeKey(newKey)
+    newNormalized = normalizeKey(newKey)
 
     for m in existing:
-        existingTokens = normalizeKey(str(m.memoryKey))
-        union = newTokens | existingTokens
+        existingNormalized = normalizeKey(str(m.memoryKey))
 
-        if not union:
+        if not newNormalized and not existingNormalized:
             continue
 
-        similarity = len(newTokens & existingTokens) / len(union)
-
-        if similarity > threshold:
+        if fuzz.ratio(newNormalized, existingNormalized) > threshold * 100:
             return m
 
     return None

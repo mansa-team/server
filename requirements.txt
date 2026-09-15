@@ -39,3 +39,6 @@ fastapi-sso
 bcrypt
 PyJWT
 itsdangerous
+
+# TASK5
+rapidfuzz
