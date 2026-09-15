@@ -3,10 +3,28 @@ import secrets
 from datetime import datetime, timedelta, timezone
 import hashlib
 from sqlalchemy.orm import Session
+from user_agents import parse as parseUserAgent
 from main.models.user_session import UserSession
 from main.app.authentication.constants import SESSION_EXPIRY_DAYS
 
 logger = logging.getLogger(__name__)
+
+
+def parseDeviceFields(userAgent: str | None) -> tuple[str | None, str | None, str | None]:
+    if not userAgent:
+        return None, None, None
+    parsed = parseUserAgent(userAgent)
+    if parsed.is_tablet:
+        deviceType: str | None = "tablet"
+    elif parsed.is_mobile:
+        deviceType = "mobile"
+    elif parsed.is_pc:
+        deviceType = "desktop"
+    else:
+        deviceType = None
+    browser = parsed.browser.family if parsed.browser.family != "Other" else None
+    operatingSystem = parsed.os.family if parsed.os.family != "Other" else None
+    return deviceType, browser, operatingSystem
 
 
 class SessionManager:
@@ -14,7 +32,7 @@ class SessionManager:
     def createSession(
         db: Session,
         userId: int,
-        userAgent: str,
+        userAgent: str | None,
         expiresAt: datetime | None = None,
     ) -> UserSession:
         sessionId = secrets.token_urlsafe(32)
@@ -24,10 +42,15 @@ class SessionManager:
         if expiresAt is None:
             expiresAt = now + timedelta(days=SESSION_EXPIRY_DAYS)
 
+        deviceType, browser, operatingSystem = parseDeviceFields(userAgent)
+
         session = UserSession(
             sessionId=sessionId,
             userId=userId,
             accessTokenHash=accessTokenHash,
+            deviceType=deviceType,
+            browser=browser,
+            operatingSystem=operatingSystem,
             userAgent=userAgent,
             isActive=True,
             createdAt=now,

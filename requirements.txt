@@ -39,6 +39,8 @@ fastapi-sso
 bcrypt
 PyJWT
 itsdangerous
+user-agents
+cachetools
 
 # TASK5
 rapidfuzz
