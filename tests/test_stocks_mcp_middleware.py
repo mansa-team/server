@@ -32,7 +32,7 @@ class TestMCPDetectMiddleware:
 
     async def test_mcp_header_appends_compact_to_nonempty_query(self):
         scope = {"type": "http", "headers": [(b"x-mcp", b"true")], "query_string": b"a=1", "state": {}}
-        downstream = run_through(scope)
+        downstream = await run_through(scope)
 
         assert scope["state"]["compressed"] is True
         assert scope["query_string"] == b"a=1&compact=true"
