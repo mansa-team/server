@@ -90,6 +90,7 @@ TOKEN_CACHE_TTL_SECONDS = 3600
 def newTokenCache() -> TTLCache:
     return TTLCache(maxsize=TOKEN_CACHE_MAXSIZE, ttl=TOKEN_CACHE_TTL_SECONDS)
 
+
 client = None
 
 
