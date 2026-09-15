@@ -1083,8 +1083,8 @@ class TestGetCurrentUser:
 
         mock_payload = {"userId": 1, "sessionId": "sess-abc"}
 
-        # SessionManager is imported locally inside getCurrentUser — patch the source module
-        with patch("main.app.authentication.session.SessionManager") as mock_sm:
+        # SessionManager is from-imported into main.app.user.user — patch where it is used
+        with patch("main.app.user.user.SessionManager") as mock_sm:
             mock_sm.validateSession.return_value = True
 
             from main.app.user.user import UserManager
@@ -1101,7 +1101,7 @@ class TestGetCurrentUser:
 
         mock_payload = {"userId": 1, "sessionId": "revoked-sess"}
 
-        with patch("main.app.authentication.session.SessionManager") as mock_sm:
+        with patch("main.app.user.user.SessionManager") as mock_sm:
             mock_sm.validateSession.return_value = False
 
             from main.app.user.user import UserManager
@@ -1118,7 +1118,7 @@ class TestGetCurrentUser:
 
         mock_payload = {"userId": 999, "sessionId": "sess-xyz"}
 
-        with patch("main.app.authentication.session.SessionManager") as mock_sm:
+        with patch("main.app.user.user.SessionManager") as mock_sm:
             mock_sm.validateSession.return_value = True
 
             from main.app.user.user import UserManager
@@ -1135,7 +1135,7 @@ class TestGetCurrentUser:
 
         mock_payload = {"userId": 1, "sessionId": "sess-err"}
 
-        with patch("main.app.authentication.session.SessionManager") as mock_sm:
+        with patch("main.app.user.user.SessionManager") as mock_sm:
             mock_sm.validateSession.return_value = True
 
             from main.app.user.user import UserManager
