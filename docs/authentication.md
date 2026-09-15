@@ -1,186 +1,171 @@
 # Authentication Management
 
-A secure authentication system for the Mansa ecosystem, utilizing **JSON Web Tokens (JWT)** and **HttpOnly Cookies** to manage user sessions and access levels. This module ensures that user data is protected against common attacks like XSS by restricting token access to the server-side.
+JWT (HS256) + HttpOnly cookie + DB-tracked sessions for the Mansa ecosystem (`USER` service, prefix `/auth`).
 
-Built to integrate seamlessly with the main database and provide granular permission control across all Mansa services.
+## Token & session lifetime
 
-**Note**: This system uses **fastapi-sso** for OAuth2 authentication, providing a standardized and secure OAuth flow.
+- Sessions and tokens live **30 days / 720 hours** (`main/app/authentication/constants.py:3-4`: `SESSION_EXPIRY_DAYS = 30`, `TOKEN_EXPIRY_HOURS = 720`).
+- JWT payload: `{"userId", "sessionId", "exp"}`; signed HS256 with `Config.USER.JWT_SECRET_KEY` (`main/app/authentication/util.py:31-41`, verify `:44-51`).
+- `SessionManager.createSession` defaults `expiresAt = now + 30d`; `validateSession` lazily deactivates expired rows (`main/app/authentication/session.py:32-65,126-144`).
 
-## Usage
-1. Environment configuration (`.env`):
-   ```env
-   #
-   #$ DATABASE CONFIGURATION
-   #
-   USER_MYSQL_USER=user
-   USER_MYSQL_PASSWORD=password
-   USER_MYSQL_HOST=localhost
-   USER_MYSQL_DATABASE=database
+## Token extraction order
 
-   #
-   #$ AUTH SYSTEM
-   #
-   USER_ENABLED=TRUE
-   USER_HOST=localhost
-   USER_PORT=3200
-   
-   # Secret key for JWT signing
-   JWT_SECRET_KEY=your_super_secret_jwt_key
+`extractTokenPayload` (`main/app/authentication/util.py:54-62`) checks in this order:
 
-   # Session secret key (for OAuth state management)
-   SESSION_SECRET_KEY=your_session_secret_key
+1. `X-Access-Token` header
+2. `Authorization: Bearer <token>`
+3. `mansa_token` cookie
 
-   # Google OAuth2
-   GOOGLE_CLIENT.ID=your_id
-   GOOGLE_CLIENT.SECRET=your_secret
-   GOOGLE_REDIRECT.URI=http://localhost:3200/auth/callback
-   ```
+Missing token → 401 `Session not found`; expired → 401 `Token expired`; bad signature → 401 `Invalid token`.
 
-## Roles and Permissions
-The system uses a string-based multi-role system to control access. Users can have one or more roles simultaneously, separated by commas in the database.
+## Cookie handling (conditional Secure)
 
-| Role | Name | Description |
-| :--- | :--- | :--- |
-| **USER** | Standard | Default access to basic features (Thoth and Ma'at). |
-| **DEVELOPER** | Developer | Access to the developer tab and API Key generation. |
-| **PREMIUM** | Premium | Access to all MUSA models and advanced algorithms. |
-| **ADMIN** | Admin | Full control over the system (includes all roles). |
+`issueSessionCookie` (`main/controller/authentication_controller.py:45-62`):
 
-## API Endpoints
+- Cookie name `mansa_token`, path `/`, SameSite `lax`, HttpOnly.
+- `Secure` is **conditional**: true only when the request is HTTPS — detected via `X-Forwarded-Proto` first, else `request.url.scheme` (`isSecureScheme`, `:28-37`).
+- Domain via `resolveCookieDomain` (`:40-42`): `localhost` when host is `localhost`/`127.0.0.1`, otherwise the request hostname.
+- Logout deletes the cookie with the same flags (`:141-149`) and revokes the DB session found in the token (`:128-139`).
+
+## Session data model (family-only)
+
+`UserSession` (`main/models/user_session.py:11-21`) stores **only**:
+
+| Column | Source |
+| :--- | :--- |
+| `sessionId` / `userId` / `accessTokenHash` | generated at creation |
+| `deviceType` | `desktop` / `mobile` / `tablet`, else `None` (family-only) |
+| `browser` | `parsed.browser.family`, `None` if `Other` |
+| `operatingSystem` | `parsed.os.family`, `None` if `Other` |
+| `userAgent` | raw `User-Agent` header (may be `""`) |
+| `isActive` / `createdAt` / `lastActivityAt` / `expiresAt` | lifecycle timestamps |
+
+Parsing: `parseDeviceFields` (`main/app/authentication/session.py:13-27`, stored `:45-59`). There is **no** `browserVersion`, `osVersion`, `ipAddress`, `deviceName`, or fingerprint column — any doc claiming them is stale.
+
+`updateLastActive` (`session.py:117-124`) exists but has **zero callers — dead / not wired**. `lastActivityAt` is set at creation and never refreshed.
+
+## Roles and permissions
+
+(`main/utils/roles.py:5-26` — note: there is **no** `DEVELOPER` role.)
+
+| Role | Effective permissions |
+| :--- | :--- |
+| `USER` | none (`Permission.NONE`) |
+| `PREMIUM` | `USE_PROMETHEUS` + `PROMETHEUS_EXTENDED_MEMORIES` |
+| `DEVELOPER_STARTER` | = `USER` (no extra permissions) |
+| `DEVELOPER_ENTERPRISE` | = `DEVELOPER_STARTER` (no extra permissions) |
+| `ADMIN` | all (`Permission.ALL()`), bypasses checks |
+
+Only two permissions exist: `USE_PROMETHEUS`, `PROMETHEUS_EXTENDED_MEMORIES`. There are no `VIEW_PROFILE` / `USE_THOTH` / `USE_MAAT` / `USE_OGUM` permissions — delete any such claims.
+
+## Rate limits
+
+(`main/controller/authentication_controller.py:71,101,154,172`)
+
+| Endpoint | Limit |
+| :--- | :--- |
+| `POST /auth/register` | 10/minute |
+| `POST /auth/login` | 10/minute |
+| `GET /auth/google` | 5/minute |
+| `GET /auth/callback` | 5/minute |
+
+## API endpoints
 
 ### Health Check
+
 ```bash
 curl http://localhost:3200/auth/health
 ```
-Returns service status.
 
 ### User Registration
-Creates a new account with the default role `USER`.
+
+Creates account (default role `USER`), then auto-logs in and sets the cookie.
+
 ```bash
 curl -X POST "http://localhost:3200/auth/register" \
      -H "Content-Type: application/json" \
      -d '{"username": "user", "email": "user@example.com", "password": "password123"}'
 ```
 
+Returns `{message, accessToken, tokenType: "bearer", user}` and sets `mansa_token`.
+
 ### User Login
-Authenticates the user and initiates a session.
+
 ```bash
 curl -X POST "http://localhost:3200/auth/login" \
      -H "Content-Type: application/json" \
      -d '{"username": "user", "password": "password123"}'
 ```
-**Response Behavior:**
-- Sets a `mansa_token` cookie (HttpOnly, Secure, SameSite=Lax).
-- Returns a JSON object with `accessToken`, user metadata, and a list of `roles`.
-- Creates a new session in the database with device information.
 
-### Profile (Me)
-Retrieves the logged-in user's information and current roles.
-```bash
-curl -X GET "http://localhost:3200/auth/me" \
-     -H "Authorization: Bearer YOUR_TOKEN"
-```
+Returns `{accessToken, tokenType: "bearer", user}` and sets `mansa_token`. Creates a new DB session per login (no session reuse).
 
 ### Logout
-Logs out the user and revokes the current session.
+
 ```bash
 curl -X POST "http://localhost:3200/auth/logout" \
      -H "Authorization: Bearer YOUR_TOKEN"
 ```
-**Response Behavior:**
-- Revokes the current session in the database.
-- Deletes the authentication cookie.
+
+Revokes the token's DB session (best-effort) and deletes the cookie. Always returns success even with no/invalid token.
 
 ### Google OAuth2 Login
-Initiates the Google authentication flow.
 
-**With custom redirect URL:**
 ```bash
-# Redirect your browser to:
-GET http://localhost:3200/auth/google?redirect_url=http://127.0.0.1:5500/main/test/auth.html
+# Browser redirect; redirect_url optional, else Referer header is used:
+GET http://localhost:3200/auth/google?redirect_url=http://localhost:5500/main/test/auth.html
 ```
 
-**Without redirect_url (uses Referer header):**
-```bash
-GET http://localhost:3200/auth/google
-```
+Passes `redirect_url` as the OAuth `state` param (`:166`).
 
-### Google Callback
-Internal endpoint handled by the server. After successful Google login, it:
-1. Verifies the user with Google using fastapi-sso.
-2. Synchronizes the user with the local MySQL database.
-3. Creates a session with device information.
-4. Redirects to the frontend with the token in the URL query parameter:
-   - Format: `http://127.0.0.1:5500/main/test/auth.html?token=ACCESS_TOKEN`
-   - The token is also set as an HttpOnly cookie (`mansa_token`)
+### Google Callback (cookie-only)
 
-## Security Features
+Internal endpoint. Flow (`:173-222`):
 
-- **Bcrypt Hashing**: All passwords are salted and hashed using the Blowfish algorithm (bcrypt).
-- **Auto-increment Gap Prevention**: The registration flow performs pre-insertion checks for existing usernames/emails to prevent database ID gaps on failed attempts.
-- **Stateless Authentication**: JWT allows the server to verify users without session storage.
-- **Hybrid Session Management**: JWT tokens include session IDs for tracking and revocation capabilities.
-- **Device Detection**: Sessions include device fingerprinting (browser, OS, IP).
-- **Session Revocation**: Users can revoke individual sessions or all sessions at once.
-- **CORS Protection**: Configured with dynamic origin matching to allow authenticated requests from trusted frontends while maintaining security.
-- **fastapi-sso**: OAuth2 flow handled by fastapi-sso library with built-in CSRF protection via state parameter.
-- **OAuth State Parameter**: Redirect URL is passed via OAuth state parameter, not stored in session (avoids SameSite cookie issues).
-- **HttpOnly Cookies**: Authentication tokens stored in HttpOnly cookies to prevent XSS attacks.
+1. Patches the `sso_state` cookie from the `state` query param (`:177-180`) as a SameSite workaround.
+2. `verify_and_process`, syncs/creates the local user by Google id.
+3. **Cookie-only redirect — no `?token=` in the URL.** If `state` is an `http(s)` URL whose host is in `LOCALHOST_ADDRESSES` or ends with `.localhost` (`:207-213`), returns `303 RedirectResponse` to it with the session cookie set (`:215-218`).
+4. Otherwise (non-localhost or missing state) returns JSON `{accessToken, tokenType: "bearer", user}` with the cookie set (`:220-222`).
 
-## Device Detection
+## Security features
 
-The system automatically detects and stores device information for each session:
+- **Bcrypt hashing** (`util.py:14-28`) with empty-password guards.
+- **Pre-insertion duplicate checks** on register to avoid id gaps.
+- **Hybrid sessions**: stateless JWT carrying `sessionId`, revocable via DB row (`isActive` flag).
+- **Conditional `Secure` cookies** (HTTPS-aware, proxy-aware).
+- **OAuth state allowlist**: only localhost hosts accepted for redirect; anything else falls back to JSON (open-redirect guard).
+- **CORS**: dynamic origin matching for trusted frontends.
 
-| Field | Description |
-|-------|------------|
-| browser | Detected browser (Chrome, Firefox, Safari, etc.) |
-| browserVersion | Browser version |
-| os | Operating system (Windows, macOS, Linux, Android, iOS) |
-| osVersion | OS version |
-| deviceType | Device category (desktop, mobile, tablet) |
-| ipAddress | Client IP address |
-| userAgent | Raw user agent string |
+## Not implemented
 
-## Session Management
-
-Sessions are tracked in the database and provide:
-- **Device Fingerprinting**: Unique identifier based on User-Agent + IP
-- **Session Listing**: View all active sessions
-- **Session Revocation**: Revoke individual or all sessions
-- **Automatic Expiration**: Sessions expire with JWT (24 hours)
-
-See [User Documentation](user.md#session-management) for session management endpoints.
+Password recovery, 2FA, and profile editing do not exist. The only user-surface reads are `GET /user/me`, `GET /user/admin`, and the `/user/sessions*` family (see `docs/user.md`).
 
 ## Workflow
 
 ```mermaid
 graph TD
     User["User Interface"] --> Start{Login Method?}
-    
+
     Start -- Standard --> Login["POST /auth/login"]
     Login --> Verify["Verify Bcrypt Hash"]
-    Verify -- Success --> CreateSession["Create Session in DB"]
-    CreateSession --> JWT["Generate JWT with sessionId"]
-    
+    Verify -- Success --> CreateSession["Create Session in DB (30d expiry)"]
+    CreateSession --> JWT["Generate HS256 JWT with sessionId"]
+
     Start -- Google OAuth --> GLogin["GET /auth/google?redirect_url=URL"]
-    GLogin --> State["Store redirect URL in state param"]
+    GLogin --> State["Pass redirect URL as OAuth state"]
     State --> GRedirect["Redirect to Google"]
     GRedirect --> GAuth["User authenticates with Google"]
     GAuth --> GCallback["GET /auth/callback"]
-    GCallback --> GVerify["Verify and process token"]
-    GVerify --> GSync["Sync User in MySQL"]
-    GSync --> GCreateSession["Create Session in DB"]
-    GCreateSession --> OAuthJWT["Generate JWT with sessionId"]
-    
-    Start -- Register --> Reg["POST /auth/register"]
+    GCallback --> Allowlist{"state host local?"}
+    Allowlist -- Yes --> CookieRedirect["303 redirect + cookie (no ?token=)"]
+    Allowlist -- No --> JSONFallback["JSON accessToken + cookie"]
+
+    Start -- Register --> Reg["POST /auth/register (10/min)"]
     Reg --> Valid["Check Duplicate User"]
     Valid -- OK --> Hash["Hash Password"]
     Hash --> Save["Save to MySQL"]
     Save --> CreateSession
 
-    JWT --> Cookie["Set HttpOnly Cookie & Redirect"]
-    OAuthJWT --> Cookie
-    
+    JWT --> Cookie["Set HttpOnly conditional-Secure Cookie"]
     Cookie --> Home["Access Granted"]
 ```
 
