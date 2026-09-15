@@ -5,6 +5,9 @@ import json
 import uuid
 from datetime import datetime
 
+import requests
+from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
+
 from google import genai
 from sqlalchemy.orm import Session as DBSession
 
@@ -16,7 +19,7 @@ logger = logging.getLogger(__name__)
 EPISODE_TOKEN_BUDGET = 8000
 EPISODE_CAP = 12
 
-FALLBACK_FIELDS = ("P/L", "P/VP", "ROE", "DY", "LPA", "VPA", "PRECO", "INVESTING SCORE") # improve ts
+FALLBACK_FIELDS = ("P/L", "P/VP", "ROE", "DY", "LPA", "VPA", "PRECO", "INVESTING SCORE")  # improve ts
 
 DECISION_KEYWORDS = re.compile(
     r"(?:prefiro|prefere|quero|gostaria|sempre|nunca|quando|"
@@ -61,13 +64,32 @@ def getStocksFieldsUrl() -> str:
     return f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fields"
 
 
+def isTransientFieldsError(exc: BaseException) -> bool:
+    if isinstance(exc, (requests.exceptions.Timeout, requests.exceptions.ConnectionError)):
+        return True
+    if isinstance(exc, requests.exceptions.HTTPError):
+        status = getattr(getattr(exc, "response", None), "status_code", None)
+        return isinstance(status, int) and status >= 500
+    return False
+
+
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(),
+    retry=retry_if_exception(isTransientFieldsError),
+    reraise=True,
+)
+def fetchFieldsPayload() -> dict:
+    response = getSession().get(getStocksFieldsUrl(), timeout=5)
+    response.raise_for_status()
+    return response.json()
+
+
 def loadFieldData() -> dict:
     global fieldData
     if fieldData is None:
         try:
-            response = getSession().get(getStocksFieldsUrl(), timeout=5)
-            response.raise_for_status()
-            payload = response.json()
+            payload = fetchFieldsPayload()
             historicalRaw = payload.get("historical", {})
             historicalFields = list(historicalRaw) if isinstance(historicalRaw, (dict, list)) else []
             fundamentalRaw = payload.get("fundamental", [])

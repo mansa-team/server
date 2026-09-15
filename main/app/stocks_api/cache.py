@@ -10,6 +10,7 @@ import pyarrow as pa
 
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 import os
 import subprocess  # nosec: B404 used only with constant args, see line 302
@@ -67,7 +68,13 @@ def arrowTypeFor(dbType: str):
     return pa.string()
 
 
-def buildFeatherCache(engine: Engine | None = None, _attempt: int = 0):
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(),
+    retry=retry_if_exception_type(OperationalError),
+    reraise=True,
+)
+def buildFeatherCache(engine: Engine | None = None):
     sampleCols = None
     sampleParts: dict[str, pd.Series] = {}
     compressor = zstd.ZstdCompressor(level=3)
@@ -136,17 +143,13 @@ def buildFeatherCache(engine: Engine | None = None, _attempt: int = 0):
                     result.close()
                 except Exception:
                     pass  # nosec: B110 best-effort writer/sink close, retried next refresh
-    except OperationalError as e:
-        if _attempt >= 2:
-            raise
-        logger.warning(f"feather build lost connection (attempt {_attempt + 1}/3), retrying with fresh connection")
+    except OperationalError:
+        logger.warning("feather build lost connection, retrying with fresh connection")
         try:
             resolvedEngine.dispose()
         except Exception:
             pass
-        time.sleep(2**_attempt)
-        buildFeatherCache(engine, _attempt + 1)
-        return
+        raise
     finally:
         if writer is not None:
             writer.close()

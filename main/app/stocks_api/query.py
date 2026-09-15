@@ -3,6 +3,8 @@ import zstandard as zstd
 from fastapi import HTTPException
 import pandas as pd
 import orjson
+import requests
+from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 from main.utils.http_session import getSession
 
@@ -327,14 +329,33 @@ def queryCotations(
         raise HTTPException(status_code=500, detail="Internal server error while processing cotations data")
 
 
+def isTransientLiveError(exc: BaseException) -> bool:
+    if isinstance(exc, (requests.exceptions.Timeout, requests.exceptions.ConnectionError)):
+        return True
+    if isinstance(exc, requests.exceptions.HTTPError):
+        status = getattr(getattr(exc, "response", None), "status_code", None)
+        return isinstance(status, int) and status >= 500
+    return False
+
+
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(),
+    retry=retry_if_exception(isTransientLiveError),
+    reraise=True,
+)
+def fetchLivePayload(search: str) -> dict:
+    resp = getSession().get(
+        f"https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/{search.upper()}",
+        timeout=5,
+    )
+    resp.raise_for_status()
+    return resp.json()
+
+
 def queryLiveCotation(search: str):
     try:
-        resp = getSession().get(
-            f"https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/{search.upper()}",
-            timeout=5,
-        )
-        resp.raise_for_status()
-        payload = resp.json()
+        payload = fetchLivePayload(search)
     except Exception:
         raise HTTPException(503, detail="B3 realtime unavailable")
 
