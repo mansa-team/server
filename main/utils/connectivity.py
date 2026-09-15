@@ -1,9 +1,7 @@
 import logging
 import time
-from requests.exceptions import ConnectionError, Timeout, RequestException
 from main.utils.http_session import getSession
 from sqlalchemy import text
-from sqlalchemy.exc import OperationalError
 
 from config import Config, engine, stocksEngine
 
@@ -33,8 +31,6 @@ def checkDatabaseConnection():
                     "overflow": pool.overflow(),
                 },
             }
-        except OperationalError as e:
-            results[name] = {"status": "error", "error": str(e)}
         except Exception as e:
             results[name] = {"status": "error", "error": str(e)}
 
@@ -61,9 +57,6 @@ def checkServiceConnection(service: str):
         if response.status_code == 200:
             logger.info(f"{service} connected ({latency:.2f}ms)")
             return True
-    except (ConnectionError, Timeout, RequestException) as e:
-        logger.error(f"{service} connection failed: {e}")
-        return False
     except Exception as e:
-        logger.error(f"{service} unexpected error: {e}")
+        logger.error(f"{service} connection failed: {e}")
         return False

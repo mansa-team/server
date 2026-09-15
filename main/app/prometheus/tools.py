@@ -1,6 +1,8 @@
 from config import SessionLocal
+import asyncio
 import logging
 from typing import Any
+from urllib.parse import quote
 
 from forgevm.exceptions import SandboxNotFound
 from sqlalchemy.orm import Session
@@ -33,7 +35,8 @@ async def search_memory(query: str, limit: int = 10, **_) -> dict:
     if ownSession:
         db = SessionLocal()
     try:
-        results = PrometheusMemory.search(
+        results = await asyncio.to_thread(
+            PrometheusMemory.search,
             db,  # type: ignore[arg-type]
             user["userId"],
             query,
@@ -65,7 +68,8 @@ async def save_memory(key: str, value: str, type: str, **_) -> dict:
         db = SessionLocal()
     try:
         embedding = embed([value])[0]
-        result = PrometheusMemory.upsertMemory(
+        result = await asyncio.to_thread(
+            PrometheusMemory.upsertMemory,
             db,  # type: ignore[arg-type]
             user["userId"],
             key=key,
@@ -167,8 +171,6 @@ async def serve_file(path: str, **_) -> dict:
         return {"error": "Invalid workspace path"}
     if not host.exists() or not host.is_file():
         return {"error": f"File not found: {path}"}
-
-    from urllib.parse import quote
 
     url = f"/prometheus/workspace/download?path={quote(path, safe='/')}"
     return {"url": url, "markdown": f"[{host.name}]({url})"}

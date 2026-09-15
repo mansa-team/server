@@ -5,12 +5,9 @@ from collections import defaultdict
 from datetime import date
 from typing import Any
 
-import orjson
 from fastapi import HTTPException
 import pandas as pd
 
-# Mirrors JSON_COLUMNS in main/app/scraper_b3/scraper.py — duplicated by
-# design (no shared/ kernel). Keep both tuples in sync.
 JSON_COLUMNS = ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS")
 
 PREPOSITIONS = frozenset({"DE", "DO", "DA", "DOS", "DAS", "E", "O", "A", "EM", "COM", "POR", "PARA"})
@@ -82,7 +79,7 @@ def parseDate(dateStr: str, end: bool = False) -> date:
         if end:
             return date(y, m, calendar.monthrange(y, m)[1])
         return date(y, m, 1)
-    return pd.to_datetime(dateStr).date()
+    return date.fromisoformat(dateStr)
 
 
 def parseDateRange(dates: str | None) -> tuple[date | None, date | None]:

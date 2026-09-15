@@ -53,15 +53,16 @@ def contentHash(text: str) -> str:
 
 
 def toVectorString(vec: list[float]) -> str:
-    return "[" + ",".join(repr(float(v)) for v in vec) + "]"
+    return np.array(vec, dtype=np.float32).tobytes().hex()
 
 
 def fromVectorString(s: str, dims: int = 384) -> list[float]:
     trimmed = s.strip()
-    if len(trimmed) < 2 or not trimmed.startswith("[") or not trimmed.endswith("]"):
-        raise ValueError(f"expected bracketed vector string, got {s!r}")
-    parts = trimmed[1:-1].split(",")
-    vals = [float(p) for p in parts if p.strip() != ""]
+    if trimmed.startswith("["):
+        parts = trimmed[1:-1].split(",")
+        vals = [float(p) for p in parts if p.strip() != ""]
+    else:
+        vals = np.frombuffer(bytes.fromhex(trimmed), dtype=np.float32).tolist()
     if len(vals) != dims:
         raise ValueError(f"expected {dims} dims, got {len(vals)}")
     return vals

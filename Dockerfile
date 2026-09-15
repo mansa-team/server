@@ -8,8 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY requirements.txt .
 
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --upgrade pip && \
+RUN pip install --upgrade pip && \
     pip install --no-cache-dir --prefix=/install \
     torch --index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir --prefix=/install \
@@ -37,8 +36,5 @@ ENV PYTHONPATH=/
 WORKDIR /
 
 COPY . .
-
-# defer embedding model download to runtime — saves ~500MB from image
-# RUN python -c "from main.utils.models.loader import getEmbeddingModel; getEmbeddingModel()"
 
 CMD ["python", "run.py"]

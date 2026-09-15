@@ -1,30 +1,22 @@
 from datetime import datetime, timezone
 import logging
 
-import orjson
 from cashews import cache
 from fastapi import APIRouter, Depends, Query, HTTPException, Response
-from fastapi.responses import Response as FastAPIResponse
+from fastapi.responses import ORJSONResponse
 
-from main.app.stocks_api.query import stocksQuery
+from main.app.stocks_api.query import queryCotations, queryFundamental, queryHistorical, queryLiveCotation
 from main.app.stocks_api.key import verifyAPIKey
 from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
 from main.app.stocks_api.compress import compressResponse, getNest
 from main.app.stocks_api.cache import stocksCache
-from main.app.stocks_api.sync_cache import sync_cache
+from main.app.stocks_api.sync_cache import cache as endpointCache
 
 logger = logging.getLogger(__name__)
 
 cache.setup("mem://")
 
 router = APIRouter(prefix="/stocks", tags=["Stocks API"])
-
-
-class JSONBytesResponse(FastAPIResponse):
-    media_type = "application/json"
-
-    def render(self, content):
-        return content if isinstance(content, bytes) else str(content).encode(self.charset)
 
 
 @router.get("/health")
@@ -88,8 +80,8 @@ def listFields():
     return {"historical": historical, "fundamental": fundamental, "abbreviations": abbreviations, "nested": nested}
 
 
-@router.get("/historical", operation_id="get_historical", response_class=JSONBytesResponse)
-@sync_cache(ttl="1h", key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
+@router.get("/historical", operation_id="get_historical", response_class=ORJSONResponse)
+@endpointCache(ttl="1h", key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 def getHistorical(
     response: Response,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -147,14 +139,14 @@ def getHistorical(
     - Get all revenue data for VALE3: search="VALE3", fields="RECEITA LIQUIDA"
     - Compare top 10 by EBITDA: fields="EBITDA", orderBy="EBITDA", limit=10"""
     response.headers["Cache-Control"] = "public, max-age=300"
-    result = stocksQuery.queryHistorical(search, fields, dates, orderBy, limit)
+    result = queryHistorical(search, fields, dates, orderBy, limit)
     if compact:
         result = compressResponse(result, "get_historical", {"search": search, "fields": fields, "dates": dates})
-    return orjson.dumps(result)
+    return result
 
 
-@router.get("/fundamental", operation_id="get_fundamental", response_class=JSONBytesResponse)
-@sync_cache(ttl="5m", key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
+@router.get("/fundamental", operation_id="get_fundamental", response_class=ORJSONResponse)
+@endpointCache(ttl="5m", key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 def getFundamental(
     response: Response,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -217,14 +209,14 @@ def getFundamental(
     - Compare P/L across tickers: search="PETR4,VALE3,ITUB4", fields="P/L", orderBy="P/L"
     - Q1 2024 fundamental snapshot: fields="P/L,ROE", dates="2024-01-01,2024-03-31" """
     response.headers["Cache-Control"] = "public, max-age=300"
-    result = stocksQuery.queryFundamental(search, fields, dates, orderBy, limit)
+    result = queryFundamental(search, fields, dates, orderBy, limit)
     if compact:
         result = compressResponse(result, "get_fundamental", {"search": search, "fields": fields, "dates": dates})
-    return orjson.dumps(result)
+    return result
 
 
-@router.get("/cotations", operation_id="get_cotations", response_class=JSONBytesResponse)
-@sync_cache(ttl="5m", key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}")
+@router.get("/cotations", operation_id="get_cotations", response_class=ORJSONResponse)
+@endpointCache(ttl="5m", key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}")
 def getCotations(
     response: Response,
     search: str = Query(..., min_length=1, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -273,14 +265,14 @@ def getCotations(
     - Get PETR4 + VALE3 2023 prices: search="PETR4,VALE3", dates="2023-01-01,2023-12-31"
     - Get inflation-adjusted prices: search="ITUB4", adjusted=true"""
     response.headers["Cache-Control"] = "public, max-age=300"
-    result = stocksQuery.queryCotations(search, dates, adjusted)
+    result = queryCotations(search, dates, adjusted)
     if compact:
         result = compressResponse(result, "get_cotations", {"search": search, "dates": dates})
-    return orjson.dumps(result)
+    return result
 
 
-@router.get("/cotations/live", operation_id="get_live_price", response_class=JSONBytesResponse)
-@sync_cache(ttl="15s", key="stocks:live:{search}:{compact}")
+@router.get("/cotations/live", operation_id="get_live_price", response_class=ORJSONResponse)
+@endpointCache(ttl="15s", key="stocks:live:{search}:{compact}")
 def getLiveCotation(
     response: Response,
     search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -318,7 +310,7 @@ def getLiveCotation(
     - Real-time data is only available during B3 market hours (10:00-17:30 BRT).
     - Outside market hours, returns the last available closing price."""
     response.headers["Cache-Control"] = "public, max-age=15"
-    result = stocksQuery.queryLiveCotation(search)
+    result = queryLiveCotation(search)
     if compact:
         result = compressResponse(result, "get_live_price", {"search": search})
-    return orjson.dumps(result)
+    return result

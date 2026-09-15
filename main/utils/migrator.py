@@ -10,13 +10,15 @@ def runMigrations():
         rootPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
         if os.path.exists(os.path.join(rootPath, "alembic.ini")):
-            os.chdir(rootPath)
-        elif not os.path.exists("alembic.ini"):
+            cwd = rootPath
+        elif os.path.exists("alembic.ini"):
+            cwd = os.getcwd()
+        else:
             logger.error(f"alembic.ini not found in {os.getcwd()} or {rootPath}")
             return
 
         result = subprocess.run(  # nosec: B607, B603
-            ["alembic", "upgrade", "head"], capture_output=True, text=True, env=os.environ.copy()
+            ["alembic", "upgrade", "head"], capture_output=True, text=True, env=os.environ.copy(), cwd=cwd
         )
 
         if result.returncode == 0:

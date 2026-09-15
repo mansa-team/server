@@ -2,6 +2,9 @@
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings
 - [ ] Make an Password Recovery system and 2FA using the Email Protocol
 
+- [ ] the scraper rentability should be calculated based on the COTACOA 10Y AJUSTADA instead of the tradingview endpoint
+- [ ] add MACD, RSI and other metrics
+
 - [ ] Use the ForgeVM architecture to expose MetaTrader5 terminals
 
 - [ ] Abacate Pay

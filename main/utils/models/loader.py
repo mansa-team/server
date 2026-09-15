@@ -13,9 +13,6 @@ def getEmbeddingModel() -> SentenceTransformer:
     global model
     if model is None:
         if not (MODEL_DIR / "model.safetensors").exists():
-            # Revision pinned to a verified commit for supply-chain reproducibility
-            # (bandit B615: "main" is a moving target). Bump deliberately when
-            # intentionally updating the embedding model.
             snapshot_download(
                 MODEL_ID,
                 local_dir=str(MODEL_DIR),

@@ -23,7 +23,6 @@ class TestSandboxToolDefinitions:
 
 
 class TestDispatchToolCallSandbox:
-    @pytest.mark.anyio
     @patch("main.app.prometheus.tools.SandboxManager")
     async def test_dispatch_execute_code(self, mock_sandbox):
         mock_fc = MagicMock()
@@ -34,7 +33,6 @@ class TestDispatchToolCallSandbox:
         assert result["stdout"] == "42\n"
         mock_sandbox.execute.assert_called_once_with(1, "print(42)", "sb-123", timeout=10)
 
-    @pytest.mark.anyio
     async def test_dispatch_execute_code_no_sandbox(self):
         mock_fc = MagicMock()
         mock_fc.name = "execute_code"
@@ -42,7 +40,6 @@ class TestDispatchToolCallSandbox:
         result = await dispatchToolCall(mock_fc, {}, user={"userId": 1}, sandbox_id=None)
         assert "error" in result
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.tools.SandboxManager")
     async def test_dispatch_read_file(self, mock_sandbox):
         mock_fc = MagicMock()
@@ -52,7 +49,6 @@ class TestDispatchToolCallSandbox:
         result = await dispatchToolCall(mock_fc, {}, user={"userId": 1}, sandbox_id="sb-123")
         assert result["content"] == '{"key": "value"}'
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.tools.SandboxManager")
     async def test_dispatch_write_file(self, mock_sandbox):
         mock_fc = MagicMock()
@@ -62,7 +58,6 @@ class TestDispatchToolCallSandbox:
         result = await dispatchToolCall(mock_fc, {}, user={"userId": 1}, sandbox_id="sb-123")
         assert result["success"] is True
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.tools.SandboxManager")
     async def test_dispatch_list_files(self, mock_sandbox):
         mock_fc = MagicMock()
@@ -72,7 +67,6 @@ class TestDispatchToolCallSandbox:
         result = await dispatchToolCall(mock_fc, {}, user={"userId": 1}, sandbox_id="sb-123")
         assert len(result["entries"]) == 1
 
-    @pytest.mark.anyio
     async def test_dispatch_read_file_no_sandbox(self):
         mock_fc = MagicMock()
         mock_fc.name = "read_file"

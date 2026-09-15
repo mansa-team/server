@@ -3,7 +3,11 @@ from config import Config
 import re
 import json
 import uuid
+from collections.abc import MutableMapping
 from datetime import datetime
+
+import requests
+from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
 from google import genai
 from sqlalchemy.orm import Session as DBSession
@@ -16,7 +20,7 @@ logger = logging.getLogger(__name__)
 EPISODE_TOKEN_BUDGET = 8000
 EPISODE_CAP = 12
 
-FALLBACK_FIELDS = ("P/L", "P/VP", "ROE", "DY", "LPA", "VPA", "PRECO", "INVESTING SCORE")
+FALLBACK_FIELDS = ("P/L", "P/VP", "ROE", "DY", "LPA", "VPA", "PRECO", "INVESTING SCORE")  # improve ts
 
 DECISION_KEYWORDS = re.compile(
     r"(?:prefiro|prefere|quero|gostaria|sempre|nunca|quando|"
@@ -61,41 +65,41 @@ def getStocksFieldsUrl() -> str:
     return f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fields"
 
 
+def isTransientFieldsError(exc: BaseException) -> bool:
+    if isinstance(exc, (requests.exceptions.Timeout, requests.exceptions.ConnectionError)):
+        return True
+    if isinstance(exc, requests.exceptions.HTTPError):
+        status = getattr(getattr(exc, "response", None), "status_code", None)
+        return isinstance(status, int) and status >= 500
+    return False
+
+
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(),
+    retry=retry_if_exception(isTransientFieldsError),
+    reraise=True,
+)
+def fetchFieldsPayload() -> dict:
+    response = getSession().get(getStocksFieldsUrl(), timeout=5)
+    response.raise_for_status()
+    return response.json()
+
+
 def loadFieldData() -> dict:
     global fieldData
     if fieldData is None:
         try:
-            response = getSession().get(getStocksFieldsUrl(), timeout=5)
-            response.raise_for_status()
-            payload = response.json()
+            payload = fetchFieldsPayload()
             historicalRaw = payload.get("historical", {})
-            if isinstance(historicalRaw, dict):
-                historicalFields = list(historicalRaw.keys())
-            elif isinstance(historicalRaw, list):
-                historicalFields = list(historicalRaw)
-            else:
-                historicalFields = []
+            historicalFields = list(historicalRaw) if isinstance(historicalRaw, (dict, list)) else []
             fundamentalRaw = payload.get("fundamental", [])
             fundamentalCols = list(fundamentalRaw) if isinstance(fundamentalRaw, list) else []
             fieldData = {"historical": historicalFields, "fundamental": fundamentalCols}
         except Exception as e:
             logger.warning("Failed to load field data from STOCKS_API /fields: %s", e)
-            fieldData = {"historical": [], "fundamental": []}
+            return {"historical": [], "fundamental": []}
     return fieldData
-
-
-def getHistoricalFields() -> list[str]:
-    return loadFieldData()["historical"]
-
-
-def getFundamentalColumns() -> list[str]:
-    return loadFieldData()["fundamental"]
-
-
-def invalidateFieldData():
-    global fieldData, metricRegex
-    fieldData = None
-    metricRegex = None
 
 
 def getMetricRegex() -> re.Pattern:
@@ -112,20 +116,16 @@ def getMetricRegex() -> re.Pattern:
     return metricRegex
 
 
+def dedup(items: list) -> list:
+    return list(dict.fromkeys(items))
+
+
 def extractTickers(text: str) -> list[str]:
-    return list(dict.fromkeys(re.compile(r"\b([A-Z]{4}[0-9])\b").findall(text)))
+    return dedup(re.compile(r"\b([A-Z]{4}[0-9])\b").findall(text))
 
 
-def extractMetrics(text: str, useRegistry: bool = False) -> list[str]:
-    if useRegistry:
-        regex = getMetricRegex()
-    else:
-        fallbackEscaped = [re.escape(f) for f in FALLBACK_FIELDS if len(f) > 1]
-        fallbackEscaped.sort(key=len, reverse=True)
-        fallbackPattern = r"\b(" + "|".join(fallbackEscaped) + r")\b"
-        regex = re.compile(fallbackPattern)
-
-    return list(dict.fromkeys(regex.findall(text)))
+def extractMetrics(text: str) -> list[str]:
+    return dedup(getMetricRegex().findall(text))
 
 
 def extractDecisions(userMessages: list[dict]) -> list[str]:
@@ -139,7 +139,7 @@ def extractDecisions(userMessages: list[dict]) -> list[str]:
             sent = sent.strip()
             if sent and DECISION_KEYWORDS.search(sent):
                 decisions.append(sent[:200])
-    return list(dict.fromkeys(decisions))[:10]
+    return dedup(decisions)[:10]
 
 
 def extractSnapshots(toolResults: list[dict]) -> list[str]:
@@ -152,7 +152,7 @@ def extractSnapshots(toolResults: list[dict]) -> list[str]:
             unit = match.group(3) or ""
             if any(kw in label.upper() for kw in ["P/L", "ROE", "DY", "PRECO", "LPA", "VPA"]):
                 snapshots.append(f"{label}: {value}{unit}")
-    return list(dict.fromkeys(snapshots))[:10]
+    return dedup(snapshots)[:10]
 
 
 def extractToolCalls(loopEvents: list[dict]) -> list[str]:
@@ -168,7 +168,7 @@ def extractToolCalls(loopEvents: list[dict]) -> list[str]:
             calls.append(f"{toolName}({ticker})")
         else:
             calls.append(toolName)
-    return list(dict.fromkeys(calls))[:15]
+    return dedup(calls)[:15]
 
 
 def buildSummary(
@@ -193,7 +193,7 @@ def buildSummary(
 
 
 class PrometheusCompactor:
-    def shouldCompact(self, history: list, tokenCache: dict | None = None) -> bool:
+    def shouldCompact(self, history: list, tokenCache: MutableMapping | None = None) -> bool:
         if not history:
             return False
 
@@ -227,13 +227,13 @@ class PrometheusCompactor:
         allText = " ".join(m.get("content", "") for m in chunk if m.get("content"))
 
         tickers = extractTickers(allText)
-        metrics = extractMetrics(allText, useRegistry=True)
+        metrics = extractMetrics(allText)
         decisions = extractDecisions(userMessages)
         snapshots = extractSnapshots(toolResults)
         tools = extractToolCalls(loopEvents)
 
         summary = buildSummary(tickers, tools, decisions, metrics, snapshots)
-        entities = list(dict.fromkeys(tickers + metrics))
+        entities = dedup(tickers + metrics)
 
         return {
             "summary": summary,
@@ -262,13 +262,13 @@ class PrometheusCompactor:
             "id": f"ep_{uuid.uuid4().hex[:8]}",
             "time": datetime.now().isoformat(),
             "summary": mergedSummary[:1000],
-            "keyDecisions": list(dict.fromkeys(allDecisions)),
-            "entities": list(dict.fromkeys(allEntities)),
+            "keyDecisions": dedup(allDecisions),
+            "entities": dedup(allEntities),
         }
 
         return [merged] + recent
 
-    def compact(self, db: DBSession, sessionId: str, tokenCache: dict | None = None) -> dict | None:
+    def compact(self, db: DBSession, sessionId: str, tokenCache: MutableMapping | None = None) -> dict | None:
         session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
 
         if not session or not session.history:

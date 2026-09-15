@@ -1,90 +1,113 @@
-"""Tests for inline pagination params (used in user + prometheus controllers)."""
+"""Pagination boundary tests against the real GET /prometheus/sessions endpoint.
 
-import pytest
+Replaces the deleted synthetic `/items` app tests with equivalent assertions
+against the real Query(ge/le) guards in main/controller/prometheus_controller.py:
+`limit: int = Query(20, ge=1, le=100)`, `offset: int = Query(0, ge=0)`.
+"""
+
 import sys
 import os
+from unittest.mock import patch
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from fastapi import FastAPI, Depends, Query
-from starlette.testclient import TestClient
+from tests.conftest import make_prometheus_client
 
 
-@pytest.fixture
-def app():
-    application = FastAPI()
-
-    @application.get("/items")
-    def list_items(
-        limit: int = Query(20, ge=1, le=100, description="Number of items per page"),
-        offset: int = Query(0, ge=0, description="Number of items to skip"),
-    ):
-        all_items = list(range(100))
-        page = all_items[offset : offset + limit]
-        return {
-            "items": page,
-            "total": len(all_items),
-            "limit": limit,
-            "offset": offset,
-        }
-
-    return application
+def makeSessions(count: int) -> list[dict]:
+    return [{"sessionId": f"s{i}", "title": f"Chat {i}"} for i in range(count)]
 
 
-@pytest.fixture
-def client(app):
-    return TestClient(app)
+class TestPrometheusSessionsPagination:
+    def test_defaults(self):
+        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mockPcm:
+            mockPcm.getUserSessions.return_value = makeSessions(50)
+            client, _, _ = make_prometheus_client()
+            resp = client.get("/prometheus/sessions")
+            assert resp.status_code == 200
+            body = resp.json()
+            assert body["limit"] == 20
+            assert body["offset"] == 0
+            assert body["total"] == 50
+            assert len(body["sessions"]) == 20
 
+    def test_customLimit(self):
+        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mockPcm:
+            mockPcm.getUserSessions.return_value = makeSessions(50)
+            client, _, _ = make_prometheus_client()
+            resp = client.get("/prometheus/sessions?limit=5")
+            body = resp.json()
+            assert resp.status_code == 200
+            assert body["limit"] == 5
+            assert len(body["sessions"]) == 5
 
-class TestInlinePagination:
-    def test_defaults(self, client):
-        response = client.get("/items")
-        body = response.json()
-        assert response.status_code == 200
-        assert body["limit"] == 20
-        assert body["offset"] == 0
-        assert len(body["items"]) == 20
+    def test_customOffset(self):
+        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mockPcm:
+            mockPcm.getUserSessions.return_value = makeSessions(50)
+            client, _, _ = make_prometheus_client()
+            resp = client.get("/prometheus/sessions?offset=10")
+            body = resp.json()
+            assert resp.status_code == 200
+            assert body["offset"] == 10
+            assert len(body["sessions"]) == 20
+            assert body["sessions"][0]["sessionId"] == "s10"
 
-    def test_custom_limit(self, client):
-        response = client.get("/items?limit=5")
-        body = response.json()
-        assert body["limit"] == 5
-        assert len(body["items"]) == 5
+    def test_limitAndOffset(self):
+        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mockPcm:
+            mockPcm.getUserSessions.return_value = makeSessions(100)
+            client, _, _ = make_prometheus_client()
+            resp = client.get("/prometheus/sessions?limit=10&offset=50")
+            body = resp.json()
+            assert resp.status_code == 200
+            assert body["limit"] == 10
+            assert body["offset"] == 50
+            assert len(body["sessions"]) == 10
+            assert body["sessions"][0]["sessionId"] == "s50"
 
-    def test_custom_offset(self, client):
-        response = client.get("/items?offset=10")
-        body = response.json()
-        assert body["offset"] == 10
-        assert len(body["items"]) == 20
-        assert body["items"][0] == 10
+    def test_limitExceedsMaxRejected(self):
+        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mockPcm:
+            mockPcm.getUserSessions.return_value = makeSessions(150)
+            client, _, _ = make_prometheus_client()
+            resp = client.get("/prometheus/sessions?limit=101")
+            assert resp.status_code == 422
 
-    def test_limit_and_offset(self, client):
-        response = client.get("/items?limit=10&offset=50")
-        body = response.json()
-        assert body["limit"] == 10
-        assert body["offset"] == 50
-        assert len(body["items"]) == 10
-        assert body["items"][0] == 50
+    def test_limitZeroRejected(self):
+        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mockPcm:
+            mockPcm.getUserSessions.return_value = makeSessions(50)
+            client, _, _ = make_prometheus_client()
+            resp = client.get("/prometheus/sessions?limit=0")
+            assert resp.status_code == 422
 
-    def test_limit_exceeds_max_rejected(self, client):
-        response = client.get("/items?limit=101")
-        assert response.status_code == 422
+    def test_limitNegativeRejected(self):
+        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mockPcm:
+            mockPcm.getUserSessions.return_value = makeSessions(50)
+            client, _, _ = make_prometheus_client()
+            resp = client.get("/prometheus/sessions?limit=-1")
+            assert resp.status_code == 422
 
-    def test_limit_zero_rejected(self, client):
-        response = client.get("/items?limit=0")
-        assert response.status_code == 422
+    def test_negativeOffsetRejected(self):
+        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mockPcm:
+            mockPcm.getUserSessions.return_value = makeSessions(50)
+            client, _, _ = make_prometheus_client()
+            resp = client.get("/prometheus/sessions?offset=-1")
+            assert resp.status_code == 422
 
-    def test_negative_offset_rejected(self, client):
-        response = client.get("/items?offset=-1")
-        assert response.status_code == 422
+    def test_offsetBeyondTotal(self):
+        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mockPcm:
+            mockPcm.getUserSessions.return_value = makeSessions(50)
+            client, _, _ = make_prometheus_client()
+            resp = client.get("/prometheus/sessions?offset=200")
+            body = resp.json()
+            assert resp.status_code == 200
+            assert body["sessions"] == []
+            assert body["total"] == 50
 
-    def test_offset_beyond_total(self, client):
-        response = client.get("/items?offset=200")
-        body = response.json()
-        assert body["items"] == []
-
-    def test_limit_equals_max(self, client):
-        response = client.get("/items?limit=100")
-        body = response.json()
-        assert body["limit"] == 100
-        assert len(body["items"]) == 100
+    def test_limitEqualsMax(self):
+        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mockPcm:
+            mockPcm.getUserSessions.return_value = makeSessions(150)
+            client, _, _ = make_prometheus_client()
+            resp = client.get("/prometheus/sessions?limit=100")
+            body = resp.json()
+            assert resp.status_code == 200
+            assert body["limit"] == 100
+            assert len(body["sessions"]) == 100

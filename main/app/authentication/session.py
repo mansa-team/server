@@ -3,26 +3,36 @@ import secrets
 from datetime import datetime, timedelta, timezone
 import hashlib
 from sqlalchemy.orm import Session
+from user_agents import parse as parseUserAgent
 from main.models.user_session import UserSession
 from main.app.authentication.constants import SESSION_EXPIRY_DAYS
 
 logger = logging.getLogger(__name__)
 
 
-class SessionManager:
-    @staticmethod
-    def getDeviceName(session) -> str:
-        if session.browser and session.operatingSystem:
-            return f"{session.browser} on {session.operatingSystem}"
-        elif session.accessTokenHash:
-            return f"Device {session.accessTokenHash[:8]}"
-        return "Unknown Device"
+def parseDeviceFields(userAgent: str | None) -> tuple[str | None, str | None, str | None]:
+    if not userAgent:
+        return None, None, None
+    parsed = parseUserAgent(userAgent)
+    if parsed.is_tablet:
+        deviceType: str | None = "tablet"
+    elif parsed.is_mobile:
+        deviceType = "mobile"
+    elif parsed.is_pc:
+        deviceType = "desktop"
+    else:
+        deviceType = None
+    browser = parsed.browser.family if parsed.browser.family != "Other" else None
+    operatingSystem = parsed.os.family if parsed.os.family != "Other" else None
+    return deviceType, browser, operatingSystem
 
+
+class SessionManager:
     @staticmethod
     def createSession(
         db: Session,
         userId: int,
-        userAgent: str,
+        userAgent: str | None,
         expiresAt: datetime | None = None,
     ) -> UserSession:
         sessionId = secrets.token_urlsafe(32)
@@ -32,10 +42,15 @@ class SessionManager:
         if expiresAt is None:
             expiresAt = now + timedelta(days=SESSION_EXPIRY_DAYS)
 
+        deviceType, browser, operatingSystem = parseDeviceFields(userAgent)
+
         session = UserSession(
             sessionId=sessionId,
             userId=userId,
             accessTokenHash=accessTokenHash,
+            deviceType=deviceType,
+            browser=browser,
+            operatingSystem=operatingSystem,
             userAgent=userAgent,
             isActive=True,
             createdAt=now,
@@ -50,10 +65,8 @@ class SessionManager:
         return session
 
     @staticmethod
-    def getUserSessions(db: Session, userId: int, includeInactive: bool = False, limit: int = 50) -> list[UserSession]:
-        query = db.query(UserSession).filter(UserSession.userId == userId)
-        if not includeInactive:
-            query = query.filter(UserSession.isActive)
+    def getUserSessions(db: Session, userId: int, limit: int = 50) -> list[UserSession]:
+        query = db.query(UserSession).filter(UserSession.userId == userId, UserSession.isActive)
         return query.order_by(UserSession.lastActivityAt.desc()).limit(limit).all()
 
     @staticmethod
@@ -88,14 +101,11 @@ class SessionManager:
         return True
 
     @staticmethod
-    def revokeAllSessions(db: Session, userId: int, exceptSessionId: str | None = None) -> int:
+    def revokeAllSessions(db: Session, userId: int) -> int:
         query = db.query(UserSession).filter(
             UserSession.userId == userId,
             UserSession.isActive,
         )
-
-        if exceptSessionId:
-            query = query.filter(UserSession.sessionId != exceptSessionId)
 
         count = query.update({UserSession.isActive: False}, synchronize_session=False)
         db.commit()

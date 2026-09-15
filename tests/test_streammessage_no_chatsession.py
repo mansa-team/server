@@ -24,7 +24,6 @@ class FakeChunk:
 class TestStreamMessageNoChatSession:
     """streamMessage inlines MCP setup — chatSession no longer exists."""
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
@@ -64,7 +63,6 @@ class TestStreamMessageNoChatSession:
         assert results[0] == {"type": "text", "text": "Hello "}
         assert results[1] == {"type": "text", "text": "world"}
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
@@ -81,7 +79,6 @@ class TestStreamMessageNoChatSession:
         assert not hasattr(gen, "chatSession")
         assert not hasattr(Prometheus, "chatSession")
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
@@ -138,7 +135,6 @@ class TestStreamMessageNoChatSession:
         # Tool loop should have run
         assert call_count == 2
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
@@ -169,9 +165,8 @@ class TestStreamMessageNoChatSession:
                 pass
 
         # user turn persisted up front; no assistant text accumulated, so only one save
-        mock_chat.saveMessage.assert_called_once_with(db, "s-err1", "user", "important question")
+        mock_chat.appendHistory.assert_called_once_with(db, "s-err1", {"role": "user", "content": "important question"})
 
-    @pytest.mark.anyio
     @patch("main.app.prometheus.agent.PrometheusChatManager")
     @patch("main.app.prometheus.agent.Config")
     @patch("main.app.prometheus.agent.genai")
@@ -207,6 +202,6 @@ class TestStreamMessageNoChatSession:
             async for _ in gen.streamMessage(query="partial question", sessionId="s-err2", db=db):
                 pass
 
-        calls = [c.args for c in mock_chat.saveMessage.call_args_list]
-        assert (db, "s-err2", "user", "partial question") in calls
-        assert (db, "s-err2", "assistant", "partial answer ") in calls
+        calls = [c.args for c in mock_chat.appendHistory.call_args_list]
+        assert (db, "s-err2", {"role": "user", "content": "partial question"}) in calls
+        assert (db, "s-err2", {"role": "assistant", "content": "partial answer "}) in calls

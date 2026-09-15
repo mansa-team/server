@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from functools import lru_cache
 from typing import Any
 
 from main.app.stocks_api.cache import stocksCache
@@ -13,50 +14,33 @@ PRICE = {
     "PRECO MAXIMO": "PMX",
     "PRECO MEDIO": "PMD",
 }
-COT = {"DATA": "D", "PRECO": "P"}
 SUF = [(1e12, "T"), (1e9, "B"), (1e6, "M"), (1e3, "K")]
 DF = re.compile(r"^\d{2}-\d{2}-(\d{4})$")
 DI = re.compile(r"^(\d{4})-\d{2}-\d{2}$")
 
-abbr: dict | None = None
-nest: dict | None = None
 
-
+@lru_cache(maxsize=1)
 def getAbbr() -> dict:
-    global abbr
-    if abbr is None:
-        if stocksCache.STOCKS_CACHE is not None:
-            h, f = categorizeColumns(stocksCache.STOCKS_CACHE.columns.tolist())
-            abbr = generateAbbreviations(h, f)
-        else:
-            abbr = {"meta": {"TICKER": "TK", "NOME": "NM", "TIME": "TI"}, "historical": {}, "fundamental": {}}
-    return abbr
+    if stocksCache.STOCKS_CACHE is not None:
+        h, f = categorizeColumns(stocksCache.STOCKS_CACHE.columns.tolist())
+        return generateAbbreviations(h, f)
+    return {"meta": {"TICKER": "TK", "NOME": "NM", "TIME": "TI"}, "historical": {}, "fundamental": {}}
 
 
+@lru_cache(maxsize=1)
 def getNest() -> dict:
-    global nest
-    if nest is None:
-        if stocksCache.STOCKS_CACHE is not None:
-            nest = detectNestedFields(stocksCache.STOCKS_CACHE)
-            if stocksCache.nestedSample is not None:
-                for col, info in detectNestedFields(stocksCache.nestedSample).items():
-                    nest.setdefault(col, info)
-        else:
-            nest = {}
-    return nest
+    if stocksCache.STOCKS_CACHE is not None:
+        nest = detectNestedFields(stocksCache.STOCKS_CACHE)
+        if stocksCache.nestedSample is not None:
+            for col, info in detectNestedFields(stocksCache.nestedSample).items():
+                nest.setdefault(col, info)
+        return nest
+    return {}
 
 
 def rebuildAbbrevs() -> None:
-    global abbr, nest
-    abbr = nest = None
-
-
-def walk(data: Any, fn: Any) -> Any:
-    if isinstance(data, dict):
-        return {k: walk(v, fn) for k, v in data.items()}
-    if isinstance(data, list):
-        return [walk(item, fn) for item in data]
-    return fn(data)
+    getAbbr.cache_clear()
+    getNest.cache_clear()
 
 
 def compactValue(v: Any) -> Any:
@@ -78,24 +62,6 @@ def compactValue(v: Any) -> Any:
             p = v.split("-")
             return f"{p[1]}-{p[2]}"
     return v
-
-
-def toColumnar(data: list) -> Any:
-    if len(data) < 2 or not isinstance(data[0], dict):
-        return data
-    keys = list(data[0].keys())
-    if not all(list(row.keys()) == keys for row in data):
-        return data
-    return {"h": ",".join(keys), "d": ["|".join(str(row[k]) for k in keys) for row in data]}
-
-
-def fixHeaders(obj: Any) -> None:
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            if k == "h" and isinstance(v, str):
-                obj[k] = ",".join(COT.get(p.strip(), p.strip()) for p in v.split(","))
-            elif isinstance(v, (dict, list)):
-                fixHeaders(v)
 
 
 def compactRow(row: dict, tool: str, abbrs: dict, nests: dict) -> dict:
@@ -132,12 +98,13 @@ def compactCotations(result: dict) -> dict:
         return result
 
     def toCol(cd: list) -> dict:
+        cot = {"DATA": "D", "PRECO": "P"}
         first = cd[0]
         if not isinstance(first, dict):
             return {"h": "v", "d": ["|".join(str(v) for v in x) for x in cd]}
         hdrs = list(first.keys())
         return {
-            "h": ",".join(COT.get(h, h) for h in hdrs),
+            "h": ",".join(cot.get(h, h) for h in hdrs),
             "d": ["|".join(str(compactValue(x.get(h, ""))) for h in hdrs) for x in cd],
         }
 
@@ -169,7 +136,7 @@ def compressResponse(raw: dict, tool: str, args: dict) -> dict:
     result.pop("type", None)
 
     if tool == "get_cotations":
-        result = compactCotations(result)
+        return compactCotations(result)
     elif tool == "get_live_price" and isinstance(result.get("data"), list):
         result["data"] = [
             {PRICE.get(k, k): v for k, v in x.items()} if isinstance(x, dict) else x for x in result["data"]
@@ -179,11 +146,15 @@ def compressResponse(raw: dict, tool: str, args: dict) -> dict:
     if isinstance(d, list) and d and isinstance(d[0], dict):
         abbrs, nests = getAbbr(), getNest()
         result["data"] = [compactRow(row, tool, abbrs, nests) for row in d]
-        result["data"] = walk(result["data"], compactValue)
-        if isinstance(result["data"], list) and result["data"]:
-            result["data"] = toColumnar(result["data"])
+
+        def compactLeaves(v: Any) -> Any:
+            if isinstance(v, dict):
+                return {k: compactLeaves(x) for k, x in v.items()}
+            if isinstance(v, list):
+                return [compactLeaves(x) for x in v]
+            return compactValue(v)
+
+        result["data"] = compactLeaves(result["data"])
         if isinstance(result["data"], list) and len(result["data"]) == 1:
             result["data"] = result["data"][0]
-
-    fixHeaders(result)
     return result

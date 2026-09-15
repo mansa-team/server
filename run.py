@@ -1,9 +1,11 @@
 import logging
 from datetime import datetime
 from fastapi import FastAPI, BackgroundTasks
+import uvicorn
 
 from contextlib import asynccontextmanager
-import asyncio
+
+from tenacity import AsyncRetrying, RetryError, stop_after_attempt, wait_fixed
 
 from config import Config, LOCALHOST_ADDRESSES
 from main.utils.connectivity import checkDatabaseConnection, checkServiceConnection
@@ -25,40 +27,33 @@ appStartTime = datetime.now()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     dbConnected = False
-    for i in range(10):
-        dbResults = checkDatabaseConnection()
-        if all(r["status"] == "connected" for r in dbResults.values()):
-            dbConnected = True
-            break
-        logger.info(f"Retrying database connection ({i + 1}/10)")
-        await asyncio.sleep(3)
-
-    if not dbConnected:
+    try:
+        async for attempt in AsyncRetrying(stop=stop_after_attempt(10), wait=wait_fixed(3)):
+            with attempt:
+                dbResults = checkDatabaseConnection()
+                if all(r["status"] == "connected" for r in dbResults.values()):
+                    dbConnected = True
+                else:
+                    logger.info(f"Retrying database connection ({attempt.retry_state.attempt_number}/10)")
+                    raise ConnectionError("database not ready")
+            if dbConnected:
+                break
+    except RetryError:
         logger.error("Database connection failed after retries.")
     else:
         runMigrations()
 
-    if Config.USER.ENABLED:
-        if Config.USER.HOST in LOCALHOST_ADDRESSES:
-            AuthenticationService.initialize(Config.USER.PORT)
-            UserService.initialize(Config.USER.PORT)
-        else:
-            if not checkServiceConnection("USER"):
-                logger.error("Remote connection to the USER Service failed")
-
-    if Config.STOCKS_API.ENABLED:
-        if Config.STOCKS_API.HOST in LOCALHOST_ADDRESSES:
-            StocksAPIService.initialize(Config.STOCKS_API.PORT)
-        else:
-            if not checkServiceConnection("STOCKS_API"):
-                logger.error("Remote connection to the STOCKS_API Service failed")
-
-    if Config.PROMETHEUS.ENABLED:
-        if Config.PROMETHEUS.HOST in LOCALHOST_ADDRESSES:
-            PrometheusService.initialize(Config.PROMETHEUS.PORT)
-        else:
-            if not checkServiceConnection("PROMETHEUS"):
-                logger.error("Remote connection to the PROMETHEUS Service failed")
+    services = [
+        ("USER", Config.USER, lambda port: (AuthenticationService.initialize(port), UserService.initialize(port))),
+        ("STOCKS_API", Config.STOCKS_API, StocksAPIService.initialize),
+        ("PROMETHEUS", Config.PROMETHEUS, PrometheusService.initialize),
+    ]
+    for name, config, init in services:
+        if config.ENABLED:
+            if config.HOST in LOCALHOST_ADDRESSES:
+                init(config.PORT)
+            elif not checkServiceConnection(name):
+                logger.error(f"Remote connection to the {name} Service failed")
 
     if Config.SCRAPER.ENABLED:
         ScraperService.initialize()
@@ -122,6 +117,4 @@ async def triggerScraper(background_tasks: BackgroundTasks):
 
 
 if __name__ == "__main__":
-    import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=8000)

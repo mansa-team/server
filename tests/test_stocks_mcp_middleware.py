@@ -5,7 +5,6 @@ state + compact=true query param) and the service bootstrap wiring (router,
 middleware, MCP mount) without starting background schedulers.
 """
 
-import asyncio
 import os
 import sys
 from unittest import mock
@@ -18,56 +17,56 @@ from main.app.stocks_api.cache import stocksCache
 from main.service.stocksapi_service import MCPDetectMiddleware, StocksAPIService
 
 
-def run_through(scope):
+async def run_through(scope):
     """Run MCPDetectMiddleware over scope with a mocked async downstream app."""
     downstream = mock.AsyncMock()
     middleware = MCPDetectMiddleware(downstream)
     receive = mock.Mock()
     send = mock.Mock()
-    asyncio.run(middleware(scope, receive, send))
+    await middleware(scope, receive, send)
     return downstream
 
 
 class TestMCPDetectMiddleware:
     """MCPDetectMiddleware: x-mcp header forces compressed state + compact query."""
 
-    def test_mcp_header_appends_compact_to_nonempty_query(self):
+    async def test_mcp_header_appends_compact_to_nonempty_query(self):
         scope = {"type": "http", "headers": [(b"x-mcp", b"true")], "query_string": b"a=1", "state": {}}
-        downstream = run_through(scope)
+        downstream = await run_through(scope)
 
         assert scope["state"]["compressed"] is True
         assert scope["query_string"] == b"a=1&compact=true"
         downstream.assert_awaited_once()
 
-    def test_mcp_header_with_empty_query_string(self):
+    async def test_mcp_header_with_empty_query_string(self):
         scope = {"type": "http", "headers": [(b"x-mcp", b"true")], "query_string": b""}
         assert "state" not in scope
 
-        run_through(scope)
+        await run_through(scope)
 
         assert scope["state"]["compressed"] is True
         assert scope["query_string"] == b"compact=true"
 
-    def test_mcp_header_existing_compact_not_duplicated(self):
+    async def test_mcp_header_existing_compact_not_duplicated(self):
         scope = {"type": "http", "headers": [(b"x-mcp", b"true")], "query_string": b"compact=false", "state": {}}
 
-        run_through(scope)
+        await run_through(scope)
 
         assert scope["state"]["compressed"] is True
         assert scope["query_string"] == b"compact=false"
 
-    def test_no_mcp_header_leaves_scope_untouched(self):
+    async def test_no_mcp_header_leaves_scope_untouched(self):
         scope = {"type": "http", "headers": [(b"user-agent", b"test")], "query_string": b"a=1", "state": {}}
 
-        run_through(scope)
+        await run_through(scope)
 
         assert "compressed" not in scope["state"]
         assert scope["query_string"] == b"a=1"
 
-    def test_non_http_scope_passes_through_untouched(self):
+    async def test_non_http_scope_passes_through_untouched(self):
         scope = {"type": "websocket", "headers": [(b"x-mcp", b"true")], "query_string": b"a=1"}
 
-        run_through(scope)
+        await run_through(scope)
 
         assert scope.get("state", {}).get("compressed") is None
         assert scope["query_string"] == b"a=1"

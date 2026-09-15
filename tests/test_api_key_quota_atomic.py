@@ -4,20 +4,34 @@ Verifies that the TOCTOU race condition in verifyAPIKey is resolved
 by using a single atomic SQL UPDATE instead of read-then-write.
 """
 
-import asyncio
+import hashlib
 import pytest
 from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
 from sqlalchemy import update
 
 from main.models.stocksapi_key import StocksAPIKey
-from main.app.stocks_api.key import verifyAPIKey, hashKey
+from main.app.stocks_api.key import verifyAPIKey
+
+TEST_KEY_HASH = hashlib.sha256("test_key_12345".encode()).hexdigest()
+
+
+def quotaUpdate(dbSession, apiKey):
+    """Run the atomic quota-increment UPDATE; return affected rowcount."""
+    result = dbSession.execute(
+        update(StocksAPIKey)
+        .where(StocksAPIKey.apiKey == apiKey)
+        .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
+        .values(currentUsage=StocksAPIKey.currentUsage + 1)
+    )
+    dbSession.commit()
+    return result.rowcount
 
 
 @pytest.fixture
-def sampleKeyData():
-    """Sample API key data for tests."""
-    return {"apiKey": hashKey("test_key_12345"), "userId": 1, "requestLimit": 100, "currentUsage": 0}
+def sampleKeyData(apiKeyFactory):
+    """Sample API key data for tests (deterministic hash via factory override)."""
+    return apiKeyFactory(apiKey=TEST_KEY_HASH)
 
 
 class TestAtomicQuotaIncrement:
@@ -34,18 +48,9 @@ class TestAtomicQuotaIncrement:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
 
             # Run the atomic increment
-            from sqlalchemy import update
-
-            result = dbSession.execute(
-                update(StocksAPIKey)
-                .where(StocksAPIKey.apiKey == hashKey("test_key_12345"))
-                .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
-                .values(currentUsage=StocksAPIKey.currentUsage + 1)
-            )
-            dbSession.commit()
+            assert quotaUpdate(dbSession, TEST_KEY_HASH) == 1
 
             # Verify increment happened
-            assert result.rowcount == 1
             dbSession.refresh(key)
             assert key.currentUsage == 1
 
@@ -56,30 +61,16 @@ class TestAtomicQuotaIncrement:
         dbSession.add(key)
         dbSession.commit()
 
-        from sqlalchemy import update
-
         # First request should succeed (99 -> 100)
-        result1 = dbSession.execute(
-            update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == hashKey("test_key_12345"))
-            .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
-            .values(currentUsage=StocksAPIKey.currentUsage + 1)
-        )
+        assert quotaUpdate(dbSession, TEST_KEY_HASH) == 1
         dbSession.commit()
-        assert result1.rowcount == 1
 
         dbSession.refresh(key)
         assert key.currentUsage == 100
 
         # Second request should fail (100 is not < 100)
-        result2 = dbSession.execute(
-            update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == hashKey("test_key_12345"))
-            .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
-            .values(currentUsage=StocksAPIKey.currentUsage + 1)
-        )
+        assert quotaUpdate(dbSession, TEST_KEY_HASH) == 0
         dbSession.commit()
-        assert result2.rowcount == 0
 
         # Usage should still be 100
         dbSession.refresh(key)
@@ -97,30 +88,15 @@ class TestAtomicQuotaIncrement:
         dbSession.add(key)
         dbSession.commit()
 
-        from sqlalchemy import update
-
         # Simulate two concurrent requests
         # Both should succeed because 98 < 100 and 99 < 100
-        result1 = dbSession.execute(
-            update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == hashKey("test_key_12345"))
-            .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
-            .values(currentUsage=StocksAPIKey.currentUsage + 1)
-        )
+        assert quotaUpdate(dbSession, TEST_KEY_HASH) == 1
         dbSession.commit()
 
-        result2 = dbSession.execute(
-            update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == hashKey("test_key_12345"))
-            .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
-            .values(currentUsage=StocksAPIKey.currentUsage + 1)
-        )
+        assert quotaUpdate(dbSession, TEST_KEY_HASH) == 1
         dbSession.commit()
 
         # Both should succeed
-        assert result1.rowcount == 1
-        assert result2.rowcount == 1
-
         dbSession.refresh(key)
         assert key.currentUsage == 100
 
@@ -131,35 +107,17 @@ class TestAtomicQuotaIncrement:
         dbSession.add(key)
         dbSession.commit()
 
-        from sqlalchemy import update
-
         # Request should fail (100 is not < 100)
-        result = dbSession.execute(
-            update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == hashKey("test_key_12345"))
-            .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
-            .values(currentUsage=StocksAPIKey.currentUsage + 1)
-        )
+        assert quotaUpdate(dbSession, TEST_KEY_HASH) == 0
         dbSession.commit()
-
-        assert result.rowcount == 0
 
         dbSession.refresh(key)
         assert key.currentUsage == 100
 
     def test_invalid_api_key_returns_zero_rows(self, dbSession):
         """Test that invalid API key returns zero rows affected."""
-        from sqlalchemy import update
-
-        result = dbSession.execute(
-            update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == "nonexistent_key")
-            .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
-            .values(currentUsage=StocksAPIKey.currentUsage + 1)
-        )
+        assert quotaUpdate(dbSession, "nonexistent_key") == 0
         dbSession.commit()
-
-        assert result.rowcount == 0
 
     def test_multiple_keys_independent_quotas(self, dbSession):
         """Test that multiple API keys have independent quotas."""
@@ -168,27 +126,13 @@ class TestAtomicQuotaIncrement:
         dbSession.add_all([key1, key2])
         dbSession.commit()
 
-        from sqlalchemy import update
-
         # Increment key1 (should succeed: 99 -> 100)
-        result1 = dbSession.execute(
-            update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == "key1")
-            .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
-            .values(currentUsage=StocksAPIKey.currentUsage + 1)
-        )
+        assert quotaUpdate(dbSession, "key1") == 1
         dbSession.commit()
-        assert result1.rowcount == 1
 
         # Increment key2 (should succeed: 50 -> 51)
-        result2 = dbSession.execute(
-            update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == "key2")
-            .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
-            .values(currentUsage=StocksAPIKey.currentUsage + 1)
-        )
+        assert quotaUpdate(dbSession, "key2") == 1
         dbSession.commit()
-        assert result2.rowcount == 1
 
         # Verify independent increments
         dbSession.refresh(key1)
@@ -202,17 +146,8 @@ class TestAtomicQuotaIncrement:
         dbSession.add(key)
         dbSession.commit()
 
-        from sqlalchemy import update
+        assert quotaUpdate(dbSession, TEST_KEY_HASH) == 1
 
-        result = dbSession.execute(
-            update(StocksAPIKey)
-            .where(StocksAPIKey.apiKey == hashKey("test_key_12345"))
-            .where(StocksAPIKey.currentUsage < StocksAPIKey.requestLimit)
-            .values(currentUsage=StocksAPIKey.currentUsage + 1)
-        )
-        dbSession.commit()
-
-        assert result.rowcount == 1
         dbSession.refresh(key)
         assert key.currentUsage == 1
 
@@ -220,7 +155,7 @@ class TestAtomicQuotaIncrement:
 class TestVerifyAPIKeyIntegration:
     """Integration tests for the verifyAPIKey function."""
 
-    def test_verify_api_key_success(self, dbSession, sampleKeyData):
+    async def test_verify_api_key_success(self, dbSession, sampleKeyData):
         """Test successful API key verification."""
         key = StocksAPIKey(**sampleKeyData)
         dbSession.add(key)
@@ -229,13 +164,13 @@ class TestVerifyAPIKeyIntegration:
         with patch("main.app.stocks_api.key.Config") as mock_config:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
 
-            result = asyncio.run(verifyAPIKey(apiKey="test_key_12345", db=dbSession))
+            result = await verifyAPIKey(apiKey="test_key_12345", db=dbSession)
 
             assert result == "test_key_12345"
             dbSession.refresh(key)
             assert key.currentUsage == 1
 
-    def test_verify_api_key_quota_exceeded(self, dbSession, sampleKeyData):
+    async def test_verify_api_key_quota_exceeded(self, dbSession, sampleKeyData):
         """Test API key verification when quota is exceeded."""
         key = StocksAPIKey(**{**sampleKeyData, "currentUsage": 100, "requestLimit": 100})
         dbSession.add(key)
@@ -245,37 +180,37 @@ class TestVerifyAPIKeyIntegration:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
 
             with pytest.raises(HTTPException) as exc_info:
-                asyncio.run(verifyAPIKey(apiKey="test_key_12345", db=dbSession))
+                await verifyAPIKey(apiKey="test_key_12345", db=dbSession)
 
             assert exc_info.value.status_code == 429
             assert "quota exceeded" in exc_info.value.detail
 
-    def test_verify_api_key_invalid(self, dbSession):
+    async def test_verify_api_key_invalid(self, dbSession):
         """Test API key verification with invalid key."""
         with patch("main.app.stocks_api.key.Config") as mock_config:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
 
             with pytest.raises(HTTPException) as exc_info:
-                asyncio.run(verifyAPIKey(apiKey="invalid_key", db=dbSession))
+                await verifyAPIKey(apiKey="invalid_key", db=dbSession)
 
             assert exc_info.value.status_code == 401
             assert "Invalid API key" in exc_info.value.detail
 
-    def test_verify_api_key_missing(self, dbSession):
+    async def test_verify_api_key_missing(self, dbSession):
         """Test API key verification with missing key."""
         with patch("main.app.stocks_api.key.Config") as mock_config:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
 
             with pytest.raises(HTTPException) as exc_info:
-                asyncio.run(verifyAPIKey(apiKey=None, db=dbSession))
+                await verifyAPIKey(apiKey=None, db=dbSession)
 
             assert exc_info.value.status_code == 401
             assert "Missing API key" in exc_info.value.detail
 
-    def test_verify_api_key_disabled(self, dbSession):
+    async def test_verify_api_key_disabled(self, dbSession):
         """Test that API key system can be disabled."""
         with patch("main.app.stocks_api.key.Config") as mock_config:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=False)
 
-            result = asyncio.run(verifyAPIKey(apiKey="any_key", db=dbSession))
+            result = await verifyAPIKey(apiKey="any_key", db=dbSession)
             assert result is None

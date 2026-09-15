@@ -10,11 +10,11 @@ from sqlalchemy.orm import sessionmaker
 def applyIPv4Force():
     _old_getaddrinfo = socket.getaddrinfo
 
-    def _new_getaddrinfo(*args, **kwargs):
+    def new_getaddrinfo(*args, **kwargs):
         res = _old_getaddrinfo(*args, **kwargs)
         return [r for r in res if r[0] == socket.AF_INET]
 
-    socket.getaddrinfo = _new_getaddrinfo
+    socket.getaddrinfo = new_getaddrinfo
 
 
 applyIPv4Force()
@@ -53,8 +53,6 @@ class StocksApiSettings(BaseSettings):
     PORT: int = Field(default=3200, validation_alias=AliasChoices("STOCKSAPI_PORT"))
     KEY_SYSTEM: bool = Field(default=False, validation_alias=AliasChoices("STOCKSAPI_KEY.SYSTEM"))
     KEY: str = Field(default="", validation_alias=AliasChoices("STOCKSAPI_PRIVATE.KEY"))
-    DEFAULT_QUOTA: int = Field(default=100, validation_alias=AliasChoices("STOCKSAPI_DEFAULT.QUOTA"))
-    QUOTA_RESETDAYS: int = Field(default=30, validation_alias=AliasChoices("STOCKSAPI_QUOTA.RESETDAYS"))
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 

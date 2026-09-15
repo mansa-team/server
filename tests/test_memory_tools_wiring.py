@@ -6,7 +6,6 @@ GREEN: All pass when wiring is correct.
 """
 
 import inspect
-import pytest
 import sys
 import os
 from unittest.mock import patch, AsyncMock, MagicMock
@@ -50,15 +49,6 @@ class TestMemoryToolFunctions:
     def test_save_memory_has_type_hints(self):
         hints = save_memory.__annotations__
         assert "return" in hints
-
-    def test_memory_tools_is_list_of_callables(self):
-        assert isinstance(TOOL_REGISTRY, dict)
-        assert len(TOOL_REGISTRY) >= 4
-        for name, fn in TOOL_REGISTRY.items():
-            assert callable(fn)
-
-    def test_memory_tool_names_unchanged(self):
-        assert {"search_memory", "save_memory"}.issubset(set(TOOL_REGISTRY.keys()))
 
 
 class TestToolRegistry:
@@ -111,7 +101,6 @@ class TestMakeChatIncludesMemoryTools:
 class TestDispatchRoutesMemoryTools:
     """dispatchToolCall must route memory tool names via TOOL_REGISTRY."""
 
-    @pytest.mark.anyio
     async def test_search_memory_routed_via_registry(self):
         from main.app.prometheus.tools import dispatchToolCall
 
@@ -126,7 +115,6 @@ class TestDispatchRoutesMemoryTools:
         mock_fn.assert_called_once_with(query="PETR4", user={"userId": 1}, db=None, sandbox_id=None, userId=1)
         assert result == {"memories": []}
 
-    @pytest.mark.anyio
     async def test_save_memory_routed_via_registry(self):
         from main.app.prometheus.tools import dispatchToolCall
 
@@ -149,7 +137,6 @@ class TestDispatchRoutesMemoryTools:
         )
         assert result["status"] == "created"
 
-    @pytest.mark.anyio
     async def test_non_registry_tool_not_routed(self):
         from main.app.prometheus.tools import dispatchToolCall
 

@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from main.models.user import User
 
+from main.app.authentication.session import SessionManager
 from main.app.authentication.util import extractTokenPayload
 
 logger = logging.getLogger(__name__)
@@ -23,8 +24,6 @@ class UserManager:
         payload: dict = Depends(extractTokenPayload),
         db: Session = Depends(getSession),
     ):
-        from main.app.authentication.session import SessionManager
-
         try:
             userId = payload.get("userId")
             sessionId = payload.get("sessionId")

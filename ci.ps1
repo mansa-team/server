@@ -23,7 +23,6 @@ param(
 $ErrorActionPreference = "Continue"
 $script:failed = @()
 $script:passed = @()
-$script:fixed = @()
 
 function Write-Step {
     param([string]$label)
@@ -43,12 +42,6 @@ function Write-Fail {
     param([string]$label)
     Write-Host "  FAIL  $label" -ForegroundColor Red
     $script:failed += $label
-}
-
-function Write-Fix {
-    param([string]$label)
-    Write-Host "  FIXED  $label" -ForegroundColor Yellow
-    $script:fixed += $label
 }
 
 function Run-Check {
@@ -120,8 +113,7 @@ if ($runAll -or $Typecheck) {
     if ($Fast) {
         Write-Step "mypy (skipped in fast mode)"
     } else {
-        # Run mypy with --no-error-summary for cleaner output
-        # mypy doesn't have an auto-fix mode, but we show clear errors
+        # mypy has no auto-fix mode; errors print inline below
         Write-Step "mypy Typecheck"
         $mypyOutput = & mypy main/ 2>&1
         $mypyExit = $LASTEXITCODE
@@ -172,10 +164,6 @@ Write-Host ""
 Write-Host "========================================"
 Write-Host " SUMMARY"
 Write-Host "========================================"
-if ($script:fixed.Count -gt 0) {
-    Write-Host "  Auto-fixed: $($script:fixed.Count)" -ForegroundColor Yellow
-    foreach ($f in $script:fixed) { Write-Host "    - $f" -ForegroundColor Yellow }
-}
 Write-Host "  Passed: $($script:passed.Count)" -ForegroundColor Green
 if ($script:failed.Count -gt 0) {
     Write-Host "  Failed: $($script:failed.Count)" -ForegroundColor Red

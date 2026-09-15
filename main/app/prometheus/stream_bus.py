@@ -3,6 +3,9 @@ import json
 import logging
 from collections.abc import AsyncIterator, Callable
 
+from sse_starlette.event import JSONServerSentEvent
+from sse_starlette.sse import EventSourceResponse
+
 logger = logging.getLogger(__name__)
 
 MAX_BUFFER_EVENTS = 5000  # ponytail: hard cap; older events dropped, clients reconcile from history
@@ -79,6 +82,32 @@ class StreamBus:
                     ch.publish({"type": "done"})
 
         ch.task = asyncio.get_running_loop().create_task(run())
+
+    async def eventGenerator(self, sessionId: str, cursor: int = 0) -> AsyncIterator[JSONServerSentEvent | str]:
+        sub = self.subscribe(sessionId, cursor)
+        if sub is None:
+            yield "[DONE]"
+            return
+        q, ch = sub
+        try:
+            while True:
+                try:
+                    event = await asyncio.wait_for(q.get(), timeout=30)
+                except asyncio.TimeoutError:
+                    if ch.finished:
+                        yield JSONServerSentEvent(data={"type": "done"})
+                        yield "[DONE]"
+                        return
+                    continue
+                yield JSONServerSentEvent(data=event)
+                if event.get("type") == "done":
+                    yield "[DONE]"
+                    return
+        finally:
+            self.unsubscribe(sessionId, q)
+
+    def streamResponse(self, sessionId: str, cursor: int = 0) -> EventSourceResponse:
+        return EventSourceResponse(self.eventGenerator(sessionId, cursor), ping=15)
 
     async def forward(self, sessionId: str, cursor: int = 0) -> AsyncIterator[str]:
         sub = self.subscribe(sessionId, cursor)

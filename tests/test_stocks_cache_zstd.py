@@ -6,7 +6,7 @@ import pandas as pd
 
 import main.app.stocks_api.cache as cache_mod
 from main.app.stocks_api.cache import StocksCacheManager
-from main.app.stocks_api.query import StocksQueryManager, filterCotationColumn
+from main.app.stocks_api.query import deserializeJsonColumns, filterCotationColumn
 
 
 class FakeResult:
@@ -274,8 +274,7 @@ def test_deserialize_jsoncolumns_decompresses_bytes():
             "COTACAO 10Y PADRAO": [zstd.ZstdCompressor(level=3).compress(b'[{"DATA": "01-01-2024", "PRECO": 10.0}]')],
         }
     )
-    manager = StocksQueryManager(type("Fake", (), {"STOCKS_CACHE": None, "tickerIndex": {}, "nestedSample": None})())
-    out = manager.deserializeJsonColumns(df)
+    out = deserializeJsonColumns(df)
     assert out["COTACAO 10Y PADRAO"].iloc[0] == [{"DATA": "01-01-2024", "PRECO": 10.0}]
 
 

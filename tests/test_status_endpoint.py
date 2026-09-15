@@ -1,6 +1,16 @@
 """Tests for run.py /status endpoint — covers status response structure."""
 
-from unittest.mock import patch, MagicMock
+import sys
+from unittest.mock import MagicMock, patch
+
+# Stub research-repo `xango` module (main/app/scraper_b3/scraper.py:20
+# `from xango import calculateInvestingScore` — absent here) so `from run import app`
+# -> scraper_service -> scraper.py collects without ImportError.
+if "xango" not in sys.modules:
+    _xango_stub = MagicMock()
+    _xango_stub.calculateInvestingScore = MagicMock(return_value={})
+    sys.modules["xango"] = _xango_stub
+
 import pytest
 from fastapi.testclient import TestClient
 

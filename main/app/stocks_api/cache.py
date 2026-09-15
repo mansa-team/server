@@ -9,6 +9,8 @@ import numpy as np
 import pyarrow as pa
 
 from sqlalchemy.engine import Engine
+from sqlalchemy.exc import OperationalError
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
 import os
 import subprocess  # nosec: B404 used only with constant args, see line 302
@@ -66,6 +68,12 @@ def arrowTypeFor(dbType: str):
     return pa.string()
 
 
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(),
+    retry=retry_if_exception_type(OperationalError),
+    reraise=True,
+)
 def buildFeatherCache(engine: Engine | None = None):
     sampleCols = None
     sampleParts: dict[str, pd.Series] = {}
@@ -135,6 +143,13 @@ def buildFeatherCache(engine: Engine | None = None):
                     result.close()
                 except Exception:
                     pass  # nosec: B110 best-effort writer/sink close, retried next refresh
+    except OperationalError:
+        logger.warning("feather build lost connection, retrying with fresh connection")
+        try:
+            resolvedEngine.dispose()
+        except Exception:
+            pass
+        raise
     finally:
         if writer is not None:
             writer.close()
@@ -194,6 +209,10 @@ class StocksCacheManager:
         self.tickerIndex: dict = {}
         self.nestedSample = None
         self.lastCacheUpdate = None
+
+    def snapshot(self) -> tuple:
+        with self.cacheLock:
+            return self.STOCKS_CACHE, self.tickerIndex
 
     def cacheScheduler(self):
         thread = threading.Thread(target=self.getCachedStocks, name="stocks-cache-init", daemon=True)

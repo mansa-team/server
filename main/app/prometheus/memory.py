@@ -1,15 +1,19 @@
 import asyncio
 import logging
+from collections.abc import MutableMapping
 from config import Config, SessionLocal
 import json
 import unicodedata
 from datetime import datetime, timezone
 from typing import Any, Callable, cast
 
+from cachetools import TTLCache
 from cashews import Cache
 from google import genai
 from google.genai import types
 import numpy as np
+from pydantic import BaseModel, TypeAdapter
+from rapidfuzz import fuzz
 
 from sqlalchemy import func, desc
 from sqlalchemy.dialects.mysql import match as mysqlMatch
@@ -28,26 +32,22 @@ matrixCache.setup("mem://")
 MATRIX_MISS = object()
 
 
-def matrixKey(userId: Any) -> str:
+def getMatrix(userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]) -> tuple[list[int], np.ndarray]:
     if isinstance(userId, tuple):
         uid, memoryType = userId
-        return f"matrix:{uid}:{memoryType}:v{1}"
-    return f"matrix:{userId}:v{1}"
-
-
-def matrixUserTag(userId: Any) -> str:
-    uid = userId[0] if isinstance(userId, tuple) else userId
-    return f"matrix-user:{uid}"
-
-
-def getMatrix(userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]) -> tuple[list[int], np.ndarray]:
-    cacheKey = matrixKey(userId)
+        cacheKey = f"matrix:{uid}:{memoryType}:v{1}"
+    else:
+        uid = userId
+        cacheKey = f"matrix:{userId}:v{1}"
     cached = asyncio.run(matrixCache.get(cacheKey, default=MATRIX_MISS))
     if cached is not MATRIX_MISS:
         return cast(tuple[list[int], np.ndarray], cached)
     freshIds, freshMatrix = loader()
-    asyncio.run(matrixCache.set(cacheKey, (freshIds, freshMatrix), tags=("matrix", matrixUserTag(userId))))
-    return cast(tuple[list[int], np.ndarray], asyncio.run(matrixCache.get(cacheKey, default=(freshIds, freshMatrix))))
+    asyncio.run(matrixCache.set(cacheKey, (freshIds, freshMatrix), tags=("matrix", f"matrix-user:{uid}")))
+    return cast(
+        tuple[list[int], np.ndarray],
+        asyncio.run(matrixCache.get(cacheKey, default=(freshIds, freshMatrix))),
+    )
 
 
 def invalidateUser(userId: int) -> None:
@@ -59,6 +59,15 @@ def clearAll() -> None:
 
 
 logger = logging.getLogger(__name__)
+
+
+class MemoryCandidate(BaseModel):
+    key: str
+    value: str
+    type: str = "context"
+
+
+candidateAdapter = TypeAdapter(MemoryCandidate)
 
 MEMORY_LIMIT_BASIC = 50
 MEMORY_LIMIT_EXTENDED = 250
@@ -73,7 +82,14 @@ INITIAL_STABILITY = {
 MEMORY_EXTRACTION_TOKEN_BUDGET = 32000
 MEMORY_EXTRACT_FREE_CAP = 5
 MEMORY_EXTRACT_PREMIUM_CAP = 10
-MEMORY_SEARCH_PREFILTER_CAP = 500
+
+TOKEN_CACHE_MAXSIZE = 2048
+TOKEN_CACHE_TTL_SECONDS = 3600
+
+
+def newTokenCache() -> TTLCache:
+    return TTLCache(maxsize=TOKEN_CACHE_MAXSIZE, ttl=TOKEN_CACHE_TTL_SECONDS)
+
 
 client = None
 
@@ -94,11 +110,11 @@ def minMax(values: list[float]) -> list[float]:
     return [(v - lo) / (hi - lo) for v in values]
 
 
-def normalizeKey(key: str) -> set[str]:
+def normalizeKey(key: str) -> str:
     normalized = key.lower().replace("_", " ")
     normalized = "".join(c for c in unicodedata.normalize("NFKD", normalized) if not unicodedata.combining(c))
 
-    return set(normalized.split())
+    return " ".join(normalized.split())
 
 
 def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8) -> PrometheusMemoryModel | None:
@@ -107,21 +123,72 @@ def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8
         .filter(PrometheusMemoryModel.userId == userId, PrometheusMemoryModel.archivedAt.is_(None))
         .all()
     )
-    newTokens = normalizeKey(newKey)
+    newNormalized = normalizeKey(newKey)
 
     for m in existing:
-        existingTokens = normalizeKey(str(m.memoryKey))
-        union = newTokens | existingTokens
+        existingNormalized = normalizeKey(str(m.memoryKey))
 
-        if not union:
+        if not newNormalized and not existingNormalized:
             continue
 
-        similarity = len(newTokens & existingTokens) / len(union)
-
-        if similarity > threshold:
+        if fuzz.ratio(newNormalized, existingNormalized) > threshold * 100:
             return m
 
     return None
+
+
+def scoreRow(m: Any, score: float, relevance: float, similarity: float) -> dict:
+    return {
+        "id": m.id,
+        "memoryKey": m.memoryKey,
+        "memoryValue": m.memoryValue,
+        "memoryType": m.memoryType,
+        "score": score,
+        "relevanceScore": relevance,
+        "similarity": similarity,
+    }
+
+
+def scoreRecency(candidateRows: list[Any], limit: int) -> list[dict]:
+    now = datetime.now()
+    scored = []
+    for m in candidateRows:
+        s = getRelevanceScore(m, now)
+        scored.append(scoreRow(m, s, s, 0.0))
+    scored.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
+    return scored[:limit]
+
+
+def scoreCandidates(
+    candidateRows: list[Any],
+    vecNorm: list[float],
+    simById: dict[int, float],
+    ftRank: dict[int, float],
+    now: datetime,
+    limit: int,
+) -> list[dict]:
+    fused: list[tuple[Any, float, float]] = []
+    for m, v in zip(candidateRows, vecNorm):
+        rec = getRelevanceScore(m, now)
+        f = 0.6 * v + 0.25 * ftRank.get(cast(int, m.id), 0.0) + 0.15 * rec
+        fused.append((m, f, simById.get(cast(int, m.id), 0.0)))
+    fused.sort(key=lambda p: p[1], reverse=True)
+    return [scoreRow(m, f, f, sim) for m, f, sim in fused[:limit]]
+
+
+def sumTokens(texts: list[str], cache: MutableMapping | None) -> int:
+    total = 0
+    if cache is None:
+        for text in texts:
+            total += countTokens(text)
+        return total
+    for text in texts:
+        cached = cache.get(text)
+        if cached is None:
+            cached = countTokens(text)
+            cache[text] = cached
+        total += cached
+    return total
 
 
 class PrometheusMemory:
@@ -139,6 +206,17 @@ class PrometheusMemory:
             .filter(PrometheusMemoryModel.archivedAt.is_(None))
             .scalar()
         )
+
+    @staticmethod
+    def touch(m: Any, value: str, memoryType: str, source: str, embedding: Any, newHash: str) -> None:
+        m.memoryValue = value  # type: ignore[assignment]
+        m.memoryType = memoryType  # type: ignore[assignment]
+        m.source = source  # type: ignore[assignment]
+        m.contentHash = newHash  # type: ignore[assignment]
+        m.embedding = embedding  # type: ignore[assignment]
+        m.score = m.score * 1.1  # type: ignore[assignment]
+        m.accessCount += 1  # type: ignore[assignment]
+        m.lastAccessedAt = datetime.now()  # type: ignore[assignment]
 
     @classmethod
     def upsertMemory(
@@ -163,14 +241,7 @@ class PrometheusMemory:
             if existing.contentHash == newHash:
                 return {"status": "unchanged", "memory": existing}
 
-            existing.memoryValue = value  # type: ignore[assignment]
-            existing.memoryType = memoryType  # type: ignore[assignment]
-            existing.source = source  # type: ignore[assignment]
-            existing.contentHash = newHash  # type: ignore[assignment]
-            existing.embedding = embedding  # type: ignore[assignment]
-            existing.score = existing.score * 1.1  # type: ignore[assignment]
-            existing.accessCount += 1  # type: ignore[assignment]
-            existing.lastAccessedAt = datetime.now()  # type: ignore[assignment]
+            cls.touch(existing, value, memoryType, source, embedding, newHash)
 
             db.commit()
             db.refresh(existing)
@@ -180,14 +251,7 @@ class PrometheusMemory:
 
         similar = findSimilarKey(db, userId, key)
         if similar:
-            similar.memoryValue = value  # type: ignore[assignment]
-            similar.memoryType = memoryType  # type: ignore[assignment]
-            similar.source = source  # type: ignore[assignment]
-            similar.contentHash = contentHash(value)  # type: ignore[assignment]
-            similar.embedding = embedding  # type: ignore[assignment]
-            similar.score = similar.score * 1.1  # type: ignore[assignment]
-            similar.accessCount += 1  # type: ignore[assignment]
-            similar.lastAccessedAt = datetime.now()  # type: ignore[assignment]
+            cls.touch(similar, value, memoryType, source, embedding, contentHash(value))
 
             db.commit()
             db.refresh(similar)
@@ -239,7 +303,7 @@ class PrometheusMemory:
         candidateRows = (
             queryFilter.options(defer(cast(Any, PrometheusMemoryModel.embedding)))
             .order_by(PrometheusMemoryModel.score.desc())
-            .limit(MEMORY_SEARCH_PREFILTER_CAP)
+            .limit(500)
             .all()
         )
         if not candidateRows:
@@ -247,22 +311,7 @@ class PrometheusMemory:
         candidateIds = [r.id for r in candidateRows]
 
         if not query or len(query.strip()) < 3:
-            scored = []
-            now = datetime.now()
-            for m in candidateRows:
-                scored.append(
-                    {
-                        "id": m.id,
-                        "memoryKey": m.memoryKey,
-                        "memoryValue": m.memoryValue,
-                        "memoryType": m.memoryType,
-                        "score": getRelevanceScore(m, now),
-                        "relevanceScore": getRelevanceScore(m, now),
-                        "similarity": 0.0,
-                    }
-                )
-            scored.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
-            return scored[:limit]
+            return scoreRecency(candidateRows, limit)
 
         try:
             simById: dict[int, float] = {}
@@ -287,27 +336,10 @@ class PrometheusMemory:
                 logger.warning(f"Embedding scoring failed, using full-text and recency only: {e}")
             vecScores = [simById.get(cast(int, m.id), 0.0) for m in candidateRows]
             vecNorm = minMax(vecScores)
-            ftRows = cls.fullTextSearch(db, userId, query, MEMORY_SEARCH_PREFILTER_CAP)
+            ftRows = cls.fullTextSearch(db, userId, query, 500)
             ftRank = {r["id"]: 1.0 / (i + 1) for i, r in enumerate(ftRows)}
             now = datetime.now(timezone.utc)
-            fused = []
-            for m, v in zip(candidateRows, vecNorm):
-                rec = getRelevanceScore(m, now)
-                f = 0.6 * v + 0.25 * ftRank.get(cast(int, m.id), 0.0) + 0.15 * rec
-                fused.append((m, f, simById.get(cast(int, m.id), 0.0)))
-            fused.sort(key=lambda p: p[1], reverse=True)
-            return [
-                {
-                    "id": m.id,
-                    "memoryKey": m.memoryKey,
-                    "memoryValue": m.memoryValue,
-                    "memoryType": m.memoryType,
-                    "score": f,
-                    "relevanceScore": f,
-                    "similarity": sim,
-                }
-                for m, f, sim in fused[:limit]
-            ]
+            return scoreCandidates(candidateRows, vecNorm, simById, ftRank, now, limit)
         except Exception as e:
             logger.warning(f"Fused search failed, falling back to full-text: {e}")
 
@@ -415,18 +447,8 @@ class PrometheusMemory:
         return True
 
     @staticmethod
-    def countTokensCached(text: str, cache: dict | None) -> int:
-        if cache is None:
-            return countTokens(text)
-        cached = cache.get(text)
-        if cached is None:
-            cached = countTokens(text)
-            cache[text] = cached
-        return cached
-
-    @staticmethod
     def extract(
-        db: Session | None = None, userId=None, sessionId=None, userRoles=None, tokenCache: dict | None = None
+        db: Session | None = None, userId=None, sessionId=None, userRoles=None, tokenCache: MutableMapping | None = None
     ) -> list[PrometheusMemoryModel]:
         ownSession = db is None
         if ownSession:
@@ -434,8 +456,6 @@ class PrometheusMemory:
         try:
             if db is None:
                 logger.error("Failed to acquire DB session for memory search")
-                return []
-            if not Roles.checkAccess(userRoles, Permission.USE_PROMETHEUS):
                 return []
             cap = (
                 MEMORY_EXTRACT_PREMIUM_CAP
@@ -455,7 +475,7 @@ class PrometheusMemory:
             for msg in reversed(msgs):
                 text = (msg.get("parts") or [{}])[0].get("text", "")
                 acc.append(text)
-                tokens += PrometheusMemory.countTokensCached(text, tokenCache)
+                tokens += sumTokens([text], tokenCache)
                 if tokens >= MEMORY_EXTRACTION_TOKEN_BUDGET:
                     break
 
@@ -492,18 +512,27 @@ class PrometheusMemory:
                         ),
                     ),
                 )
-                candidates = json.loads(response.text)
+                rawCandidates = json.loads(response.text)
             except Exception as e:
                 logger.warning("Memory extraction LLM call failed: %s", e)
                 return []
 
-            if not isinstance(candidates, list):
+            if not isinstance(rawCandidates, list):
+                return []
+
+            candidates: list[MemoryCandidate] = []
+            for raw in rawCandidates:
+                try:
+                    candidates.append(candidateAdapter.validate_python(raw))
+                except Exception as e:
+                    logger.warning("Memory extraction dropped invalid item: %s", e)
+            if not candidates:
                 return []
 
             created = []
-            cands = (candidates or [])[:n]
+            cands = candidates[:n]
             try:
-                embeddings = embed([c.get("value", "") for c in cands])
+                embeddings = embed([c.value for c in cands])
             except Exception as e:
                 logger.warning("Memory batch embedding failed: %s", e)
                 embeddings = []
@@ -512,13 +541,13 @@ class PrometheusMemory:
                     if idx < len(embeddings):
                         embedding = embeddings[idx]
                     else:
-                        embedding = embed([cand.get("value", "")])[0]
+                        embedding = embed([cand.value])[0]
                     result = PrometheusMemory.upsertMemory(
                         db,
                         userId,
-                        key=cand.get("key", ""),
-                        value=cand.get("value", ""),
-                        memoryType=cand.get("type", "context"),
+                        key=cand.key,
+                        value=cand.value,
+                        memoryType=cand.type,
                         source="inferred",
                         embedding=embedding,
                         userRoles=userRoles,
