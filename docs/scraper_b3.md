@@ -1,133 +1,47 @@
-# Brazilian Stocks Market Scraper
+# B3 Market Scraper
 
-A high-performance Python scraper to collect, process, and store Brazilian stock market (B3) data from StatusInvest and TradingView. Built for research and API data for the Mansa project.
+Collects, enriches, and stores Brazilian stock (B3) data. Entry: `main/app/scraper_b3/scraper.py` (`B3Scraper.scrapeStocks()`); scheduling lives in `main/service/scraper_service.py` (no separate scheduler module).
 
-## Usage
+## Sources (6)
 
-1. Environment configuration (`.env`):
-  ```env
-  #
-  #$ DATABASE
-  #
-  STOCKS_MYSQL_USER=user
-  STOCKS_MYSQL_PASSWORD=password
-  STOCKS_MYSQL_HOST=host
-  STOCKS_MYSQL_DATABASE=database
+| # | Source | Code | What it feeds |
+|---|--------|------|---------------|
+| 1 | StatusInvest advanced search + per-ticker page | `scraper.py:getInitialData`, `tagAlong` | Base universe (TICKER/NOME/SETOR/SUBSETOR/SEGMENTO/PRECO/P/L/P/VP/ROE/...) + TAG ALONG |
+| 2 | TradingView scanner (`BMFBOVESPA:<TICKER>`) | `scraper.py:historicalRentability` | RENT 5 ANOS and perf windows |
+| 3 | Investidor10 `cotacao-lucro/<TICKER>/adjusted` | `scraper.py:216` (`historicalCotationProfits`) | Yearly COTACAO + LUCRO LIQUIDO |
+| 4 | Investidor10 `cotacoes/acao/chart/<TICKER>/3650/<bool>/real` | `scraper.py:241` (`historicalCotations`) | COTACAO 10Y PADRAO (`false`) + COTACAO 10Y AJUSTADA (`true`) |
+| 5 | Oceans14 fallback (`gHistoricoCotacaoLucro.aspx?papel=`) | `scraper.py:228` (`historicalCotationProfits_Oceans14`) | Same yearly COTACAO + LUCRO LIQUIDO when Investidor10 fails |
+| 6 | Google News RSS (`news.google.com/rss/search?q=<TICKER>&hl=pt-BR`) | `scraper.py:283` (`stockNews`) | NOTICIAS (TITULO/LINK/DATE/SOURCE) |
+| + | BCB SGS 4189 (SELIC) | `scraper.py:32` (`getCurrentSelic`) | `valor` + `valor medio 10y` (120-month rolling mean), used to scale XANGO growth threshold |
 
-  #
-  #$ SCRAPER
-  #
-  SCRAPER_ENABLED=TRUE
-  SCRAPER_SCHEDULER=18:30
-  JSON_EXPORT=FALSE
-  MYSQL_EXPORT=TRUE
-  MAX_WORKERS=40
-  ```
+Per-ticker fan-out is in `processTicker` (TradingView, dividends, yields, revenue, both profit sources, cotations, tag-along, news), then `fundamentalIndicators`.
 
-## Output Format
+## Scheduling & config (`config.py:77-81`, `scraper_service.py:23-36`)
 
-### MySQL Table (b3_stocks)
-
-| Column Type | Description |
-|------------|-------------|
-| Metadata | TICKER, NOME, SETOR, SUBSETOR, SEGMENTO |
-| Current | PRECO, DY, P/L, ROE, etc. |
-| Historical | LUCRO LIQUIDO 2024, DIVIDENDOS 2023, etc. |
-| Special | COTACAO 10Y PADRAO, HISTORICO DIVIDENDOS |
-
-### Sample Record
-
-```json
-{
-  "TICKER": "PETR4",
-  "NOME": "Petróleo Brasileiro S.A.",
-  "SETOR": "Petróleo, Gás e Biocombustíveis",
-  "PRECO": 34.21,
-  "DY": 8.73,
-  "P/L": 7.5,
-  "ROE": 0.18,
-  "CAGR LUCROS 10 ANOS": 15.4,
-  "INVESTING SCORE": 8.5,
-  "TIME": "2024-12-09 14:30:00"
-}
+```env
+SCRAPER_ENABLED=FALSE        # default False
+SCRAPER_SCHEDULER=           # default empty = no jobs; `;`-separated HH:MM list, e.g. "09:00;18:30"
+JSON_EXPORT=FALSE            # default False
+MYSQL_EXPORT=TRUE            # default True
+MAX_WORKERS=10               # default 10 (40 is just an example override, not the default)
 ```
 
-## Xangô
+`registerScraperJobs()` splits `SCRAPER_SCHEDULER` on `;`, parses each as `HH:MM`, and registers `runScraper` with APScheduler `CronTrigger(hour, minute)` (`scraper_0`, `scraper_1`, ...). Invalid entries log a warning. `ScraperService.initialize()` calls it at boot; `runScraper()` builds `B3Scraper()` and calls `scrapeStocks()`.
 
-Mansa's own stock scoring algorithm for the Brazilian Stock Market focuses on the fundamental principles Mansa uses to evaluate stocks. It addresses the Growth-Volatility Paradox to select stocks with concise, consistent profit growth, grading them based on their ability to generate and grow profits over time using mathematical methods.
+## XANGO score (`main/app/scraper_b3/xango.py`)
 
+Params (`xango.py:5-8`): `CONSISTENCY_WEIGHT=0.85`, `GROWTH_WEIGHT=0.75` (applied to growth term), `GROWTH_K=4`, `GROWTH_THRESHOLD_BASELINE=0.10`, 10y SELIC mean (`xango.py:39`).
 
-### Global Score Function
+- Growth threshold is SELIC-scaled: `growthThreshold = 0.10 * (selicBaseline / selicRate)` (`xango.py:45`).
+- Growth is tanh-shaped (`xango.py:57`): `growth = 50 * (tanh(4 * (raw - T)) + 1)` where `raw = slope/mean` (OLS slope over 10y LUCRO LIQUIDO / mean).
+- Base (`xango.py:85-89`): `Φ = growth * 0.75 + consistency * 0.85`, then `+20%` eligibility bonus: `base *= 1 + 0.20 * g_elig * c_elig` with `g_elig = 0.5*(tanh((growth-50)/5)+1)`, `c_elig = 0.5*(tanh((consistency-80)/3)+1)`.
+- Liquidity uses prefix-sum (`scraper.py:395-396`, `xango.py:93`): `totalLiq = sum(LIQUIDEZ MEDIA DIARIA for tickers sharing first 4 letters)`; `mLiq` = sqrt decay below R$10M.
+- Output (`scraper.py:410-413`): `XANGO INVESTING SCORE` + `XANGO M_VOL` / `XANGO M_DD` / `XANGO CONSISTENCY` / `XANGO GROWTH`.
 
-$$f(P, L, c) = \min(100, \max(0, \Phi(P) \cdot \Omega(P) \cdot \Lambda(L, c) \cdot M_{profit}(P)))$$
+## Outputs
 
-Where:
-- $P$: 10-year profit vector $\{p_1, p_2, \dots, p_{10}\}$
-- $L$: Average daily liquidity (R$)
-- $c$: Ticker class (3 = common shares, other = preferred/unit)
+JSON columns (`scraper.py:22`): `COTACAO 10Y PADRAO`, `COTACAO 10Y AJUSTADA`, `HISTORICO DIVIDENDOS`, `NOTICIAS`.
+Derived indicators (`scraper.py:296-375`): `EBIT` (MARGEM EBIT x RECEITA), `DY MEDIO 5 ANOS`, `RENT MEDIA 5 ANOS`, `LUCRO LIQUIDO MEDIO 5 ANOS`, `CAGR DIVIDENDOS 5 ANOS`, `CAGR LUCROS 10 ANOS`, `SGR` (ROE x retention), `PRECO DE GRAHAM` (sqrt(22.5 x LPA x VPA)), `PRECO DE BAZIN` (avg 5y DIV / 0.06), plus XANGO columns above.
+MySQL (`scraper.py:533-660`, table `b3_stocks`): `exportMysql` appends rows (`if_exists="append"`), `ALTER TABLE ... ADD COLUMN` for new columns (JSON vs TEXT vs DOUBLE), forces `LONGTEXT` on JSON columns, then backfills metadata (NOME/SETOR/SUBSETOR/SEGMENTO from latest non-null per ticker) and historical yearly columns (RECEITA/LUCRO/DIVIDENDOS/DY/MARGEM*/DESPESAS/COTACAO) from the previous non-null row per ticker.
 
-### Engines
-
-#### Profit Quality Gate ($M_{profit}$)
-Penalizes stocks with any negative annual profit:
-$$M_{profit}(P) = \begin{cases} \alpha_{profit} & \text{if } \exists p_t \leq 0 \\ 1.0 & \text{otherwise} \end{cases}$$
-Default: $\alpha_{profit} = 0.5$
-
-#### Fundamental Engine ($\Phi$)
-Evaluates intrinsic velocity with size-bias elimination:
-$$\Phi(P) = \omega_{growth} \cdot S_{growth}(P) + (1 - \omega_{growth}) \cdot S_{cons}(P)$$
-
-- **Relative Growth** ($S_{growth}$): OLS slope normalized by mean profit, capped at threshold:
-  $$S_{growth}(P) = \min\left(100, \max\left(0, \frac{\max(\beta / \mu_p, e^{\hat{\beta}} - 1)}{T_{growth}} \cdot 100\right)\right)$$
-  Default: $T_{growth} = 0.07$ (7%)
-
-- **Consistency** ($S_{cons}$): Weighted reliability metric:
-  $$S_{cons}(P) = 60 \cdot \left(\frac{1}{n} \sum \mathbf{1}_{\{p_t > 0\}}\right) + 40 \cdot \left(\frac{1}{n-1} \sum \mathbf{1}_{\{p_t > p_{t-1}\}}\right)$$
-
-Default: $\omega_{growth} = 0.75$
-
-#### Risk-Quality Engine ($\Omega$)
-Measures "Trend Adherence" using CV-RMSE:
-$$\Omega(P) = M_{vol}(P) \cdot M_{DD}(P)$$
-
-- **Volatility Multiplier** ($M_{vol}$): Penalizes residuals from linear trend only:
-  $$M_{vol}(P) = \max\left(F_{vol}, 1 - 2 \cdot \max\left(0, \frac{RMSE}{\mu_p} - T_{cv}\right)\right)$$
-  Defaults: $T_{cv} = 0.16$, $F_{vol} = 0.40$
-
-- **Drawdown** ($M_{DD}$): Recovery-aware forgiveness:
-  $$M_{DD}(P) = \max\left(F_{dd}, 1 - \hat{DD}_{effective}\right)$$
-  Defaults: $F_{dd} = 0.60$, $T_{recovery} = 0.45$
-
-#### Constraint Engine ($\Lambda$)
-Ensures theoretical alpha can be realized:
-$$\Lambda(L, c) = M_{liq}(L) \cdot M_{class}(c)$$
-
-- **Liquidity** ($M_{liq}$): Square-root decay for low liquidity:
-  $$M_{liq}(L) = \begin{cases} 1.0 & \text{if } L \geq T_{liq} \\ \max\left(F_{liq}, \sqrt{L/T_{liq}}\right) & \text{otherwise} \end{cases}$$
-  Defaults: $T_{liq} = 10,000,000$, $F_{liq} = 0.5$
-
-- **Class** ($M_{class}$): Governance factor for B3 tickers:
-  $$M_{class}(c) = \begin{cases} 1.0 & \text{if } c = 3 \\ \alpha_{class} & \text{otherwise} \end{cases}$$
-  Default: $\alpha_{class} = 0.75$
-
-### Configuration Parameters
-
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `MIN_YEARS` | 10 | Minimum years of data |
-| `GROWTH_WEIGHT` | 0.75 | Weight for growth vs consistency |
-| `GROWTH_THRESHOLD` | 0.07 | Growth threshold (7%) |
-| `VOLATILITY_THRESHOLD` | 0.16 | CV-RMSE threshold |
-| `VOLATILITY_FLOOR` | 0.40 | Minimum volatility multiplier |
-| `RECOVERY_THRESHOLD` | 0.45 | Recovery ratio for full forgiveness |
-| `DRAWDOWN_FLOOR` | 0.60 | Minimum drawdown multiplier |
-| `LIQUIDITY_THRESHOLD` | 10,000,000 | Minimum daily liquidity (R$) |
-| `LIQUIDITY_FLOOR` | 0.5 | Minimum liquidity multiplier |
-| `PROFIT_PENALTY` | 0.5 | Penalty for negative profit years |
-| `CLASS_PENALTY` | 0.75 | Multiplier for non-common shares |
-
----
-
-## License
-
-Mansa Team's MODIFIED GPL 3.0 License. See LICENSE for details.
+Concurrency: `ThreadPoolExecutor(max_workers=Config.SCRAPER.MAX_WORKERS)` (`scraper.py:450-458`).
