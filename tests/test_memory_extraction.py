@@ -155,3 +155,33 @@ def test_non_list_llm_response_returns_empty_without_raising(db):
         patch("main.app.prometheus.memory.PrometheusMemory.upsertMemory", new=FakeMemory().upsertMemory),
     ):
         assert PrometheusMemory.extract(db, 1, "s1", ["PREMIUM"]) == []
+
+
+def test_invalid_llm_items_dropped_valid_kept(db):
+    client = type("C", (), {})()
+    client.models = type("M", (), {})()
+    resp = FakeResponse()
+    resp.text = json.dumps(
+        [
+            {"key": "estilo", "value": "value investing", "type": "preference"},
+            {"value": "missing key", "type": "context"},
+            {"key": "bad", "value": 123, "type": "context"},
+            "not a dict",
+        ]
+    )
+    client.models.generate_content = lambda **kw: resp
+    fake = FakeMemory()
+    with (
+        patch("main.app.prometheus.memory.Roles.checkAccess", side_effect=premiumAccess),
+        patch(
+            "main.app.prometheus.chat.PrometheusChatManager.getHistory", return_value=makeHistory(3, "palavra " * 3000)
+        ),
+        patch("main.app.prometheus.memory.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
+        patch("main.app.prometheus.memory.embed", return_value=[object()]),
+        patch("main.app.prometheus.memory.getClient", return_value=client),
+        patch("main.app.prometheus.memory.PrometheusMemory.countMemories", return_value=0),
+        patch("main.app.prometheus.memory.PrometheusMemory.upsertMemory", new=fake.upsertMemory),
+    ):
+        result = PrometheusMemory.extract(db, 1, "s1", ["PREMIUM"])
+        assert len(result) == 1
+        assert fake.calls == 1

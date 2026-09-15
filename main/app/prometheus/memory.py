@@ -9,8 +9,9 @@ from typing import Any, Callable, cast
 from cashews import Cache
 from google import genai
 from google.genai import types
-from rapidfuzz import fuzz
 import numpy as np
+from pydantic import BaseModel, TypeAdapter
+from rapidfuzz import fuzz
 
 from sqlalchemy import func, desc
 from sqlalchemy.dialects.mysql import match as mysqlMatch
@@ -56,6 +57,15 @@ def clearAll() -> None:
 
 
 logger = logging.getLogger(__name__)
+
+
+class MemoryCandidate(BaseModel):
+    key: str
+    value: str
+    type: str = "context"
+
+
+candidateAdapter = TypeAdapter(MemoryCandidate)
 
 MEMORY_LIMIT_BASIC = 50
 MEMORY_LIMIT_EXTENDED = 250
@@ -492,18 +502,27 @@ class PrometheusMemory:
                         ),
                     ),
                 )
-                candidates = json.loads(response.text)
+                rawCandidates = json.loads(response.text)
             except Exception as e:
                 logger.warning("Memory extraction LLM call failed: %s", e)
                 return []
 
-            if not isinstance(candidates, list):
+            if not isinstance(rawCandidates, list):
+                return []
+
+            candidates: list[MemoryCandidate] = []
+            for raw in rawCandidates:
+                try:
+                    candidates.append(candidateAdapter.validate_python(raw))
+                except Exception as e:
+                    logger.warning("Memory extraction dropped invalid item: %s", e)
+            if not candidates:
                 return []
 
             created = []
-            cands = (candidates or [])[:n]
+            cands = candidates[:n]
             try:
-                embeddings = embed([c.get("value", "") for c in cands])
+                embeddings = embed([c.value for c in cands])
             except Exception as e:
                 logger.warning("Memory batch embedding failed: %s", e)
                 embeddings = []
@@ -512,13 +531,13 @@ class PrometheusMemory:
                     if idx < len(embeddings):
                         embedding = embeddings[idx]
                     else:
-                        embedding = embed([cand.get("value", "")])[0]
+                        embedding = embed([cand.value])[0]
                     result = PrometheusMemory.upsertMemory(
                         db,
                         userId,
-                        key=cand.get("key", ""),
-                        value=cand.get("value", ""),
-                        memoryType=cand.get("type", "context"),
+                        key=cand.key,
+                        value=cand.value,
+                        memoryType=cand.type,
                         source="inferred",
                         embedding=embedding,
                         userRoles=userRoles,
