@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 from fastapi import FastAPI, BackgroundTasks
+import uvicorn
 
 from contextlib import asynccontextmanager
 
@@ -47,10 +48,10 @@ async def lifespan(app: FastAPI):
         ("STOCKS_API", Config.STOCKS_API, StocksAPIService.initialize),
         ("PROMETHEUS", Config.PROMETHEUS, PrometheusService.initialize),
     ]
-    for name, cfg, initFn in services:
-        if cfg.ENABLED:
-            if cfg.HOST in LOCALHOST_ADDRESSES:
-                initFn(cfg.PORT)
+    for name, config, init in services:
+        if config.ENABLED:
+            if config.HOST in LOCALHOST_ADDRESSES:
+                init(config.PORT)
             elif not checkServiceConnection(name):
                 logger.error(f"Remote connection to the {name} Service failed")
 
@@ -116,6 +117,4 @@ async def triggerScraper(background_tasks: BackgroundTasks):
 
 
 if __name__ == "__main__":
-    import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=8000)

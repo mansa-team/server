@@ -2872,7 +2872,7 @@
       "label": "getClient()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L77",
+      "source_location": "L76",
       "id": "prometheus_memory_getclient",
       "community": 53,
       "norm_label": "getclient()"
@@ -2881,7 +2881,7 @@
       "label": "minMax()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L84",
+      "source_location": "L83",
       "id": "prometheus_memory_minmax",
       "community": 53,
       "norm_label": "minmax()"
@@ -2890,7 +2890,7 @@
       "label": "normalizeKey()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L93",
+      "source_location": "L92",
       "id": "prometheus_memory_normalizekey",
       "community": 53,
       "norm_label": "normalizekey()"
@@ -2899,7 +2899,7 @@
       "label": "findSimilarKey()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L100",
+      "source_location": "L99",
       "id": "prometheus_memory_findsimilarkey",
       "community": 53,
       "norm_label": "findsimilarkey()"
@@ -2908,7 +2908,7 @@
       "label": "scoreRow()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L123",
+      "source_location": "L122",
       "id": "prometheus_memory_scorerow",
       "community": 53,
       "norm_label": "scorerow()"
@@ -2917,7 +2917,7 @@
       "label": "scoreRecency()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L135",
+      "source_location": "L134",
       "id": "prometheus_memory_scorerecency",
       "community": 53,
       "norm_label": "scorerecency()"
@@ -2926,7 +2926,7 @@
       "label": "scoreCandidates()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L145",
+      "source_location": "L144",
       "id": "prometheus_memory_scorecandidates",
       "community": 53,
       "norm_label": "scorecandidates()"
@@ -2935,7 +2935,7 @@
       "label": "sumTokens()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L162",
+      "source_location": "L161",
       "id": "prometheus_memory_sumtokens",
       "community": 53,
       "norm_label": "sumtokens()"
@@ -2944,7 +2944,7 @@
       "label": "PrometheusMemory",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L177",
+      "source_location": "L176",
       "id": "prometheus_memory_prometheusmemory",
       "community": 140,
       "norm_label": "prometheusmemory"
@@ -2953,7 +2953,7 @@
       "label": "getMemoryLimit()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L179",
+      "source_location": "L178",
       "id": "prometheus_memory_getmemorylimit",
       "community": 53,
       "norm_label": "getmemorylimit()"
@@ -2962,7 +2962,7 @@
       "label": "countMemories()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L185",
+      "source_location": "L184",
       "id": "prometheus_memory_countmemories",
       "community": 53,
       "norm_label": "countmemories()"
@@ -2971,7 +2971,7 @@
       "label": "touch()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L194",
+      "source_location": "L193",
       "id": "prometheus_memory_touch",
       "community": 53,
       "norm_label": "touch()"
@@ -2980,7 +2980,7 @@
       "label": "upsertMemory()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L205",
+      "source_location": "L204",
       "id": "prometheus_memory_upsertmemory",
       "community": 53,
       "norm_label": "upsertmemory()"
@@ -2989,7 +2989,7 @@
       "label": "search()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L269",
+      "source_location": "L268",
       "id": "prometheus_memory_search",
       "community": 53,
       "norm_label": "search()"
@@ -2998,7 +2998,7 @@
       "label": "fullTextSearch()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L332",
+      "source_location": "L331",
       "id": "prometheus_memory_fulltextsearch",
       "community": 53,
       "norm_label": "fulltextsearch()"
@@ -3007,7 +3007,7 @@
       "label": "getUserMemories()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L390",
+      "source_location": "L389",
       "id": "prometheus_memory_getusermemories",
       "community": 27,
       "norm_label": "getusermemories()"
@@ -3016,7 +3016,7 @@
       "label": "deleteMemory()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L415",
+      "source_location": "L414",
       "id": "prometheus_memory_deletememory",
       "community": 53,
       "norm_label": "deletememory()"
@@ -3025,7 +3025,7 @@
       "label": "extract()",
       "file_type": "code",
       "source_file": "main/app/prometheus/memory.py",
-      "source_location": "L433",
+      "source_location": "L432",
       "id": "prometheus_memory_extract",
       "community": 53,
       "norm_label": "extract()"
@@ -3061,7 +3061,7 @@
       "label": "hostPath()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L38",
+      "source_location": "L32",
       "id": "prometheus_sandbox_hostpath",
       "community": 69,
       "norm_label": "hostpath()"
@@ -3070,7 +3070,7 @@
       "label": "sandboxPath()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L52",
+      "source_location": "L46",
       "id": "prometheus_sandbox_sandboxpath",
       "community": 69,
       "norm_label": "sandboxpath()"
@@ -3079,7 +3079,7 @@
       "label": "SandboxManager",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L57",
+      "source_location": "L51",
       "id": "prometheus_sandbox_sandboxmanager",
       "community": 2,
       "norm_label": "sandboxmanager"
@@ -3088,7 +3088,7 @@
       "label": "create()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L59",
+      "source_location": "L53",
       "id": "prometheus_sandbox_create",
       "community": 69,
       "norm_label": "create()"
@@ -3097,7 +3097,7 @@
       "label": "destroy()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L75",
+      "source_location": "L69",
       "id": "prometheus_sandbox_destroy",
       "community": 69,
       "norm_label": "destroy()"
@@ -3106,7 +3106,7 @@
       "label": "getOrCreate()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L87",
+      "source_location": "L81",
       "id": "prometheus_sandbox_getorcreate",
       "community": 69,
       "norm_label": "getorcreate()"
@@ -3115,7 +3115,7 @@
       "label": "execute()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L134",
+      "source_location": "L128",
       "id": "prometheus_sandbox_execute",
       "community": 69,
       "norm_label": "execute()"
@@ -3124,7 +3124,7 @@
       "label": "read_file()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L170",
+      "source_location": "L164",
       "id": "prometheus_sandbox_read_file",
       "community": 69,
       "norm_label": "read_file()"
@@ -3133,7 +3133,7 @@
       "label": "write_file()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L177",
+      "source_location": "L171",
       "id": "prometheus_sandbox_write_file",
       "community": 69,
       "norm_label": "write_file()"
@@ -3142,7 +3142,7 @@
       "label": "list_files()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L191",
+      "source_location": "L185",
       "id": "prometheus_sandbox_list_files",
       "community": 69,
       "norm_label": "list_files()"
@@ -3151,7 +3151,7 @@
       "label": "delete_file()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L199",
+      "source_location": "L193",
       "id": "prometheus_sandbox_delete_file",
       "community": 69,
       "norm_label": "delete_file()"
@@ -3160,7 +3160,7 @@
       "label": "syncToSandbox()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L216",
+      "source_location": "L210",
       "id": "prometheus_sandbox_synctosandbox",
       "community": 69,
       "norm_label": "synctosandbox()"
@@ -3169,7 +3169,7 @@
       "label": "syncFromSandbox()",
       "file_type": "code",
       "source_file": "main/app/prometheus/sandbox.py",
-      "source_location": "L235",
+      "source_location": "L229",
       "id": "prometheus_sandbox_syncfromsandbox",
       "community": 69,
       "norm_label": "syncfromsandbox()"
@@ -4368,7 +4368,7 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L1",
       "id": "main_controller_stocksapi_controller_py",
-      "community": 81,
+      "community": 54,
       "norm_label": "stocksapi_controller.py"
     },
     {
@@ -4377,7 +4377,7 @@
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L23",
       "id": "controller_stocksapi_controller_health",
-      "community": 81,
+      "community": 54,
       "norm_label": "health()"
     },
     {
@@ -4773,7 +4773,7 @@
       "source_file": "main/service/prometheus_service.py",
       "source_location": "L23",
       "id": "service_prometheus_service_memorymaintenance",
-      "community": 518,
+      "community": 234,
       "norm_label": "memorymaintenance()"
     },
     {
@@ -8778,7 +8778,7 @@
       "source_file": "docs/superpowers/plans/2026-09-04-wallet-management.md",
       "source_location": "L166",
       "id": "plans_2026_09_04_wallet_management_task_2_alembic_migration_for_wallet_tables",
-      "community": 132,
+      "community": 497,
       "norm_label": "task 2: alembic migration for wallet tables"
     },
     {
@@ -8787,7 +8787,7 @@
       "source_file": "docs/superpowers/plans/2026-09-04-wallet-management.md",
       "source_location": "L189",
       "id": "plans_2026_09_04_wallet_management_codeblock_6",
-      "community": 132,
+      "community": 497,
       "norm_label": "code:python (\"\"\"add wallet_holdings and wallet_lots tables)"
     },
     {
@@ -8796,7 +8796,7 @@
       "source_file": "docs/superpowers/plans/2026-09-04-wallet-management.md",
       "source_location": "L248",
       "id": "plans_2026_09_04_wallet_management_codeblock_7",
-      "community": 132,
+      "community": 497,
       "norm_label": "code:python (import main.models.wallet)"
     },
     {
@@ -8805,7 +8805,7 @@
       "source_file": "docs/superpowers/plans/2026-09-04-wallet-management.md",
       "source_location": "L262",
       "id": "plans_2026_09_04_wallet_management_codeblock_8",
-      "community": 132,
+      "community": 497,
       "norm_label": "code:bash (git add migrations/versions/wallet_tables_20260904_add_walle)"
     },
     {
@@ -8814,7 +8814,7 @@
       "source_file": "docs/superpowers/plans/2026-09-04-wallet-management.md",
       "source_location": "L269",
       "id": "plans_2026_09_04_wallet_management_task_3_pure_derivation_math",
-      "community": 497,
+      "community": 132,
       "norm_label": "task 3: pure derivation math"
     },
     {
@@ -8823,7 +8823,7 @@
       "source_file": "docs/superpowers/plans/2026-09-04-wallet-management.md",
       "source_location": "L281",
       "id": "plans_2026_09_04_wallet_management_codeblock_9",
-      "community": 497,
+      "community": 132,
       "norm_label": "code:python (from datetime import date)"
     },
     {
@@ -8832,7 +8832,7 @@
       "source_file": "docs/superpowers/plans/2026-09-04-wallet-management.md",
       "source_location": "L325",
       "id": "plans_2026_09_04_wallet_management_codeblock_10",
-      "community": 497,
+      "community": 132,
       "norm_label": "code:python (from dataclasses import dataclass)"
     },
     {
@@ -8841,7 +8841,7 @@
       "source_file": "docs/superpowers/plans/2026-09-04-wallet-management.md",
       "source_location": "L384",
       "id": "plans_2026_09_04_wallet_management_codeblock_11",
-      "community": 497,
+      "community": 132,
       "norm_label": "code:bash (git add main/app/wallet/__init__.py main/app/wallet/math.py )"
     },
     {
@@ -10091,7 +10091,7 @@
       "file_type": "code",
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L23",
-      "community": 81,
+      "community": 54,
       "norm_label": "jsonbytesresponse",
       "id": "controller_stocksapi_controller_jsonbytesresponse"
     },
@@ -10100,7 +10100,7 @@
       "file_type": "code",
       "source_file": "",
       "source_location": "",
-      "community": 81,
+      "community": 54,
       "norm_label": "fastapiresponse",
       "id": "fastapiresponse"
     },
@@ -10109,7 +10109,7 @@
       "file_type": "code",
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L26",
-      "community": 81,
+      "community": 54,
       "norm_label": ".render()",
       "id": "controller_stocksapi_controller_jsonbytesresponse_render"
     },
@@ -12926,7 +12926,7 @@
       "file_type": "rationale",
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L24",
-      "community": 81,
+      "community": 54,
       "norm_label": "sends pre-serialized json bytes without re-encoding (cache-friendly).",
       "id": "controller_stocksapi_controller_rationale_24"
     },
@@ -13070,7 +13070,7 @@
       "file_type": "code",
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L323",
-      "community": 81,
+      "community": 54,
       "norm_label": "generatekey()",
       "id": "controller_stocksapi_controller_generatekey"
     },
@@ -27083,7 +27083,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L1",
-      "community": 234,
+      "community": 518,
       "norm_label": "test_memory_maintenance.py",
       "id": "tests_test_memory_maintenance_py"
     },
@@ -27092,7 +27092,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L18",
-      "community": 234,
+      "community": 518,
       "norm_label": "brt()",
       "id": "tests_test_memory_maintenance_brt"
     },
@@ -27101,7 +27101,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L23",
-      "community": 234,
+      "community": 518,
       "norm_label": "create_memories()",
       "id": "tests_test_memory_maintenance_create_memories"
     },
@@ -27110,7 +27110,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L46",
-      "community": 234,
+      "community": 518,
       "norm_label": "testdecay",
       "id": "tests_test_memory_maintenance_testdecay"
     },
@@ -27119,7 +27119,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L47",
-      "community": 234,
+      "community": 518,
       "norm_label": ".test_active_memory_decays()",
       "id": "tests_test_memory_maintenance_testdecay_test_active_memory_decays"
     },
@@ -27128,7 +27128,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L54",
-      "community": 234,
+      "community": 518,
       "norm_label": ".test_zero_access_count_still_decays()",
       "id": "tests_test_memory_maintenance_testdecay_test_zero_access_count_still_decays"
     },
@@ -27137,7 +27137,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L61",
-      "community": 234,
+      "community": 518,
       "norm_label": ".test_high_score_decays_proportionally()",
       "id": "tests_test_memory_maintenance_testdecay_test_high_score_decays_proportionally"
     },
@@ -27146,7 +27146,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L67",
-      "community": 234,
+      "community": 518,
       "norm_label": ".test_very_low_score_stays_above_zero()",
       "id": "tests_test_memory_maintenance_testdecay_test_very_low_score_stays_above_zero"
     },
@@ -27155,7 +27155,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L74",
-      "community": 234,
+      "community": 518,
       "norm_label": ".test_multiple_users_all_decayed()",
       "id": "tests_test_memory_maintenance_testdecay_test_multiple_users_all_decayed"
     },
@@ -27290,7 +27290,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L171",
-      "community": 518,
+      "community": 234,
       "norm_label": ".test_no_memories_does_not_crash()",
       "id": "tests_test_memory_maintenance_testemptydatabase_test_no_memories_does_not_crash"
     },
@@ -27299,7 +27299,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L24",
-      "community": 234,
+      "community": 518,
       "norm_label": "helper to create memories with controlled basescore, lastaccessedat, accesscount",
       "id": "tests_test_memory_maintenance_rationale_24"
     },
@@ -27308,7 +27308,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L55",
-      "community": 234,
+      "community": 518,
       "norm_label": "decay applies to all active memories, not just accessed ones.",
       "id": "tests_test_memory_maintenance_rationale_55"
     },
@@ -27317,7 +27317,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L68",
-      "community": 234,
+      "community": 518,
       "norm_label": "basescore should never reach exactly 0 from decay alone.",
       "id": "tests_test_memory_maintenance_rationale_68"
     },
@@ -32978,7 +32978,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_stocks_api_coverage.py",
       "source_location": "L883",
-      "community": 17,
+      "community": 39,
       "norm_label": "multiple search terms with tickerindex.",
       "id": "tests_test_stocks_api_coverage_rationale_883"
     },
@@ -34328,7 +34328,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L1",
-      "community": 518,
+      "community": 234,
       "norm_label": "test_type_aware_decay.py",
       "id": "tests_test_type_aware_decay_py"
     },
@@ -34337,7 +34337,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L11",
-      "community": 518,
+      "community": 234,
       "norm_label": "_create()",
       "id": "tests_test_type_aware_decay_create"
     },
@@ -34346,7 +34346,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L29",
-      "community": 518,
+      "community": 234,
       "norm_label": "testtypeawaredecay",
       "id": "tests_test_type_aware_decay_testtypeawaredecay"
     },
@@ -34355,7 +34355,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L30",
-      "community": 518,
+      "community": 234,
       "norm_label": ".test_preference_decays_slowly()",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_preference_decays_slowly"
     },
@@ -34364,7 +34364,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L36",
-      "community": 518,
+      "community": 234,
       "norm_label": ".test_context_decays_fast()",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_context_decays_fast"
     },
@@ -34373,7 +34373,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L42",
-      "community": 518,
+      "community": 234,
       "norm_label": ".test_analysis_decays_normally()",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_analysis_decays_normally"
     },
@@ -34382,7 +34382,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L48",
-      "community": 518,
+      "community": 234,
       "norm_label": ".test_feedback_decays_medium()",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_feedback_decays_medium"
     },
@@ -34391,7 +34391,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L54",
-      "community": 518,
+      "community": 234,
       "norm_label": ".test_unknown_type_uses_default()",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_unknown_type_uses_default"
     },
@@ -34400,7 +34400,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L60",
-      "community": 518,
+      "community": 234,
       "norm_label": ".test_mixed_types_all_correct()",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_mixed_types_all_correct"
     },
@@ -34409,7 +34409,7 @@
       "file_type": "code",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L76",
-      "community": 518,
+      "community": 234,
       "norm_label": ".test_preference_survives_longer()",
       "id": "tests_test_type_aware_decay_testtypeawaredecay_test_preference_survives_longer"
     },
@@ -34418,7 +34418,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_type_aware_decay.py",
       "source_location": "L77",
-      "community": 518,
+      "community": 234,
       "norm_label": "after 10 cycles, preference (0.99^10) > context (0.90^10).",
       "id": "tests_test_type_aware_decay_rationale_77"
     },
@@ -41132,7 +41132,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L23",
-      "community": 234,
+      "community": 518,
       "norm_label": "helper to create memories with controlled basescore, lastaccessedat, accesscount",
       "id": "tests_test_memory_maintenance_rationale_23"
     },
@@ -41141,7 +41141,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L54",
-      "community": 234,
+      "community": 518,
       "norm_label": "decay applies to all active memories, not just accessed ones.",
       "id": "tests_test_memory_maintenance_rationale_54"
     },
@@ -41150,7 +41150,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_maintenance.py",
       "source_location": "L67",
-      "community": 234,
+      "community": 518,
       "norm_label": "basescore should never reach exactly 0 from decay alone.",
       "id": "tests_test_memory_maintenance_rationale_67"
     },
@@ -48233,7 +48233,7 @@
       "file_type": "code",
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L63",
-      "community": 81,
+      "community": 54,
       "norm_label": "getrealtimecotation()",
       "id": "controller_stocksapi_controller_getrealtimecotation"
     },
@@ -48341,7 +48341,7 @@
       "file_type": "code",
       "source_file": "main/controller/stocksapi_controller.py",
       "source_location": "L23",
-      "community": 81,
+      "community": 54,
       "norm_label": "apikeytest()",
       "id": "controller_stocksapi_controller_apikeytest"
     },
@@ -137183,5 +137183,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "78084c0d76c87622625b9986338e6ffe40c7a28c"
+  "built_at_commit": "5ad08ba029a1925687e87f67f3278d5498f560e5"
 }

@@ -56,3 +56,13 @@ Rules:
 - If graphify-out/wiki/index.md exists, navigate it instead of reading raw files
 - For cross-module "how does X relate to Y" questions, prefer `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or `graphify explain "<concept>"` over grep — these traverse the graph's EXTRACTED + INFERRED edges instead of scanning files
 - After modifying code files in this session, run `graphify update .` to keep the graph current (AST-only, no API cost)
+
+## Swarm Delegation (default)
+
+- All 3+ step tasks: `create_goal` + `todowrite` lanes (one todo per lane) + `delegate()` fan-out, one call per lane in one turn.
+- Background by default, blocking by exception (`task()` only for mutations prime must supervise).
+- Every lane returns an envelope: `Status: / Mutations: / Edge-Cases: / Deliverables:` ≤300 words + `file:line`.
+- Verify every lane: `git --no-pager log --oneline -N` + real test output. Never report a delegate's commits/tests as fact.
+- One commit per lane (`simple-commits`: lowercase, one logical change). Full `.\ci.ps1` before push.
+- Always `git --no-pager` on diff/log/show/status. Never `Get-Content -Wait` — poll with `Get-Content -Tail N`.
+- Standing bans: NEVER run any `TestStocksCacheManager::test_getCachedStocks_*` (spawns real cache build, stalls ~1hr — always `-k "not test_getCachedStocks_"`); never run bare pytest, only `.\ci.ps1`; never touch `stash@{1}` or foreign stashes.
