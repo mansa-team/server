@@ -16,7 +16,7 @@ from main.utils.errors import registerErrorHandlers
 
 from main.service.authentication_service import AuthenticationService
 from main.service.user_service import UserService
-from main.service.prometheus_service import PrometheusService
+from main.service.orunmila_service import OrunmilaService
 from main.service.scraper_service import ScraperService, runScraper
 from main.service.stocksapi_service import StocksAPIService
 
@@ -46,7 +46,7 @@ async def lifespan(app: FastAPI):
     services = [
         ("USER", Config.USER, lambda port: (AuthenticationService.initialize(port), UserService.initialize(port))),
         ("STOCKS_API", Config.STOCKS_API, StocksAPIService.initialize),
-        ("PROMETHEUS", Config.PROMETHEUS, PrometheusService.initialize),
+        ("ORUNMILA", Config.ORUNMILA, OrunmilaService.initialize),
     ]
     for name, config, init in services:
         if config.ENABLED:
@@ -87,7 +87,7 @@ async def status():
     for name, config in [
         ("user", Config.USER),
         ("stocks_api", Config.STOCKS_API),
-        ("prometheus", Config.PROMETHEUS),
+        ("orunmila", Config.ORUNMILA),
     ]:
         if not config.ENABLED:
             services[name] = {"status": "disabled"}

@@ -6,12 +6,12 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from main.utils.service_manager import getApp
 
-from main.models.memory import PrometheusMemory
+from main.models.memory import OrunmilaMemory
 
-from main.controller.prometheus_controller import router as prometheusRouter
+from main.controller.orunmila_controller import router as orunmilaRouter
 from main.utils.models.loader import getEmbeddingModel
 
-from main.app.prometheus.memory import invalidateUser
+from main.app.orunmila.memory import invalidateUser
 
 from main.utils.scheduler import registerJob
 
@@ -30,7 +30,7 @@ def memoryMaintenance(db: Session | None = None):
             return
         nowNaive = datetime.now().replace(tzinfo=None)
 
-        active = db.query(PrometheusMemory).filter(PrometheusMemory.archivedAt.is_(None)).all()
+        active = db.query(OrunmilaMemory).filter(OrunmilaMemory.archivedAt.is_(None)).all()
         if not active:
             return
 
@@ -62,11 +62,11 @@ def memoryMaintenance(db: Session | None = None):
             db.close()
 
 
-class PrometheusService:
+class OrunmilaService:
     @staticmethod
     def initialize(port: int):
         service = getApp(port)
-        service.include_router(prometheusRouter)
+        service.include_router(orunmilaRouter)
 
         getEmbeddingModel()
 

@@ -56,10 +56,10 @@ class StocksApiSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
-class PrometheusSettings(BaseSettings):
-    ENABLED: bool = Field(default=True, validation_alias=AliasChoices("PROMETHEUS_ENABLED"))
-    HOST: str = Field(default="localhost", validation_alias=AliasChoices("PROMETHEUS_HOST"))
-    PORT: int = Field(default=3200, validation_alias=AliasChoices("PROMETHEUS_PORT"))
+class OrunmilaSettings(BaseSettings):
+    ENABLED: bool = Field(default=True, validation_alias=AliasChoices("ORUNMILA_ENABLED"))
+    HOST: str = Field(default="localhost", validation_alias=AliasChoices("ORUNMILA_HOST"))
+    PORT: int = Field(default=3200, validation_alias=AliasChoices("ORUNMILA_PORT"))
     GEMINI_API_KEY: str = Field(default="", validation_alias=AliasChoices("GEMINI_API.KEY"))
     SEARXNG_URL: str = Field(default="http://searxng:8888", validation_alias=AliasChoices("SEARXNG_URL"))
     FORGEVM_URL: str = Field(default="http://forgevm:7423", validation_alias=AliasChoices("FORGEVM_URL"))
@@ -92,7 +92,7 @@ class Config:
     DEBUG_MODE: bool = os.getenv("DEBUG_MODE", "FALSE").upper() == "TRUE"
     MYSQL = MysqlSettings()
     STOCKS_API = StocksApiSettings()
-    PROMETHEUS = PrometheusSettings()
+    ORUNMILA = OrunmilaSettings()
     SCRAPER = ScraperSettings()
     USER = UserSettings()
     DISCORD = DiscordSettings()

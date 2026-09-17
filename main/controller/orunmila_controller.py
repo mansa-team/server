@@ -10,37 +10,37 @@ from config import SessionLocal, getSession, Config
 from main.utils.logging_config import limiter
 from main.utils.request_id import requestIdVar
 
-from main.models.prometheus import PrometheusSession
+from main.models.orunmila import OrunmilaSession
 from main.utils.roles import Roles, Permission
 
-from main.app.prometheus.agent import Prometheus
-from main.app.prometheus.chat import PrometheusChatManager
-from main.app.prometheus.stream_bus import streamBus
-from main.app.prometheus.sandbox import SandboxManager, hostPath
+from main.app.orunmila.agent import Orunmila
+from main.app.orunmila.chat import OrunmilaChatManager
+from main.app.orunmila.stream_bus import streamBus
+from main.app.orunmila.sandbox import SandboxManager, hostPath
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/prometheus", tags=["Prometheus"])
+router = APIRouter(prefix="/orunmila", tags=["Orunmila"])
 
 
 def verifySessionOwnsership(db: Session, sessionId: str, userId: int):
-    if not PrometheusChatManager.verifySessionOwnership(db, sessionId, userId):
+    if not OrunmilaChatManager.verifySessionOwnership(db, sessionId, userId):
         raise HTTPException(status_code=403, detail="Forbidden: You do not own this session")
 
 
 @router.get("/health")
 def health():
-    return {"status": "ok", "service": "prometheus"}
+    return {"status": "ok", "service": "orunmila"}
 
 
 @router.get("/sessions")
 def getSessions(
     db: Session = Depends(getSession),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
     limit: int = Query(20, ge=1, le=100, description="Number of items per page"),
     offset: int = Query(0, ge=0, description="Number of items to skip"),
 ):
-    sessions = PrometheusChatManager.getUserSessions(db, user["userId"])
+    sessions = OrunmilaChatManager.getUserSessions(db, user["userId"])
     total = len(sessions)
     paginatedSessions = sessions[offset : offset + limit]
     return {
@@ -57,11 +57,11 @@ def updateSessionTitle(
     sessionId: str,
     db: Session = Depends(getSession),
     title: str = Body(..., min_length=1, max_length=200, embed=True),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
 ):
     verifySessionOwnsership(db, sessionId, user["userId"])
 
-    success = PrometheusChatManager.updateSessionTitle(db, sessionId, title)
+    success = OrunmilaChatManager.updateSessionTitle(db, sessionId, title)
     if not success:
         raise HTTPException(status_code=404, detail="Session not found")
     return {"success": True, "message": "Session title updated"}
@@ -71,12 +71,12 @@ def updateSessionTitle(
 def getHistory(
     sessionId: str,
     db: Session = Depends(getSession),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
 ):
     verifySessionOwnsership(db, sessionId, user["userId"])
     session = (
-        db.query(PrometheusSession)
-        .filter(PrometheusSession.sessionId == sessionId, PrometheusSession.userId == user["userId"])
+        db.query(OrunmilaSession)
+        .filter(OrunmilaSession.sessionId == sessionId, OrunmilaSession.userId == user["userId"])
         .first()
     )
 
@@ -90,9 +90,9 @@ def getHistory(
 def deleteSession(
     sessionId: str,
     db: Session = Depends(getSession),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
 ):
-    success = PrometheusChatManager.deleteSession(db, sessionId, user["userId"])
+    success = OrunmilaChatManager.deleteSession(db, sessionId, user["userId"])
     if not success:
         raise HTTPException(status_code=404, detail="Session not found or forbidden")
     return {"success": True, "message": "Session deleted"}
@@ -106,21 +106,21 @@ async def chat_stream(
     query: str = Form(..., min_length=1, max_length=10000),
     sessionId: str = Form(default=None),
     file: UploadFile | None = File(default=None),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
 ):
     if not sessionId:
-        sessionId = PrometheusChatManager.createSession(db, user["userId"], query[:30] + "...")
+        sessionId = OrunmilaChatManager.createSession(db, user["userId"], query[:30] + "...")
     else:
         verifySessionOwnsership(db, sessionId, user["userId"])
 
     file_data = None
     if file is not None:
-        maxBytes = Config.PROMETHEUS.WORKSPACE_MAX_UPLOAD_MB * 1024 * 1024
+        maxBytes = Config.ORUNMILA.WORKSPACE_MAX_UPLOAD_MB * 1024 * 1024
         content = await file.read(maxBytes + 1)
         if len(content) > maxBytes:
             raise HTTPException(
                 status_code=413,
-                detail=f"File exceeds {Config.PROMETHEUS.WORKSPACE_MAX_UPLOAD_MB}MB limit",
+                detail=f"File exceeds {Config.ORUNMILA.WORKSPACE_MAX_UPLOAD_MB}MB limit",
             )
         file_data = {
             "name": file.filename,
@@ -135,7 +135,7 @@ async def chat_stream(
         runDb = SessionLocal()
         try:
             yield {"type": "session", "sessionId": sessionId}
-            async for event in Prometheus().streamMessage(
+            async for event in Orunmila().streamMessage(
                 query, sessionId=sessionId, db=runDb, user=user, file=file_data
             ):
                 yield event
@@ -155,7 +155,7 @@ async def resumeChatStream(
     sessionId: str,
     db: Session = Depends(getSession),
     cursor: int = Query(0, ge=0),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
 ):
     verifySessionOwnsership(db, sessionId, user["userId"])
     return streamBus.streamResponse(sessionId, cursor=cursor)
@@ -167,7 +167,7 @@ def deleteWorkspaceFile(
     request: Request,
     db: Session = Depends(getSession),
     path: str = Body(..., min_length=1, max_length=1000, embed=True),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
 ):
     ok = SandboxManager.delete_file(user["userId"], path)
     if not ok:
@@ -179,7 +179,7 @@ def deleteWorkspaceFile(
 def downloadWorkspaceFile(
     db: Session = Depends(getSession),
     path: str = Query(..., min_length=1, max_length=1000),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
 ):
     try:
         host = hostPath(user["userId"], path)
@@ -195,7 +195,7 @@ def downloadWorkspaceFile(
 def listWorkspaceFiles(
     db: Session = Depends(getSession),
     path: str = Query("/workspace", max_length=1000),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_PROMETHEUS)),
+    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
 ):
     try:
         return SandboxManager.list_files(user["userId"], path)

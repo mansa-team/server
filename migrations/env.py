@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from config import Config
 from main.models.base import Base
 import main.models.user
-import main.models.prometheus
+import main.models.orunmila
 import main.models.stocksapi_key
 import main.models.sandbox
 
