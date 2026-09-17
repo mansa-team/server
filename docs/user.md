@@ -9,12 +9,12 @@ Profile reads, role checks, and session management for the Mansa ecosystem (`USE
 | Role | Effective permissions |
 | :--- | :--- |
 | `USER` | none (`Permission.NONE`) — default on registration |
-| `PREMIUM` | `USE_PROMETHEUS` + `PROMETHEUS_EXTENDED_MEMORIES` |
+| `PREMIUM` | `USE_ORUNMILA` + `ORUNMILA_EXTENDED_MEMORIES` |
 | `DEVELOPER_STARTER` | = `USER` (no extra permissions) |
 | `DEVELOPER_ENTERPRISE` | = `DEVELOPER_STARTER` (no extra permissions) |
 | `ADMIN` | all (`Permission.ALL()`), bypasses checks |
 
-Only two permissions exist: `USE_PROMETHEUS`, `PROMETHEUS_EXTENDED_MEMORIES`. There are no `VIEW_PROFILE` / `USE_THOTH` / `USE_MAAT` / `USE_OGUM` permissions — delete any such claims. There are no role-upgrade endpoints in code; any `upgrade/developer/*` docs are stale.
+Only two permissions exist: `USE_ORUNMILA`, `ORUNMILA_EXTENDED_MEMORIES`. There are no `VIEW_PROFILE` / `USE_THOTH` / `USE_MAAT` / `USE_OGUM` permissions — delete any such claims. There are no role-upgrade endpoints in code; any `upgrade/developer/*` docs are stale.
 
 ## API endpoints
 
@@ -128,8 +128,8 @@ For context — enforced in sibling controllers, not in `/user/*`:
 | :--- | :--- | :--- |
 | auth | `POST /auth/register`, `POST /auth/login` | 10/minute each |
 | auth | `GET /auth/google`, `GET /auth/callback` | 5/minute each |
-| prometheus | `POST /prometheus/chat/stream` | 5/minute |
-| prometheus | `DELETE /prometheus/workspace/delete` | 30/minute |
+| orunmila | `POST /orunmila/chat/stream` | 5/minute |
+| orunmila | `DELETE /orunmila/workspace/delete` | 30/minute |
 | user | `/user/*` | unlimited |
 
 ## Not implemented

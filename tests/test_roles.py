@@ -6,70 +6,70 @@ from main.utils.roles import Permission, Roles
 class TestPermission:
     def test_permission_enum_values(self):
         assert Permission.NONE == 0
-        assert Permission.USE_PROMETHEUS > 0
-        assert Permission.PROMETHEUS_EXTENDED_MEMORIES > 0
+        assert Permission.USE_ORUNMILA > 0
+        assert Permission.ORUNMILA_EXTENDED_MEMORIES > 0
 
 
 class TestRoles:
     def test_user_has_no_permissions(self):
         assert Roles.USER == Permission.NONE
-        assert not (Roles.USER & Permission.USE_PROMETHEUS)
+        assert not (Roles.USER & Permission.USE_ORUNMILA)
 
-    def test_premium_has_prometheus_permissions(self):
-        assert Roles.PREMIUM & Permission.USE_PROMETHEUS
-        assert Roles.PREMIUM & Permission.PROMETHEUS_EXTENDED_MEMORIES
+    def test_premium_has_orunmila_permissions(self):
+        assert Roles.PREMIUM & Permission.USE_ORUNMILA
+        assert Roles.PREMIUM & Permission.ORUNMILA_EXTENDED_MEMORIES
 
     def test_developer_starter_has_no_permissions(self):
         assert Roles.DEVELOPER_STARTER == Permission.NONE
 
-    def test_developer_starter_missing_prometheus(self):
-        assert not (Roles.DEVELOPER_STARTER & Permission.USE_PROMETHEUS)
+    def test_developer_starter_missing_orunmila(self):
+        assert not (Roles.DEVELOPER_STARTER & Permission.USE_ORUNMILA)
 
     def test_developer_enterprise_matches_starter(self):
         assert Roles.DEVELOPER_ENTERPRISE == Roles.DEVELOPER_STARTER
 
     def test_admin_has_all_permissions(self):
         assert Roles.ADMIN & Permission.ALL()
-        assert Roles.ADMIN & Permission.USE_PROMETHEUS
-        assert Roles.ADMIN & Permission.PROMETHEUS_EXTENDED_MEMORIES
+        assert Roles.ADMIN & Permission.USE_ORUNMILA
+        assert Roles.ADMIN & Permission.ORUNMILA_EXTENDED_MEMORIES
 
     def test_check_access_admin_returns_true(self):
-        result = Roles.checkAccess(["ADMIN"], Permission.USE_PROMETHEUS)
+        result = Roles.checkAccess(["ADMIN"], Permission.USE_ORUNMILA)
         assert result is True
 
     def test_check_access_user_without_permission(self):
-        result = Roles.checkAccess(["USER"], Permission.USE_PROMETHEUS)
+        result = Roles.checkAccess(["USER"], Permission.USE_ORUNMILA)
         assert result is False
 
-    def test_check_access_premium_has_prometheus(self):
-        result = Roles.checkAccess(["PREMIUM"], Permission.USE_PROMETHEUS)
+    def test_check_access_premium_has_orunmila(self):
+        result = Roles.checkAccess(["PREMIUM"], Permission.USE_ORUNMILA)
         assert result is True
 
     def test_check_access_case_insensitive(self):
-        assert Roles.checkAccess(["admin"], Permission.USE_PROMETHEUS) is True
+        assert Roles.checkAccess(["admin"], Permission.USE_ORUNMILA) is True
 
     def test_check_access_invalid_role_ignored(self):
-        result = Roles.checkAccess(["INVALID_ROLE", "PREMIUM"], Permission.USE_PROMETHEUS)
+        result = Roles.checkAccess(["INVALID_ROLE", "PREMIUM"], Permission.USE_ORUNMILA)
         assert result is True
 
     def test_check_access_empty_roles(self):
-        result = Roles.checkAccess([], Permission.USE_PROMETHEUS)
+        result = Roles.checkAccess([], Permission.USE_ORUNMILA)
         assert result is False
 
     def test_check_access_multiple_roles(self):
-        result = Roles.checkAccess(["USER", "PREMIUM"], Permission.USE_PROMETHEUS)
+        result = Roles.checkAccess(["USER", "PREMIUM"], Permission.USE_ORUNMILA)
         assert result is True
 
     def test_check_access_unknown_role_alone_returns_false(self):
-        assert Roles.checkAccess(["NONEXISTENT"], Permission.USE_PROMETHEUS) is False
+        assert Roles.checkAccess(["NONEXISTENT"], Permission.USE_ORUNMILA) is False
 
     def test_check_access_admin_skips_other_roles(self):
-        assert Roles.checkAccess(["ADMIN", "USER"], Permission.USE_PROMETHEUS) is True
+        assert Roles.checkAccess(["ADMIN", "USER"], Permission.USE_ORUNMILA) is True
 
 
 class TestRequirePermission:
     async def test_raises_403_when_missing(self):
-        checker = Roles.requirePermission(Permission.USE_PROMETHEUS)
+        checker = Roles.requirePermission(Permission.USE_ORUNMILA)
 
         try:
             await checker({"roles": ["USER"]})
@@ -81,7 +81,7 @@ class TestRequirePermission:
         assert result.status_code == 403
 
     async def test_passes_when_has_permission(self):
-        checker = Roles.requirePermission(Permission.USE_PROMETHEUS)
+        checker = Roles.requirePermission(Permission.USE_ORUNMILA)
 
         try:
             result = await checker({"roles": ["PREMIUM"]})

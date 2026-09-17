@@ -5,13 +5,13 @@ from unittest.mock import patch
 
 import pytest
 
-from main.app.prometheus.sandbox import SandboxManager, hostPath
+from main.app.orunmila.sandbox import SandboxManager, hostPath
 
 
 @pytest.fixture
 def workspace(tmp_path, monkeypatch):
     # Point WORKSPACE_ROOT at a temp dir for the test
-    monkeypatch.setattr("main.app.prometheus.sandbox.WORKSPACE_ROOT", tmp_path)
+    monkeypatch.setattr("main.app.orunmila.sandbox.WORKSPACE_ROOT", tmp_path)
     return tmp_path
 
 
@@ -48,6 +48,6 @@ class TestDeleteFile:
         (workspace / "1").mkdir(parents=True)
         outside = workspace / "outside.txt"
         outside.write_text("x")
-        with patch("main.app.prometheus.sandbox.hostPath", side_effect=ValueError("Invalid workspace path")):
+        with patch("main.app.orunmila.sandbox.hostPath", side_effect=ValueError("Invalid workspace path")):
             assert SandboxManager.delete_file(1, "/workspace/../../outside.txt") is False
         assert outside.exists()

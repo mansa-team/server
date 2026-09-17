@@ -1,6 +1,6 @@
 import asyncio
 
-from main.app.prometheus.stream_bus import StreamBus
+from main.app.orunmila.stream_bus import StreamBus
 
 
 async def test_subscribe_replays_buffered_events_from_cursor():

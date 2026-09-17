@@ -1,5 +1,5 @@
 """
-TDD tests: verify memory tools are wired into the Prometheus agent.
+TDD tests: verify memory tools are wired into the Orunmila agent.
 
 RED: These tests should fail if memory tools are not properly attached.
 GREEN: All pass when wiring is correct.
@@ -12,7 +12,7 @@ from unittest.mock import patch, AsyncMock, MagicMock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from main.app.prometheus.tools import (
+from main.app.orunmila.tools import (
     TOOL_REGISTRY,
     search_memory,
     save_memory,
@@ -69,16 +69,16 @@ class TestToolRegistry:
 class TestMakeChatIncludesMemoryTools:
     """makeChat must include MEMORY_TOOLS alongside MCP sessions."""
 
-    @patch("main.app.prometheus.agent.types")
-    @patch("main.app.prometheus.agent.Config")
-    @patch("main.app.prometheus.agent.genai")
+    @patch("main.app.orunmila.agent.types")
+    @patch("main.app.orunmila.agent.Config")
+    @patch("main.app.orunmila.agent.genai")
     def test_makeChat_tools_include_memory_tools(self, mock_genai, mock_config, mock_types):
-        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="key")
+        mock_config.ORUNMILA = MagicMock(GEMINI_API_KEY="key")
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
-        from main.app.prometheus.agent import Prometheus
+        from main.app.orunmila.agent import Orunmila
 
-        gen = Prometheus()
+        gen = Orunmila()
         mock_session1 = AsyncMock()
         mock_session2 = AsyncMock()
 
@@ -102,7 +102,7 @@ class TestDispatchRoutesMemoryTools:
     """dispatchToolCall must route memory tool names via TOOL_REGISTRY."""
 
     async def test_search_memory_routed_via_registry(self):
-        from main.app.prometheus.tools import dispatchToolCall
+        from main.app.orunmila.tools import dispatchToolCall
 
         mock_fc = AsyncMock()
         mock_fc.name = "search_memory"
@@ -116,7 +116,7 @@ class TestDispatchRoutesMemoryTools:
         assert result == {"memories": []}
 
     async def test_save_memory_routed_via_registry(self):
-        from main.app.prometheus.tools import dispatchToolCall
+        from main.app.orunmila.tools import dispatchToolCall
 
         mock_fc = AsyncMock()
         mock_fc.name = "save_memory"
@@ -138,7 +138,7 @@ class TestDispatchRoutesMemoryTools:
         assert result["status"] == "created"
 
     async def test_non_registry_tool_not_routed(self):
-        from main.app.prometheus.tools import dispatchToolCall
+        from main.app.orunmila.tools import dispatchToolCall
 
         mock_fc = AsyncMock()
         mock_fc.name = "get_stock_price"

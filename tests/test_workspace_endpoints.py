@@ -1,4 +1,4 @@
-"""Tests for /prometheus/workspace/* endpoints (delete, download, list).
+"""Tests for /orunmila/workspace/* endpoints (delete, download, list).
 
 NOTE: the direct /workspace/upload route was REMOVED by design — the agent
 owns the workspace via the write_file tool (user directive 2026-08-15).
@@ -16,8 +16,8 @@ from main.app.user.user import UserManager
 
 
 def make_client():
-    """Minimal app with the prometheus router; auth deps stubbed."""
-    from main.controller.prometheus_controller import router as promRouter
+    """Minimal app with the orunmila router; auth deps stubbed."""
+    from main.controller.orunmila_controller import router as promRouter
 
     app = FastAPI()
     app.include_router(promRouter)
@@ -31,7 +31,7 @@ def make_client():
         "roles": ["PREMIUM"],
     }
 
-    with patch("main.controller.prometheus_controller.Roles") as mock_roles:
+    with patch("main.controller.orunmila_controller.Roles") as mock_roles:
 
         async def mock_checker(user=None, **kwargs):
             return user or {"userId": 1, "username": "alice", "roles": ["PREMIUM"]}
@@ -43,11 +43,11 @@ def make_client():
 
 class TestWorkspaceDelete:
     def test_delete_file(self):
-        with patch("main.controller.prometheus_controller.SandboxManager.delete_file", return_value=True) as m:
+        with patch("main.controller.orunmila_controller.SandboxManager.delete_file", return_value=True) as m:
             client = make_client()
             resp = client.request(
                 "DELETE",
-                "/prometheus/workspace/delete",
+                "/orunmila/workspace/delete",
                 json={"path": "/workspace/old.csv"},
             )
         assert resp.status_code == 200
@@ -55,11 +55,11 @@ class TestWorkspaceDelete:
         m.assert_called_once_with(1, "/workspace/old.csv")
 
     def test_delete_missing_file_returns_404(self):
-        with patch("main.controller.prometheus_controller.SandboxManager.delete_file", return_value=False):
+        with patch("main.controller.orunmila_controller.SandboxManager.delete_file", return_value=False):
             client = make_client()
             resp = client.request(
                 "DELETE",
-                "/prometheus/workspace/delete",
+                "/orunmila/workspace/delete",
                 json={"path": "/workspace/ghost.csv"},
             )
         assert resp.status_code == 404
@@ -68,7 +68,7 @@ class TestWorkspaceDelete:
 class TestWorkspaceDownload:
     def test_download_returns_file(self):
         from fastapi.responses import FileResponse
-        from main.controller import prometheus_controller as ctrl
+        from main.controller import orunmila_controller as ctrl
 
         with (
             patch.object(ctrl, "hostPath") as m_host,
@@ -81,40 +81,38 @@ class TestWorkspaceDownload:
             m_host.return_value = fake_path
 
             client = make_client()
-            resp = client.get("/prometheus/workspace/download", params={"path": "/workspace/data.csv"})
+            resp = client.get("/orunmila/workspace/download", params={"path": "/workspace/data.csv"})
 
         assert resp.status_code == 200
         m_fr.assert_called_once_with(fake_path, filename="data.csv")
 
     def test_download_missing_file_404(self):
-        with patch("main.controller.prometheus_controller.hostPath") as m_host:
+        with patch("main.controller.orunmila_controller.hostPath") as m_host:
             fake_path = MagicMock()
             fake_path.exists.return_value = False
             m_host.return_value = fake_path
 
             client = make_client()
-            resp = client.get("/prometheus/workspace/download", params={"path": "/workspace/ghost.csv"})
+            resp = client.get("/orunmila/workspace/download", params={"path": "/workspace/ghost.csv"})
         assert resp.status_code == 404
 
     def test_download_rejects_traversal(self):
-        with patch("main.controller.prometheus_controller.hostPath", side_effect=ValueError("Invalid workspace path")):
+        with patch("main.controller.orunmila_controller.hostPath", side_effect=ValueError("Invalid workspace path")):
             client = make_client()
-            resp = client.get("/prometheus/workspace/download", params={"path": "/workspace/../../etc/passwd"})
+            resp = client.get("/orunmila/workspace/download", params={"path": "/workspace/../../etc/passwd"})
         assert resp.status_code == 400
 
 
 class TestWorkspaceList:
     def test_list_returns_entries(self):
-        with patch(
-            "main.controller.prometheus_controller.SandboxManager.list_files", return_value={"entries": []}
-        ) as m:
+        with patch("main.controller.orunmila_controller.SandboxManager.list_files", return_value={"entries": []}) as m:
             client = make_client()
-            resp = client.get("/prometheus/workspace/list")
+            resp = client.get("/orunmila/workspace/list")
         assert resp.status_code == 200
         assert resp.json() == {"entries": []}
         m.assert_called_once_with(1, "/workspace")
 
     def test_list_rejects_traversal(self):
         client = make_client()
-        resp = client.get("/prometheus/workspace/list", params={"path": "/workspace/../../etc"})
+        resp = client.get("/orunmila/workspace/list", params={"path": "/workspace/../../etc"})
         assert resp.status_code == 400

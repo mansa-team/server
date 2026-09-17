@@ -4,8 +4,8 @@ import time
 
 from unittest.mock import ANY, AsyncMock, patch
 
-import main.app.prometheus.mcp as mcp
-from main.app.prometheus.mcp import MCPClientPool, clientPool
+import main.app.orunmila.mcp as mcp
+from main.app.orunmila.mcp import MCPClientPool, clientPool
 
 
 class TestMCPClientPool:

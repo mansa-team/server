@@ -51,12 +51,12 @@ Parsing: `parseDeviceFields` (`main/app/authentication/session.py:13-27`, stored
 | Role | Effective permissions |
 | :--- | :--- |
 | `USER` | none (`Permission.NONE`) |
-| `PREMIUM` | `USE_PROMETHEUS` + `PROMETHEUS_EXTENDED_MEMORIES` |
+| `PREMIUM` | `USE_ORUNMILA` + `ORUNMILA_EXTENDED_MEMORIES` |
 | `DEVELOPER_STARTER` | = `USER` (no extra permissions) |
 | `DEVELOPER_ENTERPRISE` | = `DEVELOPER_STARTER` (no extra permissions) |
 | `ADMIN` | all (`Permission.ALL()`), bypasses checks |
 
-Only two permissions exist: `USE_PROMETHEUS`, `PROMETHEUS_EXTENDED_MEMORIES`. There are no `VIEW_PROFILE` / `USE_THOTH` / `USE_MAAT` / `USE_OGUM` permissions — delete any such claims.
+Only two permissions exist: `USE_ORUNMILA`, `ORUNMILA_EXTENDED_MEMORIES`. There are no `VIEW_PROFILE` / `USE_THOTH` / `USE_MAAT` / `USE_OGUM` permissions — delete any such claims.
 
 ## Rate limits
 

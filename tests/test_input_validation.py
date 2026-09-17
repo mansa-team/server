@@ -77,12 +77,12 @@ class TestLoginValidation:
         assert response.status_code == 422
 
 
-class TestPrometheusSessionValidation:
-    """POST /prometheus/sessions was removed — sessions are created lazily on first message"""
+class TestOrunmilaSessionValidation:
+    """POST /orunmila/sessions was removed — sessions are created lazily on first message"""
 
     def test_valid_create_session(self, client):
         response = client.post(
-            "/prometheus/sessions",
+            "/orunmila/sessions",
             json={"title": "New Chat"},
             headers={"X-Access-Token": "valid-token"},
         )
@@ -91,11 +91,11 @@ class TestPrometheusSessionValidation:
 
 
 class TestUpdateTitleValidation:
-    """PUT /prometheus/sessions/{sessionId} — validates title via Body(...)"""
+    """PUT /orunmila/sessions/{sessionId} — validates title via Body(...)"""
 
     def test_empty_title(self, client):
         response = client.put(
-            "/prometheus/sessions/1",
+            "/orunmila/sessions/1",
             json={"title": ""},
             headers={"X-Access-Token": "valid-token"},
         )
@@ -103,7 +103,7 @@ class TestUpdateTitleValidation:
 
     def test_title_too_long(self, client):
         response = client.put(
-            "/prometheus/sessions/1",
+            "/orunmila/sessions/1",
             json={"title": "T" * 201},
             headers={"X-Access-Token": "valid-token"},
         )
@@ -111,11 +111,11 @@ class TestUpdateTitleValidation:
 
 
 class TestChatValidation:
-    """POST /prometheus/chat/stream — validates query via Form(...)"""
+    """POST /orunmila/chat/stream — validates query via Form(...)"""
 
     def test_empty_text(self, client):
         response = client.post(
-            "/prometheus/chat/stream",
+            "/orunmila/chat/stream",
             data={"query": ""},
             files={},
             headers={"X-Access-Token": "valid-token"},
@@ -124,7 +124,7 @@ class TestChatValidation:
 
     def test_text_too_long(self, client):
         response = client.post(
-            "/prometheus/chat/stream",
+            "/orunmila/chat/stream",
             data={"query": "X" * 10001},
             files={},
             headers={"X-Access-Token": "valid-token"},
@@ -133,7 +133,7 @@ class TestChatValidation:
 
     def test_max_length_boundary(self, client):
         response = client.post(
-            "/prometheus/chat/stream",
+            "/orunmila/chat/stream",
             data={"query": "X" * 10000},
             files={},
             headers={"X-Access-Token": "valid-token"},

@@ -14,7 +14,7 @@ from fastapi_mcp import FastApiMCP
 from main.controller.stocksapi_controller import router as stocksRouter
 from main.controller.authentication_controller import router as authRouter
 from main.controller.user_controller import router as userRouter
-from main.controller.prometheus_controller import router as prometheusRouter
+from main.controller.orunmila_controller import router as orunmilaRouter
 
 # Production config: include_operations with custom operation_id names
 STOCKS_MCP_OPS = [
@@ -31,7 +31,7 @@ def build_app_with_all_routers():
     app = FastAPI(title="Mansa Service 3200")
     app.include_router(authRouter)
     app.include_router(userRouter)
-    app.include_router(prometheusRouter)
+    app.include_router(orunmilaRouter)
     app.include_router(stocksRouter)
     return app
 
@@ -69,11 +69,11 @@ class TestMCPToolScoping:
         assert not any("generate" in n for n in tool_names)
 
     def test_mcp_excludes_non_stocks_endpoints(self):
-        """Auth, user, and prometheus tools should not appear."""
+        """Auth, user, and orunmila tools should not appear."""
         app = build_app_with_all_routers()
         mcp = make_mcp(app)
         tool_names = [t.name for t in mcp.tools]
-        for forbidden in ["register", "login", "prometheus", "logout"]:
+        for forbidden in ["register", "login", "orunmila", "logout"]:
             assert not any(forbidden in n.lower() for n in tool_names)
 
     def test_mcp_tool_names_match_endpoints(self):

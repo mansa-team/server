@@ -2,12 +2,12 @@ import pytest
 from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 
-from main.app.prometheus.memory import PrometheusMemory as MemoryManager
-from main.service.prometheus_service import (
+from main.app.orunmila.memory import OrunmilaMemory as MemoryManager
+from main.service.orunmila_service import (
     memoryMaintenance,
     ARCHIVE_SCORE_THRESHOLD,
 )
-from main.models.memory import PrometheusMemory
+from main.models.memory import OrunmilaMemory
 
 
 @pytest.fixture
@@ -17,7 +17,7 @@ def create_memories(dbSession):
     def create(userId, key, score=7.0, daysOld=0, accessCount=0):
         now = datetime.now()
         lastAccessed = now - timedelta(days=daysOld)
-        memory = PrometheusMemory(
+        memory = OrunmilaMemory(
             userId=userId,
             memoryKey=key,
             memoryValue=f"value_{key}",

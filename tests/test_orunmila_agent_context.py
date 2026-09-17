@@ -1,12 +1,12 @@
-"""Tests for Prometheus agent context: R2 (bounded episode injection)."""
+"""Tests for Orunmila agent context: R2 (bounded episode injection)."""
 
 import json
 import pytest
 from datetime import datetime
 from unittest.mock import patch, MagicMock, AsyncMock
 
-from main.app.prometheus.agent import Prometheus, SYSTEM_PROMPT
-from main.models.prometheus import PrometheusSession
+from main.app.orunmila.agent import Orunmila, SYSTEM_PROMPT
+from main.models.orunmila import OrunmilaSession
 
 
 @pytest.fixture
@@ -25,7 +25,7 @@ def fake_session_with_120_messages(dbSession):
         }
         for i in range(8)  # 8 episodes, should only inject last 5
     ]
-    session = PrometheusSession(
+    session = OrunmilaSession(
         sessionId="test-120",
         userId=1,
         title="Long Session",
@@ -39,7 +39,7 @@ def fake_session_with_120_messages(dbSession):
 
 class TestBuildSystemPrompt:
     def test_injects_max_5_episodes(self, dbSession, fake_session_with_120_messages):
-        prompt = Prometheus.buildSystemPrompt(
+        prompt = Orunmila.buildSystemPrompt(
             userId=1,
             db=dbSession,
             sessionId=fake_session_with_120_messages.sessionId,
@@ -50,7 +50,7 @@ class TestBuildSystemPrompt:
         assert episode_count >= 1
 
     def test_episode_format_is_single_line(self, dbSession, fake_session_with_120_messages):
-        prompt = Prometheus.buildSystemPrompt(
+        prompt = Orunmila.buildSystemPrompt(
             userId=1,
             db=dbSession,
             sessionId=fake_session_with_120_messages.sessionId,
@@ -62,7 +62,7 @@ class TestBuildSystemPrompt:
             assert line.count("\n") == 0
 
     def test_no_episodes_when_session_has_none(self, dbSession):
-        session = PrometheusSession(
+        session = OrunmilaSession(
             sessionId="test-empty",
             userId=1,
             title="Empty",
@@ -71,7 +71,7 @@ class TestBuildSystemPrompt:
         )
         dbSession.add(session)
         dbSession.commit()
-        prompt = Prometheus.buildSystemPrompt(
+        prompt = Orunmila.buildSystemPrompt(
             userId=1,
             db=dbSession,
             sessionId="test-empty",
@@ -81,18 +81,18 @@ class TestBuildSystemPrompt:
 
     def test_memory_search_called_without_query(self, dbSession):
         """The query must never reach memory search — stable ranking keeps the prompt cacheable."""
-        with patch("main.app.prometheus.agent.PrometheusMemory.search", return_value=[]) as mock_search:
-            Prometheus.buildSystemPrompt(userId=1, db=dbSession, sessionId=None)
+        with patch("main.app.orunmila.agent.OrunmilaMemory.search", return_value=[]) as mock_search:
+            Orunmila.buildSystemPrompt(userId=1, db=dbSession, sessionId=None)
             mock_search.assert_called_once_with(dbSession, 1, "", limit=10)
 
     def test_system_prompt_is_stable_across_calls(self, dbSession, fake_session_with_120_messages):
         """Same session + user must produce byte-identical prompts (no query-dependent memory block)."""
-        first = Prometheus.buildSystemPrompt(
+        first = Orunmila.buildSystemPrompt(
             userId=1,
             db=dbSession,
             sessionId=fake_session_with_120_messages.sessionId,
         )
-        second = Prometheus.buildSystemPrompt(
+        second = Orunmila.buildSystemPrompt(
             userId=1,
             db=dbSession,
             sessionId=fake_session_with_120_messages.sessionId,
@@ -101,15 +101,15 @@ class TestBuildSystemPrompt:
 
 
 class TestLazyClientSingleton:
-    """Prometheus() must share one genai client via the module-level lazy singleton."""
+    """Orunmila() must share one genai client via the module-level lazy singleton."""
 
-    @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.Config")
-    @patch("main.app.prometheus.agent.client", None)
+    @patch("main.app.orunmila.agent.genai")
+    @patch("main.app.orunmila.agent.Config")
+    @patch("main.app.orunmila.agent.client", None)
     def test_client_created_once_and_shared(self, mock_config, mock_genai):
-        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
-        first = Prometheus()
-        second = Prometheus()
+        mock_config.ORUNMILA = MagicMock(GEMINI_API_KEY="test-key")
+        first = Orunmila()
+        second = Orunmila()
         assert first.client is second.client
         mock_genai.Client.assert_called_once_with(api_key="test-key")
 
@@ -125,43 +125,43 @@ class TestPromptMemoryGuidance:
         assert "analysis" in SYSTEM_PROMPT
 
 
-# ---- moved from test_prometheus_auth_coverage.py (TestPrometheusInit) ----
+# ---- moved from test_orunmila_auth_coverage.py (TestOrunmilaInit) ----
 
 
 # ---------------------------------------------------------------------------
-# Prometheus (agent.py) — covers __init__, updateDates, sendMessage, streamMessage
+# Orunmila (agent.py) — covers __init__, updateDates, sendMessage, streamMessage
 # ---------------------------------------------------------------------------
 
 
-class TestPrometheusInit:
+class TestOrunmilaInit:
     """Cover __init__."""
 
-    @patch("main.app.prometheus.agent.Config")
-    @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.client", None)
+    @patch("main.app.orunmila.agent.Config")
+    @patch("main.app.orunmila.agent.genai")
+    @patch("main.app.orunmila.agent.client", None)
     def test_init_creates_client(self, mock_genai, mock_config):
         # _client is a lazy module-level singleton (created once per process);
         # reset it so construction goes through the mocked genai.Client.
-        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
+        mock_config.ORUNMILA = MagicMock(GEMINI_API_KEY="test-key")
         mock_config.DEBUG_MODE = True
 
-        from main.app.prometheus.agent import Prometheus
+        from main.app.orunmila.agent import Orunmila
 
-        gen = Prometheus()
+        gen = Orunmila()
         mock_genai.Client.assert_called_once_with(api_key="test-key")
 
 
-# ---- moved from test_prometheus_auth_coverage.py (TestPrometheusSendMessage) ----
+# ---- moved from test_orunmila_auth_coverage.py (TestOrunmilaSendMessage) ----
 
 
-class TestPrometheusSendMessage:
+class TestOrunmilaSendMessage:
     """Cover streamMessage in agent.py."""
 
-    @patch("main.app.prometheus.agent.PrometheusChatManager")
-    @patch("main.app.prometheus.agent.Config")
-    @patch("main.app.prometheus.agent.genai")
+    @patch("main.app.orunmila.agent.OrunmilaChatManager")
+    @patch("main.app.orunmila.agent.Config")
+    @patch("main.app.orunmila.agent.genai")
     async def test_send_message_basic(self, mock_genai, mock_config, mock_chat):
-        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="key")
+        mock_config.ORUNMILA = MagicMock(GEMINI_API_KEY="key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
@@ -172,9 +172,9 @@ class TestPrometheusSendMessage:
         async def fake_stream(*args, **kwargs):
             yield {"type": "text", "text": "Hello from Gemini"}
 
-        from main.app.prometheus.agent import Prometheus
+        from main.app.orunmila.agent import Orunmila
 
-        gen = Prometheus()
+        gen = Orunmila()
         gen.streamMessage = fake_stream
 
         results = []
@@ -184,11 +184,11 @@ class TestPrometheusSendMessage:
             results.append(event)
         assert results[-1]["text"] == "Hello from Gemini"
 
-    @patch("main.app.prometheus.agent.PrometheusChatManager")
-    @patch("main.app.prometheus.agent.Config")
-    @patch("main.app.prometheus.agent.genai")
+    @patch("main.app.orunmila.agent.OrunmilaChatManager")
+    @patch("main.app.orunmila.agent.Config")
+    @patch("main.app.orunmila.agent.genai")
     async def test_send_message_saves_user_message_on_error(self, mock_genai, mock_config, mock_chat):
-        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="key")
+        mock_config.ORUNMILA = MagicMock(GEMINI_API_KEY="key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
@@ -196,29 +196,29 @@ class TestPrometheusSendMessage:
             raise Exception("API error")
             yield  # make it async generator
 
-        from main.app.prometheus.agent import Prometheus
+        from main.app.orunmila.agent import Orunmila
 
-        gen = Prometheus()
+        gen = Orunmila()
         gen.streamMessage = failing_stream
 
         with pytest.raises(Exception):
             async for _ in gen.streamMessage(query="test", sessionId="sess-2", db=MagicMock(), user={"userId": 1}):
                 pass
 
-    @patch("main.app.prometheus.agent.PrometheusChatManager")
-    @patch("main.app.prometheus.agent.Config")
-    @patch("main.app.prometheus.agent.genai")
+    @patch("main.app.orunmila.agent.OrunmilaChatManager")
+    @patch("main.app.orunmila.agent.Config")
+    @patch("main.app.orunmila.agent.genai")
     async def test_send_message_with_history(self, mock_genai, mock_config, mock_chat):
-        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="key")
+        mock_config.ORUNMILA = MagicMock(GEMINI_API_KEY="key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
 
         async def fake_stream(*args, **kwargs):
             yield {"type": "text", "text": "Reply with history"}
 
-        from main.app.prometheus.agent import Prometheus
+        from main.app.orunmila.agent import Orunmila
 
-        gen = Prometheus()
+        gen = Orunmila()
         gen.streamMessage = fake_stream
 
         results = []
@@ -226,13 +226,13 @@ class TestPrometheusSendMessage:
             results.append(event)
         assert results[-1]["text"] == "Reply with history"
 
-    @patch("main.app.prometheus.agent.clientPool")
-    @patch("main.app.prometheus.agent.PrometheusChatManager")
-    @patch("main.app.prometheus.agent.Config")
-    @patch("main.app.prometheus.agent.genai")
+    @patch("main.app.orunmila.agent.clientPool")
+    @patch("main.app.orunmila.agent.OrunmilaChatManager")
+    @patch("main.app.orunmila.agent.Config")
+    @patch("main.app.orunmila.agent.genai")
     async def test_stream_message_yields_text_chunks(self, mock_genai, mock_config, mock_chat, mock_pool_cls):
         """streamMessage must yield dict chunks from async iterator."""
-        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="key")
+        mock_config.ORUNMILA = MagicMock(GEMINI_API_KEY="key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
@@ -259,9 +259,9 @@ class TestPrometheusSendMessage:
         mock_chat_session = AsyncMock()
         mock_chat_session.send_message_stream = AsyncMock(return_value=fake_aiter())
 
-        from main.app.prometheus.agent import Prometheus
+        from main.app.orunmila.agent import Orunmila
 
-        gen = Prometheus()
+        gen = Orunmila()
         gen.makeChat = MagicMock(return_value=mock_chat_session)
 
         results = []
@@ -272,13 +272,13 @@ class TestPrometheusSendMessage:
         assert results[0] == {"type": "text", "text": "Hello "}
         assert results[1] == {"type": "text", "text": "world"}
 
-    @patch("main.app.prometheus.agent.clientPool")
-    @patch("main.app.prometheus.agent.PrometheusChatManager")
-    @patch("main.app.prometheus.agent.Config")
-    @patch("main.app.prometheus.agent.genai")
+    @patch("main.app.orunmila.agent.clientPool")
+    @patch("main.app.orunmila.agent.OrunmilaChatManager")
+    @patch("main.app.orunmila.agent.Config")
+    @patch("main.app.orunmila.agent.genai")
     async def test_stream_message_handles_function_calls(self, mock_genai, mock_config, mock_chat, mock_pool_cls):
         """streamMessage must handle function_calls as a list (not dict)."""
-        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="key")
+        mock_config.ORUNMILA = MagicMock(GEMINI_API_KEY="key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
@@ -319,9 +319,9 @@ class TestPrometheusSendMessage:
 
         mock_chat_session.send_message_stream = AsyncMock(side_effect=fake_stream)
 
-        from main.app.prometheus.agent import Prometheus
+        from main.app.orunmila.agent import Orunmila
 
-        gen = Prometheus()
+        gen = Orunmila()
         gen.makeChat = MagicMock(return_value=mock_chat_session)
 
         results = []
@@ -333,5 +333,5 @@ class TestPrometheusSendMessage:
 
 
 # ---------------------------------------------------------------------------
-# PrometheusChatManager (chat.py)
+# OrunmilaChatManager (chat.py)
 # ---------------------------------------------------------------------------

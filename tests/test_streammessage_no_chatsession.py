@@ -12,7 +12,7 @@ from unittest.mock import patch, MagicMock, AsyncMock
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from main.app.prometheus.agent import Prometheus
+from main.app.orunmila.agent import Orunmila
 
 
 class FakeChunk:
@@ -24,13 +24,13 @@ class FakeChunk:
 class TestStreamMessageNoChatSession:
     """streamMessage inlines MCP setup — chatSession no longer exists."""
 
-    @patch("main.app.prometheus.agent.PrometheusChatManager")
-    @patch("main.app.prometheus.agent.Config")
-    @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.clientPool")
+    @patch("main.app.orunmila.agent.OrunmilaChatManager")
+    @patch("main.app.orunmila.agent.Config")
+    @patch("main.app.orunmila.agent.genai")
+    @patch("main.app.orunmila.agent.clientPool")
     async def test_stream_message_yields_text_chunks(self, mock_pool, mock_genai, mock_config, mock_chat):
         """streamMessage yields text chunks via inlined MCP setup."""
-        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
+        mock_config.ORUNMILA = MagicMock(GEMINI_API_KEY="test-key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
@@ -53,7 +53,7 @@ class TestStreamMessageNoChatSession:
         mock_chat_session = MagicMock()
         mock_chat_session.send_message_stream = AsyncMock(return_value=fake_aiter())
 
-        gen = Prometheus()
+        gen = Orunmila()
         gen.makeChat = MagicMock(return_value=mock_chat_session)
         results = []
         async for event in gen.streamMessage(query="hi", sessionId="s1", db=MagicMock()):
@@ -63,31 +63,31 @@ class TestStreamMessageNoChatSession:
         assert results[0] == {"type": "text", "text": "Hello "}
         assert results[1] == {"type": "text", "text": "world"}
 
-    @patch("main.app.prometheus.agent.PrometheusChatManager")
-    @patch("main.app.prometheus.agent.Config")
-    @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.clientPool")
+    @patch("main.app.orunmila.agent.OrunmilaChatManager")
+    @patch("main.app.orunmila.agent.Config")
+    @patch("main.app.orunmila.agent.genai")
+    @patch("main.app.orunmila.agent.clientPool")
     async def test_stream_message_does_not_call_chatSession(self, mock_pool, mock_genai, mock_config, mock_chat):
         """chatSession attribute must not exist — MCP setup is inlined."""
-        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
+        mock_config.ORUNMILA = MagicMock(GEMINI_API_KEY="test-key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
 
-        gen = Prometheus()
+        gen = Orunmila()
         # chatSession should no longer exist on the class
         assert not hasattr(gen, "chatSession")
-        assert not hasattr(Prometheus, "chatSession")
+        assert not hasattr(Orunmila, "chatSession")
 
-    @patch("main.app.prometheus.agent.PrometheusChatManager")
-    @patch("main.app.prometheus.agent.Config")
-    @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.clientPool")
+    @patch("main.app.orunmila.agent.OrunmilaChatManager")
+    @patch("main.app.orunmila.agent.Config")
+    @patch("main.app.orunmila.agent.genai")
+    @patch("main.app.orunmila.agent.clientPool")
     async def test_stream_message_handles_function_calls_without_chatsession(
         self, mock_pool, mock_genai, mock_config, mock_chat
     ):
         """streamMessage handles function call loops via inlined MCP setup."""
-        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
+        mock_config.ORUNMILA = MagicMock(GEMINI_API_KEY="test-key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
@@ -124,7 +124,7 @@ class TestStreamMessageNoChatSession:
         mock_chat_session = MagicMock()
         mock_chat_session.send_message_stream = AsyncMock(side_effect=fake_stream)
 
-        gen = Prometheus()
+        gen = Orunmila()
         gen.makeChat = MagicMock(return_value=mock_chat_session)
         results = []
         async for event in gen.streamMessage(query="search test", sessionId="s2", db=MagicMock()):
@@ -135,13 +135,13 @@ class TestStreamMessageNoChatSession:
         # Tool loop should have run
         assert call_count == 2
 
-    @patch("main.app.prometheus.agent.PrometheusChatManager")
-    @patch("main.app.prometheus.agent.Config")
-    @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.clientPool")
+    @patch("main.app.orunmila.agent.OrunmilaChatManager")
+    @patch("main.app.orunmila.agent.Config")
+    @patch("main.app.orunmila.agent.genai")
+    @patch("main.app.orunmila.agent.clientPool")
     async def test_user_message_saved_before_stream_error(self, mock_pool, mock_genai, mock_config, mock_chat):
         """If the stream raises on first send, the user query must already be persisted."""
-        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
+        mock_config.ORUNMILA = MagicMock(GEMINI_API_KEY="test-key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
@@ -156,7 +156,7 @@ class TestStreamMessageNoChatSession:
         mock_chat_session = MagicMock()
         mock_chat_session.send_message_stream = AsyncMock(side_effect=RuntimeError("gemini down"))
 
-        gen = Prometheus()
+        gen = Orunmila()
         gen.makeChat = MagicMock(return_value=mock_chat_session)
 
         db = MagicMock()
@@ -167,15 +167,15 @@ class TestStreamMessageNoChatSession:
         # user turn persisted up front; no assistant text accumulated, so only one save
         mock_chat.appendHistory.assert_called_once_with(db, "s-err1", {"role": "user", "content": "important question"})
 
-    @patch("main.app.prometheus.agent.PrometheusChatManager")
-    @patch("main.app.prometheus.agent.Config")
-    @patch("main.app.prometheus.agent.genai")
-    @patch("main.app.prometheus.agent.clientPool")
+    @patch("main.app.orunmila.agent.OrunmilaChatManager")
+    @patch("main.app.orunmila.agent.Config")
+    @patch("main.app.orunmila.agent.genai")
+    @patch("main.app.orunmila.agent.clientPool")
     async def test_partial_assistant_text_persisted_on_stream_error(
         self, mock_pool, mock_genai, mock_config, mock_chat
     ):
         """A mid-stream error must persist partial assistant text, then re-raise."""
-        mock_config.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
+        mock_config.ORUNMILA = MagicMock(GEMINI_API_KEY="test-key")
         mock_config.DEBUG_MODE = True
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
@@ -194,7 +194,7 @@ class TestStreamMessageNoChatSession:
         mock_chat_session = MagicMock()
         mock_chat_session.send_message_stream = AsyncMock(side_effect=fake_stream_with_error)
 
-        gen = Prometheus()
+        gen = Orunmila()
         gen.makeChat = MagicMock(return_value=mock_chat_session)
 
         db = MagicMock()

@@ -57,12 +57,12 @@ class TestGoogleEndpointSetsState:
         with patch("main.controller.authentication_controller.getGoogleSSO", return_value=mock_sso):
             client = TestClient(app, raise_server_exceptions=False)
             client.get(
-                "/auth/google?redirect_url=http://localhost:3000/prometheus",
+                "/auth/google?redirect_url=http://localhost:3000/orunmila",
                 follow_redirects=False,
             )
 
         state = mock_sso.get_login_redirect.call_args[1]["state"]
-        assert state == "http://localhost:3000/prometheus", f"State should be the redirect URL, got {state!r}"
+        assert state == "http://localhost:3000/orunmila", f"State should be the redirect URL, got {state!r}"
 
     def test_none_when_no_redirect_url(self):
         """Without redirect_url, state should be None."""
@@ -100,7 +100,7 @@ class TestGoogleEndpointSetsState:
         with patch("main.controller.authentication_controller.getGoogleSSO", return_value=mock_sso):
             client = TestClient(app, raise_server_exceptions=False)
             response = client.get(
-                "/auth/google?redirect_url=http://localhost:3000/prometheus",
+                "/auth/google?redirect_url=http://localhost:3000/orunmila",
                 follow_redirects=False,
             )
 
@@ -127,7 +127,7 @@ class TestCallbackSuccess:
         mock_user_info.email = "test@gmail.com"
         mock_sso.verify_and_process = AsyncMock(return_value=mock_user_info)
 
-        redirect_url = "http://localhost:3000/prometheus"
+        redirect_url = "http://localhost:3000/orunmila"
 
         with (
             patch("main.controller.authentication_controller.getGoogleSSO", return_value=mock_sso),
@@ -153,7 +153,7 @@ class TestCallbackSuccess:
 
         assert response.status_code in (307, 302, 303)
         location = response.headers.get("location", "")
-        assert "localhost:3000/prometheus" in location
+        assert "localhost:3000/orunmila" in location
         assert "#token=" not in location, f"Token must NOT be in URL fragment: {location}"
 
     def test_returns_json_when_no_redirect_in_state(self):
@@ -240,13 +240,13 @@ class TestStateSurvivesUrlEncoding:
         """State with URL characters should survive round-trip through OAuth URL."""
         from urllib.parse import parse_qs, urlencode
 
-        state = "http://localhost:3000/prometheus?foo=bar&baz=qux"
+        state = "http://localhost:3000/orunmila?foo=bar&baz=qux"
         encoded = urlencode({"state": state})
         decoded = parse_qs(encoded).get("state", [None])[0]
         assert decoded == state
 
 
-# ---- moved from test_prometheus_auth_coverage.py (TestSSO) ----
+# ---- moved from test_orunmila_auth_coverage.py (TestSSO) ----
 
 
 class TestSSO:

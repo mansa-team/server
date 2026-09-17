@@ -2,13 +2,13 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 from tests.conftest import mock_forgevm
 from forgevm.exceptions import SandboxNotFound
-from main.models.sandbox import PrometheusSandbox
-from main.app.prometheus.sandbox import SandboxManager
+from main.models.sandbox import OrunmilaSandbox
+from main.app.orunmila.sandbox import SandboxManager
 
 
-class TestPrometheusSandboxModel:
+class TestOrunmilaSandboxModel:
     def test_create_sandbox_mapping(self, dbSession):
-        sandbox = PrometheusSandbox(
+        sandbox = OrunmilaSandbox(
             userId=1,
             sandboxId="sb-test-123",
         )
@@ -19,7 +19,7 @@ class TestPrometheusSandboxModel:
         assert sandbox.userId == 1
 
     def test_sandbox_has_timestamps(self, dbSession):
-        sandbox = PrometheusSandbox(
+        sandbox = OrunmilaSandbox(
             userId=1,
             sandboxId="sb-test-456",
         )
@@ -30,30 +30,30 @@ class TestPrometheusSandboxModel:
 
     def test_one_sandbox_per_user(self, dbSession):
         """Enforce one active sandbox per user via application logic."""
-        s1 = PrometheusSandbox(userId=1, sandboxId="sb-a")
+        s1 = OrunmilaSandbox(userId=1, sandboxId="sb-a")
         dbSession.add(s1)
         dbSession.commit()
-        existing = dbSession.query(PrometheusSandbox).filter_by(userId=1).first()
+        existing = dbSession.query(OrunmilaSandbox).filter_by(userId=1).first()
         assert existing is not None
         assert existing.sandboxId == "sb-a"
 
 
 class TestSandboxPersistence:
-    @patch("main.app.prometheus.sandbox.getClient")
+    @patch("main.app.orunmila.sandbox.getClient")
     async def test_get_or_create_creates_new_when_no_existing(self, mock_get_client, dbSession):
         mock_client, mock_sandbox = mock_forgevm(mock_get_client)
         result = await SandboxManager.getOrCreate(userId=1, db=dbSession)
         assert result == "sb-mock-123"
         mock_client.spawn.assert_called_once()
         # Verify mapping stored in DB
-        mapping = dbSession.query(PrometheusSandbox).filter_by(userId=1).first()
+        mapping = dbSession.query(OrunmilaSandbox).filter_by(userId=1).first()
         assert mapping is not None
         assert mapping.sandboxId == "sb-mock-123"
 
-    @patch("main.app.prometheus.sandbox.getClient")
+    @patch("main.app.orunmila.sandbox.getClient")
     async def test_get_or_create_reuses_existing(self, mock_get_client, dbSession):
         # Pre-create a mapping
-        existing = PrometheusSandbox(userId=1, sandboxId="sb-existing")
+        existing = OrunmilaSandbox(userId=1, sandboxId="sb-existing")
         dbSession.add(existing)
         dbSession.commit()
 
@@ -65,10 +65,10 @@ class TestSandboxPersistence:
         assert result == "sb-existing"
         mock_client.spawn.assert_not_called()
 
-    @patch("main.app.prometheus.sandbox.getClient")
+    @patch("main.app.orunmila.sandbox.getClient")
     async def test_get_or_create_respawns_when_dead(self, mock_get_client, dbSession):
         # Pre-create a mapping for a dead sandbox
-        existing = PrometheusSandbox(userId=1, sandboxId="sb-dead")
+        existing = OrunmilaSandbox(userId=1, sandboxId="sb-dead")
         dbSession.add(existing)
         dbSession.commit()
 
@@ -94,10 +94,10 @@ class TestSandboxPersistence:
         assert result == "sb-new-456"
         mock_client.spawn.assert_called_once()
         # Verify mapping updated
-        mapping = dbSession.query(PrometheusSandbox).filter_by(userId=1).first()
+        mapping = dbSession.query(OrunmilaSandbox).filter_by(userId=1).first()
         assert mapping.sandboxId == "sb-new-456"
 
-    @patch("main.app.prometheus.sandbox.getClient")
+    @patch("main.app.orunmila.sandbox.getClient")
     async def test_sync_to_sandbox(self, mock_get_client, tmp_path):
         """syncToSandbox pushes host files into the sandbox."""
         mock_client, mock_sandbox = mock_forgevm(mock_get_client)
@@ -108,14 +108,14 @@ class TestSandboxPersistence:
         (workspace / "data.csv").write_text("csv data")
         (workspace / "main.py").write_text("print('hello')")
 
-        with patch("main.app.prometheus.sandbox.WORKSPACE_ROOT", tmp_path):
+        with patch("main.app.orunmila.sandbox.WORKSPACE_ROOT", tmp_path):
             count = await SandboxManager.syncToSandbox("sb-mock-123", userId=1)
 
         assert count == 2
         # Verify sandbox.write_file was called for each file
         assert mock_sandbox.write_file.call_count == 2
 
-    @patch("main.app.prometheus.sandbox.getClient")
+    @patch("main.app.orunmila.sandbox.getClient")
     async def test_sync_from_sandbox(self, mock_get_client, tmp_path):
         """syncFromSandbox pulls sandbox files to host."""
         mock_client, mock_sandbox = mock_forgevm(mock_get_client)
@@ -126,7 +126,7 @@ class TestSandboxPersistence:
 
         mock_sandbox.read_file = AsyncMock(side_effect=read)
 
-        with patch("main.app.prometheus.sandbox.WORKSPACE_ROOT", tmp_path):
+        with patch("main.app.orunmila.sandbox.WORKSPACE_ROOT", tmp_path):
             count = await SandboxManager.syncFromSandbox("sb-mock-123", userId=1)
 
         assert count == 2
@@ -134,12 +134,12 @@ class TestSandboxPersistence:
         assert (workspace / "data.csv").read_text() == "content of /workspace/data.csv"
         assert (workspace / "main.py").read_text() == "content of /workspace/main.py"
 
-    @patch("main.app.prometheus.sandbox.getClient")
+    @patch("main.app.orunmila.sandbox.getClient")
     async def test_sync_to_sandbox_empty_workspace(self, mock_get_client, tmp_path):
         """syncToSandbox returns 0 when workspace is empty."""
         mock_client, mock_sandbox = mock_forgevm(mock_get_client)
 
-        with patch("main.app.prometheus.sandbox.WORKSPACE_ROOT", tmp_path):
+        with patch("main.app.orunmila.sandbox.WORKSPACE_ROOT", tmp_path):
             count = await SandboxManager.syncToSandbox("sb-mock-123", userId=99)
 
         assert count == 0
