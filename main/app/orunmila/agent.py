@@ -9,13 +9,13 @@ from google import genai
 from google.genai import types
 import google.genai._mcp_utils as mcp
 
-from main.models.prometheus import PrometheusSession
-from main.app.prometheus.memory import PrometheusMemory, newTokenCache
-from main.app.prometheus.chat import PrometheusChatManager
-from main.app.prometheus.compact import PrometheusCompactor, loadFieldData
-from main.app.prometheus.mcp import clientPool
-from main.app.prometheus.sandbox import SandboxManager
-from main.app.prometheus.tools import TOOL_REGISTRY, dispatchToolCall
+from main.models.orunmila import OrunmilaSession
+from main.app.orunmila.memory import OrunmilaMemory, newTokenCache
+from main.app.orunmila.chat import OrunmilaChatManager
+from main.app.orunmila.compact import OrunmilaCompactor, loadFieldData
+from main.app.orunmila.mcp import clientPool
+from main.app.orunmila.sandbox import SandboxManager
+from main.app.orunmila.tools import TOOL_REGISTRY, dispatchToolCall
 
 originalFilter = mcp._filter_to_supported_schema
 
@@ -30,7 +30,7 @@ def safeFilter(schema):
 
 def persistEvent(db, sessionId, entry):
     try:
-        PrometheusChatManager.appendHistory(db, str(sessionId), entry)
+        OrunmilaChatManager.appendHistory(db, str(sessionId), entry)
     except Exception as e:
         logger.error(f"Failed to persist event: {e}")
 
@@ -45,7 +45,7 @@ client: genai.Client | None = None
 def getClient() -> genai.Client:
     global client
     if client is None:
-        client = genai.Client(api_key=Config.PROMETHEUS.GEMINI_API_KEY)
+        client = genai.Client(api_key=Config.ORUNMILA.GEMINI_API_KEY)
     return client
 
 
@@ -54,7 +54,7 @@ MAX_TURNS = 30
 SYSTEM_PROMPT = """
 Current date: __DATE__
 
-You are Prometheus, a senior Equity Research analyst and financial intelligence engine for
+You are Orunmila, a senior Equity Research analyst and financial intelligence engine for
 Mansa, a Brazilian stock platform focused on B3-listed equities. You deliver dense,
 technically rigorous investment theses grounded in Value Investing and Buy and Hold
 philosophy.
@@ -205,7 +205,7 @@ Use with stat cards for portfolio snapshots.
 """.replace("__DATE__", str(datetime.now().date()))
 
 
-class Prometheus:
+class Orunmila:
     def __init__(self):
         self.client = getClient()
 
@@ -218,14 +218,14 @@ class Prometheus:
     ) -> str:
         memoryBlock = ""
         if userId and db:
-            memories = PrometheusMemory.search(db, userId, "", limit=10)
+            memories = OrunmilaMemory.search(db, userId, "", limit=10)
             if memories:
                 memoryBlock = "\n".join(f"- [{m['memoryType']}] {m['memoryKey']}: {m['memoryValue']}" for m in memories)
 
         episodeBlock = ""
         if sessionId and db:
             try:
-                episodes = PrometheusCompactor().getEpisodes(db, sessionId)
+                episodes = OrunmilaCompactor().getEpisodes(db, sessionId)
                 if episodes:
                     lines = [f"[{i + 1}] {ep.get('summary', '')}" for i, ep in enumerate(episodes[-5:])]
                     episodeBlock = "\n".join(lines)
@@ -260,9 +260,9 @@ class Prometheus:
 
         try:
             tokenCache = newTokenCache()
-            session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
+            session = db.query(OrunmilaSession).filter(OrunmilaSession.sessionId == sessionId).first()
             if session and session.history:
-                PrometheusCompactor().compact(db, str(sessionId), tokenCache)
+                OrunmilaCompactor().compact(db, str(sessionId), tokenCache)
 
             if session and user:
                 try:
@@ -270,7 +270,7 @@ class Prometheus:
                     async def extract() -> None:
                         try:
                             await asyncio.to_thread(
-                                PrometheusMemory.extract,
+                                OrunmilaMemory.extract,
                                 None,
                                 user.get("userId"),
                                 str(sessionId),
@@ -288,10 +288,10 @@ class Prometheus:
         except Exception:
             logger.debug("Pre-turn compaction skipped", exc_info=True)
 
-        episodes = PrometheusCompactor().getEpisodes(db, str(sessionId))
+        episodes = OrunmilaCompactor().getEpisodes(db, str(sessionId))
         last_ep_time = episodes[-1].get("time") if episodes else None
-        history = PrometheusChatManager.getHistory(db, str(sessionId), limit=50, since=last_ep_time)
-        system_prompt = Prometheus.buildSystemPrompt(
+        history = OrunmilaChatManager.getHistory(db, str(sessionId), limit=50, since=last_ep_time)
+        system_prompt = Orunmila.buildSystemPrompt(
             user.get("userId") if user else None,
             db,
             sessionId=str(sessionId),
@@ -300,7 +300,7 @@ class Prometheus:
         userText = str(query)
         if file and file.get("name"):
             userText += f"\n\n[ATTACHED FILES: {file['name']}]"
-        PrometheusChatManager.appendHistory(db, str(sessionId), {"role": "user", "content": userText})
+        OrunmilaChatManager.appendHistory(db, str(sessionId), {"role": "user", "content": userText})
 
         mcpClients, sessions = await clientPool.getClients()
         chat = self.makeChat(sessions, history, system_prompt=system_prompt, disable_automatic_function_calling=True)
@@ -428,11 +428,11 @@ class Prometheus:
                 stream = await chat.send_message_stream(responses)
 
             if turn >= MAX_TURNS:
-                logger.warning("Prometheus hit max turns (%d) for session %s", MAX_TURNS, sessionId)
+                logger.warning("Orunmila hit max turns (%d) for session %s", MAX_TURNS, sessionId)
                 yield {"type": "turn_limit", "maxTurns": MAX_TURNS}
         finally:
             if fullText:
                 try:
-                    PrometheusChatManager.appendHistory(db, str(sessionId), {"role": "assistant", "content": fullText})
+                    OrunmilaChatManager.appendHistory(db, str(sessionId), {"role": "assistant", "content": fullText})
                 except Exception as e:
                     logger.error("Failed to persist assistant message: %s", e)

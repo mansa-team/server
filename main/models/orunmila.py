@@ -4,8 +4,8 @@ from main.models.base import Base
 from main.models.user import User  # noqa: F401 — ensure 'User' in registry for relationship("User")
 
 
-class PrometheusSession(Base):
-    __tablename__ = "prometheus"
+class OrunmilaSession(Base):
+    __tablename__ = "orunmila"
 
     sessionId = Column(String(255), primary_key=True)
     userId = Column(Integer, ForeignKey("users.userId", ondelete="CASCADE"), nullable=False)

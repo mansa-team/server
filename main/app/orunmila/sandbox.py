@@ -6,7 +6,7 @@ from pathlib import Path
 from forgevm import AsyncClient
 from forgevm.exceptions import SandboxNotFound
 
-from main.models.sandbox import PrometheusSandbox
+from main.models.sandbox import OrunmilaSandbox
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +23,8 @@ def lockFor(userId: int) -> asyncio.Lock:
 
 def getClient() -> AsyncClient:
     return AsyncClient(
-        base_url=Config.PROMETHEUS.FORGEVM_URL,
-        api_key=Config.PROMETHEUS.FORGEVM_API_TOKEN or None,
+        base_url=Config.ORUNMILA.FORGEVM_URL,
+        api_key=Config.ORUNMILA.FORGEVM_API_TOKEN or None,
         timeout=30,
     )
 
@@ -54,10 +54,10 @@ class SandboxManager:
         client = getClient()
         try:
             sandbox = await client.spawn(
-                image=Config.PROMETHEUS.SANDBOX_IMAGE,
-                memory_mb=Config.PROMETHEUS.SANDBOX_MEMORY,
-                vcpus=Config.PROMETHEUS.SANDBOX_CPU,
-                ttl=f"{Config.PROMETHEUS.SANDBOX_TTL}m",
+                image=Config.ORUNMILA.SANDBOX_IMAGE,
+                memory_mb=Config.ORUNMILA.SANDBOX_MEMORY,
+                vcpus=Config.ORUNMILA.SANDBOX_CPU,
+                ttl=f"{Config.ORUNMILA.SANDBOX_TTL}m",
             )
             sandboxId = sandbox.id  # type: ignore[attr-defined]
             logger.info("Sandbox created: %s for user %d", sandboxId, userId)
@@ -81,13 +81,13 @@ class SandboxManager:
     async def getOrCreate(userId: int, db) -> str:
         lock = lockFor(userId)
         async with lock:
-            mapping = db.query(PrometheusSandbox).filter(PrometheusSandbox.userId == userId).first()
+            mapping = db.query(OrunmilaSandbox).filter(OrunmilaSandbox.userId == userId).first()
 
             if mapping:
                 client = getClient()
                 try:
                     sandbox = await client.get(mapping.sandboxId)
-                    await sandbox.extend_ttl(f"{Config.PROMETHEUS.SANDBOX_TTL}m")
+                    await sandbox.extend_ttl(f"{Config.ORUNMILA.SANDBOX_TTL}m")
                     await sandbox.exec(command="echo", args=["ok"], timeout="3s")
 
                     logger.info("Reusing sandbox %s for user %d", mapping.sandboxId, userId)
@@ -110,7 +110,7 @@ class SandboxManager:
             sandboxId = await SandboxManager.create(userId)
 
             db.add(
-                PrometheusSandbox(
+                OrunmilaSandbox(
                     userId=userId,
                     sandboxId=sandboxId,
                 )

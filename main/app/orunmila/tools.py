@@ -7,9 +7,9 @@ from urllib.parse import quote
 from forgevm.exceptions import SandboxNotFound
 from sqlalchemy.orm import Session
 
-from main.app.prometheus.memory import PrometheusMemory
-from main.app.prometheus.sandbox import SandboxManager, hostPath
-from main.app.prometheus.vector import embed
+from main.app.orunmila.memory import OrunmilaMemory
+from main.app.orunmila.sandbox import SandboxManager, hostPath
+from main.app.orunmila.vector import embed
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ async def search_memory(query: str, limit: int = 10, **_) -> dict:
         db = SessionLocal()
     try:
         results = await asyncio.to_thread(
-            PrometheusMemory.search,
+            OrunmilaMemory.search,
             db,  # type: ignore[arg-type]
             user["userId"],
             query,
@@ -69,7 +69,7 @@ async def save_memory(key: str, value: str, type: str, **_) -> dict:
     try:
         embedding = embed([value])[0]
         result = await asyncio.to_thread(
-            PrometheusMemory.upsertMemory,
+            OrunmilaMemory.upsertMemory,
             db,  # type: ignore[arg-type]
             user["userId"],
             key=key,
@@ -172,7 +172,7 @@ async def serve_file(path: str, **_) -> dict:
     if not host.exists() or not host.is_file():
         return {"error": f"File not found: {path}"}
 
-    url = f"/prometheus/workspace/download?path={quote(path, safe='/')}"
+    url = f"/orunmila/workspace/download?path={quote(path, safe='/')}"
     return {"url": url, "markdown": f"[{host.name}]({url})"}
 
 
