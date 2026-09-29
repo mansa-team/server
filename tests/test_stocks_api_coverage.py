@@ -91,7 +91,7 @@ class TestStocksCacheManager:
         mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["A", "B"], "NOME": ["X", "Y"], "TIME": ["t1", "t2"]})
         with (
-            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
+            patch("main.app.stocks_api.cache.readFeatherDataFrame", return_value=(df, False)),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
             mgr.getCachedStocks(force_refresh=True)
@@ -105,7 +105,7 @@ class TestStocksCacheManager:
         mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["A"], "NOME": ["X"], "TIME": ["t1"], "PRECO": [10.0]})
         with (
-            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df) as mock_read,
+            patch("main.app.stocks_api.cache.readFeatherDataFrame", return_value=(df, False)) as mock_read,
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
             mgr.getCachedStocks(force_refresh=True)
@@ -116,7 +116,7 @@ class TestStocksCacheManager:
         mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["A"], "VAL": [np.nan]})
         with (
-            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
+            patch("main.app.stocks_api.cache.readFeatherDataFrame", return_value=(df, False)),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
             mgr.getCachedStocks(force_refresh=True)
@@ -129,7 +129,7 @@ class TestStocksCacheManager:
         mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["PETR4", "VALE3"], "NOME": ["Petrobras", "Vale"]})
         with (
-            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
+            patch("main.app.stocks_api.cache.readFeatherDataFrame", return_value=(df, False)),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
             mgr.getCachedStocks(force_refresh=True)
@@ -140,7 +140,7 @@ class TestStocksCacheManager:
         mgr = self.make_manager()
         # Should not raise, just log
         with (
-            patch("main.app.stocks_api.cache.pd.read_feather", side_effect=Exception("feather error")),
+            patch("main.app.stocks_api.cache.readFeatherDataFrame", side_effect=Exception("feather error")),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
             mgr.getCachedStocks(force_refresh=True)
@@ -150,7 +150,7 @@ class TestStocksCacheManager:
         mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["A"], "VAL": [np.inf]})
         with (
-            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
+            patch("main.app.stocks_api.cache.readFeatherDataFrame", return_value=(df, False)),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
             mgr.getCachedStocks(force_refresh=True)
@@ -161,7 +161,7 @@ class TestStocksCacheManager:
         mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["A"], "VAL": [-np.inf]})
         with (
-            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
+            patch("main.app.stocks_api.cache.readFeatherDataFrame", return_value=(df, False)),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
             mgr.getCachedStocks(force_refresh=True)
@@ -173,115 +173,108 @@ class TestStocksCacheManager:
 # Tests for key.py – verifyAPIKey
 # ===========================================================================
 class TestVerifyAPIKey:
-    """Tests covering key.py lines 15-40.
-    Native async tests via pytest-asyncio asyncio_mode=auto."""
+    def makeDb(self, rows, rowcount=1, error=None):
+        mock_db = MagicMock()
+        mock_db.query.return_value.all.return_value = rows
+        if error is not None:
+            mock_db.execute.side_effect = error
+        else:
+            mock_db.execute.return_value.rowcount = rowcount
+        return mock_db
+
+    def makeRow(self, raw, usage=0, limit=100):
+        from types import SimpleNamespace
+        from main.app.stocks_api.key import createStoredApiKey
+
+        _, stored = createStoredApiKey(raw)
+        return SimpleNamespace(apiKey=stored, currentUsage=usage, requestLimit=limit)
 
     @patch("main.app.stocks_api.key.Config")
     async def test_verify_api_key_disabled_returns_none(self, mock_config):
-        """When KEY.SYSTEM is falsy, return None (line 16)."""
         from main.app.stocks_api.key import verifyAPIKey
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=False)
-        mock_db = MagicMock()
-
-        result = await verifyAPIKey(apiKey=None, db=mock_db)
-        assert result is None
+        assert await verifyAPIKey(apiKey=None, db=MagicMock()) is None
 
     @patch("main.app.stocks_api.key.Config")
     async def test_verify_api_key_missing_raises_401(self, mock_config):
-        """When key is required but not provided (line 19)."""
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
-        mock_db = MagicMock()
-
-        with pytest.raises(HTTPException) as exc_info:
+        mock_db = self.makeDb([])
+        with pytest.raises(HTTPException) as e:
             await verifyAPIKey(apiKey=None, db=mock_db)
-        assert exc_info.value.status_code == 401
-
-    @patch("main.app.stocks_api.key.Config")
-    async def test_verify_api_key_invalid_key_raises_401(self, mock_config):
-        """When atomic UPDATE returns 0 rows and query finds no key -> 401."""
-        from main.app.stocks_api.key import verifyAPIKey
-        from fastapi import HTTPException
-
-        mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
-        mock_db = MagicMock()
-        # Atomic UPDATE returns 0 rows (key not found or quota exceeded)
-        mock_db.execute.return_value.rowcount = 0
-        # Follow-up query confirms key doesn't exist
-        mock_db.query.return_value.filter.return_value.first.return_value = None
-
-        with pytest.raises(HTTPException) as exc_info:
-            await verifyAPIKey(apiKey="bad_key", db=mock_db)
-        assert exc_info.value.status_code == 401
-
-    @patch("main.app.stocks_api.key.Config")
-    async def test_verify_api_key_quota_exceeded(self, mock_config):
-        """When atomic UPDATE returns 0 rows and query finds key at limit -> 429."""
-        from main.app.stocks_api.key import verifyAPIKey
-        from fastapi import HTTPException
-
-        mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
-        mock_db = MagicMock()
-        # Atomic UPDATE returns 0 rows (quota exceeded)
-        mock_db.execute.return_value.rowcount = 0
-        # Follow-up query confirms key exists (at quota limit)
-        mock_key_obj = MagicMock()
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_key_obj
-
-        with pytest.raises(HTTPException) as exc_info:
-            await verifyAPIKey(apiKey="valid_key", db=mock_db)
-        assert exc_info.value.status_code == 429
+        assert (e.value.status_code, e.value.detail) == (401, "Unauthorized")
+        mock_db.query.assert_not_called()
 
     @patch("main.app.stocks_api.key.Config")
     async def test_verify_api_key_success(self, mock_config):
-        """Happy path: atomic UPDATE succeeds, returns key (lines 22-33)."""
         from main.app.stocks_api.key import verifyAPIKey
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
-        mock_db = MagicMock()
-        # Atomic UPDATE returns 1 row (success)
-        mock_db.execute.return_value.rowcount = 1
-
-        result = await verifyAPIKey(apiKey="valid_key", db=mock_db)
-        assert result == "valid_key"
+        mock_db = self.makeDb([self.makeRow("valid_key")])
+        assert await verifyAPIKey(apiKey="valid_key", db=mock_db) == "valid_key"
         mock_db.commit.assert_called_once()
 
     @patch("main.app.stocks_api.key.Config")
-    async def test_verify_api_key_http_exception_rollback(self, mock_config):
-        """HTTPException should cause rollback then re-raise (lines 35-37)."""
+    async def test_verify_api_key_invalid_key_raises_401(self, mock_config):
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
-        mock_db = MagicMock()
-        # Atomic UPDATE returns 0 rows (quota exceeded)
-        mock_db.execute.return_value.rowcount = 0
-        # Follow-up query confirms key exists (at quota limit)
-        mock_key_obj = MagicMock()
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_key_obj
+        mock_db = self.makeDb([self.makeRow("other_key")])
+        with pytest.raises(HTTPException) as e:
+            await verifyAPIKey(apiKey="bad_key", db=mock_db)
+        assert (e.value.status_code, e.value.detail) == (401, "Unauthorized")
 
-        with pytest.raises(HTTPException) as exc_info:
-            await verifyAPIKey(apiKey="key", db=mock_db)
-        assert exc_info.value.status_code == 429
+    @patch("main.app.stocks_api.key.Config")
+    async def test_verify_api_key_quota_exceeded(self, mock_config):
+        from main.app.stocks_api.key import verifyAPIKey
+        from fastapi import HTTPException
+
+        mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
+        mock_db = self.makeDb([self.makeRow("valid_key", usage=100, limit=100)])
+        with pytest.raises(HTTPException) as e:
+            await verifyAPIKey(apiKey="valid_key", db=mock_db)
+        assert (e.value.status_code, e.value.detail) == (429, "Too many requests")
+        mock_db.execute.assert_not_called()
+
+    @patch("main.app.stocks_api.key.Config")
+    async def test_verify_api_key_lost_race_returns_429(self, mock_config):
+        from main.app.stocks_api.key import verifyAPIKey
+        from fastapi import HTTPException
+
+        mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
+        mock_db = self.makeDb([self.makeRow("k")], rowcount=0)
+        with pytest.raises(HTTPException) as e:
+            await verifyAPIKey(apiKey="k", db=mock_db)
+        assert e.value.status_code == 429
         mock_db.rollback.assert_called_once()
 
     @patch("main.app.stocks_api.key.Config")
     async def test_verify_api_key_generic_exception_rollback(self, mock_config):
-        """Generic DB exception should rollback and raise 500 (lines 38-40)."""
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
-        mock_db = MagicMock()
-        mock_db.execute.side_effect = Exception("DB connection lost")
-
-        with pytest.raises(HTTPException) as exc_info:
-            await verifyAPIKey(apiKey="key", db=mock_db)
-        assert exc_info.value.status_code == 500
+        mock_db = self.makeDb([self.makeRow("k")], error=Exception("DB down"))
+        with pytest.raises(HTTPException) as e:
+            await verifyAPIKey(apiKey="k", db=mock_db)
+        assert e.value.status_code == 500
         mock_db.rollback.assert_called_once()
+
+    @patch("main.app.stocks_api.key.Config")
+    async def test_verify_api_key_legacy_row_rejected(self, mock_config):
+        from types import SimpleNamespace
+        from main.app.stocks_api.key import verifyAPIKey
+        from fastapi import HTTPException
+
+        mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
+        legacy = SimpleNamespace(apiKey="a" * 64, currentUsage=0, requestLimit=100)
+        with pytest.raises(HTTPException) as e:
+            await verifyAPIKey(apiKey="x", db=self.makeDb([legacy]))
+        assert e.value.status_code == 401
 
 
 # ===========================================================================

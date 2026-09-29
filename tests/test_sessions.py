@@ -25,8 +25,8 @@ class TestUserSessionModel:
 
 
 class TestSessionExpiration:
-    def test_session_expiry_days_is_30(self):
-        assert SESSION_EXPIRY_DAYS == 30
+    def test_session_expiry_days_is_7(self):
+        assert SESSION_EXPIRY_DAYS == 7
 
     def test_session_can_expire(self):
         now = datetime.now()
@@ -182,19 +182,17 @@ class TestSessionManager:
         from main.app.authentication.session import SessionManager
 
         mock_db = MagicMock()
-        mock_session = MagicMock()
-        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = mock_session
+        mock_db.query.return_value.filter.return_value.update.return_value = 1
 
         result = SessionManager.revokeSession(mock_db, "sess-123", userId=1)
         assert result is True
-        assert mock_session.isActive is False
         mock_db.commit.assert_called_once()
 
     def test_revoke_session_not_found(self):
         from main.app.authentication.session import SessionManager
 
         mock_db = MagicMock()
-        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = None
+        mock_db.query.return_value.filter.return_value.update.return_value = 0
 
         result = SessionManager.revokeSession(mock_db, "nonexistent", userId=1)
         assert result is False

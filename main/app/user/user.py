@@ -28,11 +28,14 @@ class UserManager:
             userId = payload.get("userId")
             sessionId = payload.get("sessionId")
 
-            if sessionId and userId is not None:
-                isValid = SessionManager.validateSession(db, sessionId, int(userId))
-                if not isValid:
-                    logger.info(f"Session {sessionId} revoked, logging out user {userId}")
-                    raise HTTPException(status_code=401, detail="Session revoked")
+            if not sessionId or userId is None:
+                logger.info("Missing sessionId in token, rejecting")
+                raise HTTPException(status_code=401, detail="Session required")
+
+            isValid = SessionManager.validateSession(db, sessionId, int(userId))
+            if not isValid:
+                logger.info(f"Session {sessionId} revoked, logging out user {userId}")
+                raise HTTPException(status_code=401, detail="Session revoked")
 
             user = db.query(User).filter(User.userId == userId).first()
 
@@ -44,10 +47,8 @@ class UserManager:
                 "username": user.username,
                 "email": user.email,
                 "roles": UserManager.getRolesList(user),
+                "sessionId": sessionId,
             }
-
-            if sessionId:
-                result["sessionId"] = sessionId
 
             return result
 

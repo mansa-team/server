@@ -5,7 +5,7 @@ import hashlib
 from sqlalchemy.orm import Session
 from user_agents import parse as parseUserAgent
 from main.models.user_session import UserSession
-from main.app.authentication.constants import SESSION_EXPIRY_DAYS
+from main.app.authentication.constants import SESSION_EXPIRY_DAYS, SESSION_IDLE_TIMEOUT_HOURS
 
 logger = logging.getLogger(__name__)
 
@@ -90,15 +90,20 @@ class SessionManager:
 
     @staticmethod
     def revokeSession(db: Session, sessionId: str, userId: int) -> bool:
-        session = SessionManager.getSessionById(db, sessionId, userId)
-        if not session:
-            return False
-
-        session.isActive = False  # type: ignore[assignment]
+        count = (
+            db.query(UserSession)
+            .filter(
+                UserSession.sessionId == str(sessionId),
+                UserSession.userId == userId,
+                UserSession.isActive.is_(True),
+            )
+            .update({UserSession.isActive: False}, synchronize_session=False)
+        )
         db.commit()
-
-        logger.info(f"Revoked session {sessionId} for user {userId}")
-        return True
+        if count:
+            logger.info(f"Revoked session {sessionId} for user {userId}")
+            return True
+        return False
 
     @staticmethod
     def revokeAllSessions(db: Session, userId: int) -> int:
@@ -112,6 +117,16 @@ class SessionManager:
 
         logger.info(f"Revoked {count} sessions for user {userId}")
         return count
+
+    @staticmethod
+    def revokeAllExcept(db: Session, user_id: int, keep_session_id: str) -> None:
+        db.query(UserSession).filter(
+            UserSession.userId == user_id,
+            UserSession.sessionId != str(keep_session_id),
+            UserSession.isActive.is_(True),
+        ).update({UserSession.isActive: False}, synchronize_session=False)
+        db.commit()
+        logger.info(f"Revoked all sessions for user {user_id} except {keep_session_id}")
 
     @staticmethod
     def updateLastActive(db: Session, sessionId: str) -> bool:
@@ -141,4 +156,16 @@ class SessionManager:
                 db.commit()
                 return False
 
+        now = datetime.now(timezone.utc)
+        lastActive = session.lastActivityAt
+        if isinstance(lastActive, datetime):
+            if lastActive.tzinfo is None:
+                lastActive = lastActive.replace(tzinfo=timezone.utc)
+            if now - lastActive > timedelta(hours=SESSION_IDLE_TIMEOUT_HOURS):
+                session.isActive = False  # type: ignore[assignment]
+                db.commit()
+                return False
+
+        session.lastActivityAt = now  # type: ignore[assignment]
+        db.commit()
         return True

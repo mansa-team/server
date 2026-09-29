@@ -138,7 +138,10 @@ def deserializeJsonColumns(df: pd.DataFrame) -> pd.DataFrame:
 
     decompressor = zstd.ZstdDecompressor()
     for col in df.columns:
-        if col in JSON_COLUMNS and (df[col].dtype == "object" or pd.api.types.is_string_dtype(df[col])):
+        dtype = df[col].dtype
+        if col in JSON_COLUMNS and (
+            dtype == "object" or pd.api.types.is_string_dtype(dtype) or isinstance(dtype, pd.ArrowDtype)
+        ):
             df[col] = df[col].apply(
                 lambda x: (
                     sanitizeNanValues(parseJSON(x, decompressor))

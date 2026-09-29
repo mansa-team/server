@@ -29,12 +29,11 @@ def pytest_configure(config):
     """Set required env vars before test collection.
 
     config.py eagerly instantiates UserSettings() at import time, which
-    requires JWT_SECRET_KEY and SESSION_SECRET_KEY. These env vars
+    requires JWT_SECRET_KEY. That env var
     don't exist in CI, so every test that touches config blows up
     during collection. This hook runs before collection begins.
     """
     os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret-key-not-for-production")
-    os.environ.setdefault("SESSION_SECRET_KEY", "test-session-secret-key-not-for-production")
 
 
 @pytest.fixture(autouse=True)

@@ -7,6 +7,7 @@ import threading
 import pandas as pd
 import numpy as np
 import pyarrow as pa
+import pyarrow.feather as feather
 
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
@@ -35,6 +36,7 @@ CACHE_FEATHER_PATH = Path("/app/cache/stocks_cache.feather")
 CACHE_NESTED_PATH = Path("/app/cache/stocks_nested.feather")
 STALE_AFTER_SECONDS = 6 * 3600
 CACHE_LOAD_LOCK = threading.Lock()
+PRESORTED_FLAG_KEY = b"b3_presorted"
 
 
 def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
@@ -96,7 +98,7 @@ def buildFeatherCache(engine: Engine | None = None):
             except Exception:
                 colTypes = {}
             stream = conn.execution_options(stream_results=True)
-            result = stream.exec_driver_sql("SELECT * FROM b3_stocks")
+            result = stream.exec_driver_sql("SELECT * FROM b3_stocks ORDER BY TICKER ASC, TIME DESC")
             try:
                 columns = list(result.keys())
                 while True:
@@ -130,10 +132,10 @@ def buildFeatherCache(engine: Engine | None = None):
                                 fields.append(pa.field(n, arrowTypeFor(colTypes.get(n, "varchar"))))
                             else:
                                 fields.append(pa.field(n, t))
-                        schema = pa.schema(fields)
+                        schema = pa.schema(fields).with_metadata({PRESORTED_FLAG_KEY: b"1"})
                         sink = pa.OSFile(str(tmpMain), "wb")
                         writer = pa.ipc.new_file(sink, schema)
-                    assert writer is not None
+                    assert writer is not None  # nosec: B101 mypy narrowing, writer assigned just above
                     table = pa.Table.from_pandas(chunk, schema=schema, preserve_index=False)
                     writer.write_table(table)
                     total += len(chunk)
@@ -148,7 +150,7 @@ def buildFeatherCache(engine: Engine | None = None):
         try:
             resolvedEngine.dispose()
         except Exception:
-            pass
+            pass  # nosec: B110 dispose is best-effort, original error re-raised below
         raise
     finally:
         if writer is not None:
@@ -201,6 +203,13 @@ def buildTickerIndex(df: pd.DataFrame) -> dict:
     return index
 
 
+def readFeatherDataFrame(path: Path) -> tuple[pd.DataFrame, bool]:
+    table = feather.read_table(path, memory_map=True)
+    presorted = (table.schema.metadata or {}).get(PRESORTED_FLAG_KEY) == b"1"
+    df = table.to_pandas(split_blocks=True, types_mapper=pd.ArrowDtype)
+    return df, presorted
+
+
 class StocksCacheManager:
     def __init__(self, db: Engine, cacheLock: threading.Lock):
         self.db = db
@@ -226,10 +235,11 @@ class StocksCacheManager:
         )
 
     def loadFromFeather(self):
-        df = pd.read_feather(CACHE_FEATHER_PATH)
+        df, presorted = readFeatherDataFrame(CACHE_FEATHER_PATH)
         nestedSample = pd.read_feather(CACHE_NESTED_PATH) if CACHE_NESTED_PATH.exists() else None
 
-        df = sortCacheFrame(df)
+        if not presorted:
+            df = sortCacheFrame(df)
         newTickerIndex = buildTickerIndex(df)
 
         with self.cacheLock:

@@ -1,5 +1,7 @@
+import hashlib
+import hmac
 import logging
-from config import getSession, LOCALHOST_ADDRESSES
+from config import Config, getSession, LOCALHOST_ADDRESSES
 
 from datetime import datetime, timedelta, timezone
 from main.utils.logging_config import limiter
@@ -10,6 +12,7 @@ from fastapi_sso.sso.base import SSOLoginError
 from sqlalchemy.orm import Session
 
 from main.app.authentication.authentication import AuthenticationManager
+from main.app.authentication.introspect import introspectToken
 from main.app.authentication.util import createAccessToken, verifyAccessToken
 from main.app.authentication.sso import getGoogleSSO
 from main.app.authentication.constants import (
@@ -19,6 +22,7 @@ from main.app.authentication.constants import (
     TOKEN_EXPIRY_HOURS,
 )
 from main.app.authentication.session import SessionManager
+from main.models.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -26,14 +30,6 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 def isSecureScheme(request: Request) -> bool:
-    try:
-        forwardedRaw = request.headers.get("X-Forwarded-Proto", "")
-    except Exception:
-        forwardedRaw = ""
-    if isinstance(forwardedRaw, str):
-        proto = forwardedRaw.split(",")[0].strip().lower()
-        if proto in ("http", "https"):
-            return proto == "https"
     return request.url.scheme == "https"
 
 
@@ -42,7 +38,7 @@ def resolveCookieDomain(request: Request) -> str:
     return "localhost" if hostname in ("localhost", "127.0.0.1") else hostname
 
 
-def issueSessionCookie(response, request, db, user) -> str:
+def issueSessionCookie(response, request, db, user) -> tuple[str, str]:
     userAgent = request.headers.get("User-Agent", "")
     expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
     session = SessionManager.createSession(db, user["userId"], userAgent, expiresAt)
@@ -59,7 +55,7 @@ def issueSessionCookie(response, request, db, user) -> str:
         path=COOKIE_PATH,
         domain=cookieDomain,
     )
-    return accessToken
+    return accessToken, str(session.sessionId)
 
 
 @router.get("/health")
@@ -84,10 +80,12 @@ def register(
         if not user:
             raise HTTPException(status_code=401, detail="Auto-login failed after registration")
 
-        accessToken = issueSessionCookie(response, request, db, user)
+        accessToken, _ = issueSessionCookie(response, request, db, user)
 
         return {"message": "success", "accessToken": accessToken, "tokenType": "bearer", "user": user}
-    except HTTPException:
+    except HTTPException as e:
+        if e.status_code == 400:
+            raise HTTPException(status_code=400, detail="Registration failed.")
         raise
     except ValueError as e:
         logger.error(f"Registration validation error: {str(e)}", exc_info=True)
@@ -110,7 +108,8 @@ def login(
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    accessToken = issueSessionCookie(response, request, db, user)
+    accessToken, sessionId = issueSessionCookie(response, request, db, user)
+    SessionManager.revokeAllExcept(db, user["userId"], sessionId)
 
     return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
 
@@ -150,16 +149,40 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
     return {"message": "Successfully logged out"}
 
 
+@router.post("/introspect")
+@limiter.limit("30/minute")
+def introspect(
+    request: Request,
+    db: Session = Depends(getSession),
+    token: str | None = Body(default=None, embed=True),
+):
+    # Derived, never the raw signing key: a leaked service token must not reveal it.
+    expected = hmac.new(Config.USER.JWT_SECRET_KEY.encode("utf-8"), b"auth-introspect", hashlib.sha256).hexdigest()
+    if not expected or not hmac.compare_digest(request.headers.get("X-Service-Token", ""), expected):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    auth = request.headers.get("Authorization", "")
+    raw = (
+        token
+        or request.headers.get("X-Access-Token")
+        or (auth.split(" ")[1] if auth.startswith("Bearer ") else None)
+        or request.cookies.get(COOKIE_NAME)
+    )
+    if not raw:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    try:
+        return introspectToken(db, raw)
+    except HTTPException:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+
 @router.get("/google")
 @limiter.limit("5/minute")
 async def googleLogin(request: Request):
-    logger.info("Google Login")
+    logger.info("Google login initiated")
 
     redirectUrl = request.query_params.get("redirect_url", "")
     if not redirectUrl:
         redirectUrl = request.headers.get("referer", "")
-
-    logger.info(f"Redirect URL: {redirectUrl}")
 
     googleSSO = getGoogleSSO()
     async with googleSSO:
@@ -174,10 +197,6 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
     logger.info("--- Google Callback Start ---")
 
     state_param = request.query_params.get("state", "")
-    if state_param:
-        _ = request.cookies
-        request._cookies["sso_state"] = state_param
-        logger.debug(f"Patched sso_state cookie: {state_param[:8]}...")
 
     googleSSO = getGoogleSSO()
 
@@ -194,13 +213,27 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
         if not googleId or not email:
             raise HTTPException(status_code=400, detail="Incomplete user info from Google")
 
-        logger.info(f"User identified: {email}")
+        logger.info("Google user identified")
         user = AuthenticationManager.authenticateGoogleUser(db, googleId)
 
         if not user:
             logger.info("New user detected, creating account...")
-            username = email.split("@")[0]
-            AuthenticationManager.createUserAccount(db, username=username, email=email, googleId=googleId)
+            baseUsername = email.split("@")[0]
+            username = baseUsername
+            suffix = 0
+            for _ in range(100):
+                try:
+                    AuthenticationManager.createUserAccount(db, username=username, email=email, googleId=googleId)
+                    break
+                except HTTPException as e:
+                    if e.status_code != 400:
+                        raise
+                    if db.query(User).filter(User.username == username).first() is None:
+                        raise
+                    suffix += 1
+                    username = f"{baseUsername}{suffix}"
+            else:
+                raise HTTPException(status_code=400, detail="Registration failed.")
             user = AuthenticationManager.authenticateGoogleUser(db, googleId)
 
         redirectUrl = ""
@@ -214,18 +247,20 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
 
         if redirectUrl:
             redirectResponse = RedirectResponse(url=redirectUrl)
-            issueSessionCookie(redirectResponse, request, db, user)
+            _, sessionId = issueSessionCookie(redirectResponse, request, db, user)
+            SessionManager.revokeAllExcept(db, user["userId"], sessionId)
             return redirectResponse
 
-        accessToken = issueSessionCookie(response, request, db, user)
+        accessToken, sessionId = issueSessionCookie(response, request, db, user)
+        SessionManager.revokeAllExcept(db, user["userId"], sessionId)
         logger.info("--- Google Callback End ---")
         return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
 
     except HTTPException:
         raise
-    except SSOLoginError as e:
-        logger.warning(f"SSO state validation failed: {e}")
-        raise HTTPException(status_code=401, detail=f"SSO login failed: {e}")
-    except Exception as e:
-        logger.error(f"Critical error in Google callback: {str(e)}", exc_info=True)
+    except SSOLoginError:
+        logger.warning("SSO state validation failed", exc_info=True)
+        raise HTTPException(status_code=401, detail="SSO login failed.")
+    except Exception:
+        logger.error("Critical error in Google callback", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error during Google login")

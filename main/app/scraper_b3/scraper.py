@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 import cloudscraper
 import requests
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_not_exception_type
+from tenacity import retry, stop_after_attempt, wait_exponential
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from sqlalchemy import text
@@ -138,7 +138,7 @@ class B3Scraper:
         dfYearly = pd.json_normalize(df, record_path="assetEarningsYearlyModels", sep="")
 
         dfHistory = pd.json_normalize(df, record_path="assetEarningsModels", sep="")
-        dfHistory = dfHistory.drop(columns={"sv", "etd", "sov", "y", "m", "d"})
+        dfHistory = dfHistory.drop(columns={"sv", "etd", "sov", "y", "m", "d"}, errors="ignore")
         dfHistory = dfHistory.rename(
             columns={
                 "ed": "DATA COM",
@@ -149,6 +149,8 @@ class B3Scraper:
                 "adj": "FATOR AJUSTE",
             }
         )
+        if "VALOR ORIGINAL" not in dfHistory.columns:
+            dfHistory["VALOR ORIGINAL"] = float("nan")
 
         for col in ["DATA COM", "DATA PAGAMENTO"]:
             if col in dfHistory.columns:
@@ -157,7 +159,7 @@ class B3Scraper:
         newDF = {
             "TICKER": TICKER,
             **{f"DIVIDENDOS {row.rank}": row.value for row in dfYearly.itertuples() if len(str(row.rank)) >= 4},
-            "HISTORICO DIVIDENDOS": dfHistory.toDict(orient="records"),
+            "HISTORICO DIVIDENDOS": dfHistory.to_dict(orient="records"),
         }
 
         return pd.DataFrame([newDF]).set_index("TICKER")
@@ -275,11 +277,7 @@ class B3Scraper:
 
         return pd.DataFrame([{"TICKER": TICKER, "TAG ALONG": tagAlong}]).set_index("TICKER")
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=1, max=3),
-        retry=retry_if_not_exception_type(ImportError),
-    )
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=3))
     def stockNews(self, TICKER):
         df = pd.read_xml(
             StringIO(self.requests.get(f"https://news.google.com/rss/search?q={TICKER}&hl=pt-BR").text), xpath=".//item"
@@ -289,7 +287,7 @@ class B3Scraper:
 
         df = df.rename(columns={"title": "TITULO", "link": "LINK", "pubDate": "DATE", "source": "SOURCE"})
 
-        newDF = {"TICKER": TICKER, "NOTICIAS": df.toDict(orient="records")}
+        newDF = {"TICKER": TICKER, "NOTICIAS": df.to_dict(orient="records")}
 
         return pd.DataFrame([newDF]).set_index("TICKER")
 
