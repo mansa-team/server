@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 import cloudscraper
 import requests
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_not_exception_type
+from tenacity import retry, stop_after_attempt, wait_exponential
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from sqlalchemy import text
@@ -277,11 +277,7 @@ class B3Scraper:
 
         return pd.DataFrame([{"TICKER": TICKER, "TAG ALONG": tagAlong}]).set_index("TICKER")
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=1, max=3),
-        retry=retry_if_not_exception_type(ImportError),
-    )
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=3))
     def stockNews(self, TICKER):
         df = pd.read_xml(
             StringIO(self.requests.get(f"https://news.google.com/rss/search?q={TICKER}&hl=pt-BR").text), xpath=".//item"
@@ -291,7 +287,7 @@ class B3Scraper:
 
         df = df.rename(columns={"title": "TITULO", "link": "LINK", "pubDate": "DATE", "source": "SOURCE"})
 
-        newDF = {"TICKER": TICKER, "NOTICIAS": df.toDict(orient="records")}
+        newDF = {"TICKER": TICKER, "NOTICIAS": df.to_dict(orient="records")}
 
         return pd.DataFrame([newDF]).set_index("TICKER")
 
