@@ -99,7 +99,10 @@ def test_read_feather_dataframe_uses_arrow_backed_columns(tmp_path):
     df, presorted = cache_mod.readFeatherDataFrame(path)
 
     assert presorted is False
-    assert str(df["TICKER"].dtype) == "string[pyarrow]"
+    # pandas 3 defaults str columns to large_string[pyarrow] (PDEP-14); pandas 2 to string[pyarrow].
+    # The property under test is "arrow-backed", not the arrow string width.
+    assert isinstance(df["TICKER"].dtype, pd.ArrowDtype)
+    assert pd.api.types.is_string_dtype(df["TICKER"].dtype)
     assert str(df["BLOB"].dtype) == "binary[pyarrow]"
     assert df["TICKER"].iloc[0] == "PETR4"
     assert df["BLOB"].iloc[0] == b"xy"
