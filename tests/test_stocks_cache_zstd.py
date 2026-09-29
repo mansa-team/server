@@ -1,8 +1,10 @@
 import threading
 import zstandard as zstd
+from unittest.mock import MagicMock
 
 import pytest
 import pandas as pd
+import pyarrow as pa
 from pyarrow import feather
 
 import main.app.stocks_api.cache as cache_mod
@@ -144,7 +146,7 @@ def test_get_cached_stocks_compresses_jsoncolumns(monkeypatch, tmp_path):
     assert isinstance(df["COTACAO 10Y PADRAO"].iloc[0], bytes)
     assert zstd.ZstdDecompressor().decompress(df["COTACAO 10Y PADRAO"].iloc[0]).decode("utf-8").startswith("[{")
     assert isinstance(df["NOTICIAS"].iloc[0], bytes)
-    assert df["NOTICIAS"].iloc[1] is None  # NaN/None cells stay None
+    assert pd.isna(df["NOTICIAS"].iloc[1])  # ArrowDtype null cells are pd.NA
 
 
 def test_get_cached_stocks_keeps_raw_nested_sample(monkeypatch, tmp_path):
@@ -339,3 +341,45 @@ def test_build_stamps_presorted_marker(monkeypatch, tmp_path):
 
     table = feather.read_table(cache_mod.CACHE_FEATHER_PATH)
     assert (table.schema.metadata or {}).get(cache_mod.PRESORTED_FLAG_KEY) == b"1"
+
+
+def _writeFeather(rows, path):
+    feather.write_feather(pd.DataFrame(rows), path)
+
+
+def _loadManager(path, monkeypatch, tmp_path):
+    manager = cache_mod.StocksCacheManager(MagicMock(), threading.Lock())
+    monkeypatch.setattr(cache_mod, "CACHE_FEATHER_PATH", path)
+    monkeypatch.setattr(cache_mod, "CACHE_NESTED_PATH", tmp_path / "nested.feather")
+    return manager
+
+
+def test_load_skips_sort_for_presorted_files(monkeypatch, tmp_path):
+    path = tmp_path / "cache.feather"
+    table = pa.Table.from_pandas(
+        pd.DataFrame({"TICKER": ["VALE3", "PETR4"], "TIME": [pd.Timestamp("2024-01-01")] * 2}), preserve_index=False
+    ).replace_schema_metadata({cache_mod.PRESORTED_FLAG_KEY: b"1"})
+    with pa.OSFile(str(path), "wb") as sink, pa.ipc.new_file(sink, table.schema) as writer:
+        writer.write_table(table)
+
+    def boom(df):
+        raise AssertionError("sort must not run for presorted files")
+
+    monkeypatch.setattr(cache_mod, "sortCacheFrame", boom)
+    manager = _loadManager(path, monkeypatch, tmp_path)
+
+    manager.loadFromFeather()
+
+    assert list(manager.STOCKS_CACHE["TICKER"]) == ["VALE3", "PETR4"]
+
+
+def test_load_sorts_legacy_files_without_marker(monkeypatch, tmp_path):
+    path = tmp_path / "cache.feather"
+    _writeFeather(
+        {"TICKER": ["VALE3", "PETR4"], "TIME": [pd.Timestamp("2024-01-01"), pd.Timestamp("2023-01-01")]}, path
+    )
+    manager = _loadManager(path, monkeypatch, tmp_path)
+
+    manager.loadFromFeather()
+
+    assert list(manager.STOCKS_CACHE["TICKER"]) == ["PETR4", "VALE3"]

@@ -7,6 +7,7 @@ import threading
 import pandas as pd
 import numpy as np
 import pyarrow as pa
+import pyarrow.feather as feather
 
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
@@ -202,6 +203,13 @@ def buildTickerIndex(df: pd.DataFrame) -> dict:
     return index
 
 
+def readFeatherDataFrame(path: Path) -> tuple[pd.DataFrame, bool]:
+    table = feather.read_table(path, memory_map=True)
+    presorted = (table.schema.metadata or {}).get(PRESORTED_FLAG_KEY) == b"1"
+    df = table.to_pandas(split_blocks=True, types_mapper=pd.ArrowDtype)
+    return df, presorted
+
+
 class StocksCacheManager:
     def __init__(self, db: Engine, cacheLock: threading.Lock):
         self.db = db
@@ -227,10 +235,11 @@ class StocksCacheManager:
         )
 
     def loadFromFeather(self):
-        df = pd.read_feather(CACHE_FEATHER_PATH)
+        df, presorted = readFeatherDataFrame(CACHE_FEATHER_PATH)
         nestedSample = pd.read_feather(CACHE_NESTED_PATH) if CACHE_NESTED_PATH.exists() else None
 
-        df = sortCacheFrame(df)
+        if not presorted:
+            df = sortCacheFrame(df)
         newTickerIndex = buildTickerIndex(df)
 
         with self.cacheLock:

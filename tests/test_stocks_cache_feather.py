@@ -3,6 +3,8 @@ import time
 from datetime import datetime, timedelta, timezone
 
 import pandas as pd
+import pyarrow as pa
+from pyarrow import feather
 
 from main.app.stocks_api.cache import StocksCacheManager, optimizeDtypes
 
@@ -29,7 +31,7 @@ def test_missing_feather_runs_loader_then_swaps(monkeypatch, tmp_path):
     calls = []
     monkeypatch.setattr(cache_mod.os.path, "exists", lambda p: False)
     monkeypatch.setattr(cache_mod.subprocess, "run", lambda *a, **k: calls.append("run") or None)
-    monkeypatch.setattr(cache_mod.pd, "read_feather", lambda p: fake_df)
+    monkeypatch.setattr(cache_mod, "readFeatherDataFrame", lambda p: (fake_df, False))
     manager = cache_mod.StocksCacheManager(None, threading.Lock())
     manager.STOCKS_CACHE = None
     manager.getCachedStocks()
@@ -49,7 +51,7 @@ def test_stale_feather_serves_snapshot_and_spawns_refresh(monkeypatch, tmp_path)
     monkeypatch.setattr(cache_mod.subprocess, "run", lambda *a, **k: None)  # never hit the real loader
     monkeypatch.setattr(cache_mod.os.path, "getmtime", lambda p: 0.0)  # 1970 -> definitely stale
     monkeypatch.setattr(cache_mod.time, "time", lambda: 10.0 * 3600)  # 10h later
-    monkeypatch.setattr(cache_mod.pd, "read_feather", lambda p: fake_df)
+    monkeypatch.setattr(cache_mod, "readFeatherDataFrame", lambda p: (fake_df, False))
     spawned = []
     monkeypatch.setattr(
         cache_mod.threading.Thread,
@@ -73,7 +75,7 @@ def test_fresh_feather_serves_snapshot_without_refresh(monkeypatch, tmp_path):
     monkeypatch.setattr(cache_mod.subprocess, "run", lambda *a, **k: None)
     monkeypatch.setattr(cache_mod.os.path, "getmtime", lambda p: 10.0 * 3600 - 60)  # fresh
     monkeypatch.setattr(cache_mod.time, "time", lambda: 10.0 * 3600)
-    monkeypatch.setattr(cache_mod.pd, "read_feather", lambda p: fake_df)
+    monkeypatch.setattr(cache_mod, "readFeatherDataFrame", lambda p: (fake_df, False))
     spawned = []
     monkeypatch.setattr(
         cache_mod.threading.Thread,
@@ -84,3 +86,36 @@ def test_fresh_feather_serves_snapshot_without_refresh(monkeypatch, tmp_path):
     manager.getCachedStocks()
     assert manager.STOCKS_CACHE is fake_df
     assert spawned == []
+
+
+def test_read_feather_dataframe_uses_arrow_backed_columns(tmp_path):
+    import main.app.stocks_api.cache as cache_mod
+
+    path = tmp_path / "cache.feather"
+    feather.write_feather(
+        pd.DataFrame({"TICKER": ["PETR4"], "NOME": ["PETROBRAS"], "PRECO": [1.5], "BLOB": [b"xy"]}), path
+    )
+
+    df, presorted = cache_mod.readFeatherDataFrame(path)
+
+    assert presorted is False
+    assert str(df["TICKER"].dtype) == "string[pyarrow]"
+    assert str(df["BLOB"].dtype) == "binary[pyarrow]"
+    assert df["TICKER"].iloc[0] == "PETR4"
+    assert df["BLOB"].iloc[0] == b"xy"
+
+
+def test_read_feather_dataframe_detects_presorted_marker(tmp_path):
+    import main.app.stocks_api.cache as cache_mod
+
+    path = tmp_path / "cache.feather"
+    table = pa.Table.from_pandas(
+        pd.DataFrame({"TICKER": ["PETR4"], "TIME": [pd.Timestamp("2024-01-01")]}), preserve_index=False
+    ).replace_schema_metadata({cache_mod.PRESORTED_FLAG_KEY: b"1"})
+    with pa.OSFile(str(path), "wb") as sink, pa.ipc.new_file(sink, table.schema) as writer:
+        writer.write_table(table)
+
+    df, presorted = cache_mod.readFeatherDataFrame(path)
+
+    assert presorted is True
+    assert df["TICKER"].iloc[0] == "PETR4"

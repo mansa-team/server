@@ -91,7 +91,7 @@ class TestStocksCacheManager:
         mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["A", "B"], "NOME": ["X", "Y"], "TIME": ["t1", "t2"]})
         with (
-            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
+            patch("main.app.stocks_api.cache.readFeatherDataFrame", return_value=(df, False)),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
             mgr.getCachedStocks(force_refresh=True)
@@ -105,7 +105,7 @@ class TestStocksCacheManager:
         mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["A"], "NOME": ["X"], "TIME": ["t1"], "PRECO": [10.0]})
         with (
-            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df) as mock_read,
+            patch("main.app.stocks_api.cache.readFeatherDataFrame", return_value=(df, False)) as mock_read,
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
             mgr.getCachedStocks(force_refresh=True)
@@ -116,7 +116,7 @@ class TestStocksCacheManager:
         mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["A"], "VAL": [np.nan]})
         with (
-            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
+            patch("main.app.stocks_api.cache.readFeatherDataFrame", return_value=(df, False)),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
             mgr.getCachedStocks(force_refresh=True)
@@ -129,7 +129,7 @@ class TestStocksCacheManager:
         mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["PETR4", "VALE3"], "NOME": ["Petrobras", "Vale"]})
         with (
-            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
+            patch("main.app.stocks_api.cache.readFeatherDataFrame", return_value=(df, False)),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
             mgr.getCachedStocks(force_refresh=True)
@@ -140,7 +140,7 @@ class TestStocksCacheManager:
         mgr = self.make_manager()
         # Should not raise, just log
         with (
-            patch("main.app.stocks_api.cache.pd.read_feather", side_effect=Exception("feather error")),
+            patch("main.app.stocks_api.cache.readFeatherDataFrame", side_effect=Exception("feather error")),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
             mgr.getCachedStocks(force_refresh=True)
@@ -150,7 +150,7 @@ class TestStocksCacheManager:
         mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["A"], "VAL": [np.inf]})
         with (
-            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
+            patch("main.app.stocks_api.cache.readFeatherDataFrame", return_value=(df, False)),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
             mgr.getCachedStocks(force_refresh=True)
@@ -161,7 +161,7 @@ class TestStocksCacheManager:
         mgr = self.make_manager()
         df = pd.DataFrame({"TICKER": ["A"], "VAL": [-np.inf]})
         with (
-            patch("main.app.stocks_api.cache.pd.read_feather", return_value=df),
+            patch("main.app.stocks_api.cache.readFeatherDataFrame", return_value=(df, False)),
             patch("main.app.stocks_api.cache.subprocess.run", return_value=None),
         ):
             mgr.getCachedStocks(force_refresh=True)
