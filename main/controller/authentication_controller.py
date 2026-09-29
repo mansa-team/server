@@ -10,6 +10,7 @@ from fastapi_sso.sso.base import SSOLoginError
 from sqlalchemy.orm import Session
 
 from main.app.authentication.authentication import AuthenticationManager
+from main.app.authentication.introspect import introspectToken
 from main.app.authentication.util import createAccessToken, verifyAccessToken
 from main.app.authentication.sso import getGoogleSSO
 from main.app.authentication.constants import (
@@ -148,6 +149,22 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
         domain=resolveCookieDomain(request),
     )
     return {"message": "Successfully logged out"}
+
+
+@router.post("/introspect")
+def introspect(
+    request: Request,
+    db: Session = Depends(getSession),
+    token: str | None = Body(default=None, embed=True),
+):
+    auth = request.headers.get("Authorization", "")
+    raw = (
+        token
+        or request.headers.get("X-Access-Token")
+        or (auth.split(" ")[1] if auth.startswith("Bearer ") else None)
+        or request.cookies.get(COOKIE_NAME)
+    )
+    return introspectToken(db, raw)
 
 
 @router.get("/google")
