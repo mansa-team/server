@@ -138,7 +138,7 @@ class B3Scraper:
         dfYearly = pd.json_normalize(df, record_path="assetEarningsYearlyModels", sep="")
 
         dfHistory = pd.json_normalize(df, record_path="assetEarningsModels", sep="")
-        dfHistory = dfHistory.drop(columns={"sv", "etd", "sov", "y", "m", "d"})
+        dfHistory = dfHistory.drop(columns={"sv", "etd", "sov", "y", "m", "d"}, errors="ignore")
         dfHistory = dfHistory.rename(
             columns={
                 "ed": "DATA COM",
@@ -149,6 +149,10 @@ class B3Scraper:
                 "adj": "FATOR AJUSTE",
             }
         )
+        if "VALOR ORIGINAL" not in dfHistory.columns:
+            # "ov" absent (adj=False batches): SI ships ov whenever a factor
+            # exists, so copy adjusted as-is — no factor math.
+            dfHistory["VALOR ORIGINAL"] = dfHistory["VALOR AJUSTADO"]
 
         for col in ["DATA COM", "DATA PAGAMENTO"]:
             if col in dfHistory.columns:
@@ -157,7 +161,7 @@ class B3Scraper:
         newDF = {
             "TICKER": TICKER,
             **{f"DIVIDENDOS {row.rank}": row.value for row in dfYearly.itertuples() if len(str(row.rank)) >= 4},
-            "HISTORICO DIVIDENDOS": dfHistory.toDict(orient="records"),
+            "HISTORICO DIVIDENDOS": dfHistory.to_dict(orient="records"),
         }
 
         return pd.DataFrame([newDF]).set_index("TICKER")
