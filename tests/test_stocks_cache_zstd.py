@@ -3,6 +3,7 @@ import zstandard as zstd
 
 import pytest
 import pandas as pd
+from pyarrow import feather
 
 import main.app.stocks_api.cache as cache_mod
 from main.app.stocks_api.cache import StocksCacheManager
@@ -304,3 +305,37 @@ def test_get_nest_keeps_compressed_column_subfields(monkeypatch, tmp_path):
         nest = getNest()
     assert "COTACAO 10Y PADRAO" in nest
     assert set(nest["COTACAO 10Y PADRAO"]["subfields"]) >= {"DATA", "PRECO"}
+
+
+def test_build_requests_presorted_rows(monkeypatch, tmp_path):
+    seenSql = []
+
+    def connect():
+        conn = FakeConn([makeDf()])
+        realExec = conn.exec_driver_sql
+
+        def exec_driver_sql(sql):
+            seenSql.append(sql)
+            return realExec(sql)
+
+        monkeypatch.setattr(conn, "exec_driver_sql", exec_driver_sql)
+        return conn
+
+    monkeypatch.setattr(cache_mod.stocksEngine, "connect", connect)
+    monkeypatch.setattr(cache_mod, "CACHE_FEATHER_PATH", tmp_path / "cache.feather")
+    monkeypatch.setattr(cache_mod, "CACHE_NESTED_PATH", tmp_path / "nested.feather")
+
+    cache_mod.buildFeatherCache()
+
+    assert any("ORDER BY TICKER ASC, TIME DESC" in sql for sql in seenSql)
+
+
+def test_build_stamps_presorted_marker(monkeypatch, tmp_path):
+    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: FakeConn([makeDf()]))
+    monkeypatch.setattr(cache_mod, "CACHE_FEATHER_PATH", tmp_path / "cache.feather")
+    monkeypatch.setattr(cache_mod, "CACHE_NESTED_PATH", tmp_path / "nested.feather")
+
+    cache_mod.buildFeatherCache()
+
+    table = feather.read_table(cache_mod.CACHE_FEATHER_PATH)
+    assert (table.schema.metadata or {}).get(cache_mod.PRESORTED_FLAG_KEY) == b"1"

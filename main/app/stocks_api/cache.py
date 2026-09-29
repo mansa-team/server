@@ -35,6 +35,7 @@ CACHE_FEATHER_PATH = Path("/app/cache/stocks_cache.feather")
 CACHE_NESTED_PATH = Path("/app/cache/stocks_nested.feather")
 STALE_AFTER_SECONDS = 6 * 3600
 CACHE_LOAD_LOCK = threading.Lock()
+PRESORTED_FLAG_KEY = b"b3_presorted"
 
 
 def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
@@ -96,7 +97,7 @@ def buildFeatherCache(engine: Engine | None = None):
             except Exception:
                 colTypes = {}
             stream = conn.execution_options(stream_results=True)
-            result = stream.exec_driver_sql("SELECT * FROM b3_stocks")
+            result = stream.exec_driver_sql("SELECT * FROM b3_stocks ORDER BY TICKER ASC, TIME DESC")
             try:
                 columns = list(result.keys())
                 while True:
@@ -130,7 +131,7 @@ def buildFeatherCache(engine: Engine | None = None):
                                 fields.append(pa.field(n, arrowTypeFor(colTypes.get(n, "varchar"))))
                             else:
                                 fields.append(pa.field(n, t))
-                        schema = pa.schema(fields)
+                        schema = pa.schema(fields).with_metadata({PRESORTED_FLAG_KEY: b"1"})
                         sink = pa.OSFile(str(tmpMain), "wb")
                         writer = pa.ipc.new_file(sink, schema)
                     assert writer is not None
