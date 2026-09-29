@@ -26,7 +26,7 @@ from main.models.user import User
 
 logger = logging.getLogger(__name__)
 
-INTROSPECT_SERVICE_TOKEN_ENV = "INTROSPECT_SERVICE_TOKEN"
+INTROSPECT_SERVICE_TOKEN_ENV = "INTROSPECT_SERVICE_TOKEN"  # nosec: B105 env var name, not a secret
 INTROSPECT_UNAUTHORIZED_DETAIL = "Unauthorized"
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])

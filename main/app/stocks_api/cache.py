@@ -135,7 +135,7 @@ def buildFeatherCache(engine: Engine | None = None):
                         schema = pa.schema(fields).with_metadata({PRESORTED_FLAG_KEY: b"1"})
                         sink = pa.OSFile(str(tmpMain), "wb")
                         writer = pa.ipc.new_file(sink, schema)
-                    assert writer is not None
+                    assert writer is not None  # nosec: B101 mypy narrowing, writer assigned just above
                     table = pa.Table.from_pandas(chunk, schema=schema, preserve_index=False)
                     writer.write_table(table)
                     total += len(chunk)
@@ -150,7 +150,7 @@ def buildFeatherCache(engine: Engine | None = None):
         try:
             resolvedEngine.dispose()
         except Exception:
-            pass
+            pass  # nosec: B110 dispose is best-effort, original error re-raised below
         raise
     finally:
         if writer is not None:
