@@ -1,7 +1,7 @@
 import pytest
 from main.models.user import User
 from main.models.stocksapi_key import StocksAPIKey
-from main.models.prometheus import PrometheusSession
+from main.models.orunmila import OrunmilaSession
 from main.app.user.user import UserManager
 from datetime import datetime, timedelta
 
@@ -47,18 +47,18 @@ class TestStocksAPIKeyModel:
         assert key.requestLimit == sampleAPIKeyData["requestLimit"]
 
 
-class TestPrometheusSessionModel:
-    def test_create_session(self, dbSession, samplePrometheusSessionData):
-        session = PrometheusSession(**samplePrometheusSessionData)
+class TestOrunmilaSessionModel:
+    def test_create_session(self, dbSession, sampleOrunmilaSessionData):
+        session = OrunmilaSession(**sampleOrunmilaSessionData)
         dbSession.add(session)
         dbSession.commit()
 
-        assert session.sessionId == samplePrometheusSessionData["sessionId"]
-        assert session.userId == samplePrometheusSessionData["userId"]
-        assert session.title == samplePrometheusSessionData["title"]
+        assert session.sessionId == sampleOrunmilaSessionData["sessionId"]
+        assert session.userId == sampleOrunmilaSessionData["userId"]
+        assert session.title == sampleOrunmilaSessionData["title"]
 
-    def test_default_history(self, dbSession, samplePrometheusSessionData):
-        session = PrometheusSession(**samplePrometheusSessionData)
+    def test_default_history(self, dbSession, sampleOrunmilaSessionData):
+        session = OrunmilaSession(**sampleOrunmilaSessionData)
         dbSession.add(session)
         dbSession.commit()
 

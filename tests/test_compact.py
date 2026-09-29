@@ -1,8 +1,8 @@
 import time
 import pytest
 from unittest.mock import patch, MagicMock
-import main.app.prometheus.compact as compactMod
-from main.app.prometheus.compact import (
+import main.app.orunmila.compact as compactMod
+from main.app.orunmila.compact import (
     extractTickers,
     extractMetrics,
     extractDecisions,
@@ -12,7 +12,7 @@ from main.app.prometheus.compact import (
     countTokens,
     getTokenizer,
     FALLBACK_FIELDS,
-    PrometheusCompactor,
+    OrunmilaCompactor,
     EPISODE_CAP,
     getMetricRegex,
     loadFieldData,
@@ -63,7 +63,7 @@ class TestExtractMetrics:
         compactMod.fieldData = None
         compactMod.metricRegex = None
         with patch(
-            "main.app.prometheus.compact.loadFieldData",
+            "main.app.orunmila.compact.loadFieldData",
             return_value={"historical": [], "fundamental": []},
         ):
             result = extractMetrics("INVESTING SCORE de 85 e DY de 12%")
@@ -136,18 +136,18 @@ class TestCountTokens:
         assert countTokens("") == 0
 
     def test_with_tokenizer(self):
-        with patch("main.app.prometheus.compact.getTokenizer") as mockGet:
+        with patch("main.app.orunmila.compact.getTokenizer") as mockGet:
             mockTok = MagicMock()
             mockTok.count_tokens.return_value.total_tokens = 10
             mockGet.return_value = mockTok
             assert countTokens("test text") == 10
 
     def test_without_tokenizer(self):
-        with patch("main.app.prometheus.compact.getTokenizer", return_value=None):
+        with patch("main.app.orunmila.compact.getTokenizer", return_value=None):
             assert countTokens("1234567890") == 3
 
     def test_fallback_on_exception(self):
-        with patch("main.app.prometheus.compact.getTokenizer") as mockGet:
+        with patch("main.app.orunmila.compact.getTokenizer") as mockGet:
             mockTok = MagicMock()
             mockTok.count_tokens.side_effect = RuntimeError("broken")
             mockGet.return_value = mockTok
@@ -156,10 +156,10 @@ class TestCountTokens:
 
 class TestGetTokenizer:
     def test_caches_instance(self):
-        import main.app.prometheus.compact as mod
+        import main.app.orunmila.compact as mod
 
         mod.tokenizer = None
-        with patch("main.app.prometheus.compact.genai") as mockGenai:
+        with patch("main.app.orunmila.compact.genai") as mockGenai:
             mockGenai.LocalTokenizer.return_value = MagicMock()
             t1 = getTokenizer()
             t2 = getTokenizer()
@@ -168,18 +168,18 @@ class TestGetTokenizer:
         mod.tokenizer = None
 
     def test_returns_none_on_failure(self):
-        import main.app.prometheus.compact as mod
+        import main.app.orunmila.compact as mod
 
         mod.tokenizer = None
-        with patch("main.app.prometheus.compact.genai") as mockGenai:
+        with patch("main.app.orunmila.compact.genai") as mockGenai:
             mockGenai.LocalTokenizer.side_effect = RuntimeError("no model")
             assert getTokenizer() is None
         mod.tokenizer = None
 
 
-class TestPrometheusCompactor:
+class TestOrunmilaCompactor:
     def setup_method(self):
-        self.compactor = PrometheusCompactor()
+        self.compactor = OrunmilaCompactor()
 
     def test_should_compact_below_budget(self):
         history = [{"role": "user", "content": "short"}]
@@ -209,7 +209,7 @@ class TestPrometheusCompactor:
 
     def test_extract_uses_field_registry(self):
         chunk = [{"role": "user", "content": "P/L de 5x e ROE 15%"}]
-        with patch("main.app.prometheus.compact.extractMetrics") as mockExtract:
+        with patch("main.app.orunmila.compact.extractMetrics") as mockExtract:
             mockExtract.return_value = ["P/L", "ROE"]
             result = self.compactor.extractEpisode(chunk)
             mockExtract.assert_called_once_with("P/L de 5x e ROE 15%")
@@ -304,7 +304,7 @@ class TestLoadFieldDataRetry:
         fakeResponse.json.return_value = {"historical": {"LUCRO LIQUIDO": [2023]}, "fundamental": ["P/L"]}
         mockSession = MagicMock()
         mockSession.get.side_effect = [Exception("boom"), fakeResponse]
-        with patch("main.app.prometheus.compact.getSession", return_value=mockSession):
+        with patch("main.app.orunmila.compact.getSession", return_value=mockSession):
             first = loadFieldData()
             assert first == {"historical": [], "fundamental": []}
             assert compactMod.fieldData is None

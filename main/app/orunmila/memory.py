@@ -19,12 +19,12 @@ from sqlalchemy import func, desc
 from sqlalchemy.dialects.mysql import match as mysqlMatch
 from sqlalchemy.orm import Session, defer
 
-from main.models.memory import PrometheusMemory as PrometheusMemoryModel
+from main.models.memory import OrunmilaMemory as OrunmilaMemoryModel
 from main.utils.roles import Permission, Roles
 
-from main.app.prometheus.vector import batchCosineSimilarity, contentHash, decodeEmbeddings, getRelevanceScore, embed
-from main.app.prometheus.chat import PrometheusChatManager
-from main.app.prometheus.compact import countTokens
+from main.app.orunmila.vector import batchCosineSimilarity, contentHash, decodeEmbeddings, getRelevanceScore, embed
+from main.app.orunmila.chat import OrunmilaChatManager
+from main.app.orunmila.compact import countTokens
 
 matrixCache = Cache()
 matrixCache.setup("mem://")
@@ -97,7 +97,7 @@ client = None
 def getClient():
     global client
     if client is None:
-        client = genai.Client(api_key=Config.PROMETHEUS.GEMINI_API_KEY)
+        client = genai.Client(api_key=Config.ORUNMILA.GEMINI_API_KEY)
     return client
 
 
@@ -117,10 +117,10 @@ def normalizeKey(key: str) -> str:
     return " ".join(normalized.split())
 
 
-def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8) -> PrometheusMemoryModel | None:
+def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8) -> OrunmilaMemoryModel | None:
     existing = (
-        db.query(PrometheusMemoryModel)
-        .filter(PrometheusMemoryModel.userId == userId, PrometheusMemoryModel.archivedAt.is_(None))
+        db.query(OrunmilaMemoryModel)
+        .filter(OrunmilaMemoryModel.userId == userId, OrunmilaMemoryModel.archivedAt.is_(None))
         .all()
     )
     newNormalized = normalizeKey(newKey)
@@ -191,19 +191,19 @@ def sumTokens(texts: list[str], cache: MutableMapping | None) -> int:
     return total
 
 
-class PrometheusMemory:
+class OrunmilaMemory:
     @classmethod
     def getMemoryLimit(cls, userRoles: list[str]) -> int:
-        if Roles.checkAccess(userRoles, Permission.PROMETHEUS_EXTENDED_MEMORIES):
+        if Roles.checkAccess(userRoles, Permission.ORUNMILA_EXTENDED_MEMORIES):
             return MEMORY_LIMIT_EXTENDED
         return MEMORY_LIMIT_BASIC
 
     @classmethod
     def countMemories(cls, db: Session, userId: int) -> int:
         return (
-            db.query(func.count(PrometheusMemoryModel.id))
-            .filter(PrometheusMemoryModel.userId == userId)
-            .filter(PrometheusMemoryModel.archivedAt.is_(None))
+            db.query(func.count(OrunmilaMemoryModel.id))
+            .filter(OrunmilaMemoryModel.userId == userId)
+            .filter(OrunmilaMemoryModel.archivedAt.is_(None))
             .scalar()
         )
 
@@ -231,8 +231,8 @@ class PrometheusMemory:
         userRoles: list[str] | None = None,
     ) -> dict:
         existing = (
-            db.query(PrometheusMemoryModel)
-            .filter(PrometheusMemoryModel.userId == userId, PrometheusMemoryModel.memoryKey == key)
+            db.query(OrunmilaMemoryModel)
+            .filter(OrunmilaMemoryModel.userId == userId, OrunmilaMemoryModel.memoryKey == key)
             .first()
         )
 
@@ -265,7 +265,7 @@ class PrometheusMemory:
             if current >= limit:
                 return {"status": "limit_reached", "limit": limit, "current": current}
 
-        memory = PrometheusMemoryModel(
+        memory = OrunmilaMemoryModel(
             userId=userId,
             memoryKey=key,
             memoryValue=value,
@@ -292,17 +292,17 @@ class PrometheusMemory:
         memoryType: str | None = None,
     ) -> list[dict]:
         queryFilter = (
-            db.query(PrometheusMemoryModel)
-            .filter(PrometheusMemoryModel.userId == userId)
-            .filter(PrometheusMemoryModel.archivedAt.is_(None))
+            db.query(OrunmilaMemoryModel)
+            .filter(OrunmilaMemoryModel.userId == userId)
+            .filter(OrunmilaMemoryModel.archivedAt.is_(None))
         )
 
         if memoryType:
-            queryFilter = queryFilter.filter(PrometheusMemoryModel.memoryType == memoryType)
+            queryFilter = queryFilter.filter(OrunmilaMemoryModel.memoryType == memoryType)
 
         candidateRows = (
-            queryFilter.options(defer(cast(Any, PrometheusMemoryModel.embedding)))
-            .order_by(PrometheusMemoryModel.score.desc())
+            queryFilter.options(defer(cast(Any, OrunmilaMemoryModel.embedding)))
+            .order_by(OrunmilaMemoryModel.score.desc())
             .limit(500)
             .all()
         )
@@ -317,7 +317,7 @@ class PrometheusMemory:
             simById: dict[int, float] = {}
 
             def loadMatrix() -> tuple[list[int], np.ndarray]:
-                embRows = db.query(PrometheusMemoryModel).filter(PrometheusMemoryModel.id.in_(candidateIds)).all()
+                embRows = db.query(OrunmilaMemoryModel).filter(OrunmilaMemoryModel.id.in_(candidateIds)).all()
                 rowsWithEmb = [m for m in embRows if m.embedding is not None]
                 if not rowsWithEmb:
                     return ([], np.empty((0, 0), dtype=np.float32))
@@ -349,23 +349,23 @@ class PrometheusMemory:
     def fullTextSearch(cls, db: Session, userId: int, query: str, limit: int) -> list[dict]:
         if db.bind is not None and db.bind.dialect.name == "mysql":
             matchExpr = mysqlMatch(
-                PrometheusMemoryModel.memoryKey,
-                PrometheusMemoryModel.memoryValue,
+                OrunmilaMemoryModel.memoryKey,
+                OrunmilaMemoryModel.memoryValue,
                 against=query,
                 in_boolean_mode=True,
             )
             results = (
                 db.query(
-                    PrometheusMemoryModel.id,
-                    PrometheusMemoryModel.memoryKey,
-                    PrometheusMemoryModel.memoryValue,
-                    PrometheusMemoryModel.memoryType,
-                    PrometheusMemoryModel.score,
+                    OrunmilaMemoryModel.id,
+                    OrunmilaMemoryModel.memoryKey,
+                    OrunmilaMemoryModel.memoryValue,
+                    OrunmilaMemoryModel.memoryType,
+                    OrunmilaMemoryModel.score,
                     matchExpr.label("matchScore"),
                 )
-                .filter(PrometheusMemoryModel.userId == userId)
-                .filter(PrometheusMemoryModel.archivedAt.is_(None))
-                .order_by(desc("matchScore"), desc(PrometheusMemoryModel.score))
+                .filter(OrunmilaMemoryModel.userId == userId)
+                .filter(OrunmilaMemoryModel.archivedAt.is_(None))
+                .order_by(desc("matchScore"), desc(OrunmilaMemoryModel.score))
                 .limit(limit)
                 .all()
             )
@@ -383,11 +383,11 @@ class PrometheusMemory:
 
         like = f"%{query}%"
         results = (
-            db.query(PrometheusMemoryModel)
-            .filter(PrometheusMemoryModel.userId == userId)
-            .filter(PrometheusMemoryModel.archivedAt.is_(None))
-            .filter(PrometheusMemoryModel.memoryKey.like(like) | PrometheusMemoryModel.memoryValue.like(like))
-            .order_by(PrometheusMemoryModel.score.desc())
+            db.query(OrunmilaMemoryModel)
+            .filter(OrunmilaMemoryModel.userId == userId)
+            .filter(OrunmilaMemoryModel.archivedAt.is_(None))
+            .filter(OrunmilaMemoryModel.memoryKey.like(like) | OrunmilaMemoryModel.memoryValue.like(like))
+            .order_by(OrunmilaMemoryModel.score.desc())
             .limit(limit)
             .all()
         )
@@ -406,10 +406,10 @@ class PrometheusMemory:
     @classmethod
     def getUserMemories(cls, db: Session, userId: int, limit: int = 50, offset: int = 0) -> list[dict]:
         memories = (
-            db.query(PrometheusMemoryModel)
-            .filter(PrometheusMemoryModel.userId == userId)
-            .filter(PrometheusMemoryModel.archivedAt.is_(None))
-            .order_by(PrometheusMemoryModel.score.desc())
+            db.query(OrunmilaMemoryModel)
+            .filter(OrunmilaMemoryModel.userId == userId)
+            .filter(OrunmilaMemoryModel.archivedAt.is_(None))
+            .order_by(OrunmilaMemoryModel.score.desc())
             .offset(offset)
             .limit(limit)
             .all()
@@ -431,8 +431,8 @@ class PrometheusMemory:
     @classmethod
     def deleteMemory(cls, db: Session, userId: int, memoryId: int) -> bool:
         memory = (
-            db.query(PrometheusMemoryModel)
-            .filter(PrometheusMemoryModel.id == memoryId, PrometheusMemoryModel.userId == userId)
+            db.query(OrunmilaMemoryModel)
+            .filter(OrunmilaMemoryModel.id == memoryId, OrunmilaMemoryModel.userId == userId)
             .first()
         )
 
@@ -449,7 +449,7 @@ class PrometheusMemory:
     @staticmethod
     def extract(
         db: Session | None = None, userId=None, sessionId=None, userRoles=None, tokenCache: MutableMapping | None = None
-    ) -> list[PrometheusMemoryModel]:
+    ) -> list[OrunmilaMemoryModel]:
         ownSession = db is None
         if ownSession:
             db = SessionLocal()
@@ -459,16 +459,14 @@ class PrometheusMemory:
                 return []
             cap = (
                 MEMORY_EXTRACT_PREMIUM_CAP
-                if Roles.checkAccess(userRoles, Permission.PROMETHEUS_EXTENDED_MEMORIES)
+                if Roles.checkAccess(userRoles, Permission.ORUNMILA_EXTENDED_MEMORIES)
                 else MEMORY_EXTRACT_FREE_CAP
             )
 
             watermark = (
-                db.query(func.max(PrometheusMemoryModel.createdAt))
-                .filter(PrometheusMemoryModel.userId == userId)
-                .scalar()
+                db.query(func.max(OrunmilaMemoryModel.createdAt)).filter(OrunmilaMemoryModel.userId == userId).scalar()
             )
-            msgs = PrometheusChatManager.getHistory(db, sessionId, limit=200, since=watermark)
+            msgs = OrunmilaChatManager.getHistory(db, sessionId, limit=200, since=watermark)
 
             acc = []
             tokens = 0
@@ -482,7 +480,7 @@ class PrometheusMemory:
             if tokens < MEMORY_EXTRACTION_TOKEN_BUDGET:
                 return []
 
-            remaining = PrometheusMemory.getMemoryLimit(userRoles) - PrometheusMemory.countMemories(db, userId)
+            remaining = OrunmilaMemory.getMemoryLimit(userRoles) - OrunmilaMemory.countMemories(db, userId)
             if remaining <= 0:
                 return []
             n = min(cap, remaining)
@@ -542,7 +540,7 @@ class PrometheusMemory:
                         embedding = embeddings[idx]
                     else:
                         embedding = embed([cand.value])[0]
-                    result = PrometheusMemory.upsertMemory(
+                    result = OrunmilaMemory.upsertMemory(
                         db,
                         userId,
                         key=cand.key,

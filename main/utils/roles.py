@@ -5,9 +5,9 @@ from fastapi import HTTPException, Depends
 class Permission(IntFlag):
     NONE = 0
 
-    USE_PROMETHEUS = auto()
+    USE_ORUNMILA = auto()
 
-    PROMETHEUS_EXTENDED_MEMORIES = auto()
+    ORUNMILA_EXTENDED_MEMORIES = auto()
 
     @classmethod
     def ALL(cls):
@@ -17,7 +17,7 @@ class Permission(IntFlag):
 class Roles(IntFlag):
     USER = Permission.NONE
 
-    PREMIUM = USER | Permission.USE_PROMETHEUS | Permission.PROMETHEUS_EXTENDED_MEMORIES
+    PREMIUM = USER | Permission.USE_ORUNMILA | Permission.ORUNMILA_EXTENDED_MEMORIES
 
     DEVELOPER_STARTER = USER
 

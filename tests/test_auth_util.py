@@ -114,7 +114,7 @@ class TestAuthUtilEdgeCases:
         assert "exp" in decoded
 
 
-# ---- moved from test_prometheus_auth_coverage.py (TestAuthenticationManager) ----
+# ---- moved from test_orunmila_auth_coverage.py (TestAuthenticationManager) ----
 
 
 class TestAuthenticationManager:

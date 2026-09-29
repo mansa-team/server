@@ -1,5 +1,5 @@
 import pytest
-from config import Config, StocksApiSettings, PrometheusSettings, ScraperSettings
+from config import Config, StocksApiSettings, OrunmilaSettings, ScraperSettings
 
 
 class TestConfig:
@@ -8,8 +8,8 @@ class TestConfig:
         assert settings.KEY_SYSTEM is not None
         assert settings.KEY is not None
 
-    def test_prometheus_attributes(self):
-        settings = PrometheusSettings()
+    def test_orunmila_attributes(self):
+        settings = OrunmilaSettings()
         assert settings.GEMINI_API_KEY is not None
 
     def test_scraper_attributes(self):

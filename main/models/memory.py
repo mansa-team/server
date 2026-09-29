@@ -5,8 +5,8 @@ from main.models.types import VectorType
 from main.models.user import User  # noqa: F401 — ensure 'User' in registry for relationship("User")
 
 
-class PrometheusMemory(Base):
-    __tablename__ = "prometheus_memories"
+class OrunmilaMemory(Base):
+    __tablename__ = "orunmila_memories"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     userId = Column(Integer, nullable=False, index=True)
@@ -24,11 +24,11 @@ class PrometheusMemory(Base):
     archivedAt = Column(DateTime, nullable=True)
 
     user = relationship(
-        "User", backref="memories", foreign_keys=[userId], primaryjoin="PrometheusMemory.userId == User.userId"
+        "User", backref="memories", foreign_keys=[userId], primaryjoin="OrunmilaMemory.userId == User.userId"
     )
 
     __table_args__ = (
-        UniqueConstraint("userId", "memoryKey", name="uk_prometheus_memories"),
+        UniqueConstraint("userId", "memoryKey", name="uk_orunmila_memories"),
         Index("idx_relevance", "userId", "score"),
         Index("idx_type", "userId", "memoryType"),
     )

@@ -14,7 +14,7 @@ MCP_SERVERS = [
         "url": f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/mcp",
         "headers": {"X-MCP": "true"},
     },
-    {"name": "searxng", "url": f"{Config.PROMETHEUS.SEARXNG_URL}/mcp/"},
+    {"name": "searxng", "url": f"{Config.ORUNMILA.SEARXNG_URL}/mcp/"},
 ]
 
 

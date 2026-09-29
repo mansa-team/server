@@ -5,18 +5,18 @@ import uuid
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.attributes import flag_modified
 
-from main.models.prometheus import PrometheusSession
+from main.models.orunmila import OrunmilaSession
 
 logger = logging.getLogger(__name__)
 
 
-class PrometheusChatManager:
+class OrunmilaChatManager:
     @classmethod
     def getUserSessions(cls, db: Session, userId: int):
         sessions = (
-            db.query(PrometheusSession.sessionId, PrometheusSession.title, PrometheusSession.lastActivity)
-            .filter(PrometheusSession.userId == userId)
-            .order_by(PrometheusSession.lastActivity.desc())
+            db.query(OrunmilaSession.sessionId, OrunmilaSession.title, OrunmilaSession.lastActivity)
+            .filter(OrunmilaSession.userId == userId)
+            .order_by(OrunmilaSession.lastActivity.desc())
             .all()
         )
 
@@ -32,14 +32,14 @@ class PrometheusChatManager:
     @classmethod
     def createSession(cls, db: Session, userId: int, title: str = "New Conversation"):
         sessionId = str(uuid.uuid4())
-        newSession = PrometheusSession(sessionId=sessionId, userId=userId, title=title, history=[])
+        newSession = OrunmilaSession(sessionId=sessionId, userId=userId, title=title, history=[])
         db.add(newSession)
         db.commit()
         return sessionId
 
     @classmethod
     def updateSessionTitle(cls, db: Session, sessionId: str, title: str):
-        session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
+        session = db.query(OrunmilaSession).filter(OrunmilaSession.sessionId == sessionId).first()
 
         if not session:
             return False
@@ -50,7 +50,7 @@ class PrometheusChatManager:
 
     @classmethod
     def appendHistory(cls, db: Session, sessionId: str, entry: dict):
-        session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
+        session = db.query(OrunmilaSession).filter(OrunmilaSession.sessionId == sessionId).first()
 
         if session:
             if session.history is None:
@@ -69,7 +69,7 @@ class PrometheusChatManager:
 
     @classmethod
     def getHistory(cls, db: Session, sessionId: str, limit: int = 20, since: datetime | None = None):
-        session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
+        session = db.query(OrunmilaSession).filter(OrunmilaSession.sessionId == sessionId).first()
 
         if not session or not session.history:
             return []
@@ -91,8 +91,8 @@ class PrometheusChatManager:
     @classmethod
     def deleteSession(cls, db: Session, sessionId: str, userId: int):
         session = (
-            db.query(PrometheusSession)
-            .filter(PrometheusSession.sessionId == sessionId, PrometheusSession.userId == userId)
+            db.query(OrunmilaSession)
+            .filter(OrunmilaSession.sessionId == sessionId, OrunmilaSession.userId == userId)
             .first()
         )
 
@@ -105,8 +105,8 @@ class PrometheusChatManager:
     @classmethod
     def verifySessionOwnership(cls, db: Session, sessionId: str, userId: int) -> bool:
         exists = (
-            db.query(PrometheusSession.sessionId)
-            .filter(PrometheusSession.sessionId == sessionId, PrometheusSession.userId == userId)
+            db.query(OrunmilaSession.sessionId)
+            .filter(OrunmilaSession.sessionId == sessionId, OrunmilaSession.userId == userId)
             .first()
             is not None
         )

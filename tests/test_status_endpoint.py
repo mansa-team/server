@@ -52,7 +52,7 @@ class TestStatusEndpoint:
     def test_status_services_contain_expected_keys(self, statusClient):
         data = statusClient.get("/status").json()
         services = data["services"]
-        for name in ["user", "stocks_api", "prometheus"]:
+        for name in ["user", "stocks_api", "orunmila"]:
             assert name in services, f"Missing service: {name}"
 
     def test_status_local_service_has_port_and_type(self, statusClient):

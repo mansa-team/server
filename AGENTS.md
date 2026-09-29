@@ -1,5 +1,5 @@
 ## Project Overview
-FastAPI-based stock trading/investing platform focused on Brazilian stocks (B3). Multi-service architecture: USER, STOCKS_API, PROMETHEUS (AI chat), SCRAPER.
+FastAPI-based stock trading/investing platform focused on Brazilian stocks (B3). Multi-service architecture: USER, STOCKS_API, ORUNMILA (AI chat), SCRAPER.
 
 ## Dev Commands
 ```bash

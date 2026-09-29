@@ -4,17 +4,17 @@ from sqlalchemy import event
 from sqlalchemy.dialects import mysql
 from sqlalchemy.dialects.mysql import match as mysqlMatch
 
-import main.app.prometheus.memory as memoryMod
-from main.app.prometheus.memory import clearAll
-from main.app.prometheus.memory import PrometheusMemory as MemoryService
-from main.models.memory import PrometheusMemory
+import main.app.orunmila.memory as memoryMod
+from main.app.orunmila.memory import clearAll
+from main.app.orunmila.memory import OrunmilaMemory as MemoryService
+from main.models.memory import OrunmilaMemory
 
 
 USER_ID = 1
 
 
 def seedMemory(db, value, score=7.0):
-    memory = PrometheusMemory(
+    memory = OrunmilaMemory(
         userId=USER_ID,
         memoryKey="ticker",
         memoryValue=value,
@@ -82,7 +82,7 @@ def test_search_defersEmbeddingBlob(dbSession, monkeypatch):
 
 
 def test_search_embedFailureFallsBackToFulltextRecency(dbSession, monkeypatch):
-    from main.app.prometheus.memory import minMax
+    from main.app.orunmila.memory import minMax
 
     assert minMax([0.0, 0.0, 0.0]) == [0.0, 0.0, 0.0]
 
@@ -144,8 +144,8 @@ def test_search_fusesFulltextOverVectorOnly(dbSession, monkeypatch):
 
 class TestFullTextSearchFallback:
     matchExpr = mysqlMatch(
-        PrometheusMemory.memoryKey,
-        PrometheusMemory.memoryValue,
+        OrunmilaMemory.memoryKey,
+        OrunmilaMemory.memoryValue,
         against="petrobras",
         in_boolean_mode=True,
     )

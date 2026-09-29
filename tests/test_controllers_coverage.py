@@ -17,11 +17,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 # Shared controller TestClient builders live in conftest (single copy reused by
 # all controller test files): make_auth_client, make_user_client,
-# make_prometheus_client, make_stocksapi_client.
+# make_orunmila_client, make_stocksapi_client.
 from tests.conftest import (
     make_auth_client,
     make_user_client,
-    make_prometheus_client,
+    make_orunmila_client,
     make_stocksapi_client,
 )
 
@@ -719,76 +719,76 @@ class TestRevokeAllSessions:
 
 
 # =========================================================================
-# 3. prometheus_controller.py — 28 uncovered lines
+# 3. orunmila_controller.py — 28 uncovered lines
 # =========================================================================
-class TestPrometheusHealth:
-    """Covers line 24: GET /prometheus/health."""
+class TestOrunmilaHealth:
+    """Covers line 24: GET /orunmila/health."""
 
     def test_health(self):
-        from main.controller.prometheus_controller import router as promRouter
+        from main.controller.orunmila_controller import router as promRouter
 
         app = FastAPI()
         app.include_router(promRouter)
         client = TestClient(app, raise_server_exceptions=False)
-        resp = client.get("/prometheus/health")
+        resp = client.get("/orunmila/health")
         assert resp.status_code == 200
         assert resp.json()["status"] == "ok"
 
 
-class TestPrometheusGetSessions:
-    """Covers lines 33-36: GET /prometheus/sessions."""
+class TestOrunmilaGetSessions:
+    """Covers lines 33-36: GET /orunmila/sessions."""
 
     def test_get_sessions(self):
         """Covers lines 33-36."""
-        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm:
+        with patch("main.controller.orunmila_controller.OrunmilaChatManager") as mock_pcm:
             mock_pcm.getUserSessions.return_value = [
                 {"sessionId": "s1", "title": "Chat 1", "lastActivity": "2026-01-01T00:00:00"},
             ]
 
-            client, _, _ = make_prometheus_client()
-            resp = client.get("/prometheus/sessions")
+            client, _, _ = make_orunmila_client()
+            resp = client.get("/orunmila/sessions")
             assert resp.status_code == 200
             data = resp.json()
             assert data["total"] == 1
             assert data["success"] is True
 
 
-class TestPrometheusUpdateSessionTitle:
-    """Covers lines 62-63, 65-68: PUT /prometheus/sessions/{sessionId}."""
+class TestOrunmilaUpdateSessionTitle:
+    """Covers lines 62-63, 65-68: PUT /orunmila/sessions/{sessionId}."""
 
     def test_update_title_success(self):
         """Covers lines 65-68: title updated successfully."""
-        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm:
+        with patch("main.controller.orunmila_controller.OrunmilaChatManager") as mock_pcm:
             mock_pcm.verifySessionOwnership.return_value = True
             mock_pcm.updateSessionTitle.return_value = True
 
-            client, _, _ = make_prometheus_client()
-            resp = client.put("/prometheus/sessions/s1", json={"title": "Updated"})
+            client, _, _ = make_orunmila_client()
+            resp = client.put("/orunmila/sessions/s1", json={"title": "Updated"})
             assert resp.status_code == 200
             assert resp.json()["message"] == "Session title updated"
 
     def test_update_title_not_owner(self):
         """Covers lines 62-63: not the session owner."""
-        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm:
+        with patch("main.controller.orunmila_controller.OrunmilaChatManager") as mock_pcm:
             mock_pcm.verifySessionOwnership.return_value = False
 
-            client, _, _ = make_prometheus_client()
-            resp = client.put("/prometheus/sessions/s1", json={"title": "Hacked"})
+            client, _, _ = make_orunmila_client()
+            resp = client.put("/orunmila/sessions/s1", json={"title": "Hacked"})
             assert resp.status_code == 403
 
     def test_update_title_not_found(self):
         """Covers lines 66-67: session not found."""
-        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm:
+        with patch("main.controller.orunmila_controller.OrunmilaChatManager") as mock_pcm:
             mock_pcm.verifySessionOwnership.return_value = True
             mock_pcm.updateSessionTitle.return_value = False
 
-            client, _, _ = make_prometheus_client()
-            resp = client.put("/prometheus/sessions/s1", json={"title": "Ghost"})
+            client, _, _ = make_orunmila_client()
+            resp = client.put("/orunmila/sessions/s1", json={"title": "Ghost"})
             assert resp.status_code == 404
 
 
-class TestPrometheusGetHistory:
-    """Covers lines 77, 83-84, 86: GET /prometheus/history/{sessionId}."""
+class TestOrunmilaGetHistory:
+    """Covers lines 77, 83-84, 86: GET /orunmila/history/{sessionId}."""
 
     def test_get_history_found(self):
         """Covers lines 77, 86: session found with history."""
@@ -797,14 +797,14 @@ class TestPrometheusGetHistory:
         mock_session.userId = 1
         mock_session.history = [{"role": "user", "content": "hello"}]
 
-        # The prometheus router uses Roles.requirePermission(Permission.USE_PROMETHEUS) as a dep.
+        # The orunmila router uses Roles.requirePermission(Permission.USE_ORUNMILA) as a dep.
         # This creates a new callable each time, so dependency_overrides can't match it.
         # Instead, we patch the module-level Roles to return a fixed checker.
         from main.app.user.user import UserManager
         from main.app.authentication.util import extractTokenPayload
 
         app = FastAPI()
-        from main.controller.prometheus_controller import router as promRouter
+        from main.controller.orunmila_controller import router as promRouter
         from main.utils.errors import registerErrorHandlers
 
         app.include_router(promRouter)
@@ -822,7 +822,7 @@ class TestPrometheusGetHistory:
         mock_db.query.return_value.filter.return_value.first.return_value = mock_session
 
         # Patch Roles.requirePermission to return a function that always passes
-        with patch("main.controller.prometheus_controller.Roles") as mock_roles:
+        with patch("main.controller.orunmila_controller.Roles") as mock_roles:
 
             async def mock_checker(user=None, **kwargs):
                 return user or {"userId": 1, "username": "alice", "roles": ["PREMIUM"]}
@@ -830,7 +830,7 @@ class TestPrometheusGetHistory:
             mock_roles.requirePermission.return_value = mock_checker
 
             client = TestClient(app, raise_server_exceptions=False)
-            resp = client.get("/prometheus/history/s1")
+            resp = client.get("/orunmila/history/s1")
             assert resp.status_code == 200
             assert resp.json()["history"] == [{"role": "user", "content": "hello"}]
 
@@ -840,7 +840,7 @@ class TestPrometheusGetHistory:
         from main.app.authentication.util import extractTokenPayload
 
         app = FastAPI()
-        from main.controller.prometheus_controller import router as promRouter
+        from main.controller.orunmila_controller import router as promRouter
         from main.utils.errors import registerErrorHandlers
 
         app.include_router(promRouter)
@@ -857,7 +857,7 @@ class TestPrometheusGetHistory:
         # Session not found
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
-        with patch("main.controller.prometheus_controller.Roles") as mock_roles:
+        with patch("main.controller.orunmila_controller.Roles") as mock_roles:
 
             async def mock_checker(user=None, **kwargs):
                 return user or {"userId": 1, "username": "alice", "roles": ["PREMIUM"]}
@@ -865,35 +865,35 @@ class TestPrometheusGetHistory:
             mock_roles.requirePermission.return_value = mock_checker
 
             client = TestClient(app, raise_server_exceptions=False)
-            resp = client.get("/prometheus/history/s1")
+            resp = client.get("/orunmila/history/s1")
             assert resp.status_code == 403
 
 
-class TestPrometheusDeleteSession:
-    """Covers lines 95-98: DELETE /prometheus/sessions/{sessionId}."""
+class TestOrunmilaDeleteSession:
+    """Covers lines 95-98: DELETE /orunmila/sessions/{sessionId}."""
 
     def test_delete_session_success(self):
         """Covers lines 95-98: session deleted."""
-        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm:
+        with patch("main.controller.orunmila_controller.OrunmilaChatManager") as mock_pcm:
             mock_pcm.deleteSession.return_value = True
 
-            client, _, _ = make_prometheus_client()
-            resp = client.delete("/prometheus/sessions/s1")
+            client, _, _ = make_orunmila_client()
+            resp = client.delete("/orunmila/sessions/s1")
             assert resp.status_code == 200
             assert resp.json()["message"] == "Session deleted"
 
     def test_delete_session_not_found(self):
         """Covers lines 96-97: session not found."""
-        with patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm:
+        with patch("main.controller.orunmila_controller.OrunmilaChatManager") as mock_pcm:
             mock_pcm.deleteSession.return_value = False
 
-            client, _, _ = make_prometheus_client()
-            resp = client.delete("/prometheus/sessions/s1")
+            client, _, _ = make_orunmila_client()
+            resp = client.delete("/orunmila/sessions/s1")
             assert resp.status_code == 404
 
 
-class TestPrometheusChat:
-    """Covers lines 109-136: POST /prometheus/chat/stream (SSE)."""
+class TestOrunmilaChat:
+    """Covers lines 109-136: POST /orunmila/chat/stream (SSE)."""
 
     def test_chat_new_session(self):
         """Covers lines 118-119: sessionId is None, new session created."""
@@ -902,15 +902,15 @@ class TestPrometheusChat:
             yield {"type": "text", "text": "AI response here"}
 
         with (
-            patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm,
-            patch("main.controller.prometheus_controller.Prometheus") as mock_prom,
+            patch("main.controller.orunmila_controller.OrunmilaChatManager") as mock_pcm,
+            patch("main.controller.orunmila_controller.Orunmila") as mock_prom,
         ):
             mock_pcm.createSession.return_value = "new-chat-id"
             mock_pcm.getHistory.return_value = []
             mock_prom.return_value.streamMessage = fake_stream
 
-            client, _, _ = make_prometheus_client()
-            resp = client.post("/prometheus/chat/stream", data={"query": "Hello AI"}, files={})
+            client, _, _ = make_orunmila_client()
+            resp = client.post("/orunmila/chat/stream", data={"query": "Hello AI"}, files={})
             assert resp.status_code == 200
             mock_pcm.createSession.assert_called_once()
 
@@ -920,7 +920,7 @@ class TestPrometheusChat:
         from main.app.authentication.util import extractTokenPayload
 
         app = FastAPI()
-        from main.controller.prometheus_controller import router as promRouter
+        from main.controller.orunmila_controller import router as promRouter
         from main.utils.errors import registerErrorHandlers
 
         app.include_router(promRouter)
@@ -938,9 +938,9 @@ class TestPrometheusChat:
             yield {"type": "text", "text": "Response"}
 
         with (
-            patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm,
-            patch("main.controller.prometheus_controller.Prometheus") as mock_prom,
-            patch("main.controller.prometheus_controller.Roles") as mock_roles,
+            patch("main.controller.orunmila_controller.OrunmilaChatManager") as mock_pcm,
+            patch("main.controller.orunmila_controller.Orunmila") as mock_prom,
+            patch("main.controller.orunmila_controller.Roles") as mock_roles,
         ):
 
             async def mock_checker(user=None, **kwargs):
@@ -954,7 +954,7 @@ class TestPrometheusChat:
 
             client = TestClient(app, raise_server_exceptions=False)
             resp = client.post(
-                "/prometheus/chat/stream", data={"query": "Follow up", "sessionId": "existing-sid"}, files={}
+                "/orunmila/chat/stream", data={"query": "Follow up", "sessionId": "existing-sid"}, files={}
             )
             assert resp.status_code == 200
             mock_pcm.verifySessionOwnership.assert_called_once()
@@ -965,7 +965,7 @@ class TestPrometheusChat:
         from main.app.authentication.util import extractTokenPayload
 
         app = FastAPI()
-        from main.controller.prometheus_controller import router as promRouter
+        from main.controller.orunmila_controller import router as promRouter
         from main.utils.errors import registerErrorHandlers
 
         app.include_router(promRouter)
@@ -980,8 +980,8 @@ class TestPrometheusChat:
         app.dependency_overrides[extractTokenPayload] = lambda: {"userId": 1}
 
         with (
-            patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm,
-            patch("main.controller.prometheus_controller.Roles") as mock_roles,
+            patch("main.controller.orunmila_controller.OrunmilaChatManager") as mock_pcm,
+            patch("main.controller.orunmila_controller.Roles") as mock_roles,
         ):
 
             async def mock_checker(user=None, **kwargs):
@@ -992,7 +992,7 @@ class TestPrometheusChat:
             mock_pcm.verifySessionOwnership.return_value = False
 
             client = TestClient(app, raise_server_exceptions=False)
-            resp = client.post("/prometheus/chat/stream", data={"query": "Hack", "sessionId": "others-sid"}, files={})
+            resp = client.post("/orunmila/chat/stream", data={"query": "Hack", "sessionId": "others-sid"}, files={})
             assert resp.status_code == 403
 
     def test_chat_generic_exception(self):
@@ -1003,15 +1003,15 @@ class TestPrometheusChat:
             yield  # make it async generator
 
         with (
-            patch("main.controller.prometheus_controller.PrometheusChatManager") as mock_pcm,
-            patch("main.controller.prometheus_controller.Prometheus") as mock_prom,
+            patch("main.controller.orunmila_controller.OrunmilaChatManager") as mock_pcm,
+            patch("main.controller.orunmila_controller.Orunmila") as mock_prom,
         ):
             mock_pcm.createSession.return_value = "err-sess"
             mock_pcm.getHistory.return_value = []
             mock_prom.return_value.streamMessage = failing_stream
 
-            client, _, _ = make_prometheus_client()
-            resp = client.post("/prometheus/chat/stream", data={"query": "crash"}, files={})
+            client, _, _ = make_orunmila_client()
+            resp = client.post("/orunmila/chat/stream", data={"query": "crash"}, files={})
             assert resp.status_code == 200  # SSE stream returns 200, error is in the stream data
 
 

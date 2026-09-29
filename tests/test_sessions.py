@@ -91,7 +91,7 @@ class TestSessionExpiration:
         assert session.createdAt > datetime.now()
 
 
-# ---- moved from test_prometheus_auth_coverage.py (TestSessionManager) ----
+# ---- moved from test_orunmila_auth_coverage.py (TestSessionManager) ----
 
 
 class TestSessionManager:

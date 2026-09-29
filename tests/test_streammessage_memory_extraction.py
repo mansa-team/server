@@ -10,14 +10,14 @@ from sqlalchemy.pool import StaticPool
 
 from config import getSession
 from main.models.base import Base
-from main.models.prometheus import PrometheusSession
+from main.models.orunmila import OrunmilaSession
 
 
 @pytest.fixture(autouse=True)
 def stubFastmcp():
     # fastmcp client import is broken in this env (mcp SDK version mismatch:
     # fastmcp 3.3.1 expects `from mcp import McpError`, installed mcp exports MCPError).
-    # Stub fastmcp so main.app.prometheus.agent imports; real MCP pool never runs.
+    # Stub fastmcp so main.app.orunmila.agent imports; real MCP pool never runs.
     fastmcpStub = types.ModuleType("fastmcp")
     fastmcpStub.Client = MagicMock()
     clientStub = types.ModuleType("fastmcp.client")
@@ -41,13 +41,13 @@ def test_streammessage_triggers_memory_extraction(client, monkeypatch):
     engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
     Base.metadata.create_all(engine)
     dbSession = sessionmaker(bind=engine)()
-    dbSession.add(PrometheusSession(sessionId="s1", userId=1, title="Test", summary="", history=[]))
+    dbSession.add(OrunmilaSession(sessionId="s1", userId=1, title="Test", summary="", history=[]))
     dbSession.commit()
     client.app.dependency_overrides[getSession] = lambda: dbSession
 
-    # The runner in prometheus_controller creates its own SessionLocal() from
+    # The runner in orunmila_controller creates its own SessionLocal() from
     # config (MySQL 'db'); patch it so the background run uses the same sqlite.
-    import main.controller.prometheus_controller as controller_mod
+    import main.controller.orunmila_controller as controller_mod
 
     monkeypatch.setattr(controller_mod, "SessionLocal", lambda: dbSession)
 
@@ -63,21 +63,21 @@ def test_streammessage_triggers_memory_extraction(client, monkeypatch):
     mockChatSession.send_message_stream = AsyncMock(return_value=fakeStream())
 
     with (
-        patch("main.app.prometheus.agent.clientPool") as mockPool,
-        patch("main.app.prometheus.agent.Config") as mockConfig,
-        patch("main.app.prometheus.agent.genai"),
-        patch("main.app.prometheus.agent.PrometheusCompactor"),
-        patch("main.app.prometheus.agent.Prometheus.makeChat", return_value=mockChatSession),
-        patch("main.app.prometheus.memory.PrometheusMemory.extract") as mockExtract,
+        patch("main.app.orunmila.agent.clientPool") as mockPool,
+        patch("main.app.orunmila.agent.Config") as mockConfig,
+        patch("main.app.orunmila.agent.genai"),
+        patch("main.app.orunmila.agent.OrunmilaCompactor"),
+        patch("main.app.orunmila.agent.Orunmila.makeChat", return_value=mockChatSession),
+        patch("main.app.orunmila.memory.OrunmilaMemory.extract") as mockExtract,
     ):
-        mockConfig.PROMETHEUS = MagicMock(GEMINI_API_KEY="test-key")
+        mockConfig.ORUNMILA = MagicMock(GEMINI_API_KEY="test-key")
         mockConfig.DEBUG_MODE = True
         mockConfig.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mockPool.clients = {"stocks": MagicMock()}
         mockPool.getClients = AsyncMock(return_value=({"stocks": MagicMock()}, [MagicMock()]))
 
         resp = client.post(
-            "/prometheus/chat/stream",
+            "/orunmila/chat/stream",
             data={"query": "lembre que prefiro FIIs", "sessionId": "s1"},
             files={},
         )

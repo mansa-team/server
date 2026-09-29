@@ -24,7 +24,7 @@ requests
 zstandard
 cashews
 
-# PROMETHEUS
+# ORUNMILA
 sse-starlette
 sentence-transformers
 huggingface-hub

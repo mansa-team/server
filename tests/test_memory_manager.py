@@ -3,15 +3,15 @@ import uuid
 import pytest
 import numpy as np
 from datetime import datetime, timezone
-from main.app.prometheus.memory import (
-    PrometheusMemory as MemoryManager,
+from main.app.orunmila.memory import (
+    OrunmilaMemory as MemoryManager,
     MEMORY_LIMIT_BASIC,
     MEMORY_LIMIT_EXTENDED,
     getMatrix,
     invalidateUser,
     clearAll,
 )
-from main.models.memory import PrometheusMemory
+from main.models.memory import OrunmilaMemory
 
 
 class TestGetMemoryLimit:
@@ -95,7 +95,7 @@ class TestCountMemories:
     def test_excludes_archived(self, dbSession):
         MemoryManager.upsertMemory(dbSession, 1, "k1", "v1")
         MemoryManager.upsertMemory(dbSession, 1, "k2", "v2")
-        mem = dbSession.query(PrometheusMemory).filter(PrometheusMemory.memoryKey == "k1").first()
+        mem = dbSession.query(OrunmilaMemory).filter(OrunmilaMemory.memoryKey == "k1").first()
         mem.archivedAt = datetime.now()
         dbSession.commit()
         assert MemoryManager.countMemories(dbSession, 1) == 1
@@ -124,7 +124,7 @@ class TestGetUserMemories:
     def test_excludes_archived(self, dbSession):
         MemoryManager.upsertMemory(dbSession, 1, "k1", "v1")
         MemoryManager.upsertMemory(dbSession, 1, "k2", "v2")
-        mem = dbSession.query(PrometheusMemory).filter(PrometheusMemory.memoryKey == "k1").first()
+        mem = dbSession.query(OrunmilaMemory).filter(OrunmilaMemory.memoryKey == "k1").first()
         mem.archivedAt = datetime.now()
         dbSession.commit()
         result = MemoryManager.getUserMemories(dbSession, 1)

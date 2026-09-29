@@ -3,10 +3,10 @@ import asyncio
 import numpy as np
 import pytest
 
-import main.app.prometheus.memory as memoryMod
-import main.app.prometheus.tools as toolsMod
-from main.app.prometheus.memory import PrometheusMemory, clearAll, getMatrix
-from main.app.prometheus.tools import save_memory, search_memory
+import main.app.orunmila.memory as memoryMod
+import main.app.orunmila.tools as toolsMod
+from main.app.orunmila.memory import OrunmilaMemory, clearAll, getMatrix
+from main.app.orunmila.tools import save_memory, search_memory
 
 
 def makeQueryVector():
@@ -29,7 +29,7 @@ class TestSearchVectorPath:
     def test_search_vectorPath(self, dbSession, monkeypatch):
         clearAll()
         monkeypatch.setattr(memoryMod, "embed", lambda texts: [makeQueryVector() for _ in texts])
-        PrometheusMemory.upsertMemory(
+        OrunmilaMemory.upsertMemory(
             dbSession,
             31,
             "ticker favorito",
@@ -37,7 +37,7 @@ class TestSearchVectorPath:
             "preference",
             embedding=makeMatchVector(),
         )
-        PrometheusMemory.upsertMemory(
+        OrunmilaMemory.upsertMemory(
             dbSession,
             31,
             "outro",
@@ -45,7 +45,7 @@ class TestSearchVectorPath:
             "preference",
             embedding=makeDistractorVector(),
         )
-        res = PrometheusMemory.search(dbSession, 31, "WEGE3")
+        res = OrunmilaMemory.search(dbSession, 31, "WEGE3")
         assert res[0]["memoryKey"] == "ticker favorito"
         assert res[0]["similarity"] > 0
 
@@ -54,7 +54,7 @@ class TestUpsertThenSearch:
     def test_upsertThenSearchFindsRow(self, dbSession, monkeypatch):
         clearAll()
         monkeypatch.setattr(memoryMod, "embed", lambda texts: [makeFlatVector() for _ in texts])
-        PrometheusMemory.upsertMemory(
+        OrunmilaMemory.upsertMemory(
             dbSession,
             32,
             "chave teste",
@@ -62,7 +62,7 @@ class TestUpsertThenSearch:
             "preference",
             embedding=makeFlatVector(),
         )
-        res = PrometheusMemory.search(dbSession, 32, "teste")
+        res = OrunmilaMemory.search(dbSession, 32, "teste")
         assert any(r["memoryKey"] == "chave teste" for r in res)
 
 

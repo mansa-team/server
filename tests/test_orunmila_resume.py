@@ -1,7 +1,7 @@
 import asyncio
 import json
 
-import main.controller.prometheus_controller as controller_mod
+import main.controller.orunmila_controller as controller_mod
 import pytest
 from datetime import datetime
 from unittest.mock import MagicMock
@@ -10,12 +10,12 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from config import getSession
-from main.app.prometheus.agent import Prometheus
-from main.app.prometheus.stream_bus import streamBus
+from main.app.orunmila.agent import Orunmila
+from main.app.orunmila.stream_bus import streamBus
 from main.models.base import Base
 
 
-class FakePrometheus(Prometheus):
+class FakeOrunmila(Orunmila):
     async def streamMessage(self, query=None, sessionId=None, db=None, user=None, file=None):
         yield {"type": "text", "text": "first"}
         yield {"type": "text", "text": " second"}
@@ -30,22 +30,22 @@ def isolate_bus():
 
 @pytest.fixture(autouse=True)
 def no_gemini_client(monkeypatch):
-    """chat_stream builds Prometheus() per run; __init__ creates a genai.Client
+    """chat_stream builds Orunmila() per run; __init__ creates a genai.Client
     which requires a real Gemini API key that CI doesn't have. These tests mock
     streamMessage, so the constructor is a no-op."""
-    monkeypatch.setattr(Prometheus, "__init__", lambda self: None)
+    monkeypatch.setattr(Orunmila, "__init__", lambda self: None)
 
 
 @pytest.fixture(autouse=True)
 def sqlite_db(client, monkeypatch):
-    """Route the prometheus router + background runner to in-memory sqlite so
+    """Route the orunmila router + background runner to in-memory sqlite so
     these tests don't need a live MySQL server (docker 'db' host)."""
     engine = create_engine("sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool)
     Base.metadata.create_all(engine)
     session_factory = sessionmaker(bind=engine)
 
     client.app.dependency_overrides[getSession] = lambda: session_factory()
-    # The runner in prometheus_controller creates its own SessionLocal() from
+    # The runner in orunmila_controller creates its own SessionLocal() from
     # config; patch it so the background run also uses sqlite.
     monkeypatch.setattr(controller_mod, "SessionLocal", session_factory)
 
@@ -61,9 +61,9 @@ def payloads(resp):
 
 
 def test_post_stream_then_resume_replays_from_cursor(client, monkeypatch):
-    monkeypatch.setattr(Prometheus, "streamMessage", FakePrometheus.streamMessage)
+    monkeypatch.setattr(Orunmila, "streamMessage", FakeOrunmila.streamMessage)
 
-    with client.stream("POST", "/prometheus/chat/stream", data={"query": "oi"}, files={}) as r:
+    with client.stream("POST", "/orunmila/chat/stream", data={"query": "oi"}, files={}) as r:
         assert r.status_code == 200
         result_payloads = payloads(r)
 
@@ -74,7 +74,7 @@ def test_post_stream_then_resume_replays_from_cursor(client, monkeypatch):
     sid = result_payloads[0]["sessionId"]
 
     # Resume with cursor=2: "first" was consumed, replay must start at " second"
-    with client.stream("GET", f"/prometheus/chat/stream/{sid}?cursor=2") as r2:
+    with client.stream("GET", f"/orunmila/chat/stream/{sid}?cursor=2") as r2:
         assert r2.status_code == 200
         payloads2 = payloads(r2)
 
@@ -83,16 +83,16 @@ def test_post_stream_then_resume_replays_from_cursor(client, monkeypatch):
 
 
 def test_resume_unknown_session_is_forbidden(client):
-    with client.stream("GET", "/prometheus/chat/stream/nope?cursor=0") as r:
+    with client.stream("GET", "/orunmila/chat/stream/nope?cursor=0") as r:
         assert r.status_code == 403
 
 
 def test_resume_requires_valid_cursor(client, monkeypatch):
-    monkeypatch.setattr(Prometheus, "streamMessage", FakePrometheus.streamMessage)
-    with client.stream("POST", "/prometheus/chat/stream", data={"query": "oi"}, files={}) as r:
+    monkeypatch.setattr(Orunmila, "streamMessage", FakeOrunmila.streamMessage)
+    with client.stream("POST", "/orunmila/chat/stream", data={"query": "oi"}, files={}) as r:
         sid = payloads(r)[0]["sessionId"]
 
-    with client.stream("GET", f"/prometheus/chat/stream/{sid}?cursor=-1") as r2:
+    with client.stream("GET", f"/orunmila/chat/stream/{sid}?cursor=-1") as r2:
         assert r2.status_code == 422
 
 
@@ -100,14 +100,14 @@ def test_second_post_to_same_session_replaces_log(client, monkeypatch):
     """Regression (C1): a second POST to the SAME session must stream only the
     second run's events; the stale log of the finished first run must not be
     replayed (which would terminate the stream at the stale done)."""
-    monkeypatch.setattr(Prometheus, "streamMessage", FakePrometheus.streamMessage)
+    monkeypatch.setattr(Orunmila, "streamMessage", FakeOrunmila.streamMessage)
 
-    with client.stream("POST", "/prometheus/chat/stream", data={"query": "oi"}, files={}) as r:
+    with client.stream("POST", "/orunmila/chat/stream", data={"query": "oi"}, files={}) as r:
         assert r.status_code == 200
         first = payloads(r)
     sid = first[0]["sessionId"]
 
-    with client.stream("POST", "/prometheus/chat/stream", data={"query": "oi", "sessionId": sid}, files={}) as r2:
+    with client.stream("POST", "/orunmila/chat/stream", data={"query": "oi", "sessionId": sid}, files={}) as r2:
         assert r2.status_code == 200
         second = payloads(r2)
 
@@ -151,20 +151,20 @@ async def test_forward_terminates_when_finished_channel_has_empty_replay(monkeyp
     assert "data: [DONE]\n\n" in data
 
 
-# ---- moved from test_prometheus_auth_coverage.py (TestPrometheusChatManager) ----
+# ---- moved from test_orunmila_auth_coverage.py (TestOrunmilaChatManager) ----
 
 
-class TestPrometheusChatManager:
+class TestOrunmilaChatManager:
     """Cover all methods in chat.py (lines 11-120)."""
 
     def test_init(self):
-        from main.app.prometheus.chat import PrometheusChatManager
+        from main.app.orunmila.chat import OrunmilaChatManager
 
-        mgr = PrometheusChatManager()
+        mgr = OrunmilaChatManager()
         assert mgr is not None
 
     def test_get_user_sessions(self):
-        from main.app.prometheus.chat import PrometheusChatManager
+        from main.app.orunmila.chat import OrunmilaChatManager
 
         mock_db = MagicMock()
 
@@ -183,53 +183,53 @@ class TestPrometheusChatManager:
             mock_session2,
         ]
 
-        result = PrometheusChatManager.getUserSessions(mock_db, userId=1)
+        result = OrunmilaChatManager.getUserSessions(mock_db, userId=1)
         assert len(result) == 2
         assert result[0]["sessionId"] == "s1"
         assert result[0]["lastActivity"] == "2026-03-23T12:00:00"
         assert result[1]["lastActivity"] is None
 
     def test_create_session(self):
-        from main.app.prometheus.chat import PrometheusChatManager
+        from main.app.orunmila.chat import OrunmilaChatManager
 
         mock_db = MagicMock()
 
-        result = PrometheusChatManager.createSession(mock_db, userId=1, title="Test")
+        result = OrunmilaChatManager.createSession(mock_db, userId=1, title="Test")
         assert isinstance(result, str)
         assert len(result) > 0
         mock_db.add.assert_called_once()
         mock_db.commit.assert_called_once()
 
     def test_update_session_title_found(self):
-        from main.app.prometheus.chat import PrometheusChatManager
+        from main.app.orunmila.chat import OrunmilaChatManager
 
         mock_db = MagicMock()
         mock_session = MagicMock()
         mock_db.query.return_value.filter.return_value.first.return_value = mock_session
 
-        result = PrometheusChatManager.updateSessionTitle(mock_db, "sess-123", "New Title")
+        result = OrunmilaChatManager.updateSessionTitle(mock_db, "sess-123", "New Title")
         assert result is True
         assert mock_session.title == "New Title"
         mock_db.commit.assert_called_once()
 
     def test_update_session_title_not_found(self):
-        from main.app.prometheus.chat import PrometheusChatManager
+        from main.app.orunmila.chat import OrunmilaChatManager
 
         mock_db = MagicMock()
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
-        result = PrometheusChatManager.updateSessionTitle(mock_db, "nonexistent", "Title")
+        result = OrunmilaChatManager.updateSessionTitle(mock_db, "nonexistent", "Title")
         assert result is False
 
     def test_save_message_found(self):
-        from main.app.prometheus.chat import PrometheusChatManager
+        from main.app.orunmila.chat import OrunmilaChatManager
 
         mock_db = MagicMock()
         mock_session = MagicMock()
         mock_session.history = []
         mock_db.query.return_value.filter.return_value.first.return_value = mock_session
 
-        PrometheusChatManager.appendHistory(
+        OrunmilaChatManager.appendHistory(
             mock_db, "sess-123", {"role": "user", "content": "Hello", "metadata": {"key": "val"}}
         )
 
@@ -240,14 +240,14 @@ class TestPrometheusChatManager:
         mock_db.commit.assert_called_once()
 
     def test_save_message_history_none(self):
-        from main.app.prometheus.chat import PrometheusChatManager
+        from main.app.orunmila.chat import OrunmilaChatManager
 
         mock_db = MagicMock()
         mock_session = MagicMock()
         mock_session.history = None
         mock_db.query.return_value.filter.return_value.first.return_value = mock_session
 
-        PrometheusChatManager.appendHistory(mock_db, "sess-123", {"role": "assistant", "content": "Reply"})
+        OrunmilaChatManager.appendHistory(mock_db, "sess-123", {"role": "assistant", "content": "Reply"})
 
         assert mock_session.history == [
             {
@@ -258,16 +258,16 @@ class TestPrometheusChatManager:
         ]
 
     def test_save_message_not_found(self):
-        from main.app.prometheus.chat import PrometheusChatManager
+        from main.app.orunmila.chat import OrunmilaChatManager
 
         mock_db = MagicMock()
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
         # Should not raise
-        PrometheusChatManager.appendHistory(mock_db, "nonexistent", {"role": "user", "content": "Hello"})
+        OrunmilaChatManager.appendHistory(mock_db, "nonexistent", {"role": "user", "content": "Hello"})
 
     def test_get_history_with_messages(self):
-        from main.app.prometheus.chat import PrometheusChatManager
+        from main.app.orunmila.chat import OrunmilaChatManager
 
         mock_db = MagicMock()
         mock_session = MagicMock()
@@ -277,80 +277,80 @@ class TestPrometheusChatManager:
         ]
         mock_db.query.return_value.filter.return_value.first.return_value = mock_session
 
-        result = PrometheusChatManager.getHistory(mock_db, "sess-123")
+        result = OrunmilaChatManager.getHistory(mock_db, "sess-123")
         assert len(result) == 2
         assert result[0]["role"] == "user"
         assert result[0]["parts"][0]["text"] == "Hello"
         assert result[1]["role"] == "model"
 
     def test_get_history_empty(self):
-        from main.app.prometheus.chat import PrometheusChatManager
+        from main.app.orunmila.chat import OrunmilaChatManager
 
         mock_db = MagicMock()
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
-        result = PrometheusChatManager.getHistory(mock_db, "nonexistent")
+        result = OrunmilaChatManager.getHistory(mock_db, "nonexistent")
         assert result == []
 
     def test_get_history_no_history(self):
-        from main.app.prometheus.chat import PrometheusChatManager
+        from main.app.orunmila.chat import OrunmilaChatManager
 
         mock_db = MagicMock()
         mock_session = MagicMock()
         mock_session.history = None
         mock_db.query.return_value.filter.return_value.first.return_value = mock_session
 
-        result = PrometheusChatManager.getHistory(mock_db, "sess-123")
+        result = OrunmilaChatManager.getHistory(mock_db, "sess-123")
         assert result == []
 
     def test_get_history_with_limit(self):
-        from main.app.prometheus.chat import PrometheusChatManager
+        from main.app.orunmila.chat import OrunmilaChatManager
 
         mock_db = MagicMock()
         mock_session = MagicMock()
         mock_session.history = [{"role": "user", "content": f"msg{i}"} for i in range(30)]
         mock_db.query.return_value.filter.return_value.first.return_value = mock_session
 
-        result = PrometheusChatManager.getHistory(mock_db, "sess-123", limit=5)
+        result = OrunmilaChatManager.getHistory(mock_db, "sess-123", limit=5)
         assert len(result) == 5
 
     def test_delete_session_found(self):
-        from main.app.prometheus.chat import PrometheusChatManager
+        from main.app.orunmila.chat import OrunmilaChatManager
 
         mock_db = MagicMock()
         mock_session = MagicMock()
         mock_db.query.return_value.filter.return_value.first.return_value = mock_session
 
-        result = PrometheusChatManager.deleteSession(mock_db, "sess-123", userId=1)
+        result = OrunmilaChatManager.deleteSession(mock_db, "sess-123", userId=1)
         assert result is True
         mock_db.delete.assert_called_once_with(mock_session)
         mock_db.commit.assert_called_once()
 
     def test_delete_session_not_found(self):
-        from main.app.prometheus.chat import PrometheusChatManager
+        from main.app.orunmila.chat import OrunmilaChatManager
 
         mock_db = MagicMock()
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
-        result = PrometheusChatManager.deleteSession(mock_db, "nonexistent", userId=1)
+        result = OrunmilaChatManager.deleteSession(mock_db, "nonexistent", userId=1)
         assert result is False
 
     def test_verify_session_ownership_true(self):
-        from main.app.prometheus.chat import PrometheusChatManager
+        from main.app.orunmila.chat import OrunmilaChatManager
 
         mock_db = MagicMock()
         mock_db.query.return_value.filter.return_value.first.return_value = "sess-123"
 
-        result = PrometheusChatManager.verifySessionOwnership(mock_db, "sess-123", userId=1)
+        result = OrunmilaChatManager.verifySessionOwnership(mock_db, "sess-123", userId=1)
         assert result is True
 
     def test_verify_session_ownership_false(self):
-        from main.app.prometheus.chat import PrometheusChatManager
+        from main.app.orunmila.chat import OrunmilaChatManager
 
         mock_db = MagicMock()
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
-        result = PrometheusChatManager.verifySessionOwnership(mock_db, "nonexistent", userId=1)
+        result = OrunmilaChatManager.verifySessionOwnership(mock_db, "nonexistent", userId=1)
         assert result is False
 
 

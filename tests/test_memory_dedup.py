@@ -1,5 +1,5 @@
-from main.app.prometheus.memory import PrometheusMemory as MemoryService, findSimilarKey
-from main.models.memory import PrometheusMemory
+from main.app.orunmila.memory import OrunmilaMemory as MemoryService, findSimilarKey
+from main.models.memory import OrunmilaMemory
 
 
 USER_ID = 1
@@ -11,17 +11,13 @@ def create_memory(db, key="petrobras preferencia", value="original value"):
 
 def count_memories(db):
     return (
-        db.query(PrometheusMemory)
-        .filter(PrometheusMemory.userId == USER_ID, PrometheusMemory.archivedAt.is_(None))
-        .count()
+        db.query(OrunmilaMemory).filter(OrunmilaMemory.userId == USER_ID, OrunmilaMemory.archivedAt.is_(None)).count()
     )
 
 
 def get_memory(db):
     return (
-        db.query(PrometheusMemory)
-        .filter(PrometheusMemory.userId == USER_ID, PrometheusMemory.archivedAt.is_(None))
-        .first()
+        db.query(OrunmilaMemory).filter(OrunmilaMemory.userId == USER_ID, OrunmilaMemory.archivedAt.is_(None)).first()
     )
 
 

@@ -2,18 +2,18 @@ import pytest
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 from tests.conftest import mock_forgevm
-from main.app.prometheus.sandbox import SandboxManager
+from main.app.orunmila.sandbox import SandboxManager
 
 
 class TestSandboxManager:
-    @patch("main.app.prometheus.sandbox.getClient")
+    @patch("main.app.orunmila.sandbox.getClient")
     async def test_create_sandbox(self, mock_get_client):
         mock_client, mock_sandbox = mock_forgevm(mock_get_client)
         result = await SandboxManager.create(userId=1)
         assert result == "sb-mock-123"
         mock_client.spawn.assert_called_once()
 
-    @patch("main.app.prometheus.sandbox.getClient")
+    @patch("main.app.orunmila.sandbox.getClient")
     async def test_execute_code(self, mock_get_client):
         mock_client, mock_sandbox = mock_forgevm(mock_get_client)
         result = await SandboxManager.execute(userId=1, code="print('Hello')", sandboxId="sb-mock-123")
@@ -27,7 +27,7 @@ class TestSandboxManager:
         workspace.mkdir()
         (workspace / "data.csv").write_text("file contents")
 
-        with patch("main.app.prometheus.sandbox.WORKSPACE_ROOT", tmp_path):
+        with patch("main.app.orunmila.sandbox.WORKSPACE_ROOT", tmp_path):
             result = SandboxManager.read_file(userId=1, path="/workspace/data.csv")
         assert result == "file contents"
 
@@ -36,7 +36,7 @@ class TestSandboxManager:
         workspace = tmp_path / "1"
         workspace.mkdir()
 
-        with patch("main.app.prometheus.sandbox.WORKSPACE_ROOT", tmp_path):
+        with patch("main.app.orunmila.sandbox.WORKSPACE_ROOT", tmp_path):
             result = SandboxManager.write_file(userId=1, path="/workspace/test.py", content="print(42)")
         assert result is True
         assert (workspace / "test.py").read_text() == "print(42)"
@@ -48,30 +48,30 @@ class TestSandboxManager:
         workspace.mkdir(parents=True)
         (workspace / "data.csv").write_text("x")
 
-        with patch("main.app.prometheus.sandbox.WORKSPACE_ROOT", tmp_path):
+        with patch("main.app.orunmila.sandbox.WORKSPACE_ROOT", tmp_path):
             result = SandboxManager.list_files(userId=1, path="/workspace")
         assert len(result["entries"]) == 1
         assert result["entries"][0].endswith("data.csv")
 
     def test_list_files_empty(self, tmp_path):
         """list_files returns empty for missing directory."""
-        with patch("main.app.prometheus.sandbox.WORKSPACE_ROOT", tmp_path):
+        with patch("main.app.orunmila.sandbox.WORKSPACE_ROOT", tmp_path):
             result = SandboxManager.list_files(userId=1, path="/workspace")
         assert result == {"entries": []}
 
     def test_read_file_not_found(self, tmp_path):
         """read_file raises FileNotFoundError for missing file."""
-        with patch("main.app.prometheus.sandbox.WORKSPACE_ROOT", tmp_path):
+        with patch("main.app.orunmila.sandbox.WORKSPACE_ROOT", tmp_path):
             with pytest.raises(FileNotFoundError):
                 SandboxManager.read_file(userId=1, path="/workspace/nope.txt")
 
-    @patch("main.app.prometheus.sandbox.getClient")
+    @patch("main.app.orunmila.sandbox.getClient")
     async def test_destroy_sandbox(self, mock_get_client):
         mock_client, mock_sandbox = mock_forgevm(mock_get_client)
         await SandboxManager.destroy("sb-mock-123")
         mock_sandbox.destroy.assert_called_once()
 
-    @patch("main.app.prometheus.sandbox.getClient")
+    @patch("main.app.orunmila.sandbox.getClient")
     async def test_destroy_handles_failure(self, mock_get_client):
         mock_client = AsyncMock()
         mock_sandbox = AsyncMock()
@@ -82,7 +82,7 @@ class TestSandboxManager:
         # Should not raise
         await SandboxManager.destroy("sb-mock-123")
 
-    @patch("main.app.prometheus.sandbox.getClient")
+    @patch("main.app.orunmila.sandbox.getClient")
     async def test_execute_passes_timeout(self, mock_get_client):
         mock_client, mock_sandbox = mock_forgevm(mock_get_client)
         await SandboxManager.execute(userId=1, code="import time; time.sleep(99)", sandboxId="sb-mock-123", timeout=10)
@@ -90,7 +90,7 @@ class TestSandboxManager:
             command="python3", args=["-c", "import time; time.sleep(99)"], timeout="10s"
         )
 
-    @patch("main.app.prometheus.sandbox.getClient")
+    @patch("main.app.orunmila.sandbox.getClient")
     async def test_create_returns_sandbox_id(self, mock_get_client):
         mock_client, mock_sandbox = mock_forgevm(mock_get_client)
         mock_sandbox.id = "sb-custom-id"
@@ -100,11 +100,11 @@ class TestSandboxManager:
     def test_write_file_returns_false_on_error(self, tmp_path):
         """write_file returns False when host write fails (e.g. invalid path chars)."""
         # Use a path with invalid characters to trigger an OS error
-        with patch("main.app.prometheus.sandbox.WORKSPACE_ROOT", tmp_path):
+        with patch("main.app.orunmila.sandbox.WORKSPACE_ROOT", tmp_path):
             result = SandboxManager.write_file(userId=1, path="/workspace/\x00bad.txt", content="data")
         assert result is False
 
-    @patch("main.app.prometheus.sandbox.getClient")
+    @patch("main.app.orunmila.sandbox.getClient")
     async def test_execute_retries_on_sandbox_not_found(self, mock_get_client):
         """execute() catches SandboxNotFound from exec, calls getOrCreate, retries."""
         from forgevm.exceptions import SandboxNotFound
@@ -139,8 +139,8 @@ class TestSandboxManager:
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
         with (
-            patch("main.app.prometheus.sandbox.WORKSPACE_ROOT", Path("/tmp/ws")),
-            patch("main.app.prometheus.sandbox.SessionLocal", return_value=mock_db),
+            patch("main.app.orunmila.sandbox.WORKSPACE_ROOT", Path("/tmp/ws")),
+            patch("main.app.orunmila.sandbox.SessionLocal", return_value=mock_db),
         ):
             result = await SandboxManager.execute(userId=1, code="print('retry ok')", sandboxId="sb-dead")
 

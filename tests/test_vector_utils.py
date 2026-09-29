@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from main.app.prometheus.vector import (
+from main.app.orunmila.vector import (
     batchCosineSimilarity,
     contentHash,
     decodeEmbeddings,

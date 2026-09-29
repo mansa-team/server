@@ -13,7 +13,7 @@ from google import genai
 from sqlalchemy.orm import Session as DBSession
 
 from main.utils.http_session import getSession
-from main.models.prometheus import PrometheusSession
+from main.models.orunmila import OrunmilaSession
 
 logger = logging.getLogger(__name__)
 
@@ -192,7 +192,7 @@ def buildSummary(
     return " | ".join(parts) if parts else "Session with no extractable data."
 
 
-class PrometheusCompactor:
+class OrunmilaCompactor:
     def shouldCompact(self, history: list, tokenCache: MutableMapping | None = None) -> bool:
         if not history:
             return False
@@ -269,7 +269,7 @@ class PrometheusCompactor:
         return [merged] + recent
 
     def compact(self, db: DBSession, sessionId: str, tokenCache: MutableMapping | None = None) -> dict | None:
-        session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
+        session = db.query(OrunmilaSession).filter(OrunmilaSession.sessionId == sessionId).first()
 
         if not session or not session.history:
             return None
@@ -308,7 +308,7 @@ class PrometheusCompactor:
         return episode
 
     def getEpisodes(self, db: DBSession, sessionId: str) -> list[dict]:
-        session = db.query(PrometheusSession).filter(PrometheusSession.sessionId == sessionId).first()
+        session = db.query(OrunmilaSession).filter(OrunmilaSession.sessionId == sessionId).first()
         if not session or not session.summary:
             return []
         try:

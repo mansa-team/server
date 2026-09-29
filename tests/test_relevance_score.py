@@ -2,7 +2,7 @@ import math
 from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 import pytest
-from main.app.prometheus.vector import getRelevanceScore
+from main.app.orunmila.vector import getRelevanceScore
 
 
 SAO_PAULO_TZ = ZoneInfo("America/Sao_Paulo")

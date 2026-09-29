@@ -121,7 +121,7 @@ Mounted at `/stocks/mcp` via FastApiMCP (stocksapi_service.py:33-45) exposing 5 
 - **Cache build**: feather written in 2000-row streaming batches; lost DB connections retried 3x on `OperationalError` (cache.py:71-77). Cross-process `fcntl` build lock with no-op fallback (`tryBuildLock`, cache.py:263,168-182); build runs in a `subprocess` (`sys.executable -c ... buildFeatherCache()`, cache.py:270-277). Nested JSON columns keep a 20-row decompressed sample (cache.py:108-113). Frame sorted `TICKER` asc / `TIME` desc (cache.py:185-192). Refresh every 12h, stale threshold 6h with background rebuild (cache.py:36,220-226).
 - **Abbreviations**: `generateAbbreviations` with `dedupAbbrev` (util.py:47-53), meta `TK/NM/TI`; nested fields auto-detected with URL subfields dropped in compact (`detectNestedFields`, util.py:96-130).
 - **Compact wire form**: cotations → `{"h": "D,P", "d": [...]}` with `DD-MM` dates and `K/M/B/T` ints (compress.py:100-109); live → `PA/PO/PMN/PMX/PMD` (compress.py:11-16).
-- **Transport/caching**: `GZipMiddleware(minimum_size=4096, compresslevel=3)` (service:31); endpoint cache is `cashews` over `mem://` (controller:17) with TTLs above; `/fields` fetch from Prometheus side also retried 3x on transient (compact.py:77).
+- **Transport/caching**: `GZipMiddleware(minimum_size=4096, compresslevel=3)` (service:31); endpoint cache is `cashews` over `mem://` (controller:17) with TTLs above; `/fields` fetch from Orunmila side also retried 3x on transient (compact.py:77).
 
 ## License
 

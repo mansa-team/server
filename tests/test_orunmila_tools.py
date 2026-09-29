@@ -1,7 +1,7 @@
 import inspect
 import pytest
 from unittest.mock import patch, MagicMock
-from main.app.prometheus.tools import (
+from main.app.orunmila.tools import (
     search_memory,
     save_memory,
     TOOL_REGISTRY,
@@ -113,9 +113,9 @@ class TestToolRegistry:
 
 class TestServeFile:
     async def test_serve_file_returns_markdown_link(self):
-        from main.app.prometheus.tools import serve_file
+        from main.app.orunmila.tools import serve_file
 
-        with patch("main.app.prometheus.tools.hostPath") as m_host:
+        with patch("main.app.orunmila.tools.hostPath") as m_host:
             fake_path = MagicMock()
             fake_path.exists.return_value = True
             fake_path.is_file.return_value = True
@@ -124,13 +124,13 @@ class TestServeFile:
 
             result = await serve_file("/workspace/report.csv", userId=1)
 
-        assert result["url"] == "/prometheus/workspace/download?path=/workspace/report.csv"
-        assert result["markdown"] == "[report.csv](/prometheus/workspace/download?path=/workspace/report.csv)"
+        assert result["url"] == "/orunmila/workspace/download?path=/workspace/report.csv"
+        assert result["markdown"] == "[report.csv](/orunmila/workspace/download?path=/workspace/report.csv)"
 
     async def test_serve_file_missing_file_returns_error(self):
-        from main.app.prometheus.tools import serve_file
+        from main.app.orunmila.tools import serve_file
 
-        with patch("main.app.prometheus.tools.hostPath") as m_host:
+        with patch("main.app.orunmila.tools.hostPath") as m_host:
             fake_path = MagicMock()
             fake_path.exists.return_value = False
             m_host.return_value = fake_path
@@ -140,17 +140,17 @@ class TestServeFile:
         assert "error" in result
 
     async def test_serve_file_rejects_traversal(self):
-        from main.app.prometheus.tools import serve_file
+        from main.app.orunmila.tools import serve_file
 
-        with patch("main.app.prometheus.tools.hostPath", side_effect=ValueError("Invalid workspace path")):
+        with patch("main.app.orunmila.tools.hostPath", side_effect=ValueError("Invalid workspace path")):
             result = await serve_file("/workspace/../../etc/passwd", userId=1)
 
         assert "error" in result
 
     async def test_serve_file_quotes_special_chars(self):
-        from main.app.prometheus.tools import serve_file
+        from main.app.orunmila.tools import serve_file
 
-        with patch("main.app.prometheus.tools.hostPath") as m_host:
+        with patch("main.app.orunmila.tools.hostPath") as m_host:
             fake_path = MagicMock()
             fake_path.exists.return_value = True
             fake_path.is_file.return_value = True
@@ -164,22 +164,22 @@ class TestServeFile:
 
 class TestServeFileGeminiSafe:
     def test_serve_file_signature_is_gemini_safe(self):
-        from main.app.prometheus.tools import serve_file
+        from main.app.orunmila.tools import serve_file
 
         assert_gemini_safe(serve_file)
 
     def test_serve_file_registered(self):
-        from main.app.prometheus.tools import TOOL_REGISTRY
+        from main.app.orunmila.tools import TOOL_REGISTRY
 
         assert "serve_file" in TOOL_REGISTRY
 
 
 class TestWorkspaceToolsTraversal:
     async def test_read_file_rejects_traversal(self):
-        from main.app.prometheus.tools import read_file
+        from main.app.orunmila.tools import read_file
 
         with patch(
-            "main.app.prometheus.tools.SandboxManager.read_file",
+            "main.app.orunmila.tools.SandboxManager.read_file",
             side_effect=ValueError("bad path"),
         ):
             result = await read_file("/workspace/../../etc/passwd", userId=1)
@@ -187,10 +187,10 @@ class TestWorkspaceToolsTraversal:
         assert result["error"] == "Invalid workspace path"
 
     async def test_write_file_rejects_traversal(self):
-        from main.app.prometheus.tools import write_file
+        from main.app.orunmila.tools import write_file
 
         with patch(
-            "main.app.prometheus.tools.SandboxManager.write_file",
+            "main.app.orunmila.tools.SandboxManager.write_file",
             side_effect=ValueError("bad path"),
         ):
             result = await write_file("/workspace/../../etc/evil", "x", userId=1)
@@ -198,10 +198,10 @@ class TestWorkspaceToolsTraversal:
         assert result["error"] == "Invalid workspace path"
 
     async def test_list_files_rejects_traversal(self):
-        from main.app.prometheus.tools import list_files
+        from main.app.orunmila.tools import list_files
 
         with patch(
-            "main.app.prometheus.tools.SandboxManager.list_files",
+            "main.app.orunmila.tools.SandboxManager.list_files",
             side_effect=ValueError("bad path"),
         ):
             result = await list_files("/workspace/../../etc", userId=1)

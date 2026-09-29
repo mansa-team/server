@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from main.app.prometheus.tools import TOOL_REGISTRY, dispatchToolCall
+from main.app.orunmila.tools import TOOL_REGISTRY, dispatchToolCall
 
 
 class TestSandboxToolDefinitions:
@@ -23,7 +23,7 @@ class TestSandboxToolDefinitions:
 
 
 class TestDispatchToolCallSandbox:
-    @patch("main.app.prometheus.tools.SandboxManager")
+    @patch("main.app.orunmila.tools.SandboxManager")
     async def test_dispatch_execute_code(self, mock_sandbox):
         mock_fc = MagicMock()
         mock_fc.name = "execute_code"
@@ -40,7 +40,7 @@ class TestDispatchToolCallSandbox:
         result = await dispatchToolCall(mock_fc, {}, user={"userId": 1}, sandbox_id=None)
         assert "error" in result
 
-    @patch("main.app.prometheus.tools.SandboxManager")
+    @patch("main.app.orunmila.tools.SandboxManager")
     async def test_dispatch_read_file(self, mock_sandbox):
         mock_fc = MagicMock()
         mock_fc.name = "read_file"
@@ -49,7 +49,7 @@ class TestDispatchToolCallSandbox:
         result = await dispatchToolCall(mock_fc, {}, user={"userId": 1}, sandbox_id="sb-123")
         assert result["content"] == '{"key": "value"}'
 
-    @patch("main.app.prometheus.tools.SandboxManager")
+    @patch("main.app.orunmila.tools.SandboxManager")
     async def test_dispatch_write_file(self, mock_sandbox):
         mock_fc = MagicMock()
         mock_fc.name = "write_file"
@@ -58,7 +58,7 @@ class TestDispatchToolCallSandbox:
         result = await dispatchToolCall(mock_fc, {}, user={"userId": 1}, sandbox_id="sb-123")
         assert result["success"] is True
 
-    @patch("main.app.prometheus.tools.SandboxManager")
+    @patch("main.app.orunmila.tools.SandboxManager")
     async def test_dispatch_list_files(self, mock_sandbox):
         mock_fc = MagicMock()
         mock_fc.name = "list_files"

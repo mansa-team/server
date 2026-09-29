@@ -114,7 +114,7 @@ class APIKeyFactory(factory.DictFactory):
     currentUsage = 0
 
 
-class PrometheusSessionFactory(factory.DictFactory):
+class OrunmilaSessionFactory(factory.DictFactory):
     sessionId = factory.LazyFunction(lambda: fake.uuid4())
     userId = 1
     title = factory.LazyFunction(lambda: fake.sentence(nb_words=3))
@@ -133,8 +133,8 @@ def apiKeyFactory():
 
 
 @pytest.fixture
-def prometheusSessionFactory():
-    return PrometheusSessionFactory
+def orunmilaSessionFactory():
+    return OrunmilaSessionFactory
 
 
 @pytest.fixture
@@ -148,8 +148,8 @@ def sampleAPIKeyData(apiKeyFactory):
 
 
 @pytest.fixture
-def samplePrometheusSessionData(prometheusSessionFactory):
-    return prometheusSessionFactory()
+def sampleOrunmilaSessionData(orunmilaSessionFactory):
+    return orunmilaSessionFactory()
 
 
 @pytest.fixture
@@ -182,14 +182,14 @@ def client():
     from fastapi.testclient import TestClient as TestClient
     from main.controller.authentication_controller import router as authRouter
     from main.controller.user_controller import router as userRouter
-    from main.controller.prometheus_controller import router as prometheusRouter
+    from main.controller.orunmila_controller import router as orunmilaRouter
     from main.controller.stocksapi_controller import router as stocksRouter
     from main.utils.errors import registerErrorHandlers
 
     testApp = FastAPI()
     testApp.include_router(authRouter)
     testApp.include_router(userRouter)
-    testApp.include_router(prometheusRouter)
+    testApp.include_router(orunmilaRouter)
     testApp.include_router(stocksRouter)
     registerErrorHandlers(testApp)
 
@@ -267,9 +267,9 @@ def make_user_client(mock_current_user=None):
     return TestClient(app, raise_server_exceptions=False), app, mock_session
 
 
-def make_prometheus_client(mock_current_user=None, mock_permission_user=None):
-    """Return (client, app) with prometheus router and mocked deps."""
-    from main.controller.prometheus_controller import router as promRouter
+def make_orunmila_client(mock_current_user=None, mock_permission_user=None):
+    """Return (client, app) with orunmila router and mocked deps."""
+    from main.controller.orunmila_controller import router as promRouter
     from main.utils.errors import registerErrorHandlers
     from main.app.user.user import UserManager
 

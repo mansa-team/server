@@ -2,8 +2,8 @@ from sqlalchemy import Column, Integer, String, DateTime, func
 from main.models.base import Base
 
 
-class PrometheusSandbox(Base):
-    __tablename__ = "prometheus_sandboxes"
+class OrunmilaSandbox(Base):
+    __tablename__ = "orunmila_sandboxes"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     userId = Column(Integer, nullable=False, index=True, unique=True)
