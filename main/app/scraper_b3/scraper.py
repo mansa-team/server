@@ -150,9 +150,7 @@ class B3Scraper:
             }
         )
         if "VALOR ORIGINAL" not in dfHistory.columns:
-            # "ov" absent (adj=False batches): SI ships ov whenever a factor
-            # exists, so copy adjusted as-is — no factor math.
-            dfHistory["VALOR ORIGINAL"] = dfHistory["VALOR AJUSTADO"]
+            dfHistory["VALOR ORIGINAL"] = float("nan")
 
         for col in ["DATA COM", "DATA PAGAMENTO"]:
             if col in dfHistory.columns:
