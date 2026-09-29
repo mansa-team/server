@@ -1,16 +1,16 @@
 # Graph Report - server  (2026-09-29)
 
 ## Corpus Check
-- 134 files · ~102,971 words
+- 134 files · ~103,071 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 6628 nodes · 8877 edges · 601 communities (374 shown, 227 thin omitted)
+- 6628 nodes · 8877 edges · 602 communities (374 shown, 228 thin omitted)
 - Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 1329 edges (avg confidence: 0.69)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `679c3dfc`
+- Built from commit: `3e2a330c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -600,6 +600,7 @@
 - [[_COMMUNITY_Community 596|Community 596]]
 - [[_COMMUNITY_Community 597|Community 597]]
 - [[_COMMUNITY_Community 598|Community 598]]
+- [[_COMMUNITY_Community 599|Community 599]]
 - [[_COMMUNITY_Community 603|Community 603]]
 - [[_COMMUNITY_Community 605|Community 605]]
 
@@ -635,7 +636,7 @@
 - **Configuration & Database Infrastructure** — config_Config, config_engine, config_stocksEngine [INFERRED]
 - **User Authentication & Authorization** — user_service, authentication, user_roles, permission_system [INFERRED]
 
-## Communities (601 total, 227 thin omitted)
+## Communities (602 total, 228 thin omitted)
 
 ### Community 0 - "Stocks API Endpoints"
 Cohesion: 0.0
@@ -1163,7 +1164,7 @@ Nodes (9): Same input → same hash., Different inputs → different hashes., Re
 
 ### Community 132 - "Community 132"
 Cohesion: 0.25
-Nodes (7): code:python (from dataclasses import dataclass), code:bash (git add main/app/wallet/__init__.py main/app/wallet/math.py ), code:python (from datetime import date), File Structure, Global Constraints, Task 3: Pure derivation math, Wallet Management (Thoth/Iyagba) Implementation Plan
+Nodes (7): code:python ("""add wallet_holdings and wallet_lots tables), code:python (import main.models.wallet), code:bash (git add migrations/versions/wallet_tables_20260904_add_walle), File Structure, Global Constraints, Task 2: Alembic migration for wallet tables, Wallet Management (Thoth/Iyagba) Implementation Plan
 
 ### Community 133 - "Community 133"
 Cohesion: 0.18
@@ -1314,8 +1315,8 @@ Cohesion: 0.25
 Nodes (8): padding, direction, pad_id, pad_to_multiple_of, pad_token, pad_type_id, strategy, Fixed
 
 ### Community 172 - "Community 172"
-Cohesion: 0.11
-Nodes (21): authenticateUser(), AuthenticationManager, createUserAccount(), SessionManager, PrometheusChatManager, Cover getGoogleSSO (lines 6-14)., Cover getGoogleSSO (lines 6-14)., Cover __init__ and updateDates. (+13 more)
+Cohesion: 0.14
+Nodes (19): AuthenticationManager, SessionManager, PrometheusChatManager, Cover getGoogleSSO (lines 6-14)., Cover getGoogleSSO (lines 6-14)., Cover __init__ and updateDates., Cover __init__ and updateDates (lines 22-37)., Cover streamMessage in agent.py. (+11 more)
 
 ### Community 173 - "Community 173"
 Cohesion: 0.25
@@ -1989,10 +1990,6 @@ Nodes (7): Integration tests for all query optimizations, Integration tests for 
 Cohesion: 0.12
 Nodes (7): TestAgentSandboxIntegration, makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., TestMakeChatIncludesMemoryTools
 
-### Community 576 - "Community 576"
-Cohesion: 0.5
-Nodes (4): code:python ("""add wallet_holdings and wallet_lots tables), code:python (import main.models.wallet), code:bash (git add migrations/versions/wallet_tables_20260904_add_walle), Task 2: Alembic migration for wallet tables
-
 ### Community 577 - "Community 577"
 Cohesion: 0.33
 Nodes (5): replaceNan handles direct float NaN values (line 34)., replaceNan handles direct float NaN values (line 34)., replaceNan handles direct float NaN values (line 34)., replaceNan handles direct float NaN values (line 34)., replaceNan handles direct float NaN values (line 34).
@@ -2069,6 +2066,10 @@ Nodes (4): 1.3 Phase P0 — nginx service + config skeleton, code:yaml (nginx:),
 Cohesion: 0.5
 Nodes (4): 1.4 Phase P1 — cache locations, TTL table, directives, code:nginx (proxy_pass http://stocks_api;), code:nginx (server {), code:bash (K=sk_test_...; U='http://localhost/stocks/historical?search=)
 
+### Community 599 - "Community 599"
+Cohesion: 0.5
+Nodes (4): code:python (from dataclasses import dataclass), code:bash (git add main/app/wallet/__init__.py main/app/wallet/math.py ), code:python (from datetime import date), Task 3: Pure derivation math
+
 ### Community 603 - "Community 603"
 Cohesion: 0.4
 Nodes (5): Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, Tests covering key.py lines 15-40.     Uses asyncio.run() since pytest-asyncio, TestVerifyAPIKey
@@ -2080,14 +2081,14 @@ Nodes (6): create_memory(), createMemory(), _downloadModel(), embed(), getEmbedd
 ## Knowledge Gaps
 - **3349 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+3344 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **227 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **228 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `Pytest Testing` connect `Community 138` to `Authentication Core`, `Frontend Components`, `Community 129`, `Data Models & Types`, `Community 518`, `Community 135`, `Community 140`, `Community 527`, `Community 16`, `Community 18`, `Community 147`, `Community 24`, `Community 25`, `Community 27`, `Community 29`, `Community 32`, `Community 33`, `Community 40`, `Community 43`, `Community 44`, `Community 45`, `Community 49`, `Community 51`, `Community 59`, `Community 61`, `Community 67`, `Community 84`, `Community 120`, `Community 93`, `Community 477`, `Community 482`, `Community 100`, `Community 101`, `Community 102`, `Community 104`, `Community 500`, `Community 502`, `Community 504`, `Community 122`, `Community 251`?**
   _High betweenness centrality (0.096) - this node is a cross-community bridge._
-- **Why does `FastAPI` connect `Community 482` to `Community 129`, `Community 517`, `Community 519`, `Community 523`, `Community 18`, `Community 147`, `Community 536`, `Community 157`, `Community 33`, `Community 34`, `Community 40`, `Community 43`, `Community 172`, `Community 45`, `Community 54`, `Community 58`, `Community 59`, `Community 68`, `Community 71`, `Community 84`, `Community 120`, `Community 477`, `Community 500`, `Community 501`, `Community 504`?**
+- **Why does `FastAPI` connect `Community 482` to `Community 129`, `Community 517`, `Community 519`, `Community 523`, `Community 18`, `Community 147`, `Community 536`, `Community 157`, `Community 33`, `Community 34`, `Community 40`, `Community 43`, `Community 45`, `Community 54`, `Community 58`, `Community 59`, `Community 576`, `Community 68`, `Community 71`, `Community 84`, `Community 120`, `Community 477`, `Community 500`, `Community 501`, `Community 504`?**
   _High betweenness centrality (0.044) - this node is a cross-community bridge._
 - **Why does `UserManager` connect `Community 45` to `Community 256`, `Prometheus Agent`, `Community 519`, `Prometheus Memory`, `Community 524`, `Community 141`, `User Roles & Permissions`, `Community 148`, `Community 22`, `Community 28`, `Community 541`, `Community 37`, `Community 172`, `Community 47`, `Community 565`, `Community 58`, `Community 61`, `Community 578`, `Community 67`, `Community 603`, `Community 221`, `Community 99`, `Community 105`, `Community 107`, `Community 493`, `Community 112`, `Community 114`, `Community 120`, `Community 511`?**
   _High betweenness centrality (0.031) - this node is a cross-community bridge._
