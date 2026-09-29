@@ -16,9 +16,6 @@ logger = logging.getLogger(__name__)
 
 cache.setup("mem://")
 
-# Endpoint cache TTLs. STOCKS_TTL must stay <= STALE_AFTER_SECONDS (cache.py) — a cached
-# body may never outlive the app's own staleness policy. The *_MAX_AGE values are the
-# same durations in seconds, for the Cache-Control header only.
 STOCKS_TTL = "6h"
 STOCKS_MAX_AGE = 6 * 3600
 LIVE_TTL = "15s"
@@ -43,7 +40,8 @@ def health():
 
 
 @router.get("/fields", operation_id="list_fields")
-def listFields():
+@endpointCache(ttl=STOCKS_TTL, key="stocks:fields")
+def listFields(response: Response):
     """Discover available field names before querying /historical or /fundamental.
 
     IMPORTANT: Call this tool FIRST to get exact field names. Do NOT guess field names —
@@ -85,6 +83,7 @@ def listFields():
     abbreviations = generateAbbreviations(historical, fundamental)
     nested = getNest()
 
+    response.headers["Cache-Control"] = f"public, max-age={STOCKS_MAX_AGE}"
     return {"historical": historical, "fundamental": fundamental, "abbreviations": abbreviations, "nested": nested}
 
 

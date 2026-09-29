@@ -1,4 +1,12 @@
+import asyncio
 import re
+from types import SimpleNamespace
+
+import pandas as pd
+import pytest
+import pytest_asyncio
+from cashews import cache as cashewsCache
+from fastapi import Response
 
 from main.app.stocks_api.cache import STALE_AFTER_SECONDS
 from main.controller import stocksapi_controller as mod
@@ -27,3 +35,46 @@ def test_endpoint_ttl_never_exceeds_the_staleness_policy():
 
 def test_live_ttl_is_not_widened():
     assert mod.LIVE_TTL == "15s"
+
+
+@pytest_asyncio.fixture(scope="module", loop_scope="module", autouse=True)
+async def setup_cache():
+    cashewsCache.setup("mem://")
+    yield
+    await cashewsCache.clear()
+
+
+def _flush():
+    asyncio.run(cashewsCache.clear())
+
+
+def test_fields_second_call_is_a_cache_hit(monkeypatch):
+    _flush()
+    calls = []
+
+    def fakeCategorize(cols):
+        calls.append(tuple(cols))
+        return {"A": [2024]}, ["P/L"]
+
+    monkeypatch.setattr(mod, "categorizeColumns", fakeCategorize)
+    monkeypatch.setattr(mod, "generateAbbreviations", lambda historical, fundamental: {"A": "A"})
+    monkeypatch.setattr(mod, "getNest", lambda: {})
+    monkeypatch.setattr(mod, "stocksCache", SimpleNamespace(STOCKS_CACHE=pd.DataFrame({"TICKER": ["PETR4"]})))
+
+    response = Response()
+    first = mod.listFields(response)
+    second = mod.listFields(Response())
+
+    assert first == second
+    assert calls == [("TICKER",)]  # computed once; the second call is a cache hit
+    assert response.headers["Cache-Control"] == f"public, max-age={mod.STOCKS_MAX_AGE}"
+
+
+def test_fields_503_is_not_cached(monkeypatch):
+    _flush()
+    monkeypatch.setattr(mod, "stocksCache", SimpleNamespace(STOCKS_CACHE=None))
+
+    for _ in range(2):
+        with pytest.raises(mod.HTTPException) as exc:
+            mod.listFields(Response())
+        assert exc.value.status_code == 503
