@@ -1,3 +1,5 @@
+import hashlib
+import hmac
 import os
 import sys
 from datetime import datetime, timedelta, timezone
@@ -11,7 +13,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from config import getSession
+from config import Config, getSession
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import createAccessToken
 from main.controller.authentication_controller import router as authRouter
@@ -39,12 +41,11 @@ def makeUserToken(dbSession, username="intro_user"):
     return user, session, token
 
 
-SERVICE_HEADERS = {"X-Service-Token": "test-service-token"}
-
-
-@pytest.fixture(autouse=True)
-def introspectServiceToken(monkeypatch):
-    monkeypatch.setenv("INTROSPECT_SERVICE_TOKEN", "test-service-token")
+SERVICE_HEADERS = {
+    "X-Service-Token": hmac.new(
+        Config.USER.JWT_SECRET_KEY.encode("utf-8"), b"auth-introspect", hashlib.sha256
+    ).hexdigest()
+}
 
 
 class TestAuthIntrospect:
@@ -126,3 +127,18 @@ class TestAuthIntrospectGenericDetail:
                 introspectToken(mockDb, token)
         assert exc_info.value.status_code == 401
         assert exc_info.value.detail == "Unauthorized"
+
+
+class TestServiceTokenDerivation:
+    def test_env_var_no_longer_authenticates(self, authClient, monkeypatch):
+        monkeypatch.setenv("INTROSPECT_SERVICE_TOKEN", "test-service-token")
+        resp = authClient.post(
+            "/auth/introspect", json={"token": "x"}, headers={"X-Service-Token": "test-service-token"}
+        )
+        assert resp.status_code == 401
+
+    def test_raw_signing_key_is_not_accepted(self, authClient):
+        resp = authClient.post(
+            "/auth/introspect", json={"token": "x"}, headers={"X-Service-Token": Config.USER.JWT_SECRET_KEY}
+        )
+        assert resp.status_code == 401

@@ -1,5 +1,7 @@
 """F-A audit tests: controller fixes — CSRF patch removal, SSO suffix-unique, generic 400s, login eviction, introspect gate, PII scrub."""
 
+import hashlib
+import hmac
 import os
 import sys
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -10,19 +12,18 @@ from fastapi.testclient import TestClient
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from config import getSession
+from config import Config, getSession
 from main.app.authentication.authentication import AuthenticationManager
 from main.app.authentication.session import SessionManager
 from main.controller.authentication_controller import router as authRouter
 from main.models.user import User
 from main.utils.errors import registerErrorHandlers
 
-SERVICE_HEADERS = {"X-Service-Token": "test-service-token"}
-
-
-@pytest.fixture(autouse=True)
-def serviceToken(monkeypatch):
-    monkeypatch.setenv("INTROSPECT_SERVICE_TOKEN", "test-service-token")
+SERVICE_HEADERS = {
+    "X-Service-Token": hmac.new(
+        Config.USER.JWT_SECRET_KEY.encode("utf-8"), b"auth-introspect", hashlib.sha256
+    ).hexdigest()
+}
 
 
 @pytest.fixture
@@ -225,9 +226,8 @@ class TestSSORevokesOthers:
 
 class TestSecureFlagNotSpoofable:
     def test_spoofed_forwarded_proto_http_keeps_secure(self, dbSession):
-        # https_only=True on SessionMiddleware + Secure auth cookies mean the
-        # http TestClient cannot round-trip Secure cookies, so assert on the
-        # Set-Cookie header instead.
+        # Secure auth cookies mean the http TestClient cannot round-trip them,
+        # so assert on the Set-Cookie header instead.
         app = FastAPI()
         app.include_router(authRouter)
         registerErrorHandlers(app)

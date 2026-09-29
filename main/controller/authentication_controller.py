@@ -1,7 +1,7 @@
+import hashlib
 import hmac
 import logging
-import os
-from config import getSession, LOCALHOST_ADDRESSES
+from config import Config, getSession, LOCALHOST_ADDRESSES
 
 from datetime import datetime, timedelta, timezone
 from main.utils.logging_config import limiter
@@ -25,9 +25,6 @@ from main.app.authentication.session import SessionManager
 from main.models.user import User
 
 logger = logging.getLogger(__name__)
-
-INTROSPECT_SERVICE_TOKEN_ENV = "INTROSPECT_SERVICE_TOKEN"  # nosec: B105 env var name, not a secret
-INTROSPECT_UNAUTHORIZED_DETAIL = "Unauthorized"
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -159,9 +156,10 @@ def introspect(
     db: Session = Depends(getSession),
     token: str | None = Body(default=None, embed=True),
 ):
-    expected = os.environ.get(INTROSPECT_SERVICE_TOKEN_ENV, "")
+    # Derived, never the raw signing key: a leaked service token must not reveal it.
+    expected = hmac.new(Config.USER.JWT_SECRET_KEY.encode("utf-8"), b"auth-introspect", hashlib.sha256).hexdigest()
     if not expected or not hmac.compare_digest(request.headers.get("X-Service-Token", ""), expected):
-        raise HTTPException(status_code=401, detail=INTROSPECT_UNAUTHORIZED_DETAIL)
+        raise HTTPException(status_code=401, detail="Unauthorized")
     auth = request.headers.get("Authorization", "")
     raw = (
         token
@@ -170,11 +168,11 @@ def introspect(
         or request.cookies.get(COOKIE_NAME)
     )
     if not raw:
-        raise HTTPException(status_code=401, detail=INTROSPECT_UNAUTHORIZED_DETAIL)
+        raise HTTPException(status_code=401, detail="Unauthorized")
     try:
         return introspectToken(db, raw)
     except HTTPException:
-        raise HTTPException(status_code=401, detail=INTROSPECT_UNAUTHORIZED_DETAIL)
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
 
 @router.get("/google")
