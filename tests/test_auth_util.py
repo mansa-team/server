@@ -68,15 +68,15 @@ class TestAuthUtil:
 
 
 class TestSessionExpiryConfig:
-    def test_session_expiry_days_is_30(self):
-        assert SESSION_EXPIRY_DAYS == 30
+    def test_session_expiry_days_is_7(self):
+        assert SESSION_EXPIRY_DAYS == 7
 
     def test_session_expiry_hours_calculation(self):
         from main.app.authentication.constants import TOKEN_EXPIRY_HOURS
 
         assert TOKEN_EXPIRY_HOURS == SESSION_EXPIRY_DAYS * 24
 
-    def test_default_token_expiry_equals_30_days(self):
+    def test_default_token_expiry_equals_7_days(self):
         token = createAccessToken({"userId": "123"})
         decoded = jwt.decode(token, options={"verify_signature": False})
 
@@ -84,7 +84,7 @@ class TestSessionExpiryConfig:
         now = datetime.now()
         daysDiff = (expTime - now).days
 
-        assert 29 <= daysDiff <= 30
+        assert 6 <= daysDiff <= 7
 
 
 class TestAuthUtilEdgeCases:

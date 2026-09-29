@@ -1146,24 +1146,18 @@ class TestGetCurrentUser:
             assert "Could not validate credentials" in exc_info.value.detail
 
     def test_get_current_user_no_session_id(self):
-        """Covers lines 37-38, 46, 51, 58 (sessionId is None): skips session validation."""
+        """Fail-closed: payload without sessionId raises 401 Session required."""
         mock_db = MagicMock()
-        mock_user = MagicMock()
-        mock_user.userId = 1
-        mock_user.username = "alice"
-        mock_user.email = "alice@test.com"
-        mock_user.getRolesList.return_value = ["USER"]
-
-        mock_db.query.return_value.filter.return_value.first.return_value = mock_user
 
         mock_payload = {"userId": 1}
 
         from main.app.user.user import UserManager
 
-        result = UserManager.getCurrentUser(payload=mock_payload, db=mock_db)
+        with pytest.raises(Exception) as exc_info:
+            UserManager.getCurrentUser(payload=mock_payload, db=mock_db)
 
-        assert result["userId"] == 1
-        assert "sessionId" not in result
+        assert exc_info.value.status_code == 401
+        assert "Session required" in exc_info.value.detail
 
 
 # =========================================================================
