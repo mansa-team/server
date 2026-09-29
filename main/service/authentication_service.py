@@ -12,6 +12,7 @@ class AuthenticationService:
         service = getApp(port)
 
         service.add_middleware(
-            SessionMiddleware, secret_key=Config.USER.SESSION_SECRET_KEY, same_site="lax", https_only=False
+            SessionMiddleware,
+            secret_key=Config.USER.SESSION_SECRET_KEY, same_site="lax", https_only=True
         )
         service.include_router(authenticationRouter)

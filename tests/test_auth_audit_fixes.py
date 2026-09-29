@@ -188,7 +188,60 @@ class TestIntrospectGate:
             assert leaked not in resp.text
 
 
-class TestPIIScrub:
+class TestSSORevokesOthers:
+    def _sso(self, googleId, email):
+        sso = AsyncMock()
+        sso.__aenter__ = AsyncMock(return_value=sso)
+        sso.__aexit__ = AsyncMock(return_value=False)
+        info = MagicMock()
+        info.id = googleId
+        info.email = email
+        sso.verify_and_process = AsyncMock(return_value=info)
+        return sso
+
+    def test_attacker_session_killed_new_survives(self, dbSession, authDbClient):
+        AuthenticationManager.createUserAccount(
+            dbSession, username="ssouser", email="ssouser@gmail.com", googleId="google-victim-1"
+        )
+        user = AuthenticationManager.authenticateGoogleUser(dbSession, "google-victim-1")
+        attacker = SessionManager.createSession(dbSession, user["userId"], "attacker-agent")
+
+        with patch(
+            "main.controller.authentication_controller.getGoogleSSO",
+            return_value=self._sso("google-victim-1", "ssouser@gmail.com"),
+        ):
+            resp = authDbClient.get("/auth/callback?state=not-a-url&code=c", follow_redirects=False)
+
+        assert resp.status_code == 200
+        dbSession.refresh(attacker)
+        assert attacker.isActive is False
+        from main.app.authentication.util import verifyAccessToken
+
+        payload = verifyAccessToken(resp.json()["accessToken"])
+        kept = SessionManager.getSessionById(dbSession, payload["sessionId"], user["userId"])
+        assert kept is not None and kept.isActive is True
+        assert kept.sessionId != attacker.sessionId
+
+
+class TestSecureFlagNotSpoofable:
+    def test_spoofed_forwarded_proto_http_keeps_secure(self, dbSession):
+        # https_only=True on SessionMiddleware + Secure auth cookies mean the
+        # http TestClient cannot round-trip Secure cookies, so assert on the
+        # Set-Cookie header instead.
+        app = FastAPI()
+        app.include_router(authRouter)
+        registerErrorHandlers(app)
+        app.dependency_overrides[getSession] = lambda: dbSession
+        makeAccount(dbSession, "secureguy", "secureguy@example.com")
+        with TestClient(app, base_url="https://testserver", raise_server_exceptions=False) as httpsClient:
+            resp = httpsClient.post(
+                "/auth/login",
+                json={"username": "secureguy", "password": "secret123"},
+                headers={"X-Forwarded-Proto": "http"},
+            )
+        assert resp.status_code == 200
+        assert "secure" in resp.headers.get("set-cookie", "").lower()
+
     @staticmethod
     def appLogs(caplog):
         # App must not log PII itself; httpx client-side request lines (test-only

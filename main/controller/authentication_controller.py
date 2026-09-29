@@ -33,14 +33,6 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 def isSecureScheme(request: Request) -> bool:
-    try:
-        forwardedRaw = request.headers.get("X-Forwarded-Proto", "")
-    except Exception:
-        forwardedRaw = ""
-    if isinstance(forwardedRaw, str):
-        proto = forwardedRaw.split(",")[0].strip().lower()
-        if proto in ("http", "https"):
-            return proto == "https"
     return request.url.scheme == "https"
 
 
@@ -257,10 +249,12 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
 
         if redirectUrl:
             redirectResponse = RedirectResponse(url=redirectUrl)
-            issueSessionCookie(redirectResponse, request, db, user)
+            _, sessionId = issueSessionCookie(redirectResponse, request, db, user)
+            SessionManager.revokeAllExcept(db, user["userId"], sessionId)
             return redirectResponse
 
-        accessToken, _ = issueSessionCookie(response, request, db, user)
+        accessToken, sessionId = issueSessionCookie(response, request, db, user)
+        SessionManager.revokeAllExcept(db, user["userId"], sessionId)
         logger.info("--- Google Callback End ---")
         return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
 
