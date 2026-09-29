@@ -281,6 +281,17 @@ def test_deserialize_jsoncolumns_decompresses_bytes():
     assert out["COTACAO 10Y PADRAO"].iloc[0] == [{"DATA": "01-01-2024", "PRECO": 10.0}]
 
 
+def test_deserialize_jsoncolumns_handles_arrowdtype_binary():
+    payload = zstd.ZstdCompressor(level=3).compress(b'[{"DATA": "01-01-2024", "PRECO": 10.5}]')
+    df = pd.DataFrame(
+        {"TICKER": ["PETR4"], "COTACAO 10Y PADRAO": pd.array([payload], dtype=pd.ArrowDtype(pa.binary()))}
+    )
+
+    out = deserializeJsonColumns(df)
+
+    assert out["COTACAO 10Y PADRAO"].iloc[0] == [{"DATA": "01-01-2024", "PRECO": 10.5}]
+
+
 def test_get_nest_keeps_compressed_column_subfields(monkeypatch, tmp_path):
     df = pd.DataFrame(
         {
