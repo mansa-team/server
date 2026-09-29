@@ -555,8 +555,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\TODO.md": {
-    "mtime": 1790723757.2517514,
-    "ast_hash": "8765b8e1907bb2d991630082eae83b5b",
+    "mtime": 1790726042.3421116,
+    "ast_hash": "0eafe0ff835b328c0ef66fdbe6e75100",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docs\\authentication.md": {
@@ -602,6 +602,11 @@
   "D:\\Repositories\\server\\docs\\superpowers\\uvicorn-worker-scaling-plan.md": {
     "mtime": 1790723409.2143178,
     "ast_hash": "5bc55983f02c9f640b96fe2ade89e7d2",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\benchmarks\\stocks-cache-ttl.md": {
+    "mtime": 1790725744.0210347,
+    "ast_hash": "02bdda14a198a7ce352314ec84cd36a6",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-08-09-sse-resume.md": {

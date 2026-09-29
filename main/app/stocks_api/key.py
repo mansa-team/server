@@ -15,12 +15,6 @@ from main.models.stocksapi_key import StocksAPIKey
 
 apiKeyHeader = APIKeyHeader(name="X-API-Key", auto_error=False)
 
-UNAUTHORIZED_DETAIL = "Unauthorized"
-QUOTA_DETAIL = "Too many requests"
-
-SALT_BYTES = 16
-_STORED_SEP = "$"
-
 
 def hashApiKey(rawKey: str, saltHex: str) -> str:
     return hashlib.sha256((saltHex + rawKey).encode()).hexdigest()
@@ -28,15 +22,15 @@ def hashApiKey(rawKey: str, saltHex: str) -> str:
 
 def createStoredApiKey(rawKey: str | None = None) -> tuple[str, str]:
     raw = rawKey or secrets.token_urlsafe(32)
-    saltHex = secrets.token_hex(SALT_BYTES)
-    return raw, f"{saltHex}{_STORED_SEP}{hashApiKey(raw, saltHex)}"
+    saltHex = secrets.token_hex(16)
+    return raw, f"{saltHex}{"$"}{hashApiKey(raw, saltHex)}"
 
 
 def isValidStoredKey(providedKey: str, storedKey: str | None) -> bool:
     try:
-        if not providedKey or not storedKey or _STORED_SEP not in storedKey:
+        if not providedKey or not storedKey or "$" not in storedKey:
             return False
-        saltHex, digest = storedKey.split(_STORED_SEP, 1)
+        saltHex, digest = storedKey.split("$", 1)
         if not saltHex or not digest:
             return False
         candidate = hashlib.sha256((saltHex + providedKey).encode()).hexdigest()
@@ -50,7 +44,7 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depend
         return None
 
     if not apiKey:
-        raise HTTPException(status_code=401, detail=UNAUTHORIZED_DETAIL)
+        raise HTTPException(status_code=401, detail="Unauthorized")
 
     try:
         # ponytail: full-table scan, move to server-side salted lookup if keys table grows large
@@ -66,8 +60,8 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depend
 
         if matchedPk is None:
             if exhaustedMatch:
-                raise HTTPException(status_code=429, detail=QUOTA_DETAIL)
-            raise HTTPException(status_code=401, detail=UNAUTHORIZED_DETAIL)
+                raise HTTPException(status_code=429, detail="Too many requests")
+            raise HTTPException(status_code=401, detail="Unauthorized")
 
         result = db.execute(
             update(StocksAPIKey)
@@ -78,7 +72,7 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depend
         db.commit()
 
         if cast(CursorResult, result).rowcount == 0:
-            raise HTTPException(status_code=429, detail=QUOTA_DETAIL)
+            raise HTTPException(status_code=429, detail="Too many requests")
 
         return apiKey
 
