@@ -152,65 +152,101 @@ class TestAtomicQuotaIncrement:
         assert key.currentUsage == 1
 
 
+class TestSaltedKeyHash:
+    def test_same_raw_produces_unique_stored_values(self):
+        from main.app.stocks_api.key import createStoredApiKey, isValidStoredKey
+        _, stored1 = createStoredApiKey("same_raw")
+        _, stored2 = createStoredApiKey("same_raw")
+        assert stored1 != stored2
+        assert isValidStoredKey("same_raw", stored1)
+        assert isValidStoredKey("same_raw", stored2)
+
+    def test_wrong_and_tampered_keys_rejected(self):
+        from main.app.stocks_api.key import createStoredApiKey, isValidStoredKey
+        _, stored = createStoredApiKey("correct")
+        assert not isValidStoredKey("wrong", stored)
+        assert not isValidStoredKey("correct", stored[:-1] + ("0" if stored[-1] != "0" else "1"))
+        assert not isValidStoredKey("correct", "barehexwithnosalt")
+        assert not isValidStoredKey("", stored)
+
+    def test_constant_time_compare_used(self):
+        from unittest.mock import patch as mock_patch
+        from main.app.stocks_api.key import createStoredApiKey, isValidStoredKey
+        raw, stored = createStoredApiKey("k")
+        with mock_patch("main.app.stocks_api.key.hmac.compare_digest", return_value=False) as m:
+            assert isValidStoredKey(raw, stored) is False
+            m.assert_called_once()
+
+
 class TestVerifyAPIKeyIntegration:
-    """Integration tests for the verifyAPIKey function."""
-
-    async def test_verify_api_key_success(self, dbSession, sampleKeyData):
-        """Test successful API key verification."""
-        key = StocksAPIKey(**sampleKeyData)
+    def makeStoredKey(self, dbSession, raw="test_key_12345", **overrides):
+        from main.app.stocks_api.key import createStoredApiKey
+        _, stored = createStoredApiKey(raw)
+        params = {"apiKey": stored, "userId": 1, "requestLimit": 100, "currentUsage": 0}
+        params.update(overrides)
+        key = StocksAPIKey(**params)
         dbSession.add(key)
         dbSession.commit()
+        return key
 
+    async def test_verify_api_key_success(self, dbSession):
+        key = self.makeStoredKey(dbSession)
         with patch("main.app.stocks_api.key.Config") as mock_config:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
+            assert await verifyAPIKey(apiKey="test_key_12345", db=dbSession) == "test_key_12345"
+        dbSession.refresh(key)
+        assert key.currentUsage == 1
 
-            result = await verifyAPIKey(apiKey="test_key_12345", db=dbSession)
-
-            assert result == "test_key_12345"
-            dbSession.refresh(key)
-            assert key.currentUsage == 1
-
-    async def test_verify_api_key_quota_exceeded(self, dbSession, sampleKeyData):
-        """Test API key verification when quota is exceeded."""
-        key = StocksAPIKey(**{**sampleKeyData, "currentUsage": 100, "requestLimit": 100})
-        dbSession.add(key)
-        dbSession.commit()
-
+    async def test_verify_api_key_quota_exceeded(self, dbSession):
+        self.makeStoredKey(dbSession, currentUsage=100, requestLimit=100)
         with patch("main.app.stocks_api.key.Config") as mock_config:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
-
-            with pytest.raises(HTTPException) as exc_info:
+            with pytest.raises(HTTPException) as e:
                 await verifyAPIKey(apiKey="test_key_12345", db=dbSession)
-
-            assert exc_info.value.status_code == 429
-            assert "quota exceeded" in exc_info.value.detail
+            assert (e.value.status_code, e.value.detail) == (429, "Too many requests")
 
     async def test_verify_api_key_invalid(self, dbSession):
-        """Test API key verification with invalid key."""
+        self.makeStoredKey(dbSession)
         with patch("main.app.stocks_api.key.Config") as mock_config:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
-
-            with pytest.raises(HTTPException) as exc_info:
+            with pytest.raises(HTTPException) as e:
                 await verifyAPIKey(apiKey="invalid_key", db=dbSession)
-
-            assert exc_info.value.status_code == 401
-            assert "Invalid API key" in exc_info.value.detail
+            assert (e.value.status_code, e.value.detail) == (401, "Unauthorized")
 
     async def test_verify_api_key_missing(self, dbSession):
-        """Test API key verification with missing key."""
         with patch("main.app.stocks_api.key.Config") as mock_config:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
-
-            with pytest.raises(HTTPException) as exc_info:
+            with pytest.raises(HTTPException) as e:
                 await verifyAPIKey(apiKey=None, db=dbSession)
-
-            assert exc_info.value.status_code == 401
-            assert "Missing API key" in exc_info.value.detail
+            assert (e.value.status_code, e.value.detail) == (401, "Unauthorized")
 
     async def test_verify_api_key_disabled(self, dbSession):
-        """Test that API key system can be disabled."""
         with patch("main.app.stocks_api.key.Config") as mock_config:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=False)
+            assert await verifyAPIKey(apiKey="any_key", db=dbSession) is None
 
-            result = await verifyAPIKey(apiKey="any_key", db=dbSession)
-            assert result is None
+    async def test_legacy_unsalted_row_fails_closed(self, dbSession):
+        dbSession.add(StocksAPIKey(apiKey=TEST_KEY_HASH, userId=1, requestLimit=100, currentUsage=0))
+        dbSession.commit()
+        with patch("main.app.stocks_api.key.Config") as mock_config:
+            mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
+            with pytest.raises(HTTPException) as e:
+                await verifyAPIKey(apiKey="test_key_12345", db=dbSession)
+            assert e.value.status_code == 401
+
+    async def test_db_error_fails_closed_500(self, dbSession):
+        self.makeStoredKey(dbSession)
+        broken = MagicMock()
+        broken.query.side_effect = RuntimeError("DB down")
+        with patch("main.app.stocks_api.key.Config") as mock_config:
+            mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
+            with pytest.raises(HTTPException) as e:
+                await verifyAPIKey(apiKey="test_key_12345", db=broken)
+            assert e.value.status_code == 500
+            broken.rollback.assert_called()
+
+    def test_verify_uses_stocks_session(self):
+        import inspect
+        from config import getStocksSession
+        from main.app.stocks_api.key import verifyAPIKey as v
+        assert inspect.signature(v).parameters["db"].default.dependency is getStocksSession
