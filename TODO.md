@@ -1,3 +1,20 @@
+## Priorities (active order, 2026-09-29)
+
+1. **Cache TTL** — endpoint/response cache lifetimes (historical 1h, fundamental/cotations 5m, live 15s) and the app-layer TTL increase as the cheap first perf step.
+   - Plan: `docs/superpowers/plans/2026-09-29-stocks-cache-ttl.md`
+   - Alt/related: `docs/superpowers/plans/2026-09-29-nginx-response-cache.md`
+2. **nginx scaling** — one box, nginx in front, per-service routing and tailored configs so only the required services boot (remote VPS support). Draft plan + design spec.
+   - Draft: `docs/superpowers/nginx-scaling-plan.md`
+   - Design: `docs/superpowers/specs/2026-09-29-nginx-scaling-design.md`
+3. **Wallet system (Iyagba)** — portfolio/wallet management for users.
+   - Spec: `docs/superpowers/investidor10-wallet-spec.md`
+   - Research: `docs/superpowers/investidor10-wallet-research.md`
+4. **uvicorn scaling** — multi-process workers without duplicating the feather in RAM. Blocked on the B1–B6 change inventory; not ready to execute until the phase boundary and edge rate-limit decisions are made.
+   - Planning doc: `docs/superpowers/uvicorn-worker-scaling-plan.md`
+   - Implementation: `docs/superpowers/plans/2026-09-29-uvicorn-worker-scaling.md`
+
+---
+
 - [ ] Github OAuth
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings
 - [ ] Make an Password Recovery system and 2FA using the Email Protocol
