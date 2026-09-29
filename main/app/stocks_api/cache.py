@@ -249,8 +249,10 @@ class StocksCacheManager:
             self.lastCacheUpdate = datetime.now(timezone.utc)
 
         from main.app.stocks_api.compress import rebuildAbbrevs
+        from main.app.stocks_api.sync_cache import clearEndpointCache
 
         rebuildAbbrevs()
+        clearEndpointCache()
 
         logger.info(f"Stocks cache loaded from feather ({len(df)} records, {len(newTickerIndex)} tickers)")
 

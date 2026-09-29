@@ -32,3 +32,8 @@ def cache(ttl: str, key: str) -> Callable[[F], F]:
         return wrapper  # type: ignore[return-value]
 
     return decorator
+
+
+def clearEndpointCache() -> None:
+    """Drop every cached endpoint body — called when the feather frame is replaced."""
+    asyncio.run(cashewsCache.clear())

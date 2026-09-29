@@ -1,5 +1,6 @@
 import asyncio
 import re
+from pathlib import Path
 from types import SimpleNamespace
 
 import pandas as pd
@@ -8,6 +9,7 @@ import pytest_asyncio
 from cashews import cache as cashewsCache
 from fastapi import Response
 
+from main.app.stocks_api import cache as cache_mod
 from main.app.stocks_api.cache import STALE_AFTER_SECONDS
 from main.controller import stocksapi_controller as mod
 
@@ -78,3 +80,23 @@ def test_fields_503_is_not_cached(monkeypatch):
         with pytest.raises(mod.HTTPException) as exc:
             mod.listFields(Response())
         assert exc.value.status_code == 503
+
+
+def test_feather_reload_drops_cached_bodies(monkeypatch):
+    _flush()
+    asyncio.run(cashewsCache.set("stocks:fields", {"probe": True}, expire=3600))
+    assert asyncio.run(cashewsCache.get("stocks:fields", default=None)) == {"probe": True}
+
+    # keep the reload cheap: no real feather file, no abbreviation rebuild
+    monkeypatch.setattr(cache_mod, "readFeatherDataFrame", lambda path: (pd.DataFrame({"TICKER": ["PETR4"]}), True))
+    monkeypatch.setattr(cache_mod, "CACHE_NESTED_PATH", Path("missing.feather"))
+    monkeypatch.setattr("main.app.stocks_api.compress.rebuildAbbrevs", lambda: None)
+
+    manager = cache_mod.stocksCache
+    saved = (manager.STOCKS_CACHE, manager.tickerIndex, manager.nestedSample, manager.lastCacheUpdate)
+    try:
+        manager.loadFromFeather()
+    finally:
+        manager.STOCKS_CACHE, manager.tickerIndex, manager.nestedSample, manager.lastCacheUpdate = saved
+
+    assert asyncio.run(cashewsCache.get("stocks:fields", default=None)) is None
