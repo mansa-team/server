@@ -16,6 +16,14 @@ logger = logging.getLogger(__name__)
 
 cache.setup("mem://")
 
+# Endpoint cache TTLs. STOCKS_TTL must stay <= STALE_AFTER_SECONDS (cache.py) — a cached
+# body may never outlive the app's own staleness policy. The *_MAX_AGE values are the
+# same durations in seconds, for the Cache-Control header only.
+STOCKS_TTL = "6h"
+STOCKS_MAX_AGE = 6 * 3600
+LIVE_TTL = "15s"
+LIVE_MAX_AGE = 15
+
 router = APIRouter(prefix="/stocks", tags=["Stocks API"])
 
 
@@ -81,7 +89,7 @@ def listFields():
 
 
 @router.get("/historical", operation_id="get_historical", response_class=ORJSONResponse)
-@endpointCache(ttl="1h", key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
+@endpointCache(ttl=STOCKS_TTL, key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 def getHistorical(
     response: Response,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -138,7 +146,7 @@ def getHistorical(
     - Get PETR4 net income 2022-2024: search="PETR4", fields="LUCRO LIQUIDO", dates="2022,2024"
     - Get all revenue data for VALE3: search="VALE3", fields="RECEITA LIQUIDA"
     - Compare top 10 by EBITDA: fields="EBITDA", orderBy="EBITDA", limit=10"""
-    response.headers["Cache-Control"] = "public, max-age=300"
+    response.headers["Cache-Control"] = f"public, max-age={STOCKS_MAX_AGE}"
     result = queryHistorical(search, fields, dates, orderBy, limit)
     if compact:
         result = compressResponse(result, "get_historical", {"search": search, "fields": fields, "dates": dates})
@@ -146,7 +154,7 @@ def getHistorical(
 
 
 @router.get("/fundamental", operation_id="get_fundamental", response_class=ORJSONResponse)
-@endpointCache(ttl="5m", key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
+@endpointCache(ttl=STOCKS_TTL, key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 def getFundamental(
     response: Response,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -208,7 +216,7 @@ def getFundamental(
     - Get all stocks' dividend yield latest: fields="DY"
     - Compare P/L across tickers: search="PETR4,VALE3,ITUB4", fields="P/L", orderBy="P/L"
     - Q1 2024 fundamental snapshot: fields="P/L,ROE", dates="2024-01-01,2024-03-31" """
-    response.headers["Cache-Control"] = "public, max-age=300"
+    response.headers["Cache-Control"] = f"public, max-age={STOCKS_MAX_AGE}"
     result = queryFundamental(search, fields, dates, orderBy, limit)
     if compact:
         result = compressResponse(result, "get_fundamental", {"search": search, "fields": fields, "dates": dates})
@@ -216,7 +224,7 @@ def getFundamental(
 
 
 @router.get("/cotations", operation_id="get_cotations", response_class=ORJSONResponse)
-@endpointCache(ttl="5m", key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}")
+@endpointCache(ttl=STOCKS_TTL, key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}")
 def getCotations(
     response: Response,
     search: str = Query(..., min_length=1, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -264,7 +272,7 @@ def getCotations(
     - Get PETR4 full price history: search="PETR4"
     - Get PETR4 + VALE3 2023 prices: search="PETR4,VALE3", dates="2023-01-01,2023-12-31"
     - Get inflation-adjusted prices: search="ITUB4", adjusted=true"""
-    response.headers["Cache-Control"] = "public, max-age=300"
+    response.headers["Cache-Control"] = f"public, max-age={STOCKS_MAX_AGE}"
     result = queryCotations(search, dates, adjusted)
     if compact:
         result = compressResponse(result, "get_cotations", {"search": search, "dates": dates})
@@ -272,7 +280,7 @@ def getCotations(
 
 
 @router.get("/cotations/live", operation_id="get_live_price", response_class=ORJSONResponse)
-@endpointCache(ttl="15s", key="stocks:live:{search}:{compact}")
+@endpointCache(ttl=LIVE_TTL, key="stocks:live:{search}:{compact}")
 def getLiveCotation(
     response: Response,
     search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -309,7 +317,7 @@ def getLiveCotation(
     - Only one ticker per request (max 7 chars for the search param).
     - Real-time data is only available during B3 market hours (10:00-17:30 BRT).
     - Outside market hours, returns the last available closing price."""
-    response.headers["Cache-Control"] = "public, max-age=15"
+    response.headers["Cache-Control"] = f"public, max-age={LIVE_MAX_AGE}"
     result = queryLiveCotation(search)
     if compact:
         result = compressResponse(result, "get_live_price", {"search": search})
