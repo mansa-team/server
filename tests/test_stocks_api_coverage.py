@@ -185,12 +185,14 @@ class TestVerifyAPIKey:
     def makeRow(self, raw, usage=0, limit=100):
         from types import SimpleNamespace
         from main.app.stocks_api.key import createStoredApiKey
+
         _, stored = createStoredApiKey(raw)
         return SimpleNamespace(apiKey=stored, currentUsage=usage, requestLimit=limit)
 
     @patch("main.app.stocks_api.key.Config")
     async def test_verify_api_key_disabled_returns_none(self, mock_config):
         from main.app.stocks_api.key import verifyAPIKey
+
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=False)
         assert await verifyAPIKey(apiKey=None, db=MagicMock()) is None
 
@@ -198,6 +200,7 @@ class TestVerifyAPIKey:
     async def test_verify_api_key_missing_raises_401(self, mock_config):
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
+
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([])
         with pytest.raises(HTTPException) as e:
@@ -208,6 +211,7 @@ class TestVerifyAPIKey:
     @patch("main.app.stocks_api.key.Config")
     async def test_verify_api_key_success(self, mock_config):
         from main.app.stocks_api.key import verifyAPIKey
+
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([self.makeRow("valid_key")])
         assert await verifyAPIKey(apiKey="valid_key", db=mock_db) == "valid_key"
@@ -217,6 +221,7 @@ class TestVerifyAPIKey:
     async def test_verify_api_key_invalid_key_raises_401(self, mock_config):
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
+
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([self.makeRow("other_key")])
         with pytest.raises(HTTPException) as e:
@@ -227,6 +232,7 @@ class TestVerifyAPIKey:
     async def test_verify_api_key_quota_exceeded(self, mock_config):
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
+
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([self.makeRow("valid_key", usage=100, limit=100)])
         with pytest.raises(HTTPException) as e:
@@ -238,6 +244,7 @@ class TestVerifyAPIKey:
     async def test_verify_api_key_lost_race_returns_429(self, mock_config):
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
+
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([self.makeRow("k")], rowcount=0)
         with pytest.raises(HTTPException) as e:
@@ -249,6 +256,7 @@ class TestVerifyAPIKey:
     async def test_verify_api_key_generic_exception_rollback(self, mock_config):
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
+
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([self.makeRow("k")], error=Exception("DB down"))
         with pytest.raises(HTTPException) as e:
@@ -261,6 +269,7 @@ class TestVerifyAPIKey:
         from types import SimpleNamespace
         from main.app.stocks_api.key import verifyAPIKey
         from fastapi import HTTPException
+
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         legacy = SimpleNamespace(apiKey="a" * 64, currentUsage=0, requestLimit=100)
         with pytest.raises(HTTPException) as e:

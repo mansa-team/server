@@ -155,6 +155,7 @@ class TestAtomicQuotaIncrement:
 class TestSaltedKeyHash:
     def test_same_raw_produces_unique_stored_values(self):
         from main.app.stocks_api.key import createStoredApiKey, isValidStoredKey
+
         _, stored1 = createStoredApiKey("same_raw")
         _, stored2 = createStoredApiKey("same_raw")
         assert stored1 != stored2
@@ -163,6 +164,7 @@ class TestSaltedKeyHash:
 
     def test_wrong_and_tampered_keys_rejected(self):
         from main.app.stocks_api.key import createStoredApiKey, isValidStoredKey
+
         _, stored = createStoredApiKey("correct")
         assert not isValidStoredKey("wrong", stored)
         assert not isValidStoredKey("correct", stored[:-1] + ("0" if stored[-1] != "0" else "1"))
@@ -172,6 +174,7 @@ class TestSaltedKeyHash:
     def test_constant_time_compare_used(self):
         from unittest.mock import patch as mock_patch
         from main.app.stocks_api.key import createStoredApiKey, isValidStoredKey
+
         raw, stored = createStoredApiKey("k")
         with mock_patch("main.app.stocks_api.key.hmac.compare_digest", return_value=False) as m:
             assert isValidStoredKey(raw, stored) is False
@@ -181,6 +184,7 @@ class TestSaltedKeyHash:
 class TestVerifyAPIKeyIntegration:
     def makeStoredKey(self, dbSession, raw="test_key_12345", **overrides):
         from main.app.stocks_api.key import createStoredApiKey
+
         _, stored = createStoredApiKey(raw)
         params = {"apiKey": stored, "userId": 1, "requestLimit": 100, "currentUsage": 0}
         params.update(overrides)
@@ -249,4 +253,5 @@ class TestVerifyAPIKeyIntegration:
         import inspect
         from config import getStocksSession
         from main.app.stocks_api.key import verifyAPIKey as v
+
         assert inspect.signature(v).parameters["db"].default.dependency is getStocksSession

@@ -15,6 +15,6 @@ class AuthenticationService:
             SessionMiddleware,
             secret_key=Config.USER.SESSION_SECRET_KEY,
             same_site="lax",
-            https_only=False # dev
+            https_only=False,  # dev
         )
         service.include_router(authenticationRouter)

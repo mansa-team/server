@@ -73,7 +73,10 @@ class TestAuthIntrospect:
         assert authClient.post("/auth/introspect", json={"token": token}, headers=SERVICE_HEADERS).status_code == 401
 
     def test_invalid_token_401(self, dbSession, authClient):
-        assert authClient.post("/auth/introspect", json={"token": "not.a.real.token"}, headers=SERVICE_HEADERS).status_code == 401
+        assert (
+            authClient.post("/auth/introspect", json={"token": "not.a.real.token"}, headers=SERVICE_HEADERS).status_code
+            == 401
+        )
 
     def test_revoked_session_401(self, dbSession, authClient):
         user, session, token = makeUserToken(dbSession)
