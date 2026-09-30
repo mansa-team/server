@@ -46,6 +46,7 @@ Exit code: 0 = all passed, 1 = at least one failed. Bandit failures are non-bloc
 
 ## Code Style
 - Module-level variables use plain names (`abbrFrame`), never a leading-underscore prefix (`_abbrFrame`).
+- Use descriptive variable names; no single- or dual-letter names (the only exception is `df` for DataFrames).
 
 ## Testing
 - Tests in `tests/test_*.py`, use fixtures from `conftest.py`

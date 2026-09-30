@@ -20,7 +20,7 @@ def sanitizeNanValues(obj):
     if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
         return None
     if isinstance(obj, dict):
-        return {k: sanitizeNanValues(v) for k, v in obj.items()}
+        return {key: sanitizeNanValues(value) for key, value in obj.items()}
     if isinstance(obj, list):
         return [sanitizeNanValues(item) for item in obj]
     if isinstance(obj, pd.Timestamp):
@@ -53,13 +53,13 @@ def filterCotationColumn(series: pd.Series, startDate, endDate) -> pd.Series:
 
 
 def baseFrame(cacheManager=None):
-    cm = cacheManager if cacheManager is not None else stocksCache
-    snap = getattr(cm, "snapshot", None)
+    manager = cacheManager if cacheManager is not None else stocksCache
+    snap = getattr(manager, "snapshot", None)
     pair = snap() if callable(snap) else None
     if isinstance(pair, tuple):
         df, tickerIndex = pair
     else:
-        df, tickerIndex = cm.STOCKS_CACHE, cm.tickerIndex
+        df, tickerIndex = manager.STOCKS_CACHE, manager.tickerIndex
     if df is None:
         raise HTTPException(status_code=503, detail="Cache not initialized")
     return df, tickerIndex
@@ -68,8 +68,8 @@ def baseFrame(cacheManager=None):
 def validateFields(requested: str | None, available: list, typeName: str) -> list:
     if not requested:
         return list(available)
-    wanted = [f.strip() for f in requested.split(",") if f.strip()]
-    invalid = [f for f in wanted if f not in available]
+    wanted = [field.strip() for field in requested.split(",") if field.strip()]
+    invalid = [field for field in wanted if field not in available]
     if invalid:
         raise HTTPException(
             status_code=400,
@@ -109,7 +109,7 @@ def finalize(
     if limit:
         df = df.head(limit)
     if cols is not None:
-        df = df[[c for c in cols if c in df.columns]]
+        df = df[[column for column in cols if column in df.columns]]
     if dedupTickers:
         df = df.drop_duplicates(subset=["TICKER"], keep="first")
     df = deserializeJsonColumns(df)
@@ -128,13 +128,13 @@ def deserializeJsonColumns(df: pd.DataFrame) -> pd.DataFrame:
 
     df = df.copy()
 
-    def parseJSON(x, decompressor):
-        if isinstance(x, bytes):
-            x = decompressor.decompress(x).decode("utf-8")
+    def parseJSON(cell, decompressor):
+        if isinstance(cell, bytes):
+            cell = decompressor.decompress(cell).decode("utf-8")
         try:
-            return orjson.loads(x)
+            return orjson.loads(cell)
         except (ValueError, TypeError):
-            return x
+            return cell
 
     decompressor = zstd.ZstdDecompressor()
     for col in df.columns:
@@ -143,10 +143,10 @@ def deserializeJsonColumns(df: pd.DataFrame) -> pd.DataFrame:
             dtype == "object" or pd.api.types.is_string_dtype(dtype) or isinstance(dtype, pd.ArrowDtype)
         ):
             df[col] = df[col].apply(
-                lambda x: (
-                    sanitizeNanValues(parseJSON(x, decompressor))
-                    if (isinstance(x, str) and x.startswith(("{", "["))) or isinstance(x, bytes)
-                    else sanitizeNanValues(x)
+                lambda cell: (
+                    sanitizeNanValues(parseJSON(cell, decompressor))
+                    if (isinstance(cell, str) and cell.startswith(("{", "["))) or isinstance(cell, bytes)
+                    else sanitizeNanValues(cell)
                 )
             )
 
@@ -157,14 +157,14 @@ def filterBySearchTerms(df: pd.DataFrame, search: str, index: dict | None = None
     if not search:
         return df
 
-    searchTerms = [s.strip().upper() for s in search.split(",") if s.strip()]
+    searchTerms = [term.strip().upper() for term in search.split(",") if term.strip()]
     if not searchTerms:
         return df
 
     lookup = index if index is not None else stocksCache.tickerIndex
     upperTickers = df["TICKER"].str.upper()
-    exactSet = {t for t in searchTerms if lookup and t in lookup}
-    prefixTerms = tuple(t for t in searchTerms if t not in exactSet)
+    exactSet = {term for term in searchTerms if lookup and term in lookup}
+    prefixTerms = tuple(term for term in searchTerms if term not in exactSet)
     exactMask = upperTickers.isin(exactSet)
     if prefixTerms:
         return df[exactMask | upperTickers.str.startswith(prefixTerms)]
@@ -186,7 +186,7 @@ def queryHistorical(
     try:
         availableColumns = df.columns.tolist()
         availableColumnsSet = set(availableColumns)
-        historicalFields, _ = categorizeColumns(availableColumns)
+        historicalFields, ignored = categorizeColumns(availableColumns)
 
         if not historicalFields:
             raise HTTPException(status_code=400, detail="No historical data available in cache")
@@ -243,16 +243,16 @@ def queryFundamental(
     try:
         availableColumns = df.columns.tolist()
         availableColumnsSet = set(availableColumns)
-        _, fundamentalCols = categorizeColumns(availableColumns)
+        ignored, fundamentalCols = categorizeColumns(availableColumns)
 
         fundamentalColsFiltered = [
-            c for c in fundamentalCols if c not in ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA")
+            column for column in fundamentalCols if column not in ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA")
         ]
         fieldList = (
             [
-                f
-                for f in validateFields(fields, fundamentalCols, "fundamental")
-                if f not in ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA")
+                field
+                for field in validateFields(fields, fundamentalCols, "fundamental")
+                if field not in ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA")
             ]
             if fields
             else fundamentalColsFiltered
