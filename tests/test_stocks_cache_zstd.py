@@ -7,8 +7,10 @@ import pandas as pd
 import pyarrow as pa
 from pyarrow import feather
 
+import main.app.stocks_api.build as build_mod
 import main.app.stocks_api.cache as cache_mod
 from main.app.stocks_api.cache import StocksCacheManager
+from main.app.stocks_api.frame import PRESORTED_FLAG_KEY
 from main.app.stocks_api.query import deserializeJsonColumns, filterCotationColumn
 
 
@@ -58,7 +60,7 @@ class FakeEngine:
 
 @pytest.fixture(autouse=True)
 def fakeStocksEngine(monkeypatch):
-    monkeypatch.setattr(cache_mod, "stocksEngine", FakeEngine())
+    monkeypatch.setattr(build_mod, "stocksEngine", FakeEngine())
 
 
 def test_filter_cotation_column_filters_by_date_without_index():
@@ -83,10 +85,12 @@ def test_get_cached_stocks_does_not_build_date_index(monkeypatch, tmp_path):
             "COTACAO 10Y PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 1.0}]'],
         }
     )
-    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: FakeConn([df]))
-    cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
-    cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
-    cache_mod.buildFeatherCache()
+    monkeypatch.setattr(build_mod.stocksEngine, "connect", lambda: FakeConn([df]))
+    build_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
+    build_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
+    cache_mod.CACHE_FEATHER_PATH = build_mod.CACHE_FEATHER_PATH
+    cache_mod.CACHE_NESTED_PATH = build_mod.CACHE_NESTED_PATH
+    build_mod.buildFeatherCache()
     monkeypatch.setattr(cache_mod.subprocess, "run", lambda *a, **k: None)
     m = StocksCacheManager(None, threading.Lock())
     m.getCachedStocks()
@@ -102,10 +106,12 @@ def test_get_cached_stocks_skips_build_when_another_process_holds_lock(monkeypat
             "COTACAO 10Y PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 1.0}]'],
         }
     )
-    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: FakeConn([df]))
-    cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
-    cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
-    cache_mod.buildFeatherCache()
+    monkeypatch.setattr(build_mod.stocksEngine, "connect", lambda: FakeConn([df]))
+    build_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
+    build_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
+    cache_mod.CACHE_FEATHER_PATH = build_mod.CACHE_FEATHER_PATH
+    cache_mod.CACHE_NESTED_PATH = build_mod.CACHE_NESTED_PATH
+    build_mod.buildFeatherCache()
 
     lockFile = open(tmp_path / "refresh.lock", "w")
     fcntl.flock(lockFile, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -135,10 +141,12 @@ def makeDf():
 
 
 def test_get_cached_stocks_compresses_jsoncolumns(monkeypatch, tmp_path):
-    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: FakeConn([makeDf()]))
-    cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
-    cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
-    cache_mod.buildFeatherCache()
+    monkeypatch.setattr(build_mod.stocksEngine, "connect", lambda: FakeConn([makeDf()]))
+    build_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
+    build_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
+    cache_mod.CACHE_FEATHER_PATH = build_mod.CACHE_FEATHER_PATH
+    cache_mod.CACHE_NESTED_PATH = build_mod.CACHE_NESTED_PATH
+    build_mod.buildFeatherCache()
     monkeypatch.setattr(cache_mod.subprocess, "run", lambda *a, **k: None)
     m = StocksCacheManager(None, threading.Lock())
     m.getCachedStocks()
@@ -150,10 +158,12 @@ def test_get_cached_stocks_compresses_jsoncolumns(monkeypatch, tmp_path):
 
 
 def test_get_cached_stocks_keeps_raw_nested_sample(monkeypatch, tmp_path):
-    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: FakeConn([makeDf()]))
-    cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
-    cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
-    cache_mod.buildFeatherCache()
+    monkeypatch.setattr(build_mod.stocksEngine, "connect", lambda: FakeConn([makeDf()]))
+    build_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
+    build_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
+    cache_mod.CACHE_FEATHER_PATH = build_mod.CACHE_FEATHER_PATH
+    cache_mod.CACHE_NESTED_PATH = build_mod.CACHE_NESTED_PATH
+    build_mod.buildFeatherCache()
     nested = pd.read_feather(cache_mod.CACHE_NESTED_PATH)
     assert nested is not None
     assert isinstance(nested["COTACAO 10Y PADRAO"].iloc[0], str)
@@ -170,10 +180,12 @@ def test_nested_sample_skips_all_null_leading_rows(monkeypatch, tmp_path):
             "NOTICIAS": [None, None],
         }
     )
-    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: FakeConn([empty, makeDf()]))
-    cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
-    cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
-    cache_mod.buildFeatherCache()
+    monkeypatch.setattr(build_mod.stocksEngine, "connect", lambda: FakeConn([empty, makeDf()]))
+    build_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
+    build_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
+    cache_mod.CACHE_FEATHER_PATH = build_mod.CACHE_FEATHER_PATH
+    cache_mod.CACHE_NESTED_PATH = build_mod.CACHE_NESTED_PATH
+    build_mod.buildFeatherCache()
     nested = pd.read_feather(cache_mod.CACHE_NESTED_PATH)
     assert nested is not None
     assert isinstance(nested["COTACAO 10Y PADRAO"].iloc[0], str)
@@ -200,10 +212,12 @@ def test_nested_sample_captures_sparsecolumns_across_chunks(monkeypatch, tmp_pat
             "NOTICIAS": ['[{"TITULO": "noticia", "LINK": "http://x"}]'],
         }
     )
-    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: FakeConn([first, later]))
-    cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
-    cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
-    cache_mod.buildFeatherCache()
+    monkeypatch.setattr(build_mod.stocksEngine, "connect", lambda: FakeConn([first, later]))
+    build_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
+    build_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
+    cache_mod.CACHE_FEATHER_PATH = build_mod.CACHE_FEATHER_PATH
+    cache_mod.CACHE_NESTED_PATH = build_mod.CACHE_NESTED_PATH
+    build_mod.buildFeatherCache()
     nested = pd.read_feather(cache_mod.CACHE_NESTED_PATH)
     assert nested is not None
     assert isinstance(nested["COTACAO 10Y PADRAO"].iloc[0], str)
@@ -233,10 +247,12 @@ def test_build_null_first_chunk_numeric_column_uses_db_type(monkeypatch, tmp_pat
         }
     )
     conn = FakeConn([first, later], col_types={"DIVIDENDOS 2027": "double"})
-    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: conn)
-    cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
-    cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
-    cache_mod.buildFeatherCache()
+    monkeypatch.setattr(build_mod.stocksEngine, "connect", lambda: conn)
+    build_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
+    build_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
+    cache_mod.CACHE_FEATHER_PATH = build_mod.CACHE_FEATHER_PATH
+    cache_mod.CACHE_NESTED_PATH = build_mod.CACHE_NESTED_PATH
+    build_mod.buildFeatherCache()
     df = pd.read_feather(cache_mod.CACHE_FEATHER_PATH)
     assert df["DIVIDENDOS 2027"].iloc[2] == 1.25
     assert str(df["DIVIDENDOS 2027"].dtype).startswith("float")
@@ -300,22 +316,18 @@ def test_get_nest_keeps_compressed_column_subfields(monkeypatch, tmp_path):
             "COTACAO 10Y PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 1.0}]'],
         }
     )
-    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: FakeConn([df]))
-    cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
-    cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
-    cache_mod.buildFeatherCache()
+    monkeypatch.setattr(build_mod.stocksEngine, "connect", lambda: FakeConn([df]))
+    build_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
+    build_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
+    cache_mod.CACHE_FEATHER_PATH = build_mod.CACHE_FEATHER_PATH
+    cache_mod.CACHE_NESTED_PATH = build_mod.CACHE_NESTED_PATH
+    build_mod.buildFeatherCache()
     m = StocksCacheManager(None, threading.Lock())
     m.getCachedStocks()
-    from unittest.mock import patch
-    from main.app.stocks_api.cache import stocksCache
     from main.app.stocks_api.compress import getNest, rebuildAbbrevs
 
-    with (
-        patch.object(stocksCache, "STOCKS_CACHE", m.STOCKS_CACHE),
-        patch.object(stocksCache, "nestedSample", m.nestedSample),
-    ):
-        rebuildAbbrevs()
-        nest = getNest()
+    rebuildAbbrevs()
+    nest = getNest(m.STOCKS_CACHE, m.nestedSample)
     assert "COTACAO 10Y PADRAO" in nest
     assert set(nest["COTACAO 10Y PADRAO"]["subfields"]) >= {"DATA", "PRECO"}
 
@@ -334,24 +346,24 @@ def test_build_requests_presorted_rows(monkeypatch, tmp_path):
         monkeypatch.setattr(conn, "exec_driver_sql", exec_driver_sql)
         return conn
 
-    monkeypatch.setattr(cache_mod.stocksEngine, "connect", connect)
-    monkeypatch.setattr(cache_mod, "CACHE_FEATHER_PATH", tmp_path / "cache.feather")
-    monkeypatch.setattr(cache_mod, "CACHE_NESTED_PATH", tmp_path / "nested.feather")
+    monkeypatch.setattr(build_mod.stocksEngine, "connect", connect)
+    monkeypatch.setattr(build_mod, "CACHE_FEATHER_PATH", tmp_path / "cache.feather")
+    monkeypatch.setattr(build_mod, "CACHE_NESTED_PATH", tmp_path / "nested.feather")
 
-    cache_mod.buildFeatherCache()
+    build_mod.buildFeatherCache()
 
     assert any("ORDER BY TICKER ASC, TIME DESC" in sql for sql in seenSql)
 
 
 def test_build_stamps_presorted_marker(monkeypatch, tmp_path):
-    monkeypatch.setattr(cache_mod.stocksEngine, "connect", lambda: FakeConn([makeDf()]))
-    monkeypatch.setattr(cache_mod, "CACHE_FEATHER_PATH", tmp_path / "cache.feather")
-    monkeypatch.setattr(cache_mod, "CACHE_NESTED_PATH", tmp_path / "nested.feather")
+    monkeypatch.setattr(build_mod.stocksEngine, "connect", lambda: FakeConn([makeDf()]))
+    monkeypatch.setattr(build_mod, "CACHE_FEATHER_PATH", tmp_path / "cache.feather")
+    monkeypatch.setattr(build_mod, "CACHE_NESTED_PATH", tmp_path / "nested.feather")
 
-    cache_mod.buildFeatherCache()
+    build_mod.buildFeatherCache()
 
-    table = feather.read_table(cache_mod.CACHE_FEATHER_PATH)
-    assert (table.schema.metadata or {}).get(cache_mod.PRESORTED_FLAG_KEY) == b"1"
+    table = feather.read_table(build_mod.CACHE_FEATHER_PATH)
+    assert (table.schema.metadata or {}).get(PRESORTED_FLAG_KEY) == b"1"
 
 
 def _writeFeather(rows, path):
@@ -369,7 +381,7 @@ def test_load_skips_sort_for_presorted_files(monkeypatch, tmp_path):
     path = tmp_path / "cache.feather"
     table = pa.Table.from_pandas(
         pd.DataFrame({"TICKER": ["VALE3", "PETR4"], "TIME": [pd.Timestamp("2024-01-01")] * 2}), preserve_index=False
-    ).replace_schema_metadata({cache_mod.PRESORTED_FLAG_KEY: b"1"})
+    ).replace_schema_metadata({PRESORTED_FLAG_KEY: b"1"})
     with pa.OSFile(str(path), "wb") as sink, pa.ipc.new_file(sink, table.schema) as writer:
         writer.write_table(table)
 

@@ -44,6 +44,10 @@ Exit code: 0 = all passed, 1 = at least one failed. Bandit failures are non-bloc
 - **DB**: Two MySQL connections (`engine` for user_db, `stocksEngine` for stocks_db)
 - **Entry**: `run.py`, source in `main/`
 
+## Code Style
+- Drop the leading underscore from module-level names (`_abbrFrame` → `abbrFrame`).
+- Use descriptive variable names; no single- or dual-letter names (the only exception is `df` for DataFrames).
+
 ## Testing
 - Tests in `tests/test_*.py`, use fixtures from `conftest.py`
 - Requires MySQL running

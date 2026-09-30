@@ -13,7 +13,7 @@ import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from main.app.stocks_api.query import filterCotationColumn
-from main.app.stocks_api.cache import optimizeDtypes
+from main.app.stocks_api.frame import optimizeDtypes
 
 
 # ── filterCotationColumn without date index ─────────────────────────────

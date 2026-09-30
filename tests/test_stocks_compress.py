@@ -5,18 +5,15 @@ compactValue suffix/date logic, compactRow,
 compactCotations, the compressResponse pipeline, and the lazy
 abbr/nest caches (getAbbr/getNest/rebuildAbbrevs).
 
-Pure unit tests: no MySQL required. Cache-dependent functions are
-exercised by patching stocksCache attributes; the module-level
-abbr/nest globals are reset before and after every test so the
+Pure unit tests: no MySQL required. Cache-dependent functions take
+the frame (and nested sample) as injected arguments; the module-level
+abbr/nest memos are reset before and after every test so the
 suite is order-independent.
 """
-
-from unittest.mock import patch
 
 import pandas as pd
 import pytest
 
-from main.app.stocks_api.cache import stocksCache
 from main.app.stocks_api.compress import (
     compactCotations,
     compactRow,
@@ -221,14 +218,12 @@ class TestAbbrevCaches:
     """getAbbr/getNest/rebuildAbbrevs: fallbacks, cache-present discovery, resets."""
 
     def test_get_abbr_cache_absent_fallback(self):
-        with patch.object(stocksCache, "STOCKS_CACHE", None):
-            rebuildAbbrevs()
-            assert getAbbr() == ABBR_FALLBACK
+        rebuildAbbrevs()
+        assert getAbbr(None) == ABBR_FALLBACK
 
     def test_get_nest_cache_absent_fallback(self):
-        with patch.object(stocksCache, "STOCKS_CACHE", None):
-            rebuildAbbrevs()
-            assert getNest() == {}
+        rebuildAbbrevs()
+        assert getNest(None) == {}
 
     def test_get_abbr_cache_present(self):
         df = pd.DataFrame(
@@ -240,9 +235,8 @@ class TestAbbrevCaches:
                 "P/L": [5.2],
             }
         )
-        with patch.object(stocksCache, "STOCKS_CACHE", df):
-            rebuildAbbrevs()
-            abbr = getAbbr()
+        rebuildAbbrevs()
+        abbr = getAbbr(df)
         assert abbr["meta"] == {"TICKER": "TK", "NOME": "NM", "TIME": "TI"}
         assert abbr["historical"] == {"LUCRO LIQUIDO": "LL"}
         assert abbr["fundamental"] == {"P/L": "PL"}
@@ -255,12 +249,8 @@ class TestAbbrevCaches:
                 "DIVIDENDOS": ['[{"DATA": "01-01-2024"}]'],
             }
         )
-        with (
-            patch.object(stocksCache, "STOCKS_CACHE", df),
-            patch.object(stocksCache, "nestedSample", nested),
-        ):
-            rebuildAbbrevs()
-            nest = getNest()
+        rebuildAbbrevs()
+        nest = getNest(df, nested)
         assert set(nest["NOTICIAS"]["subfields"]) >= {"TITULO", "LINK"}
         assert nest["NOTICIAS"]["dropped_in_compact"] == ["LINK"]
         assert nest["NOTICIAS"]["max_items_compact"] == 5
@@ -269,19 +259,16 @@ class TestAbbrevCaches:
 
     def test_get_abbr_cached_across_calls(self):
         df = pd.DataFrame({"TICKER": ["X"]})
-        with patch.object(stocksCache, "STOCKS_CACHE", df):
-            rebuildAbbrevs()
-            assert getAbbr() is getAbbr()
+        rebuildAbbrevs()
+        assert getAbbr(df) is getAbbr(df)
 
     def test_rebuild_abbrevs_resets_globals(self):
         df = pd.DataFrame({"TICKER": ["PETR4"], "LUCRO LIQUIDO 2024": [1]})
-        with patch.object(stocksCache, "STOCKS_CACHE", df):
-            rebuildAbbrevs()
-            assert getAbbr()["historical"] != {}
         rebuildAbbrevs()
-        with patch.object(stocksCache, "STOCKS_CACHE", None):
-            assert getAbbr() == ABBR_FALLBACK
-            assert getNest() == {}
+        assert getAbbr(df)["historical"] != {}
+        rebuildAbbrevs()
+        assert getAbbr() == ABBR_FALLBACK
+        assert getNest() == {}
 
 
 class TestCompressResponse:
@@ -414,9 +401,8 @@ class TestCompressResponse:
     def test_single_row_unwrapped_with_cache_abbrevs(self):
         df = pd.DataFrame({"TICKER": ["PETR4"], "P/L": [5.2]})
         raw = {"data": [{"TICKER": "PETR4", "P/L": 5.2}]}
-        with patch.object(stocksCache, "STOCKS_CACHE", df):
-            rebuildAbbrevs()
-            out = compressResponse(raw, "get_fundamental", {})
+        rebuildAbbrevs()
+        out = compressResponse(raw, "get_fundamental", {}, df)
         assert out == {"data": {"TK": "PETR4", "PL": 5.2}}
 
     def test_get_historical_year_cols_with_cache_abbrevs(self):
@@ -444,9 +430,8 @@ class TestCompressResponse:
                 }
             ],
         }
-        with patch.object(stocksCache, "STOCKS_CACHE", df):
-            rebuildAbbrevs()
-            out = compressResponse(raw, "get_historical", {"search": "PETR4", "dates": "2023,2024"})
+        rebuildAbbrevs()
+        out = compressResponse(raw, "get_historical", {"search": "PETR4", "dates": "2023,2024"}, df)
         # note: leaf compaction suffixes int leaves, so year values become "50K"/"100K";
         # the single row is unwrapped from a list but stays under the "data" key
         assert out == {
