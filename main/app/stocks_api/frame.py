@@ -1,6 +1,3 @@
-"""Pure DataFrame helpers for the stocks feather cache (no I/O, no imports
-from sibling stocks_api modules other than util — leaf module)."""
-
 import logging
 
 import pandas as pd

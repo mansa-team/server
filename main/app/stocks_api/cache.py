@@ -25,10 +25,6 @@ from main.utils.scheduler import registerJob
 
 logger = logging.getLogger(__name__)
 
-STALE_AFTER_SECONDS = 6 * 3600
-CACHE_REFRESH_HOURS = 12
-CACHE_LOAD_LOCK = threading.Lock()
-
 
 class StocksCacheManager:
     def __init__(self, db: Engine, cacheLock: threading.Lock):
@@ -51,7 +47,7 @@ class StocksCacheManager:
             "interval",
             jobId="stocks_cache_refresh",
             jobName="Stocks cache refresh",
-            hours=CACHE_REFRESH_HOURS,
+            hours=12,
         )
 
     def loadFromFeather(self):
@@ -79,7 +75,7 @@ class StocksCacheManager:
                 self.loadFromFeather()
 
                 ageSeconds = time.time() - os.path.getmtime(CACHE_FEATHER_PATH)
-                if ageSeconds > STALE_AFTER_SECONDS:
+                if ageSeconds > 6 * 3600:
                     logger.info(f"Feather is {int(ageSeconds // 3600)}h old, refreshing in background")
                     threading.Thread(
                         target=self.getCachedStocks,
@@ -89,7 +85,7 @@ class StocksCacheManager:
                     ).start()
                 return
 
-            if CACHE_LOAD_LOCK.acquire(blocking=False):
+            if threading.Lock().acquire(blocking=False):
                 try:
                     lockFile = tryBuildLock()
                     if lockFile is None:
@@ -107,7 +103,7 @@ class StocksCacheManager:
                     finally:
                         lockFile.close()
                 finally:
-                    CACHE_LOAD_LOCK.release()
+                    threading.Lock().release()
                 self.loadFromFeather()
             else:
                 logger.info("Cache load already in progress, skipping")
