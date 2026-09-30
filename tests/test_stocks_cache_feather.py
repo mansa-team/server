@@ -6,7 +6,8 @@ import pandas as pd
 import pyarrow as pa
 from pyarrow import feather
 
-from main.app.stocks_api.cache import StocksCacheManager, optimizeDtypes
+from main.app.stocks_api.cache import StocksCacheManager
+from main.app.stocks_api.frame import PRESORTED_FLAG_KEY, optimizeDtypes
 
 
 def test_optimize_dtypes_skips_pyarrow_for_compress_cols():
@@ -114,7 +115,7 @@ def test_read_feather_dataframe_detects_presorted_marker(tmp_path):
     path = tmp_path / "cache.feather"
     table = pa.Table.from_pandas(
         pd.DataFrame({"TICKER": ["PETR4"], "TIME": [pd.Timestamp("2024-01-01")]}), preserve_index=False
-    ).replace_schema_metadata({cache_mod.PRESORTED_FLAG_KEY: b"1"})
+    ).replace_schema_metadata({PRESORTED_FLAG_KEY: b"1"})
     with pa.OSFile(str(path), "wb") as sink, pa.ipc.new_file(sink, table.schema) as writer:
         writer.write_table(table)
 

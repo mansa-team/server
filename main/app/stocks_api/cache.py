@@ -14,37 +14,14 @@ from main.app.stocks_api import compress, sync_cache
 from main.app.stocks_api.build import (
     CACHE_FEATHER_PATH,
     CACHE_NESTED_PATH,
-    buildFeatherCache,
     readFeatherDataFrame,
     tryBuildLock,
 )
 from main.app.stocks_api.frame import (
-    CATEGORY_COLS,
-    PRESORTED_FLAG_KEY,
-    arrowTypeFor,
     buildTickerIndex,
-    optimizeDtypes,
     sortCacheFrame,
 )
 from main.utils.scheduler import registerJob
-
-__all__ = [
-    "CACHE_FEATHER_PATH",
-    "CACHE_LOAD_LOCK",
-    "CACHE_NESTED_PATH",
-    "CATEGORY_COLS",
-    "PRESORTED_FLAG_KEY",
-    "STALE_AFTER_SECONDS",
-    "StocksCacheManager",
-    "arrowTypeFor",
-    "buildFeatherCache",
-    "buildTickerIndex",
-    "optimizeDtypes",
-    "readFeatherDataFrame",
-    "sortCacheFrame",
-    "stocksCache",
-    "tryBuildLock",
-]
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +100,7 @@ class StocksCacheManager:
                             [
                                 sys.executable,
                                 "-c",
-                                "from main.app.stocks_api.cache import buildFeatherCache; buildFeatherCache()",
+                                "from main.app.stocks_api.build import buildFeatherCache; buildFeatherCache()",
                             ],
                             check=True,
                         )  # nosec: B603 constant args, no untrusted input

@@ -1,15 +1,3 @@
-"""Feather build / read helpers for the stocks cache.
-
-Owns the on-disk layout (CACHE_*_PATH) and the DB-to-feather build.
-Imports from frame.py only — never from cache.py at module load, so the
-load-time graph stays acyclic (cache -> build -> frame).
-
-Runtime config (engine + paths) is resolved via the cache module at call
-time (_runtimeConf): tests rebind stocksEngine / CACHE_*_PATH on
-main.app.stocks_api.cache, and reading them there keeps those patch
-sites working with zero behavior change in production.
-"""
-
 import logging
 import os
 import sys
@@ -24,7 +12,7 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.exc import OperationalError
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
-from config import stocksEngine as _fallbackStocksEngine
+from config import stocksEngine
 from main.app.stocks_api.frame import (
     CATEGORY_COLS,
     PRESORTED_FLAG_KEY,
@@ -47,17 +35,6 @@ CACHE_FEATHER_PATH = Path("/app/cache/stocks_cache.feather")
 CACHE_NESTED_PATH = Path("/app/cache/stocks_nested.feather")
 
 
-def _runtimeConf() -> tuple:
-    """Return (engine, featherPath, nestedPath), preferring live values on
-    the cache module (where tests monkeypatch) over this module's defaults."""
-    import main.app.stocks_api.cache as cacheMod
-
-    engine = getattr(cacheMod, "stocksEngine", None) or _fallbackStocksEngine
-    featherPath = getattr(cacheMod, "CACHE_FEATHER_PATH", CACHE_FEATHER_PATH)
-    nestedPath = getattr(cacheMod, "CACHE_NESTED_PATH", CACHE_NESTED_PATH)
-    return engine, featherPath, nestedPath
-
-
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(),
@@ -69,16 +46,15 @@ def buildFeatherCache(engine: Engine | None = None):
     sampleParts: dict[str, pd.Series] = {}
     compressor = zstd.ZstdCompressor(level=ZSTD_LEVEL)
 
-    defaultEngine, featherPath, nestedPath = _runtimeConf()
-    featherPath.parent.mkdir(parents=True, exist_ok=True)
-    tmpNested = nestedPath.with_suffix(".tmp")
-    tmpMain = featherPath.with_suffix(".tmp")
+    CACHE_FEATHER_PATH.parent.mkdir(parents=True, exist_ok=True)
+    tmpNested = CACHE_NESTED_PATH.with_suffix(".tmp")
+    tmpMain = CACHE_FEATHER_PATH.with_suffix(".tmp")
 
     writer = None
     sink = None
     schema = None
     total = 0
-    resolvedEngine = engine if engine is not None else defaultEngine
+    resolvedEngine = engine if engine is not None else stocksEngine
     try:
         with resolvedEngine.connect() as conn:
             try:
@@ -108,10 +84,6 @@ def buildFeatherCache(engine: Engine | None = None):
                         )
                     chunk = optimizeDtypes(chunk)
 
-                    # Load-bearing: per-chunk category dictionaries differ across
-                    # batches, and the IPC writer rejects a second dictionary
-                    # for the same field ("Dictionary replacement detected").
-                    # Casting back to plain str keeps the on-disk schema stable.
                     for col in CATEGORY_COLS:
                         if col in chunk.columns and str(chunk[col].dtype) == "category":
                             chunk[col] = chunk[col].astype(str)
@@ -155,17 +127,16 @@ def buildFeatherCache(engine: Engine | None = None):
     nestedSample = pd.DataFrame(sampleParts) if sampleParts else None
     if nestedSample is not None:
         nestedSample.to_feather(tmpNested)
-        os.replace(tmpNested, nestedPath)
+        os.replace(tmpNested, CACHE_NESTED_PATH)
     if writer is not None:
-        os.replace(tmpMain, featherPath)
-        logger.info(f"feather written to {featherPath} ({total} records)")
+        os.replace(tmpMain, CACHE_FEATHER_PATH)
+        logger.info(f"feather written to {CACHE_FEATHER_PATH} ({total} records)")
 
 
 def tryBuildLock():
     if fcntl is None:
         return open(os.devnull, "w")
-    _, featherPath, _ = _runtimeConf()
-    lockPath = featherPath.parent / "refresh.lock"
+    lockPath = CACHE_FEATHER_PATH.parent / "refresh.lock"
     try:
         lockPath.parent.mkdir(parents=True, exist_ok=True)
         lockFile = open(lockPath, "w")

@@ -3,7 +3,7 @@ import inspect
 from functools import wraps
 from typing import Any, Callable, TypeVar
 
-from cashews import cache as cashewsCache
+import cashews
 from cashews.key import get_cache_key
 
 MISS = object()
@@ -18,13 +18,13 @@ def cache(ttl: str, key: str) -> Callable[[F], F]:
             cache_key = get_cache_key(func, key, args, kwargs)
 
             async def cachedCall() -> Any:
-                cached = await cashewsCache.get(cache_key, default=MISS)
+                cached = await cashews.cache.get(cache_key, default=MISS)
                 if cached is not MISS:
                     return cached
                 result = func(*args, **kwargs)
                 if inspect.isawaitable(result):
                     result = await result
-                await cashewsCache.set(cache_key, result, expire=ttl)
+                await cashews.cache.set(cache_key, result, expire=ttl)
                 return result
 
             return asyncio.run(cachedCall())
@@ -36,4 +36,4 @@ def cache(ttl: str, key: str) -> Callable[[F], F]:
 
 def clearEndpointCache() -> None:
     """Drop every cached endpoint body — called when the feather frame is replaced."""
-    asyncio.run(cashewsCache.clear())
+    asyncio.run(cashews.cache.clear())
