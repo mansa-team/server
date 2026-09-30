@@ -1,214 +1,55 @@
 import logging
-from config import stocksEngine
-from main.app.stocks_api.util import JSON_COLUMNS
-import orjson
+import os
+import subprocess  # nosec: B404 used only with constant args, see getCachedStocks
+import sys
 import threading
+import time
+from datetime import datetime, timezone
 
 import pandas as pd
-import numpy as np
-import pyarrow as pa
-import pyarrow.feather as feather
-
 from sqlalchemy.engine import Engine
-from sqlalchemy.exc import OperationalError
-from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
-import os
-import subprocess  # nosec: B404 used only with constant args, see line 302
-import sys
-import time
-import zstandard as zstd
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any
-
-from main.utils.scheduler import registerJob
+from config import stocksEngine
 from main.app.stocks_api import compress, sync_cache
+from main.app.stocks_api.build import (
+    CACHE_FEATHER_PATH,
+    CACHE_NESTED_PATH,
+    buildFeatherCache,
+    readFeatherDataFrame,
+    tryBuildLock,
+)
+from main.app.stocks_api.frame import (
+    CATEGORY_COLS,
+    PRESORTED_FLAG_KEY,
+    arrowTypeFor,
+    buildTickerIndex,
+    optimizeDtypes,
+    sortCacheFrame,
+)
+from main.utils.scheduler import registerJob
 
-fcntl: Any = None
-if sys.platform != "win32":
-    import fcntl
+__all__ = [
+    "CACHE_FEATHER_PATH",
+    "CACHE_LOAD_LOCK",
+    "CACHE_NESTED_PATH",
+    "CATEGORY_COLS",
+    "PRESORTED_FLAG_KEY",
+    "STALE_AFTER_SECONDS",
+    "StocksCacheManager",
+    "arrowTypeFor",
+    "buildFeatherCache",
+    "buildTickerIndex",
+    "optimizeDtypes",
+    "readFeatherDataFrame",
+    "sortCacheFrame",
+    "stocksCache",
+    "tryBuildLock",
+]
 
 logger = logging.getLogger(__name__)
 
-CATEGORY_COLS = frozenset(["TICKER", "NOME"])
-
-CACHE_FEATHER_PATH = Path("/app/cache/stocks_cache.feather")
-CACHE_NESTED_PATH = Path("/app/cache/stocks_nested.feather")
 STALE_AFTER_SECONDS = 6 * 3600
 CACHE_LOAD_LOCK = threading.Lock()
-PRESORTED_FLAG_KEY = b"b3_presorted"
-
-
-def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
-    for col in CATEGORY_COLS:
-        if col in df.columns:
-            df[col] = df[col].astype("category")
-
-    for col in df.select_dtypes(include=["float64"]).columns:
-        df[col] = pd.to_numeric(df[col], downcast="float")
-
-    try:
-        for col in df.columns:
-            if str(df[col].dtype) not in ("object", "str"):
-                continue
-            if col not in CATEGORY_COLS and col not in JSON_COLUMNS and df[col].notna().all():
-                df[col] = df[col].astype("string[pyarrow]")
-    except Exception as e:
-        logger.debug(f"Arrow string optimization skipped: {e}")
-
-    return df
-
-
-def arrowTypeFor(dbType: str):
-    base = dbType.split()[0]
-    if base in ("float", "double", "decimal"):
-        return pa.float64()
-    if base in ("tinyint", "smallint", "mediumint", "int", "bigint"):
-        return pa.int64()
-    if base in ("date", "datetime", "timestamp"):
-        return pa.timestamp("us")
-    return pa.string()
-
-
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(),
-    retry=retry_if_exception_type(OperationalError),
-    reraise=True,
-)
-def buildFeatherCache(engine: Engine | None = None):
-    sampleCols = None
-    sampleParts: dict[str, pd.Series] = {}
-    compressor = zstd.ZstdCompressor(level=3)
-
-    CACHE_FEATHER_PATH.parent.mkdir(parents=True, exist_ok=True)
-    tmpNested = CACHE_NESTED_PATH.with_suffix(".tmp")
-    tmpMain = CACHE_FEATHER_PATH.with_suffix(".tmp")
-
-    writer = None
-    sink = None
-    schema = None
-    total = 0
-    resolvedEngine = engine if engine is not None else stocksEngine
-    try:
-        with resolvedEngine.connect() as conn:
-            try:
-                typeRows = conn.exec_driver_sql("SHOW COLUMNS FROM b3_stocks").fetchall()
-                colTypes = {r[0]: str(r[1]).lower().split("(")[0].strip() for r in typeRows}
-            except Exception:
-                colTypes = {}
-            stream = conn.execution_options(stream_results=True)
-            result = stream.exec_driver_sql("SELECT * FROM b3_stocks ORDER BY TICKER ASC, TIME DESC")
-            try:
-                columns = list(result.keys())
-                while True:
-                    batch = result.fetchmany(2000)
-                    if not batch:
-                        break
-                    chunk = pd.DataFrame.from_records((tuple(r) for r in batch), columns=columns)
-                    if sampleCols is None:
-                        sampleCols = [c for c in JSON_COLUMNS if c in chunk.columns]
-                    for col in sampleCols or ():
-                        if col not in sampleParts:
-                            nonNull = chunk[col].dropna()
-                            if not nonNull.empty:
-                                sampleParts[col] = nonNull.head(20).reset_index(drop=True)
-                        chunk[col] = chunk[col].map(
-                            lambda s: compressor.compress(s.encode("utf-8")) if isinstance(s, str) else None
-                        )
-                    chunk = optimizeDtypes(chunk)
-
-                    for col in CATEGORY_COLS:
-                        if col in chunk.columns and str(chunk[col].dtype) == "category":
-                            chunk[col] = chunk[col].astype(str)
-                    if schema is None:
-                        t0 = pa.Table.from_pandas(chunk, preserve_index=False)
-                        fields = []
-                        for n in t0.column_names:
-                            t = t0.schema.field(n).type
-                            if n in (sampleCols or ()):
-                                fields.append(pa.field(n, pa.binary()))
-                            elif pa.types.is_null(t):
-                                fields.append(pa.field(n, arrowTypeFor(colTypes.get(n, "varchar"))))
-                            else:
-                                fields.append(pa.field(n, t))
-                        schema = pa.schema(fields).with_metadata({PRESORTED_FLAG_KEY: b"1"})
-                        sink = pa.OSFile(str(tmpMain), "wb")
-                        writer = pa.ipc.new_file(sink, schema)
-                    assert writer is not None  # nosec: B101 mypy narrowing, writer assigned just above
-                    table = pa.Table.from_pandas(chunk, schema=schema, preserve_index=False)
-                    writer.write_table(table)
-                    total += len(chunk)
-                    del chunk, table
-            finally:
-                try:
-                    result.close()
-                except Exception:
-                    pass  # nosec: B110 best-effort writer/sink close, retried next refresh
-    except OperationalError:
-        logger.warning("feather build lost connection, retrying with fresh connection")
-        try:
-            resolvedEngine.dispose()
-        except Exception:
-            pass  # nosec: B110 dispose is best-effort, original error re-raised below
-        raise
-    finally:
-        if writer is not None:
-            writer.close()
-        if sink is not None:
-            sink.close()
-
-    nestedSample = pd.DataFrame(sampleParts) if sampleParts else None
-    if nestedSample is not None:
-        nestedSample.to_feather(tmpNested)
-        os.replace(tmpNested, CACHE_NESTED_PATH)
-    if writer is not None:
-        os.replace(tmpMain, CACHE_FEATHER_PATH)
-        logger.info(f"feather written to {CACHE_FEATHER_PATH} ({total} records)")
-
-
-def tryBuildLock():
-    if fcntl is None:
-        return open(os.devnull, "w")
-    lockPath = CACHE_FEATHER_PATH.parent / "refresh.lock"
-    try:
-        lockPath.parent.mkdir(parents=True, exist_ok=True)
-        lockFile = open(lockPath, "w")
-    except OSError:
-        return open(os.devnull, "w")
-    try:
-        fcntl.flock(lockFile, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        return lockFile
-    except OSError:
-        lockFile.close()
-        return None
-
-
-def sortCacheFrame(df: pd.DataFrame) -> pd.DataFrame:
-    if df.empty or "TIME" not in df.columns or "TICKER" not in df.columns:
-        return df
-    try:
-        return df.sort_values(by=["TICKER", "TIME"], ascending=[True, False], kind="mergesort").reset_index(drop=True)
-    except TypeError:
-        logger.warning("sortCacheFrame: mixed TIME dtypes, keeping load order")
-        return df.reset_index(drop=True)
-
-
-def buildTickerIndex(df: pd.DataFrame) -> dict:
-    index = {}
-    for idx, ticker in enumerate(df["TICKER"]):
-        key = str(ticker).upper()
-        if key not in index:
-            index[key] = idx
-    return index
-
-
-def readFeatherDataFrame(path: Path) -> tuple[pd.DataFrame, bool]:
-    table = feather.read_table(path, memory_map=True)
-    presorted = (table.schema.metadata or {}).get(PRESORTED_FLAG_KEY) == b"1"
-    df = table.to_pandas(split_blocks=True, types_mapper=pd.ArrowDtype)
-    return df, presorted
 
 
 class StocksCacheManager:
