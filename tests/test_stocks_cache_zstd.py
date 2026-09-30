@@ -306,16 +306,10 @@ def test_get_nest_keeps_compressed_column_subfields(monkeypatch, tmp_path):
     cache_mod.buildFeatherCache()
     m = StocksCacheManager(None, threading.Lock())
     m.getCachedStocks()
-    from unittest.mock import patch
-    from main.app.stocks_api.cache import stocksCache
     from main.app.stocks_api.compress import getNest, rebuildAbbrevs
 
-    with (
-        patch.object(stocksCache, "STOCKS_CACHE", m.STOCKS_CACHE),
-        patch.object(stocksCache, "nestedSample", m.nestedSample),
-    ):
-        rebuildAbbrevs()
-        nest = getNest()
+    rebuildAbbrevs()
+    nest = getNest(m.STOCKS_CACHE, m.nestedSample)
     assert "COTACAO 10Y PADRAO" in nest
     assert set(nest["COTACAO 10Y PADRAO"]["subfields"]) >= {"DATA", "PRECO"}
 

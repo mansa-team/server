@@ -81,7 +81,7 @@ def listFields(response: Response):
     cols = stocksCache.STOCKS_CACHE.columns.tolist()
     historical, fundamental = categorizeColumns(cols)
     abbreviations = generateAbbreviations(historical, fundamental)
-    nested = getNest()
+    nested = getNest(stocksCache.STOCKS_CACHE, stocksCache.nestedSample)
 
     response.headers["Cache-Control"] = f"public, max-age={STOCKS_MAX_AGE}"
     return {"historical": historical, "fundamental": fundamental, "abbreviations": abbreviations, "nested": nested}
@@ -148,7 +148,13 @@ def getHistorical(
     response.headers["Cache-Control"] = f"public, max-age={STOCKS_MAX_AGE}"
     result = queryHistorical(search, fields, dates, orderBy, limit)
     if compact:
-        result = compressResponse(result, "get_historical", {"search": search, "fields": fields, "dates": dates})
+        result = compressResponse(
+            result,
+            "get_historical",
+            {"search": search, "fields": fields, "dates": dates},
+            stocksCache.STOCKS_CACHE,
+            stocksCache.nestedSample,
+        )
     return result
 
 
@@ -218,7 +224,13 @@ def getFundamental(
     response.headers["Cache-Control"] = f"public, max-age={STOCKS_MAX_AGE}"
     result = queryFundamental(search, fields, dates, orderBy, limit)
     if compact:
-        result = compressResponse(result, "get_fundamental", {"search": search, "fields": fields, "dates": dates})
+        result = compressResponse(
+            result,
+            "get_fundamental",
+            {"search": search, "fields": fields, "dates": dates},
+            stocksCache.STOCKS_CACHE,
+            stocksCache.nestedSample,
+        )
     return result
 
 
@@ -274,7 +286,13 @@ def getCotations(
     response.headers["Cache-Control"] = f"public, max-age={STOCKS_MAX_AGE}"
     result = queryCotations(search, dates, adjusted)
     if compact:
-        result = compressResponse(result, "get_cotations", {"search": search, "dates": dates})
+        result = compressResponse(
+            result,
+            "get_cotations",
+            {"search": search, "dates": dates},
+            stocksCache.STOCKS_CACHE,
+            stocksCache.nestedSample,
+        )
     return result
 
 
@@ -319,5 +337,7 @@ def getLiveCotation(
     response.headers["Cache-Control"] = f"public, max-age={LIVE_MAX_AGE}"
     result = queryLiveCotation(search)
     if compact:
-        result = compressResponse(result, "get_live_price", {"search": search})
+        result = compressResponse(
+            result, "get_live_price", {"search": search}, stocksCache.STOCKS_CACHE, stocksCache.nestedSample
+        )
     return result

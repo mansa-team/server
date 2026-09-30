@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import re
-from functools import lru_cache
 from typing import Any
 
-from main.app.stocks_api import cache
+import pandas as pd
+
 from main.app.stocks_api.util import generateAbbreviations, categorizeColumns, detectNestedFields
 
 PRICE = {
@@ -18,29 +18,56 @@ SUF = [(1e12, "T"), (1e9, "B"), (1e6, "M"), (1e3, "K")]
 DF = re.compile(r"^\d{2}-\d{2}-(\d{4})$")
 DI = re.compile(r"^(\d{4})-\d{2}-\d{2}$")
 
+ABBR_FALLBACK = {"meta": {"TICKER": "TK", "NOME": "NM", "TIME": "TI"}, "historical": {}, "fundamental": {}}
 
-@lru_cache(maxsize=1)
-def getAbbr() -> dict:
-    if cache.stocksCache.STOCKS_CACHE is not None:
-        h, f = categorizeColumns(cache.stocksCache.STOCKS_CACHE.columns.tolist())
-        return generateAbbreviations(h, f)
-    return {"meta": {"TICKER": "TK", "NOME": "NM", "TIME": "TI"}, "historical": {}, "fundamental": {}}
+_abbrFrame: pd.DataFrame | None = None
+_abbrValue: dict | None = None
+_nestFrame: pd.DataFrame | None = None
+_nestSample: pd.DataFrame | None = None
+_nestValue: dict | None = None
 
 
-@lru_cache(maxsize=1)
-def getNest() -> dict:
-    if cache.stocksCache.STOCKS_CACHE is not None:
-        nest = detectNestedFields(cache.stocksCache.STOCKS_CACHE)
-        if cache.stocksCache.nestedSample is not None:
-            for col, info in detectNestedFields(cache.stocksCache.nestedSample).items():
+def getAbbr(df: pd.DataFrame | None = None) -> dict:
+    """Abbreviation map for a frame (dependency-injected; no cache import).
+
+    Results are memoized by frame identity (strong refs, `is` comparison —
+    DataFrames are unhashable so lru_cache cannot key on them). Pass None
+    for the meta-only fallback. Call rebuildAbbrevs() after the feather
+    frame is replaced, same as before.
+    """
+    global _abbrFrame, _abbrValue
+    if _abbrValue is not None and _abbrFrame is df:
+        return _abbrValue
+    if df is not None:
+        h, f = categorizeColumns(df.columns.tolist())
+        value = generateAbbreviations(h, f)
+    else:
+        value = {"meta": dict(ABBR_FALLBACK["meta"]), "historical": {}, "fundamental": {}}
+    _abbrFrame, _abbrValue = df, value
+    return value
+
+
+def getNest(df: pd.DataFrame | None = None, nestedSample: pd.DataFrame | None = None) -> dict:
+    """Nested-field map for a frame plus its nested sample (same memo policy)."""
+    global _nestFrame, _nestSample, _nestValue
+    if _nestValue is not None and _nestFrame is df and _nestSample is nestedSample:
+        return _nestValue
+    if df is not None:
+        nest = detectNestedFields(df)
+        if nestedSample is not None:
+            for col, info in detectNestedFields(nestedSample).items():
                 nest.setdefault(col, info)
-        return nest
-    return {}
+        value = nest
+    else:
+        value = {}
+    _nestFrame, _nestSample, _nestValue = df, nestedSample, value
+    return value
 
 
 def rebuildAbbrevs() -> None:
-    getAbbr.cache_clear()
-    getNest.cache_clear()
+    global _abbrFrame, _abbrValue, _nestFrame, _nestSample, _nestValue
+    _abbrFrame, _abbrValue = None, None
+    _nestFrame, _nestSample, _nestValue = None, None, None
 
 
 def compactValue(v: Any) -> Any:
@@ -127,7 +154,13 @@ def compactCotations(result: dict) -> dict:
     return result
 
 
-def compressResponse(raw: dict, tool: str, args: dict) -> dict:
+def compressResponse(
+    raw: dict,
+    tool: str,
+    args: dict,
+    df: pd.DataFrame | None = None,
+    nestedSample: pd.DataFrame | None = None,
+) -> dict:
     result = dict(raw)
     result.pop("count", None)
     for k in ("search", "fields", "dates"):
@@ -144,7 +177,7 @@ def compressResponse(raw: dict, tool: str, args: dict) -> dict:
 
     d = result.get("data")
     if isinstance(d, list) and d and isinstance(d[0], dict):
-        abbrs, nests = getAbbr(), getNest()
+        abbrs, nests = getAbbr(df), getNest(df, nestedSample)
         result["data"] = [compactRow(row, tool, abbrs, nests) for row in d]
 
         def compactLeaves(v: Any) -> Any:

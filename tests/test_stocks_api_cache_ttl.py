@@ -60,8 +60,10 @@ def test_fields_second_call_is_a_cache_hit(monkeypatch):
 
     monkeypatch.setattr(mod, "categorizeColumns", fakeCategorize)
     monkeypatch.setattr(mod, "generateAbbreviations", lambda historical, fundamental: {"A": "A"})
-    monkeypatch.setattr(mod, "getNest", lambda: {})
-    monkeypatch.setattr(mod, "stocksCache", SimpleNamespace(STOCKS_CACHE=pd.DataFrame({"TICKER": ["PETR4"]})))
+    monkeypatch.setattr(mod, "getNest", lambda *a: {})
+    monkeypatch.setattr(
+        mod, "stocksCache", SimpleNamespace(STOCKS_CACHE=pd.DataFrame({"TICKER": ["PETR4"]}), nestedSample=None)
+    )
 
     response = Response()
     first = mod.listFields(response)
