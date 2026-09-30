@@ -10,8 +10,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\config.py": {
-    "mtime": 1790707412.4639857,
-    "ast_hash": "0431e47774260b291eafe77a2f44dd99",
+    "mtime": 1790720783.5089538,
+    "ast_hash": "6866a62e1361905e6966e7e3cdcb5cc8",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\run.py": {
@@ -215,8 +215,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\authentication\\introspect.py": {
-    "mtime": 1790709776.485443,
-    "ast_hash": "c21d1ed541c25ba0e171b41535cf7926",
+    "mtime": 1790722324.1959848,
+    "ast_hash": "f9262c3f80a2b63e144914921d61bccb",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\authentication\\session.py": {
@@ -230,7 +230,7 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\authentication\\util.py": {
-    "mtime": 1789365931.8706675,
+    "mtime": 1790721201.2744982,
     "ast_hash": "b797eff10d6300739b550248fe003dbf",
     "semantic_hash": ""
   },
@@ -240,8 +240,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\orunmila\\chat.py": {
-    "mtime": 1789627519.913642,
-    "ast_hash": "2c4bccbe66499695aae4ee9fdadbb9d0",
+    "mtime": 1790722281.0376277,
+    "ast_hash": "ab8f1f6abbe567f88d2e0c5a26b51e4a",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\orunmila\\compact.py": {
@@ -280,8 +280,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\scraper_b3\\scraper.py": {
-    "mtime": 1790711328.3358188,
-    "ast_hash": "59c7a34a305a6e90f5e7b4daa8e295eb",
+    "mtime": 1790713506.6574717,
+    "ast_hash": "e7e449234b41094827a1bc2b43178561",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\scraper_b3\\xango.py": {
@@ -290,28 +290,28 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\cache.py": {
-    "mtime": 1789434714.8335533,
-    "ast_hash": "f483c0857c4d84c3561a456b168b958c",
+    "mtime": 1790724655.0228858,
+    "ast_hash": "388139c59bea2be15ee4f8b0c88ed5f0",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\compress.py": {
-    "mtime": 1789365748.7463734,
-    "ast_hash": "bac7ddeafcf3f4e917d23e190f8d2a50",
+    "mtime": 1790724898.1914341,
+    "ast_hash": "5727624a2e4a0ff71d6712bc5a6a612d",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\key.py": {
-    "mtime": 1790709776.4884515,
-    "ast_hash": "241906aeb4d9f2f1e013ffa469c3ae9c",
+    "mtime": 1790726217.7849143,
+    "ast_hash": "f7794d72a5abb5ac335b444be95ffd4e",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\query.py": {
-    "mtime": 1789434788.4910736,
-    "ast_hash": "d8942fd6280c22db0c7000c0a129f55a",
+    "mtime": 1790715582.5629618,
+    "ast_hash": "c07116fa51c154d741c5c5fd01486714",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\sync_cache.py": {
-    "mtime": 1789363755.282281,
-    "ast_hash": "2868edb52460fde88cc704901c64254c",
+    "mtime": 1790723901.4459727,
+    "ast_hash": "ccb5104dfcd8d85e68fb42602486f1a1",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\util.py": {
@@ -325,8 +325,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\authentication_controller.py": {
-    "mtime": 1790712038.5117102,
-    "ast_hash": "b2b09061a10fe244011b26ecd589f50e",
+    "mtime": 1790721202.5567384,
+    "ast_hash": "8be9ba65e0116ce4ad4867fcc59bae50",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\orunmila_controller.py": {
@@ -335,8 +335,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\stocksapi_controller.py": {
-    "mtime": 1789365824.939239,
-    "ast_hash": "deb972bc1e3fc058d2c8db97113f86a0",
+    "mtime": 1790723781.080048,
+    "ast_hash": "b9abf6a7b19fa64a64cc5d4386b15687",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\user_controller.py": {
@@ -385,8 +385,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\service\\authentication_service.py": {
-    "mtime": 1790712063.0129516,
-    "ast_hash": "2075ec61d0ef5be9a76db801df245f84",
+    "mtime": 1790720783.1180828,
+    "ast_hash": "2199185dd36046b7afa30557692a529a",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\service\\orunmila_service.py": {
@@ -545,8 +545,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\README.md": {
-    "mtime": 1789627715.7268107,
-    "ast_hash": "10c5689284ae6fc5ee634a3561ed5daa",
+    "mtime": 1790721188.6129105,
+    "ast_hash": "50718b7d5b427a75213e171f5da826f3",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\requirements.txt": {
@@ -555,23 +555,13 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\TODO.md": {
-    "mtime": 1789627348.434652,
-    "ast_hash": "d055f0d64aaf60f16c5d9601fe41743b",
+    "mtime": 1790726042.3421116,
+    "ast_hash": "0eafe0ff835b328c0ef66fdbe6e75100",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docs\\authentication.md": {
     "mtime": 1789627715.725813,
     "ast_hash": "418f5a3a5d92e6afdd9a8867235bfa38",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\docs\\investidor10-wallet-research.md": {
-    "mtime": 1790608792.5175328,
-    "ast_hash": "35046b81330a196719f10192cfd18245",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\docs\\investidor10-wallet-spec.md": {
-    "mtime": 1790609352.4477687,
-    "ast_hash": "2245af87ca983eb3d0fec11daf0c3a87",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docs\\orunmila.md": {
@@ -592,6 +582,31 @@
   "D:\\Repositories\\server\\docs\\user.md": {
     "mtime": 1789627715.7248125,
     "ast_hash": "1441362ec9c24f3e04abfd6c913b8efe",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\investidor10-wallet-research.md": {
+    "mtime": 1790722729.1475766,
+    "ast_hash": "350d3ac11cb57db7093fcbcfcebd423a",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\investidor10-wallet-spec.md": {
+    "mtime": 1790722776.4594035,
+    "ast_hash": "5b5eb1d6eb186eebcc200bc3b4f8d77c",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\nginx-scaling-plan.md": {
+    "mtime": 1790715847.5265036,
+    "ast_hash": "821d1ab64e7ea4f1a8903c26adcdffb8",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\uvicorn-worker-scaling-plan.md": {
+    "mtime": 1790723409.2143178,
+    "ast_hash": "5bc55983f02c9f640b96fe2ade89e7d2",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\benchmarks\\stocks-cache-ttl.md": {
+    "mtime": 1790725744.0210347,
+    "ast_hash": "02bdda14a198a7ce352314ec84cd36a6",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-08-09-sse-resume.md": {
@@ -644,9 +659,34 @@
     "ast_hash": "6bbe07e07379d48bbc77c0d367feedc7",
     "semantic_hash": ""
   },
+  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-09-29-nginx-response-cache.md": {
+    "mtime": 1790716965.7762914,
+    "ast_hash": "81c18d85ba503d04f69a56700b821fd8",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-09-29-stocks-cache-ttl.md": {
+    "mtime": 1790725620.1542468,
+    "ast_hash": "b7a877f2284007b51867458bf63f36c1",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-09-29-uvicorn-worker-scaling.md": {
+    "mtime": 1790723409.2183187,
+    "ast_hash": "d8b7c03ed6749dafb64c84757bd5a0e7",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-09-29-zerocopy-stocks-cache.md": {
+    "mtime": 1790713871.179236,
+    "ast_hash": "99973b0d3da44a0a7cbc01959fc8157a",
+    "semantic_hash": ""
+  },
   "D:\\Repositories\\server\\docs\\superpowers\\specs\\2026-09-04-wallet-design.md": {
     "mtime": 1789266824.564381,
     "ast_hash": "3ad505fd6016388f87bd14fa8da4f40e",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\specs\\2026-09-29-nginx-scaling-design.md": {
+    "mtime": 1790717689.797926,
+    "ast_hash": "9837810a532161e8b9ebcddf56af75f8",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\index.html": {

@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Any
 
 from main.utils.scheduler import registerJob
+from main.app.stocks_api import compress, sync_cache
 
 fcntl: Any = None
 if sys.platform != "win32":
@@ -248,9 +249,8 @@ class StocksCacheManager:
             self.nestedSample = nestedSample
             self.lastCacheUpdate = datetime.now(timezone.utc)
 
-        from main.app.stocks_api.compress import rebuildAbbrevs
-
-        rebuildAbbrevs()
+        compress.rebuildAbbrevs()
+        sync_cache.clearEndpointCache()
 
         logger.info(f"Stocks cache loaded from feather ({len(df)} records, {len(newTickerIndex)} tickers)")
 

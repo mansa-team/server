@@ -4,7 +4,7 @@ import re
 from functools import lru_cache
 from typing import Any
 
-from main.app.stocks_api.cache import stocksCache
+from main.app.stocks_api import cache
 from main.app.stocks_api.util import generateAbbreviations, categorizeColumns, detectNestedFields
 
 PRICE = {
@@ -21,18 +21,18 @@ DI = re.compile(r"^(\d{4})-\d{2}-\d{2}$")
 
 @lru_cache(maxsize=1)
 def getAbbr() -> dict:
-    if stocksCache.STOCKS_CACHE is not None:
-        h, f = categorizeColumns(stocksCache.STOCKS_CACHE.columns.tolist())
+    if cache.stocksCache.STOCKS_CACHE is not None:
+        h, f = categorizeColumns(cache.stocksCache.STOCKS_CACHE.columns.tolist())
         return generateAbbreviations(h, f)
     return {"meta": {"TICKER": "TK", "NOME": "NM", "TIME": "TI"}, "historical": {}, "fundamental": {}}
 
 
 @lru_cache(maxsize=1)
 def getNest() -> dict:
-    if stocksCache.STOCKS_CACHE is not None:
-        nest = detectNestedFields(stocksCache.STOCKS_CACHE)
-        if stocksCache.nestedSample is not None:
-            for col, info in detectNestedFields(stocksCache.nestedSample).items():
+    if cache.stocksCache.STOCKS_CACHE is not None:
+        nest = detectNestedFields(cache.stocksCache.STOCKS_CACHE)
+        if cache.stocksCache.nestedSample is not None:
+            for col, info in detectNestedFields(cache.stocksCache.nestedSample).items():
                 nest.setdefault(col, info)
         return nest
     return {}

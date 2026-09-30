@@ -10,33 +10,31 @@ from main.models.user import User
 
 logger = logging.getLogger(__name__)
 
-GENERIC_DETAIL = "Unauthorized"
-
 
 def introspectToken(db: Session, token: str | None) -> dict:
     try:
         raw = (token or "").strip().removeprefix("Bearer ").strip()
         if not raw:
-            raise HTTPException(status_code=401, detail=GENERIC_DETAIL)
+            raise HTTPException(status_code=401, detail="Unauthorized")
 
         payload = verifyAccessToken(raw)
 
         try:
             userId = int(payload["userId"])
         except (KeyError, TypeError, ValueError):
-            raise HTTPException(status_code=401, detail=GENERIC_DETAIL)
+            raise HTTPException(status_code=401, detail="Unauthorized")
 
         sessionId = payload.get("sessionId")
         if not sessionId or not SessionManager.validateSession(db, str(sessionId), userId):
-            raise HTTPException(status_code=401, detail=GENERIC_DETAIL)
+            raise HTTPException(status_code=401, detail="Unauthorized")
 
         user = db.query(User).filter(User.userId == userId).first()
         if not user:
-            raise HTTPException(status_code=401, detail=GENERIC_DETAIL)
+            raise HTTPException(status_code=401, detail="Unauthorized")
 
         return {"userId": user.userId, "username": user.username, "roles": UserManager.getRolesList(user)}
     except HTTPException:
-        raise HTTPException(status_code=401, detail=GENERIC_DETAIL)
+        raise HTTPException(status_code=401, detail="Unauthorized")
     except Exception as e:
         logger.warning(f"Token introspection failed: {e}")
-        raise HTTPException(status_code=401, detail=GENERIC_DETAIL)
+        raise HTTPException(status_code=401, detail="Unauthorized")
