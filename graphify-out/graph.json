@@ -4033,7 +4033,7 @@
       "label": "hashApiKey()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/key.py",
-      "source_location": "L25",
+      "source_location": "L19",
       "id": "stocks_api_key_hashapikey",
       "community": 500,
       "norm_label": "hashapikey()"
@@ -4042,7 +4042,7 @@
       "label": "createStoredApiKey()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/key.py",
-      "source_location": "L29",
+      "source_location": "L23",
       "id": "stocks_api_key_createstoredapikey",
       "community": 500,
       "norm_label": "createstoredapikey()"
@@ -4051,7 +4051,7 @@
       "label": "isValidStoredKey()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/key.py",
-      "source_location": "L35",
+      "source_location": "L29",
       "id": "stocks_api_key_isvalidstoredkey",
       "community": 500,
       "norm_label": "isvalidstoredkey()"
@@ -4060,7 +4060,7 @@
       "label": "verifyAPIKey()",
       "file_type": "code",
       "source_file": "main/app/stocks_api/key.py",
-      "source_location": "L48",
+      "source_location": "L42",
       "id": "stocks_api_key_verifyapikey",
       "community": 500,
       "norm_label": "verifyapikey()"
@@ -29936,7 +29936,7 @@
       "file_type": "code",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1202",
-      "community": 588,
+      "community": 609,
       "norm_label": ".test_generate_key_admin_bypasses_permission_check()",
       "id": "tests_test_controllers_coverage_teststocksapigeneratekey_test_generate_key_admin_bypasses_permission_check"
     },
@@ -33212,7 +33212,7 @@
       "file_type": "code",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L79",
-      "community": 613,
+      "community": 589,
       "norm_label": "testmakechatincludesmemorytools",
       "id": "tests_test_memory_tools_wiring_testmakechatincludesmemorytools"
     },
@@ -33293,7 +33293,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L80",
-      "community": 613,
+      "community": 589,
       "norm_label": "makechat must include memory_tools alongside mcp sessions.",
       "id": "tests_test_memory_tools_wiring_rationale_80"
     },
@@ -41501,7 +41501,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1196",
-      "community": 588,
+      "community": 609,
       "norm_label": "covers lines 57-60: admin bypasses permission check and generates key.",
       "id": "tests_test_controllers_coverage_rationale_1196"
     },
@@ -46523,7 +46523,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L52",
-      "community": 613,
+      "community": 589,
       "norm_label": "makechat must include memory_tools alongside mcp sessions.",
       "id": "tests_test_memory_tools_wiring_rationale_52"
     },
@@ -46559,7 +46559,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L57",
-      "community": 613,
+      "community": 589,
       "norm_label": "makechat must include memory_tools alongside mcp sessions.",
       "id": "tests_test_memory_tools_wiring_rationale_57"
     },
@@ -47324,7 +47324,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L56",
-      "community": 613,
+      "community": 589,
       "norm_label": "makechat must include memory_tools alongside mcp sessions.",
       "id": "tests_test_memory_tools_wiring_rationale_56"
     },
@@ -47657,7 +47657,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_memory_tools_wiring.py",
       "source_location": "L48",
-      "community": 613,
+      "community": 589,
       "norm_label": "makechat must include memory_tools alongside mcp sessions.",
       "id": "tests_test_memory_tools_wiring_rationale_48"
     },
@@ -50528,7 +50528,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1192",
-      "community": 588,
+      "community": 609,
       "norm_label": "covers lines 57-60: admin bypasses permission check and generates key.",
       "id": "tests_test_controllers_coverage_rationale_1192"
     },
@@ -51140,7 +51140,7 @@
       "file_type": "rationale",
       "source_file": "tests/test_controllers_coverage.py",
       "source_location": "L1191",
-      "community": 588,
+      "community": 609,
       "norm_label": "covers lines 57-60: admin bypasses permission check and generates key.",
       "id": "tests_test_controllers_coverage_rationale_1191"
     },
@@ -80830,9 +80830,9 @@
       "source_file": "docs/superpowers/benchmarks/stocks-cache-ttl.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "docs_superpowers_benchmarks_stocks_cache_ttl_md",
-      "target": "benchmarks_stocks_cache_ttl_stocks_endpoint_cache_ttl_6h_rss_check",
-      "confidence_score": 1.0
+      "target": "benchmarks_stocks_cache_ttl_stocks_endpoint_cache_ttl_6h_rss_check"
     },
     {
       "relation": "contains",
@@ -150482,5 +150482,5 @@
       "label": "User Authentication & Authorization"
     }
   ],
-  "built_at_commit": "ffa33ed81f579f298713797ac382047a9b22c06c"
+  "built_at_commit": "e7ac74321e9dd166254cd676f1c5658310676ca5"
 }

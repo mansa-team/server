@@ -1,16 +1,16 @@
 # Graph Report - server  (2026-09-29)
 
 ## Corpus Check
-- 135 files · ~103,094 words
+- 135 files · ~103,084 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 6630 nodes · 8878 edges · 620 communities (387 shown, 233 thin omitted)
+- 6630 nodes · 8878 edges · 619 communities (386 shown, 233 thin omitted)
 - Extraction: 85% EXTRACTED · 15% INFERRED · 0% AMBIGUOUS · INFERRED: 1329 edges (avg confidence: 0.69)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ffa33ed8`
+- Built from commit: `e7ac7432`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -614,7 +614,6 @@
 - [[_COMMUNITY_Community 610|Community 610]]
 - [[_COMMUNITY_Community 611|Community 611]]
 - [[_COMMUNITY_Community 612|Community 612]]
-- [[_COMMUNITY_Community 613|Community 613]]
 - [[_COMMUNITY_Community 614|Community 614]]
 - [[_COMMUNITY_Community 615|Community 615]]
 - [[_COMMUNITY_Community 616|Community 616]]
@@ -654,7 +653,7 @@
 - **Configuration & Database Infrastructure** — config_Config, config_engine, config_stocksEngine [INFERRED]
 - **User Authentication & Authorization** — user_service, authentication, user_roles, permission_system [INFERRED]
 
-## Communities (620 total, 233 thin omitted)
+## Communities (619 total, 233 thin omitted)
 
 ### Community 0 - "Stocks API Endpoints"
 Cohesion: 0.0
@@ -2053,12 +2052,12 @@ Cohesion: 0.4
 Nodes (5): Category 8: Testing Gaps (MEDIUM), Issue 8.1 — No integration tests for full request lifecycle, Issue 8.2 — No tests for scraper, stocks query, or cache, Issue 8.3 — No tests for Google OAuth callback, Issue 8.4 — No tests for session cleanup
 
 ### Community 588 - "Community 588"
-Cohesion: 0.2
-Nodes (8): Covers lines 57-60: admin bypasses permission check and generates key., Covers lines 57-60: admin bypasses permission check and generates key., Covers lines 57-60: admin bypasses permission check and generates key., Covers line 27: user already has the role., Covers line 27: user already has the role., Covers line 27: user already has the role., Covers line 27: user already has the role., Covers lines 42-44: session validation fails.
+Cohesion: 0.33
+Nodes (5): Covers line 27: user already has the role., Covers line 27: user already has the role., Covers line 27: user already has the role., Covers line 27: user already has the role., Covers lines 42-44: session validation fails.
 
 ### Community 589 - "Community 589"
-Cohesion: 0.33
-Nodes (6): dispatchToolCall must route memory tool names via TOOL_REGISTRY., dispatchToolCall must route memory tool names to executeMemoryTool., dispatchToolCall must route memory tool names to executeMemoryTool., dispatchToolCall must route memory tool names to executeMemoryTool., dispatchToolCall must route memory tool names to executeMemoryTool., TestDispatchRoutesMemoryTools
+Cohesion: 0.15
+Nodes (12): dispatchToolCall must route memory tool names via TOOL_REGISTRY., makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., dispatchToolCall must route memory tool names to executeMemoryTool., makeChat must include MEMORY_TOOLS alongside MCP sessions., dispatchToolCall must route memory tool names to executeMemoryTool. (+4 more)
 
 ### Community 590 - "Community 590"
 Cohesion: 0.29
@@ -2121,8 +2120,8 @@ Cohesion: 0.39
 Nodes (8): _build_error_response(), buildErrorResponse(), generic_exception_handler(), genericExceptionHandler(), http_exception_handler(), httpExceptionHandler(), validation_exception_handler(), validationExceptionHandler()
 
 ### Community 609 - "Community 609"
-Cohesion: 0.33
-Nodes (5): Covers lines 57-60: admin bypasses permission check and generates key., Covers lines 61-63: exception during key generation (admin path)., Covers lines 61-63: exception during key generation (admin path)., Covers lines 61-63: exception during key generation (admin path)., Covers lines 61-63: exception during key generation (admin path).
+Cohesion: 0.2
+Nodes (8): Covers lines 57-60: admin bypasses permission check and generates key., Covers lines 57-60: admin bypasses permission check and generates key., Covers lines 57-60: admin bypasses permission check and generates key., Covers lines 57-60: admin bypasses permission check and generates key., Covers lines 61-63: exception during key generation (admin path)., Covers lines 61-63: exception during key generation (admin path)., Covers lines 61-63: exception during key generation (admin path)., Covers lines 61-63: exception during key generation (admin path).
 
 ### Community 610 - "Community 610"
 Cohesion: 0.33
@@ -2131,10 +2130,6 @@ Nodes (5): Covers line 24: GET /prometheus/health., Covers line 24: GET /prometh
 ### Community 612 - "Community 612"
 Cohesion: 0.47
 Nodes (3): TestCleanup, cleanup(), Close the main thread's session at interpreter shutdown.
-
-### Community 613 - "Community 613"
-Cohesion: 0.33
-Nodes (6): makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., makeChat must include MEMORY_TOOLS alongside MCP sessions., TestMakeChatIncludesMemoryTools
 
 ### Community 615 - "Community 615"
 Cohesion: 0.5

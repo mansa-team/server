@@ -23,7 +23,7 @@ def hashApiKey(rawKey: str, saltHex: str) -> str:
 def createStoredApiKey(rawKey: str | None = None) -> tuple[str, str]:
     raw = rawKey or secrets.token_urlsafe(32)
     saltHex = secrets.token_hex(16)
-    return raw, f"{saltHex}{"$"}{hashApiKey(raw, saltHex)}"
+    return raw, f"{saltHex}{'$'}{hashApiKey(raw, saltHex)}"
 
 
 def isValidStoredKey(providedKey: str, storedKey: str | None) -> bool:
