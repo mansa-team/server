@@ -45,7 +45,7 @@ Exit code: 0 = all passed, 1 = at least one failed. Bandit failures are non-bloc
 - **Entry**: `run.py`, source in `main/`
 
 ## Code Style
-- Module-level variables use plain names (`abbrFrame`), never a leading-underscore prefix (`_abbrFrame`).
+- Drop the leading underscore from module-level names (`_abbrFrame` → `abbrFrame`).
 - Use descriptive variable names; no single- or dual-letter names (the only exception is `df` for DataFrames).
 
 ## Testing
