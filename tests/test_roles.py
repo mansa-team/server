@@ -8,19 +8,23 @@ class TestPermission:
         assert Permission.NONE == 0
         assert Permission.USE_ORUNMILA > 0
         assert Permission.ORUNMILA_EXTENDED_MEMORIES > 0
+        assert Permission.WALLET > 0
 
 
 class TestRoles:
-    def test_user_has_no_permissions(self):
-        assert Roles.USER == Permission.NONE
+    def test_user_has_wallet_only(self):
+        assert Roles.USER == Permission.WALLET
+        assert Roles.USER & Permission.WALLET
         assert not (Roles.USER & Permission.USE_ORUNMILA)
 
     def test_premium_has_orunmila_permissions(self):
         assert Roles.PREMIUM & Permission.USE_ORUNMILA
         assert Roles.PREMIUM & Permission.ORUNMILA_EXTENDED_MEMORIES
 
-    def test_developer_starter_has_no_permissions(self):
-        assert Roles.DEVELOPER_STARTER == Permission.NONE
+    def test_developer_starter_matches_user(self):
+        assert Roles.DEVELOPER_STARTER == Roles.USER
+        assert Roles.DEVELOPER_STARTER & Permission.WALLET
+        assert not (Roles.DEVELOPER_STARTER & Permission.USE_ORUNMILA)
 
     def test_developer_starter_missing_orunmila(self):
         assert not (Roles.DEVELOPER_STARTER & Permission.USE_ORUNMILA)
@@ -65,6 +69,9 @@ class TestRoles:
 
     def test_check_access_admin_skips_other_roles(self):
         assert Roles.checkAccess(["ADMIN", "USER"], Permission.USE_ORUNMILA) is True
+
+    def test_check_access_user_has_wallet(self):
+        assert Roles.checkAccess(["USER"], Permission.WALLET) is True
 
 
 class TestRequirePermission:
