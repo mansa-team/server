@@ -49,6 +49,7 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 STALE_AFTER_SECONDS = 6 * 3600
+CACHE_REFRESH_HOURS = 12
 CACHE_LOAD_LOCK = threading.Lock()
 
 
@@ -73,7 +74,7 @@ class StocksCacheManager:
             "interval",
             jobId="stocks_cache_refresh",
             jobName="Stocks cache refresh",
-            hours=12,
+            hours=CACHE_REFRESH_HOURS,
         )
 
     def loadFromFeather(self):

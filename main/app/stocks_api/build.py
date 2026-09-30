@@ -39,6 +39,10 @@ if sys.platform != "win32":
 
 logger = logging.getLogger(__name__)
 
+FETCHMANY_SIZE = 2000
+ZSTD_LEVEL = 3
+NESTED_SAMPLE_ROWS = 20
+
 CACHE_FEATHER_PATH = Path("/app/cache/stocks_cache.feather")
 CACHE_NESTED_PATH = Path("/app/cache/stocks_nested.feather")
 
@@ -63,7 +67,7 @@ def _runtimeConf() -> tuple:
 def buildFeatherCache(engine: Engine | None = None):
     sampleCols = None
     sampleParts: dict[str, pd.Series] = {}
-    compressor = zstd.ZstdCompressor(level=3)
+    compressor = zstd.ZstdCompressor(level=ZSTD_LEVEL)
 
     defaultEngine, featherPath, nestedPath = _runtimeConf()
     featherPath.parent.mkdir(parents=True, exist_ok=True)
@@ -80,14 +84,15 @@ def buildFeatherCache(engine: Engine | None = None):
             try:
                 typeRows = conn.exec_driver_sql("SHOW COLUMNS FROM b3_stocks").fetchall()
                 colTypes = {r[0]: str(r[1]).lower().split("(")[0].strip() for r in typeRows}
-            except Exception:
+            except Exception as e:
+                logger.warning(f"SHOW COLUMNS failed, continuing without DB types: {e}")
                 colTypes = {}
             stream = conn.execution_options(stream_results=True)
             result = stream.exec_driver_sql("SELECT * FROM b3_stocks ORDER BY TICKER ASC, TIME DESC")
             try:
                 columns = list(result.keys())
                 while True:
-                    batch = result.fetchmany(2000)
+                    batch = result.fetchmany(FETCHMANY_SIZE)
                     if not batch:
                         break
                     chunk = pd.DataFrame.from_records((tuple(r) for r in batch), columns=columns)
@@ -97,12 +102,16 @@ def buildFeatherCache(engine: Engine | None = None):
                         if col not in sampleParts:
                             nonNull = chunk[col].dropna()
                             if not nonNull.empty:
-                                sampleParts[col] = nonNull.head(20).reset_index(drop=True)
+                                sampleParts[col] = nonNull.head(NESTED_SAMPLE_ROWS).reset_index(drop=True)
                         chunk[col] = chunk[col].map(
                             lambda s: compressor.compress(s.encode("utf-8")) if isinstance(s, str) else None
                         )
                     chunk = optimizeDtypes(chunk)
 
+                    # Load-bearing: per-chunk category dictionaries differ across
+                    # batches, and the IPC writer rejects a second dictionary
+                    # for the same field ("Dictionary replacement detected").
+                    # Casting back to plain str keeps the on-disk schema stable.
                     for col in CATEGORY_COLS:
                         if col in chunk.columns and str(chunk[col].dtype) == "category":
                             chunk[col] = chunk[col].astype(str)
