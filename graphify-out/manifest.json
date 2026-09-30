@@ -280,8 +280,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\scraper_b3\\scraper.py": {
-    "mtime": 1790713506.6574717,
-    "ast_hash": "e7e449234b41094827a1bc2b43178561",
+    "mtime": 1790736245.276425,
+    "ast_hash": "860f0d9a1a74c9b33fadce5148077f58",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\scraper_b3\\xango.py": {
@@ -289,14 +289,24 @@
     "ast_hash": "0cbeed2304027b45b74b36f17b47cca7",
     "semantic_hash": ""
   },
+  "D:\\Repositories\\server\\main\\app\\stocks_api\\build.py": {
+    "mtime": 1790735995.475924,
+    "ast_hash": "2f3a5ebbac44760ca137dfe855401ce7",
+    "semantic_hash": ""
+  },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\cache.py": {
-    "mtime": 1790724655.0228858,
-    "ast_hash": "388139c59bea2be15ee4f8b0c88ed5f0",
+    "mtime": 1790741669.473623,
+    "ast_hash": "ce8f5980b1bb0d6bd9da37a5a1a73c6b",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\compress.py": {
-    "mtime": 1790724898.1914341,
-    "ast_hash": "5727624a2e4a0ff71d6712bc5a6a612d",
+    "mtime": 1790739970.4316273,
+    "ast_hash": "40cae8759ccb6e11c3ce10131f491b7f",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\main\\app\\stocks_api\\frame.py": {
+    "mtime": 1790731677.1945455,
+    "ast_hash": "3abe607fb233c15354d453ba78344d4e",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\key.py": {
@@ -305,18 +315,18 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\query.py": {
-    "mtime": 1790715582.5629618,
-    "ast_hash": "c07116fa51c154d741c5c5fd01486714",
+    "mtime": 1790739880.705703,
+    "ast_hash": "f8b84a54eb57b5732d93cd6ca5c2827e",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\sync_cache.py": {
-    "mtime": 1790723901.4459727,
-    "ast_hash": "ccb5104dfcd8d85e68fb42602486f1a1",
+    "mtime": 1790736142.4061236,
+    "ast_hash": "9f07874bea2f9fcfad9acd239ae7b84e",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\stocks_api\\util.py": {
-    "mtime": 1789365853.1977775,
-    "ast_hash": "f25300eb19b8346657c558af17425018",
+    "mtime": 1790739970.4316273,
+    "ast_hash": "f471cd66ad245dbf12e0331e38491c99",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\user\\user.py": {
@@ -335,8 +345,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\stocksapi_controller.py": {
-    "mtime": 1790723781.080048,
-    "ast_hash": "b9abf6a7b19fa64a64cc5d4386b15687",
+    "mtime": 1790728596.5079153,
+    "ast_hash": "ec0651a956b330f5c56040b66ac01ac2",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\user_controller.py": {
@@ -530,8 +540,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\AGENTS.md": {
-    "mtime": 1789627715.7268107,
-    "ast_hash": "ef6021079152d1189a4168e43670caa3",
+    "mtime": 1790741297.0454617,
+    "ast_hash": "cc31d96c7adf30b7561b742615300842",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docker-compose.yml": {
