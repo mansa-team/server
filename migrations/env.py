@@ -15,6 +15,8 @@ import main.models.user
 import main.models.orunmila
 import main.models.stocksapi_key
 import main.models.sandbox
+import main.models.wallet  # noqa: F401
+import main.models.memory  # noqa: F401
 
 config = context.config
 
