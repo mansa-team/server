@@ -305,3 +305,24 @@ def make_stocksapi_client(mock_api_key=None):
         app.dependency_overrides[verifyAPIKey] = lambda: mock_api_key
 
     return TestClient(app, raise_server_exceptions=False), app, mock_session
+
+
+def make_wallet_client(mock_identity=None, db=None):
+    """Return (client, app) with wallet router and mocked deps."""
+    from main.controller.wallet_controller import router as walletRouter
+    from main.utils.errors import registerErrorHandlers
+    from main.app.wallet.auth import getWalletIdentity
+    from unittest.mock import MagicMock
+    import main.models.wallet  # noqa: F401
+
+    app = FastAPI()
+    app.include_router(walletRouter)
+    registerErrorHandlers(app)
+
+    session = db if db is not None else MagicMock()
+    app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: session
+
+    identity = mock_identity or {"userId": 1, "username": "testuser", "roles": ["USER"]}
+    app.dependency_overrides[getWalletIdentity] = lambda: identity
+
+    return TestClient(app, raise_server_exceptions=False), app, session
