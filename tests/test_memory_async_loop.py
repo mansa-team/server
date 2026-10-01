@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 import main.app.orunmila.memory as memoryMod
-import main.app.orunmila.tools as toolsMod
+import main.app.orunmila.tools.memory as toolsMemoryMod
 from main.app.orunmila.memory import OrunmilaMemory, clearAll, getMatrix
 from main.app.orunmila.tools import save_memory, search_memory
 
@@ -71,7 +71,7 @@ class TestToolsInsideLoop:
         # clearAll() is sync and drives the cache via asyncio.run — run it in a
         # worker thread since this test itself runs inside an event loop.
         await asyncio.to_thread(clearAll)
-        monkeypatch.setattr(toolsMod, "embed", lambda texts: [makeQueryVector() for _ in texts])
+        monkeypatch.setattr(toolsMemoryMod, "embed", lambda texts: [makeQueryVector() for _ in texts])
         monkeypatch.setattr(memoryMod, "embed", lambda texts: [makeQueryVector() for _ in texts])
         saved = await save_memory(
             "ticker favorito",

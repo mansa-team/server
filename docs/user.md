@@ -8,13 +8,13 @@ Profile reads, role checks, and session management for the Mansa ecosystem (`USE
 
 | Role | Effective permissions |
 | :--- | :--- |
-| `USER` | none (`Permission.NONE`) — default on registration |
-| `PREMIUM` | `USE_ORUNMILA` + `ORUNMILA_EXTENDED_MEMORIES` |
+| `USER` | `WALLET` — default on registration |
+| `PREMIUM` | `WALLET` + `USE_ORUNMILA` + `ORUNMILA_EXTENDED_MEMORIES` |
 | `DEVELOPER_STARTER` | = `USER` (no extra permissions) |
 | `DEVELOPER_ENTERPRISE` | = `DEVELOPER_STARTER` (no extra permissions) |
 | `ADMIN` | all (`Permission.ALL()`), bypasses checks |
 
-Only two permissions exist: `USE_ORUNMILA`, `ORUNMILA_EXTENDED_MEMORIES`. There are no `VIEW_PROFILE` / `USE_THOTH` / `USE_MAAT` / `USE_OGUM` permissions — delete any such claims. There are no role-upgrade endpoints in code; any `upgrade/developer/*` docs are stale.
+Only three permissions exist: `USE_ORUNMILA`, `ORUNMILA_EXTENDED_MEMORIES`, `WALLET`. There are no `VIEW_PROFILE` / `USE_THOTH` / `USE_MAAT` / `USE_OGUM` permissions — delete any such claims. There are no role-upgrade endpoints in code; any `upgrade/developer/*` docs are stale.
 
 ## API endpoints
 

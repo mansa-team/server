@@ -9,13 +9,15 @@ class Permission(IntFlag):
 
     ORUNMILA_EXTENDED_MEMORIES = auto()
 
+    WALLET = auto()
+
     @classmethod
     def ALL(cls):
         return sum(cls)
 
 
 class Roles(IntFlag):
-    USER = Permission.NONE
+    USER = Permission.WALLET
 
     PREMIUM = USER | Permission.USE_ORUNMILA | Permission.ORUNMILA_EXTENDED_MEMORIES
 

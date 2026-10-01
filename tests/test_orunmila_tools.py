@@ -115,7 +115,7 @@ class TestServeFile:
     async def test_serve_file_returns_markdown_link(self):
         from main.app.orunmila.tools import serve_file
 
-        with patch("main.app.orunmila.tools.hostPath") as m_host:
+        with patch("main.app.orunmila.tools.sandbox.hostPath") as m_host:
             fake_path = MagicMock()
             fake_path.exists.return_value = True
             fake_path.is_file.return_value = True
@@ -130,7 +130,7 @@ class TestServeFile:
     async def test_serve_file_missing_file_returns_error(self):
         from main.app.orunmila.tools import serve_file
 
-        with patch("main.app.orunmila.tools.hostPath") as m_host:
+        with patch("main.app.orunmila.tools.sandbox.hostPath") as m_host:
             fake_path = MagicMock()
             fake_path.exists.return_value = False
             m_host.return_value = fake_path
@@ -142,7 +142,7 @@ class TestServeFile:
     async def test_serve_file_rejects_traversal(self):
         from main.app.orunmila.tools import serve_file
 
-        with patch("main.app.orunmila.tools.hostPath", side_effect=ValueError("Invalid workspace path")):
+        with patch("main.app.orunmila.tools.sandbox.hostPath", side_effect=ValueError("Invalid workspace path")):
             result = await serve_file("/workspace/../../etc/passwd", userId=1)
 
         assert "error" in result
@@ -150,7 +150,7 @@ class TestServeFile:
     async def test_serve_file_quotes_special_chars(self):
         from main.app.orunmila.tools import serve_file
 
-        with patch("main.app.orunmila.tools.hostPath") as m_host:
+        with patch("main.app.orunmila.tools.sandbox.hostPath") as m_host:
             fake_path = MagicMock()
             fake_path.exists.return_value = True
             fake_path.is_file.return_value = True
@@ -179,7 +179,7 @@ class TestWorkspaceToolsTraversal:
         from main.app.orunmila.tools import read_file
 
         with patch(
-            "main.app.orunmila.tools.SandboxManager.read_file",
+            "main.app.orunmila.tools.sandbox.SandboxManager.read_file",
             side_effect=ValueError("bad path"),
         ):
             result = await read_file("/workspace/../../etc/passwd", userId=1)
@@ -190,7 +190,7 @@ class TestWorkspaceToolsTraversal:
         from main.app.orunmila.tools import write_file
 
         with patch(
-            "main.app.orunmila.tools.SandboxManager.write_file",
+            "main.app.orunmila.tools.sandbox.SandboxManager.write_file",
             side_effect=ValueError("bad path"),
         ):
             result = await write_file("/workspace/../../etc/evil", "x", userId=1)
@@ -201,7 +201,7 @@ class TestWorkspaceToolsTraversal:
         from main.app.orunmila.tools import list_files
 
         with patch(
-            "main.app.orunmila.tools.SandboxManager.list_files",
+            "main.app.orunmila.tools.sandbox.SandboxManager.list_files",
             side_effect=ValueError("bad path"),
         ):
             result = await list_files("/workspace/../../etc", userId=1)

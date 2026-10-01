@@ -16,6 +16,7 @@ from main.utils.errors import registerErrorHandlers
 
 from main.service.authentication_service import AuthenticationService
 from main.service.user_service import UserService
+from main.service.wallet_service import WalletService
 from main.service.orunmila_service import OrunmilaService
 from main.service.scraper_service import ScraperService, runScraper
 from main.service.stocksapi_service import StocksAPIService
@@ -44,7 +45,15 @@ async def lifespan(app: FastAPI):
         runMigrations()
 
     services = [
-        ("USER", Config.USER, lambda port: (AuthenticationService.initialize(port), UserService.initialize(port))),
+        (
+            "USER",
+            Config.USER,
+            lambda port: (
+                AuthenticationService.initialize(port),
+                UserService.initialize(port),
+                WalletService.initialize(port),
+            ),
+        ),
         ("STOCKS_API", Config.STOCKS_API, StocksAPIService.initialize),
         ("ORUNMILA", Config.ORUNMILA, OrunmilaService.initialize),
     ]
@@ -86,6 +95,7 @@ async def status():
     services = {}
     for name, config in [
         ("user", Config.USER),
+        ("wallet", Config.USER),
         ("stocks_api", Config.STOCKS_API),
         ("orunmila", Config.ORUNMILA),
     ]:

@@ -12,6 +12,10 @@
 - [ ] the scraper rentability should be calculated based on the COTACOA 10Y AJUSTADA instead of the tradingview endpoint
 - [ ] add MACD, RSI and other metrics
 
+- [ ] notification system (redis!!!!)
+- [ ] beta and alpha measurements in the wallet (possible advanced mode setting for quant bros and fin bros)
+- [ ] wallet asset correlation
+
 - [ ] Use the ForgeVM architecture to expose MetaTrader5 terminals
 
 - [ ] Abacate Pay
