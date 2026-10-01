@@ -1,8 +1,11 @@
 import logging
+import os
 from functools import lru_cache
 
+import requests
 from sqlalchemy.orm import Session
 
+from config import Config
 from main.app.wallet.market_data import fetchCachedClose, fetchLivePrices
 from main.app.wallet.wallets import getWallet
 from main.models.wallet import Holding, Target
@@ -17,13 +20,33 @@ BUY_THRESHOLD = 0.5
 def fetchXangoScores(tickers: tuple[str, ...]) -> dict[str, float | None]:
     """XANGO quality score per ticker (0-100 scale).
 
-    Stub: no HTTP score endpoint exists on STOCKS yet, so every ticker
-    returns None and scoreBuyFlag redistributes the xango weight over the
-    other inputs (flag degrades, never fails). When a real cached-score
-    surface lands, only this body changes. Shared lru_cache is the
+    One fundamental read per ticker; any per-ticker failure degrades to
+    None and scoreBuyFlag redistributes the xango weight over the other
+    inputs (flag degrades, never fails). Shared lru_cache is the
     freshness story; no staleness gate beyond it, YAGNI.
     """
-    return {ticker: None for ticker in tickers}
+    scores: dict[str, float | None] = {}
+    for ticker in tickers:
+        try:
+            key = os.getenv("STOCKS_API_KEY", "")
+            resp = requests.get(
+                f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fundamental",
+                params={"search": ticker, "fields": "XANGO INVESTING SCORE", "compact": False},  # type: ignore[arg-type]
+                headers={"X-API-Key": key} if key else {},
+                timeout=3,
+            )
+            if resp.status_code != 200:
+                scores[ticker] = None
+                continue
+            payload = resp.json()["data"]
+            row = payload[0] if payload else None
+            if isinstance(row, dict) and "XANGO INVESTING SCORE" in row:
+                scores[ticker] = float(row["XANGO INVESTING SCORE"])
+            else:
+                scores[ticker] = None
+        except Exception:
+            scores[ticker] = None
+    return scores
 
 
 def scoreBuyFlag(

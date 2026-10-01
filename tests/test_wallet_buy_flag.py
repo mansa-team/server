@@ -96,6 +96,34 @@ def test_backtest_fewer_false_flips_than_p1():
     assert tuned_flips < p1_flips
 
 
+def test_fetch_xango_scores_parses_fundamental(monkeypatch):
+    positions.fetchXangoScores.cache_clear()
+
+    def fundamental_ok(url, params=None, headers=None, timeout=None):
+        assert url.endswith("/stocks/fundamental")
+        assert params["search"] == "PETR4"
+        assert params["fields"] == "XANGO INVESTING SCORE"
+
+        class Resp:
+            status_code = 200
+
+            @staticmethod
+            def json():
+                return {"data": [{"TICKER": "PETR4", "XANGO INVESTING SCORE": 80.0}]}
+
+        return Resp()
+
+    def boom(url, params=None, headers=None, timeout=None):
+        raise requests.Timeout()
+
+    monkeypatch.setattr(requests, "get", fundamental_ok)
+    assert positions.fetchXangoScores(("PETR4",)) == {"PETR4": 80.0}
+    positions.fetchXangoScores.cache_clear()
+    monkeypatch.setattr(requests, "get", boom)
+    assert positions.fetchXangoScores(("PETR4",)) == {"PETR4": None}
+    positions.fetchXangoScores.cache_clear()
+
+
 def test_ratings_route_untouched():
     raw = open("main/controller/wallet_controller.py", "rb").read().splitlines(keepends=True)[151:159]
     digest = hashlib.sha256(b"".join(raw)).hexdigest()
