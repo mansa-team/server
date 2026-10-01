@@ -352,7 +352,11 @@ def getPositions(db: Session, walletId: int, userId: int) -> dict:
         percentIdeal = float(target.percentIdeal) if target is not None else None
         holdingRating = holding.rating
         buyFlag = scoreBuyFlag(
-            percentWallet, percentIdeal, holdingRating, xangoScores.get(str(holding.ticker)), appreciation
+            percentWallet,
+            percentIdeal,
+            holdingRating,  # type: ignore[arg-type]
+            xangoScores.get(str(holding.ticker)),
+            appreciation,
         )
         items.append(
             {
