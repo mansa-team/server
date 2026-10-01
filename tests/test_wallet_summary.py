@@ -77,9 +77,11 @@ def test_targets_drive_buy_flag_and_ratings_gate(dbSession, monkeypatch):
         "rating": 8,
     }
     assert (
-        client.put("/wallet/ratings", json={"wallet_id": walletId, "ticker": "PETR4", "rating": 11}).status_code == 422
+        client.put("/wallet/ratings", json={"wallet_id": walletId, "ticker": "PETR4", "rating": 100}).status_code == 200
+    )
+    assert (
+        client.put("/wallet/ratings", json={"wallet_id": walletId, "ticker": "PETR4", "rating": 101}).status_code == 422
     )
     item = client.get(f"/wallet/positions?wallet_id={walletId}").json()["items"][0]
-    # P3-1 scale fix: 100% held vs 80% ideal is overweight → no buy
-    # (old P1 rule compared fraction 1.0 < 80.0, nearly-always-True).
+    # Weight-share: single holding owns 100% of both weight and equity → delta 0 → hold.
     assert item["percent_ideal"] == 80.0 and item["buy_flag"] is False

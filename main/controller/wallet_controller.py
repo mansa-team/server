@@ -115,6 +115,15 @@ def list_positions_route(
     return positions.getPositions(db, wallet_id, userId)
 
 
+@router.get("/rebalance", response_class=ORJSONResponse)
+def get_rebalance_route(
+    wallet_id: int,
+    userId: int,
+    db: Session = Depends(getSession),
+):
+    return positions.getRebalance(db, wallet_id, userId)
+
+
 @router.get("/summary", response_class=ORJSONResponse)
 def get_summary_route(
     wallet_id: int,

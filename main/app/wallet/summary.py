@@ -24,7 +24,7 @@ class TargetUpsert(BaseModel):
 class RatingUpsert(BaseModel):
     wallet_id: int
     ticker: str
-    rating: int = Field(ge=0, le=10)
+    rating: float = Field(ge=0, le=100)
 
 
 def getSummary(db: Session, walletId: int, userId: int) -> dict:

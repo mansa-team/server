@@ -66,8 +66,16 @@ def recalcHolding(db: Session, walletId: int, ticker: str) -> Holding | None:
 
     quantity, avg = applyEntries(0.0, 0.0, entries)
     if holding is None:
+        from main.app.wallet import positions as positionsModule
+
+        xangoScore = positionsModule.fetchXangoScores((ticker,)).get(ticker)
         holding = Holding(
-            walletId=walletId, assetType=entries[0].assetType, ticker=ticker, quantity=quantity, avgPrice=avg
+            walletId=walletId,
+            assetType=entries[0].assetType,
+            ticker=ticker,
+            quantity=quantity,
+            avgPrice=avg,
+            rating=xangoScore if xangoScore is not None else 10.0,  # type: ignore[assignment]
         )
 
         db.add(holding)
