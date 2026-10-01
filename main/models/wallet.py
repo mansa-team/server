@@ -32,10 +32,8 @@ class Holding(Base):
     walletId = Column(Integer, ForeignKey("wallets.walletId", ondelete="RESTRICT"), nullable=False, index=True)
     assetType = Column(String(20), nullable=False)
     ticker = Column(String(20), nullable=False, index=True)
-    tickerName = Column(String(120), nullable=True)
     quantity = Column(Numeric(18, 8), nullable=False)
     avgPrice = Column(Numeric(18, 6), nullable=False)
-    percentIdeal = Column(Numeric(5, 2), nullable=True)
     rating = Column(SmallInteger, nullable=True)
     updatedAt = Column(TIMESTAMP, server_default=func.current_timestamp(), nullable=False)
 
