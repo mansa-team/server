@@ -27,7 +27,7 @@ def create_wallet_route(
     userId: int,
     db: Session = Depends(getSession),
 ):
-    wallet = wallets.createWallet(db, userId, payload.name)
+    wallet = wallets.WalletsManager.createWallet(db, userId, payload.name)
     return {"walletId": wallet.walletId, "name": wallet.name}
 
 
@@ -38,7 +38,7 @@ def list_wallets_route(
 ):
     return [
         {"walletId": walletItem.walletId, "name": walletItem.name, "lastRecalc": walletItem.lastRecalc}
-        for walletItem in wallets.listWallets(db, userId)
+        for walletItem in wallets.WalletsManager.listWallets(db, userId)
     ]
 
 
@@ -68,7 +68,7 @@ def create_entry_route(
     userId: int,
     db: Session = Depends(getSession),
 ):
-    entry, holding = entries.addEntry(db, userId, payload)
+    entry, holding = entries.EntriesManager.addEntry(db, userId, payload)
     return {"entryId": entry.entryId, "holding": serialize_holding(holding)}
 
 
@@ -81,7 +81,7 @@ def list_entries_route(
     userId: int = Query(),
     db: Session = Depends(getSession),
 ):
-    total, items = entries.listEntries(db, userId, wallet_id, ticker, limit, offset)
+    total, items = entries.EntriesManager.listEntries(db, userId, wallet_id, ticker, limit, offset)
     return {"total": total, "items": [serialize_entry(item) for item in items]}
 
 
@@ -92,7 +92,7 @@ def update_entry_route(
     userId: int,
     db: Session = Depends(getSession),
 ):
-    entry, holding = entries.updateEntry(db, userId, entryId, payload)
+    entry, holding = entries.EntriesManager.updateEntry(db, userId, entryId, payload)
     return {"entryId": entry.entryId, "holding": serialize_holding(holding)}
 
 
@@ -102,7 +102,7 @@ def delete_entry_route(
     userId: int,
     db: Session = Depends(getSession),
 ):
-    deletedId, holding = entries.deleteEntry(db, userId, entryId)
+    deletedId, holding = entries.EntriesManager.deleteEntry(db, userId, entryId)
     return {"entryId": deletedId, "holding": serialize_holding(holding)}
 
 
@@ -112,7 +112,7 @@ def list_positions_route(
     userId: int,
     db: Session = Depends(getSession),
 ):
-    return positions.getPositions(db, wallet_id, userId)
+    return positions.PositionsManager.getPositions(db, wallet_id, userId)
 
 
 @router.get("/rebalance", response_class=ORJSONResponse)
@@ -121,7 +121,7 @@ def get_rebalance_route(
     userId: int,
     db: Session = Depends(getSession),
 ):
-    return positions.getRebalance(db, wallet_id, userId)
+    return positions.PositionsManager.getRebalance(db, wallet_id, userId)
 
 
 @router.get("/summary", response_class=ORJSONResponse)
@@ -130,7 +130,7 @@ def get_summary_route(
     userId: int,
     db: Session = Depends(getSession),
 ):
-    return summary.getSummary(db, wallet_id, userId)
+    return summary.SummaryManager.getSummary(db, wallet_id, userId)
 
 
 @router.get("/allocation", response_class=ORJSONResponse)
@@ -140,7 +140,7 @@ def get_allocation_route(
     userId: int = Query(),
     db: Session = Depends(getSession),
 ):
-    return summary.getAllocation(db, wallet_id, userId, group_by)
+    return summary.SummaryManager.getAllocation(db, wallet_id, userId, group_by)
 
 
 @router.put("/targets", response_class=ORJSONResponse)
@@ -149,7 +149,7 @@ def upsert_target_route(
     userId: int,
     db: Session = Depends(getSession),
 ):
-    target = summary.upsertTarget(db, userId, payload)
+    target = summary.SummaryManager.upsertTarget(db, userId, payload)
     return {
         "wallet_id": target.walletId,
         "key_kind": target.keyKind,
@@ -189,7 +189,11 @@ def list_earnings_route(
     userId: int = Query(),
     db: Session = Depends(getSession),
 ):
-    return {"items": [serialize_earning(item) for item in earnings.listEarnings(db, wallet_id, userId, status)]}
+    return {
+        "items": [
+            serialize_earning(item) for item in earnings.EarningsManager.listEarnings(db, wallet_id, userId, status)
+        ]
+    }
 
 
 @router.post("/earnings/sync", response_class=ORJSONResponse)
@@ -198,7 +202,7 @@ def sync_earnings_route(
     userId: int,
     db: Session = Depends(getSession),
 ):
-    return earnings.syncEarnings(db, payload.wallet_id, userId)
+    return earnings.EarningsManager.syncEarnings(db, payload.wallet_id, userId)
 
 
 @router.get("/performance", response_class=ORJSONResponse)
@@ -215,4 +219,4 @@ def get_performance_route(
         endDate = dateType.fromisoformat(toIso)
     except ValueError:
         raise HTTPException(status_code=422, detail="invalid date, expected YYYY-MM-DD")
-    return performance.getPerformance(db, wallet_id, userId, ticker, startDate, endDate)
+    return performance.PerformanceManager.getPerformance(db, wallet_id, userId, ticker, startDate, endDate)

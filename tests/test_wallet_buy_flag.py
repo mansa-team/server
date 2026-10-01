@@ -4,7 +4,7 @@ import pytest
 import requests
 
 import main.models.wallet  # noqa: F401
-import main.app.wallet.positions as positions
+from main.app.wallet.positions import PositionsManager
 from main.models.wallet import Holding
 from tests.conftest import make_wallet_client
 from tests.test_wallet_positions import _live_ok
@@ -44,7 +44,7 @@ def _seed_two(client, walletId):
 
 def test_buy_flag_follows_delta_sign(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_two)
-    monkeypatch.setattr(positions, "fetchXangoScores", lambda tickers: {ticker: 50.0 for ticker in tickers})
+    monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {ticker: 50.0 for ticker in tickers})
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
     _seed_two(client, walletId)
@@ -63,7 +63,7 @@ def test_buy_flag_follows_delta_sign(dbSession, monkeypatch):
 
 def test_zero_weights_all_hold(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_two)
-    monkeypatch.setattr(positions, "fetchXangoScores", lambda tickers: {ticker: None for ticker in tickers})
+    monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {ticker: None for ticker in tickers})
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
     _seed_two(client, walletId)
@@ -80,7 +80,7 @@ def test_zero_weights_all_hold(dbSession, monkeypatch):
 
 def test_rebalance_weight_share_math(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_two)
-    monkeypatch.setattr(positions, "fetchXangoScores", lambda tickers: {ticker: 50.0 for ticker in tickers})
+    monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {ticker: 50.0 for ticker in tickers})
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
     _seed_two(client, walletId)
@@ -106,7 +106,7 @@ def test_rebalance_weight_share_math(dbSession, monkeypatch):
 def test_rebalance_deterministic(dbSession, monkeypatch):
     # Weight-share is a pure function of ratings + prices: same inputs → same outputs.
     monkeypatch.setattr(requests, "get", _live_two)
-    monkeypatch.setattr(positions, "fetchXangoScores", lambda tickers: {ticker: 50.0 for ticker in tickers})
+    monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {ticker: 50.0 for ticker in tickers})
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
     _seed_two(client, walletId)
@@ -123,7 +123,7 @@ def test_rebalance_deterministic(dbSession, monkeypatch):
 
 def test_new_holding_seeds_xango_score(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_ok)
-    monkeypatch.setattr(positions, "fetchXangoScores", lambda tickers: {"PETR4": 80.0})
+    monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {"PETR4": 80.0})
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
     client.post(
@@ -161,7 +161,7 @@ def test_new_holding_seeds_xango_score(dbSession, monkeypatch):
 
 def test_new_holding_defaults_ten_without_xango(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_ok)
-    monkeypatch.setattr(positions, "fetchXangoScores", lambda tickers: {"PETR4": None})
+    monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {"PETR4": None})
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
     client.post(
@@ -209,7 +209,7 @@ def test_ratings_accept_zero_to_hundred(dbSession, monkeypatch):
 
 
 def test_fetch_xango_scores_parses_fundamental(monkeypatch):
-    positions.fetchXangoScores.cache_clear()
+    PositionsManager.fetchXangoScores.cache_clear()
 
     def fundamental_ok(url, params=None, headers=None, timeout=None):
         assert url.endswith("/stocks/fundamental")
@@ -229,11 +229,11 @@ def test_fetch_xango_scores_parses_fundamental(monkeypatch):
         raise requests.Timeout()
 
     monkeypatch.setattr(requests, "get", fundamental_ok)
-    assert positions.fetchXangoScores(("PETR4",)) == {"PETR4": 80.0}
-    positions.fetchXangoScores.cache_clear()
+    assert PositionsManager.fetchXangoScores(("PETR4",)) == {"PETR4": 80.0}
+    PositionsManager.fetchXangoScores.cache_clear()
     monkeypatch.setattr(requests, "get", boom)
-    assert positions.fetchXangoScores(("PETR4",)) == {"PETR4": None}
-    positions.fetchXangoScores.cache_clear()
+    assert PositionsManager.fetchXangoScores(("PETR4",)) == {"PETR4": None}
+    PositionsManager.fetchXangoScores.cache_clear()
 
 
 def test_ratings_route_untouched():

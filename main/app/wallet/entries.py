@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from main.app.wallet.wallets import getWallet
+from main.app.wallet.wallets import WalletsManager
 from main.models.wallet import Holding, Transaction
 
 logger = logging.getLogger(__name__)
@@ -30,166 +30,172 @@ class EntryUpdate(BaseModel):
     costs: float | None = Field(default=None, ge=0)
 
 
-def applyEntries(quantity: float, avg: float, entries: list[Transaction]) -> tuple[float, float]:
-    for entry in entries:
-        entryQuantity = float(entry.quantity)
-        entryPrice = float(entry.price)
-        entryCosts = float(entry.costs)
+class EntriesManager:
+    @classmethod
+    def applyEntries(cls, quantity: float, avg: float, entries: list[Transaction]) -> tuple[float, float]:
+        for entry in entries:
+            entryQuantity = float(entry.quantity)
+            entryPrice = float(entry.price)
+            entryCosts = float(entry.costs)
 
-        if entry.side == "Compra":
-            total = quantity * avg + entryQuantity * entryPrice + entryCosts
-            quantity += entryQuantity
-            avg = total / quantity
+            if entry.side == "Compra":
+                total = quantity * avg + entryQuantity * entryPrice + entryCosts
+                quantity += entryQuantity
+                avg = total / quantity
 
-        else:
-            if entryQuantity > quantity:
-                raise HTTPException(status_code=422, detail="sell exceeds holding")
-            quantity -= entryQuantity
+            else:
+                if entryQuantity > quantity:
+                    raise HTTPException(status_code=422, detail="sell exceeds holding")
+                quantity -= entryQuantity
 
-    return quantity, avg
+        return quantity, avg
 
-
-def recalcHolding(db: Session, walletId: int, ticker: str) -> Holding | None:
-    entries = (
-        db.query(Transaction)
-        .filter(Transaction.walletId == walletId, Transaction.ticker == ticker)
-        .order_by(Transaction.date, Transaction.entryId)
-        .all()
-    )
-
-    holding = db.query(Holding).filter(Holding.walletId == walletId, Holding.ticker == ticker).first()
-
-    if not entries:
-        if holding is not None:
-            db.delete(holding)
-        return None
-
-    quantity, avg = applyEntries(0.0, 0.0, entries)
-    if holding is None:
-        from main.app.wallet import positions as positionsModule
-
-        xangoScore = positionsModule.fetchXangoScores((ticker,)).get(ticker)
-        holding = Holding(
-            walletId=walletId,
-            assetType=entries[0].assetType,
-            ticker=ticker,
-            quantity=quantity,
-            avgPrice=avg,
-            rating=xangoScore if xangoScore is not None else 10.0,  # type: ignore[assignment]
+    @classmethod
+    def recalcHolding(cls, db: Session, walletId: int, ticker: str) -> Holding | None:
+        entries = (
+            db.query(Transaction)
+            .filter(Transaction.walletId == walletId, Transaction.ticker == ticker)
+            .order_by(Transaction.date, Transaction.entryId)
+            .all()
         )
 
-        db.add(holding)
-    else:
-        holding.quantity = quantity  # type: ignore[assignment]
-        holding.avgPrice = avg  # type: ignore[assignment]
+        holding = db.query(Holding).filter(Holding.walletId == walletId, Holding.ticker == ticker).first()
 
-    return holding
+        if not entries:
+            if holding is not None:
+                db.delete(holding)
+            return None
 
+        quantity, avg = cls.applyEntries(0.0, 0.0, entries)
+        if holding is None:
+            from main.app.wallet import positions as positionsModule
 
-def addEntry(db: Session, userId: int, data: EntryCreate) -> tuple[Transaction, Holding | None]:
-    getWallet(db, data.wallet_id, userId)
-    if data.side == "Venda":
-        holding = db.query(Holding).filter(Holding.walletId == data.wallet_id, Holding.ticker == data.ticker).first()
-        if holding is None or data.quantity > float(holding.quantity):
-            raise HTTPException(status_code=422, detail="sell exceeds holding")
+            xangoScore = positionsModule.PositionsManager.fetchXangoScores((ticker,)).get(ticker)
+            holding = Holding(
+                walletId=walletId,
+                assetType=entries[0].assetType,
+                ticker=ticker,
+                quantity=quantity,
+                avgPrice=avg,
+                rating=xangoScore if xangoScore is not None else 10.0,  # type: ignore[assignment]
+            )
 
-    entry = Transaction(
-        walletId=data.wallet_id,
-        side=data.side,
-        assetType=data.asset_type,
-        ticker=data.ticker,
-        date=data.date,
-        quantity=data.quantity,
-        price=data.price,
-        costs=data.costs,
-    )
+            db.add(holding)
+        else:
+            holding.quantity = quantity  # type: ignore[assignment]
+            holding.avgPrice = avg  # type: ignore[assignment]
 
-    db.add(entry)
-    db.flush()
+        return holding
 
-    holding = recalcHolding(db, data.wallet_id, data.ticker)
+    @classmethod
+    def addEntry(cls, db: Session, userId: int, data: EntryCreate) -> tuple[Transaction, Holding | None]:
+        WalletsManager.getWallet(db, data.wallet_id, userId)
+        if data.side == "Venda":
+            holding = (
+                db.query(Holding).filter(Holding.walletId == data.wallet_id, Holding.ticker == data.ticker).first()
+            )
+            if holding is None or data.quantity > float(holding.quantity):
+                raise HTTPException(status_code=422, detail="sell exceeds holding")
 
-    db.commit()
-    db.refresh(entry)
+        entry = Transaction(
+            walletId=data.wallet_id,
+            side=data.side,
+            assetType=data.asset_type,
+            ticker=data.ticker,
+            date=data.date,
+            quantity=data.quantity,
+            price=data.price,
+            costs=data.costs,
+        )
 
-    if holding is not None:
-        db.refresh(holding)
+        db.add(entry)
+        db.flush()
 
-    return entry, holding
+        holding = cls.recalcHolding(db, data.wallet_id, data.ticker)
 
+        db.commit()
+        db.refresh(entry)
 
-def listEntries(
-    db: Session, userId: int, walletId: int, ticker: str | None = None, limit: int = 20, offset: int = 0
-) -> tuple[int, list[Transaction]]:
-    getWallet(db, walletId, userId)
-    query = db.query(Transaction).filter(Transaction.walletId == walletId)
+        if holding is not None:
+            db.refresh(holding)
 
-    if ticker is not None:
-        query = query.filter(Transaction.ticker == ticker)
+        return entry, holding
 
-    total = query.count()
-    items = query.order_by(Transaction.date, Transaction.entryId).offset(offset).limit(limit).all()
+    @classmethod
+    def listEntries(
+        cls, db: Session, userId: int, walletId: int, ticker: str | None = None, limit: int = 20, offset: int = 0
+    ) -> tuple[int, list[Transaction]]:
+        WalletsManager.getWallet(db, walletId, userId)
+        query = db.query(Transaction).filter(Transaction.walletId == walletId)
 
-    return total, items
+        if ticker is not None:
+            query = query.filter(Transaction.ticker == ticker)
 
+        total = query.count()
+        items = query.order_by(Transaction.date, Transaction.entryId).offset(offset).limit(limit).all()
 
-def updateEntry(db: Session, userId: int, entryId: int, patch: EntryUpdate) -> tuple[Transaction, Holding | None]:
-    entry = db.query(Transaction).filter(Transaction.entryId == entryId).first()
+        return total, items
 
-    if entry is None:
-        raise HTTPException(status_code=404, detail="entry not found")
+    @classmethod
+    def updateEntry(
+        cls, db: Session, userId: int, entryId: int, patch: EntryUpdate
+    ) -> tuple[Transaction, Holding | None]:
+        entry = db.query(Transaction).filter(Transaction.entryId == entryId).first()
 
-    getWallet(db, int(entry.walletId), userId)
+        if entry is None:
+            raise HTTPException(status_code=404, detail="entry not found")
 
-    changes = patch.model_dump(exclude_unset=True)
-    for fieldName, fieldValue in changes.items():
-        if fieldValue is not None:
-            setattr(entry, fieldName, fieldValue)
+        WalletsManager.getWallet(db, int(entry.walletId), userId)
 
-    db.flush()
+        changes = patch.model_dump(exclude_unset=True)
+        for fieldName, fieldValue in changes.items():
+            if fieldValue is not None:
+                setattr(entry, fieldName, fieldValue)
 
-    try:
-        holding = recalcHolding(db, int(entry.walletId), str(entry.ticker))
-    except HTTPException:
-        db.rollback()
-        raise
+        db.flush()
 
-    db.commit()
-    db.refresh(entry)
+        try:
+            holding = cls.recalcHolding(db, int(entry.walletId), str(entry.ticker))
+        except HTTPException:
+            db.rollback()
+            raise
 
-    if holding is not None:
-        db.refresh(holding)
+        db.commit()
+        db.refresh(entry)
 
-    return entry, holding
+        if holding is not None:
+            db.refresh(holding)
 
+        return entry, holding
 
-def deleteEntry(db: Session, userId: int, entryId: int) -> tuple[int, Holding | None]:
-    entry = db.query(Transaction).filter(Transaction.entryId == entryId).first()
+    @classmethod
+    def deleteEntry(cls, db: Session, userId: int, entryId: int) -> tuple[int, Holding | None]:
+        entry = db.query(Transaction).filter(Transaction.entryId == entryId).first()
 
-    if entry is None:
-        raise HTTPException(status_code=404, detail="entry not found")
+        if entry is None:
+            raise HTTPException(status_code=404, detail="entry not found")
 
-    getWallet(db, int(entry.walletId), userId)
+        WalletsManager.getWallet(db, int(entry.walletId), userId)
 
-    walletId = entry.walletId
-    ticker = entry.ticker
+        walletId = entry.walletId
+        ticker = entry.ticker
 
-    db.delete(entry)
-    db.flush()
+        db.delete(entry)
+        db.flush()
 
-    try:
-        holding = recalcHolding(db, int(walletId), str(ticker))
-    except HTTPException:
-        db.rollback()
-        raise
+        try:
+            holding = cls.recalcHolding(db, int(walletId), str(ticker))
+        except HTTPException:
+            db.rollback()
+            raise
 
-    db.commit()
+        db.commit()
 
-    return entryId, holding
+        return entryId, holding
 
+    @classmethod
+    def positionAtDate(cls, entries: list[Transaction], exDate: dateType) -> float:
+        datedEntries = [entry for entry in entries if str(entry.date) <= exDate.isoformat()]
+        quantity, _ = cls.applyEntries(0.0, 0.0, datedEntries)
 
-def positionAtDate(entries: list[Transaction], exDate: dateType) -> float:
-    datedEntries = [entry for entry in entries if str(entry.date) <= exDate.isoformat()]
-    quantity, _ = applyEntries(0.0, 0.0, datedEntries)
-
-    return quantity
+        return quantity

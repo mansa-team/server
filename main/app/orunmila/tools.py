@@ -189,8 +189,8 @@ async def get_wallet_positions(wallet_id: int, **_) -> dict:
     Args:
         wallet_id: Wallet to inspect (must belong to the caller)
     """
-    from main.app.wallet.positions import getPositions
-    from main.app.wallet.wallets import getWallet
+    from main.app.wallet.positions import PositionsManager
+    from main.app.wallet.wallets import WalletsManager
 
     user = _.get("user")
     if not user:
@@ -203,14 +203,14 @@ async def get_wallet_positions(wallet_id: int, **_) -> dict:
     try:
         userId = user["userId"]
         try:
-            getWallet(
+            WalletsManager.getWallet(
                 db,  # type: ignore[arg-type]
                 wallet_id,
                 userId,
             )
         except HTTPException:
             return {"error": "not-owner"}
-        return getPositions(
+        return PositionsManager.getPositions(
             db,  # type: ignore[arg-type]
             wallet_id,
             userId,
@@ -228,8 +228,8 @@ async def get_wallet_summary(wallet_id: int, **_) -> dict:
     Args:
         wallet_id: Wallet to summarize (must belong to the caller)
     """
-    from main.app.wallet.summary import getSummary
-    from main.app.wallet.wallets import getWallet
+    from main.app.wallet.summary import SummaryManager
+    from main.app.wallet.wallets import WalletsManager
 
     user = _.get("user")
     if not user:
@@ -242,14 +242,14 @@ async def get_wallet_summary(wallet_id: int, **_) -> dict:
     try:
         userId = user["userId"]
         try:
-            getWallet(
+            WalletsManager.getWallet(
                 db,  # type: ignore[arg-type]
                 wallet_id,
                 userId,
             )
         except HTTPException:
             return {"error": "not-owner"}
-        return getSummary(
+        return SummaryManager.getSummary(
             db,  # type: ignore[arg-type]
             wallet_id,
             userId,
@@ -268,8 +268,8 @@ async def get_wallet_allocation(wallet_id: int, group_by: str = "ticker", **_) -
         wallet_id: Wallet to inspect (must belong to the caller)
         group_by: Grouping key — "ticker" or "assetType" (default "ticker")
     """
-    from main.app.wallet.summary import getAllocation
-    from main.app.wallet.wallets import getWallet
+    from main.app.wallet.summary import SummaryManager
+    from main.app.wallet.wallets import WalletsManager
 
     user = _.get("user")
     if not user:
@@ -282,14 +282,14 @@ async def get_wallet_allocation(wallet_id: int, group_by: str = "ticker", **_) -
     try:
         userId = user["userId"]
         try:
-            getWallet(
+            WalletsManager.getWallet(
                 db,  # type: ignore[arg-type]
                 wallet_id,
                 userId,
             )
         except HTTPException:
             return {"error": "not-owner"}
-        return getAllocation(
+        return SummaryManager.getAllocation(
             db,  # type: ignore[arg-type]
             wallet_id,
             userId,
@@ -309,8 +309,8 @@ async def list_wallet_earnings(wallet_id: int, status: Optional[str] = "A Recebe
         wallet_id: Wallet to inspect (must belong to the caller)
         status: Filter by status — "A Receber", "Recebido", or None for all (default "A Receber")
     """
-    from main.app.wallet.earnings import listEarnings
-    from main.app.wallet.wallets import getWallet
+    from main.app.wallet.earnings import EarningsManager
+    from main.app.wallet.wallets import WalletsManager
 
     user = _.get("user")
     if not user:
@@ -323,14 +323,14 @@ async def list_wallet_earnings(wallet_id: int, status: Optional[str] = "A Recebe
     try:
         userId = user["userId"]
         try:
-            getWallet(
+            WalletsManager.getWallet(
                 db,  # type: ignore[arg-type]
                 wallet_id,
                 userId,
             )
         except HTTPException:
             return {"error": "not-owner"}
-        rows = listEarnings(
+        rows = EarningsManager.listEarnings(
             db,  # type: ignore[arg-type]
             wallet_id,
             userId,
@@ -371,8 +371,8 @@ async def get_wallet_performance(
         to_date: Window end as YYYY-MM-DD
         ticker: Optional single ticker; omit for the whole wallet
     """
-    from main.app.wallet.performance import getPerformance
-    from main.app.wallet.wallets import getWallet
+    from main.app.wallet.performance import PerformanceManager
+    from main.app.wallet.wallets import WalletsManager
 
     user = _.get("user")
     if not user:
@@ -391,14 +391,14 @@ async def get_wallet_performance(
     try:
         userId = user["userId"]
         try:
-            getWallet(
+            WalletsManager.getWallet(
                 db,  # type: ignore[arg-type]
                 wallet_id,
                 userId,
             )
         except HTTPException:
             return {"error": "not-owner"}
-        return getPerformance(
+        return PerformanceManager.getPerformance(
             db,  # type: ignore[arg-type]
             wallet_id,
             userId,
@@ -419,8 +419,8 @@ async def get_wallet_rebalance(wallet_id: int, **_) -> dict:
     Args:
         wallet_id: Wallet to inspect (must belong to the caller)
     """
-    from main.app.wallet.positions import getRebalance
-    from main.app.wallet.wallets import getWallet
+    from main.app.wallet.positions import PositionsManager
+    from main.app.wallet.wallets import WalletsManager
 
     user = _.get("user")
     if not user:
@@ -433,14 +433,14 @@ async def get_wallet_rebalance(wallet_id: int, **_) -> dict:
     try:
         userId = user["userId"]
         try:
-            getWallet(
+            WalletsManager.getWallet(
                 db,  # type: ignore[arg-type]
                 wallet_id,
                 userId,
             )
         except HTTPException:
             return {"error": "not-owner"}
-        return getRebalance(
+        return PositionsManager.getRebalance(
             db,  # type: ignore[arg-type]
             wallet_id,
             userId,
