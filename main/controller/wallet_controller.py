@@ -155,3 +155,40 @@ def set_rating_route(
 ):
     holding = wallet_service.set_rating(db, user["userId"], payload)
     return {"ticker": holding.ticker, "rating": holding.rating}
+
+
+class EarningsSync(BaseModel):
+    wallet_id: int
+
+
+def serialize_earning(earning) -> dict:
+    return {
+        "ticker": earning.ticker,
+        "kind": earning.kind,
+        "gross": float(earning.gross),
+        "net_ir_adjusted": float(earning.netIrAdjusted),
+        "status": earning.status,
+    }
+
+
+@router.get("/earnings", response_class=ORJSONResponse)
+def list_earnings_route(
+    wallet_id: int,
+    status: str | None = None,
+    user: dict = Depends(requireWalletUser),
+    db: Session = Depends(getSession),
+):
+    return {
+        "items": [
+            serialize_earning(item) for item in wallet_service.list_earnings(db, wallet_id, user["userId"], status)
+        ]
+    }
+
+
+@router.post("/earnings/sync", response_class=ORJSONResponse)
+def sync_earnings_route(
+    payload: EarningsSync,
+    user: dict = Depends(requireWalletUser),
+    db: Session = Depends(getSession),
+):
+    return wallet_service.sync_earnings(db, payload.wallet_id, user["userId"])
