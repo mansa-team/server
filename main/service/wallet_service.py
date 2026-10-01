@@ -15,6 +15,8 @@ from main.models.wallet import Holding, Snapshot, Target, Transaction, Wallet
 
 logger = logging.getLogger(__name__)
 
+IR_RATE = {"Div": 0.0, "JSCP": 0.15, "RendTributado": 0.15}
+
 
 def create_wallet(db: Session, userId: int, name: str) -> Wallet:
     wallet = Wallet(userId=userId, name=name)

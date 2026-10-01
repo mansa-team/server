@@ -84,3 +84,19 @@ class Snapshot(Base):
     profitTwr12mAmount = Column(Numeric(18, 2), nullable=False)
 
     __table_args__ = (UniqueConstraint("walletId", "date", name="uq_snapshots_wallet_date"),)
+
+
+class Earning(Base):
+    __tablename__ = "earnings"
+
+    earningId = Column(Integer, primary_key=True, autoincrement=True)
+    walletId = Column(Integer, ForeignKey("wallets.walletId", ondelete="RESTRICT"), nullable=False, index=True)
+    ticker = Column(String(20), nullable=False, index=True)
+    kind = Column(Enum("Div", "JSCP", "RendTributado", name="earning_kind"), nullable=False)  # type: ignore[var-annotated]
+    exDate = Column(Date, nullable=False)
+    payDate = Column(Date, nullable=False)
+    gross = Column(Numeric(18, 2), nullable=False)
+    netIrAdjusted = Column(Numeric(18, 2), nullable=False)
+    status = Column(Enum("A Receber", "Recebido", name="earning_status"), nullable=False, index=True)  # type: ignore[var-annotated]
+
+    __table_args__ = (UniqueConstraint("walletId", "ticker", "exDate", "kind", name="uq_earnings_accrual"),)
