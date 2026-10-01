@@ -68,9 +68,9 @@ class EntriesManager:
 
         quantity, avg = cls.applyEntries(0.0, 0.0, entries)
         if holding is None:
-            from main.app.wallet import positions as positionsModule
+            from main.app.wallet.positions import PositionsManager
 
-            xangoScore = positionsModule.PositionsManager.fetchXangoScores((ticker,)).get(ticker)
+            xangoScore = PositionsManager.fetchXangoScores((ticker,)).get(ticker)
             holding = Holding(
                 walletId=walletId,
                 assetType=entries[0].assetType,
