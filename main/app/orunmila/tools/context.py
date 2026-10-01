@@ -1,10 +1,10 @@
-from typing import Any
+from typing import Any, Optional
 
 from config import SessionLocal
 from sqlalchemy.orm import Session
 
 
-def popAuthSession(args: dict) -> tuple[Any, Session | None, bool, dict | None]:
+def popAuthSession(args: dict) -> tuple[Any, Optional[Session], bool, Optional[dict]]:
     """Shared auth-guard + own-SessionLocal convention every tool repeats.
 
     Returns (user, db, ownSession, error). When error is not None the caller
@@ -14,13 +14,13 @@ def popAuthSession(args: dict) -> tuple[Any, Session | None, bool, dict | None]:
     user = args.get("user")
     if not user:
         return None, None, False, {"error": "Authentication required"}
-    db: Session | None = args.get("db")
+    db: Optional[Session] = args.get("db")
     ownSession = not db
     if ownSession:
         db = SessionLocal()
     return user, db, ownSession, None
 
 
-def closeOwnSession(db: Session | None, ownSession: bool) -> None:
+def closeOwnSession(db: Optional[Session], ownSession: bool) -> None:
     if ownSession:
         db.close()  # type: ignore[union-attr]

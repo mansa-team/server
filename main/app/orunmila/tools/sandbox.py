@@ -3,7 +3,7 @@ from urllib.parse import quote
 
 from forgevm.exceptions import SandboxNotFound
 
-from main.app.orunmila.sandbox import SandboxManager
+from main.app.orunmila.sandbox import SandboxManager, hostPath
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +84,7 @@ async def serve_file(path: str, **_) -> dict:
     """
     userId = _.get("userId", 0)
     try:
-        host = SandboxManager.hostPath(userId, path)
+        host = hostPath(userId, path)
     except ValueError:
         return {"error": "Invalid workspace path"}
     if not host.exists() or not host.is_file():

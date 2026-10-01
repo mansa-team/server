@@ -1,9 +1,16 @@
 import logging
-from typing import Any
+from typing import Any, Optional
 
 from main.app.orunmila.tools.memory import save_memory, search_memory
 from main.app.orunmila.tools.sandbox import execute_code, list_files, read_file, serve_file, write_file
-from main.app.orunmila.tools.wallet import wallet_allocation, wallet_performance, wallet_positions, wallet_rebalance, wallet_summary, list_wallet_earnings
+from main.app.orunmila.tools.wallet import (
+    wallet_allocation,
+    wallet_performance,
+    wallet_positions,
+    wallet_rebalance,
+    wallet_summary,
+    list_wallet_earnings,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +37,7 @@ async def dispatchToolCall(
     mcpClients,
     user=None,
     db=None,
-    sandbox_id: str | None = None,
+    sandbox_id: Optional[str] = None,
 ) -> dict:
     name = functionCall.name
     args = dict(functionCall.args or {})
