@@ -47,7 +47,7 @@ class Transaction(Base):
 
     entryId = Column(Integer, primary_key=True, autoincrement=True)
     walletId = Column(Integer, ForeignKey("wallets.walletId", ondelete="RESTRICT"), nullable=False, index=True)
-    side = Column(Enum("Compra", "Venda", name="entry_side"), nullable=False)
+    side = Column(Enum("Compra", "Venda", name="entry_side"), nullable=False)  # type: ignore[var-annotated]
     assetType = Column(String(20), nullable=False)
     ticker = Column(String(20), nullable=False, index=True)
     date = Column(Date, nullable=False)
@@ -62,7 +62,7 @@ class Target(Base):
 
     targetId = Column(Integer, primary_key=True, autoincrement=True)
     walletId = Column(Integer, ForeignKey("wallets.walletId", ondelete="RESTRICT"), nullable=False, index=True)
-    keyKind = Column(Enum("ticker", "group", name="target_key_kind"), nullable=False)
+    keyKind = Column(Enum("ticker", "group", name="target_key_kind"), nullable=False)  # type: ignore[var-annotated]
     keyValue = Column(String(40), nullable=False)
     percentIdeal = Column(Numeric(5, 2), nullable=False)
 

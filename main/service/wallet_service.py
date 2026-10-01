@@ -52,7 +52,7 @@ def _get_owned_wallet(db: Session, walletId: int, userId: int):
     wallet = db.query(Wallet).filter(Wallet.walletId == walletId).first()
     if wallet is None:
         raise HTTPException(status_code=404, detail="wallet not found")
-    requireWalletOwnership(wallet.userId, {"userId": userId})
+    requireWalletOwnership(int(wallet.userId), {"userId": userId})
     return wallet
 
 
@@ -91,8 +91,8 @@ def recalc_holding(db: Session, walletId: int, ticker: str) -> Holding | None:
         )
         db.add(holding)
     else:
-        holding.quantity = quantity
-        holding.avgPrice = avg
+        holding.quantity = quantity  # type: ignore[assignment]
+        holding.avgPrice = avg  # type: ignore[assignment]
     return holding
 
 
@@ -138,14 +138,14 @@ def update_entry(db: Session, userId: int, entryId: int, patch: EntryUpdate) -> 
     entry = db.query(Transaction).filter(Transaction.entryId == entryId).first()
     if entry is None:
         raise HTTPException(status_code=404, detail="entry not found")
-    _get_owned_wallet(db, entry.walletId, userId)
+    _get_owned_wallet(db, int(entry.walletId), userId)
     changes = patch.model_dump(exclude_unset=True)
     for fieldName, fieldValue in changes.items():
         if fieldValue is not None:
             setattr(entry, fieldName, fieldValue)
     db.flush()
     try:
-        holding = recalc_holding(db, entry.walletId, entry.ticker)
+        holding = recalc_holding(db, int(entry.walletId), str(entry.ticker))
     except HTTPException:
         db.rollback()
         raise
@@ -160,13 +160,13 @@ def delete_entry(db: Session, userId: int, entryId: int) -> tuple[int, Holding |
     entry = db.query(Transaction).filter(Transaction.entryId == entryId).first()
     if entry is None:
         raise HTTPException(status_code=404, detail="entry not found")
-    _get_owned_wallet(db, entry.walletId, userId)
+    _get_owned_wallet(db, int(entry.walletId), userId)
     walletId = entry.walletId
     ticker = entry.ticker
     db.delete(entry)
     db.flush()
     try:
-        holding = recalc_holding(db, walletId, ticker)
+        holding = recalc_holding(db, int(walletId), str(ticker))
     except HTTPException:
         db.rollback()
         raise
@@ -194,7 +194,7 @@ def fetchLivePrices(tickers: list[str]) -> dict[str, float | None]:
         try:
             resp = requests.get(
                 f"{stocksApiBase()}/stocks/cotations/live",
-                params={"search": ticker, "compact": False},
+                params={"search": ticker, "compact": False},  # type: ignore[arg-type]
                 headers=stocksApiHeaders(),
                 timeout=STOCKS_TIMEOUT,
             )
@@ -234,7 +234,7 @@ def fetchCachedClose(ticker: str) -> float | None:
 def get_positions(db: Session, walletId: int, userId: int) -> dict:
     _get_owned_wallet(db, walletId, userId)
     holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
-    tickers = [holding.ticker for holding in holdings]
+    tickers = [str(holding.ticker) for holding in holdings]
     prices = fetchLivePrices(tickers)
     for ticker, price in list(prices.items()):
         if price is None:
@@ -243,18 +243,18 @@ def get_positions(db: Session, walletId: int, userId: int) -> dict:
     for holding in holdings:
         holdingQuantity = float(holding.quantity)
         holdingAvg = float(holding.avgPrice)
-        price = prices.get(holding.ticker)
+        price = prices.get(str(holding.ticker))
         if price is None:
-            equities[holding.ticker] = None
+            equities[str(holding.ticker)] = None
         else:
-            equities[holding.ticker] = holdingQuantity * price
+            equities[str(holding.ticker)] = holdingQuantity * price
     equityTotal = sum(equity for equity in equities.values() if equity is not None)
     items = []
     for holding in holdings:
         holdingQuantity = float(holding.quantity)
         holdingAvg = float(holding.avgPrice)
-        price = prices.get(holding.ticker)
-        equity = equities[holding.ticker]
+        price = prices.get(str(holding.ticker))
+        equity = equities[str(holding.ticker)]
         if price is None or equity is None:
             currentPrice = None
             equityValue = None
@@ -307,14 +307,14 @@ def get_summary(db: Session, walletId: int, userId: int) -> dict:
     wallet = _get_owned_wallet(db, walletId, userId)
     holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
     applied = sum(float(holding.quantity) * float(holding.avgPrice) for holding in holdings)
-    tickers = [holding.ticker for holding in holdings]
+    tickers = [str(holding.ticker) for holding in holdings]
     prices = fetchLivePrices(tickers)
     for ticker, price in list(prices.items()):
         if price is None:
             prices[ticker] = fetchCachedClose(ticker)
     equity = 0.0
     for holding in holdings:
-        price = prices.get(holding.ticker)
+        price = prices.get(str(holding.ticker))
         if price is not None:
             equity += float(holding.quantity) * price
     variation = equity - applied
@@ -334,13 +334,13 @@ def get_summary(db: Session, walletId: int, userId: int) -> dict:
         )
         db.add(snapshot)
     else:
-        snapshot.applied = applied
-        snapshot.equity = equity
-        snapshot.variation = variation
-        snapshot.profitTwr = None
-        snapshot.profitAmount = variation
-        snapshot.profitTwr12m = None
-        snapshot.profitTwr12mAmount = variation
+        snapshot.applied = applied  # type: ignore[assignment]
+        snapshot.equity = equity  # type: ignore[assignment]
+        snapshot.variation = variation  # type: ignore[assignment]
+        snapshot.profitTwr = None  # type: ignore[assignment]
+        snapshot.profitAmount = variation  # type: ignore[assignment]
+        snapshot.profitTwr12m = None  # type: ignore[assignment]
+        snapshot.profitTwr12mAmount = variation  # type: ignore[assignment]
     wallet.lastRecalc = datetime.now()
     db.commit()
     return {
@@ -357,16 +357,16 @@ def get_summary(db: Session, walletId: int, userId: int) -> dict:
 def get_allocation(db: Session, walletId: int, userId: int, groupBy: str) -> dict:
     _get_owned_wallet(db, walletId, userId)
     holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
-    tickers = [holding.ticker for holding in holdings]
+    tickers = [str(holding.ticker) for holding in holdings]
     prices = fetchLivePrices(tickers)
     for ticker, price in list(prices.items()):
         if price is None:
             prices[ticker] = fetchCachedClose(ticker)
     groupEquity: dict[str, float] = {}
     for holding in holdings:
-        price = prices.get(holding.ticker)
+        price = prices.get(str(holding.ticker))
         holdingEquity = float(holding.quantity) * price if price is not None else 0.0
-        groupKey = holding.ticker if groupBy == "ticker" else holding.assetType
+        groupKey = str(holding.ticker) if groupBy == "ticker" else str(holding.assetType)
         groupEquity[groupKey] = groupEquity.get(groupKey, 0.0) + holdingEquity
     equityTotal = sum(groupEquity.values())
     items = [
@@ -400,7 +400,7 @@ def upsert_target(db: Session, userId: int, data: TargetUpsert) -> Target:
         )
         db.add(target)
     else:
-        target.percentIdeal = data.percent_ideal
+        target.percentIdeal = data.percent_ideal  # type: ignore[assignment]
     db.commit()
     db.refresh(target)
     return target
@@ -411,7 +411,7 @@ def set_rating(db: Session, userId: int, data: RatingUpsert) -> Holding:
     holding = db.query(Holding).filter(Holding.walletId == data.wallet_id, Holding.ticker == data.ticker).first()
     if holding is None:
         raise HTTPException(status_code=404, detail="holding not found")
-    holding.rating = data.rating
+    holding.rating = data.rating  # type: ignore[assignment]
     db.commit()
     db.refresh(holding)
     return holding
