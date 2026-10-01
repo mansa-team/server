@@ -10,7 +10,6 @@ from main.app.authentication.constants import SESSION_EXPIRY_DAYS
 from main.utils.service_manager import getApp
 from main.utils.scheduler import registerJob
 from main.controller.user_controller import router as userRouter
-from main.controller.wallet_controller import router as walletRouter
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +44,6 @@ class UserService:
     def initialize(port: int):
         service = getApp(port)
         service.include_router(userRouter)
-        service.include_router(walletRouter)
 
         registerJob(
             removeInactiveSessions,

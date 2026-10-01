@@ -1,0 +1,107 @@
+import logging
+import os
+from concurrent.futures import ThreadPoolExecutor
+from datetime import date as dateType
+from datetime import datetime
+
+import requests
+
+from config import Config
+
+logger = logging.getLogger(__name__)
+
+STOCKS_TIMEOUT = 3
+
+
+def stocksApiBase() -> str:
+    return f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}"
+
+
+def stocksApiHeaders() -> dict:
+    key = os.getenv("STOCKS_API_KEY", "")
+    return {"X-API-Key": key} if key else {}
+
+
+def fetchLivePrices(tickers: list[str]) -> dict[str, float | None]:
+    if not tickers:
+        return {}
+
+    def one(ticker: str) -> tuple[str, float | None]:
+        try:
+            resp = requests.get(
+                f"{stocksApiBase()}/stocks/cotations/live",
+                params={"search": ticker, "compact": False},  # type: ignore[arg-type]
+                headers=stocksApiHeaders(),
+                timeout=STOCKS_TIMEOUT,
+            )
+            if resp.status_code == 429:
+                logger.warning("Live price quota exhausted for %s", ticker)
+                return ticker, None
+            if resp.status_code != 200:
+                return ticker, None
+            return ticker, float(resp.json()["data"][0]["PRECO ATUAL"])
+        except Exception:
+            return ticker, None
+
+    with ThreadPoolExecutor(max_workers=min(8, max(1, len(tickers)))) as pool:
+        return dict(pool.map(one, tickers))
+
+
+def fetchCachedClose(ticker: str) -> float | None:
+    try:
+        resp = requests.get(
+            f"{stocksApiBase()}/stocks/cotations",
+            params={"search": ticker},
+            headers=stocksApiHeaders(),
+            timeout=STOCKS_TIMEOUT,
+        )
+        if resp.status_code == 429:
+            logger.warning("Cached close quota exhausted for %s", ticker)
+            return None
+        if resp.status_code != 200:
+            return None
+        rows = resp.json()["data"]
+        latest = max(rows, key=lambda row: datetime.strptime(row["DATA"], "%d-%m-%Y"))
+        return float(latest["PRECO"])
+    except Exception:
+        return None
+
+
+def fetchMarketDividends(ticker: str) -> list[dict]:
+    try:
+        resp = requests.get(
+            f"{stocksApiBase()}/stocks/fundamental",
+            params={"search": ticker, "fields": "HISTORICO DIVIDENDOS"},  # type: ignore[arg-type]
+            headers=stocksApiHeaders(),
+            timeout=STOCKS_TIMEOUT,
+        )
+        if resp.status_code != 200:
+            return []
+        payload = resp.json()["data"]
+        if payload and isinstance(payload[0], dict) and "HISTORICO DIVIDENDOS" in payload[0]:
+            return payload[0]["HISTORICO DIVIDENDOS"]
+        return payload
+    except Exception:
+        return []
+
+
+def fetchPadraoCloses(ticker: str) -> list[tuple[dateType, float]]:
+    try:
+        resp = requests.get(
+            f"{stocksApiBase()}/stocks/cotations",
+            params={"search": ticker},
+            headers=stocksApiHeaders(),
+            timeout=STOCKS_TIMEOUT,
+        )
+        if resp.status_code != 200:
+            return []
+        parsedCloses: list[tuple[dateType, float]] = []
+        for closeRow in resp.json()["data"]:
+            try:
+                parsedCloses.append((datetime.strptime(closeRow["DATA"], "%d-%m-%Y").date(), float(closeRow["PRECO"])))
+            except Exception:
+                continue
+        parsedCloses.sort(key=lambda closeItem: closeItem[0])
+        return parsedCloses
+    except Exception:
+        return []
