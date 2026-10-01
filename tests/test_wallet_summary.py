@@ -80,4 +80,6 @@ def test_targets_drive_buy_flag_and_ratings_gate(dbSession, monkeypatch):
         client.put("/wallet/ratings", json={"wallet_id": walletId, "ticker": "PETR4", "rating": 11}).status_code == 422
     )
     item = client.get(f"/wallet/positions?wallet_id={walletId}").json()["items"][0]
-    assert item["percent_ideal"] == 80.0 and item["buy_flag"] is True
+    # P3-1 scale fix: 100% held vs 80% ideal is overweight → no buy
+    # (old P1 rule compared fraction 1.0 < 80.0, nearly-always-True).
+    assert item["percent_ideal"] == 80.0 and item["buy_flag"] is False
