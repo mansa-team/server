@@ -1,7 +1,8 @@
 from config import SessionLocal
 import asyncio
 import logging
-from typing import Any
+from datetime import date as dateType
+from typing import Any, Optional
 from urllib.parse import quote
 
 from fastapi import HTTPException
@@ -178,21 +179,18 @@ async def serve_file(path: str, **_) -> dict:
 
 
 #
-# wallet narration (read-only)
+# wallet
 #
-async def narrate_positions(wallet_id: int, **_) -> dict:
-    """Narrate the user's wallet positions in plain language.
+async def get_wallet_positions(wallet_id: int, **_) -> dict:
+    """List wallet holdings with live prices, equity, allocation, and buy signals.
 
-    Read-only summary of holdings, allocation vs targets, buy signals,
-    and pending earnings. Never mutates wallet state.
+    Read-only: never mutates wallet state.
 
     Args:
-        wallet_id: Wallet to narrate (must belong to the caller)
+        wallet_id: Wallet to inspect (must belong to the caller)
     """
-    from main.app.wallet.wallets import getWallet
     from main.app.wallet.positions import getPositions
-    from main.app.wallet.summary import getSummary
-    from main.app.wallet.earnings import listEarnings
+    from main.app.wallet.wallets import getWallet
 
     user = _.get("user")
     if not user:
@@ -212,34 +210,241 @@ async def narrate_positions(wallet_id: int, **_) -> dict:
             )
         except HTTPException:
             return {"error": "not-owner"}
-        positionsView = getPositions(
+        return getPositions(
             db,  # type: ignore[arg-type]
             wallet_id,
             userId,
         )
-        summaryView = getSummary(
-            db,  # type: ignore[arg-type]
-            wallet_id,
-            userId,
-        )
+    finally:
+        if ownSession:
+            db.close()  # type: ignore[union-attr]
+
+
+async def get_wallet_summary(wallet_id: int, **_) -> dict:
+    """Summarize applied capital, equity, and variation for a wallet.
+
+    Read-only: never mutates wallet state.
+
+    Args:
+        wallet_id: Wallet to summarize (must belong to the caller)
+    """
+    from main.app.wallet.summary import getSummary
+    from main.app.wallet.wallets import getWallet
+
+    user = _.get("user")
+    if not user:
+        return {"error": "Authentication required"}
+
+    db: Session | None = _.get("db")
+    ownSession = not db
+    if ownSession:
+        db = SessionLocal()
+    try:
+        userId = user["userId"]
         try:
-            pendingCount = len(
-                listEarnings(
-                    db,  # type: ignore[arg-type]
-                    wallet_id,
-                    userId,
-                    status="A Receber",
-                )
+            getWallet(
+                db,  # type: ignore[arg-type]
+                wallet_id,
+                userId,
             )
-        except Exception:
-            pendingCount = 0
+        except HTTPException:
+            return {"error": "not-owner"}
+        return getSummary(
+            db,  # type: ignore[arg-type]
+            wallet_id,
+            userId,
+        )
+    finally:
+        if ownSession:
+            db.close()  # type: ignore[union-attr]
+
+
+async def get_wallet_allocation(wallet_id: int, group_by: str = "ticker", **_) -> dict:
+    """Break wallet equity down by ticker or asset type.
+
+    Read-only: never mutates wallet state.
+
+    Args:
+        wallet_id: Wallet to inspect (must belong to the caller)
+        group_by: Grouping key — "ticker" or "assetType" (default "ticker")
+    """
+    from main.app.wallet.summary import getAllocation
+    from main.app.wallet.wallets import getWallet
+
+    user = _.get("user")
+    if not user:
+        return {"error": "Authentication required"}
+
+    db: Session | None = _.get("db")
+    ownSession = not db
+    if ownSession:
+        db = SessionLocal()
+    try:
+        userId = user["userId"]
+        try:
+            getWallet(
+                db,  # type: ignore[arg-type]
+                wallet_id,
+                userId,
+            )
+        except HTTPException:
+            return {"error": "not-owner"}
+        return getAllocation(
+            db,  # type: ignore[arg-type]
+            wallet_id,
+            userId,
+            group_by,
+        )
+    finally:
+        if ownSession:
+            db.close()  # type: ignore[union-attr]
+
+
+async def list_wallet_earnings(wallet_id: int, status: Optional[str] = "A Receber", **_) -> dict:
+    """List accrued earnings (dividends, JSCP) for a wallet.
+
+    Read-only: never mutates wallet state.
+
+    Args:
+        wallet_id: Wallet to inspect (must belong to the caller)
+        status: Filter by status — "A Receber", "Recebido", or None for all (default "A Receber")
+    """
+    from main.app.wallet.earnings import listEarnings
+    from main.app.wallet.wallets import getWallet
+
+    user = _.get("user")
+    if not user:
+        return {"error": "Authentication required"}
+
+    db: Session | None = _.get("db")
+    ownSession = not db
+    if ownSession:
+        db = SessionLocal()
+    try:
+        userId = user["userId"]
+        try:
+            getWallet(
+                db,  # type: ignore[arg-type]
+                wallet_id,
+                userId,
+            )
+        except HTTPException:
+            return {"error": "not-owner"}
+        rows = listEarnings(
+            db,  # type: ignore[arg-type]
+            wallet_id,
+            userId,
+            status=status,
+        )
         return {
             "wallet_id": wallet_id,
-            "language": user.get("language", "pt-BR"),
-            "positions": positionsView.get("items", []),
-            "summary": summaryView,
-            "pending_earnings": pendingCount,
+            "status": status,
+            "earnings": [
+                {
+                    "earning_id": int(row.earningId),
+                    "ticker": str(row.ticker),
+                    "kind": str(row.kind),
+                    "ex_date": str(row.exDate),
+                    "pay_date": str(row.payDate),
+                    "gross": float(row.gross),
+                    "net": float(row.netIrAdjusted),
+                    "status": str(row.status),
+                }
+                for row in rows
+            ],
         }
+    finally:
+        if ownSession:
+            db.close()  # type: ignore[union-attr]
+
+
+async def get_wallet_performance(
+    wallet_id: int, from_date: str, to_date: str, ticker: Optional[str] = None, **_
+) -> dict:
+    """Compute time-weighted return, volatility, and dividends for a wallet or ticker.
+
+    Read-only: never mutates wallet state.
+
+    Args:
+        wallet_id: Wallet to inspect (must belong to the caller)
+        from_date: Window start as YYYY-MM-DD
+        to_date: Window end as YYYY-MM-DD
+        ticker: Optional single ticker; omit for the whole wallet
+    """
+    from main.app.wallet.performance import getPerformance
+    from main.app.wallet.wallets import getWallet
+
+    user = _.get("user")
+    if not user:
+        return {"error": "Authentication required"}
+
+    try:
+        startDate = dateType.fromisoformat(from_date)
+        endDate = dateType.fromisoformat(to_date)
+    except ValueError:
+        return {"error": "invalid date, use YYYY-MM-DD"}
+
+    db: Session | None = _.get("db")
+    ownSession = not db
+    if ownSession:
+        db = SessionLocal()
+    try:
+        userId = user["userId"]
+        try:
+            getWallet(
+                db,  # type: ignore[arg-type]
+                wallet_id,
+                userId,
+            )
+        except HTTPException:
+            return {"error": "not-owner"}
+        return getPerformance(
+            db,  # type: ignore[arg-type]
+            wallet_id,
+            userId,
+            ticker,
+            startDate,
+            endDate,
+        )
+    finally:
+        if ownSession:
+            db.close()  # type: ignore[union-attr]
+
+
+async def get_wallet_rebalance(wallet_id: int, **_) -> dict:
+    """Show weight-share rebalance deltas per ticker (buy/sell/hold).
+
+    Read-only: never mutates wallet state.
+
+    Args:
+        wallet_id: Wallet to inspect (must belong to the caller)
+    """
+    from main.app.wallet.positions import getRebalance
+    from main.app.wallet.wallets import getWallet
+
+    user = _.get("user")
+    if not user:
+        return {"error": "Authentication required"}
+
+    db: Session | None = _.get("db")
+    ownSession = not db
+    if ownSession:
+        db = SessionLocal()
+    try:
+        userId = user["userId"]
+        try:
+            getWallet(
+                db,  # type: ignore[arg-type]
+                wallet_id,
+                userId,
+            )
+        except HTTPException:
+            return {"error": "not-owner"}
+        return getRebalance(
+            db,  # type: ignore[arg-type]
+            wallet_id,
+            userId,
+        )
     finally:
         if ownSession:
             db.close()  # type: ignore[union-attr]
@@ -253,7 +458,12 @@ TOOL_REGISTRY: dict[str, Any] = {
     "write_file": write_file,
     "list_files": list_files,
     "serve_file": serve_file,
-    "narrate_positions": narrate_positions,
+    "get_wallet_positions": get_wallet_positions,
+    "get_wallet_summary": get_wallet_summary,
+    "get_wallet_allocation": get_wallet_allocation,
+    "list_wallet_earnings": list_wallet_earnings,
+    "get_wallet_performance": get_wallet_performance,
+    "get_wallet_rebalance": get_wallet_rebalance,
 }
 
 
