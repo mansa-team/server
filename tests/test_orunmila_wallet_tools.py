@@ -21,6 +21,16 @@ WALLET_TOOLS = [
 ]
 
 
+@pytest.fixture(autouse=True)
+async def clear_cashews_cache():
+    from cashews import cache as cashewsCache
+
+    cashewsCache.setup("mem://")
+    await cashewsCache.clear()
+    yield
+    await cashewsCache.clear()
+
+
 def test_wallet_tools_registered_and_read_only(dbSession):
     assert len(TOOL_REGISTRY) == 13
     for name in WALLET_TOOLS:

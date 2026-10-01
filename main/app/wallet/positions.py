@@ -1,27 +1,30 @@
 import logging
 import os
-from functools import lru_cache
 
 import requests
+from cashews import cache as cashewsCache
 from sqlalchemy.orm import Session
 
 from config import Config
+from main.app.stocks_api.sync_cache import cache as walletCache
 from main.app.wallet.market_data import MarketDataManager
 from main.app.wallet.wallets import WalletsManager
 from main.models.wallet import Holding, Target
 
 logger = logging.getLogger(__name__)
 
+cashewsCache.setup("mem://")
+
 
 class PositionsManager:
     @classmethod
-    @lru_cache(maxsize=1024)
+    @walletCache(ttl="6h", key="wallet:xango:{tickers}")
     def fetchXangoScores(cls, tickers: tuple[str, ...]) -> dict[str, float | None]:
         """XANGO quality score per ticker (0-100 scale).
 
         One fundamental read per ticker; any per-ticker failure degrades to
         None and scoreBuyFlag redistributes the xango weight over the other
-        inputs (flag degrades, never fails). Shared lru_cache is the
+        inputs (flag degrades, never fails). Shared cashews entry is the
         freshness story; no staleness gate beyond it, YAGNI.
         """
         scores: dict[str, float | None] = {}
@@ -55,7 +58,6 @@ class PositionsManager:
     def pricePass(
         cls, db: Session, walletId: int, userId: int
     ) -> tuple[list[Holding], dict[str, float | None], dict[str, float | None], float]:
-        """Shared live-price/equity pass for positions + rebalance (single source, no duplication)."""
         WalletsManager.getWallet(db, walletId, userId)
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
 
@@ -63,7 +65,8 @@ class PositionsManager:
         prices = MarketDataManager.fetchLivePrices(tickers)
         for ticker, price in list(prices.items()):
             if price is None:
-                prices[ticker] = MarketDataManager.fetchCachedClose(ticker)
+                closes = MarketDataManager.fetchPadraoCloses(ticker)
+                prices[ticker] = closes[-1][1] if closes else None
 
         equities: dict[str, float | None] = {}
         for holding in holdings:

@@ -1,7 +1,9 @@
+import asyncio
 import hashlib
 
 import pytest
 import requests
+from cashews import cache as cashewsCache
 
 import main.models.wallet  # noqa: F401
 from main.app.wallet.positions import PositionsManager
@@ -10,6 +12,14 @@ from tests.conftest import make_wallet_client
 from tests.test_wallet_positions import _live_ok
 
 RATINGS_ROUTE_DIGEST = "3a050b055866190a8142ddaca2ce916efd864d31496d90b959043c4ba484e334"
+
+
+@pytest.fixture(autouse=True)
+async def clear_cashews_cache():
+    cashewsCache.setup("mem://")
+    await cashewsCache.clear()
+    yield
+    await cashewsCache.clear()
 
 
 def _live_two(url, params=None, headers=None, timeout=None):
@@ -209,7 +219,6 @@ def test_ratings_accept_zero_to_hundred(dbSession, monkeypatch):
 
 
 def test_fetch_xango_scores_parses_fundamental(monkeypatch):
-    PositionsManager.fetchXangoScores.cache_clear()
 
     def fundamental_ok(url, params=None, headers=None, timeout=None):
         assert url.endswith("/stocks/fundamental")
@@ -230,10 +239,9 @@ def test_fetch_xango_scores_parses_fundamental(monkeypatch):
 
     monkeypatch.setattr(requests, "get", fundamental_ok)
     assert PositionsManager.fetchXangoScores(("PETR4",)) == {"PETR4": 80.0}
-    PositionsManager.fetchXangoScores.cache_clear()
+    asyncio.run(cashewsCache.clear())
     monkeypatch.setattr(requests, "get", boom)
     assert PositionsManager.fetchXangoScores(("PETR4",)) == {"PETR4": None}
-    PositionsManager.fetchXangoScores.cache_clear()
 
 
 def test_ratings_route_untouched():

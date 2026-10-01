@@ -1,5 +1,17 @@
+import pytest
+
 import main.models.wallet  # noqa: F401
 from tests.conftest import make_wallet_client
+
+
+@pytest.fixture(autouse=True)
+async def clear_cashews_cache():
+    from cashews import cache as cashewsCache
+
+    cashewsCache.setup("mem://")
+    await cashewsCache.clear()
+    yield
+    await cashewsCache.clear()
 
 
 def test_compra_average_includes_costs(dbSession):

@@ -8,6 +8,16 @@ from main.models.wallet import Earning
 from tests.conftest import make_wallet_client
 
 
+@pytest.fixture(autouse=True)
+async def clear_cashews_cache():
+    from cashews import cache as cashewsCache
+
+    cashewsCache.setup("mem://")
+    await cashewsCache.clear()
+    yield
+    await cashewsCache.clear()
+
+
 def _flat_series_with_one_div(url, params=None, headers=None, timeout=None):
     class Resp:
         status_code = 200

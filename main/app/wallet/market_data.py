@@ -6,13 +6,19 @@ from datetime import datetime
 
 import requests
 
+from cashews import cache as cashewsCache
+
 from config import Config
+from main.app.stocks_api.sync_cache import cache as walletCache
 
 logger = logging.getLogger(__name__)
+
+cashewsCache.setup("mem://")
 
 
 class MarketDataManager:
     @classmethod
+    @walletCache(ttl="15s", key="wallet:live:{tickers}")
     def fetchLivePrices(cls, tickers: list[str]) -> dict[str, float | None]:
         if not tickers:
             return {}
@@ -39,27 +45,6 @@ class MarketDataManager:
             return dict(pool.map(one, tickers))
 
     @classmethod
-    def fetchCachedClose(cls, ticker: str) -> float | None:
-        try:
-            key = os.getenv("STOCKS_API_KEY", "")
-            resp = requests.get(
-                f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/cotations",
-                params={"search": ticker},
-                headers={"X-API-Key": key} if key else {},
-                timeout=3,
-            )
-            if resp.status_code == 429:
-                logger.warning("Cached close quota exhausted for %s", ticker)
-                return None
-            if resp.status_code != 200:
-                return None
-            rows = resp.json()["data"]
-            latest = max(rows, key=lambda row: datetime.strptime(row["DATA"], "%d-%m-%Y"))
-            return float(latest["PRECO"])
-        except Exception:
-            return None
-
-    @classmethod
     def fetchMarketDividends(cls, ticker: str) -> list[dict]:
         try:
             key = os.getenv("STOCKS_API_KEY", "")
@@ -79,6 +64,7 @@ class MarketDataManager:
             return []
 
     @classmethod
+    @walletCache(ttl="6h", key="wallet:closes:{ticker}")
     def fetchPadraoCloses(cls, ticker: str) -> list[tuple[dateType, float]]:
         try:
             key = os.getenv("STOCKS_API_KEY", "")

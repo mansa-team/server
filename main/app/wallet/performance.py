@@ -1,12 +1,13 @@
 import logging
 from datetime import date as dateType
-from functools import lru_cache
 from math import sqrt
 from statistics import stdev
 from types import SimpleNamespace
 
+from cashews import cache as cashewsCache
 from sqlalchemy.orm import Session
 
+from main.app.stocks_api.sync_cache import cache as walletCache
 from main.app.wallet.entries import EntriesManager
 from main.app.wallet.market_data import MarketDataManager
 from main.app.wallet.wallets import WalletsManager
@@ -14,12 +15,17 @@ from main.models.wallet import Earning, Transaction
 
 logger = logging.getLogger(__name__)
 
+cashewsCache.setup("mem://")
+
 PERFORMANCE_EPOCH = "1970-01-01T00:00:00"
 
 
 class PerformanceManager:
     @classmethod
-    @lru_cache(maxsize=1024)
+    @walletCache(
+        ttl="6h",
+        key="wallet:performance:{walletId}:{tickerKey}:{fromIso}:{toIso}:{recalcKey}:{entriesSnap}:{earningsSnap}",
+    )
     def cachedPerformance(
         cls,
         walletId: int,

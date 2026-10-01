@@ -1,4 +1,5 @@
 import asyncio
+import concurrent.futures
 import inspect
 from functools import wraps
 from typing import Any, Callable, TypeVar
@@ -27,7 +28,12 @@ def cache(ttl: str, key: str) -> Callable[[F], F]:
                 await cashews.cache.set(cache_key, result, expire=ttl)
                 return result
 
-            return asyncio.run(cachedCall())
+            try:
+                asyncio.get_running_loop()
+            except RuntimeError:
+                return asyncio.run(cachedCall())
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+                return pool.submit(lambda: asyncio.run(cachedCall())).result()
 
         return wrapper  # type: ignore[return-value]
 

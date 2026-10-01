@@ -38,7 +38,8 @@ class SummaryManager:
 
         for ticker, price in list(prices.items()):
             if price is None:
-                prices[ticker] = MarketDataManager.fetchCachedClose(ticker)
+                closes = MarketDataManager.fetchPadraoCloses(ticker)
+                prices[ticker] = closes[-1][1] if closes else None
 
         equity = 0.0
         for holding in holdings:
@@ -95,7 +96,8 @@ class SummaryManager:
         prices = MarketDataManager.fetchLivePrices(tickers)
         for ticker, price in list(prices.items()):
             if price is None:
-                prices[ticker] = MarketDataManager.fetchCachedClose(ticker)
+                closes = MarketDataManager.fetchPadraoCloses(ticker)
+                prices[ticker] = closes[-1][1] if closes else None
 
         groupEquity: dict[str, float] = {}
         for holding in holdings:
