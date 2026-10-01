@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from main.app.wallet.wallets import getOwnedWallet
+from main.app.wallet.wallets import getWallet
 from main.models.wallet import Holding, Transaction
 
 logger = logging.getLogger(__name__)
@@ -79,7 +79,7 @@ def recalcHolding(db: Session, walletId: int, ticker: str) -> Holding | None:
 
 
 def addEntry(db: Session, userId: int, data: EntryCreate) -> tuple[Transaction, Holding | None]:
-    getOwnedWallet(db, data.wallet_id, userId)
+    getWallet(db, data.wallet_id, userId)
     if data.side == "Venda":
         holding = db.query(Holding).filter(Holding.walletId == data.wallet_id, Holding.ticker == data.ticker).first()
         if holding is None or data.quantity > float(holding.quantity):
@@ -113,7 +113,7 @@ def addEntry(db: Session, userId: int, data: EntryCreate) -> tuple[Transaction, 
 def listEntries(
     db: Session, userId: int, walletId: int, ticker: str | None = None, limit: int = 20, offset: int = 0
 ) -> tuple[int, list[Transaction]]:
-    getOwnedWallet(db, walletId, userId)
+    getWallet(db, walletId, userId)
     query = db.query(Transaction).filter(Transaction.walletId == walletId)
 
     if ticker is not None:
@@ -131,7 +131,7 @@ def updateEntry(db: Session, userId: int, entryId: int, patch: EntryUpdate) -> t
     if entry is None:
         raise HTTPException(status_code=404, detail="entry not found")
 
-    getOwnedWallet(db, int(entry.walletId), userId)
+    getWallet(db, int(entry.walletId), userId)
 
     changes = patch.model_dump(exclude_unset=True)
     for fieldName, fieldValue in changes.items():
@@ -161,7 +161,7 @@ def deleteEntry(db: Session, userId: int, entryId: int) -> tuple[int, Holding | 
     if entry is None:
         raise HTTPException(status_code=404, detail="entry not found")
 
-    getOwnedWallet(db, int(entry.walletId), userId)
+    getWallet(db, int(entry.walletId), userId)
 
     walletId = entry.walletId
     ticker = entry.ticker

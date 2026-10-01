@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from main.app.wallet.entries import positionAtDate
 from main.app.wallet.market_data import fetchMarketDividends
-from main.app.wallet.wallets import getOwnedWallet
+from main.app.wallet.wallets import getWallet
 from main.models.wallet import Earning, Holding, Transaction
 
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ TIPO_MAP = {
 
 
 def syncEarnings(db: Session, walletId: int, userId: int) -> dict:
-    getOwnedWallet(db, walletId, userId)
+    getWallet(db, walletId, userId)
 
     today = dateType.today()
     accrued = 0
@@ -89,21 +89,26 @@ def syncEarnings(db: Session, walletId: int, userId: int) -> dict:
             )
 
             db.add(earning)
-            
+
             accrued += 1
     transitioned = 0
+
     pending = db.query(Earning).filter(Earning.walletId == walletId, Earning.status == "A Receber").all()
     for earning in pending:
         if str(earning.payDate) <= today.isoformat():
             earning.status = "Recebido"  # type: ignore[assignment]
             transitioned += 1
+
     db.commit()
+
     return {"accrued": accrued, "transitioned": transitioned, "skipped_unknown": skippedUnknown}
 
 
 def listEarnings(db: Session, walletId: int, userId: int, status: str | None = None) -> list[Earning]:
-    getOwnedWallet(db, walletId, userId)
+    getWallet(db, walletId, userId)
     query = db.query(Earning).filter(Earning.walletId == walletId)
+
     if status is not None:
         query = query.filter(Earning.status == status)
+
     return query.order_by(Earning.exDate, Earning.earningId).all()

@@ -4,7 +4,7 @@ from functools import lru_cache
 from sqlalchemy.orm import Session
 
 from main.app.wallet.market_data import fetchCachedClose, fetchLivePrices
-from main.app.wallet.wallets import getOwnedWallet
+from main.app.wallet.wallets import getWallet
 from main.models.wallet import Holding, Target
 
 logger = logging.getLogger(__name__)
@@ -77,7 +77,7 @@ def scoreBuyFlag(
 
 
 def getPositions(db: Session, walletId: int, userId: int) -> dict:
-    getOwnedWallet(db, walletId, userId)
+    getWallet(db, walletId, userId)
     holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
 
     tickers = [str(holding.ticker) for holding in holdings]

@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from main.app.wallet.market_data import fetchCachedClose, fetchLivePrices
-from main.app.wallet.wallets import getOwnedWallet
+from main.app.wallet.wallets import getWallet
 from main.models.wallet import Holding, Snapshot, Target
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ class RatingUpsert(BaseModel):
 
 
 def getSummary(db: Session, walletId: int, userId: int) -> dict:
-    wallet = getOwnedWallet(db, walletId, userId)
+    wallet = getWallet(db, walletId, userId)
     holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
     applied = sum(float(holding.quantity) * float(holding.avgPrice) for holding in holdings)
     tickers = [str(holding.ticker) for holding in holdings]
@@ -86,7 +86,7 @@ def getSummary(db: Session, walletId: int, userId: int) -> dict:
 
 
 def getAllocation(db: Session, walletId: int, userId: int, groupBy: str) -> dict:
-    getOwnedWallet(db, walletId, userId)
+    getWallet(db, walletId, userId)
     holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
 
     tickers = [str(holding.ticker) for holding in holdings]
@@ -116,7 +116,7 @@ def getAllocation(db: Session, walletId: int, userId: int, groupBy: str) -> dict
 
 
 def upsertTarget(db: Session, userId: int, data: TargetUpsert) -> Target:
-    getOwnedWallet(db, data.wallet_id, userId)
+    getWallet(db, data.wallet_id, userId)
     target = (
         db.query(Target)
         .filter(
@@ -145,7 +145,7 @@ def upsertTarget(db: Session, userId: int, data: TargetUpsert) -> Target:
 
 
 def set_rating(db: Session, userId: int, data: RatingUpsert) -> Holding:
-    getOwnedWallet(db, data.wallet_id, userId)
+    getWallet(db, data.wallet_id, userId)
     holding = db.query(Holding).filter(Holding.walletId == data.wallet_id, Holding.ticker == data.ticker).first()
 
     if holding is None:

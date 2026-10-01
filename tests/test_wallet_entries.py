@@ -112,7 +112,7 @@ def test_edit_replays_holding_from_ledger(dbSession):
     assert resp.json()["holding"] == {"ticker": "PETR4", "quantity": 30.0, "avgPrice": 13.5}
 
 
-def test_cross_user_wallet_returns_403(dbSession):
+def test_cross_user_wallet_returns_404(dbSession):
     from main.models.wallet import Wallet
 
     dbSession.add(Wallet(userId=2, name="Theirs"))
@@ -130,4 +130,4 @@ def test_cross_user_wallet_returns_403(dbSession):
             "price": 1.0,
         },
     )
-    assert resp.status_code == 403
+    assert resp.status_code == 404

@@ -8,8 +8,9 @@ from sqlalchemy.orm import Session
 from typing import Literal
 
 from config import getSession
-from main.app.wallet.auth import requireWalletUser
-from main.app.wallet import wallet_service
+from main.app.wallet import earnings, entries, performance, positions, summary, wallets
+from main.app.wallet.entries import EntryCreate, EntryUpdate
+from main.app.wallet.summary import RatingUpsert, TargetUpsert
 
 logger = logging.getLogger(__name__)
 
@@ -23,21 +24,21 @@ class WalletCreate(BaseModel):
 @router.post("/wallets", response_class=ORJSONResponse, status_code=201)
 def create_wallet_route(
     payload: WalletCreate,
-    user: dict = Depends(requireWalletUser),
+    userId: int,
     db: Session = Depends(getSession),
 ):
-    wallet = wallet_service.createWallet(db, user["userId"], payload.name)
+    wallet = wallets.createWallet(db, userId, payload.name)
     return {"walletId": wallet.walletId, "name": wallet.name}
 
 
 @router.get("/wallets", response_class=ORJSONResponse)
 def list_wallets_route(
-    user: dict = Depends(requireWalletUser),
+    userId: int,
     db: Session = Depends(getSession),
 ):
     return [
         {"walletId": walletItem.walletId, "name": walletItem.name, "lastRecalc": walletItem.lastRecalc}
-        for walletItem in wallet_service.listWallets(db, user["userId"])
+        for walletItem in wallets.listWallets(db, userId)
     ]
 
 
@@ -63,11 +64,11 @@ def serialize_entry(entry) -> dict:
 
 @router.post("/entries", response_class=ORJSONResponse, status_code=201)
 def create_entry_route(
-    payload: wallet_service.EntryCreate,
-    user: dict = Depends(requireWalletUser),
+    payload: EntryCreate,
+    userId: int,
     db: Session = Depends(getSession),
 ):
-    entry, holding = wallet_service.addEntry(db, user["userId"], payload)
+    entry, holding = entries.addEntry(db, userId, payload)
     return {"entryId": entry.entryId, "holding": serialize_holding(holding)}
 
 
@@ -77,69 +78,69 @@ def list_entries_route(
     ticker: str | None = None,
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
-    user: dict = Depends(requireWalletUser),
+    userId: int = Query(),
     db: Session = Depends(getSession),
 ):
-    total, items = wallet_service.listEntries(db, user["userId"], wallet_id, ticker, limit, offset)
+    total, items = entries.listEntries(db, userId, wallet_id, ticker, limit, offset)
     return {"total": total, "items": [serialize_entry(item) for item in items]}
 
 
 @router.patch("/entries/{entryId}", response_class=ORJSONResponse)
 def update_entry_route(
     entryId: int,
-    payload: wallet_service.EntryUpdate,
-    user: dict = Depends(requireWalletUser),
+    payload: EntryUpdate,
+    userId: int,
     db: Session = Depends(getSession),
 ):
-    entry, holding = wallet_service.updateEntry(db, user["userId"], entryId, payload)
+    entry, holding = entries.updateEntry(db, userId, entryId, payload)
     return {"entryId": entry.entryId, "holding": serialize_holding(holding)}
 
 
 @router.delete("/entries/{entryId}", response_class=ORJSONResponse)
 def delete_entry_route(
     entryId: int,
-    user: dict = Depends(requireWalletUser),
+    userId: int,
     db: Session = Depends(getSession),
 ):
-    deletedId, holding = wallet_service.deleteEntry(db, user["userId"], entryId)
+    deletedId, holding = entries.deleteEntry(db, userId, entryId)
     return {"entryId": deletedId, "holding": serialize_holding(holding)}
 
 
 @router.get("/positions", response_class=ORJSONResponse)
 def list_positions_route(
     wallet_id: int,
-    user: dict = Depends(requireWalletUser),
+    userId: int,
     db: Session = Depends(getSession),
 ):
-    return wallet_service.getPositions(db, wallet_id, user["userId"])
+    return positions.getPositions(db, wallet_id, userId)
 
 
 @router.get("/summary", response_class=ORJSONResponse)
 def get_summary_route(
     wallet_id: int,
-    user: dict = Depends(requireWalletUser),
+    userId: int,
     db: Session = Depends(getSession),
 ):
-    return wallet_service.getSummary(db, wallet_id, user["userId"])
+    return summary.getSummary(db, wallet_id, userId)
 
 
 @router.get("/allocation", response_class=ORJSONResponse)
 def get_allocation_route(
     wallet_id: int,
     group_by: Literal["ticker", "type"] = Query(default="ticker"),
-    user: dict = Depends(requireWalletUser),
+    userId: int = Query(),
     db: Session = Depends(getSession),
 ):
-    return wallet_service.getAllocation(db, wallet_id, user["userId"], group_by)
+    return summary.getAllocation(db, wallet_id, userId, group_by)
 
 
 @router.put("/targets", response_class=ORJSONResponse)
 def upsert_target_route(
-    payload: wallet_service.TargetUpsert,
-    user: dict = Depends(requireWalletUser),
+    payload: TargetUpsert,
+    userId: int,
     db: Session = Depends(getSession),
 ):
-    target = wallet_service.upsertTarget(db, user["userId"], payload)
+    target = summary.upsertTarget(db, userId, payload)
     return {
         "wallet_id": target.walletId,
         "key_kind": target.keyKind,
@@ -150,11 +151,11 @@ def upsert_target_route(
 
 @router.put("/ratings", response_class=ORJSONResponse)
 def set_rating_route(
-    payload: wallet_service.RatingUpsert,
-    user: dict = Depends(requireWalletUser),
+    payload: RatingUpsert,
+    userId: int,
     db: Session = Depends(getSession),
 ):
-    holding = wallet_service.set_rating(db, user["userId"], payload)
+    holding = summary.set_rating(db, userId, payload)
     return {"ticker": holding.ticker, "rating": holding.rating}
 
 
@@ -176,23 +177,19 @@ def serialize_earning(earning) -> dict:
 def list_earnings_route(
     wallet_id: int,
     status: str | None = None,
-    user: dict = Depends(requireWalletUser),
+    userId: int = Query(),
     db: Session = Depends(getSession),
 ):
-    return {
-        "items": [
-            serialize_earning(item) for item in wallet_service.listEarnings(db, wallet_id, user["userId"], status)
-        ]
-    }
+    return {"items": [serialize_earning(item) for item in earnings.listEarnings(db, wallet_id, userId, status)]}
 
 
 @router.post("/earnings/sync", response_class=ORJSONResponse)
 def sync_earnings_route(
     payload: EarningsSync,
-    user: dict = Depends(requireWalletUser),
+    userId: int,
     db: Session = Depends(getSession),
 ):
-    return wallet_service.syncEarnings(db, payload.wallet_id, user["userId"])
+    return earnings.syncEarnings(db, payload.wallet_id, userId)
 
 
 @router.get("/performance", response_class=ORJSONResponse)
@@ -201,7 +198,7 @@ def get_performance_route(
     ticker: str | None = None,
     fromIso: str = Query(alias="from"),
     toIso: str = Query(alias="to"),
-    user: dict = Depends(requireWalletUser),
+    userId: int = Query(),
     db: Session = Depends(getSession),
 ):
     try:
@@ -209,4 +206,4 @@ def get_performance_route(
         endDate = dateType.fromisoformat(toIso)
     except ValueError:
         raise HTTPException(status_code=422, detail="invalid date, expected YYYY-MM-DD")
-    return wallet_service.getPerformance(db, wallet_id, user["userId"], ticker, startDate, endDate)
+    return performance.getPerformance(db, wallet_id, userId, ticker, startDate, endDate)

@@ -13,25 +13,17 @@ logger = logging.getLogger(__name__)
 STOCKS_TIMEOUT = 3
 
 
-def stocksApiBase() -> str:
-    return f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}"
-
-
-def stocksApiHeaders() -> dict:
-    key = os.getenv("STOCKS_API_KEY", "")
-    return {"X-API-Key": key} if key else {}
-
-
 def fetchLivePrices(tickers: list[str]) -> dict[str, float | None]:
     if not tickers:
         return {}
 
     def one(ticker: str) -> tuple[str, float | None]:
         try:
+            key = os.getenv("STOCKS_API_KEY", "")
             resp = requests.get(
-                f"{stocksApiBase()}/stocks/cotations/live",
+                f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/cotations/live",
                 params={"search": ticker, "compact": False},  # type: ignore[arg-type]
-                headers=stocksApiHeaders(),
+                headers={"X-API-Key": key} if key else {},
                 timeout=STOCKS_TIMEOUT,
             )
             if resp.status_code == 429:
@@ -49,10 +41,11 @@ def fetchLivePrices(tickers: list[str]) -> dict[str, float | None]:
 
 def fetchCachedClose(ticker: str) -> float | None:
     try:
+        key = os.getenv("STOCKS_API_KEY", "")
         resp = requests.get(
-            f"{stocksApiBase()}/stocks/cotations",
+            f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/cotations",
             params={"search": ticker},
-            headers=stocksApiHeaders(),
+            headers={"X-API-Key": key} if key else {},
             timeout=STOCKS_TIMEOUT,
         )
         if resp.status_code == 429:
@@ -69,10 +62,11 @@ def fetchCachedClose(ticker: str) -> float | None:
 
 def fetchMarketDividends(ticker: str) -> list[dict]:
     try:
+        key = os.getenv("STOCKS_API_KEY", "")
         resp = requests.get(
-            f"{stocksApiBase()}/stocks/fundamental",
+            f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fundamental",
             params={"search": ticker, "fields": "HISTORICO DIVIDENDOS"},  # type: ignore[arg-type]
-            headers=stocksApiHeaders(),
+            headers={"X-API-Key": key} if key else {},
             timeout=STOCKS_TIMEOUT,
         )
         if resp.status_code != 200:
@@ -87,10 +81,11 @@ def fetchMarketDividends(ticker: str) -> list[dict]:
 
 def fetchPadraoCloses(ticker: str) -> list[tuple[dateType, float]]:
     try:
+        key = os.getenv("STOCKS_API_KEY", "")
         resp = requests.get(
-            f"{stocksApiBase()}/stocks/cotations",
+            f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/cotations",
             params={"search": ticker},
-            headers=stocksApiHeaders(),
+            headers={"X-API-Key": key} if key else {},
             timeout=STOCKS_TIMEOUT,
         )
         if resp.status_code != 200:

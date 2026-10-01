@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from main.app.wallet.entries import applyEntries
 from main.app.wallet.market_data import fetchPadraoCloses
-from main.app.wallet.wallets import getOwnedWallet
+from main.app.wallet.wallets import getWallet
 from main.models.wallet import Earning, Transaction
 
 logger = logging.getLogger(__name__)
@@ -145,7 +145,7 @@ def cachedPerformance(
 def getPerformance(
     db: Session, walletId: int, userId: int, ticker: str | None, startDate: dateType, endDate: dateType
 ) -> dict:
-    wallet = getOwnedWallet(db, walletId, userId)
+    wallet = getWallet(db, walletId, userId)
     recalcStamp = wallet.lastRecalc
     recalcKey = str(recalcStamp) if recalcStamp is not None else PERFORMANCE_EPOCH
     ledgerQuery = db.query(Transaction).filter(Transaction.walletId == walletId)

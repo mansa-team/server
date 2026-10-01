@@ -4,16 +4,16 @@ import pytest
 import requests
 
 import main.models.wallet  # noqa: F401
-import main.app.wallet.wallet_service as wallet_service
+import main.app.wallet.positions as positions
 from tests.conftest import make_wallet_client
 from tests.test_wallet_positions import _live_ok
 
-RATINGS_ROUTE_DIGEST = "3a9cfe8d634aa3333c2867ef16e8c943313b5a67b6409043698521d5a2b1e686"  # sha256 of set_rating_route handler bytes (main/controller/wallet_controller.py:151-158), recorded at plan-review time
+RATINGS_ROUTE_DIGEST = "daa1b74d65a934abd9b12923ca8031785b20461470061b77394d14613e184e63"  # sha256 of set_rating_route handler bytes (main/controller/wallet_controller.py:152-159), re-pinned at deauth time (auth-removal-only change verified)
 
 
 def test_buy_flag_scale_fixed_and_weights(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_ok)  # PETR4 @ 30.0, Task 7 fake
-    monkeypatch.setattr(wallet_service, "fetchXangoScores", lambda tickers: {"PETR4": 80.0})
+    monkeypatch.setattr(positions, "fetchXangoScores", lambda tickers: {"PETR4": 80.0})
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
     client.post(
@@ -39,7 +39,7 @@ def test_buy_flag_scale_fixed_and_weights(dbSession, monkeypatch):
 
 def test_xango_none_degrades_to_p1_rule(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_ok)
-    monkeypatch.setattr(wallet_service, "fetchXangoScores", lambda tickers: {"PETR4": None})
+    monkeypatch.setattr(positions, "fetchXangoScores", lambda tickers: {"PETR4": None})
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
     client.post(
@@ -80,7 +80,7 @@ def test_backtest_fewer_false_flips_than_p1():
         for checkpoint in checkpoints
     ]
     tuned_flags = [
-        wallet_service.scoreBuyFlag(
+        positions.scoreBuyFlag(
             checkpoint["percentWallet"],
             checkpoint["percentIdeal"],
             checkpoint["holdingRating"],
@@ -97,6 +97,6 @@ def test_backtest_fewer_false_flips_than_p1():
 
 
 def test_ratings_route_untouched():
-    raw = open("main/controller/wallet_controller.py", "rb").read().splitlines(keepends=True)[150:158]
+    raw = open("main/controller/wallet_controller.py", "rb").read().splitlines(keepends=True)[151:159]
     digest = hashlib.sha256(b"".join(raw)).hexdigest()
     assert digest == RATINGS_ROUTE_DIGEST  # any edit to set_rating_route fails loudly

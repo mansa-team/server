@@ -189,7 +189,10 @@ async def narrate_positions(wallet_id: int, **_) -> dict:
     Args:
         wallet_id: Wallet to narrate (must belong to the caller)
     """
-    from main.app.wallet.wallet_service import getOwnedWallet, getPositions, getSummary, listEarnings
+    from main.app.wallet.wallets import getWallet
+    from main.app.wallet.positions import getPositions
+    from main.app.wallet.summary import getSummary
+    from main.app.wallet.earnings import listEarnings
 
     user = _.get("user")
     if not user:
@@ -202,7 +205,7 @@ async def narrate_positions(wallet_id: int, **_) -> dict:
     try:
         userId = user["userId"]
         try:
-            getOwnedWallet(
+            getWallet(
                 db,  # type: ignore[arg-type]
                 wallet_id,
                 userId,
