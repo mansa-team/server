@@ -1,12 +1,17 @@
 import logging
+import os
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date as dateType
+from datetime import datetime
 from typing import Literal
 
+import requests
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from main.models.wallet import Holding, Transaction, Wallet
+from config import Config
+from main.models.wallet import Holding, Target, Transaction, Wallet
 
 logger = logging.getLogger(__name__)
 
@@ -167,3 +172,119 @@ def delete_entry(db: Session, userId: int, entryId: int) -> tuple[int, Holding |
         raise
     db.commit()
     return entryId, holding
+
+
+STOCKS_TIMEOUT = 3
+
+
+def stocksApiBase() -> str:
+    return f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}"
+
+
+def stocksApiHeaders() -> dict:
+    key = os.getenv("STOCKS_API_KEY", "")
+    return {"X-API-Key": key} if key else {}
+
+
+def fetchLivePrices(tickers: list[str]) -> dict[str, float | None]:
+    if not tickers:
+        return {}
+
+    def one(ticker: str) -> tuple[str, float | None]:
+        try:
+            resp = requests.get(
+                f"{stocksApiBase()}/stocks/cotations/live",
+                params={"search": ticker, "compact": False},
+                headers=stocksApiHeaders(),
+                timeout=STOCKS_TIMEOUT,
+            )
+            if resp.status_code == 429:
+                logger.warning("Live price quota exhausted for %s", ticker)
+                return ticker, None
+            if resp.status_code != 200:
+                return ticker, None
+            return ticker, float(resp.json()["data"][0]["PRECO ATUAL"])
+        except Exception:
+            return ticker, None
+
+    with ThreadPoolExecutor(max_workers=min(8, max(1, len(tickers)))) as pool:
+        return dict(pool.map(one, tickers))
+
+
+def fetchCachedClose(ticker: str) -> float | None:
+    try:
+        resp = requests.get(
+            f"{stocksApiBase()}/stocks/cotations",
+            params={"search": ticker},
+            headers=stocksApiHeaders(),
+            timeout=STOCKS_TIMEOUT,
+        )
+        if resp.status_code == 429:
+            logger.warning("Cached close quota exhausted for %s", ticker)
+            return None
+        if resp.status_code != 200:
+            return None
+        rows = resp.json()["data"]
+        latest = max(rows, key=lambda row: datetime.strptime(row["DATA"], "%d-%m-%Y"))
+        return float(latest["PRECO"])
+    except Exception:
+        return None
+
+
+def get_positions(db: Session, walletId: int, userId: int) -> dict:
+    _get_owned_wallet(db, walletId, userId)
+    holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
+    tickers = [holding.ticker for holding in holdings]
+    prices = fetchLivePrices(tickers)
+    for ticker, price in list(prices.items()):
+        if price is None:
+            prices[ticker] = fetchCachedClose(ticker)
+    equities: dict[str, float | None] = {}
+    for holding in holdings:
+        holdingQuantity = float(holding.quantity)
+        holdingAvg = float(holding.avgPrice)
+        price = prices.get(holding.ticker)
+        if price is None:
+            equities[holding.ticker] = None
+        else:
+            equities[holding.ticker] = holdingQuantity * price
+    equityTotal = sum(equity for equity in equities.values() if equity is not None)
+    items = []
+    for holding in holdings:
+        holdingQuantity = float(holding.quantity)
+        holdingAvg = float(holding.avgPrice)
+        price = prices.get(holding.ticker)
+        equity = equities[holding.ticker]
+        if price is None or equity is None:
+            currentPrice = None
+            equityValue = None
+            appreciation = None
+        else:
+            currentPrice = price
+            equityValue = equity
+            appreciation = equity - holdingQuantity * holdingAvg
+        percentWallet = (equity / equityTotal * 100) if equity is not None and equityTotal else 0
+        target = (
+            db.query(Target)
+            .filter(Target.walletId == walletId, Target.keyKind == "ticker", Target.keyValue == holding.ticker)
+            .first()
+        )
+        percentIdeal = float(target.percentIdeal) if target is not None else None
+        holdingRating = holding.rating
+        buyFlag = (
+            percentIdeal is not None and percentWallet < percentIdeal and (holdingRating is None or holdingRating >= 6)
+        )
+        items.append(
+            {
+                "ticker": holding.ticker,
+                "quantity": holdingQuantity,
+                "avgPrice": holdingAvg,
+                "current_price": currentPrice,
+                "equity": equityValue,
+                "appreciation": appreciation,
+                "percent_wallet": percentWallet,
+                "percent_ideal": percentIdeal,
+                "buy_flag": buyFlag,
+            }
+        )
+    return {"items": items, "equity_total": equityTotal}

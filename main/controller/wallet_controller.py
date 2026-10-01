@@ -101,3 +101,12 @@ def delete_entry_route(
 ):
     deletedId, holding = wallet_service.delete_entry(db, user["userId"], entryId)
     return {"entryId": deletedId, "holding": serialize_holding(holding)}
+
+
+@router.get("/positions", response_class=ORJSONResponse)
+def list_positions_route(
+    wallet_id: int,
+    user: dict = Depends(requireWalletUser),
+    db: Session = Depends(getSession),
+):
+    return wallet_service.get_positions(db, wallet_id, user["userId"])
