@@ -95,6 +95,7 @@ async def status():
     services = {}
     for name, config in [
         ("user", Config.USER),
+        ("wallet", Config.USER),
         ("stocks_api", Config.STOCKS_API),
         ("orunmila", Config.ORUNMILA),
     ]:
