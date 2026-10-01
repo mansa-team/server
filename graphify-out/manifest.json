@@ -15,8 +15,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\run.py": {
-    "mtime": 1790822066.405692,
-    "ast_hash": "c2366bbc2b938c01d94e069076a65f3e",
+    "mtime": 1790836913.8421538,
+    "ast_hash": "0a8c5f526c350c25e1ba673a940eeae6",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\components.json": {
@@ -275,8 +275,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\orunmila\\tools\\context.py": {
-    "mtime": 1790832493.312804,
-    "ast_hash": "c47a06369cfe9aea8cada08f7942f480",
+    "mtime": 1790837178.034846,
+    "ast_hash": "a3d32d5348cca30780655b05b82bce1b",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\orunmila\\tools\\memory.py": {
@@ -285,18 +285,18 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\orunmila\\tools\\sandbox.py": {
-    "mtime": 1790834443.8187387,
-    "ast_hash": "6616c6fb85723bc43371ba27538d27da",
+    "mtime": 1790837097.7105825,
+    "ast_hash": "69b6182adec6a8eaba174c446f9f4acf",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\orunmila\\tools\\wallet.py": {
-    "mtime": 1790834325.0523524,
-    "ast_hash": "d7169d2c574c7e44aab4511692dacf9e",
+    "mtime": 1790834672.9276283,
+    "ast_hash": "21e96653f817b8341d36b29c691c91d4",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\orunmila\\tools\\__init__.py": {
-    "mtime": 1790834498.726344,
-    "ast_hash": "01702bd99310f3a0f6c8e240d91a0022",
+    "mtime": 1790837111.132924,
+    "ast_hash": "1af04d6a494cef1950791d9d735a890e",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\scraper_b3\\scraper.py": {
@@ -370,28 +370,23 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\wallet\\performance.py": {
-    "mtime": 1790830223.6296313,
+    "mtime": 1790834672.9276283,
     "ast_hash": "c332a654033ce98e7f8a31df3faea5ea",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\wallet\\positions.py": {
-    "mtime": 1790830807.8044558,
-    "ast_hash": "382c223221315fa71edb000746126111",
+    "mtime": 1790834606.0508318,
+    "ast_hash": "1cd28a3770e7264146c9f40df086a017",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\wallet\\summary.py": {
-    "mtime": 1790830238.410782,
-    "ast_hash": "3d1a0ee9db7d69b8f8ce324b3946182f",
+    "mtime": 1790834672.9296267,
+    "ast_hash": "8100991706cff4c0e3f4384abe454cdc",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\wallet\\wallets.py": {
     "mtime": 1790828492.4487593,
     "ast_hash": "f52f4d29d146953b6659e346e906da26",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\main\\app\\wallet\\wallet_service.py": {
-    "mtime": 1790828956.056157,
-    "ast_hash": "0596d4a054b5ab48baeb9af24511af41",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\controller\\authentication_controller.py": {
@@ -460,8 +455,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\models\\wallet.py": {
-    "mtime": 1790814890.9302452,
-    "ast_hash": "cf13241575f7af9059fb1ef2fb6421ae",
+    "mtime": 1790836945.7256603,
+    "ast_hash": "30ffa55bd90e269b39917ec7079107f5",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\service\\authentication_service.py": {
@@ -602,6 +597,11 @@
   "D:\\Repositories\\server\\migrations\\versions\\d3e4f5a6b7c8_add_prometheus_sandboxes.py": {
     "mtime": 1789266824.6476328,
     "ast_hash": "1cd806b72716facac6dbf7ec3e0bbe12",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\migrations\\versions\\d4e5f6a7b8c9_drop_dead_holding_columns.py": {
+    "mtime": 1790836959.2365656,
+    "ast_hash": "f74e397a4de0a6b5dbb3bef4a119becd",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\migrations\\versions\\e4f5a6b7c8d9_fix_fulltext_index_prometheus_memories.py": {
@@ -810,8 +810,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\mock-wallet.html": {
-    "mtime": 1790828329.3471212,
-    "ast_hash": "842c72edefd8f4c47baf0cf55f8a955e",
+    "mtime": 1790835791.9064455,
+    "ast_hash": "10a5e8765d73579086d5d3c82aeb1fa5",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\frontend\\pnpm-workspace.yaml": {

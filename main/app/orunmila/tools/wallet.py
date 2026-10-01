@@ -145,9 +145,7 @@ async def list_wallet_earnings(wallet_id: int, status: Optional[str] = "A Recebe
         closeOwnSession(db, ownSession)
 
 
-async def wallet_performance(
-    wallet_id: int, from_date: str, to_date: str, ticker: Optional[str] = None, **_
-) -> dict:
+async def wallet_performance(wallet_id: int, from_date: str, to_date: str, ticker: Optional[str] = None, **_) -> dict:
     """Compute time-weighted return, volatility, and dividends for a wallet or ticker.
 
     Read-only: never mutates wallet state.

@@ -162,4 +162,5 @@ class SummaryManager:
 
         return holding
 
+
 set_rating = SummaryManager.set_rating
