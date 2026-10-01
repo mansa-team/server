@@ -29,7 +29,7 @@ TIPO_MAP = {
 }
 
 
-def create_wallet(db: Session, userId: int, name: str) -> Wallet:
+def createWallet(db: Session, userId: int, name: str) -> Wallet:
     wallet = Wallet(userId=userId, name=name)
     db.add(wallet)
     db.commit()
@@ -37,7 +37,7 @@ def create_wallet(db: Session, userId: int, name: str) -> Wallet:
     return wallet
 
 
-def list_wallets(db: Session, userId: int) -> list[Wallet]:
+def listWallets(db: Session, userId: int) -> list[Wallet]:
     return db.query(Wallet).filter(Wallet.userId == userId).all()
 
 
@@ -59,7 +59,7 @@ class EntryUpdate(BaseModel):
     costs: float | None = Field(default=None, ge=0)
 
 
-def _get_owned_wallet(db: Session, walletId: int, userId: int):
+def getOwnedWallet(db: Session, walletId: int, userId: int):
     from main.app.wallet.auth import requireWalletOwnership
 
     wallet = db.query(Wallet).filter(Wallet.walletId == walletId).first()
@@ -69,7 +69,7 @@ def _get_owned_wallet(db: Session, walletId: int, userId: int):
     return wallet
 
 
-def _apply_entries(quantity: float, avg: float, entries: list[Transaction]) -> tuple[float, float]:
+def applyEntries(quantity: float, avg: float, entries: list[Transaction]) -> tuple[float, float]:
     for entry in entries:
         entryQuantity = float(entry.quantity)
         entryPrice = float(entry.price)
@@ -85,7 +85,7 @@ def _apply_entries(quantity: float, avg: float, entries: list[Transaction]) -> t
     return quantity, avg
 
 
-def recalc_holding(db: Session, walletId: int, ticker: str) -> Holding | None:
+def recalcHolding(db: Session, walletId: int, ticker: str) -> Holding | None:
     entries = (
         db.query(Transaction)
         .filter(Transaction.walletId == walletId, Transaction.ticker == ticker)
@@ -97,7 +97,7 @@ def recalc_holding(db: Session, walletId: int, ticker: str) -> Holding | None:
         if holding is not None:
             db.delete(holding)
         return None
-    quantity, avg = _apply_entries(0.0, 0.0, entries)
+    quantity, avg = applyEntries(0.0, 0.0, entries)
     if holding is None:
         holding = Holding(
             walletId=walletId, assetType=entries[0].assetType, ticker=ticker, quantity=quantity, avgPrice=avg
@@ -109,8 +109,8 @@ def recalc_holding(db: Session, walletId: int, ticker: str) -> Holding | None:
     return holding
 
 
-def add_entry(db: Session, userId: int, data: EntryCreate) -> tuple[Transaction, Holding | None]:
-    _get_owned_wallet(db, data.wallet_id, userId)
+def addEntry(db: Session, userId: int, data: EntryCreate) -> tuple[Transaction, Holding | None]:
+    getOwnedWallet(db, data.wallet_id, userId)
     if data.side == "Venda":
         holding = db.query(Holding).filter(Holding.walletId == data.wallet_id, Holding.ticker == data.ticker).first()
         if holding is None or data.quantity > float(holding.quantity):
@@ -127,7 +127,7 @@ def add_entry(db: Session, userId: int, data: EntryCreate) -> tuple[Transaction,
     )
     db.add(entry)
     db.flush()
-    holding = recalc_holding(db, data.wallet_id, data.ticker)
+    holding = recalcHolding(db, data.wallet_id, data.ticker)
     db.commit()
     db.refresh(entry)
     if holding is not None:
@@ -135,10 +135,10 @@ def add_entry(db: Session, userId: int, data: EntryCreate) -> tuple[Transaction,
     return entry, holding
 
 
-def list_entries(
+def listEntries(
     db: Session, userId: int, walletId: int, ticker: str | None = None, limit: int = 20, offset: int = 0
 ) -> tuple[int, list[Transaction]]:
-    _get_owned_wallet(db, walletId, userId)
+    getOwnedWallet(db, walletId, userId)
     query = db.query(Transaction).filter(Transaction.walletId == walletId)
     if ticker is not None:
         query = query.filter(Transaction.ticker == ticker)
@@ -147,18 +147,18 @@ def list_entries(
     return total, items
 
 
-def update_entry(db: Session, userId: int, entryId: int, patch: EntryUpdate) -> tuple[Transaction, Holding | None]:
+def updateEntry(db: Session, userId: int, entryId: int, patch: EntryUpdate) -> tuple[Transaction, Holding | None]:
     entry = db.query(Transaction).filter(Transaction.entryId == entryId).first()
     if entry is None:
         raise HTTPException(status_code=404, detail="entry not found")
-    _get_owned_wallet(db, int(entry.walletId), userId)
+    getOwnedWallet(db, int(entry.walletId), userId)
     changes = patch.model_dump(exclude_unset=True)
     for fieldName, fieldValue in changes.items():
         if fieldValue is not None:
             setattr(entry, fieldName, fieldValue)
     db.flush()
     try:
-        holding = recalc_holding(db, int(entry.walletId), str(entry.ticker))
+        holding = recalcHolding(db, int(entry.walletId), str(entry.ticker))
     except HTTPException:
         db.rollback()
         raise
@@ -169,17 +169,17 @@ def update_entry(db: Session, userId: int, entryId: int, patch: EntryUpdate) -> 
     return entry, holding
 
 
-def delete_entry(db: Session, userId: int, entryId: int) -> tuple[int, Holding | None]:
+def deleteEntry(db: Session, userId: int, entryId: int) -> tuple[int, Holding | None]:
     entry = db.query(Transaction).filter(Transaction.entryId == entryId).first()
     if entry is None:
         raise HTTPException(status_code=404, detail="entry not found")
-    _get_owned_wallet(db, int(entry.walletId), userId)
+    getOwnedWallet(db, int(entry.walletId), userId)
     walletId = entry.walletId
     ticker = entry.ticker
     db.delete(entry)
     db.flush()
     try:
-        holding = recalc_holding(db, int(walletId), str(ticker))
+        holding = recalcHolding(db, int(walletId), str(ticker))
     except HTTPException:
         db.rollback()
         raise
@@ -244,8 +244,8 @@ def fetchCachedClose(ticker: str) -> float | None:
         return None
 
 
-def get_positions(db: Session, walletId: int, userId: int) -> dict:
-    _get_owned_wallet(db, walletId, userId)
+def getPositions(db: Session, walletId: int, userId: int) -> dict:
+    getOwnedWallet(db, walletId, userId)
     holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
     tickers = [str(holding.ticker) for holding in holdings]
     prices = fetchLivePrices(tickers)
@@ -316,8 +316,8 @@ class RatingUpsert(BaseModel):
     rating: int = Field(ge=0, le=10)
 
 
-def get_summary(db: Session, walletId: int, userId: int) -> dict:
-    wallet = _get_owned_wallet(db, walletId, userId)
+def getSummary(db: Session, walletId: int, userId: int) -> dict:
+    wallet = getOwnedWallet(db, walletId, userId)
     holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
     applied = sum(float(holding.quantity) * float(holding.avgPrice) for holding in holdings)
     tickers = [str(holding.ticker) for holding in holdings]
@@ -367,8 +367,8 @@ def get_summary(db: Session, walletId: int, userId: int) -> dict:
     }
 
 
-def get_allocation(db: Session, walletId: int, userId: int, groupBy: str) -> dict:
-    _get_owned_wallet(db, walletId, userId)
+def getAllocation(db: Session, walletId: int, userId: int, groupBy: str) -> dict:
+    getOwnedWallet(db, walletId, userId)
     holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
     tickers = [str(holding.ticker) for holding in holdings]
     prices = fetchLivePrices(tickers)
@@ -393,8 +393,8 @@ def get_allocation(db: Session, walletId: int, userId: int, groupBy: str) -> dic
     return {"items": items, "equity_total": equityTotal}
 
 
-def upsert_target(db: Session, userId: int, data: TargetUpsert) -> Target:
-    _get_owned_wallet(db, data.wallet_id, userId)
+def upsertTarget(db: Session, userId: int, data: TargetUpsert) -> Target:
+    getOwnedWallet(db, data.wallet_id, userId)
     target = (
         db.query(Target)
         .filter(
@@ -420,7 +420,7 @@ def upsert_target(db: Session, userId: int, data: TargetUpsert) -> Target:
 
 
 def set_rating(db: Session, userId: int, data: RatingUpsert) -> Holding:
-    _get_owned_wallet(db, data.wallet_id, userId)
+    getOwnedWallet(db, data.wallet_id, userId)
     holding = db.query(Holding).filter(Holding.walletId == data.wallet_id, Holding.ticker == data.ticker).first()
     if holding is None:
         raise HTTPException(status_code=404, detail="holding not found")
@@ -430,10 +430,10 @@ def set_rating(db: Session, userId: int, data: RatingUpsert) -> Holding:
     return holding
 
 
-def position_at_date(entries: list[Transaction], exDate: dateType) -> float:
+def positionAtDate(entries: list[Transaction], exDate: dateType) -> float:
     # str() trick: Column-typed dates compare mypy-clean as ISO strings (lexicographic == chronological).
     datedEntries = [entry for entry in entries if str(entry.date) <= exDate.isoformat()]
-    quantity, _ = _apply_entries(0.0, 0.0, datedEntries)
+    quantity, _ = applyEntries(0.0, 0.0, datedEntries)
     return quantity
 
 
@@ -455,8 +455,8 @@ def fetchMarketDividends(ticker: str) -> list[dict]:
         return []
 
 
-def sync_earnings(db: Session, walletId: int, userId: int) -> dict:
-    _get_owned_wallet(db, walletId, userId)
+def syncEarnings(db: Session, walletId: int, userId: int) -> dict:
+    getOwnedWallet(db, walletId, userId)
     today = dateType.today()
     accrued = 0
     skippedUnknown: list[str] = []
@@ -484,7 +484,7 @@ def sync_earnings(db: Session, walletId: int, userId: int) -> dict:
                 perShare = float(record["VALOR AJUSTADO"])
             except Exception:
                 continue
-            quantityAtEx = position_at_date(ledgerEntries, exDate)
+            quantityAtEx = positionAtDate(ledgerEntries, exDate)
             if quantityAtEx <= 0:
                 continue
             existing = (
@@ -522,8 +522,8 @@ def sync_earnings(db: Session, walletId: int, userId: int) -> dict:
     return {"accrued": accrued, "transitioned": transitioned, "skipped_unknown": skippedUnknown}
 
 
-def list_earnings(db: Session, walletId: int, userId: int, status: str | None = None) -> list[Earning]:
-    _get_owned_wallet(db, walletId, userId)
+def listEarnings(db: Session, walletId: int, userId: int, status: str | None = None) -> list[Earning]:
+    getOwnedWallet(db, walletId, userId)
     query = db.query(Earning).filter(Earning.walletId == walletId)
     if status is not None:
         query = query.filter(Earning.status == status)
@@ -556,7 +556,7 @@ def fetchPadraoCloses(ticker: str) -> list[tuple[dateType, float]]:
 
 
 @lru_cache(maxsize=1024)
-def _cachedPerformance(
+def cachedPerformance(
     walletId: int,
     tickerKey: str,
     fromIso: str,
@@ -589,7 +589,7 @@ def _cachedPerformance(
             for entryIso, entrySide, entryQty, entryPrice, entryCosts in tickerEntries
             if entryIso < fromIso
         ]
-        positionQty, positionAvg = _apply_entries(0.0, 0.0, baselineRows)  # type: ignore[arg-type]
+        positionQty, positionAvg = applyEntries(0.0, 0.0, baselineRows)  # type: ignore[arg-type]
         entriesByDay: dict[str, list] = {}
         for entryIso, entrySide, entryQty, entryPrice, entryCosts in tickerEntries:
             if fromIso <= entryIso <= toIso:
@@ -611,7 +611,7 @@ def _cachedPerformance(
         dayMap: dict[str, tuple[float, float, float]] = {}
         for dayIso in windowDays:
             for datedRow in entriesByDay.get(dayIso, []):
-                positionQty, positionAvg = _apply_entries(positionQty, positionAvg, [datedRow])  # type: ignore[arg-type]
+                positionQty, positionAvg = applyEntries(positionQty, positionAvg, [datedRow])  # type: ignore[arg-type]
             dayClose = closeByIso[dayIso]
             if positionQty > 0 and prevClose:
                 priceDay = (dayClose - prevClose) / prevClose
@@ -659,10 +659,10 @@ def _cachedPerformance(
     }
 
 
-def get_performance(
+def getPerformance(
     db: Session, walletId: int, userId: int, ticker: str | None, startDate: dateType, endDate: dateType
 ) -> dict:
-    wallet = _get_owned_wallet(db, walletId, userId)
+    wallet = getOwnedWallet(db, walletId, userId)
     recalcStamp = wallet.lastRecalc
     recalcKey = str(recalcStamp) if recalcStamp is not None else PERFORMANCE_EPOCH
     ledgerQuery = db.query(Transaction).filter(Transaction.walletId == walletId)
@@ -689,6 +689,6 @@ def get_performance(
         (str(earningRow.ticker), str(earningRow.exDate), float(earningRow.gross), float(earningRow.netIrAdjusted))
         for earningRow in earningRows
     )
-    return _cachedPerformance(
+    return cachedPerformance(
         walletId, ticker or "", startDate.isoformat(), endDate.isoformat(), recalcKey, entriesSnap, earningsSnap
     )
