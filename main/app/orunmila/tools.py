@@ -12,6 +12,11 @@ from sqlalchemy.orm import Session
 from main.app.orunmila.memory import OrunmilaMemory
 from main.app.orunmila.sandbox import SandboxManager, hostPath
 from main.app.orunmila.vector import embed
+from main.app.wallet.earnings import EarningsManager
+from main.app.wallet.performance import PerformanceManager
+from main.app.wallet.positions import PositionsManager
+from main.app.wallet.summary import SummaryManager
+from main.app.wallet.wallets import WalletsManager
 
 logger = logging.getLogger(__name__)
 
@@ -189,9 +194,6 @@ async def get_wallet_positions(wallet_id: int, **_) -> dict:
     Args:
         wallet_id: Wallet to inspect (must belong to the caller)
     """
-    from main.app.wallet.positions import PositionsManager
-    from main.app.wallet.wallets import WalletsManager
-
     user = _.get("user")
     if not user:
         return {"error": "Authentication required"}
@@ -228,9 +230,6 @@ async def get_wallet_summary(wallet_id: int, **_) -> dict:
     Args:
         wallet_id: Wallet to summarize (must belong to the caller)
     """
-    from main.app.wallet.summary import SummaryManager
-    from main.app.wallet.wallets import WalletsManager
-
     user = _.get("user")
     if not user:
         return {"error": "Authentication required"}
@@ -268,9 +267,6 @@ async def get_wallet_allocation(wallet_id: int, group_by: str = "ticker", **_) -
         wallet_id: Wallet to inspect (must belong to the caller)
         group_by: Grouping key — "ticker" or "assetType" (default "ticker")
     """
-    from main.app.wallet.summary import SummaryManager
-    from main.app.wallet.wallets import WalletsManager
-
     user = _.get("user")
     if not user:
         return {"error": "Authentication required"}
@@ -309,9 +305,6 @@ async def list_wallet_earnings(wallet_id: int, status: Optional[str] = "A Recebe
         wallet_id: Wallet to inspect (must belong to the caller)
         status: Filter by status — "A Receber", "Recebido", or None for all (default "A Receber")
     """
-    from main.app.wallet.earnings import EarningsManager
-    from main.app.wallet.wallets import WalletsManager
-
     user = _.get("user")
     if not user:
         return {"error": "Authentication required"}
@@ -371,9 +364,6 @@ async def get_wallet_performance(
         to_date: Window end as YYYY-MM-DD
         ticker: Optional single ticker; omit for the whole wallet
     """
-    from main.app.wallet.performance import PerformanceManager
-    from main.app.wallet.wallets import WalletsManager
-
     user = _.get("user")
     if not user:
         return {"error": "Authentication required"}
@@ -419,9 +409,6 @@ async def get_wallet_rebalance(wallet_id: int, **_) -> dict:
     Args:
         wallet_id: Wallet to inspect (must belong to the caller)
     """
-    from main.app.wallet.positions import PositionsManager
-    from main.app.wallet.wallets import WalletsManager
-
     user = _.get("user")
     if not user:
         return {"error": "Authentication required"}

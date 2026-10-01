@@ -6,6 +6,7 @@ from fastapi import HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from main.app.wallet.positions import PositionsManager
 from main.app.wallet.wallets import WalletsManager
 from main.models.wallet import Holding, Transaction
 
@@ -68,8 +69,6 @@ class EntriesManager:
 
         quantity, avg = cls.applyEntries(0.0, 0.0, entries)
         if holding is None:
-            from main.app.wallet.positions import PositionsManager
-
             xangoScore = PositionsManager.fetchXangoScores((ticker,)).get(ticker)
             holding = Holding(
                 walletId=walletId,
