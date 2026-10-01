@@ -162,8 +162,4 @@ class SummaryManager:
 
         return holding
 
-
-# Digest-pinned alias: wallet_controller.py set_rating_route handler bytes are
-# hashed by test_ratings_route_untouched, so the controller keeps calling
-# summary.set_rating — this alias keeps that path resolving to the class.
 set_rating = SummaryManager.set_rating

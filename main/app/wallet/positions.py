@@ -20,13 +20,6 @@ class PositionsManager:
     @classmethod
     @walletCache(ttl="6h", key="wallet:xango:{tickers}")
     def fetchXangoScores(cls, tickers: tuple[str, ...]) -> dict[str, float | None]:
-        """XANGO quality score per ticker (0-100 scale).
-
-        One fundamental read per ticker; any per-ticker failure degrades to
-        None and scoreBuyFlag redistributes the xango weight over the other
-        inputs (flag degrades, never fails). Shared cashews entry is the
-        freshness story; no staleness gate beyond it, YAGNI.
-        """
         scores: dict[str, float | None] = {}
         for ticker in tickers:
             try:
@@ -80,7 +73,6 @@ class PositionsManager:
     def rebalanceDeltas(
         cls, holdings: list[Holding], equities: dict[str, float | None], equityTotal: float
     ) -> dict[str, float | None]:
-        """Weight-share deltas on backend floats: target_i = w_i/Σw, targetEquity = target_i × equityTotal, delta = targetEquity − equity. Σw=0 → all deltas null."""
         weightTotal = sum(cls.weightOf(holding) for holding in holdings)
         deltas: dict[str, float | None] = {}
         for holding in holdings:
@@ -146,10 +138,8 @@ class PositionsManager:
         items = []
         for holding in holdings:
             ticker = str(holding.ticker)
-            weightFloat = cls.weightOf(holding)
-            # Display rounds to int; all math above stays on backend floats.
-            weight = int(round(weightFloat))
-            targetPct = (weightFloat / weightTotal) if weightTotal else 0.0
+            weight = cls.weightOf(holding)
+            targetPct = (weight / weightTotal) if weightTotal else 0.0
             equity = equities[ticker]
             currentPct = (equity / equityTotal) if equity is not None and equityTotal else 0.0
             delta = deltas[ticker]
