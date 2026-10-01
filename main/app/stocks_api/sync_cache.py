@@ -28,8 +28,9 @@ def cache(ttl: str, key: str) -> Callable[[F], F]:
                 return result
 
             return asyncio.run(cachedCall())
-        
+
         return wrapper  # type: ignore[return-value]
+
     return decorator
 
 

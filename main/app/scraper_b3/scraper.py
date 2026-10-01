@@ -26,9 +26,12 @@ logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
+
 def getCurrentSelic():
-    selic = pd.DataFrame(requests.get("https://api.bcb.gov.br/dados/serie/bcdata.sgs.4189/dados?formato=json", timeout=30).json())
-    
+    selic = pd.DataFrame(
+        requests.get("https://api.bcb.gov.br/dados/serie/bcdata.sgs.4189/dados?formato=json", timeout=30).json()
+    )
+
     selic["valor"] = selic["valor"].astype(float)
     selic["valor medio 10y"] = selic["valor"].rolling(120, min_periods=120).mean().round(2)
 
@@ -608,7 +611,9 @@ class B3Scraper:
                     for col in existingCols
                     if any(pattern in col for pattern in historicalPatterns) and col not in JSON_COLUMNS
                 ]
-                historicalCols = [col for col in historicalCols if re.compile(r"^[A-Za-z0-9][A-Za-z0-9 _]*$").match(col) is not None]
+                historicalCols = [
+                    col for col in historicalCols if re.compile(r"^[A-Za-z0-9][A-Za-z0-9 _]*$").match(col) is not None
+                ]
 
                 if historicalCols:
                     conn.execute(

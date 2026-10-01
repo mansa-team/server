@@ -10,8 +10,6 @@ from config import Config
 
 logger = logging.getLogger(__name__)
 
-STOCKS_TIMEOUT = 3
-
 
 def fetchLivePrices(tickers: list[str]) -> dict[str, float | None]:
     if not tickers:
@@ -24,7 +22,7 @@ def fetchLivePrices(tickers: list[str]) -> dict[str, float | None]:
                 f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/cotations/live",
                 params={"search": ticker, "compact": False},  # type: ignore[arg-type]
                 headers={"X-API-Key": key} if key else {},
-                timeout=STOCKS_TIMEOUT,
+                timeout=3,
             )
             if resp.status_code == 429:
                 logger.warning("Live price quota exhausted for %s", ticker)
@@ -46,7 +44,7 @@ def fetchCachedClose(ticker: str) -> float | None:
             f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/cotations",
             params={"search": ticker},
             headers={"X-API-Key": key} if key else {},
-            timeout=STOCKS_TIMEOUT,
+            timeout=3,
         )
         if resp.status_code == 429:
             logger.warning("Cached close quota exhausted for %s", ticker)
@@ -67,7 +65,7 @@ def fetchMarketDividends(ticker: str) -> list[dict]:
             f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fundamental",
             params={"search": ticker, "fields": "HISTORICO DIVIDENDOS"},  # type: ignore[arg-type]
             headers={"X-API-Key": key} if key else {},
-            timeout=STOCKS_TIMEOUT,
+            timeout=3,
         )
         if resp.status_code != 200:
             return []
@@ -86,7 +84,7 @@ def fetchPadraoCloses(ticker: str) -> list[tuple[dateType, float]]:
             f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/cotations",
             params={"search": ticker},
             headers={"X-API-Key": key} if key else {},
-            timeout=STOCKS_TIMEOUT,
+            timeout=3,
         )
         if resp.status_code != 200:
             return []
