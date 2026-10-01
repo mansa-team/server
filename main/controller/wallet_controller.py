@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Query
 from fastapi.responses import ORJSONResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from typing import Literal
 
 from config import getSession
 from main.app.wallet.auth import requireWalletUser
@@ -110,3 +111,47 @@ def list_positions_route(
     db: Session = Depends(getSession),
 ):
     return wallet_service.get_positions(db, wallet_id, user["userId"])
+
+
+@router.get("/summary", response_class=ORJSONResponse)
+def get_summary_route(
+    wallet_id: int,
+    user: dict = Depends(requireWalletUser),
+    db: Session = Depends(getSession),
+):
+    return wallet_service.get_summary(db, wallet_id, user["userId"])
+
+
+@router.get("/allocation", response_class=ORJSONResponse)
+def get_allocation_route(
+    wallet_id: int,
+    group_by: Literal["ticker", "type"] = Query(default="ticker"),
+    user: dict = Depends(requireWalletUser),
+    db: Session = Depends(getSession),
+):
+    return wallet_service.get_allocation(db, wallet_id, user["userId"], group_by)
+
+
+@router.put("/targets", response_class=ORJSONResponse)
+def upsert_target_route(
+    payload: wallet_service.TargetUpsert,
+    user: dict = Depends(requireWalletUser),
+    db: Session = Depends(getSession),
+):
+    target = wallet_service.upsert_target(db, user["userId"], payload)
+    return {
+        "wallet_id": target.walletId,
+        "key_kind": target.keyKind,
+        "key_value": target.keyValue,
+        "percent_ideal": float(target.percentIdeal),
+    }
+
+
+@router.put("/ratings", response_class=ORJSONResponse)
+def set_rating_route(
+    payload: wallet_service.RatingUpsert,
+    user: dict = Depends(requireWalletUser),
+    db: Session = Depends(getSession),
+):
+    holding = wallet_service.set_rating(db, user["userId"], payload)
+    return {"ticker": holding.ticker, "rating": holding.rating}

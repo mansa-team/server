@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from config import Config
-from main.models.wallet import Holding, Target, Transaction, Wallet
+from main.models.wallet import Holding, Snapshot, Target, Transaction, Wallet
 
 logger = logging.getLogger(__name__)
 
@@ -263,7 +263,7 @@ def get_positions(db: Session, walletId: int, userId: int) -> dict:
             currentPrice = price
             equityValue = equity
             appreciation = equity - holdingQuantity * holdingAvg
-        percentWallet = (equity / equityTotal * 100) if equity is not None and equityTotal else 0
+        percentWallet = (equity / equityTotal) if equity is not None and equityTotal else 0
         target = (
             db.query(Target)
             .filter(Target.walletId == walletId, Target.keyKind == "ticker", Target.keyValue == holding.ticker)
@@ -288,3 +288,130 @@ def get_positions(db: Session, walletId: int, userId: int) -> dict:
             }
         )
     return {"items": items, "equity_total": equityTotal}
+
+
+class TargetUpsert(BaseModel):
+    wallet_id: int
+    key_kind: Literal["ticker", "group"]
+    key_value: str
+    percent_ideal: float = Field(ge=0, le=100)
+
+
+class RatingUpsert(BaseModel):
+    wallet_id: int
+    ticker: str
+    rating: int = Field(ge=0, le=10)
+
+
+def get_summary(db: Session, walletId: int, userId: int) -> dict:
+    wallet = _get_owned_wallet(db, walletId, userId)
+    holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
+    applied = sum(float(holding.quantity) * float(holding.avgPrice) for holding in holdings)
+    tickers = [holding.ticker for holding in holdings]
+    prices = fetchLivePrices(tickers)
+    for ticker, price in list(prices.items()):
+        if price is None:
+            prices[ticker] = fetchCachedClose(ticker)
+    equity = 0.0
+    for holding in holdings:
+        price = prices.get(holding.ticker)
+        if price is not None:
+            equity += float(holding.quantity) * price
+    variation = equity - applied
+    today = dateType.today()
+    snapshot = db.query(Snapshot).filter(Snapshot.walletId == walletId, Snapshot.date == today).first()
+    if snapshot is None:
+        snapshot = Snapshot(
+            walletId=walletId,
+            date=today,
+            applied=applied,
+            equity=equity,
+            variation=variation,
+            profitTwr=None,
+            profitAmount=variation,
+            profitTwr12m=None,
+            profitTwr12mAmount=variation,
+        )
+        db.add(snapshot)
+    else:
+        snapshot.applied = applied
+        snapshot.equity = equity
+        snapshot.variation = variation
+        snapshot.profitTwr = None
+        snapshot.profitAmount = variation
+        snapshot.profitTwr12m = None
+        snapshot.profitTwr12mAmount = variation
+    wallet.lastRecalc = datetime.now()
+    db.commit()
+    return {
+        "applied": applied,
+        "equity": equity,
+        "variation": variation,
+        "profit_twr": None,
+        "profit_amount": variation,
+        "profit_twr_12m": None,
+        "profit_twr_12m_amount": variation,
+    }
+
+
+def get_allocation(db: Session, walletId: int, userId: int, groupBy: str) -> dict:
+    _get_owned_wallet(db, walletId, userId)
+    holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
+    tickers = [holding.ticker for holding in holdings]
+    prices = fetchLivePrices(tickers)
+    for ticker, price in list(prices.items()):
+        if price is None:
+            prices[ticker] = fetchCachedClose(ticker)
+    groupEquity: dict[str, float] = {}
+    for holding in holdings:
+        price = prices.get(holding.ticker)
+        holdingEquity = float(holding.quantity) * price if price is not None else 0.0
+        groupKey = holding.ticker if groupBy == "ticker" else holding.assetType
+        groupEquity[groupKey] = groupEquity.get(groupKey, 0.0) + holdingEquity
+    equityTotal = sum(groupEquity.values())
+    items = [
+        {
+            "key": groupKey,
+            "equity": groupValue,
+            "pct": (groupValue / equityTotal) if equityTotal else 0,
+        }
+        for groupKey, groupValue in groupEquity.items()
+    ]
+    return {"items": items, "equity_total": equityTotal}
+
+
+def upsert_target(db: Session, userId: int, data: TargetUpsert) -> Target:
+    _get_owned_wallet(db, data.wallet_id, userId)
+    target = (
+        db.query(Target)
+        .filter(
+            Target.walletId == data.wallet_id,
+            Target.keyKind == data.key_kind,
+            Target.keyValue == data.key_value,
+        )
+        .first()
+    )
+    if target is None:
+        target = Target(
+            walletId=data.wallet_id,
+            keyKind=data.key_kind,
+            keyValue=data.key_value,
+            percentIdeal=data.percent_ideal,
+        )
+        db.add(target)
+    else:
+        target.percentIdeal = data.percent_ideal
+    db.commit()
+    db.refresh(target)
+    return target
+
+
+def set_rating(db: Session, userId: int, data: RatingUpsert) -> Holding:
+    _get_owned_wallet(db, data.wallet_id, userId)
+    holding = db.query(Holding).filter(Holding.walletId == data.wallet_id, Holding.ticker == data.ticker).first()
+    if holding is None:
+        raise HTTPException(status_code=404, detail="holding not found")
+    holding.rating = data.rating
+    db.commit()
+    db.refresh(holding)
+    return holding
