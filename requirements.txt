@@ -28,8 +28,8 @@ cashews
 sse-starlette
 sentence-transformers
 huggingface-hub
-fastmcp==3.4.5
-mcp==1.29.0
+fastmcp
+mcp
 google-genai[local-tokenizer]
 forgevm
 python-multipart
@@ -43,10 +43,8 @@ bcrypt
 PyJWT
 itsdangerous
 
-# TEST-PLUGINS
+# TEST
 pytest-asyncio
 freezegun
-pytest-mock
 responses
-factory_boy
 faker

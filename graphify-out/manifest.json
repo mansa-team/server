@@ -19,191 +19,6 @@
     "ast_hash": "0a8c5f526c350c25e1ba673a940eeae6",
     "semantic_hash": ""
   },
-  "D:\\Repositories\\server\\frontend\\components.json": {
-    "mtime": 1785640862.6044843,
-    "ast_hash": "e3fcf5839b4172c81114f80fd960058f",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\jsconfig.json": {
-    "mtime": 1785640842.1584067,
-    "ast_hash": "c96b6082ab4ccf017691880bbb8a9752",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\test-setup.js": {
-    "mtime": 1784134308.924594,
-    "ast_hash": "c471ffc33ba3a03ab85e430121d628aa",
-    "semantic_hash": "c471ffc33ba3a03ab85e430121d628aa"
-  },
-  "D:\\Repositories\\server\\frontend\\vite.config.js": {
-    "mtime": 1789626570.5228856,
-    "ast_hash": "cd569733362cd7dd8135267de3157f2f",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\api.js": {
-    "mtime": 1789626557.8735044,
-    "ast_hash": "16d7cc4a490ac3eed97fe073800109f4",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\App.jsx": {
-    "mtime": 1788731924.642946,
-    "ast_hash": "3186206701c1fcc7edadadfc6687b640",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\App.resume.test.jsx": {
-    "mtime": 1788633803.2661169,
-    "ast_hash": "fbbfeb199b290c128c9f52528639eb2e",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\main.jsx": {
-    "mtime": 1785641082.55628,
-    "ast_hash": "45919833abd54ea677881f82815ebf20",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\AgentLoop.jsx": {
-    "mtime": 1785644402.020807,
-    "ast_hash": "0ad9c5cbeab98ef280b567aef23107be",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\AuthForm.jsx": {
-    "mtime": 1785641311.0983446,
-    "ast_hash": "79fa476797ef1b95e5add5ea96341962",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\InputBar.jsx": {
-    "mtime": 1788732001.616491,
-    "ast_hash": "99e3bf78159c0653af9e85d48bbebbdf",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\MessageList.jsx": {
-    "mtime": 1788731928.9884026,
-    "ast_hash": "531c058cb8a44f71048fdb7a7465a052",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\SessionSidebar.jsx": {
-    "mtime": 1788731918.6133094,
-    "ast_hash": "872b216a26d6e1ceb1fefb70c62d4fdd",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\SettingsDialog.jsx": {
-    "mtime": 1789626563.6772199,
-    "ast_hash": "dfd4222e9bcababe89ce731176062491",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\portfolio\\AddDividendDialog.jsx": {
-    "mtime": 1788637382.3049567,
-    "ast_hash": "dd4d8c81459f626fb7243403db0aa746",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\portfolio\\AddHoldingDialog.jsx": {
-    "mtime": 1788633624.4360394,
-    "ast_hash": "204cf63da006c563b05deee7f0b6e8a3",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\portfolio\\AddLotDialog.jsx": {
-    "mtime": 1788646071.7926874,
-    "ast_hash": "ea965d531dd96f266832ea5736655032",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\portfolio\\charts.jsx": {
-    "mtime": 1788577278.4187212,
-    "ast_hash": "4507fc2d181185733f5ad3d8a0c6668d",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\portfolio\\DistributionChart.jsx": {
-    "mtime": 1788577293.5451124,
-    "ast_hash": "9f6444a8961b28b3f7de1b5c039c3830",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\portfolio\\HistoryList.jsx": {
-    "mtime": 1788657730.568204,
-    "ast_hash": "facd4a02d1f96bdfe867e1a50c61f3c5",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\portfolio\\HoldingSearchBox.jsx": {
-    "mtime": 1788646061.960869,
-    "ast_hash": "982f7292542e259516e9d8cbb972e666",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\portfolio\\HoldingsTable.jsx": {
-    "mtime": 1788637348.4011302,
-    "ast_hash": "592d748b94eee499190a64b755832f2e",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\portfolio\\monthly.js": {
-    "mtime": 1788577816.6183271,
-    "ast_hash": "27abbd6e65356c0696286689d05019d1",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\portfolio\\MonthlyBars.jsx": {
-    "mtime": 1788577877.0916457,
-    "ast_hash": "3ad34fe9c3defdf7ec57648d3c5503a8",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\portfolio\\OverviewCards.jsx": {
-    "mtime": 1788633803.2661169,
-    "ast_hash": "71926313d4786176c03077aab2d58bb9",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\portfolio\\PortfolioView.jsx": {
-    "mtime": 1788657745.6225016,
-    "ast_hash": "aad4e8c703bcb079a56e22986b5ba36a",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\portfolio\\validation.js": {
-    "mtime": 1788637312.457845,
-    "ast_hash": "cc3c9ef70571032d09c56c776ebca02e",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\ui\\alert-dialog.jsx": {
-    "mtime": 1785642143.1912372,
-    "ast_hash": "4a11ee84b0c877ea4f46860ede39fdf8",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\ui\\avatar.jsx": {
-    "mtime": 1785640936.4299698,
-    "ast_hash": "a6815c8519356a92951ab1bb5886d6e4",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\ui\\button.jsx": {
-    "mtime": 1785640918.3065367,
-    "ast_hash": "cedd91b920c88fab7a1da7bc1d876a79",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\ui\\card.jsx": {
-    "mtime": 1786942763.3927803,
-    "ast_hash": "4814ad5bbeab61dc6f3be6737303e08d",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\ui\\context-menu.jsx": {
-    "mtime": 1785641918.039597,
-    "ast_hash": "c57e988648a098d8055ec22da70d4c2b",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\ui\\dialog.jsx": {
-    "mtime": 1785641918.4022229,
-    "ast_hash": "023fd39109a04091808e68373df2eace",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\ui\\input.jsx": {
-    "mtime": 1785640936.1980834,
-    "ast_hash": "ba98a220f835104963b068fb8629065f",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\ui\\scroll-area.jsx": {
-    "mtime": 1785640936.6659088,
-    "ast_hash": "af739c0bc4369287d5a8aa58c2fcb0d0",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\components\\ui\\separator.jsx": {
-    "mtime": 1785640936.8671026,
-    "ast_hash": "72fd324120103da27aca78c0019a155e",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\src\\lib\\utils.js": {
-    "mtime": 1785640918.5280218,
-    "ast_hash": "eff53006b93cfdef4aef148f202f1c3c",
-    "semantic_hash": ""
-  },
   "D:\\Repositories\\server\\main\\app\\authentication\\authentication.py": {
     "mtime": 1790710502.8264444,
     "ast_hash": "904e735c17019459ed5f622346d87973",
@@ -300,8 +115,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\scraper_b3\\scraper.py": {
-    "mtime": 1790821091.8922184,
-    "ast_hash": "7bd8236b3758b54442a88eaf8c8c761b",
+    "mtime": 1790872998.6366813,
+    "ast_hash": "21ebb3edb845c91d471c2689055eda89",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\app\\scraper_b3\\xango.py": {
@@ -475,8 +290,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\service\\stocksapi_service.py": {
-    "mtime": 1790707412.4710135,
-    "ast_hash": "83d9740ec96a60fc7c671db7a850f86e",
+    "mtime": 1790874038.441698,
+    "ast_hash": "973df51956d51ff37b0efab0ad95935a",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\main\\service\\user_service.py": {
@@ -645,8 +460,8 @@
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\requirements.txt": {
-    "mtime": 1790707412.4750223,
-    "ast_hash": "e380f5a072adcb50daae1142b9d2985f",
+    "mtime": 1790871049.141783,
+    "ast_hash": "c9984d25a89dde41f0739baf183b605b",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\TODO.md": {
@@ -712,6 +527,36 @@
   "D:\\Repositories\\server\\docs\\superpowers\\benchmarks\\stocks-cache-ttl.md": {
     "mtime": 1790725744.0210347,
     "ast_hash": "02bdda14a198a7ce352314ec84cd36a6",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\mocks\\mock-wallet.html": {
+    "mtime": 1790835791.9064455,
+    "ast_hash": "10a5e8765d73579086d5d3c82aeb1fa5",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\mocks\\orunmila-chat.html": {
+    "mtime": 1790873597.3491576,
+    "ast_hash": "5b71e51b953e4de784e600ad50da446a",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\mocks\\performance.html": {
+    "mtime": 1790872672.0398054,
+    "ast_hash": "b7679c4ded40ee2133195588f6991b10",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\mocks\\posicoes.html": {
+    "mtime": 1790872784.5623832,
+    "ast_hash": "7722a8844de88fa0f9bb7a2a31fa7b7a",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\mocks\\proventos.html": {
+    "mtime": 1790872648.6081867,
+    "ast_hash": "d943cc0ef736a8b9960636039b897811",
+    "semantic_hash": ""
+  },
+  "D:\\Repositories\\server\\docs\\superpowers\\mocks\\resumo.html": {
+    "mtime": 1790872745.0117264,
+    "ast_hash": "d1ef7558971072a87401e524b849a830",
     "semantic_hash": ""
   },
   "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-08-09-sse-resume.md": {
@@ -789,6 +634,11 @@
     "ast_hash": "5bdfad20f1fff5e0b9064fab31f91d14",
     "semantic_hash": ""
   },
+  "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-10-01-frontend.md": {
+    "mtime": 1790873162.7821314,
+    "ast_hash": "cbac5f961ee4070085305df0209a3d92",
+    "semantic_hash": ""
+  },
   "D:\\Repositories\\server\\docs\\superpowers\\plans\\2026-10-01-wallet-p3.md": {
     "mtime": 1790819692.9904158,
     "ast_hash": "712c9020cdf419cfb288a3090f9a698f",
@@ -802,21 +652,6 @@
   "D:\\Repositories\\server\\docs\\superpowers\\specs\\2026-09-29-nginx-scaling-design.md": {
     "mtime": 1790717689.797926,
     "ast_hash": "9837810a532161e8b9ebcddf56af75f8",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\index.html": {
-    "mtime": 1785641936.6961534,
-    "ast_hash": "7bbc5e5a7693a5828d34f9f4d7eb8125",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\mock-wallet.html": {
-    "mtime": 1790835791.9064455,
-    "ast_hash": "10a5e8765d73579086d5d3c82aeb1fa5",
-    "semantic_hash": ""
-  },
-  "D:\\Repositories\\server\\frontend\\pnpm-workspace.yaml": {
-    "mtime": 1788633933.7987409,
-    "ast_hash": "b742abf2d03aa9d79c3290767176eb41",
     "semantic_hash": ""
   }
 }
