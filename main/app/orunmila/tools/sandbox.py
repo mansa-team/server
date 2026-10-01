@@ -3,7 +3,7 @@ from urllib.parse import quote
 
 from forgevm.exceptions import SandboxNotFound
 
-import main.app.orunmila.tools as toolsPkg
+from main.app.orunmila.sandbox import SandboxManager
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ async def execute_code(code: str, timeout: int = 30, **_) -> dict:
     if not sandboxId:
         return {"error": "No sandbox available"}
     try:
-        return await toolsPkg.SandboxManager.execute(userId, code, sandboxId, timeout=timeout)
+        return await SandboxManager.execute(userId, code, sandboxId, timeout=timeout)
     except SandboxNotFound:
         return {"error": "Sandbox could not be respawned. Try again."}
     except Exception as e:
@@ -37,7 +37,7 @@ async def read_file(path: str, **_) -> dict:
     """
     userId = _.get("userId", 0)
     try:
-        content = toolsPkg.SandboxManager.read_file(userId, path)
+        content = SandboxManager.read_file(userId, path)
     except ValueError:
         return {"error": "Invalid workspace path"}
     return {"content": content}
@@ -53,7 +53,7 @@ async def write_file(path: str, content: str, **_) -> dict:
     """
     userId = _.get("userId", 0)
     try:
-        ok = toolsPkg.SandboxManager.write_file(userId, path, content)
+        ok = SandboxManager.write_file(userId, path, content)
     except ValueError:
         return {"error": "Invalid workspace path"}
     return {"success": ok}
@@ -67,7 +67,7 @@ async def list_files(path: str = "/workspace", **_) -> dict:
     """
     userId = _.get("userId", 0)
     try:
-        return toolsPkg.SandboxManager.list_files(userId, path)
+        return SandboxManager.list_files(userId, path)
     except ValueError:
         return {"error": "Invalid workspace path"}
 
@@ -84,7 +84,7 @@ async def serve_file(path: str, **_) -> dict:
     """
     userId = _.get("userId", 0)
     try:
-        host = toolsPkg.hostPath(userId, path)
+        host = SandboxManager.hostPath(userId, path)
     except ValueError:
         return {"error": "Invalid workspace path"}
     if not host.exists() or not host.is_file():

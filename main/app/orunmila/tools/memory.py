@@ -1,6 +1,7 @@
 import asyncio
 
-import main.app.orunmila.tools as toolsPkg
+from main.app.orunmila.memory import OrunmilaMemory
+from main.app.orunmila.vector import embed
 from main.app.orunmila.tools.context import closeOwnSession, popAuthSession
 
 
@@ -18,7 +19,7 @@ async def search_memory(query: str, limit: int = 10, **_) -> dict:
         return authError
     try:
         results = await asyncio.to_thread(
-            toolsPkg.OrunmilaMemory.search,
+            OrunmilaMemory.search,
             db,  # type: ignore[arg-type]
             user["userId"],
             query,
@@ -43,9 +44,9 @@ async def save_memory(key: str, value: str, type: str, **_) -> dict:
     if authError is not None:
         return authError
     try:
-        embedding = toolsPkg.embed([value])[0]
+        embedding = embed([value])[0]
         result = await asyncio.to_thread(
-            toolsPkg.OrunmilaMemory.upsertMemory,
+            OrunmilaMemory.upsertMemory,
             db,  # type: ignore[arg-type]
             user["userId"],
             key=key,

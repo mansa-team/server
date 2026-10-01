@@ -24,7 +24,7 @@ def ensureOwnership(db: Session | None, walletId: int, userId: int) -> dict | No
     return None
 
 
-async def get_wallet_positions(wallet_id: int, **_) -> dict:
+async def wallet_positions(wallet_id: int, **_) -> dict:
     """List wallet holdings with live prices, equity, allocation, and buy signals.
 
     Read-only: never mutates wallet state.
@@ -49,7 +49,7 @@ async def get_wallet_positions(wallet_id: int, **_) -> dict:
         closeOwnSession(db, ownSession)
 
 
-async def get_wallet_summary(wallet_id: int, **_) -> dict:
+async def wallet_summary(wallet_id: int, **_) -> dict:
     """Summarize applied capital, equity, and variation for a wallet.
 
     Read-only: never mutates wallet state.
@@ -74,7 +74,7 @@ async def get_wallet_summary(wallet_id: int, **_) -> dict:
         closeOwnSession(db, ownSession)
 
 
-async def get_wallet_allocation(wallet_id: int, group_by: str = "ticker", **_) -> dict:
+async def wallet_allocation(wallet_id: int, group_by: str = "ticker", **_) -> dict:
     """Break wallet equity down by ticker or asset type.
 
     Read-only: never mutates wallet state.
@@ -145,7 +145,7 @@ async def list_wallet_earnings(wallet_id: int, status: Optional[str] = "A Recebe
         closeOwnSession(db, ownSession)
 
 
-async def get_wallet_performance(
+async def wallet_performance(
     wallet_id: int, from_date: str, to_date: str, ticker: Optional[str] = None, **_
 ) -> dict:
     """Compute time-weighted return, volatility, and dividends for a wallet or ticker.
@@ -184,7 +184,7 @@ async def get_wallet_performance(
         closeOwnSession(db, ownSession)
 
 
-async def get_wallet_rebalance(wallet_id: int, **_) -> dict:
+async def wallet_rebalance(wallet_id: int, **_) -> dict:
     """Show weight-share rebalance deltas per ticker (buy/sell/hold).
 
     Read-only: never mutates wallet state.

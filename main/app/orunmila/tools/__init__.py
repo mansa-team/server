@@ -1,20 +1,9 @@
 import logging
 from typing import Any
 
-from main.app.orunmila.memory import OrunmilaMemory
-from main.app.orunmila.sandbox import SandboxManager, hostPath
-from main.app.orunmila.tools.context import closeOwnSession, popAuthSession
 from main.app.orunmila.tools.memory import save_memory, search_memory
 from main.app.orunmila.tools.sandbox import execute_code, list_files, read_file, serve_file, write_file
-from main.app.orunmila.tools.wallet import (
-    get_wallet_allocation,
-    get_wallet_performance,
-    get_wallet_positions,
-    get_wallet_rebalance,
-    get_wallet_summary,
-    list_wallet_earnings,
-)
-from main.app.orunmila.vector import embed
+from main.app.orunmila.tools.wallet import wallet_allocation, wallet_performance, wallet_positions, wallet_rebalance, wallet_summary, list_wallet_earnings
 
 logger = logging.getLogger(__name__)
 
@@ -27,12 +16,12 @@ TOOL_REGISTRY: dict[str, Any] = {
     "write_file": write_file,
     "list_files": list_files,
     "serve_file": serve_file,
-    "get_wallet_positions": get_wallet_positions,
-    "get_wallet_summary": get_wallet_summary,
-    "get_wallet_allocation": get_wallet_allocation,
+    "wallet_positions": wallet_positions,
+    "wallet_summary": wallet_summary,
+    "wallet_allocation": wallet_allocation,
     "list_wallet_earnings": list_wallet_earnings,
-    "get_wallet_performance": get_wallet_performance,
-    "get_wallet_rebalance": get_wallet_rebalance,
+    "wallet_performance": wallet_performance,
+    "wallet_rebalance": wallet_rebalance,
 }
 
 
