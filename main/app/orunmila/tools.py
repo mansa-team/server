@@ -4,6 +4,7 @@ import logging
 from typing import Any
 from urllib.parse import quote
 
+from fastapi import HTTPException
 from forgevm.exceptions import SandboxNotFound
 from sqlalchemy.orm import Session
 
@@ -176,6 +177,71 @@ async def serve_file(path: str, **_) -> dict:
     return {"url": url, "markdown": f"[{host.name}]({url})"}
 
 
+#
+# wallet narration (read-only)
+#
+async def narrate_positions(wallet_id: int, **_) -> dict:
+    """Narrate the user's wallet positions in plain language.
+
+    Read-only summary of holdings, allocation vs targets, buy signals,
+    and pending earnings. Never mutates wallet state.
+
+    Args:
+        wallet_id: Wallet to narrate (must belong to the caller)
+    """
+    from main.app.wallet.wallet_service import getOwnedWallet, getPositions, getSummary, listEarnings
+
+    user = _.get("user")
+    if not user:
+        return {"error": "Authentication required"}
+
+    db: Session | None = _.get("db")
+    ownSession = not db
+    if ownSession:
+        db = SessionLocal()
+    try:
+        userId = user["userId"]
+        try:
+            getOwnedWallet(
+                db,  # type: ignore[arg-type]
+                wallet_id,
+                userId,
+            )
+        except HTTPException:
+            return {"error": "not-owner"}
+        positionsView = getPositions(
+            db,  # type: ignore[arg-type]
+            wallet_id,
+            userId,
+        )
+        summaryView = getSummary(
+            db,  # type: ignore[arg-type]
+            wallet_id,
+            userId,
+        )
+        try:
+            pendingCount = len(
+                listEarnings(
+                    db,  # type: ignore[arg-type]
+                    wallet_id,
+                    userId,
+                    status="A Receber",
+                )
+            )
+        except Exception:
+            pendingCount = 0
+        return {
+            "wallet_id": wallet_id,
+            "language": user.get("language", "pt-BR"),
+            "positions": positionsView.get("items", []),
+            "summary": summaryView,
+            "pending_earnings": pendingCount,
+        }
+    finally:
+        if ownSession:
+            db.close()  # type: ignore[union-attr]
+
+
 TOOL_REGISTRY: dict[str, Any] = {
     "search_memory": search_memory,
     "save_memory": save_memory,
@@ -184,6 +250,7 @@ TOOL_REGISTRY: dict[str, Any] = {
     "write_file": write_file,
     "list_files": list_files,
     "serve_file": serve_file,
+    "narrate_positions": narrate_positions,
 }
 
 
