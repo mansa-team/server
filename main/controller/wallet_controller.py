@@ -1,6 +1,7 @@
 import logging
+from datetime import date as dateType
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import ORJSONResponse
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -192,3 +193,20 @@ def sync_earnings_route(
     db: Session = Depends(getSession),
 ):
     return wallet_service.sync_earnings(db, payload.wallet_id, user["userId"])
+
+
+@router.get("/performance", response_class=ORJSONResponse)
+def get_performance_route(
+    wallet_id: int,
+    ticker: str | None = None,
+    fromIso: str = Query(alias="from"),
+    toIso: str = Query(alias="to"),
+    user: dict = Depends(requireWalletUser),
+    db: Session = Depends(getSession),
+):
+    try:
+        startDate = dateType.fromisoformat(fromIso)
+        endDate = dateType.fromisoformat(toIso)
+    except ValueError:
+        raise HTTPException(status_code=422, detail="invalid date, expected YYYY-MM-DD")
+    return wallet_service.get_performance(db, wallet_id, user["userId"], ticker, startDate, endDate)
