@@ -33,9 +33,14 @@ def isSecureScheme(request: Request) -> bool:
     return request.url.scheme == "https"
 
 
-def resolveCookieDomain(request: Request) -> str:
+def resolveCookieDomain(request: Request) -> str | None:
     hostname = request.url.hostname or "localhost"
-    return "localhost" if hostname in ("localhost", "127.0.0.1") else hostname
+    # Local hosts get a host-only cookie (no Domain attribute): a cookie with
+    # Domain=localhost is never sent back to 127.0.0.1, which surfaces as 401
+    # "Session not found" on every cookie-authenticated route.
+    if hostname in ("localhost", "127.0.0.1"):
+        return None
+    return hostname
 
 
 def issueSessionCookie(response, request, db, user) -> tuple[str, str]:
