@@ -83,6 +83,40 @@ class MarketDataManager:
             return []
 
     @classmethod
+    @walletCache(ttl="15m", key="wallet:tickers")
+    def fetchTickers(cls) -> list[dict]:
+        try:
+            key = os.getenv("STOCKS_API_KEY", "")
+            resp = requests.get(
+                f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fundamental",
+                params={"fields": "XANGO INVESTING SCORE"},  # type: ignore[arg-type]
+                headers={"X-API-Key": key} if key else {},
+                timeout=3,
+            )
+            if resp.status_code != 200:
+                return []
+            seen: dict[str, dict] = {}
+            for row in resp.json()["data"]:
+                if not isinstance(row, dict) or "TICKER" not in row:
+                    continue
+                ticker = str(row["TICKER"])
+                if ticker not in seen:
+                    seen[ticker] = {"ticker": ticker, "nome": str(row.get("NOME", ""))}
+            return list(seen.values())
+        except Exception:
+            return []
+
+    @classmethod
+    def fetchCloseAt(cls, ticker: str, target: dateType) -> float | None:
+        best: float | None = None
+        for closeDate, closePrice in cls.fetchPadraoCloses(ticker):
+            if closeDate <= target:
+                best = closePrice
+            else:
+                break
+        return best
+
+    @classmethod
     @walletCache(ttl="6h", key="wallet:closes:{ticker}")
     def fetchPadraoCloses(cls, ticker: str) -> list[tuple[dateType, float]]:
         try:

@@ -220,3 +220,30 @@ def get_performance_route(
     except ValueError:
         raise HTTPException(status_code=422, detail="invalid date, expected YYYY-MM-DD")
     return PerformanceManager.getPerformance(db, wallet_id, userId, ticker, startDate, endDate)
+
+
+@router.get("/tickers", response_class=ORJSONResponse)
+def list_tickers_route():
+    from main.app.wallet.market_data import MarketDataManager
+
+    try:
+        return MarketDataManager.fetchTickers()
+    except Exception:
+        return []
+
+
+@router.get("/close", response_class=ORJSONResponse)
+def get_close_route(
+    ticker: str,
+    dateIso: str = Query(alias="date"),
+):
+    from main.app.wallet.market_data import MarketDataManager
+
+    try:
+        target = dateType.fromisoformat(dateIso)
+    except ValueError:
+        raise HTTPException(status_code=422, detail="invalid date, expected YYYY-MM-DD")
+    close = MarketDataManager.fetchCloseAt(ticker, target)
+    if close is None:
+        raise HTTPException(status_code=404, detail=f"no close for {ticker} at or before {dateIso}")
+    return {"ticker": ticker, "date": dateIso, "close": close}
