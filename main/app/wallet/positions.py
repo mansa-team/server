@@ -54,12 +54,9 @@ class PositionsManager:
         WalletsManager.getWallet(db, walletId, userId)
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
 
-        tickers = [str(holding.ticker) for holding in holdings]
+        tickers = sorted({str(holding.ticker) for holding in holdings})
         prices = MarketDataManager.fetchLivePrices(tickers)
-        for ticker, price in list(prices.items()):
-            if price is None:
-                closes = MarketDataManager.fetchPadraoCloses(ticker)
-                prices[ticker] = closes[-1][1] if closes else None
+        MarketDataManager.fillMissingCloses(prices)
 
         equities: dict[str, float | None] = {}
         for holding in holdings:
@@ -89,6 +86,9 @@ class PositionsManager:
         holdings, prices, equities, equityTotal = cls.pricePass(db, walletId, userId)
         deltas = cls.rebalanceDeltas(holdings, equities, equityTotal)
 
+        targetRows = db.query(Target).filter(Target.walletId == walletId, Target.keyKind == "ticker").all()
+        targetByTicker = {str(target.keyValue): float(target.percentIdeal) for target in targetRows}
+
         items = []
         for holding in holdings:
             holdingQuantity = float(holding.quantity)
@@ -106,12 +106,7 @@ class PositionsManager:
                 appreciation = equity - holdingQuantity * holdingAvg
 
             percentWallet = (equity / equityTotal) if equity is not None and equityTotal else 0
-            target = (
-                db.query(Target)
-                .filter(Target.walletId == walletId, Target.keyKind == "ticker", Target.keyValue == holding.ticker)
-                .first()
-            )
-            percentIdeal = float(target.percentIdeal) if target is not None else None
+            percentIdeal = targetByTicker.get(str(holding.ticker))
             delta = deltas[str(holding.ticker)]
             buyFlag = delta is not None and delta > 0
             items.append(

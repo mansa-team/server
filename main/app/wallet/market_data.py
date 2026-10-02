@@ -45,6 +45,21 @@ class MarketDataManager:
             return dict(pool.map(one, tickers))
 
     @classmethod
+    def fillMissingCloses(cls, prices: dict[str, float | None]) -> dict[str, float | None]:
+        missing = [ticker for ticker, price in prices.items() if price is None]
+        if not missing:
+            return prices
+
+        def one(ticker: str) -> tuple[str, float | None]:
+            closes = cls.fetchPadraoCloses(ticker)
+            return ticker, closes[-1][1] if closes else None
+
+        with ThreadPoolExecutor(max_workers=min(8, max(1, len(missing)))) as pool:
+            for ticker, price in pool.map(one, missing):
+                prices[ticker] = price
+        return prices
+
+    @classmethod
     def fetchMarketDividends(cls, ticker: str) -> list[dict]:
         try:
             key = os.getenv("STOCKS_API_KEY", "")

@@ -33,13 +33,9 @@ class SummaryManager:
         wallet = WalletsManager.getWallet(db, walletId, userId)
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
         applied = sum(float(holding.quantity) * float(holding.avgPrice) for holding in holdings)
-        tickers = [str(holding.ticker) for holding in holdings]
+        tickers = sorted({str(holding.ticker) for holding in holdings})
         prices = MarketDataManager.fetchLivePrices(tickers)
-
-        for ticker, price in list(prices.items()):
-            if price is None:
-                closes = MarketDataManager.fetchPadraoCloses(ticker)
-                prices[ticker] = closes[-1][1] if closes else None
+        MarketDataManager.fillMissingCloses(prices)
 
         equity = 0.0
         for holding in holdings:
@@ -92,12 +88,9 @@ class SummaryManager:
         WalletsManager.getWallet(db, walletId, userId)
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
 
-        tickers = [str(holding.ticker) for holding in holdings]
+        tickers = sorted({str(holding.ticker) for holding in holdings})
         prices = MarketDataManager.fetchLivePrices(tickers)
-        for ticker, price in list(prices.items()):
-            if price is None:
-                closes = MarketDataManager.fetchPadraoCloses(ticker)
-                prices[ticker] = closes[-1][1] if closes else None
+        MarketDataManager.fillMissingCloses(prices)
 
         groupEquity: dict[str, float] = {}
         for holding in holdings:
