@@ -1,5 +1,6 @@
 import logging
 import os
+import threading
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date as dateType
 from datetime import datetime
@@ -14,6 +15,8 @@ from main.app.stocks_api.sync_cache import cache as walletCache
 logger = logging.getLogger(__name__)
 
 cashewsCache.setup("mem://")
+
+closesSemaphore = threading.BoundedSemaphore(8)
 
 
 class MarketDataManager:
@@ -51,7 +54,8 @@ class MarketDataManager:
             return prices
 
         def one(ticker: str) -> tuple[str, float | None]:
-            closes = cls.fetchPadraoCloses(ticker)
+            with closesSemaphore:
+                closes = cls.fetchPadraoCloses(ticker)
             return ticker, closes[-1][1] if closes else None
 
         with ThreadPoolExecutor(max_workers=min(8, max(1, len(missing)))) as pool:
