@@ -3,26 +3,21 @@ from datetime import date as dateType
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import ORJSONResponse
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from typing import Literal
 
 from config import getSession
-from main.app.wallet import summary  # pinned: set_rating_route handler calls summary.set_rating (digest test)
-from main.app.wallet.earnings import EarningsManager
-from main.app.wallet.entries import EntriesManager, EntryCreate, EntryUpdate
+from main.app.wallet import summary
+from main.app.wallet.earnings import EarningsManager, EarningsSync, serialize_earning
+from main.app.wallet.entries import EntriesManager, EntryCreate, EntryUpdate, serialize_entry, serialize_holding
 from main.app.wallet.performance import PerformanceManager
 from main.app.wallet.positions import PositionsManager
 from main.app.wallet.summary import RatingUpsert, SummaryManager, TargetUpsert
-from main.app.wallet.wallets import WalletsManager
+from main.app.wallet.wallets import WalletCreate, WalletsManager
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/wallet", tags=["wallet"])
-
-
-class WalletCreate(BaseModel):
-    name: str
 
 
 @router.post("/wallets", response_class=ORJSONResponse, status_code=201)
@@ -44,26 +39,6 @@ def list_wallets_route(
         {"walletId": walletItem.walletId, "name": walletItem.name, "lastRecalc": walletItem.lastRecalc}
         for walletItem in WalletsManager.listWallets(db, userId)
     ]
-
-
-def serialize_holding(holding) -> dict | None:
-    if holding is None:
-        return None
-    return {"ticker": holding.ticker, "quantity": float(holding.quantity), "avgPrice": float(holding.avgPrice)}
-
-
-def serialize_entry(entry) -> dict:
-    return {
-        "entryId": entry.entryId,
-        "wallet_id": entry.walletId,
-        "side": entry.side,
-        "asset_type": entry.assetType,
-        "ticker": entry.ticker,
-        "date": entry.date.isoformat(),
-        "quantity": float(entry.quantity),
-        "price": float(entry.price),
-        "costs": float(entry.costs),
-    }
 
 
 @router.post("/entries", response_class=ORJSONResponse, status_code=201)
@@ -172,20 +147,6 @@ def set_rating_route(
     return {"ticker": holding.ticker, "rating": holding.rating}
 
 
-class EarningsSync(BaseModel):
-    wallet_id: int
-
-
-def serialize_earning(earning) -> dict:
-    return {
-        "ticker": earning.ticker,
-        "kind": earning.kind,
-        "gross": float(earning.gross),
-        "net_ir_adjusted": float(earning.netIrAdjusted),
-        "status": earning.status,
-    }
-
-
 @router.get("/earnings", response_class=ORJSONResponse)
 def list_earnings_route(
     wallet_id: int,
@@ -220,30 +181,3 @@ def get_performance_route(
     except ValueError:
         raise HTTPException(status_code=422, detail="invalid date, expected YYYY-MM-DD")
     return PerformanceManager.getPerformance(db, wallet_id, userId, ticker, startDate, endDate)
-
-
-@router.get("/tickers", response_class=ORJSONResponse)
-def list_tickers_route():
-    from main.app.wallet.market_data import MarketDataManager
-
-    try:
-        return MarketDataManager.fetchTickers()
-    except Exception:
-        return []
-
-
-@router.get("/close", response_class=ORJSONResponse)
-def get_close_route(
-    ticker: str,
-    dateIso: str = Query(alias="date"),
-):
-    from main.app.wallet.market_data import MarketDataManager
-
-    try:
-        target = dateType.fromisoformat(dateIso)
-    except ValueError:
-        raise HTTPException(status_code=422, detail="invalid date, expected YYYY-MM-DD")
-    close = MarketDataManager.fetchCloseAt(ticker, target)
-    if close is None:
-        raise HTTPException(status_code=404, detail=f"no close for {ticker} at or before {dateIso}")
-    return {"ticker": ticker, "date": dateIso, "close": close}

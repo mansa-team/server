@@ -2,10 +2,11 @@ import logging
 from datetime import date as dateType
 from datetime import datetime
 
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from main.app.wallet.entries import EntriesManager
-from main.app.wallet.market_data import MarketDataManager
+from main.app.wallet.positions import PositionsManager
 from main.app.wallet.wallets import WalletsManager
 from main.models.wallet import Earning, Holding, Transaction
 
@@ -19,6 +20,20 @@ TIPO_MAP = {
     "Juros Sobre Capital Proprio": "JSCP",
     "Rend. Tributado": "RendTributado",
 }
+
+
+class EarningsSync(BaseModel):
+    wallet_id: int
+
+
+def serialize_earning(earning) -> dict:
+    return {
+        "ticker": earning.ticker,
+        "kind": earning.kind,
+        "gross": float(earning.gross),
+        "net_ir_adjusted": float(earning.netIrAdjusted),
+        "status": earning.status,
+    }
 
 
 class EarningsManager:
@@ -44,7 +59,7 @@ class EarningsManager:
                 .all()
             )
 
-            for record in MarketDataManager.fetchMarketDividends(holdingTicker):
+            for record in PositionsManager.fetchMarketDividends(holdingTicker):
                 label = str(record.get("TIPO PROVENTO"))
                 kind = TIPO_MAP.get(label)
 

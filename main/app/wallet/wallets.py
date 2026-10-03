@@ -1,11 +1,16 @@
 import logging
 
 from fastapi import HTTPException
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from main.models.wallet import Wallet
 
 logger = logging.getLogger(__name__)
+
+
+class WalletCreate(BaseModel):
+    name: str
 
 
 class WalletsManager:

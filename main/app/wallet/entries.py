@@ -13,6 +13,26 @@ from main.models.wallet import Holding, Transaction
 logger = logging.getLogger(__name__)
 
 
+def serialize_holding(holding) -> dict | None:
+    if holding is None:
+        return None
+    return {"ticker": holding.ticker, "quantity": float(holding.quantity), "avgPrice": float(holding.avgPrice)}
+
+
+def serialize_entry(entry) -> dict:
+    return {
+        "entryId": entry.entryId,
+        "wallet_id": entry.walletId,
+        "side": entry.side,
+        "asset_type": entry.assetType,
+        "ticker": entry.ticker,
+        "date": entry.date.isoformat(),
+        "quantity": float(entry.quantity),
+        "price": float(entry.price),
+        "costs": float(entry.costs),
+    }
+
+
 class EntryCreate(BaseModel):
     wallet_id: int
     side: Literal["Compra", "Venda"]

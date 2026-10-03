@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from main.app.stocks_api.sync_cache import cache as walletCache
 from main.app.wallet.entries import EntriesManager
-from main.app.wallet.market_data import MarketDataManager
+from main.app.wallet.positions import PositionsManager
 from main.app.wallet.wallets import WalletsManager
 from main.models.wallet import Earning, Transaction
 
@@ -53,7 +53,7 @@ class PerformanceManager:
                 if earnTicker == ticker and fromIso <= exIso <= toIso:
                     dividendsReceived += netValue
 
-            series = MarketDataManager.fetchPadraoCloses(ticker)
+            series = PositionsManager.fetchPadraoCloses(ticker)
 
             tickerEntries = [
                 (entryIso, entrySide, entryQty, entryPrice, entryCosts)

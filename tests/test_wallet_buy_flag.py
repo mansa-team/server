@@ -245,6 +245,6 @@ def test_fetch_xango_scores_parses_fundamental(monkeypatch):
 
 
 def test_ratings_route_untouched():
-    raw = open("main/controller/wallet_controller.py", "rb").read().splitlines(keepends=True)[165:173]
+    raw = open("main/controller/wallet_controller.py", "rb").read().splitlines(keepends=True)[140:148]
     digest = hashlib.sha256(b"".join(raw)).hexdigest()
     assert digest == RATINGS_ROUTE_DIGEST  # any edit to set_rating_route fails loudly

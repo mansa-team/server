@@ -7,7 +7,7 @@ from fastapi import HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from main.app.wallet.market_data import MarketDataManager
+from main.app.wallet.positions import PositionsManager
 from main.app.wallet.wallets import WalletsManager
 from main.models.wallet import Holding, Snapshot, Target
 
@@ -34,8 +34,8 @@ class SummaryManager:
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
         applied = sum(float(holding.quantity) * float(holding.avgPrice) for holding in holdings)
         tickers = sorted({str(holding.ticker) for holding in holdings})
-        prices = MarketDataManager.fetchLivePrices(tickers)
-        MarketDataManager.fillMissingCloses(prices)
+        prices = PositionsManager.fetchLivePrices(tickers)
+        PositionsManager.fillMissingCloses(prices)
 
         equity = 0.0
         for holding in holdings:
@@ -89,8 +89,8 @@ class SummaryManager:
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
 
         tickers = sorted({str(holding.ticker) for holding in holdings})
-        prices = MarketDataManager.fetchLivePrices(tickers)
-        MarketDataManager.fillMissingCloses(prices)
+        prices = PositionsManager.fetchLivePrices(tickers)
+        PositionsManager.fillMissingCloses(prices)
 
         groupEquity: dict[str, float] = {}
         for holding in holdings:
