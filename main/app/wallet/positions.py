@@ -109,8 +109,14 @@ class PositionsManager:
                 return []
             payload = resp.json()["data"]
             if payload and isinstance(payload[0], dict) and "HISTORICO DIVIDENDOS" in payload[0]:
-                return payload[0]["HISTORICO DIVIDENDOS"]
-            return payload
+                dividends = payload[0]["HISTORICO DIVIDENDOS"]
+                # ponytail: API sometimes yields plain strings (tickers) inside the
+                # dividend list; keep the declared list[dict] contract here so all
+                # callers stay crash-free. Filter, don't per-caller guard.
+                if isinstance(dividends, list):
+                    return [row for row in dividends if isinstance(row, dict)]
+                return []
+            return []
         except Exception:
             return []
 
