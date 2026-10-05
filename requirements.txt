@@ -48,3 +48,4 @@ pytest-asyncio
 freezegun
 responses
 faker
+factory_boy
