@@ -11,7 +11,7 @@ from main.models.wallet import Holding
 from tests.conftest import make_wallet_client
 from tests.test_wallet_positions import _live_ok
 
-RATINGS_ROUTE_DIGEST = "3a050b055866190a8142ddaca2ce916efd864d31496d90b959043c4ba484e334"
+RATINGS_ROUTE_DIGEST = "ab87ef76f6f3a61f652cf7fd0db94609d7d6dcb42169a81aa3e308ba8ca7f189"
 
 
 @pytest.fixture(autouse=True)
