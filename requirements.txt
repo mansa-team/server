@@ -47,5 +47,4 @@ itsdangerous
 pytest-asyncio
 freezegun
 responses
-factory
 faker

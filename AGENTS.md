@@ -52,21 +52,45 @@ Exit code: 0 = all passed, 1 = at least one failed. Bandit failures are non-bloc
 - Tests in `tests/test_*.py`, use fixtures from `conftest.py`
 - Requires MySQL running
 
-## graphify
-This project has a graphify knowledge graph at graphify-out/.
 
-Rules:
-- Before answering architecture or codebase questions, read graphify-out/GRAPH_REPORT.md for god nodes and community structure
-- If graphify-out/wiki/index.md exists, navigate it instead of reading raw files
-- For cross-module "how does X relate to Y" questions, prefer `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or `graphify explain "<concept>"` over grep — these traverse the graph's EXTRACTED + INFERRED edges instead of scanning files
-- After modifying code files in this session, run `graphify update .` to keep the graph current (AST-only, no API cost)
+<!-- graft:start -->
+## Graft — repo context graph
 
-## Swarm Delegation (default)
+This repo is indexed in `graft/`: small linked markdown nodes that explain each
+system and carry exact file:line spans, kept in sync with the code through git.
 
-- All 3+ step tasks: `create_goal` + `todowrite` lanes (one todo per lane) + `delegate()` fan-out, one call per lane in one turn.
-- Background by default, blocking by exception (`task()` only for mutations prime must supervise).
-- Every lane returns an envelope: `Status: / Mutations: / Edge-Cases: / Deliverables:` ≤300 words + `file:line`.
-- Verify every lane: `git --no-pager log --oneline -N` + real test output. Never report a delegate's commits/tests as fact.
-- One commit per lane (`simple-commits`: lowercase, one logical change). Full `.\ci.ps1` before push.
-- Always `git --no-pager` on diff/log/show/status. Never `Get-Content -Wait` — poll with `Get-Content -Tail N`.
-- Standing bans: NEVER run any `TestStocksCacheManager::test_getCachedStocks_*` (spawns real cache build, stalls ~1hr — always `-k "not test_getCachedStocks_"`); never run bare pytest, only `.\ci.ps1`; never touch `stash@{1}` or foreign stashes.
+For ANY task here — understanding how something works, finding where code lives,
+or scoping a change — get context from the graph before grepping or opening
+source files. Re-ask freely (it's cheap) and reuse literal identifiers you
+already have (symbol, error string, file name) as the query. New to this repo?
+Run `graft map` first — a token-budgeted orientation (dir clusters, hubs,
+hotspots), no LLM, no key.
+
+- Run `graft ask "<your question>" --source` → ranked nodes with the relevant
+  code spans inlined (each hit's ≤8-line crux by default; `--full` for whole
+  definitions when the crux isn't enough). Match the tool to the task shape:
+  for understanding or editing, the top node IS the answer — cite its
+  `covers:` file:line spans and edit straight from `--source`. For
+  exhaustive tasks ("every occurrence / every caller of this pattern"), ranked
+  results are top-N, not complete — run `graft grep "<literal>"` instead
+  (exhaustive over indexed files, grouped by enclosing symbol), falling back
+  to raw `grep -rn` only for unindexed files.
+- `graft skeleton <file>` → every definition's signature + span, ~10× cheaper
+  than reading the file; use it to skim an API surface.
+- `graft callers <symbol>` gives precomputed, exact edges — who calls this.
+  Add `--direction out` for what it calls, or `--depth N` to walk
+  transitively for the full blast radius. For structural questions, skip
+  ranking and use this directly.
+- Or browse: `graft/INDEX.md` lists every node; follow the links.
+- Monorepos and folders of multiple repos rank fairly across sub-projects —
+  hits carry `[scope/]` labels naming which one they're from. Narrow with
+  `graft ask "<task>" --in <scope>/` once you know where you're working.
+
+If a returned span is truncated ("+N more lines"), open the file at that exact
+range before finalizing. Only open source files when a node genuinely lacks a
+needed detail, and then at the exact file:line the node points to — never
+re-read whole files.
+
+After big code changes, refresh the graph with `graft build` (deterministic,
+no API key, $0).
+<!-- graft:end -->
