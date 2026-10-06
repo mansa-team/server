@@ -24,54 +24,63 @@ def ensureOwnership(db: Session | None, walletId: int, userId: int) -> dict | No
     return None
 
 
-async def wallet_positions(wallet_id: int, **_) -> dict:
+def resolveWalletId(db: Session | None, userId: int) -> int:
+    """Server-side wallet resolution: the wallet id never comes from the LLM."""
+    wallet = WalletsManager.getMyWallet(db, userId)  # type: ignore[arg-type]
+    return int(wallet.walletId)
+
+
+async def wallet_positions(**_) -> dict:
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
     try:
         userId = user["userId"]
-        ownerError = ensureOwnership(db, wallet_id, userId)
+        walletId = resolveWalletId(db, userId)
+        ownerError = ensureOwnership(db, walletId, userId)
         if ownerError is not None:
             return ownerError
         return PositionsManager.getPositions(
             db,  # type: ignore[arg-type]
-            wallet_id,
+            walletId,
             userId,
         )
     finally:
         closeOwnSession(db, ownSession)
 
 
-async def wallet_summary(wallet_id: int, **_) -> dict:
+async def wallet_summary(**_) -> dict:
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
     try:
         userId = user["userId"]
-        ownerError = ensureOwnership(db, wallet_id, userId)
+        walletId = resolveWalletId(db, userId)
+        ownerError = ensureOwnership(db, walletId, userId)
         if ownerError is not None:
             return ownerError
         return SummaryManager.getSummary(
             db,  # type: ignore[arg-type]
-            wallet_id,
+            walletId,
             userId,
         )
     finally:
         closeOwnSession(db, ownSession)
 
 
-async def wallet_allocation(wallet_id: int, group_by: str = "ticker", **_) -> dict:
+async def wallet_allocation(group_by: str = "ticker", **_) -> dict:
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
     try:
         userId = user["userId"]
-        ownerError = ensureOwnership(db, wallet_id, userId)
+        walletId = resolveWalletId(db, userId)
+        ownerError = ensureOwnership(db, walletId, userId)
         if ownerError is not None:
             return ownerError
         body = SummaryManager.getAllocation(
             db,  # type: ignore[arg-type]
-            wallet_id,
+            walletId,
             userId,
         )
         # Grouping + pct are client-side (same as the HTTP endpoint).
@@ -91,24 +100,25 @@ async def wallet_allocation(wallet_id: int, group_by: str = "ticker", **_) -> di
         closeOwnSession(db, ownSession)
 
 
-async def list_wallet_earnings(wallet_id: int, status: Optional[str] = "A Receber", **_) -> dict:
+async def list_wallet_earnings(status: Optional[str] = "A Receber", **_) -> dict:
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
     try:
         userId = user["userId"]
-        ownerError = ensureOwnership(db, wallet_id, userId)
+        walletId = resolveWalletId(db, userId)
+        ownerError = ensureOwnership(db, walletId, userId)
         if ownerError is not None:
             return ownerError
         rows = EarningsManager.listEarnings(
             db,  # type: ignore[arg-type]
-            wallet_id,
+            walletId,
             userId,
         )
         if status is not None:
             rows = [row for row in rows if str(row.status) == status]
         return {
-            "wallet_id": wallet_id,
+            "wallet_id": walletId,
             "status": status,
             "earnings": [
                 {
@@ -128,7 +138,7 @@ async def list_wallet_earnings(wallet_id: int, status: Optional[str] = "A Recebe
         closeOwnSession(db, ownSession)
 
 
-async def wallet_performance(wallet_id: int, from_date: str, to_date: str, ticker: Optional[str] = None, **_) -> dict:
+async def wallet_performance(from_date: str, to_date: str, ticker: Optional[str] = None, **_) -> dict:
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
@@ -140,12 +150,13 @@ async def wallet_performance(wallet_id: int, from_date: str, to_date: str, ticke
             return {"error": "invalid date, use YYYY-MM-DD"}
 
         userId = user["userId"]
-        ownerError = ensureOwnership(db, wallet_id, userId)
+        walletId = resolveWalletId(db, userId)
+        ownerError = ensureOwnership(db, walletId, userId)
         if ownerError is not None:
             return ownerError
         return PerformanceManager.getPerformance(
             db,  # type: ignore[arg-type]
-            wallet_id,
+            walletId,
             userId,
             ticker,
             startDate,
@@ -155,18 +166,19 @@ async def wallet_performance(wallet_id: int, from_date: str, to_date: str, ticke
         closeOwnSession(db, ownSession)
 
 
-async def wallet_rebalance(wallet_id: int, **_) -> dict:
+async def wallet_rebalance(**_) -> dict:
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
     try:
         userId = user["userId"]
-        ownerError = ensureOwnership(db, wallet_id, userId)
+        walletId = resolveWalletId(db, userId)
+        ownerError = ensureOwnership(db, walletId, userId)
         if ownerError is not None:
             return ownerError
         return PositionsManager.getRebalance(
             db,  # type: ignore[arg-type]
-            wallet_id,
+            walletId,
             userId,
         )
     finally:
