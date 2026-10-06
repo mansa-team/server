@@ -310,11 +310,10 @@ def make_stocksapi_client(mock_api_key=None):
 def make_wallet_client(mock_identity=None, db=None):
     """Return (client, app) with wallet router and mocked deps."""
     from fastapi.testclient import TestClient as WalletTestClient
-    from fastapi import Request
-    from starlette.middleware.base import BaseHTTPMiddleware
     from main.controller.wallet_controller import router as walletRouter
     from main.utils.errors import registerErrorHandlers
     from unittest.mock import MagicMock
+    from main.app.user.user import UserManager
     import main.models.wallet  # noqa: F401
 
     app = FastAPI()
@@ -325,15 +324,6 @@ def make_wallet_client(mock_identity=None, db=None):
     app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: session
 
     identity = mock_identity or {"userId": 1, "username": "testuser", "roles": ["USER"]}
-    callerId = int(identity.get("userId", 1))
-
-    class CallerMiddleware(BaseHTTPMiddleware):
-        async def dispatch(self, request: Request, call_next):
-            if "userId" not in request.query_params:
-                url = str(request.url.include_query_params(userId=callerId))
-                request.scope["query_string"] = url.split("?", 1)[1].encode()
-            return await call_next(request)
-
-    app.add_middleware(CallerMiddleware)
+    app.dependency_overrides[UserManager.getCurrentUser] = lambda: identity
 
     return WalletTestClient(app, raise_server_exceptions=False), app, session

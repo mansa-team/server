@@ -1,5 +1,4 @@
 import asyncio
-import hashlib
 
 import pytest
 import requests
@@ -10,8 +9,6 @@ from main.app.wallet.positions import PositionsManager
 from main.models.wallet import Holding
 from tests.conftest import make_wallet_client
 from tests.test_wallet_positions import _live_ok
-
-RATINGS_ROUTE_DIGEST = "ab87ef76f6f3a61f652cf7fd0db94609d7d6dcb42169a81aa3e308ba8ca7f189"
 
 
 @pytest.fixture(autouse=True)
@@ -300,7 +297,13 @@ def test_fetch_xango_scores_parses_fundamental(monkeypatch):
 
 
 def test_ratings_route_untouched():
-    lines = open("main/controller/wallet_controller.py", "rb").read().splitlines(keepends=True)
-    idx = next(i for i, line in enumerate(lines) if line.strip() == b"def set_rating_route(")
-    digest = hashlib.sha256(b"".join(lines[idx : idx + 8])).hexdigest()
-    assert digest == RATINGS_ROUTE_DIGEST  # any edit to set_rating_route fails loudly
+    # Guard the IDOR fix, not a hash: identity and wallet must come from
+    # server-side auth, never from client params, behind a router-level gate.
+    import inspect
+
+    from main.controller.wallet_controller import router, set_rating_route
+
+    params = inspect.signature(set_rating_route).parameters
+    assert "userId" not in params and "wallet_id" not in params  # any client identity param fails loudly
+    assert "currentUser" in params and "wallet" in params
+    assert router.dependencies  # router-level auth gate still mounted

@@ -115,18 +115,16 @@ def _seed_earnings(dbSession, walletId):
 
 def test_wallet_positions_returns_read_view(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_ok)
-    walletId = _seed_wallet(dbSession)
-    result = asyncio.run(
-        TOOL_REGISTRY["wallet_positions"](wallet_id=walletId, user={"userId": 1, "language": "pt-BR"}, db=dbSession)
-    )
+    _seed_wallet(dbSession)
+    result = asyncio.run(TOOL_REGISTRY["wallet_positions"](user={"userId": 1, "language": "pt-BR"}, db=dbSession))
     assert result["items"][0]["ticker"] == "PETR4"
     assert result["equity_total"] == 300.0
 
 
 def test_wallet_summary_returns_totals(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_ok)
-    walletId = _seed_wallet(dbSession)
-    result = asyncio.run(TOOL_REGISTRY["wallet_summary"](wallet_id=walletId, user={"userId": 1}, db=dbSession))
+    _seed_wallet(dbSession)
+    result = asyncio.run(TOOL_REGISTRY["wallet_summary"](user={"userId": 1}, db=dbSession))
     assert result["applied"] == 100.0
     assert result["equity"] == 300.0
     assert result["variation"] == 200.0
@@ -134,12 +132,12 @@ def test_wallet_summary_returns_totals(dbSession, monkeypatch):
 
 def test_wallet_allocation_groups_by_ticker_and_asset(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_ok)
-    walletId = _seed_wallet(dbSession)
-    byTicker = asyncio.run(TOOL_REGISTRY["wallet_allocation"](wallet_id=walletId, user={"userId": 1}, db=dbSession))
+    _seed_wallet(dbSession)
+    byTicker = asyncio.run(TOOL_REGISTRY["wallet_allocation"](user={"userId": 1}, db=dbSession))
     assert byTicker["items"][0]["key"] == "PETR4"
     assert byTicker["equity_total"] == 300.0
     byAsset = asyncio.run(
-        TOOL_REGISTRY["wallet_allocation"](wallet_id=walletId, group_by="assetType", user={"userId": 1}, db=dbSession)
+        TOOL_REGISTRY["wallet_allocation"](group_by="assetType", user={"userId": 1}, db=dbSession)
     )
     assert byAsset["items"][0]["key"] == "ACOES"
 
@@ -151,16 +149,14 @@ def test_list_wallet_earnings_filters_by_status(dbSession, monkeypatch):
     monkeypatch.setattr(PositionsManager, "fetchMarketDividends", lambda ticker: [])
     # Auto-sync on read transitions past-payDate "A Receber" to "Recebido"
     # (seed payDate 2026-04-01 <= today), so the pending bucket is empty.
-    pending = asyncio.run(TOOL_REGISTRY["list_wallet_earnings"](wallet_id=walletId, user={"userId": 1}, db=dbSession))
+    pending = asyncio.run(TOOL_REGISTRY["list_wallet_earnings"](user={"userId": 1}, db=dbSession))
     assert pending["earnings"] == []
     received = asyncio.run(
-        TOOL_REGISTRY["list_wallet_earnings"](wallet_id=walletId, status="Recebido", user={"userId": 1}, db=dbSession)
+        TOOL_REGISTRY["list_wallet_earnings"](status="Recebido", user={"userId": 1}, db=dbSession)
     )
     assert [row["kind"] for row in received["earnings"]] == ["Div", "JSCP"]
     assert received["earnings"][0]["gross"] == 10.0
-    allRows = asyncio.run(
-        TOOL_REGISTRY["list_wallet_earnings"](wallet_id=walletId, status=None, user={"userId": 1}, db=dbSession)
-    )
+    allRows = asyncio.run(TOOL_REGISTRY["list_wallet_earnings"](status=None, user={"userId": 1}, db=dbSession))
     assert len(allRows["earnings"]) == 2
     assert {row["status"] for row in allRows["earnings"]} == {"Recebido"}
 
@@ -183,7 +179,6 @@ def test_wallet_performance_returns_metrics(dbSession, monkeypatch):
     dbSession.commit()
     result = asyncio.run(
         TOOL_REGISTRY["wallet_performance"](
-            wallet_id=walletId,
             from_date="2026-01-01",
             to_date="2026-01-11",
             ticker="PETR4",
@@ -196,10 +191,10 @@ def test_wallet_performance_returns_metrics(dbSession, monkeypatch):
 
 
 def test_wallet_performance_rejects_bad_date(dbSession):
-    walletId = _seed_wallet(dbSession)
+    _seed_wallet(dbSession)
     result = asyncio.run(
         TOOL_REGISTRY["wallet_performance"](
-            wallet_id=walletId, from_date="01/01/2026", to_date="2026-01-11", user={"userId": 1}, db=dbSession
+            from_date="01/01/2026", to_date="2026-01-11", user={"userId": 1}, db=dbSession
         )
     )
     assert result == {"error": "invalid date, use YYYY-MM-DD"}
@@ -207,27 +202,42 @@ def test_wallet_performance_rejects_bad_date(dbSession):
 
 def test_wallet_rebalance_single_holding_holds(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_ok)
-    walletId = _seed_wallet(dbSession)
-    result = asyncio.run(TOOL_REGISTRY["wallet_rebalance"](wallet_id=walletId, user={"userId": 1}, db=dbSession))
+    _seed_wallet(dbSession)
+    result = asyncio.run(TOOL_REGISTRY["wallet_rebalance"](user={"userId": 1}, db=dbSession))
     # Canonical raw: single holding owns the whole weight share → client derives hold.
     assert len(result["items"]) == 1
     assert result["items"][0]["weight"] > 0
     assert result["items"][0]["equity"] == result["equity_total"]
 
 
-def test_wallet_tools_cross_user_denied(dbSession):
-    walletId = _seed_wallet(dbSession)
-    baseArgs = {"wallet_id": walletId, "user": {"userId": 2, "language": "pt-BR"}, "db": dbSession}
+def test_wallet_tools_cross_user_isolated(dbSession, monkeypatch):
+    # Tools take no wallet id: user 2 can only ever see their own (empty)
+    # wallet, never user 1's positions. The ownership assert stays as
+    # defense-in-depth and is covered directly below.
+    import json
+
+    monkeypatch.setattr(requests, "get", _live_ok)
+    monkeypatch.setattr(PositionsManager, "fetchMarketDividends", lambda ticker: [])
+    _seed_wallet(dbSession)
+    baseArgs = {"user": {"userId": 2, "language": "pt-BR"}, "db": dbSession}
     for name in WALLET_TOOLS:
         args = dict(baseArgs)
         if name == "wallet_performance":
             args.update({"from_date": "2026-01-01", "to_date": "2026-01-11"})
         result = asyncio.run(TOOL_REGISTRY[name](**args))
-        assert result == {"error": "not-owner"}
+        assert "PETR4" not in json.dumps(result, default=str)
+
+
+def test_ensure_ownership_denies_other_user(dbSession):
+    from main.app.orunmila.tools.wallet import ensureOwnership
+
+    walletId = _seed_wallet(dbSession)
+    assert ensureOwnership(dbSession, walletId, 1) is None
+    assert ensureOwnership(dbSession, walletId, 2) == {"error": "not-owner"}
 
 
 def test_wallet_tools_no_auth_no_data():
-    baseArgs = {"wallet_id": 1}
+    baseArgs = {}
     for name in WALLET_TOOLS:
         args = dict(baseArgs)
         if name == "wallet_performance":
