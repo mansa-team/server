@@ -53,6 +53,8 @@ def test_summary_math_and_snapshot_upsert(dbSession, monkeypatch):
         "applied": 100.0,
         "equity": 300.0,
         "variation": 200.0,
+        "profit": 200.0,
+        "profit_total": 200.0,
         "profit_twr": None,
         "profit_amount": 200.0,
         "profit_twr_12m": None,

@@ -23,8 +23,6 @@ class RatingUpsert(BaseModel):
 class SummaryManager:
     @classmethod
     def twrOrNone(cls, db: Session, walletId: int, userId: int, start: dateType, end: dateType) -> float | None:
-        # Sync-on-read TWR for one window: TTL-cached via getPerformance, never
-        # raises, None when unmeasurable (no market closes in window).
         try:
             startIso, endIso = start.isoformat(), end.isoformat()
             tickers = [
@@ -111,6 +109,8 @@ class SummaryManager:
             "applied": applied,
             "equity": equity,
             "variation": variation,
+            "profit": variation,
+            "profit_total": variation,
             "profit_twr": profitTwr,
             "profit_amount": variation,
             "profit_twr_12m": profitTwr12m,
