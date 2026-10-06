@@ -11,7 +11,6 @@ from main.models.wallet import Holding, Snapshot, Transaction
 
 
 class RatingUpsert(BaseModel):
-    wallet_id: int
     ticker: str
     rating: float = Field(ge=0, le=100)
 
@@ -107,9 +106,9 @@ class SummaryManager:
         return {"items": items, "equity_total": equityTotal}
 
     @classmethod
-    def set_rating(cls, db: Session, userId: int, data: RatingUpsert) -> Holding:
-        WalletsManager.getWallet(db, data.wallet_id, userId)
-        holding = db.query(Holding).filter(Holding.walletId == data.wallet_id, Holding.ticker == data.ticker).first()
+    def set_rating(cls, db: Session, userId: int, walletId: int, data: RatingUpsert) -> Holding:
+        WalletsManager.getWallet(db, walletId, userId)
+        holding = db.query(Holding).filter(Holding.walletId == walletId, Holding.ticker == data.ticker).first()
 
         if holding is None:
             raise HTTPException(status_code=404, detail="holding not found")

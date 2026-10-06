@@ -45,7 +45,6 @@ def serialize_entry(entry) -> dict:
 
 
 class EntryCreate(BaseModel):
-    wallet_id: int
     side: Literal["Compra", "Venda"]
     asset_type: AssetType
     ticker: str
@@ -131,8 +130,8 @@ class EntriesManager:
         return holding
 
     @classmethod
-    def addEntry(cls, db: Session, userId: int, data: EntryCreate) -> tuple[Transaction, Holding | None]:
-        WalletsManager.getWallet(db, data.wallet_id, userId)
+    def addEntry(cls, db: Session, userId: int, walletId: int, data: EntryCreate) -> tuple[Transaction, Holding | None]:
+        WalletsManager.getWallet(db, walletId, userId)
         if data.asset_type not in ALLOWED_ASSET_TYPES:
             raise HTTPException(
                 status_code=422,
@@ -140,13 +139,13 @@ class EntriesManager:
             )
         if data.side == "Venda":
             holding = (
-                db.query(Holding).filter(Holding.walletId == data.wallet_id, Holding.ticker == data.ticker).first()
+                db.query(Holding).filter(Holding.walletId == walletId, Holding.ticker == data.ticker).first()
             )
             if holding is None or data.quantity > float(holding.quantity):
                 raise HTTPException(status_code=422, detail="sell exceeds holding")
 
         entry = Transaction(
-            walletId=data.wallet_id,
+            walletId=walletId,
             side=data.side,
             assetType=data.asset_type,
             ticker=data.ticker,
@@ -159,7 +158,7 @@ class EntriesManager:
         db.add(entry)
         db.flush()
 
-        holding = cls.recalcHolding(db, data.wallet_id, data.ticker)
+        holding = cls.recalcHolding(db, walletId, data.ticker)
 
         db.commit()
         db.refresh(entry)
