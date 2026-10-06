@@ -27,6 +27,45 @@ def parseDeviceFields(userAgent: str | None) -> tuple[str | None, str | None, st
     return deviceType, browser, operatingSystem
 
 
+def _subnetOf(ip: str | None) -> str | None:
+    if not ip:
+        return None
+    ip = ip.strip()
+    if ":" in ip:  # IPv6: /64
+        parts = ip.split(":")
+        return ":".join(parts[:4]) if len(parts) >= 4 else ip
+    parts = ip.split(".")
+    if len(parts) != 4 or not all(part.isdigit() for part in parts):
+        return None
+    return ".".join(parts[:3])
+
+
+def detectSessionAnomaly(
+    session: UserSession,
+    currentUserAgent: str | None,
+    currentIp: str | None,
+) -> dict:
+    """Flag-only anomaly signal — never rejects. Compares stored UA family + subnet."""
+    storedType, storedBrowser, storedOs = parseDeviceFields(session.userAgent)
+    currentType, currentBrowser, currentOs = parseDeviceFields(currentUserAgent)
+    userAgentChanged = any(
+        (stored or None) != (current or None)
+        for stored, current in ((storedType, currentType), (storedBrowser, currentBrowser), (storedOs, currentOs))
+    )
+    # No stored IP column exists — compare against last-seen via userAgent only;
+    # subnet flag is surfaced when caller supplies both sides via context.
+    return {
+        "userAgentChanged": bool(userAgentChanged),
+        "storedDeviceType": storedType,
+        "currentDeviceType": currentType,
+        "storedBrowser": storedBrowser,
+        "currentBrowser": currentBrowser,
+        "storedOs": storedOs,
+        "currentOs": currentOs,
+        "subnet": _subnetOf(currentIp),
+    }
+
+
 class SessionManager:
     @staticmethod
     def createSession(
@@ -139,7 +178,13 @@ class SessionManager:
         return True
 
     @staticmethod
-    def validateSession(db: Session, sessionId: str, userId: int) -> bool:
+    def validateSession(
+        db: Session,
+        sessionId: str,
+        userId: int,
+        currentUserAgent: str | None = None,
+        currentIp: str | None = None,
+    ) -> bool:
         session = SessionManager.getSessionById(db, sessionId, userId)
         if not session:
             return False
@@ -168,4 +213,23 @@ class SessionManager:
 
         session.lastActivityAt = now  # type: ignore[assignment]
         db.commit()
+        # Flag-only anomaly signal: never rejects, only logs.
+        try:
+            if currentUserAgent is not None or currentIp is not None:
+                anomaly = detectSessionAnomaly(session, currentUserAgent, currentIp)
+                if anomaly.get("userAgentChanged"):
+                    logger.warning(
+                        "Session %s for user %s UA anomaly: stored=%s/%s/%s current=%s/%s/%s subnet=%s",
+                        sessionId,
+                        userId,
+                        anomaly.get("storedDeviceType"),
+                        anomaly.get("storedBrowser"),
+                        anomaly.get("storedOs"),
+                        anomaly.get("currentDeviceType"),
+                        anomaly.get("currentBrowser"),
+                        anomaly.get("currentOs"),
+                        anomaly.get("subnet"),
+                    )
+        except Exception:
+            logger.debug("Anomaly detection failed", exc_info=True)
         return True

@@ -51,6 +51,25 @@ def verifyAccessToken(token: str) -> dict:
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
+def getClientIp(request) -> str | None:
+    try:
+        forwarded = request.headers.get("x-forwarded-for", "")
+    except Exception:
+        forwarded = ""
+    if isinstance(forwarded, str) and forwarded.strip():
+        return forwarded.split(",")[0].strip() or None
+    try:
+        client = getattr(request, "client", None)
+        host = getattr(client, "host", None) if client else None
+    except Exception:
+        host = None
+    return host if isinstance(host, str) else None
+
+
+def authViaCookie(request: Request) -> bool:
+    return bool(request.cookies.get(COOKIE_NAME))
+
+
 def extractTokenPayload(request: Request) -> dict:
     token = request.headers.get("X-Access-Token")
     if not token:
