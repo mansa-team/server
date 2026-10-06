@@ -12,7 +12,7 @@ from main.app.wallet.earnings import EarningsManager, EarningsSync, serialize_ea
 from main.app.wallet.entries import EntriesManager, EntryCreate, EntryUpdate, serialize_entry, serialize_holding
 from main.app.wallet.performance import PerformanceManager
 from main.app.wallet.positions import PositionsManager
-from main.app.wallet.summary import RatingUpsert, SummaryManager, TargetUpsert
+from main.app.wallet.summary import RatingUpsert, SummaryManager
 from main.app.wallet.wallets import WalletCreate, WalletsManager
 
 logger = logging.getLogger(__name__)
@@ -120,21 +120,6 @@ def get_allocation_route(
     db: Session = Depends(getSession),
 ):
     return SummaryManager.getAllocation(db, wallet_id, userId, group_by)
-
-
-@router.put("/targets", response_class=ORJSONResponse)
-def upsert_target_route(
-    payload: TargetUpsert,
-    userId: int,
-    db: Session = Depends(getSession),
-):
-    target = SummaryManager.upsertTarget(db, userId, payload)
-    return {
-        "wallet_id": target.walletId,
-        "key_kind": target.keyKind,
-        "key_value": target.keyValue,
-        "percent_ideal": float(target.percentIdeal),
-    }
 
 
 @router.put("/ratings", response_class=ORJSONResponse)

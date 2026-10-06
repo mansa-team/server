@@ -1,7 +1,6 @@
 import logging
 from datetime import date as dateType
 from datetime import datetime, timedelta
-from typing import Literal
 
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
@@ -10,16 +9,9 @@ from sqlalchemy.orm import Session
 from main.app.wallet.performance import PerformanceManager
 from main.app.wallet.positions import PositionsManager
 from main.app.wallet.wallets import WalletsManager
-from main.models.wallet import Holding, Snapshot, Target, Transaction
+from main.models.wallet import Holding, Snapshot, Transaction
 
 logger = logging.getLogger(__name__)
-
-
-class TargetUpsert(BaseModel):
-    wallet_id: int
-    key_kind: Literal["ticker", "group"]
-    key_value: str
-    percent_ideal: float = Field(ge=0, le=100)
 
 
 class RatingUpsert(BaseModel):
@@ -153,35 +145,6 @@ class SummaryManager:
         ]
 
         return {"items": items, "equity_total": equityTotal}
-
-    @classmethod
-    def upsertTarget(cls, db: Session, userId: int, data: TargetUpsert) -> Target:
-        WalletsManager.getWallet(db, data.wallet_id, userId)
-        target = (
-            db.query(Target)
-            .filter(
-                Target.walletId == data.wallet_id,
-                Target.keyKind == data.key_kind,
-                Target.keyValue == data.key_value,
-            )
-            .first()
-        )
-
-        if target is None:
-            target = Target(
-                walletId=data.wallet_id,
-                keyKind=data.key_kind,
-                keyValue=data.key_value,
-                percentIdeal=data.percent_ideal,
-            )
-            db.add(target)
-        else:
-            target.percentIdeal = data.percent_ideal  # type: ignore[assignment]
-
-        db.commit()
-        db.refresh(target)
-
-        return target
 
     @classmethod
     def set_rating(cls, db: Session, userId: int, data: RatingUpsert) -> Holding:

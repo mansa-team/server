@@ -65,24 +65,10 @@ def test_summary_math_and_snapshot_upsert(dbSession, monkeypatch):
     assert dbSession.query(Snapshot).filter(Snapshot.walletId == walletId).count() == 1
 
 
-def test_targets_drive_buy_flag_and_ratings_gate(dbSession, monkeypatch):
+def test_ratings_gate_and_positions_buy_flag(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_ok)
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = _seed(client)
-    assert (
-        client.put(
-            "/wallet/targets",
-            json={"wallet_id": walletId, "key_kind": "ticker", "key_value": "PETR4", "percent_ideal": 80.0},
-        ).status_code
-        == 200
-    )
-    assert (
-        client.put(
-            "/wallet/targets",
-            json={"wallet_id": walletId, "key_kind": "ticker", "key_value": "PETR4", "percent_ideal": 101.0},
-        ).status_code
-        == 422
-    )
     assert client.put("/wallet/ratings", json={"wallet_id": walletId, "ticker": "PETR4", "rating": 8}).json() == {
         "ticker": "PETR4",
         "rating": 8,
@@ -95,7 +81,8 @@ def test_targets_drive_buy_flag_and_ratings_gate(dbSession, monkeypatch):
     )
     item = client.get(f"/wallet/positions?wallet_id={walletId}").json()["items"][0]
     # Weight-share: single holding owns 100% of both weight and equity → delta 0 → hold.
-    assert item["percent_ideal"] == 80.0 and item["buy_flag"] is False
+    # No manual targets remain: percent_ideal is None (display-only legacy column).
+    assert item["percent_ideal"] is None and item["buy_flag"] is False
 
 
 def _twr_market_mock(url, params=None, headers=None, timeout=None):
