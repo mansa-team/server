@@ -65,3 +65,37 @@ def test_performance_splits_price_and_dividends(dbSession, monkeypatch):
     assert body["price_return"] == pytest.approx(0.1)
     assert body["dividends_received"] == 10.0
     assert body["volatility"] > 0
+
+
+def test_performance_defaults_to_lifetime_window(dbSession, monkeypatch):
+    def wrapped_series(url, params=None, headers=None, timeout=None):
+        class Resp:
+            status_code = 200
+
+            @staticmethod
+            def json():
+                rows = [{"DATA": f"{d:02d}-01-2026", "PRECO": 10.0} for d in range(1, 10)]
+                rows += [{"DATA": "10-01-2026", "PRECO": 10.0}, {"DATA": "11-01-2026", "PRECO": 11.0}]
+                return {"data": [{"TICKER": "PETR4", "COTACAO 10Y PADRAO": rows}]}
+
+        return Resp()
+
+    monkeypatch.setattr(requests, "get", wrapped_series)
+    client, _, _ = make_wallet_client(db=dbSession)
+    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+    client.post(
+        "/wallet/entries",
+        json={
+            "wallet_id": walletId,
+            "side": "Compra",
+            "asset_type": "ACOES",
+            "ticker": "PETR4",
+            "date": "2026-01-02",
+            "quantity": 10,
+            "price": 10.0,
+        },
+    )
+    body = client.get(f"/wallet/performance?wallet_id={walletId}").json()
+    assert body["twr"] == pytest.approx(0.1)
+    assert body["price_return"] == pytest.approx(0.1)
+    assert set(body) == {"twr", "twr_annualized", "volatility", "dividends_received", "price_return"}

@@ -164,8 +164,19 @@ class PositionsManager:
             )
             if resp.status_code != 200:
                 return []
+            payload = resp.json()["data"]
+            if isinstance(payload, dict):
+                payload = [payload]
+            closeRows: list = []
+            for item in payload if isinstance(payload, list) else []:
+                if isinstance(item, dict):
+                    nested = item.get("COTACAO 10Y PADRAO", item.get("COTACAO 10Y AJUSTADA"))
+                    if isinstance(nested, list):
+                        closeRows.extend(nested)
+                        continue
+                closeRows.append(item)
             parsedCloses: list[tuple[dateType, float]] = []
-            for closeRow in resp.json()["data"]:
+            for closeRow in closeRows:
                 try:
                     parsedCloses.append(
                         (datetime.strptime(closeRow["DATA"], "%d-%m-%Y").date(), float(closeRow["PRECO"]))

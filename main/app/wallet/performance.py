@@ -1,5 +1,6 @@
 import logging
 from datetime import date as dateType
+from datetime import timedelta
 from math import sqrt
 from statistics import stdev
 from types import SimpleNamespace
@@ -149,6 +150,22 @@ class PerformanceManager:
             "dividends_received": dividendsReceived,
             "price_return": priceValue,
         }
+
+    @classmethod
+    def defaultWindow(
+        cls, db: Session, walletId: int, userId: int, start: dateType | None, end: dateType | None
+    ) -> tuple[dateType, dateType]:
+        # Fill omitted /performance bounds: lifetime window ending today.
+        WalletsManager.getWallet(db, walletId, userId)
+        today = dateType.today()
+        if start is None:
+            firstRow = (
+                db.query(Transaction.date).filter(Transaction.walletId == walletId).order_by(Transaction.date).first()
+            )
+            start = firstRow[0] if firstRow is not None else today - timedelta(days=365)
+        if end is None:
+            end = today
+        return start, end
 
     @classmethod
     def getPerformance(

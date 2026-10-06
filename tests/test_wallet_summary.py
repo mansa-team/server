@@ -96,3 +96,54 @@ def test_targets_drive_buy_flag_and_ratings_gate(dbSession, monkeypatch):
     item = client.get(f"/wallet/positions?wallet_id={walletId}").json()["items"][0]
     # Weight-share: single holding owns 100% of both weight and equity → delta 0 → hold.
     assert item["percent_ideal"] == 80.0 and item["buy_flag"] is False
+
+
+def _twr_market_mock(url, params=None, headers=None, timeout=None):
+    from datetime import date, timedelta
+
+    class Resp:
+        status_code = 200
+
+        @staticmethod
+        def json():
+            if "cotations/live" in url:
+                return {"data": [{"PRECO ATUAL": 50.0}]}
+            if "cotations" in url:
+                today = date.today()
+                rows = []
+                day = date(2026, 1, 1)
+                while day <= today:
+                    rows.append({"DATA": day.strftime("%d-%m-%Y"), "PRECO": 50.0 if day == today else 40.0})
+                    day += timedelta(days=1)
+                return {"data": [{"TICKER": "WEGE3", "COTACAO 10Y PADRAO": rows}]}
+            return {"data": []}
+
+    return Resp()
+
+
+def test_summary_autoloads_twr(dbSession, monkeypatch):
+    import pytest
+
+    monkeypatch.setattr(requests, "get", _twr_market_mock)
+    client, _, _ = make_wallet_client(db=dbSession)
+    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+    assert (
+        client.post(
+            "/wallet/entries",
+            json={
+                "wallet_id": walletId,
+                "side": "Compra",
+                "asset_type": "ACOES",
+                "ticker": "WEGE3",
+                "date": "2026-01-10",
+                "quantity": 10,
+                "price": 40.0,
+            },
+        ).status_code
+        == 201
+    )
+    body = client.get(f"/wallet/summary?wallet_id={walletId}").json()
+    assert body["applied"] == 400.0
+    assert body["equity"] == 500.0
+    assert body["profit_twr"] == pytest.approx(0.25)
+    assert body["profit_twr_12m"] == pytest.approx(0.25)

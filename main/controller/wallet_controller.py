@@ -171,14 +171,16 @@ def sync_earnings_route(
 def get_performance_route(
     wallet_id: int,
     ticker: str | None = None,
-    fromIso: str = Query(alias="from"),
-    toIso: str = Query(alias="to"),
+    fromIso: str | None = Query(default=None, alias="from"),
+    toIso: str | None = Query(default=None, alias="to"),
     userId: int = Query(),
     db: Session = Depends(getSession),
 ):
     try:
-        startDate = dateType.fromisoformat(fromIso)
-        endDate = dateType.fromisoformat(toIso)
+        startDate = dateType.fromisoformat(fromIso) if fromIso else None
+        endDate = dateType.fromisoformat(toIso) if toIso else None
     except ValueError:
         raise HTTPException(status_code=422, detail="invalid date, expected YYYY-MM-DD")
+    if startDate is None or endDate is None:
+        startDate, endDate = PerformanceManager.defaultWindow(db, wallet_id, userId, startDate, endDate)
     return PerformanceManager.getPerformance(db, wallet_id, userId, ticker, startDate, endDate)
