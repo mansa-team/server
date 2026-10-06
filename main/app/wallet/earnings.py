@@ -159,12 +159,10 @@ class EarningsManager:
         return {"accrued": accrued, "transitioned": transitioned, "skipped_unknown": skippedUnknown}
 
     @classmethod
-    def listEarnings(cls, db: Session, walletId: int, userId: int, status: str | None = None) -> list[Earning]:
+    def listEarnings(cls, db: Session, walletId: int, userId: int) -> list[Earning]:
+        # Full list, always. Status filtering is client-side.
         WalletsManager.getWallet(db, walletId, userId)
         cls.maybeAutoSync(db, walletId, userId)
         query = db.query(Earning).filter(Earning.walletId == walletId)
-
-        if status is not None:
-            query = query.filter(Earning.status == status)
 
         return query.order_by(Earning.exDate, Earning.earningId).all()
