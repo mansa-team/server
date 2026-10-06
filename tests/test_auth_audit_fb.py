@@ -31,7 +31,7 @@ class TestFailClosed:
         db = MagicMock()
         with patch.object(SessionManager, "validateSession") as mv:
             with pytest.raises(HTTPException) as e:
-                UserManager.getCurrentUser(payload={"userId": 1}, db=db)
+                UserManager.getCurrentUser(MagicMock(headers={}), payload={"userId": 1}, db=db)
         assert e.value.status_code == 401
         assert e.value.detail == "Session required"
         mv.assert_not_called()
@@ -39,7 +39,7 @@ class TestFailClosed:
     def test_missing_user_id_rejected(self):
         db = MagicMock()
         with pytest.raises(HTTPException) as e:
-            UserManager.getCurrentUser(payload={"sessionId": "abc"}, db=db)
+            UserManager.getCurrentUser(MagicMock(headers={}), payload={"sessionId": "abc"}, db=db)
         assert e.value.status_code == 401
 
 

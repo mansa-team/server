@@ -218,7 +218,12 @@ class TestSSORevokesOthers:
         assert attacker.isActive is False
         from main.app.authentication.util import verifyAccessToken
 
-        payload = verifyAccessToken(resp.json()["accessToken"])
+        # Cookie-only: session token travels via Set-Cookie, not JSON.
+        assert "accessToken" not in resp.json()
+        setCookie = resp.headers.get("set-cookie", "")
+        assert "mansa_token=" in setCookie
+        tokenValue = setCookie.split("mansa_token=", 1)[1].split(";", 1)[0].strip().strip('"')
+        payload = verifyAccessToken(tokenValue)
         kept = SessionManager.getSessionById(dbSession, payload["sessionId"], user["userId"])
         assert kept is not None and kept.isActive is True
         assert kept.sessionId != attacker.sessionId
