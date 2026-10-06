@@ -161,7 +161,6 @@ def introspect(
     db: Session = Depends(getSession),
     token: str | None = Body(default=None, embed=True),
 ):
-    # Derived, never the raw signing key: a leaked service token must not reveal it.
     expected = hmac.new(Config.USER.JWT_SECRET_KEY.encode("utf-8"), b"auth-introspect", hashlib.sha256).hexdigest()
     if not expected or not hmac.compare_digest(request.headers.get("X-Service-Token", ""), expected):
         raise HTTPException(status_code=401, detail="Unauthorized")
