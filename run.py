@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from fastapi import FastAPI, BackgroundTasks
+from fastapi import Depends, FastAPI, BackgroundTasks
 import uvicorn
 
 from contextlib import asynccontextmanager
@@ -21,6 +21,7 @@ from main.service.wallet_service import WalletService
 from main.service.orunmila_service import OrunmilaService
 from main.service.scraper_service import ScraperService, runScraper
 from main.service.stocksapi_service import StocksAPIService
+from main.app.user.user import UserManager
 
 logger = logging.getLogger(__name__)
 appStartTime = datetime.now()
@@ -122,7 +123,10 @@ async def status():
 
 
 @app.post("/scraper/run")
-async def triggerScraper(background_tasks: BackgroundTasks):
+async def triggerScraper(
+    background_tasks: BackgroundTasks,
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+):
     if not Config.DEBUG_MODE:
         return {"status": "error", "message": "Scraper trigger is only available in debug mode"}
     background_tasks.add_task(runScraper)
