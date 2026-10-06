@@ -8,6 +8,7 @@ import requests
 
 import main.models.wallet  # noqa: F401
 from main.app.orunmila.tools import TOOL_REGISTRY
+from main.app.wallet.positions import PositionsManager
 from main.models.wallet import Earning
 from tests.conftest import make_wallet_client
 
@@ -143,20 +144,25 @@ def test_wallet_allocation_groups_by_ticker_and_asset(dbSession, monkeypatch):
     assert byAsset["items"][0]["key"] == "ACOES"
 
 
-def test_list_wallet_earnings_filters_by_status(dbSession):
+def test_list_wallet_earnings_filters_by_status(dbSession, monkeypatch):
     walletId = _seed_wallet(dbSession)
     _seed_earnings(dbSession, walletId)
+    # Stub market dividends so auto-sync only transitions statuses (no live accrual).
+    monkeypatch.setattr(PositionsManager, "fetchMarketDividends", lambda ticker: [])
+    # Auto-sync on read transitions past-payDate "A Receber" to "Recebido"
+    # (seed payDate 2026-04-01 <= today), so the pending bucket is empty.
     pending = asyncio.run(TOOL_REGISTRY["list_wallet_earnings"](wallet_id=walletId, user={"userId": 1}, db=dbSession))
-    assert [row["kind"] for row in pending["earnings"]] == ["Div"]
-    assert pending["earnings"][0]["gross"] == 10.0
+    assert pending["earnings"] == []
     received = asyncio.run(
         TOOL_REGISTRY["list_wallet_earnings"](wallet_id=walletId, status="Recebido", user={"userId": 1}, db=dbSession)
     )
-    assert [row["kind"] for row in received["earnings"]] == ["JSCP"]
+    assert [row["kind"] for row in received["earnings"]] == ["Div", "JSCP"]
+    assert received["earnings"][0]["gross"] == 10.0
     allRows = asyncio.run(
         TOOL_REGISTRY["list_wallet_earnings"](wallet_id=walletId, status=None, user={"userId": 1}, db=dbSession)
     )
     assert len(allRows["earnings"]) == 2
+    assert {row["status"] for row in allRows["earnings"]} == {"Recebido"}
 
 
 def test_wallet_performance_returns_metrics(dbSession, monkeypatch):

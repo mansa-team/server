@@ -159,6 +159,7 @@ def list_earnings_route(
 
 @router.post("/earnings/sync", response_class=ORJSONResponse)
 def sync_earnings_route(
+    # Kept for back-compat; GET /wallet/earnings auto-syncs (TTL-cached).
     payload: EarningsSync,
     userId: int,
     db: Session = Depends(getSession),

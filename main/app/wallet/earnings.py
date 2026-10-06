@@ -5,6 +5,7 @@ from datetime import datetime
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from main.app.stocks_api.sync_cache import MISS, syncCacheGet, syncCacheSet
 from main.app.wallet.entries import EntriesManager
 from main.app.wallet.positions import PositionsManager
 from main.app.wallet.wallets import WalletsManager
@@ -37,6 +38,33 @@ def serialize_earning(earning) -> dict:
 
 
 class EarningsManager:
+    AUTO_SYNC_TTL = "6h"
+    AUTO_SYNC_NEG_TTL = "5m"
+
+    @classmethod
+    def autoSyncKey(cls, walletId: int) -> str:
+        return f"wallet:earnings:autosync:{walletId}"
+
+    @classmethod
+    def maybeAutoSync(cls, db: Session, walletId: int, userId: int) -> None:
+        # Sync-on-read with TTL: fresh without hammering the stocks API
+        # (per-wallet marker; short negative cache on failure). Never raises.
+        try:
+            if syncCacheGet(cls.autoSyncKey(walletId)) is not MISS:
+                return
+            cls.syncEarnings(db, walletId, userId)
+            syncCacheSet(cls.autoSyncKey(walletId), 1, cls.AUTO_SYNC_TTL)
+        except Exception:
+            logger.warning("earnings autosync failed for wallet %s", walletId, exc_info=True)
+            try:
+                db.rollback()
+            except Exception:
+                pass
+            try:
+                syncCacheSet(cls.autoSyncKey(walletId), 1, cls.AUTO_SYNC_NEG_TTL)
+            except Exception:
+                pass
+
     @classmethod
     def syncEarnings(cls, db: Session, walletId: int, userId: int) -> dict:
         WalletsManager.getWallet(db, walletId, userId)
@@ -123,6 +151,7 @@ class EarningsManager:
     @classmethod
     def listEarnings(cls, db: Session, walletId: int, userId: int, status: str | None = None) -> list[Earning]:
         WalletsManager.getWallet(db, walletId, userId)
+        cls.maybeAutoSync(db, walletId, userId)
         query = db.query(Earning).filter(Earning.walletId == walletId)
 
         if status is not None:

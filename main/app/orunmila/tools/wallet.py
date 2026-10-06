@@ -104,7 +104,7 @@ async def wallet_allocation(wallet_id: int, group_by: str = "ticker", **_) -> di
 async def list_wallet_earnings(wallet_id: int, status: Optional[str] = "A Receber", **_) -> dict:
     """List accrued earnings (dividends, JSCP) for a wallet.
 
-    Read-only: never mutates wallet state.
+    Best-effort auto-syncs on read (TTL-cached); otherwise read-only.
 
     Args:
         wallet_id: Wallet to inspect (must belong to the caller)
