@@ -25,13 +25,6 @@ def ensureOwnership(db: Session | None, walletId: int, userId: int) -> dict | No
 
 
 async def wallet_positions(wallet_id: int, **_) -> dict:
-    """List wallet holdings with live prices, equity, allocation, and buy signals.
-
-    Read-only: never mutates wallet state.
-
-    Args:
-        wallet_id: Wallet to inspect (must belong to the caller)
-    """
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
@@ -50,13 +43,6 @@ async def wallet_positions(wallet_id: int, **_) -> dict:
 
 
 async def wallet_summary(wallet_id: int, **_) -> dict:
-    """Summarize applied capital, equity, and variation for a wallet.
-
-    Read-only: never mutates wallet state.
-
-    Args:
-        wallet_id: Wallet to summarize (must belong to the caller)
-    """
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
@@ -75,14 +61,6 @@ async def wallet_summary(wallet_id: int, **_) -> dict:
 
 
 async def wallet_allocation(wallet_id: int, group_by: str = "ticker", **_) -> dict:
-    """Break wallet equity down by ticker or asset type.
-
-    Read-only: never mutates wallet state.
-
-    Args:
-        wallet_id: Wallet to inspect (must belong to the caller)
-        group_by: Grouping key — "ticker" or "assetType" (default "ticker")
-    """
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
@@ -91,25 +69,29 @@ async def wallet_allocation(wallet_id: int, group_by: str = "ticker", **_) -> di
         ownerError = ensureOwnership(db, wallet_id, userId)
         if ownerError is not None:
             return ownerError
-        return SummaryManager.getAllocation(
+        body = SummaryManager.getAllocation(
             db,  # type: ignore[arg-type]
             wallet_id,
             userId,
-            group_by,
         )
+        # Grouping + pct are client-side (same as the HTTP endpoint).
+        groupEquity: dict[str, float] = {}
+        for item in body["items"]:
+            groupKey = item["ticker"] if group_by == "ticker" else item["asset_type"]
+            groupEquity[groupKey] = groupEquity.get(groupKey, 0.0) + item["equity"]
+        equityTotal = body["equity_total"]
+        return {
+            "items": [
+                {"key": groupKey, "equity": groupValue, "pct": (groupValue / equityTotal) if equityTotal else 0}
+                for groupKey, groupValue in groupEquity.items()
+            ],
+            "equity_total": equityTotal,
+        }
     finally:
         closeOwnSession(db, ownSession)
 
 
 async def list_wallet_earnings(wallet_id: int, status: Optional[str] = "A Receber", **_) -> dict:
-    """List accrued earnings (dividends, JSCP) for a wallet.
-
-    Best-effort auto-syncs on read (TTL-cached); otherwise read-only.
-
-    Args:
-        wallet_id: Wallet to inspect (must belong to the caller)
-        status: Filter by status — "A Receber", "Recebido", or None for all (default "A Receber")
-    """
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
@@ -122,8 +104,9 @@ async def list_wallet_earnings(wallet_id: int, status: Optional[str] = "A Recebe
             db,  # type: ignore[arg-type]
             wallet_id,
             userId,
-            status=status,
         )
+        if status is not None:
+            rows = [row for row in rows if str(row.status) == status]
         return {
             "wallet_id": wallet_id,
             "status": status,
@@ -146,16 +129,6 @@ async def list_wallet_earnings(wallet_id: int, status: Optional[str] = "A Recebe
 
 
 async def wallet_performance(wallet_id: int, from_date: str, to_date: str, ticker: Optional[str] = None, **_) -> dict:
-    """Compute time-weighted return, volatility, and dividends for a wallet or ticker.
-
-    Read-only: never mutates wallet state.
-
-    Args:
-        wallet_id: Wallet to inspect (must belong to the caller)
-        from_date: Window start as YYYY-MM-DD
-        to_date: Window end as YYYY-MM-DD
-        ticker: Optional single ticker; omit for the whole wallet
-    """
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
@@ -183,13 +156,6 @@ async def wallet_performance(wallet_id: int, from_date: str, to_date: str, ticke
 
 
 async def wallet_rebalance(wallet_id: int, **_) -> dict:
-    """Show weight-share rebalance deltas per ticker (buy/sell/hold).
-
-    Read-only: never mutates wallet state.
-
-    Args:
-        wallet_id: Wallet to inspect (must belong to the caller)
-    """
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
