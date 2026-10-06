@@ -143,3 +143,25 @@ def test_cross_user_wallet_returns_404(dbSession):
         },
     )
     assert resp.status_code == 404
+
+
+def test_compra_accepts_acao_alias(dbSession):
+    # Frontend Tipo field defaults to "ACAO" (singular); backend normalizes to ACOES.
+    client, _, _ = make_wallet_client(db=dbSession)
+    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+    resp = client.post(
+        "/wallet/entries",
+        json={
+            "wallet_id": walletId,
+            "side": "Compra",
+            "asset_type": "ACAO",
+            "ticker": "WEGE3",
+            "date": "2026-01-10",
+            "quantity": 10,
+            "price": 40.0,
+        },
+    )
+    assert resp.status_code == 201
+    assert resp.json()["holding"] == {"ticker": "WEGE3", "quantity": 10.0, "avgPrice": 40.0}
+    items = client.get(f"/wallet/entries?wallet_id={walletId}").json()
+    assert items["items"][0]["asset_type"] == "ACOES"
