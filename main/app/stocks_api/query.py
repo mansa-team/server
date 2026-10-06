@@ -32,24 +32,43 @@ def sanitizeNanValues(obj):
     return obj
 
 
+def cotationDateKey(data) -> str | None:
+    """Map a 'DD-MM-YYYY' DATA value to comparable 'YYYYMMDD', else None.
+
+    String comparison on the key equals day-granularity date comparison and
+    avoids pd.to_datetime on ~3k entries per request. Mirrors the old
+    format='%d-%m-%Y'/errors='coerce' semantics: malformed values are
+    excluded from the window rather than raising.
+    """
+    if not isinstance(data, str) or len(data) != 10 or data[2] != "-" or data[5] != "-":
+        return None
+    key = data[6:10] + data[3:5] + data[0:2]
+    if not key.isdigit() or not ("01" <= key[4:6] <= "12" and "01" <= key[6:8] <= "31"):
+        return None
+    return key
+
+
 def filterCotationColumn(series: pd.Series, startDate, endDate) -> pd.Series:
     if not startDate or not endDate:
         return series
 
-    exploded = series.explode()
-    if exploded.empty or exploded.isna().all():
-        return series
+    low = startDate.strftime("%Y%m%d")
+    high = endDate.strftime("%Y%m%d")
 
-    dates = pd.to_datetime(exploded.str.get("DATA"), format="%d-%m-%Y", errors="coerce")
-    mask = (dates >= pd.Timestamp(startDate)) & (dates <= pd.Timestamp(endDate))
+    def inWindow(entries):
+        if not isinstance(entries, list):
+            return entries
+        if not any(isinstance(entry, dict) for entry in entries):
+            return entries
+        return [
+            entry
+            for entry in entries
+            if isinstance(entry, dict)
+            and (key := cotationDateKey(entry.get("DATA"))) is not None
+            and low <= key <= high
+        ]
 
-    grouped = exploded[mask].groupby(level=0).agg(list)
-    base = pd.Series(
-        [entries if not isinstance(entries, list) else [] for entries in series],
-        index=series.index,
-    )
-    base.update(grouped)
-    return base
+    return series.apply(inWindow)
 
 
 def baseFrame(cacheManager=None):
@@ -297,6 +316,7 @@ def queryCotations(
     adjusted: bool = False,
     cacheManager=None,
 ):
+    manager = cacheManager if cacheManager is not None else stocksCache
     df, tickerIndex = baseFrame(cacheManager)
 
     try:
@@ -306,20 +326,39 @@ def queryCotations(
         if targetCol not in df.columns:
             return envelope(search, responseFields, dates, "cotations", df.iloc[0:0])
 
-        if search:
-            df = filterBySearchTerms(df, search, tickerIndex)
+        cols = ["TICKER", "NOME", "TIME", targetCol]
+        # Fast path: exact tickers resolve to precomputed latest-snapshot rows,
+        # skipping the full-frame boolean take (~300ms on 75k rows x 301 cols).
+        # Sorted positions keep the stable-sort input order identical to the
+        # filter path, so multi-ticker ordering is unchanged.
+        side = getattr(manager, "cotationFrame", None)
+        sideIndex = getattr(manager, "cotationIndex", None)
+        terms = [term.strip().upper() for term in search.split(",") if term.strip()] if search else []
+        if (
+            isinstance(side, pd.DataFrame)
+            and isinstance(sideIndex, dict)
+            and targetCol in side.columns
+            and all(term in sideIndex for term in terms)
+        ):
+            work = side.iloc[sorted(sideIndex[term] for term in dict.fromkeys(terms))] if terms else side
+        else:
+            # Fallback (prefix search or no side frame): project columns BEFORE
+            # the boolean take so it copies 4 cols instead of 301 (~95ms).
+            work = df[[column for column in cols if column in df.columns]]
+            if search:
+                work = filterBySearchTerms(work, search, tickerIndex)
 
-        if "TIME" in df.columns:
-            df = df.sort_values(by="TIME", ascending=False, kind="mergesort")
-        df = df.drop_duplicates(subset=["TICKER"], keep="first")
+        if "TIME" in work.columns:
+            work = work.sort_values(by="TIME", ascending=False, kind="mergesort")
+        work = work.drop_duplicates(subset=["TICKER"], keep="first")
 
         return finalize(
-            df,
+            work,
             tickerIndex,
             search,
             None,
             None,
-            ["TICKER", "NOME", "TIME", targetCol],
+            cols,
             responseFields,
             dates,
             "cotations",
