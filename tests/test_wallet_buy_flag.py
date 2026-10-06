@@ -54,7 +54,10 @@ def _seed_two(client, walletId):
 
 def test_buy_flag_follows_delta_sign(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_two)
-    monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {ticker: 50.0 for ticker in tickers})
+    # Ratings now refresh to the latest XANGO score on read, so the mock (not the
+    # manual PUT) drives post-read ratings; the PUT still returns 200 as override.
+    scores = {"PETR4": 75.0, "VALE3": 25.0}
+    monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {t: scores[t] for t in tickers})
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
     _seed_two(client, walletId)
@@ -65,6 +68,7 @@ def test_buy_flag_follows_delta_sign(dbSession, monkeypatch):
     assert byTicker["PETR4"]["buy_flag"] is False
     assert byTicker["VALE3"]["buy_flag"] is False
     # Re-rate VALE3 to 50 → targets PETR4 240 / VALE3 160 → sell PETR4, buy VALE3.
+    scores["VALE3"] = 50.0
     client.put("/wallet/ratings", json={"wallet_id": walletId, "ticker": "VALE3", "rating": 50})
     byTicker = {item["ticker"]: item for item in client.get(f"/wallet/positions?wallet_id={walletId}").json()["items"]}
     assert byTicker["PETR4"]["buy_flag"] is False
@@ -90,7 +94,9 @@ def test_zero_weights_all_hold(dbSession, monkeypatch):
 
 def test_rebalance_weight_share_math(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_two)
-    monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {ticker: 50.0 for ticker in tickers})
+    # Post-read ratings come from the XANGO mock (refresh-on-read); keep the mock
+    # in agreement with the manual PUTs below.
+    monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {"PETR4": 75.0, "VALE3": 50.0})
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
     _seed_two(client, walletId)
@@ -188,6 +194,35 @@ def test_new_holding_defaults_ten_without_xango(dbSession, monkeypatch):
     )
     holding = dbSession.query(Holding).filter(Holding.walletId == walletId, Holding.ticker == "PETR4").first()
     assert float(holding.rating) == pytest.approx(10.0)
+
+
+def test_holdings_refresh_to_latest_xango_on_read(dbSession, monkeypatch):
+    monkeypatch.setattr(requests, "get", _live_two)
+    scores = {"PETR4": 80.0, "VALE3": 60.0}
+    monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {t: scores[t] for t in tickers})
+    client, _, _ = make_wallet_client(db=dbSession)
+    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+    _seed_two(client, walletId)
+    byHolding = {
+        holding.ticker: float(holding.rating)
+        for holding in dbSession.query(Holding).filter(Holding.walletId == walletId).all()
+    }
+    assert byHolding == {"PETR4": 80.0, "VALE3": 60.0}
+    # XANGO moves; a manual override in between is overwritten by the next read.
+    scores.update({"PETR4": 20.0, "VALE3": 90.0})
+    client.put("/wallet/ratings", json={"wallet_id": walletId, "ticker": "PETR4", "rating": 42})
+    body = client.get(f"/wallet/rebalance?wallet_id={walletId}").json()
+    dbSession.expire_all()
+    byHolding = {
+        holding.ticker: float(holding.rating)
+        for holding in dbSession.query(Holding).filter(Holding.walletId == walletId).all()
+    }
+    assert byHolding == {"PETR4": 20.0, "VALE3": 90.0}
+    byTicker = {item["ticker"]: item for item in body["items"]}
+    assert byTicker["PETR4"]["weight"] == pytest.approx(20.0)
+    assert byTicker["PETR4"]["target_pct"] == pytest.approx(20.0 / 110.0)
+    assert byTicker["VALE3"]["weight"] == pytest.approx(90.0)
+    assert byTicker["VALE3"]["target_pct"] == pytest.approx(90.0 / 110.0)
 
 
 def test_ratings_accept_zero_to_hundred(dbSession, monkeypatch):

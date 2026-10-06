@@ -70,6 +70,7 @@ class SummaryManager:
     @classmethod
     def getSummary(cls, db: Session, walletId: int, userId: int) -> dict:
         wallet = WalletsManager.getWallet(db, walletId, userId)
+        PositionsManager.maybeRefreshRatings(db, walletId)
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
         applied = sum(float(holding.quantity) * float(holding.avgPrice) for holding in holdings)
         tickers = sorted({str(holding.ticker) for holding in holdings})
@@ -127,6 +128,7 @@ class SummaryManager:
     @classmethod
     def getAllocation(cls, db: Session, walletId: int, userId: int, groupBy: str) -> dict:
         WalletsManager.getWallet(db, walletId, userId)
+        PositionsManager.maybeRefreshRatings(db, walletId)
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
 
         tickers = sorted({str(holding.ticker) for holding in holdings})

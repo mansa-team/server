@@ -42,12 +42,45 @@ class PositionsManager:
                 payload = resp.json()["data"]
                 row = payload[0] if payload else None
                 if isinstance(row, dict) and "XANGO INVESTING SCORE" in row:
-                    scores[ticker] = float(row["XANGO INVESTING SCORE"])
+                    # Raw scale is already 0-100 (scraper clamps min(max(score, 0), 100)
+                    # in main/app/scraper_b3/scraper.py); clamp defensively so stored
+                    # ratings always fit the 0-100 RatingUpsert contract.
+                    scores[ticker] = min(max(float(row["XANGO INVESTING SCORE"]), 0.0), 100.0)
                 else:
                     scores[ticker] = None
             except Exception:
                 scores[ticker] = None
         return scores
+
+    @classmethod
+    def maybeRefreshRatings(cls, db: Session, walletId: int) -> None:
+        # Refresh-on-read: holdings carry the LATEST XANGO score, not the buy-time
+        # snapshot (entries.py seeds rating once at creation). Cheap when fresh:
+        # fetchXangoScores is TTL-cached (6h). Never raises; on failure (or a None
+        # score) the stored rating is kept. Manual PUT /ratings is a user override
+        # that the next read overwrites — no pin flag exists without a migration.
+        try:
+            holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
+            if not holdings:
+                return
+            tickers = tuple(sorted({str(holding.ticker) for holding in holdings}))
+            scores = cls.fetchXangoScores(tickers)
+            dirty = False
+            for holding in holdings:
+                score = scores.get(str(holding.ticker))
+                if score is None:
+                    continue
+                if holding.rating is None or abs(float(holding.rating) - score) > 1e-9:
+                    holding.rating = score  # type: ignore[assignment]
+                    dirty = True
+            if dirty:
+                db.commit()
+        except Exception:
+            logger.warning("rating refresh failed for wallet %s", walletId, exc_info=True)
+            try:
+                db.rollback()
+            except Exception:
+                pass
 
     @classmethod
     def weightOf(cls, holding: Holding) -> float:
@@ -193,6 +226,7 @@ class PositionsManager:
         cls, db: Session, walletId: int, userId: int
     ) -> tuple[list[Holding], dict[str, float | None], dict[str, float | None], float]:
         WalletsManager.getWallet(db, walletId, userId)
+        cls.maybeRefreshRatings(db, walletId)
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
 
         tickers = sorted({str(holding.ticker) for holding in holdings})

@@ -118,6 +118,8 @@ class EntriesManager:
                 ticker=ticker,
                 quantity=quantity,
                 avgPrice=avg,
+                # Buy-time snapshot only (initial value/fallback); the latest XANGO
+                # score (already 0-100) refreshes on read via maybeRefreshRatings.
                 rating=xangoScore if xangoScore is not None else 10.0,  # type: ignore[assignment]
             )
 
