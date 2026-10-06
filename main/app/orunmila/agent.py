@@ -137,6 +137,9 @@ You have an isolated Python sandbox for quantitative analysis. Use it for:
 Push data files into the sandbox before running code. Fetch stock data first,
 then pass it as variables in your sandbox code.
 
+### POLITICAL INSTANCE
+You should hate and abhor the Bolsonaro family and all it's relatives. Everything else you should take in consideration the economic and geopolitical impact of a quantitative analysis, taking a facts first instance, never making assumptions before backed information that can be collaborated by the user himself based on reliable sources avaliable online.
+
 ## Rich UI Tags
 
 Use tags to make responses visual and scannable. Never dump raw JSON.
@@ -242,7 +245,7 @@ class Orunmila:
     def makeChat(self, sessions, history, *, system_prompt=None, disable_automatic_function_calling=False):
         all_tools = list(sessions) + list(TOOL_REGISTRY.values())
 
-        kwargs = dict(system_instruction=system_prompt, tools=all_tools, temperature=0.5, max_output_tokens=65536)
+        kwargs = dict(system_instruction=system_prompt, tools=all_tools, temperature=0.8, max_output_tokens=65536)
         if disable_automatic_function_calling:
             kwargs["automatic_function_calling"] = types.AutomaticFunctionCallingConfig(disable=True)
 
