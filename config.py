@@ -43,6 +43,9 @@ class UserSettings(BaseSettings):
     GOOGLE_CLIENT_ID: str = Field(default="", validation_alias="GOOGLE_CLIENT.ID")
     GOOGLE_CLIENT_SECRET: str = Field(default="", validation_alias="GOOGLE_CLIENT.SECRET")
     GOOGLE_REDIRECT_URI: str = Field(default="", validation_alias="GOOGLE_REDIRECT.URI")
+    SERVICE_TOKEN_SECRET: str = Field(default="", validation_alias="INTROSPECT_SERVICE_SECRET")
+    SERVICE_TOKEN_SECRET_PREV: str = Field(default="", validation_alias="INTROSPECT_SERVICE_SECRET_PREV")
+    SERVICE_TOKEN_TTL_HOURS: int = Field(default=720, validation_alias="INTROSPECT_SERVICE_TTL_HOURS")
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
