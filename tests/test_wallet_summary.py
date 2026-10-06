@@ -53,12 +53,7 @@ def test_summary_math_and_snapshot_upsert(dbSession, monkeypatch):
         "applied": 100.0,
         "equity": 300.0,
         "variation": 200.0,
-        "profit": 200.0,
-        "profit_total": 200.0,
-        "profit_twr": None,
-        "profit_amount": 200.0,
-        "profit_twr_12m": None,
-        "profit_twr_12m_amount": 200.0,
+        "first_date": "2026-01-10",
     }
     again = client.get(f"/wallet/summary?wallet_id={walletId}").json()
     assert again["variation"] == 200.0
@@ -82,9 +77,11 @@ def test_ratings_gate_and_positions_buy_flag(dbSession, monkeypatch):
         client.put("/wallet/ratings", json={"wallet_id": walletId, "ticker": "PETR4", "rating": 101}).status_code == 422
     )
     item = client.get(f"/wallet/positions?wallet_id={walletId}").json()["items"][0]
-    # Weight-share: single holding owns 100% of both weight and equity → delta 0 → hold.
+    # Canonical raw: weight-share deltas derive client-side. Single holding owns
+    # 100% of both weight and equity → client delta 0 → hold.
     # No manual targets remain: percent_ideal is None (display-only legacy column).
-    assert item["percent_ideal"] is None and item["buy_flag"] is False
+    assert item["percent_ideal"] is None and item["rating"] == 100
+    assert item["equity"] == 300.0
 
 
 def _twr_market_mock(url, params=None, headers=None, timeout=None):
@@ -110,9 +107,9 @@ def _twr_market_mock(url, params=None, headers=None, timeout=None):
     return Resp()
 
 
-def test_summary_autoloads_twr(dbSession, monkeypatch):
-    import pytest
-
+def test_summary_returns_canonical_raw_no_twr(dbSession, monkeypatch):
+    # TWR presets moved client-side: /summary returns no TWR keys; the windowed
+    # TWR comes from /performance?from&to resolved by the client.
     monkeypatch.setattr(requests, "get", _twr_market_mock)
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
@@ -134,5 +131,11 @@ def test_summary_autoloads_twr(dbSession, monkeypatch):
     body = client.get(f"/wallet/summary?wallet_id={walletId}").json()
     assert body["applied"] == 400.0
     assert body["equity"] == 500.0
-    assert body["profit_twr"] == pytest.approx(0.25)
-    assert body["profit_twr_12m"] == pytest.approx(0.25)
+    assert body["variation"] == 100.0
+    assert body["first_date"] == "2026-01-10"
+    assert "profit_twr" not in body and "profit_twr_12m" not in body
+    from datetime import date as dateType
+
+    today = dateType.today().isoformat()
+    perf = client.get(f"/wallet/performance?wallet_id={walletId}&from=2026-01-01&to={today}").json()
+    assert perf["twr"] == pytest.approx(0.25)

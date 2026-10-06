@@ -209,8 +209,10 @@ def test_wallet_rebalance_single_holding_holds(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_ok)
     walletId = _seed_wallet(dbSession)
     result = asyncio.run(TOOL_REGISTRY["wallet_rebalance"](wallet_id=walletId, user={"userId": 1}, db=dbSession))
-    assert result["items"][0]["side"] == "hold"
-    assert result["items"][0]["target_pct"] == 1.0
+    # Canonical raw: single holding owns the whole weight share → client derives hold.
+    assert len(result["items"]) == 1
+    assert result["items"][0]["weight"] > 0
+    assert result["items"][0]["equity"] == result["equity_total"]
 
 
 def test_wallet_tools_cross_user_denied(dbSession):

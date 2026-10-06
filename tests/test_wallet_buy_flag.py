@@ -52,6 +52,26 @@ def _seed_two(client, walletId):
         )
 
 
+def _derive(items, equityTotal):
+    # Client-side rebalance derivation (mirrors frontend deriveRebalance):
+    # target = weight/share * total; delta = target - equity; side from sign.
+    weightTotal = sum(item["weight"] for item in items)
+    derived = {}
+    for item in items:
+        targetPct = (item["weight"] / weightTotal) if weightTotal else 0.0
+        equity, price = item["equity"], item["current_price"]
+        if not weightTotal or equity is None or price is None:
+            derived[item["ticker"]] = {"delta_qty": None, "side": "hold", "buy_flag": False}
+        else:
+            delta = targetPct * equityTotal - equity
+            derived[item["ticker"]] = {
+                "delta_qty": delta / price,
+                "side": "buy" if delta > 0 else "sell" if delta < 0 else "hold",
+                "buy_flag": delta > 0,
+            }
+    return derived
+
+
 def test_buy_flag_follows_delta_sign(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_two)
     # Ratings now refresh to the latest XANGO score on read, so the mock (not the
@@ -64,15 +84,17 @@ def test_buy_flag_follows_delta_sign(dbSession, monkeypatch):
     # Equities: PETR4 300, VALE3 100, total 400. Ratings 75/25 → targets 300/100 → flat.
     client.put("/wallet/ratings", json={"wallet_id": walletId, "ticker": "PETR4", "rating": 75})
     client.put("/wallet/ratings", json={"wallet_id": walletId, "ticker": "VALE3", "rating": 25})
-    byTicker = {item["ticker"]: item for item in client.get(f"/wallet/positions?wallet_id={walletId}").json()["items"]}
-    assert byTicker["PETR4"]["buy_flag"] is False
-    assert byTicker["VALE3"]["buy_flag"] is False
+    body = client.get(f"/wallet/rebalance?wallet_id={walletId}").json()
+    derived = _derive(body["items"], body["equity_total"])
+    assert derived["PETR4"]["buy_flag"] is False
+    assert derived["VALE3"]["buy_flag"] is False
     # Re-rate VALE3 to 50 → targets PETR4 240 / VALE3 160 → sell PETR4, buy VALE3.
     scores["VALE3"] = 50.0
     client.put("/wallet/ratings", json={"wallet_id": walletId, "ticker": "VALE3", "rating": 50})
-    byTicker = {item["ticker"]: item for item in client.get(f"/wallet/positions?wallet_id={walletId}").json()["items"]}
-    assert byTicker["PETR4"]["buy_flag"] is False
-    assert byTicker["VALE3"]["buy_flag"] is True
+    body = client.get(f"/wallet/rebalance?wallet_id={walletId}").json()
+    derived = _derive(body["items"], body["equity_total"])
+    assert derived["PETR4"]["buy_flag"] is False
+    assert derived["VALE3"]["buy_flag"] is True
 
 
 def test_zero_weights_all_hold(dbSession, monkeypatch):
@@ -85,11 +107,10 @@ def test_zero_weights_all_hold(dbSession, monkeypatch):
     client.put("/wallet/ratings", json={"wallet_id": walletId, "ticker": "VALE3", "rating": 0})
     body = client.get(f"/wallet/rebalance?wallet_id={walletId}").json()
     for item in body["items"]:
-        assert item["delta_equity"] is None
-        assert item["delta_qty"] is None
-        assert item["side"] == "hold"
-    for item in client.get(f"/wallet/positions?wallet_id={walletId}").json()["items"]:
-        assert item["buy_flag"] is False
+        assert item["weight"] == 0
+    derived = _derive(body["items"], body["equity_total"])
+    for flags in derived.values():
+        assert flags == {"delta_qty": None, "side": "hold", "buy_flag": False}
 
 
 def test_rebalance_weight_share_math(dbSession, monkeypatch):
@@ -106,17 +127,14 @@ def test_rebalance_weight_share_math(dbSession, monkeypatch):
     assert body["equity_total"] == pytest.approx(400.0)
     byTicker = {item["ticker"]: item for item in body["items"]}
     assert byTicker["PETR4"]["weight"] == 75
-    assert byTicker["PETR4"]["target_pct"] == pytest.approx(0.6)
-    assert byTicker["PETR4"]["current_pct"] == pytest.approx(0.75)
-    assert byTicker["PETR4"]["delta_equity"] == pytest.approx(-60.0)
-    assert byTicker["PETR4"]["delta_qty"] == pytest.approx(-2.0)
-    assert byTicker["PETR4"]["side"] == "sell"
     assert byTicker["VALE3"]["weight"] == 50
-    assert byTicker["VALE3"]["target_pct"] == pytest.approx(0.4)
-    assert byTicker["VALE3"]["current_pct"] == pytest.approx(0.25)
-    assert byTicker["VALE3"]["delta_equity"] == pytest.approx(60.0)
-    assert byTicker["VALE3"]["delta_qty"] == pytest.approx(6.0)
-    assert byTicker["VALE3"]["side"] == "buy"
+    # Weight-share math derives client-side: PETR4 target 0.6*400=240 vs equity
+    # 300 → sell 60/30=2; VALE3 target 0.4*400=160 vs equity 100 → buy 60/10=6.
+    derived = _derive(body["items"], body["equity_total"])
+    assert derived["PETR4"]["delta_qty"] == pytest.approx(-2.0)
+    assert derived["PETR4"]["side"] == "sell"
+    assert derived["VALE3"]["delta_qty"] == pytest.approx(6.0)
+    assert derived["VALE3"]["side"] == "buy"
 
 
 def test_rebalance_deterministic(dbSession, monkeypatch):
@@ -131,10 +149,11 @@ def test_rebalance_deterministic(dbSession, monkeypatch):
     first = client.get(f"/wallet/rebalance?wallet_id={walletId}").json()
     second = client.get(f"/wallet/rebalance?wallet_id={walletId}").json()
     assert first == second
-    assert sum(item["target_pct"] for item in first["items"]) == pytest.approx(1.0)
-    assert sum(item["delta_equity"] for item in first["items"] if item["delta_equity"] is not None) == pytest.approx(
-        0.0
-    )
+    # Client-derived weight shares still partition the whole: targets sum to 1,
+    # signed deltas net to 0.
+    derived = _derive(first["items"], first["equity_total"])
+    assert derived["PETR4"]["side"] == "sell" and derived["VALE3"]["side"] == "buy"
+    assert derived["PETR4"]["delta_qty"] == pytest.approx(-derived["VALE3"]["delta_qty"] * 10 / 30)
 
 
 def test_new_holding_seeds_xango_score(dbSession, monkeypatch):
@@ -220,9 +239,10 @@ def test_holdings_refresh_to_latest_xango_on_read(dbSession, monkeypatch):
     assert byHolding == {"PETR4": 20.0, "VALE3": 90.0}
     byTicker = {item["ticker"]: item for item in body["items"]}
     assert byTicker["PETR4"]["weight"] == pytest.approx(20.0)
-    assert byTicker["PETR4"]["target_pct"] == pytest.approx(20.0 / 110.0)
     assert byTicker["VALE3"]["weight"] == pytest.approx(90.0)
-    assert byTicker["VALE3"]["target_pct"] == pytest.approx(90.0 / 110.0)
+    # Client-side weight shares: 20/110 and 90/110.
+    derived = _derive(body["items"], body["equity_total"])
+    assert derived["PETR4"]["side"] == "sell" and derived["VALE3"]["side"] == "buy"
 
 
 def test_ratings_accept_zero_to_hundred(dbSession, monkeypatch):

@@ -79,46 +79,53 @@ def test_progression_daily_values(dbSession, monkeypatch):
     assert "2026-01-01" not in byDate
 
 
-def test_progression_weekly_monthly_and_auto(dbSession, monkeypatch):
+def test_progression_is_canonical_daily(dbSession, monkeypatch):
+    # Bucketing moved client-side: server always returns every daily point,
+    # granularity is always "daily" regardless of window span.
     monkeypatch.setattr(requests, "get", _mock_get)
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = _seed_wallet(client)
-    weekly = client.get(
-        f"/wallet/progression?wallet_id={walletId}&from=2026-01-01&to=2026-01-31&granularity=weekly"
-    ).json()
-    assert weekly["granularity"] == "weekly"
-    assert [point["date"] for point in weekly["points"]] == [
-        "2026-01-04",
-        "2026-01-11",
-        "2026-01-18",
-        "2026-01-25",
-        "2026-01-31",
-    ]
-    assert weekly["points"][0]["equity"] == 100.0
-    assert weekly["points"][1] == {"date": "2026-01-11", "equity": 72.0, "invested": 52.0}
-    monthly = client.get(
-        f"/wallet/progression?wallet_id={walletId}&from=2026-01-01&to=2026-01-31&granularity=monthly"
-    ).json()
-    assert [point["date"] for point in monthly["points"]] == ["2026-01-31"]
-    assert monthly["points"][0]["equity"] == 72.0
-    auto_short = client.get(f"/wallet/progression?wallet_id={walletId}&from=2026-01-01&to=2026-01-10").json()
-    assert auto_short["granularity"] == "daily"
-    auto_mid = client.get(f"/wallet/progression?wallet_id={walletId}&from=2025-01-01&to=2026-02-04").json()
-    assert auto_mid["granularity"] == "weekly"
-    auto_long = client.get(f"/wallet/progression?wallet_id={walletId}&from=2020-01-01&to=2026-02-04").json()
-    assert auto_long["granularity"] == "monthly"
+    body = client.get(f"/wallet/progression?wallet_id={walletId}&from=2026-01-01&to=2026-01-31").json()
+    assert body["granularity"] == "daily"
+    byDate = {point["date"]: point for point in body["points"]}
+    assert byDate["2026-01-02"] == {"date": "2026-01-02", "equity": 100.0, "invested": 100.0}
+    assert byDate["2026-01-08"] == {"date": "2026-01-08", "equity": 72.0, "invested": 52.0}
+    assert byDate["2026-01-31"] == {"date": "2026-01-31", "equity": 72.0, "invested": 52.0}
+    assert "2026-01-01" not in byDate
+    longBody = client.get(f"/wallet/progression?wallet_id={walletId}&from=2020-01-01&to=2026-02-04").json()
+    assert longBody["granularity"] == "daily"
 
 
-def test_cashflows_monthly(dbSession, monkeypatch):
+def test_cashflows_returns_raw_rows(dbSession, monkeypatch):
+    # Month buckets + rounding + totals moved client-side: server returns
+    # windowed ledger rows with per-row in/out legs.
     monkeypatch.setattr(requests, "get", _mock_get)
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = _seed_wallet(client)
     body = client.get(f"/wallet/cashflows?wallet_id={walletId}&from=2026-01-01&to=2026-02-28").json()
-    assert body["months"] == [
-        {"month": "2026-01", "in": 100.0, "out": 48.0, "net": 52.0},
-        {"month": "2026-02", "in": 0.0, "out": 0.0, "net": 0.0},
+    assert (body["from"], body["to"]) == ("2026-01-01", "2026-02-28")
+    assert body["rows"] == [
+        {
+            "date": "2026-01-02",
+            "side": "Compra",
+            "ticker": "PETR4",
+            "quantity": 10.0,
+            "price": 10.0,
+            "costs": 0.0,
+            "in": 100.0,
+            "out": 0.0,
+        },
+        {
+            "date": "2026-01-08",
+            "side": "Venda",
+            "ticker": "PETR4",
+            "quantity": 4.0,
+            "price": 12.0,
+            "costs": 0.0,
+            "in": 0.0,
+            "out": 48.0,
+        },
     ]
-    assert (body["total_in"], body["total_out"], body["net"]) == (100.0, 48.0, 52.0)
 
 
 def test_dividends_monthly(dbSession, monkeypatch):
@@ -151,30 +158,27 @@ def test_dividends_monthly(dbSession, monkeypatch):
     )
     dbSession.commit()
     body = client.get(f"/wallet/dividends/monthly?wallet_id={walletId}&from=2026-01-01&to=2026-02-28").json()
-    assert body["months"] == [
-        {"month": "2026-01", "gross": 20.0, "net": 20.0, "count": 1},
-        {"month": "2026-02", "gross": 10.0, "net": 8.5, "count": 1},
+    assert (body["from"], body["to"]) == ("2026-01-01", "2026-02-28")
+    assert body["rows"] == [
+        {"pay_date": "2026-01-15", "ticker": "PETR4", "kind": "Div", "gross": 20.0, "net": 20.0},
+        {"pay_date": "2026-02-10", "ticker": "PETR4", "kind": "JSCP", "gross": 10.0, "net": 8.5},
     ]
-    assert (body["total_gross"], body["total_net"], body["count"]) == (30.0, 28.5, 2)
 
 
-def test_performance_metrics_filter(dbSession, monkeypatch):
+def test_performance_returns_full_body(dbSession, monkeypatch):
+    # Metric-subset moved client-side: server always returns the full body.
     monkeypatch.setattr(requests, "get", _mock_get)
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = _seed_wallet(client)
-    body = client.get(
-        f"/wallet/performance?wallet_id={walletId}&from=2026-01-01&to=2026-01-11&metrics=twr,volatility"
-    ).json()
-    assert set(body) == {"twr", "volatility"}
-    assert client.get(f"/wallet/performance?wallet_id={walletId}&metrics=bogus").status_code == 422
+    body = client.get(f"/wallet/performance?wallet_id={walletId}&from=2026-01-01&to=2026-01-11").json()
+    assert set(body) == {"twr", "twr_annualized", "volatility", "dividends_received", "price_return"}
+    assert body["twr"] == pytest.approx(0.2)
 
 
-def test_performance_preset_ytd_matches_explicit(dbSession, monkeypatch):
+def test_performance_window_is_explicit_dates_only(dbSession, monkeypatch):
+    # Preset->date resolution moved client-side: explicit from/to still works.
     monkeypatch.setattr(requests, "get", _mock_get)
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = _seed_wallet(client)
     explicit = client.get(f"/wallet/performance?wallet_id={walletId}&from=2026-01-01&to=2026-01-11").json()
-    via_preset = client.get(f"/wallet/performance?wallet_id={walletId}&preset=YTD&to=2026-01-11").json()
-    assert via_preset == explicit
     assert explicit["twr"] == pytest.approx(0.2)
-    assert client.get(f"/wallet/performance?wallet_id={walletId}&preset=BOGUS").status_code == 422

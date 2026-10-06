@@ -51,7 +51,9 @@ def test_positions_math_with_live_price(dbSession, monkeypatch):
     item = client.get(f"/wallet/positions?wallet_id={walletId}").json()["items"][0]
     assert item["current_price"] == 30.0
     assert item["equity"] == 300.0
-    assert item["appreciation"] == 200.0
+    # appreciation derives client-side: equity - qty*avg = 300 - 10*10.
+    assert item["quantity"] == 10.0 and item["avgPrice"] == 10.0
+    assert "appreciation" not in item and "percent_wallet" not in item and "buy_flag" not in item
 
 
 def test_live_timeout_falls_back_to_null(dbSession, monkeypatch):
