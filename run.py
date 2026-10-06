@@ -12,6 +12,7 @@ from main.utils.connectivity import checkDatabaseConnection, checkServiceConnect
 from main.utils.service_manager import runAll
 from main.utils.migrator import runMigrations
 from main.utils.request_id import RequestIDMiddleware
+from main.utils.security_headers import CsrfProtectMiddleware, SecurityHeadersMiddleware
 from main.utils.errors import registerErrorHandlers
 
 from main.service.authentication_service import AuthenticationService
@@ -74,6 +75,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Mansa Server", lifespan=lifespan)
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(CsrfProtectMiddleware)
 app.add_middleware(RequestIDMiddleware)
 registerErrorHandlers(app)
 
