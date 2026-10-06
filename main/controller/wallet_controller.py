@@ -1,21 +1,17 @@
-import logging
-from datetime import date as dateType
-
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from fastapi.responses import ORJSONResponse
 from sqlalchemy.orm import Session
 from typing import Literal
 
 from config import getSession
 from main.app.wallet import summary
-from main.app.wallet.earnings import EarningsManager, EarningsSync, serialize_earning
+from main.app.wallet.analytics import AnalyticsManager, Granularity
+from main.app.wallet.earnings import EarningsManager, serialize_earning
 from main.app.wallet.entries import EntriesManager, EntryCreate, EntryUpdate, serialize_entry, serialize_holding
-from main.app.wallet.performance import PerformanceManager
+from main.app.wallet.performance import PerformanceManager, Preset
 from main.app.wallet.positions import PositionsManager
 from main.app.wallet.summary import RatingUpsert, SummaryManager
 from main.app.wallet.wallets import WalletCreate, WalletsManager
-
-logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/wallet", tags=["wallet"])
 
@@ -142,24 +138,54 @@ def list_earnings_route(
     return {"items": [serialize_earning(item) for item in EarningsManager.listEarnings(db, wallet_id, userId, status)]}
 
 
-    db: Session = Depends(getSession),
-):
-
-
 @router.get("/performance", response_class=ORJSONResponse)
 def get_performance_route(
     wallet_id: int,
     ticker: str | None = None,
     fromIso: str | None = Query(default=None, alias="from"),
     toIso: str | None = Query(default=None, alias="to"),
+    preset: Preset | None = None,
+    metrics: str | None = None,
     userId: int = Query(),
     db: Session = Depends(getSession),
 ):
-    try:
-        startDate = dateType.fromisoformat(fromIso) if fromIso else None
-        endDate = dateType.fromisoformat(toIso) if toIso else None
-    except ValueError:
-        raise HTTPException(status_code=422, detail="invalid date, expected YYYY-MM-DD")
-    if startDate is None or endDate is None:
-        startDate, endDate = PerformanceManager.defaultWindow(db, wallet_id, userId, startDate, endDate)
-    return PerformanceManager.getPerformance(db, wallet_id, userId, ticker, startDate, endDate)
+    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet_id, userId, fromIso, toIso, preset)
+    body = PerformanceManager.getPerformance(db, wallet_id, userId, ticker, startDate, endDate)
+    return PerformanceManager.selectMetrics(body, metrics)
+
+
+@router.get("/progression", response_class=ORJSONResponse)
+def get_progression_route(
+    wallet_id: int,
+    fromIso: str | None = Query(default=None, alias="from"),
+    toIso: str | None = Query(default=None, alias="to"),
+    granularity: Granularity = Query(default="auto"),
+    userId: int = Query(),
+    db: Session = Depends(getSession),
+):
+    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet_id, userId, fromIso, toIso)
+    return AnalyticsManager.getProgression(db, wallet_id, userId, startDate, endDate, granularity)
+
+
+@router.get("/cashflows", response_class=ORJSONResponse)
+def get_cashflows_route(
+    wallet_id: int,
+    fromIso: str | None = Query(default=None, alias="from"),
+    toIso: str | None = Query(default=None, alias="to"),
+    userId: int = Query(),
+    db: Session = Depends(getSession),
+):
+    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet_id, userId, fromIso, toIso)
+    return AnalyticsManager.getCashflows(db, wallet_id, userId, startDate, endDate)
+
+
+@router.get("/dividends/monthly", response_class=ORJSONResponse)
+def get_dividends_monthly_route(
+    wallet_id: int,
+    fromIso: str | None = Query(default=None, alias="from"),
+    toIso: str | None = Query(default=None, alias="to"),
+    userId: int = Query(),
+    db: Session = Depends(getSession),
+):
+    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet_id, userId, fromIso, toIso)
+    return AnalyticsManager.getDividendsMonthly(db, wallet_id, userId, startDate, endDate)
