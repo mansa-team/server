@@ -1,17 +1,13 @@
-import logging
 from datetime import date as dateType
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from main.app.wallet.performance import PerformanceManager
 from main.app.wallet.positions import PositionsManager
 from main.app.wallet.wallets import WalletsManager
 from main.models.wallet import Holding, Snapshot, Transaction
-
-logger = logging.getLogger(__name__)
 
 
 class RatingUpsert(BaseModel):
@@ -22,43 +18,9 @@ class RatingUpsert(BaseModel):
 
 class SummaryManager:
     @classmethod
-    def twrOrNone(cls, db: Session, walletId: int, userId: int, start: dateType, end: dateType) -> float | None:
-        try:
-            startIso, endIso = start.isoformat(), end.isoformat()
-            tickers = [
-                str(row[0])
-                for row in db.query(Transaction.ticker).filter(Transaction.walletId == walletId).distinct().all()
-            ]
-            for ticker in tickers:
-                for closeDay, _ in PositionsManager.fetchPadraoCloses(ticker):
-                    if startIso <= closeDay.isoformat() <= endIso:
-                        return PerformanceManager.getPerformance(db, walletId, userId, None, start, end).get("twr")
-            return None
-        except Exception:
-            logger.warning("auto-TWR failed for wallet %s", walletId, exc_info=True)
-            return None
-
-    @classmethod
-    def autoTwr(cls, db: Session, walletId: int, userId: int) -> tuple[float | None, float | None]:
-        # Lifetime + trailing-12m TWR computed at load time; (None, None) when empty.
-        try:
-            firstRow = (
-                db.query(Transaction.date).filter(Transaction.walletId == walletId).order_by(Transaction.date).first()
-            )
-            if firstRow is None:
-                return None, None
-            today = dateType.today()
-            yearAgo = today - timedelta(days=365)
-            return (
-                cls.twrOrNone(db, walletId, userId, firstRow[0], today),
-                cls.twrOrNone(db, walletId, userId, max(firstRow[0], yearAgo), today),
-            )
-        except Exception:
-            logger.warning("auto-TWR failed for wallet %s", walletId, exc_info=True)
-            return None, None
-
-    @classmethod
     def getSummary(cls, db: Session, walletId: int, userId: int) -> dict:
+        # Canonical raw: applied/equity/variation + firstDate. TWR presets are
+        # client-side (GET /wallet/performance?from&to); no auto-TWR here.
         wallet = WalletsManager.getWallet(db, walletId, userId)
         PositionsManager.maybeRefreshRatings(db, walletId)
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
@@ -74,10 +36,15 @@ class SummaryManager:
                 equity += float(holding.quantity) * price
         variation = equity - applied
 
+        firstRow = (
+            db.query(Transaction.date).filter(Transaction.walletId == walletId).order_by(Transaction.date).first()
+        )
+        firstDate = firstRow[0].isoformat() if firstRow else None
+
         today = dateType.today()
 
-        profitTwr, profitTwr12m = cls.autoTwr(db, walletId, userId)
-
+        # Snapshot keeps applied/equity/variation history; TWR columns stay NULL
+        # (client resolves TWRs, so server-computed snapshot TWRs would go stale).
         snapshot = db.query(Snapshot).filter(Snapshot.walletId == walletId, Snapshot.date == today).first()
         if snapshot is None:
             snapshot = Snapshot(
@@ -86,9 +53,9 @@ class SummaryManager:
                 applied=applied,
                 equity=equity,
                 variation=variation,
-                profitTwr=profitTwr,
+                profitTwr=None,
                 profitAmount=variation,
-                profitTwr12m=profitTwr12m,
+                profitTwr12m=None,
                 profitTwr12mAmount=variation,
             )
             db.add(snapshot)
@@ -96,9 +63,9 @@ class SummaryManager:
             snapshot.applied = applied  # type: ignore[assignment]
             snapshot.equity = equity  # type: ignore[assignment]
             snapshot.variation = variation  # type: ignore[assignment]
-            snapshot.profitTwr = profitTwr  # type: ignore[assignment]
+            snapshot.profitTwr = None  # type: ignore[assignment]
             snapshot.profitAmount = variation  # type: ignore[assignment]
-            snapshot.profitTwr12m = profitTwr12m  # type: ignore[assignment]
+            snapshot.profitTwr12m = None  # type: ignore[assignment]
             snapshot.profitTwr12mAmount = variation  # type: ignore[assignment]
 
         wallet.lastRecalc = datetime.now()
@@ -109,16 +76,12 @@ class SummaryManager:
             "applied": applied,
             "equity": equity,
             "variation": variation,
-            "profit": variation,
-            "profit_total": variation,
-            "profit_twr": profitTwr,
-            "profit_amount": variation,
-            "profit_twr_12m": profitTwr12m,
-            "profit_twr_12m_amount": variation,
+            "first_date": firstDate,
         }
 
     @classmethod
-    def getAllocation(cls, db: Session, walletId: int, userId: int, groupBy: str) -> dict:
+    def getAllocation(cls, db: Session, walletId: int, userId: int) -> dict:
+        # Canonical raw: per-holding equities + total. Grouping + pct are client-side.
         WalletsManager.getWallet(db, walletId, userId)
         PositionsManager.maybeRefreshRatings(db, walletId)
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
@@ -127,22 +90,19 @@ class SummaryManager:
         prices = PositionsManager.fetchLivePrices(tickers)
         PositionsManager.fillMissingCloses(prices)
 
-        groupEquity: dict[str, float] = {}
+        items = []
         for holding in holdings:
             price = prices.get(str(holding.ticker))
             holdingEquity = float(holding.quantity) * price if price is not None else 0.0
-            groupKey = str(holding.ticker) if groupBy == "ticker" else str(holding.assetType)
-            groupEquity[groupKey] = groupEquity.get(groupKey, 0.0) + holdingEquity
+            items.append(
+                {
+                    "ticker": str(holding.ticker),
+                    "asset_type": str(holding.assetType),
+                    "equity": holdingEquity,
+                }
+            )
 
-        equityTotal = sum(groupEquity.values())
-        items = [
-            {
-                "key": groupKey,
-                "equity": groupValue,
-                "pct": (groupValue / equityTotal) if equityTotal else 0,
-            }
-            for groupKey, groupValue in groupEquity.items()
-        ]
+        equityTotal = sum(item["equity"] for item in items)
 
         return {"items": items, "equity_total": equityTotal}
 
