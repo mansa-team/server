@@ -58,7 +58,7 @@ def test_sync_accrues_with_qty_at_ex_date(dbSession, monkeypatch):
         json={
             "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-01-10",
             "quantity": 10,
@@ -95,7 +95,7 @@ def test_sync_is_idempotent(dbSession, monkeypatch):
         json={
             "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-01-10",
             "quantity": 10,

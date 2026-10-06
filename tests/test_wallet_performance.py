@@ -40,7 +40,7 @@ def test_performance_splits_price_and_dividends(dbSession, monkeypatch):
         json={
             "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-01-02",
             "quantity": 10,

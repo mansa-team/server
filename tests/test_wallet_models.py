@@ -9,7 +9,7 @@ def test_wallet_tables_create_and_round_trip(dbSession):
     assert wallet.walletId == 1
     holding = Holding(
         walletId=wallet.walletId,
-        assetType="Stock",
+        assetType="ACOES",
         ticker="PETR4",
         quantity=10,
         avgPrice=28.5,

@@ -50,7 +50,7 @@ def _seed_wallet(dbSession):
         json={
             "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-01-02",
             "quantity": 10,
@@ -140,7 +140,7 @@ def test_wallet_allocation_groups_by_ticker_and_asset(dbSession, monkeypatch):
     byAsset = asyncio.run(
         TOOL_REGISTRY["wallet_allocation"](wallet_id=walletId, group_by="assetType", user={"userId": 1}, db=dbSession)
     )
-    assert byAsset["items"][0]["key"] == "Stock"
+    assert byAsset["items"][0]["key"] == "ACOES"
 
 
 def test_list_wallet_earnings_filters_by_status(dbSession):

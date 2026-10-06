@@ -22,7 +22,7 @@ def test_compra_average_includes_costs(dbSession):
         json={
             "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-01-10",
             "quantity": 10,
@@ -35,7 +35,7 @@ def test_compra_average_includes_costs(dbSession):
         json={
             "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-02-10",
             "quantity": 10,
@@ -55,7 +55,7 @@ def test_venda_keeps_avg_and_rejects_oversell(dbSession):
         json={
             "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-01-10",
             "quantity": 20,
@@ -67,7 +67,7 @@ def test_venda_keeps_avg_and_rejects_oversell(dbSession):
         json={
             "wallet_id": walletId,
             "side": "Venda",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-03-10",
             "quantity": 5,
@@ -80,7 +80,7 @@ def test_venda_keeps_avg_and_rejects_oversell(dbSession):
         json={
             "wallet_id": walletId,
             "side": "Venda",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-04-10",
             "quantity": 99,
@@ -100,7 +100,7 @@ def test_edit_replays_holding_from_ledger(dbSession):
         json={
             "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-01-10",
             "quantity": 10,
@@ -112,7 +112,7 @@ def test_edit_replays_holding_from_ledger(dbSession):
         json={
             "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-02-10",
             "quantity": 10,
@@ -135,7 +135,7 @@ def test_cross_user_wallet_returns_404(dbSession):
         json={
             "wallet_id": 1,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-01-10",
             "quantity": 1,

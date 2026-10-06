@@ -34,7 +34,7 @@ def _seed(dbSession, client):
         json={
             "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-01-10",
             "quantity": 10,
@@ -75,7 +75,7 @@ def test_unknown_ticker_returns_null_not_422(dbSession, monkeypatch):
         json={
             "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Crypto",
+            "asset_type": "OUTROS",
             "ticker": "BTC",
             "date": "2026-01-10",
             "quantity": 1,

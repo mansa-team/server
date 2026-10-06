@@ -34,7 +34,7 @@ def _seed(client):
         json={
             "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-01-10",
             "quantity": 10,

@@ -43,7 +43,7 @@ def _seed_two(client, walletId):
             json={
                 "wallet_id": walletId,
                 "side": "Compra",
-                "asset_type": "Stock",
+                "asset_type": "ACOES",
                 "ticker": ticker,
                 "date": "2026-01-10",
                 "quantity": 10,
@@ -141,7 +141,7 @@ def test_new_holding_seeds_xango_score(dbSession, monkeypatch):
         json={
             "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-01-10",
             "quantity": 10,
@@ -157,7 +157,7 @@ def test_new_holding_seeds_xango_score(dbSession, monkeypatch):
         json={
             "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-01-11",
             "quantity": 5,
@@ -179,7 +179,7 @@ def test_new_holding_defaults_ten_without_xango(dbSession, monkeypatch):
         json={
             "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-01-10",
             "quantity": 10,
@@ -199,7 +199,7 @@ def test_ratings_accept_zero_to_hundred(dbSession, monkeypatch):
         json={
             "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-01-10",
             "quantity": 10,

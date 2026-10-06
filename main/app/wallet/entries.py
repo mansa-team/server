@@ -1,6 +1,6 @@
 import logging
 from datetime import date as dateType
-from typing import Literal
+from typing import Literal, get_args
 
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
@@ -13,6 +13,10 @@ from main.models.wallet import Holding, Transaction
 logger = logging.getLogger(__name__)
 
 
+# Asset category allowlist (single source of truth).
+# Extend the Literal to add future categories (e.g. "CDI", "SELIC:...").
+AssetType = Literal["ACOES", "OUTROS"]
+ALLOWED_ASSET_TYPES = frozenset(get_args(AssetType))
 def serialize_holding(holding) -> dict | None:
     if holding is None:
         return None
@@ -36,7 +40,7 @@ def serialize_entry(entry) -> dict:
 class EntryCreate(BaseModel):
     wallet_id: int
     side: Literal["Compra", "Venda"]
-    asset_type: str
+    asset_type: AssetType
     ticker: str
     date: dateType
     quantity: float = Field(gt=0)
@@ -45,6 +49,7 @@ class EntryCreate(BaseModel):
 
 
 class EntryUpdate(BaseModel):
+    asset_type: AssetType | None = None
     date: dateType | None = None
     quantity: float | None = Field(default=None, gt=0)
     price: float | None = Field(default=None, ge=0)
@@ -103,12 +108,18 @@ class EntriesManager:
         else:
             holding.quantity = quantity  # type: ignore[assignment]
             holding.avgPrice = avg  # type: ignore[assignment]
+            holding.assetType = entries[0].assetType  # type: ignore[assignment]
 
         return holding
 
     @classmethod
     def addEntry(cls, db: Session, userId: int, data: EntryCreate) -> tuple[Transaction, Holding | None]:
         WalletsManager.getWallet(db, data.wallet_id, userId)
+        if data.asset_type not in ALLOWED_ASSET_TYPES:
+            raise HTTPException(
+                status_code=422,
+                detail=f"unknown asset_type '{data.asset_type}', expected one of: {', '.join(sorted(ALLOWED_ASSET_TYPES))}",
+            )
         if data.side == "Venda":
             holding = (
                 db.query(Holding).filter(Holding.walletId == data.wallet_id, Holding.ticker == data.ticker).first()
@@ -167,6 +178,13 @@ class EntriesManager:
         WalletsManager.getWallet(db, int(entry.walletId), userId)
 
         changes = patch.model_dump(exclude_unset=True)
+        if changes.get("asset_type") is not None and changes["asset_type"] not in ALLOWED_ASSET_TYPES:
+            raise HTTPException(
+                status_code=422,
+                detail=f"unknown asset_type '{changes['asset_type']}', expected one of: {', '.join(sorted(ALLOWED_ASSET_TYPES))}",
+            )
+        if "asset_type" in changes:
+            entry.assetType = changes.pop("asset_type")  # type: ignore[assignment]
         for fieldName, fieldValue in changes.items():
             if fieldValue is not None:
                 setattr(entry, fieldName, fieldValue)
