@@ -1,14 +1,13 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import ORJSONResponse
 from sqlalchemy.orm import Session
-from typing import Literal
 
 from config import getSession
 from main.app.wallet import summary
-from main.app.wallet.analytics import AnalyticsManager, Granularity
+from main.app.wallet.analytics import AnalyticsManager
 from main.app.wallet.earnings import EarningsManager, serialize_earning
 from main.app.wallet.entries import EntriesManager, EntryCreate, EntryUpdate, serialize_entry, serialize_holding
-from main.app.wallet.performance import PerformanceManager, Preset
+from main.app.wallet.performance import PerformanceManager
 from main.app.wallet.positions import PositionsManager
 from main.app.wallet.summary import RatingUpsert, SummaryManager
 from main.app.wallet.wallets import WalletCreate, WalletsManager
@@ -111,11 +110,10 @@ def get_summary_route(
 @router.get("/allocation", response_class=ORJSONResponse)
 def get_allocation_route(
     wallet_id: int,
-    group_by: Literal["ticker", "type"] = Query(default="ticker"),
     userId: int = Query(),
     db: Session = Depends(getSession),
 ):
-    return SummaryManager.getAllocation(db, wallet_id, userId, group_by)
+    return SummaryManager.getAllocation(db, wallet_id, userId)
 
 
 @router.put("/ratings", response_class=ORJSONResponse)
@@ -131,40 +129,38 @@ def set_rating_route(
 @router.get("/earnings", response_class=ORJSONResponse)
 def list_earnings_route(
     wallet_id: int,
-    status: str | None = None,
     userId: int = Query(),
     db: Session = Depends(getSession),
 ):
-    return {"items": [serialize_earning(item) for item in EarningsManager.listEarnings(db, wallet_id, userId, status)]}
+    return {"items": [serialize_earning(item) for item in EarningsManager.listEarnings(db, wallet_id, userId)]}
 
 
+# Canonical raw: from/to + ticker only. Preset->date resolution and metric
+# picking are client-side; TWR math + 6h cache stay server.
 @router.get("/performance", response_class=ORJSONResponse)
 def get_performance_route(
     wallet_id: int,
     ticker: str | None = None,
     fromIso: str | None = Query(default=None, alias="from"),
     toIso: str | None = Query(default=None, alias="to"),
-    preset: Preset | None = None,
-    metrics: str | None = None,
     userId: int = Query(),
     db: Session = Depends(getSession),
 ):
-    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet_id, userId, fromIso, toIso, preset)
-    body = PerformanceManager.getPerformance(db, wallet_id, userId, ticker, startDate, endDate)
-    return PerformanceManager.selectMetrics(body, metrics)
+    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet_id, userId, fromIso, toIso)
+    return PerformanceManager.getPerformance(db, wallet_id, userId, ticker, startDate, endDate)
 
 
+# Canonical daily: bucketing + granularity selection are client-side.
 @router.get("/progression", response_class=ORJSONResponse)
 def get_progression_route(
     wallet_id: int,
     fromIso: str | None = Query(default=None, alias="from"),
     toIso: str | None = Query(default=None, alias="to"),
-    granularity: Granularity = Query(default="auto"),
     userId: int = Query(),
     db: Session = Depends(getSession),
 ):
     startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet_id, userId, fromIso, toIso)
-    return AnalyticsManager.getProgression(db, wallet_id, userId, startDate, endDate, granularity)
+    return AnalyticsManager.getProgression(db, wallet_id, userId, startDate, endDate)
 
 
 @router.get("/cashflows", response_class=ORJSONResponse)
