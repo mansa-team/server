@@ -87,6 +87,12 @@ class EarningsManager:
                 .all()
             )
 
+            # Group by the accrual key: the source lists one row per installment,
+            # so the same (exDate, kind) can repeat with different payDates
+            # (e.g. PETR4 21-08-2026 JSCP paid in two lots). Aggregate into one
+            # earning per key — the unique key uq_earnings_accrual forbids splits —
+            # while dropping exact-duplicate rows (snapshot overlaps).
+            accruals: dict[tuple, list[tuple]] = {}
             for record in PositionsManager.fetchMarketDividends(holdingTicker):
                 label = str(record.get("TIPO PROVENTO"))
                 kind = TIPO_MAP.get(label)
@@ -102,6 +108,15 @@ class EarningsManager:
                     perShare = float(record["VALOR AJUSTADO"])
                 except Exception:
                     continue
+
+                key = (exDate, kind)
+                installment = (payDate, perShare)
+                if installment not in accruals.setdefault(key, []):
+                    accruals[key].append(installment)
+
+            for (exDate, kind), installments in accruals.items():
+                payDate = max(pay for pay, _ in installments)
+                perShare = sum(share for _, share in installments)
 
                 quantityAtEx = EntriesManager.positionAtDate(ledgerEntries, exDate)
                 if quantityAtEx <= 0:

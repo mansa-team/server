@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import threading
@@ -108,17 +109,47 @@ class PositionsManager:
             if resp.status_code != 200:
                 return []
             payload = resp.json()["data"]
-            if payload and isinstance(payload[0], dict) and "HISTORICO DIVIDENDOS" in payload[0]:
-                dividends = payload[0]["HISTORICO DIVIDENDOS"]
-                # ponytail: API sometimes yields plain strings (tickers) inside the
-                # dividend list; keep the declared list[dict] contract here so all
-                # callers stay crash-free. Filter, don't per-caller guard.
-                if isinstance(dividends, list):
-                    return [row for row in dividends if isinstance(row, dict)]
+            if not isinstance(payload, list) or not payload:
                 return []
+            # Fundamental snapshots come newest-first but order isn't a contract;
+            # prefer the exact-ticker row carrying a non-empty history.
+            rows = [payload[0]] + [row for row in payload[1:] if isinstance(row, dict) and row is not payload[0]]
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                if str(row.get("TICKER", ticker)).upper() != ticker.upper():
+                    continue
+                dividends = row.get("HISTORICO DIVIDENDOS")
+                parsed = cls.parseDividendCell(dividends)
+                if parsed:
+                    return parsed
+            # Fallback: first row with any parseable history (keeps prefix-match behavior).
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                parsed = cls.parseDividendCell(row.get("HISTORICO DIVIDENDOS"))
+                if parsed:
+                    return parsed
             return []
         except Exception:
             return []
+
+    @staticmethod
+    def parseDividendCell(cell) -> list[dict]:
+        # The fundamental endpoint serves HISTORICO DIVIDENDOS as a JSON string
+        # (orjson can't parse its bare NaN tokens, so it stays un-parsed);
+        # stdlib json tolerates NaN. Filter, don't per-caller guard.
+        if isinstance(cell, str):
+            try:
+                cell = json.loads(cell)
+            except ValueError:
+                return []
+        # ponytail: API sometimes yields plain strings (tickers) inside the
+        # dividend list; keep the declared list[dict] contract here so all
+        # callers stay crash-free. Filter, don't per-caller guard.
+        if isinstance(cell, list):
+            return [row for row in cell if isinstance(row, dict)]
+        return []
 
     @classmethod
     @walletCache(ttl="6h", key="wallet:closes:{ticker}")

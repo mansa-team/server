@@ -1,3 +1,5 @@
+import json
+
 import pytest
 import requests
 from freezegun import freeze_time
@@ -17,31 +19,58 @@ async def clear_cashews_cache():
 
 
 def _div_fundamental(url, params=None, headers=None, timeout=None):
+    # Mirrors the live /stocks/fundamental shape: data rows keyed by TICKER
+    # with HISTORICO DIVIDENDOS as a JSON *string* (bare NaN tokens included,
+    # as served in production). fetchMarketDividends must parse this.
+    history = json.dumps(
+        [
+            {
+                "DATA COM": "01-03-2026",
+                "DATA PAGAMENTO": "01-04-2026",
+                "TIPO PROVENTO": "Dividendo",
+                "VALOR AJUSTADO": 2.0,
+                "VALOR ORIGINAL": float("nan"),
+            },
+            {
+                "DATA COM": "01-06-2026",
+                "DATA PAGAMENTO": "20-12-2026",
+                "TIPO PROVENTO": "JCP",
+                "VALOR AJUSTADO": 1.0,
+                "VALOR ORIGINAL": float("nan"),
+            },
+            {
+                # Second installment, same ex-date/kind, different pay date:
+                # must aggregate into ONE earning (uq_earnings_accrual), not 500.
+                "DATA COM": "01-06-2026",
+                "DATA PAGAMENTO": "20-11-2026",
+                "TIPO PROVENTO": "JCP",
+                "VALOR AJUSTADO": 0.5,
+                "VALOR ORIGINAL": float("nan"),
+            },
+            {
+                "DATA COM": "01-07-2026",
+                "DATA PAGAMENTO": "20-12-2026",
+                "TIPO PROVENTO": "Bonificacao",
+                "VALOR AJUSTADO": 5.0,
+                "VALOR ORIGINAL": float("nan"),
+            },
+        ]
+    )
+
     class Resp:
         status_code = 200
 
         @staticmethod
         def json():
+            search = (params or {}).get("search", "PETR4")
             return {
                 "data": [
                     {
-                        "DATA COM": "01-03-2026",
-                        "DATA PAGAMENTO": "01-04-2026",
-                        "TIPO PROVENTO": "Dividendo",
-                        "VALOR AJUSTADO": 2.0,
-                    },
-                    {
-                        "DATA COM": "01-06-2026",
-                        "DATA PAGAMENTO": "20-12-2026",
-                        "TIPO PROVENTO": "JCP",
-                        "VALOR AJUSTADO": 1.0,
-                    },
-                    {
-                        "DATA COM": "01-07-2026",
-                        "DATA PAGAMENTO": "20-12-2026",
-                        "TIPO PROVENTO": "Bonificacao",
-                        "VALOR AJUSTADO": 5.0,
-                    },
+                        "TICKER": search,
+                        "NOME": "PETROLEO BRASILEIRO",
+                        "TIME": "2026-10-02",
+                        "HISTORICO DIVIDENDOS": history,
+                    }
                 ]
             }
 
@@ -79,10 +108,36 @@ def test_sync_accrues_with_qty_at_ex_date(dbSession, monkeypatch):
     assert by_kind["JSCP"] == {
         "ticker": "PETR4",
         "kind": "JSCP",
-        "gross": 10.0,
-        "net_ir_adjusted": 8.5,
+        "gross": 15.0,
+        "net_ir_adjusted": 12.75,
         "status": "A Receber",
     }
+
+
+@freeze_time("2026-09-30")
+def test_sync_repeated_ex_date_kind_aggregates_without_500(dbSession, monkeypatch):
+    # Same (exDate, kind) twice with different pay dates = installments of one
+    # payout: sync must store ONE aggregated earning, not raise IntegrityError.
+    monkeypatch.setattr(requests, "get", _div_fundamental)
+    client, _, _ = make_wallet_client(db=dbSession)
+    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+    client.post(
+        "/wallet/entries",
+        json={
+            "wallet_id": walletId,
+            "side": "Compra",
+            "asset_type": "ACOES",
+            "ticker": "PETR4",
+            "date": "2026-01-10",
+            "quantity": 10,
+            "price": 10.0,
+        },
+    )
+    first = client.post("/wallet/earnings/sync", json={"wallet_id": walletId})
+    assert first.status_code == 200
+    again = client.post("/wallet/earnings/sync", json={"wallet_id": walletId})
+    assert again.status_code == 200
+    assert again.json()["accrued"] == 0
 
 
 @freeze_time("2026-09-30")
