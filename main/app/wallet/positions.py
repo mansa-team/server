@@ -144,7 +144,7 @@ class PositionsManager:
             payload = resp.json()["data"]
             if not isinstance(payload, list) or not payload:
                 return []
-            
+
             rows = [payload[0]] + [row for row in payload[1:] if isinstance(row, dict) and row is not payload[0]]
             for row in rows:
                 if not isinstance(row, dict):
@@ -173,7 +173,7 @@ class PositionsManager:
                 cell = json.loads(cell)
             except ValueError:
                 return []
-            
+
         if isinstance(cell, list):
             return [row for row in cell if isinstance(row, dict)]
         return []
@@ -236,24 +236,10 @@ class PositionsManager:
         return holdings, prices, equities, equityTotal
 
     @classmethod
-    def rebalanceDeltas(
-        cls, holdings: list[Holding], equities: dict[str, float | None], equityTotal: float
-    ) -> dict[str, float | None]:
-        weightTotal = sum(cls.weightOf(holding) for holding in holdings)
-        deltas: dict[str, float | None] = {}
-        for holding in holdings:
-            ticker = str(holding.ticker)
-            equity = equities.get(ticker)
-            if not weightTotal or equity is None:
-                deltas[ticker] = None
-            else:
-                deltas[ticker] = cls.weightOf(holding) / weightTotal * equityTotal - equity
-        return deltas
-
-    @classmethod
     def getPositions(cls, db: Session, walletId: int, userId: int) -> dict:
+        # Canonical raw: holdings + live prices + per-ticker equity + total.
+        # appreciation / percent_wallet / buy_flag derive client-side.
         holdings, prices, equities, equityTotal = cls.pricePass(db, walletId, userId)
-        deltas = cls.rebalanceDeltas(holdings, equities, equityTotal)
 
         targetRows = db.query(Target).filter(Target.walletId == walletId, Target.keyKind == "ticker").all()
         targetByTicker = {str(target.keyValue): float(target.percentIdeal) for target in targetRows}
@@ -268,16 +254,10 @@ class PositionsManager:
             if price is None or equity is None:
                 currentPrice = None
                 equityValue = None
-                appreciation = None
             else:
                 currentPrice = price
                 equityValue = equity
-                appreciation = equity - holdingQuantity * holdingAvg
 
-            percentWallet = (equity / equityTotal) if equity is not None and equityTotal else 0
-            percentIdeal = targetByTicker.get(str(holding.ticker))
-            delta = deltas[str(holding.ticker)]
-            buyFlag = delta is not None and delta > 0
             items.append(
                 {
                     "ticker": holding.ticker,
@@ -285,46 +265,28 @@ class PositionsManager:
                     "avgPrice": holdingAvg,
                     "current_price": currentPrice,
                     "equity": equityValue,
-                    "appreciation": appreciation,
-                    "percent_wallet": percentWallet,
-                    "percent_ideal": percentIdeal,
-                    "buy_flag": buyFlag,
+                    "rating": cls.weightOf(holding),
+                    "percent_ideal": targetByTicker.get(str(holding.ticker)),
                 }
             )
         return {"items": items, "equity_total": equityTotal}
 
     @classmethod
     def getRebalance(cls, db: Session, walletId: int, userId: int) -> dict:
+        # Canonical raw: weight + price + equity per ticker + total. target_pct /
+        # current_pct / delta_qty / side derive client-side. Shares pricePass with
+        # getPositions; the 15s live-price cache absorbs the second call.
         holdings, prices, equities, equityTotal = cls.pricePass(db, walletId, userId)
-        deltas = cls.rebalanceDeltas(holdings, equities, equityTotal)
-        weightTotal = sum(cls.weightOf(holding) for holding in holdings)
 
         items = []
         for holding in holdings:
             ticker = str(holding.ticker)
-            weight = cls.weightOf(holding)
-            targetPct = (weight / weightTotal) if weightTotal else 0.0
-            equity = equities[ticker]
-            currentPct = (equity / equityTotal) if equity is not None and equityTotal else 0.0
-            delta = deltas[ticker]
-            price = prices.get(ticker)
-            if delta is None or price is None:
-                deltaEquity = None
-                deltaQty = None
-                side = "hold"
-            else:
-                deltaEquity = delta
-                deltaQty = delta / price
-                side = "buy" if delta > 0 else "sell" if delta < 0 else "hold"
             items.append(
                 {
                     "ticker": holding.ticker,
-                    "weight": weight,
-                    "target_pct": targetPct,
-                    "current_pct": currentPct,
-                    "delta_equity": deltaEquity,
-                    "delta_qty": deltaQty,
-                    "side": side,
+                    "weight": cls.weightOf(holding),
+                    "current_price": prices.get(ticker),
+                    "equity": equities[ticker],
                 }
             )
         return {"items": items, "equity_total": equityTotal}
