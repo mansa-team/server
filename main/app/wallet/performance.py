@@ -4,7 +4,6 @@ from datetime import timedelta
 from math import sqrt
 from statistics import stdev
 from types import SimpleNamespace
-from typing import Literal
 
 from cashews import cache as cashewsCache
 from fastapi import HTTPException
@@ -21,11 +20,6 @@ logger = logging.getLogger(__name__)
 cashewsCache.setup("mem://")
 
 PERFORMANCE_EPOCH = "1970-01-01T00:00:00"
-
-Preset = Literal["1M", "3M", "6M", "1A", "YTD", "TOTAL"]
-PRESETS = frozenset({"1M", "3M", "6M", "1A", "YTD", "TOTAL"})
-PRESET_DAYS = {"1M": 30, "3M": 91, "6M": 182, "1A": 365}
-METRICS = frozenset({"twr", "twr_annualized", "volatility", "dividends_received", "price_return"})
 
 
 class PerformanceManager:
@@ -190,16 +184,8 @@ class PerformanceManager:
         userId: int,
         start: dateType | None,
         end: dateType | None,
-        preset: str | None,
     ) -> tuple[dateType, dateType]:
-        if preset is not None:
-            today = dateType.today()
-            if preset == "YTD":
-                start = start or dateType(today.year, 1, 1)
-                end = end or today
-            elif preset != "TOTAL":
-                end = end or today
-                start = start or (end - timedelta(days=PRESET_DAYS[preset]))
+        # Preset->date resolution is client-side; server takes explicit from/to only.
         return cls.defaultWindow(db, walletId, userId, start, end)
 
     @classmethod
@@ -210,27 +196,13 @@ class PerformanceManager:
         userId: int,
         fromIso: str | None,
         toIso: str | None,
-        preset: str | None = None,
     ) -> tuple[dateType, dateType]:
         try:
             start = dateType.fromisoformat(fromIso) if fromIso else None
             end = dateType.fromisoformat(toIso) if toIso else None
         except ValueError:
             raise HTTPException(status_code=422, detail="invalid date, expected YYYY-MM-DD")
-        return cls.resolveWindow(db, walletId, userId, start, end, preset)
-
-    @classmethod
-    def selectMetrics(cls, body: dict, metrics: str | None) -> dict:
-        if not metrics:
-            return body
-        picked = [metric.strip() for metric in metrics.split(",") if metric.strip()]
-        unknown = [metric for metric in picked if metric not in METRICS]
-        if unknown:
-            raise HTTPException(
-                status_code=422,
-                detail=f"unknown metric(s) {', '.join(unknown)}, expected subset of: {', '.join(sorted(METRICS))}",
-            )
-        return {key: body[key] for key in picked}
+        return cls.resolveWindow(db, walletId, userId, start, end)
 
     @classmethod
     def getPerformance(
