@@ -1,6 +1,5 @@
 import logging
 from datetime import date as dateType
-from typing import Literal
 
 from sqlalchemy.orm import Session
 
@@ -10,8 +9,6 @@ from main.app.wallet.positions import PositionsManager
 from main.models.wallet import Earning, Transaction
 
 logger = logging.getLogger(__name__)
-
-Granularity = Literal["auto", "daily", "weekly", "monthly"]
 
 PROGRESSION_EPOCH = "1970-01-01T00:00:00"
 MAX_POINTS = 2000
@@ -25,41 +22,20 @@ def sellFlow(quantity: float, price: float, costs: float) -> float:
     return quantity * price - costs
 
 
-def monthRange(start: dateType, end: dateType) -> list[str]:
-    months = []
-    cursor = dateType(start.year, start.month, 1)
-    while cursor <= end:
-        months.append(cursor.strftime("%Y-%m"))
-        if cursor.month == 12:
-            cursor = dateType(cursor.year + 1, 1, 1)
-        else:
-            cursor = dateType(cursor.year, cursor.month + 1, 1)
-    return months
-
-
 class AnalyticsManager:
-    @classmethod
-    def resolveGranularity(cls, granularity: str, start: dateType, end: dateType) -> str:
-        if granularity != "auto":
-            return granularity
-        spanDays = (end - start).days
-        if spanDays <= 93:
-            return "daily"
-        if spanDays <= 730:
-            return "weekly"
-        return "monthly"
-
+    # Canonical daily progression: every trading day in [from, to] with equity +
+    # invested. Bucketing (weekly/monthly) + granularity resolution are
+    # client-side. Only the MAX_POINTS stride cap stays server as payload guard.
     @classmethod
     @walletCache(
         ttl="6h",
-        key="wallet:progression:{walletId}:{fromIso}:{toIso}:{granularity}:{recalcKey}:{entriesSnap}",
+        key="wallet:progression:{walletId}:{fromIso}:{toIso}:{recalcKey}:{entriesSnap}",
     )
     def cachedProgression(
         cls,
         walletId: int,
         fromIso: str,
         toIso: str,
-        granularity: str,
         recalcKey: str,
         entriesSnap: tuple[tuple[str, str, str, float, float, float, int], ...],
     ) -> dict:
@@ -70,7 +46,7 @@ class AnalyticsManager:
         for ticker in tickers:
             closesByTicker[ticker] = PositionsManager.fetchPadraoCloses(ticker)
 
-        tradingDays = sorted(
+        sampleDays = sorted(
             {
                 closeDay.isoformat()
                 for series in closesByTicker.values()
@@ -78,27 +54,15 @@ class AnalyticsManager:
                 if fromIso <= closeDay.isoformat() <= toIso
             }
         )
-        if not tradingDays:
-            return {"granularity": granularity, "from": fromIso, "to": toIso, "points": []}
+        if not sampleDays:
+            return {"granularity": "daily", "from": fromIso, "to": toIso, "points": []}
 
-        def bucketKey(dayIso: str) -> str:
-            if granularity == "daily":
-                return dayIso
-            day = dateType.fromisoformat(dayIso)
-            if granularity == "weekly":
-                isoYear, isoWeek, _ = day.isocalendar()
-                return f"{isoYear}-W{isoWeek:02d}"
-            return dayIso[:7]
-
-        bucketDay: dict[str, str] = {}
-        for dayIso in tradingDays:
-            bucketDay[bucketKey(dayIso)] = dayIso
-        sampleDays = sorted(bucketDay.values())
         if len(sampleDays) > MAX_POINTS:
             stride = -(-len(sampleDays) // MAX_POINTS)
+            lastDay = sampleDays[-1]
             sampleDays = sampleDays[::stride]
-            if sampleDays[-1] != bucketDay[sorted(bucketDay)[-1]]:
-                sampleDays.append(sorted(bucketDay.values())[-1])
+            if sampleDays[-1] != lastDay:
+                sampleDays.append(lastDay)
 
         entriesByTicker: dict[str, list] = {}
         for entryTicker, entryIso, entrySide, entryQty, entryPrice, entryCosts, entryId in entriesSnap:
@@ -143,12 +107,10 @@ class AnalyticsManager:
                     equity += tickerState["qty"] * tickerState["lastClose"]
                 invested += tickerState["invested"]
             points.append({"date": dayIso, "equity": equity, "invested": invested})
-        return {"granularity": granularity, "from": fromIso, "to": toIso, "points": points}
+        return {"granularity": "daily", "from": fromIso, "to": toIso, "points": points}
 
     @classmethod
-    def getProgression(
-        cls, db: Session, walletId: int, userId: int, start: dateType, end: dateType, granularity: str
-    ) -> dict:
+    def getProgression(cls, db: Session, walletId: int, userId: int, start: dateType, end: dateType) -> dict:
         from main.app.wallet.wallets import WalletsManager
 
         wallet = WalletsManager.getWallet(db, walletId, userId)
@@ -161,8 +123,7 @@ class AnalyticsManager:
             .all()
         )
         if not ledgerRows:
-            resolved = cls.resolveGranularity(granularity, start, end)
-            return {"granularity": resolved, "from": start.isoformat(), "to": end.isoformat(), "points": []}
+            return {"granularity": "daily", "from": start.isoformat(), "to": end.isoformat(), "points": []}
         entriesSnap = tuple(
             (
                 str(ledgerRow.ticker),
@@ -175,11 +136,11 @@ class AnalyticsManager:
             )
             for ledgerRow in ledgerRows
         )
-        resolved = cls.resolveGranularity(granularity, start, end)
-        return cls.cachedProgression(walletId, start.isoformat(), end.isoformat(), resolved, recalcKey, entriesSnap)
+        return cls.cachedProgression(walletId, start.isoformat(), end.isoformat(), recalcKey, entriesSnap)
 
     @classmethod
     def getCashflows(cls, db: Session, walletId: int, userId: int, start: dateType, end: dateType) -> dict:
+        # Canonical raw: windowed ledger rows. Month buckets + rounding + totals are client-side.
         from main.app.wallet.wallets import WalletsManager
 
         WalletsManager.getWallet(db, walletId, userId)
@@ -189,36 +150,30 @@ class AnalyticsManager:
             .order_by(Transaction.date, Transaction.entryId)
             .all()
         )
-        buckets: dict[str, dict] = {month: {"in": 0.0, "out": 0.0} for month in monthRange(start, end)}
+        rows = []
         for ledgerRow in ledgerRows:
-            month = str(ledgerRow.date)[:7]
             quantity, price, costs = float(ledgerRow.quantity), float(ledgerRow.price), float(ledgerRow.costs)
             if ledgerRow.side == "Compra":
-                buckets[month]["in"] += buyFlow(quantity, price, costs)
+                flowIn, flowOut = buyFlow(quantity, price, costs), 0.0
             else:
-                buckets[month]["out"] += sellFlow(quantity, price, costs)
-        months = [
-            {
-                "month": month,
-                "in": round(bucket["in"], 2),
-                "out": round(bucket["out"], 2),
-                "net": round(bucket["in"] - bucket["out"], 2),
-            }
-            for month, bucket in buckets.items()
-        ]
-        totalIn = round(sum(bucket["in"] for bucket in buckets.values()), 2)
-        totalOut = round(sum(bucket["out"] for bucket in buckets.values()), 2)
-        return {
-            "from": start.isoformat(),
-            "to": end.isoformat(),
-            "months": months,
-            "total_in": totalIn,
-            "total_out": totalOut,
-            "net": round(totalIn - totalOut, 2),
-        }
+                flowIn, flowOut = 0.0, sellFlow(quantity, price, costs)
+            rows.append(
+                {
+                    "date": str(ledgerRow.date),
+                    "side": str(ledgerRow.side),
+                    "ticker": str(ledgerRow.ticker),
+                    "quantity": quantity,
+                    "price": price,
+                    "costs": costs,
+                    "in": flowIn,
+                    "out": flowOut,
+                }
+            )
+        return {"from": start.isoformat(), "to": end.isoformat(), "rows": rows}
 
     @classmethod
     def getDividendsMonthly(cls, db: Session, walletId: int, userId: int, start: dateType, end: dateType) -> dict:
+        # Canonical raw: windowed earning rows. Month buckets + rounding + totals are client-side.
         from main.app.wallet.wallets import WalletsManager
 
         WalletsManager.getWallet(db, walletId, userId)
@@ -229,28 +184,14 @@ class AnalyticsManager:
             .order_by(Earning.payDate, Earning.earningId)
             .all()
         )
-        buckets: dict[str, dict] = {month: {"gross": 0.0, "net": 0.0, "count": 0} for month in monthRange(start, end)}
-        for earningRow in earningRows:
-            month = str(earningRow.payDate)[:7]
-            buckets[month]["gross"] += float(earningRow.gross)
-            buckets[month]["net"] += float(earningRow.netIrAdjusted)
-            buckets[month]["count"] += 1
-        months = [
+        rows = [
             {
-                "month": month,
-                "gross": round(bucket["gross"], 2),
-                "net": round(bucket["net"], 2),
-                "count": bucket["count"],
+                "pay_date": str(earningRow.payDate),
+                "ticker": str(earningRow.ticker),
+                "kind": str(earningRow.kind),
+                "gross": float(earningRow.gross),
+                "net": float(earningRow.netIrAdjusted),
             }
-            for month, bucket in buckets.items()
+            for earningRow in earningRows
         ]
-        totalGross = round(sum(bucket["gross"] for bucket in buckets.values()), 2)
-        totalNet = round(sum(bucket["net"] for bucket in buckets.values()), 2)
-        return {
-            "from": start.isoformat(),
-            "to": end.isoformat(),
-            "months": months,
-            "total_gross": totalGross,
-            "total_net": totalNet,
-            "count": sum(bucket["count"] for bucket in buckets.values()),
-        }
+        return {"from": start.isoformat(), "to": end.isoformat(), "rows": rows}
