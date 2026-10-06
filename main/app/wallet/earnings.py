@@ -42,13 +42,18 @@ class EarningsManager:
 
     @classmethod
     def maybeAutoSync(cls, db: Session, walletId: int, userId: int) -> None:
-        # Sync-on-read with TTL: fresh without hammering the stocks API
-        # (per-wallet marker; short negative cache on failure). Never raises.
         try:
             if syncCacheGet(cls.autoSyncKey(walletId)) is not MISS:
                 return
-            cls.syncEarnings(db, walletId, userId)
-            syncCacheSet(cls.autoSyncKey(walletId), 1, cls.AUTO_SYNC_TTL)
+            result = cls.syncEarnings(db, walletId, userId)
+            ttl = cls.AUTO_SYNC_TTL
+            if (
+                result["accrued"] == 0
+                and db.query(Holding).filter(Holding.walletId == walletId, Holding.quantity > 0).count() > 0
+                and db.query(Earning).filter(Earning.walletId == walletId).count() == 0
+            ):
+                ttl = cls.AUTO_SYNC_NEG_TTL
+            syncCacheSet(cls.autoSyncKey(walletId), 1, ttl)
         except Exception:
             logger.warning("earnings autosync failed for wallet %s", walletId, exc_info=True)
             try:

@@ -137,15 +137,14 @@ class PositionsManager:
                 f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fundamental",
                 params={"search": ticker, "fields": "HISTORICO DIVIDENDOS"},  # type: ignore[arg-type]
                 headers={"X-API-Key": key} if key else {},
-                timeout=3,
+                timeout=10,  # cold fundamental miss can exceed 3s; [] poisons autosync
             )
             if resp.status_code != 200:
                 return []
             payload = resp.json()["data"]
             if not isinstance(payload, list) or not payload:
                 return []
-            # Fundamental snapshots come newest-first but order isn't a contract;
-            # prefer the exact-ticker row carrying a non-empty history.
+            
             rows = [payload[0]] + [row for row in payload[1:] if isinstance(row, dict) and row is not payload[0]]
             for row in rows:
                 if not isinstance(row, dict):
@@ -169,17 +168,12 @@ class PositionsManager:
 
     @staticmethod
     def parseDividendCell(cell) -> list[dict]:
-        # The fundamental endpoint serves HISTORICO DIVIDENDOS as a JSON string
-        # (orjson can't parse its bare NaN tokens, so it stays un-parsed);
-        # stdlib json tolerates NaN. Filter, don't per-caller guard.
         if isinstance(cell, str):
             try:
                 cell = json.loads(cell)
             except ValueError:
                 return []
-        # ponytail: API sometimes yields plain strings (tickers) inside the
-        # dividend list; keep the declared list[dict] contract here so all
-        # callers stay crash-free. Filter, don't per-caller guard.
+            
         if isinstance(cell, list):
             return [row for row in cell if isinstance(row, dict)]
         return []
