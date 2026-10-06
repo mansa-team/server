@@ -25,7 +25,7 @@ class PerformanceManager:
     @classmethod
     @walletCache(
         ttl="6h",
-        key="wallet:performance:{walletId}:{tickerKey}:{fromIso}:{toIso}:{recalcKey}:{entriesSnap}:{earningsSnap}",
+        key="wallet:performance:{walletId}:{tickerKey}:{fromIso}:{toIso}:{recalcKey}:{entriesSnap}:{earningsSnap}:v2",
     )
     def cachedPerformance(
         cls,
@@ -70,12 +70,18 @@ class PerformanceManager:
 
             positionQty, positionAvg = EntriesManager.applyEntries(0.0, 0.0, baselineRows)  # type: ignore[arg-type]
 
-            entriesByDay: dict[str, list] = {}
-            for entryIso, entrySide, entryQty, entryPrice, entryCosts in tickerEntries:
-                if fromIso <= entryIso <= toIso:
-                    entriesByDay.setdefault(entryIso, []).append(
-                        SimpleNamespace(side=entrySide, quantity=entryQty, price=entryPrice, costs=entryCosts)
+            pendingEntries = sorted(
+                (
+                    (
+                        SimpleNamespace(side=entrySide, quantity=entryQty, price=entryPrice, costs=entryCosts),
+                        entryIso,
                     )
+                    for entryIso, entrySide, entryQty, entryPrice, entryCosts in tickerEntries
+                    if fromIso <= entryIso <= toIso
+                ),
+                key=lambda pendingItem: pendingItem[1],
+            )
+            pendingIdx = 0
 
             closeByIso = {
                 closeDay.isoformat(): closePrice
@@ -93,8 +99,10 @@ class PerformanceManager:
 
             dayMap: dict[str, tuple[float, float, float]] = {}
             for dayIso in windowDays:
-                for datedRow in entriesByDay.get(dayIso, []):
-                    positionQty, positionAvg = EntriesManager.applyEntries(positionQty, positionAvg, [datedRow])  # type: ignore[arg-type]
+                while pendingIdx < len(pendingEntries) and pendingEntries[pendingIdx][1] <= dayIso:
+                    pendingRow = pendingEntries[pendingIdx][0]
+                    positionQty, positionAvg = EntriesManager.applyEntries(positionQty, positionAvg, [pendingRow])  # type: ignore[arg-type]
+                    pendingIdx += 1
                 dayClose = closeByIso[dayIso]
 
                 if positionQty > 0 and prevClose:
