@@ -12,7 +12,9 @@ from fastapi_sso.sso.base import SSOLoginError
 from sqlalchemy.orm import Session
 
 from main.app.authentication.authentication import AuthenticationManager
+from main.app.authentication.csrf import CSRF_COOKIE_NAME, issueCsrfToken
 from main.app.authentication.introspect import introspectToken
+from main.app.authentication.service_token import verifyServiceToken
 from main.app.authentication.util import createAccessToken, verifyAccessToken
 from main.app.authentication.sso import getGoogleSSO
 from main.app.authentication.constants import (
@@ -23,6 +25,7 @@ from main.app.authentication.constants import (
 )
 from main.app.authentication.session import SessionManager
 from main.models.user import User
+from main.utils.security_headers import getRequestScheme
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +33,10 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 def isSecureScheme(request: Request) -> bool:
-    return request.url.scheme == "https"
+    # X-Forwarded-Proto trusted for scheme detection behind proxies/TLS
+    # terminators. Cookie `Secure` itself is always set (see below) so a
+    # spoofed `X-Forwarded-Proto: http` can never downgrade it.
+    return getRequestScheme(request) == "https"
 
 
 def resolveCookieDomain(request: Request) -> str | None:
@@ -51,15 +57,19 @@ def issueSessionCookie(response, request, db, user) -> tuple[str, str]:
 
     cookieDomain = resolveCookieDomain(request)
 
+    # Secure-always: browsers send Secure cookies over https and over
+    # http://localhost (trustworthy loopback), so local dev keeps working
+    # while LAN/plain-http can never carry the session.
     response.set_cookie(
         key=COOKIE_NAME,
         value=accessToken,
         httponly=True,
-        secure=isSecureScheme(request),
+        secure=True,
         samesite=COOKIE_SAMESITE,
         path=COOKIE_PATH,
         domain=cookieDomain,
     )
+    issueCsrfToken(response, request)
     return accessToken, str(session.sessionId)
 
 
@@ -87,7 +97,8 @@ def register(
 
         accessToken, _ = issueSessionCookie(response, request, db, user)
 
-        return {"message": "success", "accessToken": accessToken, "tokenType": "bearer", "user": user}
+        # Cookie-only: token travels via HttpOnly Secure cookie, never JSON.
+        return {"message": "success", "user": user}
     except HTTPException as e:
         if e.status_code == 400:
             raise HTTPException(status_code=400, detail="Registration failed.")
@@ -116,7 +127,8 @@ def login(
     accessToken, sessionId = issueSessionCookie(response, request, db, user)
     SessionManager.revokeAllExcept(db, user["userId"], sessionId)
 
-    return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
+    # Cookie-only: token travels via HttpOnly Secure cookie, never JSON.
+    return {"user": user}
 
 
 @router.post("/logout")
@@ -142,7 +154,7 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
         except Exception as e:
             logger.debug(f"Logout token verification failed: {e}")
 
-    useCookieSecure = isSecureScheme(request)
+    useCookieSecure = True  # Secure-always: matches issueSessionCookie
     response.delete_cookie(
         key=COOKIE_NAME,
         httponly=True,
@@ -151,7 +163,23 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
         path=COOKIE_PATH,
         domain=resolveCookieDomain(request),
     )
+    response.delete_cookie(
+        key=CSRF_COOKIE_NAME,
+        secure=True,
+        samesite=COOKIE_SAMESITE,
+        path=COOKIE_PATH,
+        domain=resolveCookieDomain(request),
+    )
     return {"message": "Successfully logged out"}
+
+
+@router.get("/csrf")
+def getCsrfToken(request: Request, response: Response):
+    """Issue/refresh the double-submit CSRF token for cookie sessions."""
+    token = request.cookies.get(CSRF_COOKIE_NAME) or issueCsrfToken(response, request)
+    # If the cookie already existed, re-stamp it so the browser keeps it;
+    # issueCsrfToken already set it when missing.
+    return {"csrfToken": token}
 
 
 @router.post("/introspect")
@@ -161,8 +189,7 @@ def introspect(
     db: Session = Depends(getSession),
     token: str | None = Body(default=None, embed=True),
 ):
-    expected = hmac.new(Config.USER.JWT_SECRET_KEY.encode("utf-8"), b"auth-introspect", hashlib.sha256).hexdigest()
-    if not expected or not hmac.compare_digest(request.headers.get("X-Service-Token", ""), expected):
+    if not verifyServiceToken(request.headers.get("X-Service-Token", "")):
         raise HTTPException(status_code=401, detail="Unauthorized")
     auth = request.headers.get("Authorization", "")
     raw = (
@@ -258,7 +285,8 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
         accessToken, sessionId = issueSessionCookie(response, request, db, user)
         SessionManager.revokeAllExcept(db, user["userId"], sessionId)
         logger.info("--- Google Callback End ---")
-        return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
+        # Cookie-only: token travels via HttpOnly Secure cookie, never JSON.
+        return {"user": user}
 
     except HTTPException:
         raise
