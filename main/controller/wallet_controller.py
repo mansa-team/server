@@ -142,14 +142,8 @@ def list_earnings_route(
     return {"items": [serialize_earning(item) for item in EarningsManager.listEarnings(db, wallet_id, userId, status)]}
 
 
-@router.post("/earnings/sync", response_class=ORJSONResponse)
-def sync_earnings_route(
-    # Kept for back-compat; GET /wallet/earnings auto-syncs (TTL-cached).
-    payload: EarningsSync,
-    userId: int,
     db: Session = Depends(getSession),
 ):
-    return EarningsManager.syncEarnings(db, payload.wallet_id, userId)
 
 
 @router.get("/performance", response_class=ORJSONResponse)

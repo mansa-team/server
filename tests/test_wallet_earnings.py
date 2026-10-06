@@ -94,9 +94,9 @@ def test_sync_accrues_with_qty_at_ex_date(dbSession, monkeypatch):
             "price": 10.0,
         },
     )
-    body = client.post("/wallet/earnings/sync", json={"wallet_id": walletId}).json()
-    assert body == {"accrued": 2, "transitioned": 0, "skipped_unknown": ["Bonificacao"]}
+    # GET auto-syncs on read: first read accrues, Bonificacao skipped (not stored).
     items = client.get(f"/wallet/earnings?wallet_id={walletId}").json()["items"]
+    assert len(items) == 2
     by_kind = {r["kind"]: r for r in items}
     assert by_kind["Div"] == {
         "ticker": "PETR4",
@@ -133,11 +133,12 @@ def test_sync_repeated_ex_date_kind_aggregates_without_500(dbSession, monkeypatc
             "price": 10.0,
         },
     )
-    first = client.post("/wallet/earnings/sync", json={"wallet_id": walletId})
+    first = client.get(f"/wallet/earnings?wallet_id={walletId}")
     assert first.status_code == 200
-    again = client.post("/wallet/earnings/sync", json={"wallet_id": walletId})
+    assert len(first.json()["items"]) == 2
+    again = client.get(f"/wallet/earnings?wallet_id={walletId}")
     assert again.status_code == 200
-    assert again.json()["accrued"] == 0
+    assert len(again.json()["items"]) == 2
 
 
 @freeze_time("2026-09-30")
@@ -157,6 +158,7 @@ def test_sync_is_idempotent(dbSession, monkeypatch):
             "price": 10.0,
         },
     )
-    client.post("/wallet/earnings/sync", json={"wallet_id": walletId})
-    again = client.post("/wallet/earnings/sync", json={"wallet_id": walletId}).json()
-    assert again == {"accrued": 0, "transitioned": 0, "skipped_unknown": ["Bonificacao"]}
+    first = client.get(f"/wallet/earnings?wallet_id={walletId}").json()["items"]
+    again = client.get(f"/wallet/earnings?wallet_id={walletId}").json()["items"]
+    assert len(first) == 2
+    assert again == first

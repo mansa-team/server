@@ -2,7 +2,6 @@ import logging
 from datetime import date as dateType
 from datetime import datetime
 
-from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from main.app.stocks_api.sync_cache import MISS, syncCacheGet, syncCacheSet
@@ -21,10 +20,6 @@ TIPO_MAP = {
     "Juros Sobre Capital Proprio": "JSCP",
     "Rend. Tributado": "RendTributado",
 }
-
-
-class EarningsSync(BaseModel):
-    wallet_id: int
 
 
 def serialize_earning(earning) -> dict:
@@ -87,11 +82,6 @@ class EarningsManager:
                 .all()
             )
 
-            # Group by the accrual key: the source lists one row per installment,
-            # so the same (exDate, kind) can repeat with different payDates
-            # (e.g. PETR4 21-08-2026 JSCP paid in two lots). Aggregate into one
-            # earning per key — the unique key uq_earnings_accrual forbids splits —
-            # while dropping exact-duplicate rows (snapshot overlaps).
             accruals: dict[tuple, list[tuple]] = {}
             for record in PositionsManager.fetchMarketDividends(holdingTicker):
                 label = str(record.get("TIPO PROVENTO"))
