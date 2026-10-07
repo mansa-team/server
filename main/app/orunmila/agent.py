@@ -3,7 +3,7 @@ from config import Config
 import asyncio
 import time
 from datetime import datetime
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, MutableMapping
 
 from cachetools import TTLCache
 from google import genai
@@ -263,7 +263,7 @@ class Orunmila:
                 logger.warning("Pool/registry startup failed: %s", e)
 
         try:
-            tokenCache = TTLCache(maxsize=2048, ttl=3600)
+            tokenCache: MutableMapping = TTLCache(maxsize=2048, ttl=3600)
             session = db.query(OrunmilaSession).filter(OrunmilaSession.sessionId == sessionId).first()
             if session and session.history:
                 OrunmilaCompactor().compact(db, str(sessionId), tokenCache)

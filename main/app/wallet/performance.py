@@ -101,7 +101,7 @@ class PerformanceManager:
             for dayIso in windowDays:
                 while pendingIdx < len(pendingEntries) and pendingEntries[pendingIdx][1] <= dayIso:
                     pendingRow = pendingEntries[pendingIdx][0]
-                    positionQty, positionAvg = EntriesManager.applyEntries(positionQty, positionAvg, [pendingRow])  # type: ignore[arg-type]
+                    positionQty, positionAvg = EntriesManager.applyEntries(positionQty, positionAvg, [pendingRow])  # type: ignore[list-item]
                     pendingIdx += 1
                 dayClose = closeByIso[dayIso]
 

@@ -64,7 +64,7 @@ class SummaryManager:
             snapshot.profitTwr12m = None  # type: ignore[assignment]
             snapshot.profitTwr12mAmount = variation  # type: ignore[assignment]
 
-        wallet.lastRecalc = datetime.now()
+        wallet.lastRecalc = datetime.now()  # type: ignore[assignment]
 
         db.commit()
 
@@ -85,7 +85,7 @@ class SummaryManager:
         prices = PositionsManager.fetchLivePrices(tickers)
         PositionsManager.fillMissingCloses(prices)
 
-        items = []
+        items: list[dict] = []
         for holding in holdings:
             price = prices.get(str(holding.ticker))
             holdingEquity = float(holding.quantity) * price if price is not None else 0.0

@@ -133,7 +133,7 @@ class AnalyticsManager:
         walletId = int(wallet.walletId)
         ledgerRows = (
             db.query(Transaction)
-            .filter(Transaction.walletId == walletId, Transaction.date >= start, Transaction.date <= end)
+            .filter(Transaction.walletId == walletId, Transaction.date >= start, Transaction.date <= end)  # type: ignore[arg-type]
             .order_by(Transaction.date, Transaction.entryId)
             .all()
         )
@@ -165,7 +165,7 @@ class AnalyticsManager:
         EarningsManager.maybeAutoSync(db, wallet)
         earningRows = (
             db.query(Earning)
-            .filter(Earning.walletId == walletId, Earning.payDate >= start, Earning.payDate <= end)
+            .filter(Earning.walletId == walletId, Earning.payDate >= start, Earning.payDate <= end)  # type: ignore[arg-type]
             .order_by(Earning.payDate, Earning.earningId)
             .all()
         )

@@ -46,7 +46,7 @@ class EarningsManager:
             walletId = int(wallet.walletId)
             if (
                 result["accrued"] == 0
-                and db.query(Holding).filter(Holding.walletId == walletId, Holding.quantity > 0).count() > 0
+                and db.query(Holding).filter(Holding.walletId == walletId, Holding.quantity > 0).count() > 0  # type: ignore[arg-type]
                 and db.query(Earning).filter(Earning.walletId == walletId).count() == 0
             ):
                 ttl = cls.AUTO_SYNC_NEG_TTL
