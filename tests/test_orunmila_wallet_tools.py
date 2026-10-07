@@ -1,10 +1,9 @@
-from datetime import date
-
 import asyncio
 import inspect
+from datetime import date
+from types import SimpleNamespace
 
 import pytest
-import requests
 
 import main.models.wallet  # noqa: F401
 from main.app.orunmila.tools import TOOL_REGISTRY
@@ -113,7 +112,7 @@ def _seed_earnings(dbSession, walletId):
 
 
 def test_wallet_positions_returns_read_view(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _live_ok)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     _seed_wallet(dbSession)
     result = asyncio.run(TOOL_REGISTRY["wallet_positions"](user={"userId": 1, "language": "pt-BR"}, db=dbSession))
     assert result["items"][0]["ticker"] == "PETR4"
@@ -121,7 +120,7 @@ def test_wallet_positions_returns_read_view(dbSession, monkeypatch):
 
 
 def test_wallet_summary_returns_totals(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _live_ok)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     _seed_wallet(dbSession)
     result = asyncio.run(TOOL_REGISTRY["wallet_summary"](user={"userId": 1}, db=dbSession))
     assert result["applied"] == 100.0
@@ -130,7 +129,7 @@ def test_wallet_summary_returns_totals(dbSession, monkeypatch):
 
 
 def test_wallet_allocation_groups_by_ticker_and_asset(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _live_ok)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     _seed_wallet(dbSession)
     byTicker = asyncio.run(TOOL_REGISTRY["wallet_allocation"](user={"userId": 1}, db=dbSession))
     assert byTicker["items"][0]["key"] == "PETR4"
@@ -157,7 +156,7 @@ def test_list_wallet_earnings_filters_by_status(dbSession, monkeypatch):
 
 
 def test_wallet_performance_returns_metrics(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _flat_series)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_flat_series))
     walletId = _seed_wallet(dbSession)
     dbSession.add(
         Earning(
@@ -196,7 +195,7 @@ def test_wallet_performance_rejects_bad_date(dbSession):
 
 
 def test_wallet_rebalance_single_holding_holds(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _live_ok)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     _seed_wallet(dbSession)
     result = asyncio.run(TOOL_REGISTRY["wallet_rebalance"](user={"userId": 1}, db=dbSession))
     # Canonical raw: single holding owns the whole weight share → client derives hold.
@@ -211,7 +210,7 @@ def test_wallet_tools_cross_user_isolated(dbSession, monkeypatch):
     # so no per-call ownership check remains.
     import json
 
-    monkeypatch.setattr(requests, "get", _live_ok)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     monkeypatch.setattr(PositionsManager, "fetchMarketDividends", lambda ticker: [])
     _seed_wallet(dbSession)
     baseArgs = {"user": {"userId": 2, "language": "pt-BR"}, "db": dbSession}

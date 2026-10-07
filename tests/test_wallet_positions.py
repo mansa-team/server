@@ -1,3 +1,5 @@
+from types import SimpleNamespace
+
 import pytest
 import requests
 
@@ -43,7 +45,7 @@ def _seed(client):
 
 
 def test_positions_math_with_live_price(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _live_ok)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     client, _, _ = make_wallet_client(db=dbSession)
     _seed(client)
     item = client.get("/wallet/positions").json()["items"][0]
@@ -58,7 +60,7 @@ def test_live_timeout_falls_back_to_null(dbSession, monkeypatch):
     def boom(*a, **k):
         raise requests.Timeout()
 
-    monkeypatch.setattr(requests, "get", boom)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=boom))
     client, _, _ = make_wallet_client(db=dbSession)
     _seed(client)
     body = client.get("/wallet/positions").json()
@@ -67,7 +69,7 @@ def test_live_timeout_falls_back_to_null(dbSession, monkeypatch):
 
 
 def test_unknown_ticker_returns_null_not_422(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _live_ok)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     client, _, _ = make_wallet_client(db=dbSession)
     client.post("/wallet/wallets", json={"name": "W"})
     resp = client.post(
@@ -100,7 +102,7 @@ def test_cached_fallback_serves_when_live_fails(dbSession, monkeypatch):
 
         return Resp()
 
-    monkeypatch.setattr(requests, "get", fake_get)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=fake_get))
     client, _, _ = make_wallet_client(db=dbSession)
     _seed(client)
     item = client.get("/wallet/positions").json()["items"][0]

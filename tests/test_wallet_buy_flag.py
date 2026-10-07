@@ -1,4 +1,5 @@
 import asyncio
+from types import SimpleNamespace
 
 import pytest
 import requests
@@ -69,9 +70,9 @@ def _derive(items, equityTotal):
 
 
 def test_buy_flag_follows_delta_sign(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _live_two)
-    # Ratings now refresh to the latest XANGO score on read, so the mock (not the
-    # manual PUT) drives post-read ratings; the PUT still returns 200 as override.
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_two))
+    # Backfill-only refresh fills NULL ratings from Xango; the PUT below acts as
+    # the user override and survives subsequent reads.
     scores = {"PETR4": 75.0, "VALE3": 25.0}
     monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {t: scores[t] for t in tickers})
     client, _, _ = make_wallet_client(db=dbSession)
@@ -94,7 +95,7 @@ def test_buy_flag_follows_delta_sign(dbSession, monkeypatch):
 
 
 def test_zero_weights_all_hold(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _live_two)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_two))
     monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {ticker: None for ticker in tickers})
     client, _, _ = make_wallet_client(db=dbSession)
     client.post("/wallet/wallets", json={"name": "W"})
@@ -110,9 +111,9 @@ def test_zero_weights_all_hold(dbSession, monkeypatch):
 
 
 def test_rebalance_weight_share_math(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _live_two)
-    # Post-read ratings come from the XANGO mock (refresh-on-read); keep the mock
-    # in agreement with the manual PUTs below.
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_two))
+    # Backfill-only refresh: the XANGO mock agrees with the manual PUTs so reads
+    # never move the user-set ratings below.
     monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {"PETR4": 75.0, "VALE3": 50.0})
     client, _, _ = make_wallet_client(db=dbSession)
     client.post("/wallet/wallets", json={"name": "W"})
@@ -135,7 +136,7 @@ def test_rebalance_weight_share_math(dbSession, monkeypatch):
 
 def test_rebalance_deterministic(dbSession, monkeypatch):
     # Weight-share is a pure function of ratings + prices: same inputs → same outputs.
-    monkeypatch.setattr(requests, "get", _live_two)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_two))
     monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {ticker: 50.0 for ticker in tickers})
     client, _, _ = make_wallet_client(db=dbSession)
     client.post("/wallet/wallets", json={"name": "W"})
@@ -153,7 +154,7 @@ def test_rebalance_deterministic(dbSession, monkeypatch):
 
 
 def test_new_holding_seeds_xango_score(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _live_ok)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {"PETR4": 80.0})
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
@@ -189,7 +190,7 @@ def test_new_holding_seeds_xango_score(dbSession, monkeypatch):
 
 
 def test_new_holding_defaults_ten_without_xango(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _live_ok)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {"PETR4": None})
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
@@ -208,8 +209,32 @@ def test_new_holding_defaults_ten_without_xango(dbSession, monkeypatch):
     assert float(holding.rating) == pytest.approx(10.0)
 
 
-def test_holdings_refresh_to_latest_xango_on_read(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _live_two)
+def test_holdings_null_rating_backfilled_from_xango(dbSession, monkeypatch):
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_two))
+    monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {ticker: None for ticker in tickers})
+    client, _, _ = make_wallet_client(db=dbSession)
+    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+    _seed_two(client)
+    # Simulate legacy NULL ratings; the backfill-only refresh fills them from Xango.
+    for holding in dbSession.query(Holding).filter(Holding.walletId == walletId).all():
+        holding.rating = None  # type: ignore[assignment]
+    dbSession.commit()
+    scores = {"PETR4": 80.0, "VALE3": 60.0}
+    monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {t: scores[t] for t in tickers})
+    body = client.get("/wallet/rebalance").json()
+    dbSession.expire_all()
+    byHolding = {
+        holding.ticker: float(holding.rating)
+        for holding in dbSession.query(Holding).filter(Holding.walletId == walletId).all()
+    }
+    assert byHolding == {"PETR4": 80.0, "VALE3": 60.0}
+    byTicker = {item["ticker"]: item for item in body["items"]}
+    assert byTicker["PETR4"]["weight"] == pytest.approx(80.0)
+    assert byTicker["VALE3"]["weight"] == pytest.approx(60.0)
+
+
+def test_holdings_user_override_survives_xango_refresh(dbSession, monkeypatch):
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_two))
     scores = {"PETR4": 80.0, "VALE3": 60.0}
     monkeypatch.setattr(PositionsManager, "fetchXangoScores", lambda tickers: {t: scores[t] for t in tickers})
     client, _, _ = make_wallet_client(db=dbSession)
@@ -220,7 +245,7 @@ def test_holdings_refresh_to_latest_xango_on_read(dbSession, monkeypatch):
         for holding in dbSession.query(Holding).filter(Holding.walletId == walletId).all()
     }
     assert byHolding == {"PETR4": 80.0, "VALE3": 60.0}
-    # XANGO moves; a manual override in between is overwritten by the next read.
+    # XANGO moves, but a manual override is never clobbered by the next read.
     scores.update({"PETR4": 20.0, "VALE3": 90.0})
     client.put("/wallet/ratings", json={"ticker": "PETR4", "rating": 42})
     body = client.get("/wallet/rebalance").json()
@@ -229,17 +254,14 @@ def test_holdings_refresh_to_latest_xango_on_read(dbSession, monkeypatch):
         holding.ticker: float(holding.rating)
         for holding in dbSession.query(Holding).filter(Holding.walletId == walletId).all()
     }
-    assert byHolding == {"PETR4": 20.0, "VALE3": 90.0}
+    assert byHolding == {"PETR4": 42.0, "VALE3": 60.0}
     byTicker = {item["ticker"]: item for item in body["items"]}
-    assert byTicker["PETR4"]["weight"] == pytest.approx(20.0)
-    assert byTicker["VALE3"]["weight"] == pytest.approx(90.0)
-    # Client-side weight shares: 20/110 and 90/110.
-    derived = _derive(body["items"], body["equity_total"])
-    assert derived["PETR4"]["side"] == "sell" and derived["VALE3"]["side"] == "buy"
+    assert byTicker["PETR4"]["weight"] == pytest.approx(42.0)
+    assert byTicker["VALE3"]["weight"] == pytest.approx(60.0)
 
 
 def test_ratings_accept_zero_to_hundred(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _live_ok)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     client, _, _ = make_wallet_client(db=dbSession)
     client.post("/wallet/wallets", json={"name": "W"})
     client.post(
@@ -280,10 +302,10 @@ def test_fetch_xango_scores_parses_fundamental(monkeypatch):
     def boom(url, params=None, headers=None, timeout=None):
         raise requests.Timeout()
 
-    monkeypatch.setattr(requests, "get", fundamental_ok)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=fundamental_ok))
     assert PositionsManager.fetchXangoScores(("PETR4",)) == {"PETR4": 80.0}
     asyncio.run(cashewsCache.clear())
-    monkeypatch.setattr(requests, "get", boom)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=boom))
     assert PositionsManager.fetchXangoScores(("PETR4",)) == {"PETR4": None}
 
 
