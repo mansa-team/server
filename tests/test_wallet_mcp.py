@@ -10,12 +10,13 @@ into the replayed request headers, and getCurrentUser verifies it there.
 import json
 import os
 import sys
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 from types import SimpleNamespace
 from unittest import mock
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
+import jwt
 import pytest
 from fastapi import FastAPI, HTTPException
 from fastapi_mcp import FastApiMCP
@@ -551,17 +552,24 @@ def _build_auth_app(dbSession):
     return app
 
 
-def _seed_session_token(dbSession):
-    """Real user + session rows and a signed session JWT (production auth chain)."""
+def _seed_session_user(dbSession, username="mcpuser"):
+    """Real user + active session row (production auth chain)."""
     from main.app.authentication.session import SessionManager
-    from main.app.authentication.util import createAccessToken
     from main.models.user import User
 
-    user = User(username="mcpuser", email="mcpuser@example.com", passwordHash="hash", roles="USER")
+    user = User(username=username, email=f"{username}@example.com", passwordHash="hash", roles="USER")
     dbSession.add(user)
     dbSession.commit()
     dbSession.refresh(user)
     session = SessionManager.createSession(dbSession, user.userId, "pytest")
+    return user, session
+
+
+def _seed_session_token(dbSession, username="mcpuser"):
+    """Signed session JWT for a freshly seeded user+session (production auth chain)."""
+    from main.app.authentication.util import createAccessToken
+
+    user, session = _seed_session_user(dbSession, username)
     return createAccessToken({"userId": str(user.userId), "sessionId": session.sessionId})
 
 
@@ -635,19 +643,102 @@ class TestWalletMCPAuthBoundary:
         assert not result.is_error
         assert json.loads(result.content[0].text) == {"items": [], "equity_total": 0.0}
 
-    async def test_valid_jwt_scoped_to_its_user(self, dbSession):
+    async def test_cross_user_wallet_isolation(self, dbSession, monkeypatch):
+        """Two users, two tokens: each token reads only its own wallet.
+
+        A (mcpuser) owns a PETR4 position; B (otheruser) has an empty wallet.
+        A's token must surface A's ledger, B's token must return B's own empty
+        wallet — none of A's data may appear under B's token.
+        """
+        monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
         app = _build_auth_app(dbSession)
-        token = _seed_session_token(dbSession)
+        tokenA, _userA, _walletA = _seed_session_wallet(dbSession)
+        tokenB = _seed_session_token(dbSession, username="otheruser")
+
+        async with _mcp_client(app) as client:
+            positionsA = await client.call_tool(
+                "wallet_positions", {"authorization": f"Bearer {tokenA}"}, raise_on_error=False
+            )
+            summaryA = await client.call_tool(
+                "wallet_summary", {"authorization": f"Bearer {tokenA}"}, raise_on_error=False
+            )
+            positionsB = await client.call_tool(
+                "wallet_positions", {"authorization": f"Bearer {tokenB}"}, raise_on_error=False
+            )
+            summaryB = await client.call_tool(
+                "wallet_summary", {"authorization": f"Bearer {tokenB}"}, raise_on_error=False
+            )
+
+        # (a) A's token sees A's non-empty wallet.
+        payloadA = json.loads(positionsA.content[0].text)
+        assert [item["ticker"] for item in payloadA["items"]] == ["PETR4"]
+        assert payloadA["equity_total"] == 300.0
+        summaryPayloadA = json.loads(summaryA.content[0].text)
+        assert summaryPayloadA["applied"] == 100.0
+        assert summaryPayloadA["first_date"] == "2026-01-02"
+
+        # (b) B's token sees B's own wallet (empty), not A's.
+        payloadB = json.loads(positionsB.content[0].text)
+        assert payloadB == {"items": [], "equity_total": 0.0}
+        summaryPayloadB = json.loads(summaryB.content[0].text)
+        assert summaryPayloadB["applied"] == 0.0
+        assert summaryPayloadB["first_date"] is None
+
+        # (c) no trace of A's data under B's token.
+        assert "PETR4" not in positionsB.content[0].text
+        assert "PETR4" not in summaryB.content[0].text
+
+    async def test_call_with_forged_jwt_is_rejected(self, dbSession):
+        app = _build_auth_app(dbSession)
+        forged = jwt.encode(
+            {"userId": "1", "sessionId": "forged-session", "exp": datetime.now(timezone.utc) + timedelta(hours=1)},
+            "wrong-secret-not-the-real-signing-key",
+            algorithm="HS256",
+        )
 
         async with _mcp_client(app) as client:
             result = await client.call_tool(
-                "wallet_summary", {"authorization": f"Bearer {token}"}, raise_on_error=False
+                "wallet_positions", {"authorization": f"Bearer {forged}"}, raise_on_error=False
             )
 
-        assert not result.is_error
-        payload = json.loads(result.content[0].text)
-        assert payload["applied"] == 0.0
-        assert payload["first_date"] is None
+        assert result.is_error
+        assert "401" in result.content[0].text
+
+    async def test_call_with_expired_jwt_is_rejected(self, dbSession):
+        """Real user+session, token signed with the fixture util but exp in the past."""
+        from main.app.authentication.util import createAccessToken
+
+        app = _build_auth_app(dbSession)
+        user, session = _seed_session_user(dbSession, username="expireduser")
+        expired = createAccessToken(
+            {"userId": str(user.userId), "sessionId": session.sessionId}, expiresDelta=timedelta(seconds=-60)
+        )
+
+        async with _mcp_client(app) as client:
+            result = await client.call_tool(
+                "wallet_positions", {"authorization": f"Bearer {expired}"}, raise_on_error=False
+            )
+
+        assert result.is_error
+        assert "401" in result.content[0].text
+
+    async def test_call_with_revoked_session_is_rejected(self, dbSession):
+        """Valid token, but its session row was revoked through the real manager."""
+        from main.app.authentication.session import SessionManager
+        from main.app.authentication.util import createAccessToken
+
+        app = _build_auth_app(dbSession)
+        user, session = _seed_session_user(dbSession, username="revokeduser")
+        token = createAccessToken({"userId": str(user.userId), "sessionId": session.sessionId})
+        assert SessionManager.revokeSession(dbSession, session.sessionId, user.userId)
+
+        async with _mcp_client(app) as client:
+            result = await client.call_tool(
+                "wallet_positions", {"authorization": f"Bearer {token}"}, raise_on_error=False
+            )
+
+        assert result.is_error
+        assert "401" in result.content[0].text
 
     async def test_wrapper_call_without_token_is_rejected(self, dbSession):
         app = _build_auth_app(dbSession)

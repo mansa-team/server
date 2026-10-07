@@ -3,8 +3,12 @@
 The legacy in-process wallet tools were deleted (spec 2026-10-07-wallet-mcp
 step 5). TOOL_REGISTRY keeps the seven local tools; every wallet name is
 absent on purpose, so dispatchToolCall routes it to the wallet MCP client
-with the session JWT injected as a call argument. Auth boundary, cross-user
-isolation and wrapper behavior live in tests/test_wallet_mcp.py.
+with the session JWT injected as a call argument. Auth boundary lives in
+tests/test_wallet_mcp.py::TestWalletMCPAuthBoundary —
+test_cross_user_wallet_isolation (cross-user isolation),
+test_call_with_forged_jwt_is_rejected, test_call_with_expired_jwt_is_rejected,
+test_call_with_revoked_session_is_rejected (invalid credentials) — and wrapper
+behavior in tests/test_wallet_mcp.py::TestWalletWrapperBehavior.
 """
 
 import importlib
