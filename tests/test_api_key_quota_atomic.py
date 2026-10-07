@@ -9,6 +9,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
 from sqlalchemy import update
+from sqlalchemy.exc import SQLAlchemyError
 
 from main.models.stocksapi_key import StocksAPIKey
 from main.app.stocks_api.key import verifyAPIKey
@@ -241,7 +242,7 @@ class TestVerifyAPIKeyIntegration:
     async def test_db_error_fails_closed_500(self, dbSession):
         self.makeStoredKey(dbSession)
         broken = MagicMock()
-        broken.query.side_effect = RuntimeError("DB down")
+        broken.query.side_effect = SQLAlchemyError("DB down")
         with patch("main.app.stocks_api.key.Config") as mock_config:
             mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
             with pytest.raises(HTTPException) as e:

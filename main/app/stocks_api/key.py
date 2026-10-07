@@ -9,6 +9,7 @@ from fastapi import Depends, HTTPException
 from fastapi.security import APIKeyHeader
 from sqlalchemy import update
 from sqlalchemy.engine import CursorResult
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from main.models.stocksapi_key import StocksAPIKey
@@ -75,6 +76,6 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depend
     except HTTPException:
         db.rollback()
         raise
-    except Exception:
+    except SQLAlchemyError:
         db.rollback()
         raise HTTPException(status_code=500, detail="API key verification failed")

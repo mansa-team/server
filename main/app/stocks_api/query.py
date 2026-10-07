@@ -1,12 +1,13 @@
 import math
 import zstandard as zstd
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from fastapi import HTTPException
 import pandas as pd
 import orjson
 import requests
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
-from main.utils.http_session import getSession
+from main.utils.http_session import getSession, isTransientError
 
 from main.app.stocks_api.cache import stocksCache
 from main.app.stocks_api.util import JSON_COLUMNS, categorizeColumns, parseDateRange
@@ -243,7 +244,7 @@ def queryHistorical(
         )
     except HTTPException:
         raise
-    except Exception:
+    except (ValueError, TypeError, KeyError, AttributeError, IndexError):
         logger.exception("Cached historical query failed")
         raise HTTPException(status_code=500, detail="Internal server error while processing historical data")
 
@@ -296,7 +297,7 @@ def queryFundamental(
                     minDiffPerTicker = diffs.groupby(df["TICKER"]).transform("min")
                     mask = diffs == minDiffPerTicker
                     df = df[mask]
-            except Exception:
+            except (ValueError, TypeError, KeyError, AttributeError):
                 logger.exception("Date parsing failed")
                 raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
@@ -306,7 +307,7 @@ def queryFundamental(
         return finalize(df, tickerIndex, search, orderBy, limit, cols, fieldList, dates, "fundamental")
     except HTTPException:
         raise
-    except Exception:
+    except (ValueError, TypeError, KeyError, AttributeError, IndexError):
         logger.exception("Cached fundamental query failed")
         raise HTTPException(status_code=500, detail="Internal server error while processing fundamental data")
 
@@ -367,24 +368,15 @@ def queryCotations(
         )
     except HTTPException:
         raise
-    except Exception:
+    except (ValueError, TypeError, KeyError, AttributeError, IndexError):
         logger.exception("Cached cotations query failed")
         raise HTTPException(status_code=500, detail="Internal server error while processing cotations data")
-
-
-def isTransientLiveError(exc: BaseException) -> bool:
-    if isinstance(exc, (requests.exceptions.Timeout, requests.exceptions.ConnectionError)):
-        return True
-    if isinstance(exc, requests.exceptions.HTTPError):
-        status = getattr(getattr(exc, "response", None), "status_code", None)
-        return isinstance(status, int) and status >= 500
-    return False
 
 
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(),
-    retry=retry_if_exception(isTransientLiveError),
+    retry=retry_if_exception(isTransientError),
     reraise=True,
 )
 def fetchLivePayload(search: str) -> dict:
@@ -396,25 +388,30 @@ def fetchLivePayload(search: str) -> dict:
     return resp.json()
 
 
-def queryLiveCotation(search: str):
+def parseLivePayload(search: str, payload: dict) -> dict:
     try:
-        payload = fetchLivePayload(search)
-    except Exception:
-        raise HTTPException(503, detail="B3 realtime unavailable")
-
-    if payload.get("BizSts", {}).get("cd") != "OK" or not payload.get("Trad"):
+        trad = payload["Trad"]
+    except (KeyError, TypeError):
+        raise HTTPException(502, detail="B3 realtime malformed response")
+    if payload.get("BizSts", {}).get("cd") != "OK" or not trad:
         raise HTTPException(404, detail=f"Ticker {search.upper()} not found")
+    try:
+        dtTm = payload["Msg"]["dtTm"]
+    except (KeyError, TypeError):
+        raise HTTPException(502, detail="B3 realtime malformed response")
 
-    dtTm = payload["Msg"]["dtTm"]
-    raw = payload["Trad"][0]["scty"]["SctyQtn"]
-    data = {
-        "TICKER": payload["Trad"][0]["scty"]["symb"],
-        "PRECO ATUAL": raw.get("curPrc"),
-        "PRECO ORIGINAL": raw.get("opngPric"),
-        "PRECO MINIMO": raw.get("minPric"),
-        "PRECO MAXIMO": raw.get("maxPric"),
-        "PRECO MEDIO": raw.get("avrgPric"),
-    }
+    try:
+        raw = trad[0]["scty"]["SctyQtn"]
+        data = {
+            "TICKER": trad[0]["scty"]["symb"],
+            "PRECO ATUAL": raw.get("curPrc"),
+            "PRECO ORIGINAL": raw.get("opngPric"),
+            "PRECO MINIMO": raw.get("minPric"),
+            "PRECO MAXIMO": raw.get("maxPric"),
+            "PRECO MEDIO": raw.get("avrgPric"),
+        }
+    except (KeyError, TypeError, IndexError):
+        raise HTTPException(502, detail="B3 realtime malformed response")
 
     return {
         "search": search.upper(),
@@ -422,4 +419,68 @@ def queryLiveCotation(search: str):
         "timestamp": dtTm,
         "count": 1,
         "data": [data],
+    }
+
+
+def queryLiveCotation(search: str):
+    try:
+        payload = fetchLivePayload(search)
+    except requests.RequestException:
+        raise HTTPException(503, detail="B3 realtime unavailable")
+    try:
+        return parseLivePayload(search, payload)
+    except (ValueError, KeyError, TypeError, AttributeError):
+        raise HTTPException(502, detail="B3 realtime malformed response")
+
+
+def safeFetchLive(ticker: str) -> dict | None:
+    try:
+        return fetchLivePayload(ticker)
+    except requests.RequestException:
+        return None
+
+
+def fetchLivePayloads(searches: list[str]) -> dict[str, dict | None]:
+    """Concurrent per-ticker live fetch; one ticker failing never fails the batch.
+
+    B3 instrumentQuotation is a single-ticker URL with no tickers= batch param
+    upstream, so batching = one concurrent request per ticker with per-ticker
+    fallback to None.
+    """
+    tickers = [term for term in dict.fromkeys(s.strip().upper() for s in searches) if term]
+    if not tickers:
+        return {}
+    out: dict[str, dict | None] = {}
+    with ThreadPoolExecutor(max_workers=min(8, len(tickers))) as pool:
+        futures = {pool.submit(safeFetchLive, ticker): ticker for ticker in tickers}
+        for future in as_completed(futures):
+            out[futures[future]] = future.result()
+    return out
+
+
+def queryLiveCotations(search: str):
+    """Comma-separated tickers -> concurrent live quotes with per-ticker errors."""
+    tickers = [term.strip().upper() for term in search.split(",") if term.strip()]
+    if not tickers:
+        raise HTTPException(status_code=400, detail="search required")
+    payloads = fetchLivePayloads(tickers)
+    data: list = []
+    errors: dict = {}
+    for ticker in tickers:
+        payload = payloads.get(ticker)
+        if payload is None:
+            errors[ticker] = "B3 realtime unavailable"
+            continue
+        try:
+            data.append(parseLivePayload(ticker, payload)["data"][0])
+        except HTTPException as exc:
+            errors[ticker] = exc.detail
+        except (ValueError, KeyError, TypeError, AttributeError):
+            errors[ticker] = "B3 realtime malformed response"
+    return {
+        "search": ",".join(tickers),
+        "type": "realtime-cotations",
+        "count": len(data),
+        "data": data,
+        "errors": errors,
     }

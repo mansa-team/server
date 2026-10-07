@@ -13,6 +13,8 @@ from fastapi import HTTPException
 from freezegun import freeze_time
 import pandas as pd
 import numpy as np
+import requests
+from sqlalchemy.exc import SQLAlchemyError
 
 from main.app.stocks_api import query as queryModule
 
@@ -258,7 +260,7 @@ class TestVerifyAPIKey:
         from fastapi import HTTPException
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
-        mock_db = self.makeDb([self.makeRow("k")], error=Exception("DB down"))
+        mock_db = self.makeDb([self.makeRow("k")], error=SQLAlchemyError("DB down"))
         with pytest.raises(HTTPException) as e:
             await verifyAPIKey(apiKey="k", db=mock_db)
         assert e.value.status_code == 500
@@ -566,7 +568,7 @@ class TestQueryHistorical:
 
             @property
             def columns(self):
-                raise Exception("simulated failure")
+                raise ValueError("simulated failure")
 
         mgr.STOCKS_CACHE = ExplodingDf()
         from fastapi import HTTPException
@@ -720,7 +722,7 @@ class TestQueryFundamental:
 
             @property
             def columns(self):
-                raise Exception("simulated failure")
+                raise ValueError("simulated failure")
 
         mgr.STOCKS_CACHE = ExplodingDf()
         from fastapi import HTTPException
@@ -1040,7 +1042,7 @@ class TestQueryCotations:
     # --- exception -> 500 ---
     def test_cotations_exception_returns_500(self):
         exploding = MagicMock()
-        exploding.columns = PropertyMock(side_effect=Exception("boom"))
+        exploding.columns = PropertyMock(side_effect=ValueError("boom"))
         mgr = self.make_manager(cache_df=exploding)
         from fastapi import HTTPException
 
@@ -1182,7 +1184,7 @@ class TestQueryLiveCotation:
         from fastapi import HTTPException
 
         mgr = self.make_manager()
-        with self.patch_session(side_effect=Exception("connection refused")):
+        with self.patch_session(side_effect=requests.ConnectionError("connection refused")):
             with pytest.raises(HTTPException) as exc_info:
                 queryModule.queryLiveCotation("WEGE3")
         assert exc_info.value.status_code == 503
