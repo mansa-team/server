@@ -1079,7 +1079,7 @@ class TestQueryCotations:
 # Tests for query.py â€“ queryRealtimeCotation
 # ===========================================================================
 class TestQueryLiveCotation:
-    """Tests for queryLiveCotation and /stocks/cotations/live."""
+    """Tests for queryLiveCotations and /stocks/cotations/live."""
 
     def make_manager(self):
         from main.app.stocks_api.cache import StocksCacheManager
@@ -1128,7 +1128,7 @@ class TestQueryLiveCotation:
     def test_success_returns_correct_shape(self):
         mgr = self.make_manager()
         with self.patch_session():
-            result = queryModule.queryLiveCotation("WEGE3")
+            result = queryModule.queryLiveCotations("WEGE3")
         assert result["type"] == "realtime-cotation"
         assert result["search"] == "WEGE3"
         assert result["count"] == 1
@@ -1145,7 +1145,7 @@ class TestQueryLiveCotation:
     def test_lowercase_ticker_uppercased(self):
         mgr = self.make_manager()
         with self.patch_session():
-            result = queryModule.queryLiveCotation("wege3")
+            result = queryModule.queryLiveCotations("wege3")
         assert result["search"] == "WEGE3"
         assert result["data"][0]["TICKER"] == "WEGE3"
 
@@ -1186,7 +1186,7 @@ class TestQueryLiveCotation:
         mgr = self.make_manager()
         with self.patch_session(side_effect=requests.ConnectionError("connection refused")):
             with pytest.raises(HTTPException) as exc_info:
-                queryModule.queryLiveCotation("WEGE3")
+                queryModule.queryLiveCotations("WEGE3")
         assert exc_info.value.status_code == 503
 
     def test_b3_bad_status_returns_404(self):
@@ -1196,7 +1196,7 @@ class TestQueryLiveCotation:
         payload = {"BizSts": {"cd": "ERR"}, "Trad": []}
         with self.patch_session(response=payload):
             with pytest.raises(HTTPException) as exc_info:
-                queryModule.queryLiveCotation("WEGE3")
+                queryModule.queryLiveCotations("WEGE3")
         assert exc_info.value.status_code == 404
 
     def test_http_route_returns_200(self, stocks_http_client):

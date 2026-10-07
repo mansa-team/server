@@ -373,91 +373,106 @@ def queryCotations(
         raise HTTPException(status_code=500, detail="Internal server error while processing cotations data")
 
 
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(),
-    retry=retry_if_exception(isTransientError),
-    reraise=True,
-)
-def fetchLive(ticker: str) -> dict:
-    """Single-ticker B3 live quote: GET (transient retry) + parse in one step.
-
-    Returns the single-ticker realtime-cotation envelope. Raises HTTPException
-    404 (well-formed but unknown ticker) / 502 (malformed payload); transport
-    errors propagate as requests.RequestException for callers to map to 503.
-    """
-    symbol = ticker.strip().upper()
-    resp = getSession().get(
-        f"https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/{symbol}",
-        timeout=5,
-    )
-    resp.raise_for_status()
-    payload = resp.json()
-    try:
-        trad = payload["Trad"]
-    except (KeyError, TypeError):
-        raise HTTPException(502, detail="B3 realtime malformed response")
-    if payload.get("BizSts", {}).get("cd") != "OK" or not trad:
-        raise HTTPException(404, detail=f"Ticker {symbol} not found")
-    try:
-        dtTm = payload["Msg"]["dtTm"]
-    except (KeyError, TypeError):
-        raise HTTPException(502, detail="B3 realtime malformed response")
-
-    try:
-        raw = trad[0]["scty"]["SctyQtn"]
-        data = {
-            "TICKER": trad[0]["scty"]["symb"],
-            "PRECO ATUAL": raw.get("curPrc"),
-            "PRECO ORIGINAL": raw.get("opngPric"),
-            "PRECO MINIMO": raw.get("minPric"),
-            "PRECO MAXIMO": raw.get("maxPric"),
-            "PRECO MEDIO": raw.get("avrgPric"),
-        }
-    except (KeyError, TypeError, IndexError):
-        raise HTTPException(502, detail="B3 realtime malformed response")
-
-    return {
-        "search": symbol,
-        "type": "realtime-cotation",
-        "timestamp": dtTm,
-        "count": 1,
-        "data": [data],
-    }
-
-
-def queryLiveCotation(search: str):
-    try:
-        return fetchLive(search)
-    except requests.RequestException:
-        raise HTTPException(503, detail="B3 realtime unavailable")
-    except (ValueError, KeyError, TypeError, AttributeError):
-        raise HTTPException(502, detail="B3 realtime malformed response")
-
-
 def queryLiveCotations(search: str):
-    """Comma-separated tickers -> concurrent live quotes with per-ticker errors."""
+    """Single ticker or comma-separated tickers -> live B3 quotes, one code path.
+
+    Input is normalized to a ticker list and every entry flows through the same
+    concurrent fetch+parse loop. A one-ticker request returns the single-ticker
+    realtime-cotation envelope (failures raise 404 unknown / 502 malformed /
+    503 down); multi-ticker requests return the realtime-cotations envelope
+    with per-ticker errors.
+    """
     tickers = [term.strip().upper() for term in search.split(",") if term.strip()]
     if not tickers:
         raise HTTPException(status_code=400, detail="search required")
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(),
+        retry=retry_if_exception(isTransientError),
+        reraise=True,
+    )
+    def quote(symbol: str) -> tuple:
+        """Single-ticker B3 GET (transient retry) + parse; 404 unknown, 502 malformed."""
+        resp = getSession().get(
+            f"https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/{symbol}",
+            timeout=5,
+        )
+        resp.raise_for_status()
+        payload = resp.json()
+        try:
+            trad = payload["Trad"]
+        except (KeyError, TypeError):
+            raise HTTPException(502, detail="B3 realtime malformed response")
+        if payload.get("BizSts", {}).get("cd") != "OK" or not trad:
+            raise HTTPException(404, detail=f"Ticker {symbol} not found")
+        try:
+            dtTm = payload["Msg"]["dtTm"]
+        except (KeyError, TypeError):
+            raise HTTPException(502, detail="B3 realtime malformed response")
+
+        try:
+            raw = trad[0]["scty"]["SctyQtn"]
+            row = {
+                "TICKER": trad[0]["scty"]["symb"],
+                "PRECO ATUAL": raw.get("curPrc"),
+                "PRECO ORIGINAL": raw.get("opngPric"),
+                "PRECO MINIMO": raw.get("minPric"),
+                "PRECO MAXIMO": raw.get("maxPric"),
+                "PRECO MEDIO": raw.get("avrgPric"),
+            }
+        except (KeyError, TypeError, IndexError):
+            raise HTTPException(502, detail="B3 realtime malformed response")
+        return row, dtTm
+
     # B3 instrumentQuotation is a single-ticker URL with no batch param, so the
-    # batch is one concurrent fetchLive per deduped ticker; one ticker failing
+    # batch is one concurrent quote per deduped ticker; one ticker failing
     # never fails the batch.
-    fetched: dict[str, dict] = {}
-    errors: dict = {}
-    with ThreadPoolExecutor(max_workers=min(8, len(dict.fromkeys(tickers)))) as pool:
-        futures = {pool.submit(fetchLive, ticker): ticker for ticker in dict.fromkeys(tickers)}
+    unique = list(dict.fromkeys(tickers))
+    rows: dict = {}
+    failures: dict = {}
+    with ThreadPoolExecutor(max_workers=min(8, len(unique))) as pool:
+        futures = {pool.submit(quote, ticker): ticker for ticker in unique}
         for future in as_completed(futures):
             ticker = futures[future]
             try:
-                fetched[ticker] = future.result()
-            except requests.RequestException:
-                errors[ticker] = "B3 realtime unavailable"
+                rows[ticker] = future.result()
+            except requests.RequestException as exc:
+                failures[ticker] = exc
             except HTTPException as exc:
-                errors[ticker] = exc.detail
-            except (ValueError, KeyError, TypeError, AttributeError):
-                errors[ticker] = "B3 realtime malformed response"
-    data = [fetched[ticker]["data"][0] for ticker in tickers if ticker not in errors]
+                failures[ticker] = exc
+            except (ValueError, KeyError, TypeError, AttributeError) as exc:
+                failures[ticker] = exc
+
+    if len(tickers) == 1:
+        symbol = unique[0]
+        if symbol in failures:
+            failure = failures[symbol]
+            if isinstance(failure, requests.RequestException):
+                raise HTTPException(503, detail="B3 realtime unavailable")
+            if isinstance(failure, HTTPException):
+                raise failure
+            raise HTTPException(502, detail="B3 realtime malformed response")
+        row, dtTm = rows[symbol]
+        return {
+            "search": symbol,
+            "type": "realtime-cotation",
+            "timestamp": dtTm,
+            "count": 1,
+            "data": [row],
+        }
+
+    errors = {
+        ticker: (
+            "B3 realtime unavailable"
+            if isinstance(failure, requests.RequestException)
+            else failure.detail
+            if isinstance(failure, HTTPException)
+            else "B3 realtime malformed response"
+        )
+        for ticker, failure in failures.items()
+    }
+    data = [rows[ticker][0] for ticker in tickers if ticker not in errors]
     return {
         "search": ",".join(tickers),
         "type": "realtime-cotations",
