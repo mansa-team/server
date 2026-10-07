@@ -91,26 +91,28 @@ class TestBuildClient:
 
 class TestInitialize:
     async def test_connects_all_servers(self):
-        fakes = {name: FakeClient(name) for name in ("stocks", "searxng")}
+        fakes = {name: FakeClient(name) for name in ("stocks", "searxng", "wallet")}
         pool = MCPClientPool()
         with (
             patch.object(mcp, "buildClient", side_effect=lambda s: fakes[s["name"]]),
             patch.object(mcp, "logger") as mock_logger,
         ):
             await pool.initialize()
-        assert set(pool.clients) == {"stocks", "searxng"}
+        assert set(pool.clients) == {"stocks", "searxng", "wallet"}
         assert pool.clients["stocks"] is fakes["stocks"]
         assert pool.clients["searxng"] is fakes["searxng"]
+        assert pool.clients["wallet"] is fakes["wallet"]
         assert all(c.entered == 1 for c in fakes.values())
         assert pool.lastHealthCheck > 0
         # deepcopy monkeypatch applied to session types without raising
         assert copy.deepcopy(fakes["stocks"].session) is fakes["stocks"].session
-        mock_logger.info.assert_any_call("MCPClientPool: initialized with %s", ["stocks", "searxng"])
+        mock_logger.info.assert_any_call("MCPClientPool: initialized with %s", ["stocks", "searxng", "wallet"])
 
     async def test_continues_on_connect_error(self):
         bad = FakeClient("stocks", aenter_error=RuntimeError("boom"))
         good = FakeClient("searxng")
-        fakes = {"stocks": bad, "searxng": good}
+        wallet = FakeClient("wallet")
+        fakes = {"stocks": bad, "searxng": good, "wallet": wallet}
         pool = MCPClientPool()
         with (
             patch.object(mcp, "buildClient", side_effect=lambda s: fakes[s["name"]]),
@@ -119,6 +121,7 @@ class TestInitialize:
             await pool.initialize()
         assert "stocks" not in pool.clients
         assert pool.clients["searxng"] is good
+        assert pool.clients["wallet"] is wallet
         assert pool.lastHealthCheck > 0
         mock_logger.error.assert_called_once_with("MCPClientPool: %s connect failed: %s", "stocks", ANY)
 

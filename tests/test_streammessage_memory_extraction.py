@@ -74,7 +74,7 @@ def test_streammessage_triggers_memory_extraction(client, monkeypatch):
         mockConfig.DEBUG_MODE = True
         mockConfig.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mockPool.clients = {"stocks": MagicMock()}
-        mockPool.getClients = AsyncMock(return_value=({"stocks": MagicMock()}, [MagicMock()]))
+        mockPool.getClients = AsyncMock(return_value=({"stocks": MagicMock(), "wallet": MagicMock()}, [MagicMock()]))
 
         resp = client.post(
             "/orunmila/chat/stream",

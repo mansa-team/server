@@ -22,10 +22,6 @@ class MCPDetectMiddleware:
                     scope["query_string"] = (qs + ("&" if qs else "") + "compact=true").encode("latin-1")
         await self.app(scope, receive, send)
 
-
-# MCP tool surface: exact operation IDs (routes declare them via operation_id=).
-# Read-only routes only — writes (entries POST/PATCH/DELETE, ratings PUT, wallet
-# create) stay off the MCP surface; they are reachable via dedicated wrappers.
 WALLET_MCP_OPERATIONS = [
     "wallet_positions",
     "wallet_rebalance",

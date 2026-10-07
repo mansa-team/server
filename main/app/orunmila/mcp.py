@@ -15,6 +15,11 @@ MCP_SERVERS = [
         "headers": {"X-MCP": "true"},
     },
     {"name": "searxng", "url": f"{Config.ORUNMILA.SEARXNG_URL}/mcp/"},
+    {
+        "name": "wallet",
+        "url": f"http://{Config.USER.HOST}:{Config.USER.PORT}/wallet/mcp",
+        "headers": {"X-MCP": "true"},
+    },
 ]
 
 

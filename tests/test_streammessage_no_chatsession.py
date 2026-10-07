@@ -38,11 +38,15 @@ class TestStreamMessageNoChatSession:
         # Set up mock MCP pool
         mock_stocks = MagicMock()
         mock_searxng = MagicMock()
-        mock_pool.clients = {"stocks": mock_stocks, "searxng": mock_searxng}
+        mock_pool.clients = {"stocks": mock_stocks, "searxng": mock_searxng, "wallet": MagicMock()}
         mock_session_stocks = MagicMock()
         mock_session_searxng = MagicMock()
+        mock_session_wallet = MagicMock()
         mock_pool.getClients = AsyncMock(
-            return_value=({"stocks": mock_stocks, "searxng": mock_searxng}, [mock_session_stocks, mock_session_searxng])
+            return_value=(
+                {"stocks": mock_stocks, "searxng": mock_searxng, "wallet": MagicMock()},
+                [mock_session_stocks, mock_session_searxng, mock_session_wallet],
+            )
         )
 
         # Set up mock chat session
@@ -95,7 +99,7 @@ class TestStreamMessageNoChatSession:
         # Set up mock MCP pool
         mock_stocks = MagicMock()
         mock_searxng = MagicMock()
-        mock_pool.clients = {"stocks": mock_stocks, "searxng": mock_searxng}
+        mock_pool.clients = {"stocks": mock_stocks, "searxng": mock_searxng, "wallet": MagicMock()}
         toolResult = MagicMock()
         toolResult.isError = False
         toolResult.content = []
@@ -103,8 +107,12 @@ class TestStreamMessageNoChatSession:
         mock_searxng.session.call_tool = AsyncMock(return_value=toolResult)
         mock_session_stocks = MagicMock()
         mock_session_searxng = MagicMock()
+        mock_session_wallet = MagicMock()
         mock_pool.getClients = AsyncMock(
-            return_value=({"stocks": mock_stocks, "searxng": mock_searxng}, [mock_session_stocks, mock_session_searxng])
+            return_value=(
+                {"stocks": mock_stocks, "searxng": mock_searxng, "wallet": MagicMock()},
+                [mock_session_stocks, mock_session_searxng, mock_session_wallet],
+            )
         )
 
         class FakeFunctionCall:
@@ -153,9 +161,12 @@ class TestStreamMessageNoChatSession:
 
         mock_stocks = MagicMock()
         mock_searxng = MagicMock()
-        mock_pool.clients = {"stocks": mock_stocks, "searxng": mock_searxng}
+        mock_pool.clients = {"stocks": mock_stocks, "searxng": mock_searxng, "wallet": MagicMock()}
         mock_pool.getClients = AsyncMock(
-            return_value=({"stocks": mock_stocks, "searxng": mock_searxng}, [MagicMock(), MagicMock()])
+            return_value=(
+                {"stocks": mock_stocks, "searxng": mock_searxng, "wallet": MagicMock()},
+                [MagicMock(), MagicMock(), MagicMock()],
+            )
         )
 
         mock_chat_session = MagicMock()
@@ -187,9 +198,12 @@ class TestStreamMessageNoChatSession:
 
         mock_stocks = MagicMock()
         mock_searxng = MagicMock()
-        mock_pool.clients = {"stocks": mock_stocks, "searxng": mock_searxng}
+        mock_pool.clients = {"stocks": mock_stocks, "searxng": mock_searxng, "wallet": MagicMock()}
         mock_pool.getClients = AsyncMock(
-            return_value=({"stocks": mock_stocks, "searxng": mock_searxng}, [MagicMock(), MagicMock()])
+            return_value=(
+                {"stocks": mock_stocks, "searxng": mock_searxng, "wallet": MagicMock()},
+                [MagicMock(), MagicMock(), MagicMock()],
+            )
         )
 
         async def fake_stream_with_error(msg):
