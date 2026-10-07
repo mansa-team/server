@@ -135,9 +135,7 @@ def test_wallet_allocation_groups_by_ticker_and_asset(dbSession, monkeypatch):
     byTicker = asyncio.run(TOOL_REGISTRY["wallet_allocation"](user={"userId": 1}, db=dbSession))
     assert byTicker["items"][0]["key"] == "PETR4"
     assert byTicker["equity_total"] == 300.0
-    byAsset = asyncio.run(
-        TOOL_REGISTRY["wallet_allocation"](group_by="assetType", user={"userId": 1}, db=dbSession)
-    )
+    byAsset = asyncio.run(TOOL_REGISTRY["wallet_allocation"](group_by="assetType", user={"userId": 1}, db=dbSession))
     assert byAsset["items"][0]["key"] == "ACOES"
 
 
@@ -150,9 +148,7 @@ def test_list_wallet_earnings_filters_by_status(dbSession, monkeypatch):
     # (seed payDate 2026-04-01 <= today), so the pending bucket is empty.
     pending = asyncio.run(TOOL_REGISTRY["list_wallet_earnings"](user={"userId": 1}, db=dbSession))
     assert pending["earnings"] == []
-    received = asyncio.run(
-        TOOL_REGISTRY["list_wallet_earnings"](status="Recebido", user={"userId": 1}, db=dbSession)
-    )
+    received = asyncio.run(TOOL_REGISTRY["list_wallet_earnings"](status="Recebido", user={"userId": 1}, db=dbSession))
     assert [row["kind"] for row in received["earnings"]] == ["Div", "JSCP"]
     assert received["earnings"][0]["gross"] == 10.0
     allRows = asyncio.run(TOOL_REGISTRY["list_wallet_earnings"](status=None, user={"userId": 1}, db=dbSession))

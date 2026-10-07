@@ -69,12 +69,8 @@ def test_ratings_gate_and_positions_buy_flag(dbSession, monkeypatch):
         "ticker": "PETR4",
         "rating": 8,
     }
-    assert (
-        client.put("/wallet/ratings", json={"ticker": "PETR4", "rating": 100}).status_code == 200
-    )
-    assert (
-        client.put("/wallet/ratings", json={"ticker": "PETR4", "rating": 101}).status_code == 422
-    )
+    assert client.put("/wallet/ratings", json={"ticker": "PETR4", "rating": 100}).status_code == 200
+    assert client.put("/wallet/ratings", json={"ticker": "PETR4", "rating": 101}).status_code == 422
     item = client.get("/wallet/positions").json()["items"][0]
     # Canonical raw: weight-share deltas derive client-side. Single holding owns
     # 100% of both weight and equity → client delta 0 → hold.

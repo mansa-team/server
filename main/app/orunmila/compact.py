@@ -77,9 +77,7 @@ def isTransientFieldsError(exc: BaseException) -> bool:
     reraise=True,
 )
 def fetchFieldsPayload() -> dict:
-    response = getSession().get(
-        f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fields", timeout=5
-    )
+    response = getSession().get(f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fields", timeout=5)
     response.raise_for_status()
     return response.json()
 

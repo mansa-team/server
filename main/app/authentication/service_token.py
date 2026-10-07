@@ -43,7 +43,7 @@ def verifyServiceToken(provided: str) -> bool:
         if prev and verifyWithSecret(token, prev):
             return True
         return False
-    
+
     try:
         expected = hmac.new(Config.USER.JWT_SECRET_KEY.encode("utf-8"), b"auth-introspect", hashlib.sha256).hexdigest()
     except Exception:

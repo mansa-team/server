@@ -257,12 +257,8 @@ def test_ratings_accept_zero_to_hundred(dbSession, monkeypatch):
         "ticker": "PETR4",
         "rating": 100,
     }
-    assert (
-        client.put("/wallet/ratings", json={"ticker": "PETR4", "rating": 0}).status_code == 200
-    )
-    assert (
-        client.put("/wallet/ratings", json={"ticker": "PETR4", "rating": 101}).status_code == 422
-    )
+    assert client.put("/wallet/ratings", json={"ticker": "PETR4", "rating": 0}).status_code == 200
+    assert client.put("/wallet/ratings", json={"ticker": "PETR4", "rating": 101}).status_code == 422
 
 
 def test_fetch_xango_scores_parses_fundamental(monkeypatch):

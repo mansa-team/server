@@ -130,7 +130,13 @@ def _merge_user(connection, userId: int) -> None:
                 "INSERT INTO holdings (walletId, assetType, ticker, quantity, avgPrice, rating) "
                 "VALUES (:wallet, :asset, :ticker, :quantity, :avg, NULL)"
             ),
-            {"wallet": survivor, "asset": state["asset"], "ticker": ticker, "quantity": state["quantity"], "avg": state["avg"]},
+            {
+                "wallet": survivor,
+                "asset": state["asset"],
+                "ticker": ticker,
+                "quantity": state["quantity"],
+                "avg": state["avg"],
+            },
         )
     connection.execute(sa.text(f"DELETE FROM wallets WHERE walletId IN ({loserList})"))  # noqa: S608
 

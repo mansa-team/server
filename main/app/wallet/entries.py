@@ -121,9 +121,7 @@ class EntriesManager:
                 detail=f"unknown asset_type '{data.asset_type}', expected one of: {', '.join(sorted(ALLOWED_ASSET_TYPES))}",
             )
         if data.side == "Venda":
-            holding = (
-                db.query(Holding).filter(Holding.walletId == walletId, Holding.ticker == data.ticker).first()
-            )
+            holding = db.query(Holding).filter(Holding.walletId == walletId, Holding.ticker == data.ticker).first()
             if holding is None or data.quantity > float(holding.quantity):
                 raise HTTPException(status_code=422, detail="sell exceeds holding")
 
@@ -167,7 +165,9 @@ class EntriesManager:
         return total, items
 
     @classmethod
-    def updateEntry(cls, db: Session, wallet: Wallet, entryId: int, patch: EntryUpdate) -> tuple[Transaction, Holding | None]:
+    def updateEntry(
+        cls, db: Session, wallet: Wallet, entryId: int, patch: EntryUpdate
+    ) -> tuple[Transaction, Holding | None]:
         entry = db.query(Transaction).filter(Transaction.entryId == entryId).first()
 
         if entry is None:
