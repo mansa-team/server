@@ -9,6 +9,7 @@ from cachetools import TTLCache
 from google import genai
 from google.genai import types
 import google.genai._mcp_utils as mcp
+from sqlalchemy.exc import SQLAlchemyError
 
 from main.models.orunmila import OrunmilaSession
 from main.app.orunmila.memory import OrunmilaMemory
@@ -233,7 +234,7 @@ class Orunmila:
                 if episodes:
                     lines = [f"[{i + 1}] {ep.get('summary', '')}" for i, ep in enumerate(episodes[-5:])]
                     episodeBlock = "\n".join(lines)
-            except Exception as e:
+            except (SQLAlchemyError, ValueError, TypeError, AttributeError) as e:
                 logger.debug("Failed to load episodes for session %s: %s", sessionId, e)
 
         sections = [SYSTEM_PROMPT]
@@ -259,7 +260,7 @@ class Orunmila:
             try:
                 await clientPool.initialize()
                 loadFieldData()
-            except Exception as e:
+            except (OSError, TimeoutError, ConnectionError, RuntimeError, ValueError) as e:
                 logger.warning("Pool/registry startup failed: %s", e)
 
         try:

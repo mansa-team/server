@@ -15,12 +15,6 @@ WORKSPACE_ROOT = Path("/data/workspaces")
 userLocks: dict[int, asyncio.Lock] = {}
 
 
-def lockFor(userId: int) -> asyncio.Lock:
-    if userId not in userLocks:
-        userLocks[userId] = asyncio.Lock()
-    return userLocks[userId]
-
-
 # Kept: mocked seam (test_sandbox.py) + directly asserted (test_sandbox_auth_gating.py) — keep.
 def getClient() -> AsyncClient:
     return AsyncClient(
@@ -42,11 +36,6 @@ def hostPath(userId: int, sandboxPath: str) -> Path:
     if not candidate.is_relative_to(base):
         raise ValueError("Invalid workspace path")
     return candidate
-
-
-def sandboxPath(hostPath: Path, userId: int) -> str:
-    rel = hostPath.relative_to(WORKSPACE_ROOT / str(userId))
-    return f"/workspace/{rel}"
 
 
 class SandboxManager:
@@ -80,7 +69,7 @@ class SandboxManager:
 
     @staticmethod
     async def getOrCreate(userId: int, db) -> str:
-        lock = lockFor(userId)
+        lock = userLocks.setdefault(userId, asyncio.Lock())
         async with lock:
             mapping = db.query(OrunmilaSandbox).filter(OrunmilaSandbox.userId == userId).first()
 
@@ -100,7 +89,7 @@ class SandboxManager:
 
                     db.delete(mapping)
                     db.commit()
-                except Exception as e:
+                except (OSError, TimeoutError, RuntimeError, ValueError) as e:
                     logger.warning("Error checking sandbox %s: %s, creating new", mapping.sandboxId, e)
 
                     db.delete(mapping)
@@ -178,7 +167,7 @@ class SandboxManager:
             else:
                 host.write_text(content, encoding="utf-8")
             return True
-        except Exception as e:
+        except (OSError, ValueError) as e:
             logger.warning("Failed to write %s: %s", path, e)
             return False
 
@@ -187,7 +176,11 @@ class SandboxManager:
         host = hostPath(userId, path)
         if not host.exists():
             return {"entries": []}
-        entries = [str(sandboxPath(item, userId)) for item in sorted(host.rglob("*")) if item.is_file()]
+        entries = [
+            f"/workspace/{item.relative_to(WORKSPACE_ROOT / str(userId))}"
+            for item in sorted(host.rglob("*"))
+            if item.is_file()
+        ]
         return {"entries": entries}
 
     @staticmethod
@@ -203,7 +196,7 @@ class SandboxManager:
                 return True
             host.unlink()
             return True
-        except Exception as e:
+        except (OSError, ValueError) as e:
             logger.warning("Failed to delete %s: %s", path, e)
             return False
 
@@ -240,7 +233,7 @@ class SandboxManager:
                     host.parent.mkdir(parents=True, exist_ok=True)
                     host.write_text(content, encoding="utf-8")
                     count += 1
-                except Exception as e:
+                except (OSError, ValueError, RuntimeError) as e:
                     logger.warning("Failed to sync %s from sandbox: %s", p, e)
             return count
         finally:

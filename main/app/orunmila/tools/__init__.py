@@ -1,4 +1,5 @@
 import logging
+import asyncio
 from typing import Any, Optional
 
 from main.app.orunmila.tools.memory import save_memory, search_memory
@@ -61,7 +62,7 @@ async def dispatchToolCall(
                 for block in mcpResult.content:
                     textParts.append(block.text if hasattr(block, "text") else str(block))
             return {"result": "\n".join(textParts) if textParts else str(mcpResult)}
-        except Exception as e:
+        except (OSError, asyncio.TimeoutError, TimeoutError, ConnectionError, ValueError, RuntimeError) as e:
             logger.debug(f"MCP client failed for {name}: {e}")
             continue
 

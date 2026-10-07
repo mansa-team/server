@@ -16,6 +16,7 @@ from rapidfuzz import fuzz
 
 from sqlalchemy import func, desc
 from sqlalchemy.dialects.mysql import match as mysqlMatch
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session, defer
 
 from main.models.memory import OrunmilaMemory as OrunmilaMemoryModel
@@ -180,37 +181,12 @@ def scoreCandidates(
     ]
 
 
-def sumTokens(texts: list[str], cache: MutableMapping | None) -> int:
-    total = 0
-    if cache is None:
-        for text in texts:
-            total += countTokens(text)
-        return total
-    for text in texts:
-        cached = cache.get(text)
-        if cached is None:
-            cached = countTokens(text)
-            cache[text] = cached
-        total += cached
-    return total
-
-
 class OrunmilaMemory:
     @classmethod
     def getMemoryLimit(cls, userRoles: list[str]) -> int:
         if Roles.checkAccess(userRoles, Permission.ORUNMILA_EXTENDED_MEMORIES):
             return MEMORY_LIMIT_EXTENDED
         return MEMORY_LIMIT_BASIC
-
-    @classmethod
-    # Kept: mocked seam (test_memory_extraction.py) + direct tests (test_memory_manager.py) — keep.
-    def countMemories(cls, db: Session, userId: int) -> int:
-        return (
-            db.query(func.count(OrunmilaMemoryModel.id))
-            .filter(OrunmilaMemoryModel.userId == userId)
-            .filter(OrunmilaMemoryModel.archivedAt.is_(None))
-            .scalar()
-        )
 
     @staticmethod
     def touch(m: Any, value: str, memoryType: str, source: str, embedding: Any, newHash: str) -> None:
@@ -337,7 +313,7 @@ class OrunmilaMemory:
                     queryEmbedding = embed([query])[0]
                     sims = batchCosineSimilarity(queryEmbedding, matrix)
                     simById = {mid: float(s) for mid, s in zip(cachedIds, sims)}
-            except Exception as e:
+            except (OSError, RuntimeError, ValueError, TypeError) as e:
                 logger.warning(f"Embedding scoring failed, using full-text and recency only: {e}")
             vecScores = [simById.get(cast(int, m.id), 0.0) for m in candidateRows]
             vecNorm = minMax(vecScores)
@@ -345,7 +321,7 @@ class OrunmilaMemory:
             ftRank = {r["id"]: 1.0 / (i + 1) for i, r in enumerate(ftRows)}
             now = datetime.now(timezone.utc)
             return scoreCandidates(candidateRows, vecNorm, simById, ftRank, now, limit)
-        except Exception as e:
+        except (SQLAlchemyError, ValueError, TypeError, AttributeError) as e:
             logger.warning(f"Fused search failed, falling back to full-text: {e}")
 
         return cls.fullTextSearch(db, userId, query, limit)
@@ -407,6 +383,16 @@ class OrunmilaMemory:
             }
             for m in results
         ]
+
+    @classmethod
+    def countMemories(cls, db: Session, userId: int) -> int:
+        return (
+            db.query(func.count(OrunmilaMemoryModel.id))
+            .filter(OrunmilaMemoryModel.userId == userId)
+            .filter(OrunmilaMemoryModel.archivedAt.is_(None))
+            .scalar()
+            or 0
+        )
 
     @classmethod
     def getUserMemories(cls, db: Session, userId: int, limit: int = 50, offset: int = 0) -> list[dict]:
@@ -478,7 +464,14 @@ class OrunmilaMemory:
             for msg in reversed(msgs):
                 text = (msg.get("parts") or [{}])[0].get("text", "")
                 acc.append(text)
-                tokens += sumTokens([text], tokenCache)
+                if tokenCache is None:
+                    tokens += countTokens(text)
+                else:
+                    cached = tokenCache.get(text)
+                    if cached is None:
+                        cached = countTokens(text)
+                        tokenCache[text] = cached
+                    tokens += cached
                 if tokens >= MEMORY_EXTRACTION_TOKEN_BUDGET:
                     break
 
@@ -516,7 +509,7 @@ class OrunmilaMemory:
                     ),
                 )
                 rawCandidates = json.loads(response.text)
-            except Exception as e:
+            except (OSError, RuntimeError, ValueError, TypeError) as e:
                 logger.warning("Memory extraction LLM call failed: %s", e)
                 return []
 
@@ -527,7 +520,7 @@ class OrunmilaMemory:
             for raw in rawCandidates:
                 try:
                     candidates.append(candidateAdapter.validate_python(raw))
-                except Exception as e:
+                except (ValueError, TypeError) as e:
                     logger.warning("Memory extraction dropped invalid item: %s", e)
             if not candidates:
                 return []
@@ -536,7 +529,7 @@ class OrunmilaMemory:
             cands = candidates[:n]
             try:
                 embeddings = embed([c.value for c in cands])
-            except Exception as e:
+            except (OSError, RuntimeError, ValueError, TypeError) as e:
                 logger.warning("Memory batch embedding failed: %s", e)
                 embeddings = []
             for idx, cand in enumerate(cands):
@@ -556,7 +549,7 @@ class OrunmilaMemory:
                         userRoles=userRoles,
                     )
                     created.append(result["memory"])
-                except Exception as e:
+                except SQLAlchemyError as e:
                     logger.warning("Memory upsert failed: %s", e)
             return created
         finally:

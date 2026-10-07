@@ -35,6 +35,7 @@ async def wallet_positions(**_) -> dict:
 
 
 async def wallet_summary(**_) -> dict:
+    """Ledger-derived summary (applied/variation/equity/first_date) + snapshot autosync."""
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
@@ -47,6 +48,7 @@ async def wallet_summary(**_) -> dict:
 
 
 async def wallet_allocation(group_by: str = "ticker", **_) -> dict:
+    """Ledger-derived per-ticker equity, grouped client-side by ticker/asset_type."""
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
