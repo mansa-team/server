@@ -11,6 +11,7 @@ import json
 import os
 import sys
 from datetime import date
+from types import SimpleNamespace
 from unittest import mock
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -26,6 +27,7 @@ from fastmcp.client.client import StreamableHttpTransport
 
 from main.controller.wallet_controller import router as walletRouter
 from main.service.wallet_service import WALLET_MCP_OPERATIONS, WalletService
+from tests.test_wallet_positions import _live_ok
 
 READ_TOOL_NAMES = {
     "wallet_positions",
@@ -724,3 +726,121 @@ class TestWalletMCPParams:
         for operation in mcp.operation_map.values():
             for param in operation.get("parameters", []):
                 assert param.get("name", "").lower() != "x-mcp"
+
+
+def _flatSeries(url, params=None, headers=None, timeout=None):
+    """Deterministic closes: 10.0 through 2026-01-10, then 11.0 on 01-11."""
+
+    class Resp:
+        status_code = 200
+
+        @staticmethod
+        def json():
+            rows = [{"DATA": f"{day:02d}-01-2026", "PRECO": 10.0} for day in range(1, 10)]
+            rows += [{"DATA": "10-01-2026", "PRECO": 10.0}, {"DATA": "11-01-2026", "PRECO": 11.0}]
+            return {"data": rows}
+
+    return Resp()
+
+
+class TestWalletMCPEndToEnd:
+    """Seeded DB → in-process MCP call → deterministic payload (agent path)."""
+
+    async def test_rebalance_returns_raw_weight_keys(self, dbSession, monkeypatch):
+        """weight mirrors the single rating; derived keys stay agent-side."""
+        monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
+        app = _build_auth_app(dbSession)
+        token, _user, _wallet = _seed_session_wallet(dbSession, rating=72.0)
+
+        async with _mcp_client(app) as client:
+            result = await client.call_tool(
+                "wallet_rebalance", {"authorization": f"Bearer {token}"}, raise_on_error=False
+            )
+
+        assert not result.is_error
+        payload = json.loads(result.content[0].text)
+        assert payload["equity_total"] == 300.0
+        assert len(payload["items"]) == 1
+        item = payload["items"][0]
+        assert set(item) == {"ticker", "weight", "current_price", "equity"}
+        assert item["ticker"] == "PETR4"
+        assert item["weight"] == 72.0
+        assert item["current_price"] == 30.0
+        assert item["equity"] == 300.0
+        for derived in ("target_pct", "current_pct", "delta_qty", "delta_equity", "side", "buy_flag"):
+            assert derived not in item
+
+    async def test_performance_dividend_drop_flow(self, dbSession, monkeypatch):
+        """Flat closes with an ex-date dividend: dividend leg compensates the drop."""
+        from main.models.wallet import Earning
+
+        monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_flatSeries))
+        app = _build_auth_app(dbSession)
+        token, _user, wallet = _seed_session_wallet(dbSession)
+
+        dbSession.add(
+            Earning(
+                walletId=wallet.walletId,
+                ticker="PETR4",
+                kind="Div",
+                exDate=date(2026, 1, 5),
+                payDate=date(2026, 2, 1),
+                gross=10.0,
+                netIrAdjusted=10.0,
+                status="Recebido",
+            )
+        )
+        dbSession.commit()
+
+        async with _mcp_client(app) as client:
+            result = await client.call_tool(
+                "wallet_performance",
+                {"ticker": "PETR4", "from": "2026-01-01", "to": "2026-01-11", "authorization": f"Bearer {token}"},
+                raise_on_error=False,
+            )
+
+        assert not result.is_error
+        payload = json.loads(result.content[0].text)
+        # 10 shares at 10.0: +10% dividend day on 01-05 and +10% price day on
+        # 01-11 compound to 1.1 * 1.1 - 1; the dividend sums net (IR-adjusted).
+        assert payload["twr"] == pytest.approx(0.21)
+        assert payload["dividends_received"] == 10.0
+
+    async def test_record_buy_via_dispatch_writes_ledger(self, dbSession):
+        """Full write path: dispatchToolCall → wallet MCP client → DB row."""
+        from main.app.orunmila.tools import dispatchToolCall
+        from main.app.wallet.wallets import WalletsManager
+        from main.models.user import User
+        from main.models.wallet import Holding, Transaction
+
+        app = _build_auth_app(dbSession)
+        token = _seed_session_token(dbSession)
+        functionCall = SimpleNamespace(
+            name="record_entry",
+            args={
+                "side": "Compra",
+                "asset_type": "ACOES",
+                "ticker": "PETR4",
+                "date": "2026-01-05",
+                "quantity": 10,
+                "price": 25.0,
+                "costs": 1.0,
+            },
+        )
+
+        async with _mcp_client(app) as client:
+            result = await dispatchToolCall(functionCall, {"wallet": client}, rawToken=token)
+
+        payload = json.loads(result["result"])
+        assert payload["entryId"] is not None
+        assert payload["holding"] == {"ticker": "PETR4", "quantity": 10.0, "avgPrice": 25.1}
+
+        user = dbSession.query(User).filter(User.username == "mcpuser").one()
+        wallet = WalletsManager.getMyWallet(dbSession, user.userId)
+        entry = dbSession.query(Transaction).filter(Transaction.walletId == wallet.walletId).one()
+        assert entry.side == "Compra"
+        assert float(entry.quantity) == 10.0
+        assert float(entry.price) == 25.0
+        holding = dbSession.query(Holding).filter(Holding.walletId == wallet.walletId, Holding.ticker == "PETR4").one()
+        assert float(holding.quantity) == 10.0
+        assert float(holding.avgPrice) == pytest.approx(25.1)
