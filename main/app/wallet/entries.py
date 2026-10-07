@@ -3,7 +3,7 @@ from datetime import date as dateType
 from typing import Literal, get_args
 
 from fastapi import HTTPException
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from main.app.wallet.positions import PositionsManager
@@ -12,16 +12,8 @@ from main.models.wallet import Holding, Transaction
 
 logger = logging.getLogger(__name__)
 
-
-# Asset category allowlist (single source of truth).
-# Extend the Literal to add future categories (e.g. "CDI", "SELIC:...").
 AssetType = Literal["ACOES", "OUTROS"]
 ALLOWED_ASSET_TYPES = frozenset(get_args(AssetType))
-
-
-def normalizeAssetType(value):
-    # Frontend Tipo field defaults to "ACAO" (singular); accept it as "ACOES".
-    return "ACOES" if value == "ACAO" else value
 
 
 def serialize_holding(holding) -> dict | None:
@@ -53,11 +45,6 @@ class EntryCreate(BaseModel):
     price: float = Field(ge=0)
     costs: float = Field(default=0.0, ge=0)
 
-    @field_validator("asset_type", mode="before")
-    @classmethod
-    def acceptAcaoAlias(cls, value):
-        return normalizeAssetType(value)
-
 
 class EntryUpdate(BaseModel):
     side: Literal["Compra", "Venda"] | None = None
@@ -66,11 +53,6 @@ class EntryUpdate(BaseModel):
     quantity: float | None = Field(default=None, gt=0)
     price: float | None = Field(default=None, ge=0)
     costs: float | None = Field(default=None, ge=0)
-
-    @field_validator("asset_type", mode="before")
-    @classmethod
-    def acceptAcaoAlias(cls, value):
-        return normalizeAssetType(value)
 
 
 class EntriesManager:

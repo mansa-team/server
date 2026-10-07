@@ -169,8 +169,8 @@ def test_cross_user_wallet_isolated_404(dbSession):
     assert client.get("/wallet/entries").json()["total"] == 1
 
 
-def test_compra_accepts_acao_alias(dbSession):
-    # Frontend Tipo field defaults to "ACAO" (singular); backend normalizes to ACOES.
+def test_compra_rejects_acao_singular(dbSession):
+    # Strict shape: only "ACOES"/"OUTROS" accepted; the old singular form is 422.
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
     resp = client.post(
@@ -185,7 +185,4 @@ def test_compra_accepts_acao_alias(dbSession):
             "price": 40.0,
         },
     )
-    assert resp.status_code == 201
-    assert resp.json()["holding"] == {"ticker": "WEGE3", "quantity": 10.0, "avgPrice": 40.0}
-    items = client.get(f"/wallet/entries?wallet_id={walletId}").json()
-    assert items["items"][0]["asset_type"] == "ACOES"
+    assert resp.status_code == 422
