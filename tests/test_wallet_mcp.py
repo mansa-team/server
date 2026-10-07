@@ -1,4 +1,4 @@
-"""Wallet MCP tests: tool scoping, middleware, mount wiring, JWT auth boundary.
+"""Wallet MCP tests: tool scoping, mount wiring, JWT auth boundary.
 
 Tool surface is filtered by explicit operation IDs (WALLET_MCP_OPERATIONS) —
 seven read routes plus four LLM-shaped wrappers; unwrapped writes must never
@@ -25,7 +25,7 @@ from fastmcp import Client
 from fastmcp.client.client import StreamableHttpTransport
 
 from main.controller.wallet_controller import router as walletRouter
-from main.service.wallet_service import MCPDetectMiddleware, WALLET_MCP_OPERATIONS, WalletService
+from main.service.wallet_service import WALLET_MCP_OPERATIONS, WalletService
 
 READ_TOOL_NAMES = {
     "wallet_positions",
@@ -76,7 +76,7 @@ def make_wallet_mcp(app):
         app,
         name="Mansa Wallet MCP",
         include_operations=WALLET_MCP_OPERATIONS,
-        headers=["authorization", "x-mcp"],
+        headers=["authorization"],
     )
 
 
@@ -147,37 +147,8 @@ class TestWalletMCPToolScoping:
             assert resp.status_code in (200, 405, 406)
 
 
-class TestWalletMCPDetectMiddleware:
-    async def run_through(self, scope):
-        downstream = mock.AsyncMock()
-        middleware = MCPDetectMiddleware(downstream)
-        await middleware(scope, mock.Mock(), mock.Mock())
-        return downstream
-
-    async def test_mcp_header_injects_compact_query(self):
-        scope = {"type": "http", "headers": [(b"x-mcp", b"true")], "query_string": b"", "state": {}}
-        downstream = await self.run_through(scope)
-
-        assert scope["state"]["compressed"] is True
-        assert scope["query_string"] == b"compact=true"
-        downstream.assert_awaited_once()
-
-    async def test_mcp_header_existing_compact_not_duplicated(self):
-        scope = {"type": "http", "headers": [(b"x-mcp", b"true")], "query_string": b"compact=false", "state": {}}
-        await self.run_through(scope)
-
-        assert scope["query_string"] == b"compact=false"
-
-    async def test_plain_http_untouched(self):
-        scope = {"type": "http", "headers": [(b"accept", b"application/json")], "query_string": b"a=1", "state": {}}
-        await self.run_through(scope)
-
-        assert "compressed" not in scope["state"]
-        assert scope["query_string"] == b"a=1"
-
-
 class TestWalletServiceInitialize:
-    def test_initialize_wires_middleware_router_and_mount(self):
+    def test_initialize_wires_router_and_mount_without_compact_adapter(self):
         app = FastAPI()
         with mock.patch("main.service.wallet_service.getApp", return_value=app) as mock_get_app:
             WalletService.initialize(39999)
@@ -187,9 +158,9 @@ class TestWalletServiceInitialize:
         # Wallet router registered
         assert any(getattr(route, "path", "").startswith("/wallet/") for route in app.routes)
 
-        # Middleware stack
+        # No compact adapter: wallet serves plain JSON on every request path
         middleware_names = [middleware.cls.__name__ for middleware in app.user_middleware]
-        assert "MCPDetectMiddleware" in middleware_names
+        assert "MCPDetectMiddleware" not in middleware_names
 
         # MCP mount registered
         assert any(getattr(route, "path", None) == "/wallet/mcp" for route in app.routes)
@@ -565,13 +536,12 @@ def _build_auth_app(dbSession):
     app = FastAPI()
     registerErrorHandlers(app)
     app.include_router(walletRouter)
-    app.add_middleware(MCPDetectMiddleware)
 
     mcp = FastApiMCP(
         app,
         name="Mansa Wallet MCP",
         include_operations=WALLET_MCP_OPERATIONS,
-        headers=["authorization", "x-mcp"],
+        headers=["authorization"],
     )
     mcp.mount_http(app, mount_path="/wallet/mcp")
 
@@ -602,7 +572,6 @@ def _mcp_client(app):
 
     transport = StreamableHttpTransport(
         url="http://apiserver/wallet/mcp",
-        headers={"X-MCP": "true"},
         httpx_client_factory=asgiFactory,
     )
     return Client(transport=transport)
@@ -715,3 +684,10 @@ class TestWalletMCPParams:
         # Hidden from the LLM-facing schema: only the dispatcher supplies it.
         readTool = next(t for t in mcp.tools if t.name == "wallet_positions")
         assert "authorization" not in readTool.inputSchema.get("properties", {})
+
+    def test_no_x_mcp_header_on_any_operation(self):
+        """The wallet dropped the compact convention: no X-MCP forwarding remains."""
+        mcp = make_wallet_mcp(build_shared_app())
+        for operation in mcp.operation_map.values():
+            for param in operation.get("parameters", []):
+                assert param.get("name", "").lower() != "x-mcp"

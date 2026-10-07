@@ -18,7 +18,6 @@ MCP_SERVERS = [
     {
         "name": "wallet",
         "url": f"http://{Config.USER.HOST}:{Config.USER.PORT}/wallet/mcp",
-        "headers": {"X-MCP": "true"},
     },
 ]
 
