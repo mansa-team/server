@@ -97,6 +97,7 @@ def validateFields(requested: str | None, available: list, typeName: str) -> lis
     return wanted
 
 
+# Kept: public API response envelope shared by all query endpoints — keep.
 def envelope(search, fields, dates, typeName, df: pd.DataFrame):
     return {
         "search": search or "all",

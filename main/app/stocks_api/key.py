@@ -16,14 +16,10 @@ from main.models.stocksapi_key import StocksAPIKey
 apiKeyHeader = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
-def hashApiKey(rawKey: str, saltHex: str) -> str:
-    return hashlib.sha256((saltHex + rawKey).encode()).hexdigest()
-
-
 def createStoredApiKey(rawKey: str | None = None) -> tuple[str, str]:
     raw = rawKey or secrets.token_urlsafe(32)
     saltHex = secrets.token_hex(16)
-    return raw, f"{saltHex}{'$'}{hashApiKey(raw, saltHex)}"
+    return raw, f"{saltHex}${hashlib.sha256((saltHex + raw).encode()).hexdigest()}"
 
 
 def isValidStoredKey(providedKey: str, storedKey: str | None) -> bool:

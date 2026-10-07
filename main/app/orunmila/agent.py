@@ -5,12 +5,13 @@ import time
 from datetime import datetime
 from collections.abc import AsyncIterator
 
+from cachetools import TTLCache
 from google import genai
 from google.genai import types
 import google.genai._mcp_utils as mcp
 
 from main.models.orunmila import OrunmilaSession
-from main.app.orunmila.memory import OrunmilaMemory, newTokenCache
+from main.app.orunmila.memory import OrunmilaMemory
 from main.app.orunmila.chat import OrunmilaChatManager
 from main.app.orunmila.compact import OrunmilaCompactor, loadFieldData
 from main.app.orunmila.mcp import clientPool
@@ -262,7 +263,7 @@ class Orunmila:
                 logger.warning("Pool/registry startup failed: %s", e)
 
         try:
-            tokenCache = newTokenCache()
+            tokenCache = TTLCache(maxsize=2048, ttl=3600)
             session = db.query(OrunmilaSession).filter(OrunmilaSession.sessionId == sessionId).first()
             if session and session.history:
                 OrunmilaCompactor().compact(db, str(sessionId), tokenCache)

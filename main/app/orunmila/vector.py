@@ -7,11 +7,13 @@ import numpy as np
 from main.utils.models.loader import getEmbeddingModel
 
 
+# Kept: directly tested in tests/test_vector_utils.py — keep.
 def normalizeRows(matrix: np.ndarray) -> np.ndarray:
     norms = np.linalg.norm(matrix, axis=1, keepdims=True)
     return matrix / np.where(norms == 0, 1.0, norms)
 
 
+# Kept: mocked seam (patched as memory.embed / tools.memory.embed in test_memory_*.py) — keep.
 def embed(texts: list[str]) -> list[list[float]]:
     return getEmbeddingModel().encode(texts, normalize_embeddings=True).tolist()
 
@@ -48,10 +50,12 @@ def batchCosineSimilarity(query: list[float], matrix: np.ndarray) -> np.ndarray:
     return normalizeRows(matrix) @ (q / qNorm)
 
 
+# Kept: directly tested in tests/test_vector_utils.py — keep.
 def contentHash(text: str) -> str:
     return hashlib.md5(text.encode("utf-8"), usedforsecurity=False).hexdigest()
 
 
+# Kept: directly tested in tests/test_vector_utils.py — keep.
 def toVectorString(vec: list[float]) -> str:
     return np.array(vec, dtype=np.float32).tobytes().hex()
 

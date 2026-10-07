@@ -7,7 +7,6 @@ import unicodedata
 from datetime import datetime, timezone
 from typing import Any, Callable, cast
 
-from cachetools import TTLCache
 from cashews import Cache
 from google import genai
 from google.genai import types
@@ -87,10 +86,6 @@ TOKEN_CACHE_MAXSIZE = 2048
 TOKEN_CACHE_TTL_SECONDS = 3600
 
 
-def newTokenCache() -> TTLCache:
-    return TTLCache(maxsize=TOKEN_CACHE_MAXSIZE, ttl=TOKEN_CACHE_TTL_SECONDS)
-
-
 client = None
 
 
@@ -137,24 +132,22 @@ def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8
     return None
 
 
-def scoreRow(m: Any, score: float, relevance: float, similarity: float) -> dict:
-    return {
-        "id": m.id,
-        "memoryKey": m.memoryKey,
-        "memoryValue": m.memoryValue,
-        "memoryType": m.memoryType,
-        "score": score,
-        "relevanceScore": relevance,
-        "similarity": similarity,
-    }
-
-
 def scoreRecency(candidateRows: list[Any], limit: int) -> list[dict]:
     now = datetime.now()
     scored = []
     for m in candidateRows:
         s = getRelevanceScore(m, now)
-        scored.append(scoreRow(m, s, s, 0.0))
+        scored.append(
+            {
+                "id": m.id,
+                "memoryKey": m.memoryKey,
+                "memoryValue": m.memoryValue,
+                "memoryType": m.memoryType,
+                "score": s,
+                "relevanceScore": s,
+                "similarity": 0.0,
+            }
+        )
     scored.sort(key=lambda x: float(x["score"]), reverse=True)  # type: ignore[arg-type]
     return scored[:limit]
 
@@ -173,7 +166,18 @@ def scoreCandidates(
         f = 0.6 * v + 0.25 * ftRank.get(cast(int, m.id), 0.0) + 0.15 * rec
         fused.append((m, f, simById.get(cast(int, m.id), 0.0)))
     fused.sort(key=lambda p: p[1], reverse=True)
-    return [scoreRow(m, f, f, sim) for m, f, sim in fused[:limit]]
+    return [
+        {
+            "id": m.id,
+            "memoryKey": m.memoryKey,
+            "memoryValue": m.memoryValue,
+            "memoryType": m.memoryType,
+            "score": f,
+            "relevanceScore": f,
+            "similarity": sim,
+        }
+        for m, f, sim in fused[:limit]
+    ]
 
 
 def sumTokens(texts: list[str], cache: MutableMapping | None) -> int:
@@ -199,6 +203,7 @@ class OrunmilaMemory:
         return MEMORY_LIMIT_BASIC
 
     @classmethod
+    # Kept: mocked seam (test_memory_extraction.py) + direct tests (test_memory_manager.py) — keep.
     def countMemories(cls, db: Session, userId: int) -> int:
         return (
             db.query(func.count(OrunmilaMemoryModel.id))

@@ -21,6 +21,7 @@ def lockFor(userId: int) -> asyncio.Lock:
     return userLocks[userId]
 
 
+# Kept: mocked seam (test_sandbox.py) + directly asserted (test_sandbox_auth_gating.py) — keep.
 def getClient() -> AsyncClient:
     return AsyncClient(
         base_url=Config.ORUNMILA.FORGEVM_URL,
