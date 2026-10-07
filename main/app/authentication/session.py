@@ -1,7 +1,6 @@
 import logging
 import secrets
 from datetime import datetime, timedelta, timezone
-import hashlib
 from sqlalchemy.orm import Session
 from user_agents import parse as parseUserAgent
 from main.models.user_session import UserSession
@@ -38,7 +37,6 @@ class SessionManager:
         expiresAt: datetime | None = None,
     ) -> UserSession:
         sessionId = secrets.token_urlsafe(32)
-        accessTokenHash = hashlib.sha256(secrets.token_hex(32).encode()).hexdigest()[:64]
 
         now = datetime.now(timezone.utc)
         if expiresAt is None:
@@ -49,7 +47,6 @@ class SessionManager:
         session = UserSession(
             sessionId=sessionId,
             userId=userId,
-            accessTokenHash=accessTokenHash,
             deviceType=deviceType,
             browser=browser,
             operatingSystem=operatingSystem,

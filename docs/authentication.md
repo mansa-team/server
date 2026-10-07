@@ -6,7 +6,7 @@ JWT (HS256) + HttpOnly cookie + DB-tracked sessions for the Mansa ecosystem (`US
 
 - Sessions and tokens live **30 days / 720 hours** (`main/app/authentication/constants.py:3-4`: `SESSION_EXPIRY_DAYS = 30`, `TOKEN_EXPIRY_HOURS = 720`).
 - JWT payload: `{"userId", "sessionId", "exp"}`; signed HS256 with `Config.USER.JWT_SECRET_KEY` (`main/app/authentication/util.py:31-41`, verify `:44-51`).
-- `SessionManager.createSession` defaults `expiresAt = now + 30d`; `validateSession` lazily deactivates expired rows (`main/app/authentication/session.py:32-65,126-144`).
+- `SessionManager.createSession` defaults `expiresAt = now + 30d`; `validateSession` lazily deactivates expired rows (`main/app/authentication/session.py:32-64,141-175`).
 
 ## Token extraction order
 
@@ -52,20 +52,21 @@ Missing token → 401 `Session not found`; expired → 401 `Token expired`; bad 
 
 ## Session data model (family-only)
 
-`UserSession` (`main/models/user_session.py:11-21`) stores **only**:
+`UserSession` (`main/models/user_session.py:11-20`) stores **only**:
 
 | Column | Source |
 | :--- | :--- |
-| `sessionId` / `userId` / `accessTokenHash` | generated at creation |
+| `sessionId` / `userId` | generated at creation (`sessionId`), FK to user |
+| `deviceType` | `desktop` / `mobile` / `tablet`, else `None` (family-only) |
 | `deviceType` | `desktop` / `mobile` / `tablet`, else `None` (family-only) |
 | `browser` | `parsed.browser.family`, `None` if `Other` |
 | `operatingSystem` | `parsed.os.family`, `None` if `Other` |
 | `userAgent` | raw `User-Agent` header (may be `""`) |
 | `isActive` / `createdAt` / `lastActivityAt` / `expiresAt` | lifecycle timestamps |
 
-Parsing: `parseDeviceFields` (`main/app/authentication/session.py:13-27`, stored `:45-59`). There is **no** `browserVersion`, `osVersion`, `ipAddress`, `deviceName`, or fingerprint column — any doc claiming them is stale.
+Parsing: `parseDeviceFields` (`main/app/authentication/session.py:12-28`, stored `:45-58`). There is **no** `browserVersion`, `osVersion`, `ipAddress`, `deviceName`, or fingerprint column — any doc claiming them is stale. There is also **no** `accessTokenHash` column (removed reviewer #9: it hashed a random token whose pre-image was never stored, so nothing ever verified against it; session lookup/revocation keys on `sessionId` only).
 
-`updateLastActive` (`session.py:117-124`) exists but has **zero callers — dead / not wired**. `lastActivityAt` is set at creation and never refreshed.
+`updateLastActive` (`session.py:131-139`) exists but has **zero callers — dead / not wired**. `lastActivityAt` is set at creation and never refreshed.
 
 ## Roles and permissions
 

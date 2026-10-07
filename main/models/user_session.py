@@ -10,7 +10,6 @@ class UserSession(Base):
 
     sessionId = Column(String(64), primary_key=True)
     userId = Column(Integer, ForeignKey("users.userId"), nullable=False, index=True)
-    accessTokenHash = Column(String(64), nullable=False)
     deviceType = Column(String(20), nullable=True)
     browser = Column(String(50), nullable=True)
     operatingSystem = Column(String(50), nullable=True)
