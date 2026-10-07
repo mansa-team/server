@@ -379,22 +379,26 @@ def queryCotations(
     retry=retry_if_exception(isTransientError),
     reraise=True,
 )
-def fetchLivePayload(search: str) -> dict:
+def fetchLive(ticker: str) -> dict:
+    """Single-ticker B3 live quote: GET (transient retry) + parse in one step.
+
+    Returns the single-ticker realtime-cotation envelope. Raises HTTPException
+    404 (well-formed but unknown ticker) / 502 (malformed payload); transport
+    errors propagate as requests.RequestException for callers to map to 503.
+    """
+    symbol = ticker.strip().upper()
     resp = getSession().get(
-        f"https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/{search.upper()}",
+        f"https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/{symbol}",
         timeout=5,
     )
     resp.raise_for_status()
-    return resp.json()
-
-
-def parseLivePayload(search: str, payload: dict) -> dict:
+    payload = resp.json()
     try:
         trad = payload["Trad"]
     except (KeyError, TypeError):
         raise HTTPException(502, detail="B3 realtime malformed response")
     if payload.get("BizSts", {}).get("cd") != "OK" or not trad:
-        raise HTTPException(404, detail=f"Ticker {search.upper()} not found")
+        raise HTTPException(404, detail=f"Ticker {symbol} not found")
     try:
         dtTm = payload["Msg"]["dtTm"]
     except (KeyError, TypeError):
@@ -414,7 +418,7 @@ def parseLivePayload(search: str, payload: dict) -> dict:
         raise HTTPException(502, detail="B3 realtime malformed response")
 
     return {
-        "search": search.upper(),
+        "search": symbol,
         "type": "realtime-cotation",
         "timestamp": dtTm,
         "count": 1,
@@ -424,38 +428,11 @@ def parseLivePayload(search: str, payload: dict) -> dict:
 
 def queryLiveCotation(search: str):
     try:
-        payload = fetchLivePayload(search)
+        return fetchLive(search)
     except requests.RequestException:
         raise HTTPException(503, detail="B3 realtime unavailable")
-    try:
-        return parseLivePayload(search, payload)
     except (ValueError, KeyError, TypeError, AttributeError):
         raise HTTPException(502, detail="B3 realtime malformed response")
-
-
-def safeFetchLive(ticker: str) -> dict | None:
-    try:
-        return fetchLivePayload(ticker)
-    except requests.RequestException:
-        return None
-
-
-def fetchLivePayloads(searches: list[str]) -> dict[str, dict | None]:
-    """Concurrent per-ticker live fetch; one ticker failing never fails the batch.
-
-    B3 instrumentQuotation is a single-ticker URL with no tickers= batch param
-    upstream, so batching = one concurrent request per ticker with per-ticker
-    fallback to None.
-    """
-    tickers = [term for term in dict.fromkeys(s.strip().upper() for s in searches) if term]
-    if not tickers:
-        return {}
-    out: dict[str, dict | None] = {}
-    with ThreadPoolExecutor(max_workers=min(8, len(tickers))) as pool:
-        futures = {pool.submit(safeFetchLive, ticker): ticker for ticker in tickers}
-        for future in as_completed(futures):
-            out[futures[future]] = future.result()
-    return out
 
 
 def queryLiveCotations(search: str):
@@ -463,20 +440,24 @@ def queryLiveCotations(search: str):
     tickers = [term.strip().upper() for term in search.split(",") if term.strip()]
     if not tickers:
         raise HTTPException(status_code=400, detail="search required")
-    payloads = fetchLivePayloads(tickers)
-    data: list = []
+    # B3 instrumentQuotation is a single-ticker URL with no batch param, so the
+    # batch is one concurrent fetchLive per deduped ticker; one ticker failing
+    # never fails the batch.
+    fetched: dict[str, dict] = {}
     errors: dict = {}
-    for ticker in tickers:
-        payload = payloads.get(ticker)
-        if payload is None:
-            errors[ticker] = "B3 realtime unavailable"
-            continue
-        try:
-            data.append(parseLivePayload(ticker, payload)["data"][0])
-        except HTTPException as exc:
-            errors[ticker] = exc.detail
-        except (ValueError, KeyError, TypeError, AttributeError):
-            errors[ticker] = "B3 realtime malformed response"
+    with ThreadPoolExecutor(max_workers=min(8, len(dict.fromkeys(tickers)))) as pool:
+        futures = {pool.submit(fetchLive, ticker): ticker for ticker in dict.fromkeys(tickers)}
+        for future in as_completed(futures):
+            ticker = futures[future]
+            try:
+                fetched[ticker] = future.result()
+            except requests.RequestException:
+                errors[ticker] = "B3 realtime unavailable"
+            except HTTPException as exc:
+                errors[ticker] = exc.detail
+            except (ValueError, KeyError, TypeError, AttributeError):
+                errors[ticker] = "B3 realtime malformed response"
+    data = [fetched[ticker]["data"][0] for ticker in tickers if ticker not in errors]
     return {
         "search": ",".join(tickers),
         "type": "realtime-cotations",
