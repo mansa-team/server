@@ -57,6 +57,21 @@ class EntryUpdate(BaseModel):
 
 class EntriesManager:
     @classmethod
+    def snapshotEntries(cls, rows: list[Transaction]) -> tuple[tuple[str, str, str, float, float, float, int], ...]:
+        return tuple(
+            (
+                str(ledgerRow.ticker),
+                str(ledgerRow.date),
+                str(ledgerRow.side),
+                float(ledgerRow.quantity),
+                float(ledgerRow.price),
+                float(ledgerRow.costs),
+                int(ledgerRow.entryId),
+            )
+            for ledgerRow in rows
+        )
+
+    @classmethod
     def applyEntries(cls, quantity: float, avg: float, entries: list[Transaction]) -> tuple[float, float]:
         for entry in entries:
             entryQuantity = float(entry.quantity)
@@ -94,14 +109,14 @@ class EntriesManager:
 
         quantity, avg = cls.applyEntries(0.0, 0.0, entries)
         if holding is None:
-            xangoScore = PositionsManager.fetchXangoScores((ticker,)).get(ticker)
+            xangoDefault = PositionsManager.fetchXangoScores((ticker,)).get(ticker)
             holding = Holding(
                 walletId=walletId,
                 assetType=entries[0].assetType,
                 ticker=ticker,
                 quantity=quantity,
                 avgPrice=avg,
-                rating=xangoScore if xangoScore is not None else 10.0,  # type: ignore[assignment]
+                rating=xangoDefault if xangoDefault is not None else 10.0,  # type: ignore[assignment]
             )
 
             db.add(holding)
@@ -228,10 +243,3 @@ class EntriesManager:
         db.commit()
 
         return entryId, holding
-
-    @classmethod
-    def positionAtDate(cls, entries: list[Transaction], exDate: dateType) -> float:
-        datedEntries = [entry for entry in entries if str(entry.date) <= exDate.isoformat()]
-        quantity, _ = cls.applyEntries(0.0, 0.0, datedEntries)
-
-        return quantity

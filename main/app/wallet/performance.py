@@ -202,18 +202,7 @@ class PerformanceManager:
         if ticker:
             ledgerQuery = ledgerQuery.filter(Transaction.ticker == ticker)
         ledgerRows = ledgerQuery.order_by(Transaction.date, Transaction.entryId).all()
-        entriesSnap = tuple(
-            (
-                str(ledgerRow.ticker),
-                str(ledgerRow.date),
-                str(ledgerRow.side),
-                float(ledgerRow.quantity),
-                float(ledgerRow.price),
-                float(ledgerRow.costs),
-                int(ledgerRow.entryId),
-            )
-            for ledgerRow in ledgerRows
-        )
+        entriesSnap = EntriesManager.snapshotEntries(ledgerRows)
         earningQuery = db.query(Earning).filter(Earning.walletId == walletId)
         if ticker:
             earningQuery = earningQuery.filter(Earning.ticker == ticker)

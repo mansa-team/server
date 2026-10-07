@@ -110,7 +110,9 @@ class EarningsManager:
                 payDate = max(pay for pay, _ in installments)
                 perShare = sum(share for _, share in installments)
 
-                quantityAtEx = EntriesManager.positionAtDate(ledgerEntries, exDate)
+                quantityAtEx, _ = EntriesManager.applyEntries(
+                    0.0, 0.0, [entry for entry in ledgerEntries if str(entry.date) <= exDate.isoformat()]
+                )
                 if quantityAtEx <= 0:
                     continue
 

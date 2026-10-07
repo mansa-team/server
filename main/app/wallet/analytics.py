@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from main.utils.sync_cache import sync_cache
 from main.app.wallet.earnings import EarningsManager
+from main.app.wallet.entries import EntriesManager
 from main.app.wallet.positions import PositionsManager
 from main.models.wallet import Earning, Transaction, Wallet
 
@@ -113,18 +114,7 @@ class AnalyticsManager:
         )
         if not ledgerRows:
             return {"granularity": "daily", "from": start.isoformat(), "to": end.isoformat(), "points": []}
-        entriesSnap = tuple(
-            (
-                str(ledgerRow.ticker),
-                str(ledgerRow.date),
-                str(ledgerRow.side),
-                float(ledgerRow.quantity),
-                float(ledgerRow.price),
-                float(ledgerRow.costs),
-                int(ledgerRow.entryId),
-            )
-            for ledgerRow in ledgerRows
-        )
+        entriesSnap = EntriesManager.snapshotEntries(ledgerRows)
         return cls.cachedProgression(userId, start.isoformat(), end.isoformat(), recalcKey, entriesSnap)
 
     @classmethod
