@@ -44,7 +44,7 @@ def resolveCookieDomain(request: Request) -> str | None:
     return hostname
 
 
-def issueSessionCookie(response, request, db, user) -> tuple[str, str]:
+def issueSessionCookie(response, request, db, user) -> str:
     userAgent = request.headers.get("User-Agent", "")
     expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
     session = SessionManager.createSession(db, user["userId"], userAgent, expiresAt)
@@ -52,9 +52,6 @@ def issueSessionCookie(response, request, db, user) -> tuple[str, str]:
 
     cookieDomain = resolveCookieDomain(request)
 
-    # Secure-always: browsers send Secure cookies over https and over
-    # http://localhost (trustworthy loopback), so local dev keeps working
-    # while LAN/plain-http can never carry the session.
     response.set_cookie(
         key=COOKIE_NAME,
         value=accessToken,
@@ -65,8 +62,7 @@ def issueSessionCookie(response, request, db, user) -> tuple[str, str]:
         domain=cookieDomain,
     )
     issueCsrfToken(response, request)
-@csrf_exempt
-    return accessToken, str(session.sessionId)
+    return str(session.sessionId)
 
 
 @router.get("/health")
@@ -74,6 +70,7 @@ def health(request: Request):
     return {"status": "ok", "service": "authentication"}
 
 
+@csrf_exempt
 @router.post("/register")
 @limiter.limit("10/minute")
 def register(
@@ -91,14 +88,12 @@ def register(
         if not user:
             raise HTTPException(status_code=401, detail="Auto-login failed after registration")
 
-        accessToken, _ = issueSessionCookie(response, request, db, user)
+        issueSessionCookie(response, request, db, user)
 
-        # Cookie-only: token travels via HttpOnly Secure cookie, never JSON.
         return {"message": "success", "user": user}
     except HTTPException as e:
         if e.status_code == 400:
             raise HTTPException(status_code=400, detail="Registration failed.")
-@csrf_exempt
         raise
     except ValueError as e:
         logger.error(f"Registration validation error: {str(e)}", exc_info=True)
@@ -108,6 +103,7 @@ def register(
         raise HTTPException(status_code=500, detail="Registration failed. Internal error.")
 
 
+@csrf_exempt
 @router.post("/login")
 @limiter.limit("10/minute")
 def login(
@@ -121,10 +117,9 @@ def login(
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    accessToken, sessionId = issueSessionCookie(response, request, db, user)
+    sessionId = issueSessionCookie(response, request, db, user)
     SessionManager.revokeAllExcept(db, user["userId"], sessionId)
 
-    # Cookie-only: token travels via HttpOnly Secure cookie, never JSON.
     return {"user": user}
 
 
@@ -175,7 +170,6 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
 def introspect(
     request: Request,
     db: Session = Depends(getSession),
-@csrf_exempt
     token: str | None = Body(default=None, embed=True),
 ):
     if not verifyServiceToken(request.headers.get("X-Service-Token", "")):
@@ -192,10 +186,10 @@ def introspect(
     try:
         return introspectToken(db, raw)
     except HTTPException:
-@csrf_exempt
         raise HTTPException(status_code=401, detail="Unauthorized")
 
 
+@csrf_exempt
 @router.get("/google")
 @limiter.limit("5/minute")
 async def googleLogin(request: Request):
@@ -212,6 +206,7 @@ async def googleLogin(request: Request):
     return googleRedirect
 
 
+@csrf_exempt
 @router.get("/callback")
 @limiter.limit("5/minute")
 async def googleCallback(request: Request, response: Response, db: Session = Depends(getSession)):
@@ -268,11 +263,11 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
 
         if redirectUrl:
             redirectResponse = RedirectResponse(url=redirectUrl)
-            _, sessionId = issueSessionCookie(redirectResponse, request, db, user)
+            sessionId = issueSessionCookie(redirectResponse, request, db, user)
             SessionManager.revokeAllExcept(db, user["userId"], sessionId)
             return redirectResponse
 
-        accessToken, sessionId = issueSessionCookie(response, request, db, user)
+        sessionId = issueSessionCookie(response, request, db, user)
         SessionManager.revokeAllExcept(db, user["userId"], sessionId)
         logger.info("--- Google Callback End ---")
         # Cookie-only: token travels via HttpOnly Secure cookie, never JSON.
