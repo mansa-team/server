@@ -12,7 +12,7 @@ from fastapi_sso.sso.base import SSOLoginError
 from sqlalchemy.orm import Session
 
 from main.app.authentication.authentication import AuthenticationManager
-from main.app.authentication.csrf import CSRF_COOKIE_NAME, issueCsrfToken
+from main.app.authentication.csrf import CSRF_COOKIE_NAME, csrf_exempt, issueCsrfToken
 from main.app.authentication.introspect import introspectToken
 from main.app.authentication.service_token import verifyServiceToken
 from main.app.authentication.util import createAccessToken, verifyAccessToken
@@ -70,6 +70,7 @@ def issueSessionCookie(response, request, db, user) -> tuple[str, str]:
         domain=cookieDomain,
     )
     issueCsrfToken(response, request)
+@csrf_exempt
     return accessToken, str(session.sessionId)
 
 
@@ -102,6 +103,7 @@ def register(
     except HTTPException as e:
         if e.status_code == 400:
             raise HTTPException(status_code=400, detail="Registration failed.")
+@csrf_exempt
         raise
     except ValueError as e:
         logger.error(f"Registration validation error: {str(e)}", exc_info=True)
@@ -187,6 +189,7 @@ def getCsrfToken(request: Request, response: Response):
 def introspect(
     request: Request,
     db: Session = Depends(getSession),
+@csrf_exempt
     token: str | None = Body(default=None, embed=True),
 ):
     if not verifyServiceToken(request.headers.get("X-Service-Token", "")):
@@ -203,6 +206,7 @@ def introspect(
     try:
         return introspectToken(db, raw)
     except HTTPException:
+@csrf_exempt
         raise HTTPException(status_code=401, detail="Unauthorized")
 
 
