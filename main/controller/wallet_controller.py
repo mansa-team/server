@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, Query
-from fastapi.responses import ORJSONResponse
 from sqlalchemy.orm import Session
 
 from config import getSession
@@ -27,7 +26,7 @@ def getMyWallet(
     return WalletsManager.getMyWallet(db, int(currentUser["userId"]))
 
 
-@router.post("/wallets", response_class=ORJSONResponse, status_code=201)
+@router.post("/wallets", status_code=201)
 def create_wallet_route(
     payload: WalletCreate,
     currentUser: dict = Depends(UserManager.getCurrentUser),
@@ -37,7 +36,7 @@ def create_wallet_route(
     return {"walletId": wallet.walletId, "name": wallet.name}
 
 
-@router.get("/wallets", response_class=ORJSONResponse)
+@router.get("/wallets")
 def list_wallets_route(
     currentUser: dict = Depends(UserManager.getCurrentUser),
     db: Session = Depends(getSession),
@@ -48,7 +47,7 @@ def list_wallets_route(
     ]
 
 
-@router.post("/entries", response_class=ORJSONResponse, status_code=201)
+@router.post("/entries", status_code=201)
 def create_entry_route(
     payload: EntryCreate,
     currentUser: dict = Depends(UserManager.getCurrentUser),
@@ -59,7 +58,7 @@ def create_entry_route(
     return {"entryId": entry.entryId, "holding": serialize_holding(holding)}
 
 
-@router.get("/entries", response_class=ORJSONResponse)
+@router.get("/entries")
 def list_entries_route(
     ticker: str | None = None,
     limit: int = Query(default=20, ge=1, le=100),
@@ -72,7 +71,7 @@ def list_entries_route(
     return {"total": total, "items": [serialize_entry(item) for item in items]}
 
 
-@router.patch("/entries/{entryId}", response_class=ORJSONResponse)
+@router.patch("/entries/{entryId}")
 def update_entry_route(
     entryId: int,
     payload: EntryUpdate,
@@ -84,7 +83,7 @@ def update_entry_route(
     return {"entryId": entry.entryId, "holding": serialize_holding(holding)}
 
 
-@router.delete("/entries/{entryId}", response_class=ORJSONResponse)
+@router.delete("/entries/{entryId}")
 def delete_entry_route(
     entryId: int,
     currentUser: dict = Depends(UserManager.getCurrentUser),
@@ -95,7 +94,7 @@ def delete_entry_route(
     return {"entryId": deletedId, "holding": serialize_holding(holding)}
 
 
-@router.get("/positions", response_class=ORJSONResponse)
+@router.get("/positions")
 def list_positions_route(
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
@@ -104,7 +103,7 @@ def list_positions_route(
     return PositionsManager.getPositions(db, wallet)
 
 
-@router.get("/rebalance", response_class=ORJSONResponse)
+@router.get("/rebalance")
 def get_rebalance_route(
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
@@ -113,7 +112,7 @@ def get_rebalance_route(
     return PositionsManager.getRebalance(db, wallet)
 
 
-@router.get("/summary", response_class=ORJSONResponse)
+@router.get("/summary")
 def get_summary_route(
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
@@ -122,7 +121,7 @@ def get_summary_route(
     return SummaryManager.getSummary(db, wallet)
 
 
-@router.get("/allocation", response_class=ORJSONResponse)
+@router.get("/allocation")
 def get_allocation_route(
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
@@ -131,7 +130,7 @@ def get_allocation_route(
     return SummaryManager.getAllocation(db, wallet)
 
 
-@router.put("/ratings", response_class=ORJSONResponse)
+@router.put("/ratings")
 def set_rating_route(
     payload: RatingUpsert,
     currentUser: dict = Depends(UserManager.getCurrentUser),
@@ -142,7 +141,7 @@ def set_rating_route(
     return {"ticker": holding.ticker, "rating": holding.rating}
 
 
-@router.get("/earnings", response_class=ORJSONResponse)
+@router.get("/earnings")
 def list_earnings_route(
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
@@ -153,7 +152,7 @@ def list_earnings_route(
 
 # Canonical raw: from/to + ticker only. Preset->date resolution and metric
 # picking are client-side; TWR math + 6h cache stay server.
-@router.get("/performance", response_class=ORJSONResponse)
+@router.get("/performance")
 def get_performance_route(
     ticker: str | None = None,
     fromIso: str | None = Query(default=None, alias="from"),
@@ -167,7 +166,7 @@ def get_performance_route(
 
 
 # Canonical daily: bucketing + granularity selection are client-side.
-@router.get("/progression", response_class=ORJSONResponse)
+@router.get("/progression")
 def get_progression_route(
     fromIso: str | None = Query(default=None, alias="from"),
     toIso: str | None = Query(default=None, alias="to"),
@@ -179,7 +178,7 @@ def get_progression_route(
     return AnalyticsManager.getProgression(db, wallet, startDate, endDate)
 
 
-@router.get("/cashflows", response_class=ORJSONResponse)
+@router.get("/cashflows")
 def get_cashflows_route(
     fromIso: str | None = Query(default=None, alias="from"),
     toIso: str | None = Query(default=None, alias="to"),
@@ -191,7 +190,7 @@ def get_cashflows_route(
     return AnalyticsManager.getCashflows(db, wallet, startDate, endDate)
 
 
-@router.get("/dividends/monthly", response_class=ORJSONResponse)
+@router.get("/dividends/monthly")
 def get_dividends_monthly_route(
     fromIso: str | None = Query(default=None, alias="from"),
     toIso: str | None = Query(default=None, alias="to"),
