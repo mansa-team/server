@@ -563,6 +563,39 @@ def _seed_session_token(dbSession):
     return createAccessToken({"userId": str(user.userId), "sessionId": session.sessionId})
 
 
+def _seed_session_wallet(dbSession, ticker="PETR4", quantity=10, price=10.0, rating=None):
+    """Authed user (session JWT) + wallet + one ledger entry.
+
+    Returns (token, user, wallet). The entry goes through the real manager
+    chain, so MCP routes read exactly the ledger the frontend would have
+    written. `rating` pins the single-rating value when a test asserts the
+    rebalance `weight` (otherwise a live Xango fetch could reseed it).
+    """
+    from main.app.wallet.entries import EntryCreate, EntriesManager
+    from main.app.wallet.wallets import WalletsManager
+    from main.models.user import User
+
+    token = _seed_session_token(dbSession)
+    user = dbSession.query(User).filter(User.username == "mcpuser").one()
+    wallet = WalletsManager.getMyWallet(dbSession, user.userId)
+    _, holding = EntriesManager.addEntry(
+        dbSession,
+        wallet,
+        EntryCreate(
+            side="Compra",
+            asset_type="ACOES",
+            ticker=ticker,
+            date=date(2026, 1, 2),
+            quantity=quantity,
+            price=price,
+        ),
+    )
+    if rating is not None and holding is not None:
+        holding.rating = rating
+        dbSession.commit()
+    return token, user, wallet
+
+
 def _mcp_client(app):
     def asgiFactory(**kwargs):
         clientArgs = {

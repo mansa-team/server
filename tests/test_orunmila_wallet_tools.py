@@ -1,24 +1,45 @@
-import asyncio
-import inspect
-from datetime import date
+"""Wallet tools ride only over MCP: registry leftover + dispatcher routing.
+
+The legacy in-process wallet tools were deleted (spec 2026-10-07-wallet-mcp
+step 5). TOOL_REGISTRY keeps the seven local tools; every wallet name is
+absent on purpose, so dispatchToolCall routes it to the wallet MCP client
+with the session JWT injected as a call argument. Auth boundary, cross-user
+isolation and wrapper behavior live in tests/test_wallet_mcp.py.
+"""
+
+import importlib
+import json
 from types import SimpleNamespace
 
 import pytest
 
-import main.models.wallet  # noqa: F401
-from main.app.orunmila.tools import TOOL_REGISTRY
-from main.app.wallet.positions import PositionsManager
-from main.models.wallet import Earning
-from tests.conftest import make_wallet_client
+from main.app.orunmila.tools import TOOL_REGISTRY, dispatchToolCall
+from tests.test_wallet_mcp import _build_auth_app, _mcp_client, _seed_session_wallet
+from tests.test_wallet_positions import _live_ok
 
-WALLET_TOOLS = [
+LOCAL_TOOL_NAMES = {
+    "search_memory",
+    "save_memory",
+    "execute_code",
+    "read_file",
+    "write_file",
+    "list_files",
+    "serve_file",
+}
+
+WALLET_TOOL_NAMES = {
     "wallet_positions",
+    "wallet_rebalance",
     "wallet_summary",
     "wallet_allocation",
-    "list_wallet_earnings",
+    "wallet_earnings",
     "wallet_performance",
-    "wallet_rebalance",
-]
+    "wallet_progression_series",
+    "record_entry",
+    "set_rating",
+    "explain_twr",
+    "wallet_progression",
+}
 
 
 @pytest.fixture(autouse=True)
@@ -31,217 +52,87 @@ async def clear_cashews_cache():
     await cashewsCache.clear()
 
 
-def test_wallet_tools_registered_and_read_only(dbSession):
-    assert len(TOOL_REGISTRY) == 13
-    for name in WALLET_TOOLS:
-        assert name in TOOL_REGISTRY
-    assert "narrate_positions" not in TOOL_REGISTRY
-    for name in WALLET_TOOLS:
-        source = inspect.getsource(TOOL_REGISTRY[name])
-        for writer in ("addEntry", "updateEntry", "deleteEntry", "upsertTarget", "setRating", "syncEarnings"):
-            assert writer not in source
+def _fakeMcpClient(text='{"items": []}', isError=False):
+    """Minimal stand-in for the wallet MCP client: records call args."""
+
+    class FakeMcpClient:
+        def __init__(self):
+            self.calls = []
+            self.session = SimpleNamespace(call_tool=self._record)
+
+        async def _record(self, name, args):
+            self.calls.append((name, args))
+            return SimpleNamespace(isError=isError, content=[SimpleNamespace(text=text)])
+
+    return FakeMcpClient()
 
 
-def _seed_wallet(dbSession):
-    client, _, _ = make_wallet_client(db=dbSession)
-    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
-    client.post(
-        "/wallet/entries",
-        json={
-            "side": "Compra",
-            "asset_type": "ACOES",
-            "ticker": "PETR4",
-            "date": "2026-01-02",
-            "quantity": 10,
-            "price": 10.0,
-        },
-    )
-    return walletId
+def test_registry_holds_exactly_the_local_tools():
+    assert set(TOOL_REGISTRY) == LOCAL_TOOL_NAMES
+    assert len(TOOL_REGISTRY) == 7
+    assert set(TOOL_REGISTRY) & WALLET_TOOL_NAMES == set()
 
 
-def _live_ok(url, params=None, headers=None, timeout=None):
-    class Resp:
-        status_code = 200
-
-        @staticmethod
-        def json():
-            return {"data": [{"TICKER": "PETR4", "PRECO ATUAL": 30.0}]}
-
-    return Resp()
+def test_wallet_tools_module_is_deleted():
+    with pytest.raises(ModuleNotFoundError):
+        importlib.import_module("main.app.orunmila.tools.wallet")
 
 
-def _flat_series(url, params=None, headers=None, timeout=None):
-    class Resp:
-        status_code = 200
+class TestWalletToolRouting:
+    """Wallet names are absent from the registry → they dispatch over MCP."""
 
-        @staticmethod
-        def json():
-            rows = [{"DATA": f"{day:02d}-01-2026", "PRECO": 10.0} for day in range(1, 10)]
-            rows += [{"DATA": "10-01-2026", "PRECO": 10.0}, {"DATA": "11-01-2026", "PRECO": 11.0}]
-            return {"data": rows}
+    async def test_wallet_name_routes_to_wallet_client_with_bearer(self):
+        functionCall = SimpleNamespace(name="wallet_positions", args={"group_by": "ticker"})
+        assert functionCall.name not in TOOL_REGISTRY  # premise: no local wallet tool
 
-    return Resp()
+        walletClient = _fakeMcpClient()
+        stocksClient = _fakeMcpClient()
 
-
-def _seed_earnings(dbSession, walletId):
-    dbSession.add(
-        Earning(
-            walletId=walletId,
-            ticker="PETR4",
-            kind="Div",
-            exDate=date(2026, 3, 1),
-            payDate=date(2026, 4, 1),
-            gross=10.0,
-            netIrAdjusted=10.0,
-            status="A Receber",
+        result = await dispatchToolCall(
+            functionCall, {"wallet": walletClient, "stocks": stocksClient}, rawToken="jwt-abc"
         )
-    )
-    dbSession.add(
-        Earning(
-            walletId=walletId,
-            ticker="PETR4",
-            kind="JSCP",
-            exDate=date(2026, 3, 1),
-            payDate=date(2026, 4, 1),
-            gross=5.0,
-            netIrAdjusted=4.25,
-            status="Recebido",
+
+        assert walletClient.calls == [("wallet_positions", {"group_by": "ticker", "authorization": "Bearer jwt-abc"})]
+        assert stocksClient.calls == []
+        assert result == {"result": '{"items": []}'}
+
+    async def test_fallback_servers_never_get_authorization(self):
+        functionCall = SimpleNamespace(name="wallet_summary", args={})
+        failingWallet = _fakeMcpClient(isError=True)
+        stocksClient = _fakeMcpClient()
+
+        result = await dispatchToolCall(
+            functionCall, {"wallet": failingWallet, "stocks": stocksClient}, rawToken="jwt-abc"
         )
-    )
-    dbSession.commit()
+
+        # Wallet-only: the bearer rides on the wallet server attempt; other
+        # servers are tried without it (and only after the wallet errors).
+        assert failingWallet.calls == [("wallet_summary", {"authorization": "Bearer jwt-abc"})]
+        assert stocksClient.calls == [("wallet_summary", {})]
+        assert result == {"result": '{"items": []}'}
+
+    async def test_no_raw_token_leaves_args_untouched(self):
+        functionCall = SimpleNamespace(name="wallet_rebalance", args={"ticker": "PETR4"})
+        walletClient = _fakeMcpClient()
+
+        await dispatchToolCall(functionCall, {"wallet": walletClient})
+
+        assert walletClient.calls == [("wallet_rebalance", {"ticker": "PETR4"})]
 
 
-def test_wallet_positions_returns_read_view(dbSession, monkeypatch):
-    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
-    _seed_wallet(dbSession)
-    result = asyncio.run(TOOL_REGISTRY["wallet_positions"](user={"userId": 1, "language": "pt-BR"}, db=dbSession))
-    assert result["items"][0]["ticker"] == "PETR4"
-    assert result["equity_total"] == 300.0
+class TestWalletDispatchEndToEnd:
+    """dispatchToolCall → real in-process wallet MCP client → DB."""
 
+    async def test_read_dispatch_round_trips_through_wallet_mcp(self, dbSession, monkeypatch):
+        monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
+        app = _build_auth_app(dbSession)
+        token, _user, _wallet = _seed_session_wallet(dbSession)
 
-def test_wallet_summary_returns_totals(dbSession, monkeypatch):
-    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
-    _seed_wallet(dbSession)
-    result = asyncio.run(TOOL_REGISTRY["wallet_summary"](user={"userId": 1}, db=dbSession))
-    assert result["applied"] == 100.0
-    assert result["equity"] == 300.0
-    assert result["variation"] == 200.0
+        functionCall = SimpleNamespace(name="wallet_positions", args={})
+        async with _mcp_client(app) as client:
+            result = await dispatchToolCall(functionCall, {"wallet": client}, rawToken=token)
 
-
-def test_wallet_allocation_groups_by_ticker_and_asset(dbSession, monkeypatch):
-    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
-    _seed_wallet(dbSession)
-    byTicker = asyncio.run(TOOL_REGISTRY["wallet_allocation"](user={"userId": 1}, db=dbSession))
-    assert byTicker["items"][0]["key"] == "PETR4"
-    assert byTicker["equity_total"] == 300.0
-    byAsset = asyncio.run(TOOL_REGISTRY["wallet_allocation"](group_by="assetType", user={"userId": 1}, db=dbSession))
-    assert byAsset["items"][0]["key"] == "ACOES"
-
-
-def test_list_wallet_earnings_filters_by_status(dbSession, monkeypatch):
-    walletId = _seed_wallet(dbSession)
-    _seed_earnings(dbSession, walletId)
-    # Stub market dividends so auto-sync only transitions statuses (no live accrual).
-    monkeypatch.setattr(PositionsManager, "fetchMarketDividends", lambda ticker: [])
-    # Auto-sync on read transitions past-payDate "A Receber" to "Recebido"
-    # (seed payDate 2026-04-01 <= today), so the pending bucket is empty.
-    pending = asyncio.run(TOOL_REGISTRY["list_wallet_earnings"](user={"userId": 1}, db=dbSession))
-    assert pending["earnings"] == []
-    received = asyncio.run(TOOL_REGISTRY["list_wallet_earnings"](status="Recebido", user={"userId": 1}, db=dbSession))
-    assert [row["kind"] for row in received["earnings"]] == ["Div", "JSCP"]
-    assert received["earnings"][0]["gross"] == 10.0
-    allRows = asyncio.run(TOOL_REGISTRY["list_wallet_earnings"](status=None, user={"userId": 1}, db=dbSession))
-    assert len(allRows["earnings"]) == 2
-    assert {row["status"] for row in allRows["earnings"]} == {"Recebido"}
-
-
-def test_wallet_performance_returns_metrics(dbSession, monkeypatch):
-    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_flat_series))
-    walletId = _seed_wallet(dbSession)
-    dbSession.add(
-        Earning(
-            walletId=walletId,
-            ticker="PETR4",
-            kind="Div",
-            exDate=date(2026, 1, 5),
-            payDate=date(2026, 2, 1),
-            gross=10.0,
-            netIrAdjusted=10.0,
-            status="Recebido",
-        )
-    )
-    dbSession.commit()
-    result = asyncio.run(
-        TOOL_REGISTRY["wallet_performance"](
-            from_date="2026-01-01",
-            to_date="2026-01-11",
-            ticker="PETR4",
-            user={"userId": 1},
-            db=dbSession,
-        )
-    )
-    assert result["twr"] == pytest.approx(0.21)
-    assert result["dividends_received"] == 10.0
-
-
-def test_wallet_performance_rejects_bad_date(dbSession):
-    _seed_wallet(dbSession)
-    result = asyncio.run(
-        TOOL_REGISTRY["wallet_performance"](
-            from_date="01/01/2026", to_date="2026-01-11", user={"userId": 1}, db=dbSession
-        )
-    )
-    assert result == {"error": "invalid date, use YYYY-MM-DD"}
-
-
-def test_wallet_rebalance_single_holding_holds(dbSession, monkeypatch):
-    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
-    _seed_wallet(dbSession)
-    result = asyncio.run(TOOL_REGISTRY["wallet_rebalance"](user={"userId": 1}, db=dbSession))
-    # Canonical raw: single holding owns the whole weight share → client derives hold.
-    assert len(result["items"]) == 1
-    assert result["items"][0]["weight"] > 0
-    assert result["items"][0]["equity"] == result["equity_total"]
-
-
-def test_wallet_tools_cross_user_isolated(dbSession, monkeypatch):
-    # Tools take no wallet id: user 2 only ever sees their own (empty)
-    # wallet, never user 1's positions. Self-resolved ids can't be foreign,
-    # so no per-call ownership check remains.
-    import json
-
-    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
-    monkeypatch.setattr(PositionsManager, "fetchMarketDividends", lambda ticker: [])
-    _seed_wallet(dbSession)
-    baseArgs = {"user": {"userId": 2, "language": "pt-BR"}, "db": dbSession}
-    for name in WALLET_TOOLS:
-        args = dict(baseArgs)
-        if name == "wallet_performance":
-            args.update({"from_date": "2026-01-01", "to_date": "2026-01-11"})
-        result = asyncio.run(TOOL_REGISTRY[name](**args))
-        assert "PETR4" not in json.dumps(result, default=str)
-
-
-def test_resolve_wallet_is_session_scoped(dbSession):
-    # No wallet id is threaded anywhere: each user resolves to their OWN
-    # wallet object. User 2 gets a fresh own wallet, never user 1's.
-    from main.app.orunmila.tools.wallet import resolveWallet, resolveWalletId
-
-    user1WalletId = _seed_wallet(dbSession)
-    mine = resolveWallet(dbSession, 1)
-    other = resolveWallet(dbSession, 2)
-    assert int(mine.walletId) == user1WalletId
-    assert int(mine.userId) == 1
-    assert int(other.userId) == 2
-    assert int(other.walletId) != user1WalletId
-    assert resolveWalletId is resolveWallet
-
-
-def test_wallet_tools_no_auth_no_data():
-    baseArgs = {}
-    for name in WALLET_TOOLS:
-        args = dict(baseArgs)
-        if name == "wallet_performance":
-            args.update({"from_date": "2026-01-01", "to_date": "2026-01-11"})
-        result = asyncio.run(TOOL_REGISTRY[name](**args))
-        assert result == {"error": "Authentication required"}
+        payload = json.loads(result["result"])
+        assert payload["items"][0]["ticker"] == "PETR4"
+        assert payload["items"][0]["quantity"] == 10.0
+        assert payload["equity_total"] == 300.0

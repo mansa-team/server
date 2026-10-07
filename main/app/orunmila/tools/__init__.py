@@ -4,18 +4,14 @@ from typing import Any, Optional
 
 from main.app.orunmila.tools.memory import save_memory, search_memory
 from main.app.orunmila.tools.sandbox import execute_code, list_files, read_file, serve_file, write_file
-from main.app.orunmila.tools.wallet import (
-    wallet_allocation,
-    wallet_performance,
-    wallet_positions,
-    wallet_rebalance,
-    wallet_summary,
-    list_wallet_earnings,
-)
 
 logger = logging.getLogger(__name__)
 
 
+# Local in-process tools only. Wallet tools are served exclusively by the
+# wallet MCP server (/wallet/mcp): their names are absent here on purpose, so
+# dispatchToolCall routes them to the wallet MCP client with the session JWT
+# injected as an argument.
 TOOL_REGISTRY: dict[str, Any] = {
     "search_memory": search_memory,
     "save_memory": save_memory,
@@ -24,12 +20,6 @@ TOOL_REGISTRY: dict[str, Any] = {
     "write_file": write_file,
     "list_files": list_files,
     "serve_file": serve_file,
-    "wallet_positions": wallet_positions,
-    "wallet_summary": wallet_summary,
-    "wallet_allocation": wallet_allocation,
-    "list_wallet_earnings": list_wallet_earnings,
-    "wallet_performance": wallet_performance,
-    "wallet_rebalance": wallet_rebalance,
 }
 
 
