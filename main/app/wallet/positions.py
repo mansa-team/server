@@ -41,9 +41,6 @@ class PositionsManager:
                 payload = resp.json()["data"]
                 row = payload[0] if payload else None
                 if isinstance(row, dict) and "XANGO INVESTING SCORE" in row:
-                    # Raw scale is already 0-100 (scraper clamps min(max(score, 0), 100)
-                    # in main/app/scraper_b3/scraper.py); clamp defensively so stored
-                    # ratings always fit the 0-100 RatingUpsert contract.
                     scores[ticker] = min(max(float(row["XANGO INVESTING SCORE"]), 0.0), 100.0)
                 else:
                     scores[ticker] = None
@@ -78,11 +75,7 @@ class PositionsManager:
                 pass
 
     @classmethod
-    def weightOf(cls, holding: Holding) -> float:
-        return float(holding.rating) if holding.rating is not None else 0.0
-
-    @classmethod
-    @walletCache(ttl="15s", key="wallet:live:{tickers}")
+    @cache(ttl="15s", key="wallet:live:{tickers}")
     def fetchLivePrices(cls, tickers: list[str]) -> dict[str, float | None]:
         if not tickers:
             return {}
@@ -132,7 +125,7 @@ class PositionsManager:
                 f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fundamental",
                 params={"search": ticker, "fields": "HISTORICO DIVIDENDOS"},  # type: ignore[arg-type]
                 headers={"X-API-Key": key} if key else {},
-                timeout=10,  # cold fundamental miss can exceed 3s; [] poisons autosync
+                timeout=10,
             )
             if resp.status_code != 200:
                 return []
@@ -261,7 +254,7 @@ class PositionsManager:
                     "avgPrice": holdingAvg,
                     "current_price": currentPrice,
                     "equity": equityValue,
-                    "rating": cls.weightOf(holding),
+                    "rating": float(holding.rating) if holding.rating is not None else 0.0,
                     "percent_ideal": targetByTicker.get(str(holding.ticker)),
                 }
             )
@@ -280,7 +273,7 @@ class PositionsManager:
             items.append(
                 {
                     "ticker": holding.ticker,
-                    "weight": cls.weightOf(holding),
+                    "weight": float(holding.rating) if holding.rating is not None else 0.0,
                     "current_price": prices.get(ticker),
                     "equity": equities[ticker],
                 }

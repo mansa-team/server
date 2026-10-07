@@ -21,6 +21,7 @@ def serialize_holding(holding) -> dict | None:
     return {"ticker": holding.ticker, "quantity": float(holding.quantity), "avgPrice": float(holding.avgPrice)}
 
 
+# Kept: public API serialization used by wallet_controller — keep.
 def serialize_entry(entry) -> dict:
     return {
         "entryId": entry.entryId,

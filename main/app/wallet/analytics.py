@@ -14,18 +14,7 @@ PROGRESSION_EPOCH = "1970-01-01T00:00:00"
 MAX_POINTS = 2000
 
 
-def buyFlow(quantity: float, price: float, costs: float) -> float:
-    return quantity * price + costs
-
-
-def sellFlow(quantity: float, price: float, costs: float) -> float:
-    return quantity * price - costs
-
-
 class AnalyticsManager:
-    # Canonical daily progression: every trading day in [from, to] with equity +
-    # invested. Bucketing (weekly/monthly) + granularity resolution are
-    # client-side. Only the MAX_POINTS stride cap stays server as payload guard.
     @classmethod
     @cache(
         ttl="6h",
@@ -85,18 +74,18 @@ class AnalyticsManager:
             invested = 0.0
             for ticker in tickers:
                 tickerState = state[ticker]
-                # Advance ledger pointer through entries on/before this sample day.
+
                 rows = entriesByTicker.get(ticker, [])
                 while tickerState["entryIdx"] < len(rows) and rows[tickerState["entryIdx"]][0] <= dayIso:
                     _, entrySide, entryQty, entryPrice, entryCosts, _ = rows[tickerState["entryIdx"]]
                     if entrySide == "Compra":
                         tickerState["qty"] += entryQty
-                        tickerState["invested"] += buyFlow(entryQty, entryPrice, entryCosts)
+                        tickerState["invested"] += entryQty * entryPrice + entryCosts
                     else:
                         tickerState["qty"] -= entryQty
-                        tickerState["invested"] -= sellFlow(entryQty, entryPrice, entryCosts)
+                        tickerState["invested"] -= entryQty * entryPrice - entryCosts
                     tickerState["entryIdx"] += 1
-                # Forward-fill close: last known close on/before this sample day.
+
                 series = closesByTicker[ticker]
                 while (
                     tickerState["closeIdx"] < len(series) and series[tickerState["closeIdx"]][0].isoformat() <= dayIso
@@ -152,9 +141,9 @@ class AnalyticsManager:
         for ledgerRow in ledgerRows:
             quantity, price, costs = float(ledgerRow.quantity), float(ledgerRow.price), float(ledgerRow.costs)
             if ledgerRow.side == "Compra":
-                flowIn, flowOut = buyFlow(quantity, price, costs), 0.0
+                flowIn, flowOut = quantity * price + costs, 0.0
             else:
-                flowIn, flowOut = 0.0, sellFlow(quantity, price, costs)
+                flowIn, flowOut = 0.0, quantity * price - costs
             rows.append(
                 {
                     "date": str(ledgerRow.date),
