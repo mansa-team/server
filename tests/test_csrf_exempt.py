@@ -128,5 +128,52 @@ class TestControllerMarkers:
         for path in ("/auth/logout", "/auth/introspect", "/auth/health"):
             assert getattr(endpoints[path], "_csrf_exempt", False) is False, path
 
+    def test_csrf_route_deleted(self):
+        endpoints = self.endpoints()
+        assert "/auth/csrf" not in endpoints
 
 
+class TestCsrfAutoIssuance:
+    """No issuer endpoint: login/register/OAuth Set-Cookie carries mansa_csrf."""
+
+    @staticmethod
+    def makeClient():
+        from fastapi import FastAPI
+        from fastapi.testclient import TestClient
+
+        from main.controller.authentication_controller import router as authRouter
+        from main.utils.errors import registerErrorHandlers
+
+        app = FastAPI()
+        app.include_router(authRouter)
+        registerErrorHandlers(app)
+        return TestClient(app, raise_server_exceptions=False)
+
+    @staticmethod
+    def csrfValue(setCookies):
+        return next(c.split(";")[0].split("=", 1)[1] for c in setCookies if c.startswith(f"{CSRF_COOKIE_NAME}="))
+
+    def test_csrf_path_returns_404(self):
+        assert self.makeClient().get("/auth/csrf").status_code == 404
+
+    @patch("main.controller.authentication_controller.SessionManager")
+    @patch("main.controller.authentication_controller.createAccessToken")
+    @patch("main.controller.authentication_controller.AuthenticationManager")
+    def test_login_sets_csrf_cookie_and_rotates(self, mock_auth_mgr, mock_create_token, mock_session_mgr):
+        from unittest.mock import MagicMock
+
+        client = self.makeClient()
+        mock_auth_mgr.authenticateUser.return_value = {"userId": 1, "username": "bob", "roles": ["USER"]}
+        mock_create_token.return_value = "jwt-token-abc"
+
+        tokens = []
+        for sessionId in ("sess-1", "sess-2"):
+            mock_session = MagicMock()
+            mock_session.sessionId = sessionId
+            mock_session_mgr.createSession.return_value = mock_session
+            login = client.post("/auth/login", json={"username": "bob", "password": "secret123"})
+            assert login.status_code == 200
+            cookies = login.headers.get_list("set-cookie")
+            assert any(c.startswith(f"{CSRF_COOKIE_NAME}=") for c in cookies), cookies
+            tokens.append(self.csrfValue(cookies))
+        assert tokens[0] and tokens[0] != tokens[1]

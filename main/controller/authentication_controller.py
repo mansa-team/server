@@ -175,15 +175,6 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
     return {"message": "Successfully logged out"}
 
 
-@router.get("/csrf")
-def getCsrfToken(request: Request, response: Response):
-    """Issue/refresh the double-submit CSRF token for cookie sessions."""
-    token = request.cookies.get(CSRF_COOKIE_NAME) or issueCsrfToken(response, request)
-    # If the cookie already existed, re-stamp it so the browser keeps it;
-    # issueCsrfToken already set it when missing.
-    return {"csrfToken": token}
-
-
 @router.post("/introspect")
 @limiter.limit("30/minute")
 def introspect(

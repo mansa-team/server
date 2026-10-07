@@ -39,7 +39,9 @@ Missing token → 401 `Session not found`; expired → 401 `Token expired`; bad 
 - Logout deletes both `mansa_token` and `mansa_csrf` with the same flags and
   revokes the DB session found in the token (best-effort, always 200).
 - CSRF: double-submit cookie `mansa_csrf` (readable by JS, Secure-always,
-  SameSite `lax`) issued alongside the session + via `GET /auth/csrf`.
+  SameSite `lax`) issued automatically alongside the session
+  (login/register/OAuth Set-Cookie). No issuer endpoint — the browser reads
+  the cookie and echoes it in `X-CSRF-Token`.
   Cookie-authenticated mutating requests must echo it in `X-CSRF-Token`
   (`CsrfProtectMiddleware`); header-only API calls (no session cookie) are
   exempt. Login/register/introspect/health are exempt (no session yet).
@@ -172,7 +174,7 @@ Internal endpoint. Flow (`:173-222`):
 - **Secure-always cookies** (never downgradable via `X-Forwarded-Proto` spoof) + **HSTS** on https responses.
 - **Cookie-only login JSON** (no `accessToken` in bodies — closes XSS/sniff theft window; header bearer kept for non-browser API clients only).
 - **Independent expiring service token** for `/introspect`: HS256 JWT `{"typ":"service","exp"}` signed with `INTROSPECT_SERVICE_SECRET` (never `JWT_SECRET_KEY`), `PREV` secret for rotation. Mint with `createServiceToken()` (`service_token.py`); rotation: set `PREV`=old, `SECRET`=new, re-mint, drop `PREV` after TTL. Legacy static HMAC is accepted only while neither secret is configured (migration window).
-- **Double-submit CSRF** on cookie-authenticated mutations (`mansa_csrf` cookie + `X-CSRF-Token` header; `GET /auth/csrf` to refresh).
+- **Double-submit CSRF** on cookie-authenticated mutations (`mansa_csrf` cookie + `X-CSRF-Token` header; fresh token issued with every login/register/OAuth Set-Cookie).
 - **Auth-gated `/scraper/run`**: requires a valid session (`getCurrentUser`) even in `DEBUG_MODE`.
 - **OAuth state allowlist**: only localhost hosts accepted for redirect; anything else falls back to JSON (open-redirect guard).
 - **CORS**: dynamic origin matching for trusted frontends.
