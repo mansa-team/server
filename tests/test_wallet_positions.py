@@ -18,14 +18,17 @@ async def clear_cashews_cache():
 
 
 def _live_ok(url, params=None, headers=None, timeout=None):
+    search = (params or {}).get("search")
+
     class Resp:
         status_code = 200
 
         @staticmethod
         def json():
-            return {"data": [{"TICKER": "PETR4", "PRECO ATUAL": 30.0}]}
+            if search == "PETR4":
+                return {"data": [{"TICKER": "PETR4", "PRECO ATUAL": 30.0}]}
+            return {"data": []}
 
-    assert params["search"] == "PETR4"
     return Resp()
 
 

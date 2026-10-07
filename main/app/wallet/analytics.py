@@ -1,11 +1,31 @@
+"""Ledger-derived progression, cash flows and dividend rollups.
+
+Metric semantics (explicit — reviewer #6, analytics-owned portion):
+
+- ``invested`` (progression): net cash applied = sum over buys of
+  ``qty x price + costs`` minus, over sells, net proceeds
+  ``qty x price - costs``. This is cumulative cash in/out, NOT remaining
+  cost basis (a sale at a gain drives ``invested`` below cost basis).
+- ``equity`` (progression): ``qty x lastClose`` per ticker, summed.
+- Cash-flow rows: ``in`` = ``qty x price + costs`` on buys (0 on sells);
+  ``out`` = ``qty x price - costs`` on sells (0 on buys). Selling costs
+  reduce proceeds; they are not booked separately (reviewer #7).
+- Dividends monthly: stored earnings grouped by ``payDate``; ``gross`` as
+  accrued, ``net`` IR-adjusted (Div x1.0, JSCP/RendTributado x0.85).
+
+Money/quantity math is :class:`~decimal.Decimal`; ``float`` only at the
+point/row output boundary.
+"""
+
 import logging
 from datetime import date as dateType
+from decimal import Decimal
 
 from sqlalchemy.orm import Session
 
 from main.utils.sync_cache import sync_cache
 from main.app.wallet.earnings import EarningsManager
-from main.app.wallet.entries import EntriesManager
+from main.app.wallet.entries import EntriesManager, toDecimal
 from main.app.wallet.positions import PositionsManager
 from main.models.wallet import Earning, Transaction, Wallet
 
@@ -27,7 +47,7 @@ class AnalyticsManager:
         fromIso: str,
         toIso: str,
         recalcKey: str,
-        entriesSnap: tuple[tuple[str, str, str, float, float, float, int], ...],
+        entriesSnap: tuple[tuple[str, str, str, str, str, str, int], ...],
     ) -> dict:
         del recalcKey
 
@@ -57,7 +77,7 @@ class AnalyticsManager:
         entriesByTicker: dict[str, list] = {}
         for entryTicker, entryIso, entrySide, entryQty, entryPrice, entryCosts, entryId in entriesSnap:
             entriesByTicker.setdefault(entryTicker, []).append(
-                (entryIso, entrySide, entryQty, entryPrice, entryCosts, entryId)
+                (entryIso, entrySide, toDecimal(entryQty), toDecimal(entryPrice), toDecimal(entryCosts), entryId)
             )
         for tickerRows in entriesByTicker.values():
             tickerRows.sort()
@@ -65,14 +85,21 @@ class AnalyticsManager:
         firstEntryIso = min(entryIso for _, entryIso, _, _, _, _, _ in entriesSnap)
 
         state: dict[str, dict] = {
-            ticker: {"qty": 0.0, "invested": 0.0, "entryIdx": 0, "closeIdx": 0, "lastClose": None} for ticker in tickers
+            ticker: {
+                "qty": Decimal(0),
+                "invested": Decimal(0),
+                "entryIdx": 0,
+                "closeIdx": 0,
+                "lastClose": None,
+            }
+            for ticker in tickers
         }
         points = []
         for dayIso in sampleDays:
             if dayIso < firstEntryIso:
                 continue
-            equity = 0.0
-            invested = 0.0
+            equity = Decimal(0)
+            invested = Decimal(0)
             for ticker in tickers:
                 tickerState = state[ticker]
 
@@ -91,12 +118,12 @@ class AnalyticsManager:
                 while (
                     tickerState["closeIdx"] < len(series) and series[tickerState["closeIdx"]][0].isoformat() <= dayIso
                 ):
-                    tickerState["lastClose"] = series[tickerState["closeIdx"]][1]
+                    tickerState["lastClose"] = toDecimal(series[tickerState["closeIdx"]][1])
                     tickerState["closeIdx"] += 1
                 if tickerState["lastClose"] is not None:
                     equity += tickerState["qty"] * tickerState["lastClose"]
                 invested += tickerState["invested"]
-            points.append({"date": dayIso, "equity": equity, "invested": invested})
+            points.append({"date": dayIso, "equity": float(equity), "invested": float(invested)})
         return {"granularity": "daily", "from": fromIso, "to": toIso, "points": points}
 
     @classmethod
@@ -129,21 +156,25 @@ class AnalyticsManager:
         )
         rows = []
         for ledgerRow in ledgerRows:
-            quantity, price, costs = float(ledgerRow.quantity), float(ledgerRow.price), float(ledgerRow.costs)
+            quantity, price, costs = (
+                toDecimal(ledgerRow.quantity),
+                toDecimal(ledgerRow.price),
+                toDecimal(ledgerRow.costs),
+            )
             if ledgerRow.side == "Compra":
-                flowIn, flowOut = quantity * price + costs, 0.0
+                flowIn, flowOut = quantity * price + costs, Decimal(0)
             else:
-                flowIn, flowOut = 0.0, quantity * price - costs
+                flowIn, flowOut = Decimal(0), quantity * price - costs
             rows.append(
                 {
                     "date": str(ledgerRow.date),
                     "side": str(ledgerRow.side),
                     "ticker": str(ledgerRow.ticker),
-                    "quantity": quantity,
-                    "price": price,
-                    "costs": costs,
-                    "in": flowIn,
-                    "out": flowOut,
+                    "quantity": float(quantity),
+                    "price": float(price),
+                    "costs": float(costs),
+                    "in": float(flowIn),
+                    "out": float(flowOut),
                 }
             )
         return {"from": start.isoformat(), "to": end.isoformat(), "rows": rows}

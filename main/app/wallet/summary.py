@@ -1,10 +1,12 @@
 from datetime import date as dateType
 from datetime import datetime
+from decimal import Decimal
 
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from main.app.wallet.entries import EntriesManager
 from main.app.wallet.positions import PositionsManager
 from main.models.wallet import Holding, Snapshot, Transaction, Wallet
 
@@ -16,22 +18,59 @@ class RatingUpsert(BaseModel):
 
 class SummaryManager:
     @classmethod
-    def getSummary(cls, db: Session, wallet: Wallet) -> dict:
+    def ledgerPositions(cls, db: Session, wallet: Wallet) -> dict[str, dict]:
+        """Replay the transaction ledger per ticker -> {ticker: quantity/avgPrice/assetType}.
+
+        Ledger-as-truth (#11): quantities and cost-basis averages derive from
+        Transaction rows ordered by (date, entryId), never from Holding rows.
+        A ticker whose ledger fails consistency replay (oversell) is treated as
+        flat rather than failing the whole read.
+        """
         walletId = int(wallet.walletId)
-        PositionsManager.maybeRefreshRatings(db, wallet)
+        rows = (
+            db.query(Transaction)
+            .filter(Transaction.walletId == walletId)
+            .order_by(Transaction.date, Transaction.entryId)
+            .all()
+        )
+        byTicker: dict[str, list] = {}
+        for row in rows:
+            byTicker.setdefault(str(row.ticker), []).append(row)
 
-        holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
-        applied = sum(float(holding.quantity) * float(holding.avgPrice) for holding in holdings)
-        tickers = sorted({str(holding.ticker) for holding in holdings})
-        prices = PositionsManager.fetchLivePrices(tickers)
+        positions: dict[str, dict] = {}
+        for ticker, tickerRows in byTicker.items():
+            try:
+                quantity, avg = EntriesManager.applyEntries(0.0, 0.0, tickerRows)
+            except HTTPException:
+                quantity, avg = Decimal(0), Decimal(0)
+            if quantity > 0:
+                positions[ticker] = {
+                    "quantity": quantity,
+                    "avgPrice": avg,
+                    "assetType": str(tickerRows[0].assetType),
+                }
+        return positions
 
-        PositionsManager.fillMissingCloses(prices)
+    @classmethod
+    def getSummary(cls, db: Session, wallet: Wallet) -> dict:
+        """Canonical raw: applied/variation/equity/first_date — see docs/wallet_metrics.md.
 
-        equity = 0.0
-        for holding in holdings:
-            price = prices.get(str(holding.ticker))
+        Quantities and cost basis replay from the ledger (ledgerPositions);
+        only live prices come from the market-data pass. Snapshot-on-read
+        (today upsert + lastRecalc) is intentionally kept: it implements the
+        user-approved autosync behavior (reviewer #5 conflicts with it, so #5
+        is NOT applied — see envelope/docs).
+        """
+        walletId = int(wallet.walletId)
+        _, prices, _, _ = PositionsManager.pricePass(db, wallet)
+        positions = cls.ledgerPositions(db, wallet)
+        applied = sum((item["quantity"] * item["avgPrice"] for item in positions.values()), Decimal(0))
+
+        equity: Decimal = Decimal(0)
+        for ticker, item in positions.items():
+            price = prices.get(ticker)
             if price is not None:
-                equity += float(holding.quantity) * price
+                equity += item["quantity"] * price
         variation = equity - applied
 
         firstRow = (
@@ -69,30 +108,26 @@ class SummaryManager:
         db.commit()
 
         return {
-            "applied": applied,
-            "equity": equity,
-            "variation": variation,
+            "applied": float(applied),
+            "equity": float(equity),
+            "variation": float(variation),
             "first_date": firstDate,
         }
 
     @classmethod
     def getAllocation(cls, db: Session, wallet: Wallet) -> dict:
-        walletId = int(wallet.walletId)
-        PositionsManager.maybeRefreshRatings(db, wallet)
-        holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
-
-        tickers = sorted({str(holding.ticker) for holding in holdings})
-        prices = PositionsManager.fetchLivePrices(tickers)
-        PositionsManager.fillMissingCloses(prices)
+        """Canonical raw: per-ticker equity + total. Shares derive client-side."""
+        _, prices, _, _ = PositionsManager.pricePass(db, wallet)
+        positions = cls.ledgerPositions(db, wallet)
 
         items: list[dict] = []
-        for holding in holdings:
-            price = prices.get(str(holding.ticker))
-            holdingEquity = float(holding.quantity) * price if price is not None else 0.0
+        for ticker, item in positions.items():
+            price = prices.get(ticker)
+            holdingEquity = float(item["quantity"] * price) if price is not None else 0.0
             items.append(
                 {
-                    "ticker": str(holding.ticker),
-                    "asset_type": str(holding.assetType),
+                    "ticker": ticker,
+                    "asset_type": item["assetType"],
                     "equity": holdingEquity,
                 }
             )
@@ -103,6 +138,13 @@ class SummaryManager:
 
     @classmethod
     def set_rating(cls, db: Session, wallet: Wallet, data: RatingUpsert) -> Holding:
+        """Single-rating authority: PUT overwrites `Holding.rating` (0-100).
+
+        `rating` holds the Xango score as its initial/default value (seeded at
+        holding creation, backfilled when NULL on read); this endpoint is the
+        only writer of user overrides, and the Xango refresh never clobbers an
+        existing value.
+        """
         walletId = int(wallet.walletId)
         holding = db.query(Holding).filter(Holding.walletId == walletId, Holding.ticker == data.ticker).first()
 
@@ -115,6 +157,3 @@ class SummaryManager:
         db.refresh(holding)
 
         return holding
-
-
-set_rating = SummaryManager.set_rating

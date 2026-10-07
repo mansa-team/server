@@ -1,9 +1,29 @@
+"""Ledger-sourced holdings and cost-basis engine.
+
+Cost-basis semantics (explicit — reviewer #7, entries-owned portion):
+
+- Buy cost = quantity x price + costs. Costs are capitalized into the
+  average: ``avg = (qty*avg + buyQty*buyPrice + buyCosts) / newQty``.
+- Sell does NOT change the average price. Sale proceeds are net of costs
+  (``qty*price - costs``); realized P&L per sale = proceeds - qty x avg.
+- Unrealized P&L = ``qty x (market - avg)`` (market from positions pass).
+- TWR treats costs as above (buy costs raise the invested base; sell costs
+  reduce proceeds); cash-flow legs mirror this (see analytics.py).
+
+All domain math uses :class:`~decimal.Decimal`. ``float`` appears only at
+the API/serialization boundary (pydantic inputs, ``serialize_*`` outputs).
+Callers inside the domain (e.g. summary.ledgerPositions) receive Decimals.
+"""
+
 import logging
+from collections.abc import Sequence
 from datetime import date as dateType
-from typing import Literal, get_args
+from decimal import Decimal
+from typing import Any, Literal, get_args
 
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
+from sqlalchemy import Column
 from sqlalchemy.orm import Session
 
 from main.app.wallet.positions import PositionsManager
@@ -13,6 +33,20 @@ logger = logging.getLogger(__name__)
 
 AssetType = Literal["ACOES", "OUTROS"]
 ALLOWED_ASSET_TYPES = frozenset(get_args(AssetType))
+
+NUMERIC_PATCH_FIELDS = frozenset({"quantity", "price", "costs"})
+
+
+def toDecimal(value: Decimal | float | int | str | Column[Decimal]) -> Decimal:
+    """Coerce a DB/API numeric to Decimal via its shortest repr.
+
+    ``Decimal(str(floatValue))`` keeps the human-meaningful value (0.1 stays
+    0.1) instead of inheriting binary float error. Malformed input raises
+    (never silently becomes a fallback figure).
+    """
+    if isinstance(value, Decimal):
+        return value
+    return Decimal(str(value))
 
 
 def serialize_holding(holding) -> dict | None:
@@ -57,38 +91,47 @@ class EntryUpdate(BaseModel):
 
 class EntriesManager:
     @classmethod
-    def snapshotEntries(cls, rows: list[Transaction]) -> tuple[tuple[str, str, str, float, float, float, int], ...]:
+    def snapshotEntries(cls, rows: list[Transaction]) -> tuple[tuple[str, str, str, str, str, str, int], ...]:
+        # Numerics travel as shortest-repr strings: Decimal-exact and stable
+        # as cache-key material. Consumers coerce via toDecimal.
         return tuple(
             (
                 str(ledgerRow.ticker),
                 str(ledgerRow.date),
                 str(ledgerRow.side),
-                float(ledgerRow.quantity),
-                float(ledgerRow.price),
-                float(ledgerRow.costs),
+                str(ledgerRow.quantity),
+                str(ledgerRow.price),
+                str(ledgerRow.costs),
                 int(ledgerRow.entryId),
             )
             for ledgerRow in rows
         )
 
     @classmethod
-    def applyEntries(cls, quantity: float, avg: float, entries: list[Transaction]) -> tuple[float, float]:
+    def applyEntries(
+        cls, quantity: Decimal | float, avg: Decimal | float, entries: Sequence[Any]
+    ) -> tuple[Decimal, Decimal]:
+        # Seeds accept float (cross-lane callers) but every step below is
+        # Decimal: buy basis = qty*price + costs capitalized into avg; sell
+        # only reduces quantity (avg untouched), oversell rejected.
+        runningQty = toDecimal(quantity)
+        runningAvg = toDecimal(avg)
         for entry in entries:
-            entryQuantity = float(entry.quantity)
-            entryPrice = float(entry.price)
-            entryCosts = float(entry.costs)
+            entryQuantity = toDecimal(entry.quantity)
+            entryPrice = toDecimal(entry.price)
+            entryCosts = toDecimal(entry.costs)
 
             if entry.side == "Compra":
-                total = quantity * avg + entryQuantity * entryPrice + entryCosts
-                quantity += entryQuantity
-                avg = total / quantity
+                total = runningQty * runningAvg + entryQuantity * entryPrice + entryCosts
+                runningQty += entryQuantity
+                runningAvg = total / runningQty
 
             else:
-                if entryQuantity > quantity:
+                if entryQuantity > runningQty:
                     raise HTTPException(status_code=422, detail="sell exceeds holding")
-                quantity -= entryQuantity
+                runningQty -= entryQuantity
 
-        return quantity, avg
+        return runningQty, runningAvg
 
     @classmethod
     def recalcHolding(cls, db: Session, wallet: Wallet, ticker: str) -> Holding | None:
@@ -107,7 +150,7 @@ class EntriesManager:
                 db.delete(holding)
             return None
 
-        quantity, avg = cls.applyEntries(0.0, 0.0, entries)
+        quantity, avg = cls.applyEntries(Decimal(0), Decimal(0), entries)
         if holding is None:
             xangoDefault = PositionsManager.fetchXangoScores((ticker,)).get(ticker)
             holding = Holding(
@@ -137,7 +180,7 @@ class EntriesManager:
             )
         if data.side == "Venda":
             holding = db.query(Holding).filter(Holding.walletId == walletId, Holding.ticker == data.ticker).first()
-            if holding is None or data.quantity > float(holding.quantity):
+            if holding is None or toDecimal(data.quantity) > toDecimal(holding.quantity):
                 raise HTTPException(status_code=422, detail="sell exceeds holding")
 
         entry = Transaction(
@@ -146,9 +189,9 @@ class EntriesManager:
             assetType=data.asset_type,
             ticker=data.ticker,
             date=data.date,
-            quantity=data.quantity,
-            price=data.price,
-            costs=data.costs,
+            quantity=toDecimal(data.quantity),
+            price=toDecimal(data.price),
+            costs=toDecimal(data.costs),
         )
 
         db.add(entry)
@@ -201,6 +244,8 @@ class EntriesManager:
             entry.assetType = changes.pop("asset_type")  # type: ignore[assignment]
         for fieldName, fieldValue in changes.items():
             if fieldValue is not None:
+                if fieldName in NUMERIC_PATCH_FIELDS:
+                    fieldValue = toDecimal(fieldValue)
                 setattr(entry, fieldName, fieldValue)
 
         db.flush()

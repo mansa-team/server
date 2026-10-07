@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 
 from config import getSession
 from main.app.user.user import UserManager
-from main.app.wallet import summary
 from main.app.wallet.analytics import AnalyticsManager
 from main.app.wallet.earnings import EarningsManager, serialize_earning
 from main.app.wallet.entries import EntriesManager, EntryCreate, EntryUpdate, serialize_entry, serialize_holding
@@ -12,13 +11,9 @@ from main.app.wallet.positions import PositionsManager
 from main.app.wallet.summary import RatingUpsert, SummaryManager
 from main.app.wallet.wallets import Wallet, WalletCreate, WalletsManager
 
-# Router-level gate: every wallet route requires an authenticated user.
-# Per-route currentUser (in-process getCurrentUser, no HTTP introspect calls)
-# supplies the userId; the wallet id always resolves server-side via getMyWallet.
 router = APIRouter(prefix="/wallet", tags=["wallet"], dependencies=[Depends(UserManager.getCurrentUser)])
 
 
-# Kept: FastAPI DI seam resolving the wallet for every wallet route — keep.
 def getMyWallet(
     db: Session = Depends(getSession),
     currentUser: dict = Depends(UserManager.getCurrentUser),
@@ -137,7 +132,8 @@ def set_rating_route(
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    holding = summary.set_rating(db, wallet, payload)
+    """Single-rating override: PUT sets `Holding.rating` (Xango default, user-overwritable)."""
+    holding = SummaryManager.set_rating(db, wallet, payload)
     return {"ticker": holding.ticker, "rating": holding.rating}
 
 
@@ -150,8 +146,6 @@ def list_earnings_route(
     return {"items": [serialize_earning(item) for item in EarningsManager.listEarnings(db, wallet)]}
 
 
-# Canonical raw: from/to + ticker only. Preset->date resolution and metric
-# picking are client-side; TWR math + 6h cache stay server.
 @router.get("/performance")
 def get_performance_route(
     ticker: str | None = None,
@@ -165,7 +159,6 @@ def get_performance_route(
     return PerformanceManager.getPerformance(db, wallet, ticker, startDate, endDate)
 
 
-# Canonical daily: bucketing + granularity selection are client-side.
 @router.get("/progression")
 def get_progression_route(
     fromIso: str | None = Query(default=None, alias="from"),
