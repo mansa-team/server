@@ -1,45 +1,31 @@
-import logging
 from datetime import date as dateType
 from datetime import datetime
-from typing import Literal
 
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-from main.app.wallet.market_data import MarketDataManager
-from main.app.wallet.wallets import WalletsManager
-from main.models.wallet import Holding, Snapshot, Target
-
-logger = logging.getLogger(__name__)
-
-
-class TargetUpsert(BaseModel):
-    wallet_id: int
-    key_kind: Literal["ticker", "group"]
-    key_value: str
-    percent_ideal: float = Field(ge=0, le=100)
+from main.app.wallet.positions import PositionsManager
+from main.models.wallet import Holding, Snapshot, Transaction, Wallet
 
 
 class RatingUpsert(BaseModel):
-    wallet_id: int
     ticker: str
     rating: float = Field(ge=0, le=100)
 
 
 class SummaryManager:
     @classmethod
-    def getSummary(cls, db: Session, walletId: int, userId: int) -> dict:
-        wallet = WalletsManager.getWallet(db, walletId, userId)
+    def getSummary(cls, db: Session, wallet: Wallet) -> dict:
+        walletId = int(wallet.walletId)
+        PositionsManager.maybeRefreshRatings(db, wallet)
+
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
         applied = sum(float(holding.quantity) * float(holding.avgPrice) for holding in holdings)
-        tickers = [str(holding.ticker) for holding in holdings]
-        prices = MarketDataManager.fetchLivePrices(tickers)
+        tickers = sorted({str(holding.ticker) for holding in holdings})
+        prices = PositionsManager.fetchLivePrices(tickers)
 
-        for ticker, price in list(prices.items()):
-            if price is None:
-                closes = MarketDataManager.fetchPadraoCloses(ticker)
-                prices[ticker] = closes[-1][1] if closes else None
+        PositionsManager.fillMissingCloses(prices)
 
         equity = 0.0
         for holding in holdings:
@@ -47,6 +33,11 @@ class SummaryManager:
             if price is not None:
                 equity += float(holding.quantity) * price
         variation = equity - applied
+
+        firstRow = (
+            db.query(Transaction.date).filter(Transaction.walletId == walletId).order_by(Transaction.date).first()
+        )
+        firstDate = firstRow[0].isoformat() if firstRow else None
 
         today = dateType.today()
 
@@ -73,7 +64,7 @@ class SummaryManager:
             snapshot.profitTwr12m = None  # type: ignore[assignment]
             snapshot.profitTwr12mAmount = variation  # type: ignore[assignment]
 
-        wallet.lastRecalc = datetime.now()
+        wallet.lastRecalc = datetime.now()  # type: ignore[assignment]
 
         db.commit()
 
@@ -81,76 +72,39 @@ class SummaryManager:
             "applied": applied,
             "equity": equity,
             "variation": variation,
-            "profit_twr": None,
-            "profit_amount": variation,
-            "profit_twr_12m": None,
-            "profit_twr_12m_amount": variation,
+            "first_date": firstDate,
         }
 
     @classmethod
-    def getAllocation(cls, db: Session, walletId: int, userId: int, groupBy: str) -> dict:
-        WalletsManager.getWallet(db, walletId, userId)
+    def getAllocation(cls, db: Session, wallet: Wallet) -> dict:
+        walletId = int(wallet.walletId)
+        PositionsManager.maybeRefreshRatings(db, wallet)
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
 
-        tickers = [str(holding.ticker) for holding in holdings]
-        prices = MarketDataManager.fetchLivePrices(tickers)
-        for ticker, price in list(prices.items()):
-            if price is None:
-                closes = MarketDataManager.fetchPadraoCloses(ticker)
-                prices[ticker] = closes[-1][1] if closes else None
+        tickers = sorted({str(holding.ticker) for holding in holdings})
+        prices = PositionsManager.fetchLivePrices(tickers)
+        PositionsManager.fillMissingCloses(prices)
 
-        groupEquity: dict[str, float] = {}
+        items: list[dict] = []
         for holding in holdings:
             price = prices.get(str(holding.ticker))
             holdingEquity = float(holding.quantity) * price if price is not None else 0.0
-            groupKey = str(holding.ticker) if groupBy == "ticker" else str(holding.assetType)
-            groupEquity[groupKey] = groupEquity.get(groupKey, 0.0) + holdingEquity
+            items.append(
+                {
+                    "ticker": str(holding.ticker),
+                    "asset_type": str(holding.assetType),
+                    "equity": holdingEquity,
+                }
+            )
 
-        equityTotal = sum(groupEquity.values())
-        items = [
-            {
-                "key": groupKey,
-                "equity": groupValue,
-                "pct": (groupValue / equityTotal) if equityTotal else 0,
-            }
-            for groupKey, groupValue in groupEquity.items()
-        ]
+        equityTotal = sum(item["equity"] for item in items)
 
         return {"items": items, "equity_total": equityTotal}
 
     @classmethod
-    def upsertTarget(cls, db: Session, userId: int, data: TargetUpsert) -> Target:
-        WalletsManager.getWallet(db, data.wallet_id, userId)
-        target = (
-            db.query(Target)
-            .filter(
-                Target.walletId == data.wallet_id,
-                Target.keyKind == data.key_kind,
-                Target.keyValue == data.key_value,
-            )
-            .first()
-        )
-
-        if target is None:
-            target = Target(
-                walletId=data.wallet_id,
-                keyKind=data.key_kind,
-                keyValue=data.key_value,
-                percentIdeal=data.percent_ideal,
-            )
-            db.add(target)
-        else:
-            target.percentIdeal = data.percent_ideal  # type: ignore[assignment]
-
-        db.commit()
-        db.refresh(target)
-
-        return target
-
-    @classmethod
-    def set_rating(cls, db: Session, userId: int, data: RatingUpsert) -> Holding:
-        WalletsManager.getWallet(db, data.wallet_id, userId)
-        holding = db.query(Holding).filter(Holding.walletId == data.wallet_id, Holding.ticker == data.ticker).first()
+    def set_rating(cls, db: Session, wallet: Wallet, data: RatingUpsert) -> Holding:
+        walletId = int(wallet.walletId)
+        holding = db.query(Holding).filter(Holding.walletId == walletId, Holding.ticker == data.ticker).first()
 
         if holding is None:
             raise HTTPException(status_code=404, detail="holding not found")

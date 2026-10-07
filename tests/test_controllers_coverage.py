@@ -102,8 +102,11 @@ class TestRegisterEndpoint:
         assert response.status_code == 200
         data = response.json()
         assert data["message"] == "success"
-        assert data["accessToken"] == "jwt-token-abc"
-        assert data["tokenType"] == "bearer"
+        # Cookie-only: no accessToken/tokenType in JSON; session via cookies.
+        assert "accessToken" not in data
+        assert "tokenType" not in data
+        assert data["user"]["username"] == "alice"
+        assert "mansa_token=" in response.headers.get("set-cookie", "")
         mock_auth_mgr.createUserAccount.assert_called_once()
 
     @patch("main.controller.authentication_controller.AuthenticationManager")
@@ -168,8 +171,11 @@ class TestLoginEndpoint:
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["accessToken"] == "jwt-token-xyz"
-        assert data["tokenType"] == "bearer"
+        # Cookie-only: no accessToken/tokenType in JSON; session via cookies.
+        assert "accessToken" not in data
+        assert "tokenType" not in data
+        assert data["user"]["username"] == "bob"
+        assert "mansa_token=" in response.headers.get("set-cookie", "")
 
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_login_wrong_credentials(self, mock_auth_mgr):
@@ -356,7 +362,10 @@ class TestGoogleCallback:
         response = client.get("/auth/callback", follow_redirects=False)
         assert response.status_code == 200
         data = response.json()
-        assert data["accessToken"] == "google-jwt-abc"
+        # Cookie-only: no accessToken in JSON; session via cookies.
+        assert "accessToken" not in data
+        assert data["user"]["username"] == "alice"
+        assert "mansa_token=" in response.headers.get("set-cookie", "")
 
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.createAccessToken")
@@ -1089,7 +1098,9 @@ class TestGetCurrentUser:
 
             from main.app.user.user import UserManager
 
-            result = UserManager.getCurrentUser(payload=mock_payload, db=mock_db)
+            mock_request = MagicMock()
+            mock_request.headers = {}
+            result = UserManager.getCurrentUser(mock_request, payload=mock_payload, db=mock_db)
 
             assert result["userId"] == 1
             assert result["username"] == "alice"
@@ -1107,7 +1118,7 @@ class TestGetCurrentUser:
             from main.app.user.user import UserManager
 
             with pytest.raises(Exception) as exc_info:
-                UserManager.getCurrentUser(payload=mock_payload, db=mock_db)
+                UserManager.getCurrentUser(MagicMock(headers={}), payload=mock_payload, db=mock_db)
             assert exc_info.value.status_code == 401
             assert "Session revoked" in exc_info.value.detail
 
@@ -1124,7 +1135,7 @@ class TestGetCurrentUser:
             from main.app.user.user import UserManager
 
             with pytest.raises(Exception) as exc_info:
-                UserManager.getCurrentUser(payload=mock_payload, db=mock_db)
+                UserManager.getCurrentUser(MagicMock(headers={}), payload=mock_payload, db=mock_db)
             assert exc_info.value.status_code == 401
             assert "User no longer exists" in exc_info.value.detail
 
@@ -1141,7 +1152,7 @@ class TestGetCurrentUser:
             from main.app.user.user import UserManager
 
             with pytest.raises(Exception) as exc_info:
-                UserManager.getCurrentUser(payload=mock_payload, db=mock_db)
+                UserManager.getCurrentUser(MagicMock(headers={}), payload=mock_payload, db=mock_db)
             assert exc_info.value.status_code == 401
             assert "Could not validate credentials" in exc_info.value.detail
 
@@ -1154,7 +1165,7 @@ class TestGetCurrentUser:
         from main.app.user.user import UserManager
 
         with pytest.raises(Exception) as exc_info:
-            UserManager.getCurrentUser(payload=mock_payload, db=mock_db)
+            UserManager.getCurrentUser(MagicMock(headers={}), payload=mock_payload, db=mock_db)
 
         assert exc_info.value.status_code == 401
         assert "Session required" in exc_info.value.detail

@@ -10,7 +10,8 @@ import pandas as pd
 from sqlalchemy.engine import Engine
 
 from config import stocksEngine
-from main.app.stocks_api import compress, sync_cache
+from main.app.stocks_api import compress
+from main.utils import sync_cache
 from main.app.stocks_api.build import (
     CACHE_FEATHER_PATH,
     CACHE_NESTED_PATH,
@@ -30,6 +31,8 @@ STALE_AFTER_SECONDS = 6 * 3600
 CACHE_REFRESH_HOURS = 12
 CACHE_LOAD_LOCK = threading.Lock()
 
+COTATION_COLS = ("TICKER", "NOME", "TIME", "COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA")
+
 
 class StocksCacheManager:
     def __init__(self, db: Engine, cacheLock: threading.Lock):
@@ -37,6 +40,8 @@ class StocksCacheManager:
         self.cacheLock = cacheLock
         self.STOCKS_CACHE = None
         self.tickerIndex: dict = {}
+        self.cotationFrame = None
+        self.cotationIndex: dict = {}
         self.nestedSample = None
         self.lastCacheUpdate = None
 
@@ -63,9 +68,16 @@ class StocksCacheManager:
             df = sortCacheFrame(df)
         newTickerIndex = buildTickerIndex(df)
 
+        present = [col for col in COTATION_COLS if col in df.columns]
+        positions = sorted(newTickerIndex.values())
+        cotationFrame = df[present].iloc[positions].reset_index(drop=True) if positions else df[present].iloc[0:0]
+        cotationIndex = {str(ticker).upper(): pos for pos, ticker in enumerate(cotationFrame["TICKER"])}
+
         with self.cacheLock:
             self.STOCKS_CACHE = df
             self.tickerIndex = newTickerIndex
+            self.cotationFrame = cotationFrame
+            self.cotationIndex = cotationIndex
             self.nestedSample = nestedSample
             self.lastCacheUpdate = datetime.now(timezone.utc)
 

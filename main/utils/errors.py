@@ -23,6 +23,7 @@ class RequestContextFilter(logging.Filter):
         return True
 
 
+# Kept: public API error-response contract shared by all handlers — keep.
 def buildErrorResponse(statusCode: int, error: str, detail: str | None = None) -> dict:
     return ErrorResponse(
         error=error,
@@ -33,6 +34,7 @@ def buildErrorResponse(statusCode: int, error: str, detail: str | None = None) -
     ).model_dump()
 
 
+# Kept: FastAPI-registered exception handler (see registerErrorHandlers) — keep.
 async def httpExceptionHandler(request: Request, exc):
     return JSONResponse(
         status_code=exc.status_code,

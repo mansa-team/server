@@ -1,7 +1,7 @@
 import logging
 from config import getSession
 
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, Request
 from sqlalchemy.orm import Session
 
 from main.models.user import User
@@ -21,6 +21,7 @@ class UserManager:
 
     @staticmethod
     def getCurrentUser(
+        request: Request,
         payload: dict = Depends(extractTokenPayload),
         db: Session = Depends(getSession),
     ):

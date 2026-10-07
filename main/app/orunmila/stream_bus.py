@@ -106,6 +106,7 @@ class StreamBus:
         finally:
             self.unsubscribe(sessionId, q)
 
+    # Kept: public SSE API boundary used by both stream endpoints — keep.
     def streamResponse(self, sessionId: str, cursor: int = 0) -> EventSourceResponse:
         return EventSourceResponse(self.eventGenerator(sessionId, cursor), ping=15)
 

@@ -22,8 +22,10 @@ def parseDeviceFields(userAgent: str | None) -> tuple[str | None, str | None, st
         deviceType = "desktop"
     else:
         deviceType = None
+
     browser = parsed.browser.family if parsed.browser.family != "Other" else None
     operatingSystem = parsed.os.family if parsed.os.family != "Other" else None
+
     return deviceType, browser, operatingSystem
 
 
@@ -77,6 +79,7 @@ class SessionManager:
         return query.first()
 
     @staticmethod
+    # Kept: mocked seam (test_controllers_coverage.py) + direct test (test_sessions.py:177) — keep.
     def getCurrentSession(db: Session, userId: int) -> UserSession | None:
         return (
             db.query(UserSession)
@@ -139,7 +142,11 @@ class SessionManager:
         return True
 
     @staticmethod
-    def validateSession(db: Session, sessionId: str, userId: int) -> bool:
+    def validateSession(
+        db: Session,
+        sessionId: str,
+        userId: int,
+    ) -> bool:
         session = SessionManager.getSessionById(db, sessionId, userId)
         if not session:
             return False

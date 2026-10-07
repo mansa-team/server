@@ -61,10 +61,6 @@ fieldData: dict | None = None
 metricRegex: re.Pattern | None = None
 
 
-def getStocksFieldsUrl() -> str:
-    return f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fields"
-
-
 def isTransientFieldsError(exc: BaseException) -> bool:
     if isinstance(exc, (requests.exceptions.Timeout, requests.exceptions.ConnectionError)):
         return True
@@ -81,7 +77,7 @@ def isTransientFieldsError(exc: BaseException) -> bool:
     reraise=True,
 )
 def fetchFieldsPayload() -> dict:
-    response = getSession().get(getStocksFieldsUrl(), timeout=5)
+    response = getSession().get(f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fields", timeout=5)
     response.raise_for_status()
     return response.json()
 
@@ -116,16 +112,14 @@ def getMetricRegex() -> re.Pattern:
     return metricRegex
 
 
-def dedup(items: list) -> list:
-    return list(dict.fromkeys(items))
-
-
+# Kept: mocked seam in tests/test_compact.py:212 + direct unit tests — keep.
 def extractTickers(text: str) -> list[str]:
-    return dedup(re.compile(r"\b([A-Z]{4}[0-9])\b").findall(text))
+    return list(dict.fromkeys(re.compile(r"\b([A-Z]{4}[0-9])\b").findall(text)))
 
 
+# Kept: mocked seam in tests/test_compact.py:212 + direct unit tests — keep.
 def extractMetrics(text: str) -> list[str]:
-    return dedup(getMetricRegex().findall(text))
+    return list(dict.fromkeys(getMetricRegex().findall(text)))
 
 
 def extractDecisions(userMessages: list[dict]) -> list[str]:
@@ -139,7 +133,7 @@ def extractDecisions(userMessages: list[dict]) -> list[str]:
             sent = sent.strip()
             if sent and DECISION_KEYWORDS.search(sent):
                 decisions.append(sent[:200])
-    return dedup(decisions)[:10]
+    return list(dict.fromkeys(decisions))[:10]
 
 
 def extractSnapshots(toolResults: list[dict]) -> list[str]:
@@ -152,7 +146,7 @@ def extractSnapshots(toolResults: list[dict]) -> list[str]:
             unit = match.group(3) or ""
             if any(kw in label.upper() for kw in ["P/L", "ROE", "DY", "PRECO", "LPA", "VPA"]):
                 snapshots.append(f"{label}: {value}{unit}")
-    return dedup(snapshots)[:10]
+    return list(dict.fromkeys(snapshots))[:10]
 
 
 def extractToolCalls(loopEvents: list[dict]) -> list[str]:
@@ -168,7 +162,7 @@ def extractToolCalls(loopEvents: list[dict]) -> list[str]:
             calls.append(f"{toolName}({ticker})")
         else:
             calls.append(toolName)
-    return dedup(calls)[:15]
+    return list(dict.fromkeys(calls))[:15]
 
 
 def buildSummary(
@@ -233,7 +227,7 @@ class OrunmilaCompactor:
         tools = extractToolCalls(loopEvents)
 
         summary = buildSummary(tickers, tools, decisions, metrics, snapshots)
-        entities = dedup(tickers + metrics)
+        entities = list(dict.fromkeys(tickers + metrics))
 
         return {
             "summary": summary,
@@ -262,8 +256,8 @@ class OrunmilaCompactor:
             "id": f"ep_{uuid.uuid4().hex[:8]}",
             "time": datetime.now().isoformat(),
             "summary": mergedSummary[:1000],
-            "keyDecisions": dedup(allDecisions),
-            "entities": dedup(allEntities),
+            "keyDecisions": list(dict.fromkeys(allDecisions)),
+            "entities": list(dict.fromkeys(allEntities)),
         }
 
         return [merged] + recent

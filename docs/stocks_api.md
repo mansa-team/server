@@ -17,14 +17,18 @@ STOCKSAPI_KEY.SYSTEM=FALSE
 STOCKSAPI_PRIVATE.KEY=your_api_key_here
 ```
 
-`KEY_SYSTEM` defaults to `False` (config.py:54). There are no `DEFAULT_QUOTA` / `RESETDAYS` vars. Quota is per-key: `requestLimit=100`, `currentUsage` (models/stocksapi_key.py:15).
+Env note: the exact env key is `STOCKSAPI_KEY.SYSTEM` (alias for
+`Config.STOCKS_API.KEY_SYSTEM`, `config.py:54`), not bare `KEY_SYSTEM`.
+`false` (default) means market-data endpoints are open by design (no user
+data flows through them); set `STOCKSAPI_KEY.SYSTEM=TRUE` to require
+per-user `X-API-Key` quota auth. There are no `DEFAULT_QUOTA` / `RESETDAYS` vars. Quota is per-key: `requestLimit=100`, `currentUsage` (models/stocksapi_key.py:15).
 
 ## Auth
 
 All data endpoints depend on `verifyAPIKey` (main/app/stocks_api/key.py:17) reading the `X-API-Key` header:
 
-- `KEY_SYSTEM=false` → auth bypassed, dependency returns `None`.
-- `KEY_SYSTEM=true` → missing key = `401`; unknown hash = `401`; usage over limit = `429`.
+- `KEY_SYSTEM=false` → auth bypassed, dependency returns `None`. Exact env: `STOCKSAPI_KEY.SYSTEM=false` (open market data by design — no user data).
+- `KEY_SYSTEM=true` → missing key = `401`; unknown hash = `401`; usage over limit = `429`. Exact env: `STOCKSAPI_KEY.SYSTEM=true`.
 - Quota increment is one atomic `UPDATE ... WHERE currentUsage < requestLimit` (key.py:27-32); `rowcount == 0` decides 401 vs 429.
 
 ## API Endpoints

@@ -1,222 +1,202 @@
-import logging
-from datetime import date as dateType
-
-from fastapi import APIRouter, Depends, HTTPException, Query
-from fastapi.responses import ORJSONResponse
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from typing import Literal
 
 from config import getSession
-from main.app.wallet import summary  # pinned: set_rating_route handler calls summary.set_rating (digest test)
-from main.app.wallet.earnings import EarningsManager
-from main.app.wallet.entries import EntriesManager, EntryCreate, EntryUpdate
+from main.app.user.user import UserManager
+from main.app.wallet import summary
+from main.app.wallet.analytics import AnalyticsManager
+from main.app.wallet.earnings import EarningsManager, serialize_earning
+from main.app.wallet.entries import EntriesManager, EntryCreate, EntryUpdate, serialize_entry, serialize_holding
 from main.app.wallet.performance import PerformanceManager
 from main.app.wallet.positions import PositionsManager
-from main.app.wallet.summary import RatingUpsert, SummaryManager, TargetUpsert
-from main.app.wallet.wallets import WalletsManager
+from main.app.wallet.summary import RatingUpsert, SummaryManager
+from main.app.wallet.wallets import Wallet, WalletCreate, WalletsManager
 
-logger = logging.getLogger(__name__)
-
-router = APIRouter(prefix="/wallet", tags=["wallet"])
-
-
-class WalletCreate(BaseModel):
-    name: str
+# Router-level gate: every wallet route requires an authenticated user.
+# Per-route currentUser (in-process getCurrentUser, no HTTP introspect calls)
+# supplies the userId; the wallet id always resolves server-side via getMyWallet.
+router = APIRouter(prefix="/wallet", tags=["wallet"], dependencies=[Depends(UserManager.getCurrentUser)])
 
 
-@router.post("/wallets", response_class=ORJSONResponse, status_code=201)
+# Kept: FastAPI DI seam resolving the wallet for every wallet route — keep.
+def getMyWallet(
+    db: Session = Depends(getSession),
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+) -> Wallet:
+    return WalletsManager.getMyWallet(db, int(currentUser["userId"]))
+
+
+@router.post("/wallets", status_code=201)
 def create_wallet_route(
     payload: WalletCreate,
-    userId: int,
+    currentUser: dict = Depends(UserManager.getCurrentUser),
     db: Session = Depends(getSession),
 ):
-    wallet = WalletsManager.createWallet(db, userId, payload.name)
+    wallet = WalletsManager.createWallet(db, int(currentUser["userId"]), payload.name)
     return {"walletId": wallet.walletId, "name": wallet.name}
 
 
-@router.get("/wallets", response_class=ORJSONResponse)
+@router.get("/wallets")
 def list_wallets_route(
-    userId: int,
+    currentUser: dict = Depends(UserManager.getCurrentUser),
     db: Session = Depends(getSession),
 ):
     return [
         {"walletId": walletItem.walletId, "name": walletItem.name, "lastRecalc": walletItem.lastRecalc}
-        for walletItem in WalletsManager.listWallets(db, userId)
+        for walletItem in WalletsManager.listWallets(db, int(currentUser["userId"]))
     ]
 
 
-def serialize_holding(holding) -> dict | None:
-    if holding is None:
-        return None
-    return {"ticker": holding.ticker, "quantity": float(holding.quantity), "avgPrice": float(holding.avgPrice)}
-
-
-def serialize_entry(entry) -> dict:
-    return {
-        "entryId": entry.entryId,
-        "wallet_id": entry.walletId,
-        "side": entry.side,
-        "asset_type": entry.assetType,
-        "ticker": entry.ticker,
-        "date": entry.date.isoformat(),
-        "quantity": float(entry.quantity),
-        "price": float(entry.price),
-        "costs": float(entry.costs),
-    }
-
-
-@router.post("/entries", response_class=ORJSONResponse, status_code=201)
+@router.post("/entries", status_code=201)
 def create_entry_route(
     payload: EntryCreate,
-    userId: int,
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    entry, holding = EntriesManager.addEntry(db, userId, payload)
+    entry, holding = EntriesManager.addEntry(db, wallet, payload)
     return {"entryId": entry.entryId, "holding": serialize_holding(holding)}
 
 
-@router.get("/entries", response_class=ORJSONResponse)
+@router.get("/entries")
 def list_entries_route(
-    wallet_id: int,
     ticker: str | None = None,
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
-    userId: int = Query(),
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    total, items = EntriesManager.listEntries(db, userId, wallet_id, ticker, limit, offset)
+    total, items = EntriesManager.listEntries(db, wallet, ticker, limit, offset)
     return {"total": total, "items": [serialize_entry(item) for item in items]}
 
 
-@router.patch("/entries/{entryId}", response_class=ORJSONResponse)
+@router.patch("/entries/{entryId}")
 def update_entry_route(
     entryId: int,
     payload: EntryUpdate,
-    userId: int,
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    entry, holding = EntriesManager.updateEntry(db, userId, entryId, payload)
+    entry, holding = EntriesManager.updateEntry(db, wallet, entryId, payload)
     return {"entryId": entry.entryId, "holding": serialize_holding(holding)}
 
 
-@router.delete("/entries/{entryId}", response_class=ORJSONResponse)
+@router.delete("/entries/{entryId}")
 def delete_entry_route(
     entryId: int,
-    userId: int,
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    deletedId, holding = EntriesManager.deleteEntry(db, userId, entryId)
+    deletedId, holding = EntriesManager.deleteEntry(db, wallet, entryId)
     return {"entryId": deletedId, "holding": serialize_holding(holding)}
 
 
-@router.get("/positions", response_class=ORJSONResponse)
+@router.get("/positions")
 def list_positions_route(
-    wallet_id: int,
-    userId: int,
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    return PositionsManager.getPositions(db, wallet_id, userId)
+    return PositionsManager.getPositions(db, wallet)
 
 
-@router.get("/rebalance", response_class=ORJSONResponse)
+@router.get("/rebalance")
 def get_rebalance_route(
-    wallet_id: int,
-    userId: int,
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    return PositionsManager.getRebalance(db, wallet_id, userId)
+    return PositionsManager.getRebalance(db, wallet)
 
 
-@router.get("/summary", response_class=ORJSONResponse)
+@router.get("/summary")
 def get_summary_route(
-    wallet_id: int,
-    userId: int,
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    return SummaryManager.getSummary(db, wallet_id, userId)
+    return SummaryManager.getSummary(db, wallet)
 
 
-@router.get("/allocation", response_class=ORJSONResponse)
+@router.get("/allocation")
 def get_allocation_route(
-    wallet_id: int,
-    group_by: Literal["ticker", "type"] = Query(default="ticker"),
-    userId: int = Query(),
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    return SummaryManager.getAllocation(db, wallet_id, userId, group_by)
+    return SummaryManager.getAllocation(db, wallet)
 
 
-@router.put("/targets", response_class=ORJSONResponse)
-def upsert_target_route(
-    payload: TargetUpsert,
-    userId: int,
-    db: Session = Depends(getSession),
-):
-    target = SummaryManager.upsertTarget(db, userId, payload)
-    return {
-        "wallet_id": target.walletId,
-        "key_kind": target.keyKind,
-        "key_value": target.keyValue,
-        "percent_ideal": float(target.percentIdeal),
-    }
-
-
-@router.put("/ratings", response_class=ORJSONResponse)
+@router.put("/ratings")
 def set_rating_route(
     payload: RatingUpsert,
-    userId: int,
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    holding = summary.set_rating(db, userId, payload)
+    holding = summary.set_rating(db, wallet, payload)
     return {"ticker": holding.ticker, "rating": holding.rating}
 
 
-class EarningsSync(BaseModel):
-    wallet_id: int
-
-
-def serialize_earning(earning) -> dict:
-    return {
-        "ticker": earning.ticker,
-        "kind": earning.kind,
-        "gross": float(earning.gross),
-        "net_ir_adjusted": float(earning.netIrAdjusted),
-        "status": earning.status,
-    }
-
-
-@router.get("/earnings", response_class=ORJSONResponse)
+@router.get("/earnings")
 def list_earnings_route(
-    wallet_id: int,
-    status: str | None = None,
-    userId: int = Query(),
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    return {"items": [serialize_earning(item) for item in EarningsManager.listEarnings(db, wallet_id, userId, status)]}
+    return {"items": [serialize_earning(item) for item in EarningsManager.listEarnings(db, wallet)]}
 
 
-@router.post("/earnings/sync", response_class=ORJSONResponse)
-def sync_earnings_route(
-    payload: EarningsSync,
-    userId: int,
-    db: Session = Depends(getSession),
-):
-    return EarningsManager.syncEarnings(db, payload.wallet_id, userId)
-
-
-@router.get("/performance", response_class=ORJSONResponse)
+# Canonical raw: from/to + ticker only. Preset->date resolution and metric
+# picking are client-side; TWR math + 6h cache stay server.
+@router.get("/performance")
 def get_performance_route(
-    wallet_id: int,
     ticker: str | None = None,
-    fromIso: str = Query(alias="from"),
-    toIso: str = Query(alias="to"),
-    userId: int = Query(),
+    fromIso: str | None = Query(default=None, alias="from"),
+    toIso: str | None = Query(default=None, alias="to"),
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    try:
-        startDate = dateType.fromisoformat(fromIso)
-        endDate = dateType.fromisoformat(toIso)
-    except ValueError:
-        raise HTTPException(status_code=422, detail="invalid date, expected YYYY-MM-DD")
-    return PerformanceManager.getPerformance(db, wallet_id, userId, ticker, startDate, endDate)
+    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet, fromIso, toIso)
+    return PerformanceManager.getPerformance(db, wallet, ticker, startDate, endDate)
+
+
+# Canonical daily: bucketing + granularity selection are client-side.
+@router.get("/progression")
+def get_progression_route(
+    fromIso: str | None = Query(default=None, alias="from"),
+    toIso: str | None = Query(default=None, alias="to"),
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+    wallet: Wallet = Depends(getMyWallet),
+    db: Session = Depends(getSession),
+):
+    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet, fromIso, toIso)
+    return AnalyticsManager.getProgression(db, wallet, startDate, endDate)
+
+
+@router.get("/cashflows")
+def get_cashflows_route(
+    fromIso: str | None = Query(default=None, alias="from"),
+    toIso: str | None = Query(default=None, alias="to"),
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+    wallet: Wallet = Depends(getMyWallet),
+    db: Session = Depends(getSession),
+):
+    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet, fromIso, toIso)
+    return AnalyticsManager.getCashflows(db, wallet, startDate, endDate)
+
+
+@router.get("/dividends/monthly")
+def get_dividends_monthly_route(
+    fromIso: str | None = Query(default=None, alias="from"),
+    toIso: str | None = Query(default=None, alias="to"),
+    currentUser: dict = Depends(UserManager.getCurrentUser),
+    wallet: Wallet = Depends(getMyWallet),
+    db: Session = Depends(getSession),
+):
+    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet, fromIso, toIso)
+    return AnalyticsManager.getDividendsMonthly(db, wallet, startDate, endDate)

@@ -196,7 +196,9 @@ class TestCallbackSuccess:
             )
 
         assert response.status_code == 200
-        assert "accessToken" in response.json()
+        # Cookie-only: session via cookies, no accessToken in JSON.
+        assert "accessToken" not in response.json()
+        assert "user" in response.json()
 
 
 class TestSSOLoginErrorHandling:

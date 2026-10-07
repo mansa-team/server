@@ -12,7 +12,9 @@ from fastapi_sso.sso.base import SSOLoginError
 from sqlalchemy.orm import Session
 
 from main.app.authentication.authentication import AuthenticationManager
+from main.app.authentication.csrf import CSRF_COOKIE_NAME, csrf_exempt, issueCsrfToken
 from main.app.authentication.introspect import introspectToken
+from main.app.authentication.service_token import verifyServiceToken
 from main.app.authentication.util import createAccessToken, verifyAccessToken
 from main.app.authentication.sso import getGoogleSSO
 from main.app.authentication.constants import (
@@ -23,22 +25,26 @@ from main.app.authentication.constants import (
 )
 from main.app.authentication.session import SessionManager
 from main.models.user import User
+from main.utils.security_headers import getRequestScheme
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
+# Kept: mocked seam (patched 6x in tests/test_controllers_coverage.py) — keep.
 def isSecureScheme(request: Request) -> bool:
-    return request.url.scheme == "https"
+    return getRequestScheme(request) == "https"
 
 
-def resolveCookieDomain(request: Request) -> str:
+def resolveCookieDomain(request: Request) -> str | None:
     hostname = request.url.hostname or "localhost"
-    return "localhost" if hostname in ("localhost", "127.0.0.1") else hostname
+    if hostname in ("localhost", "127.0.0.1"):
+        return None
+    return hostname
 
 
-def issueSessionCookie(response, request, db, user) -> tuple[str, str]:
+def issueSessionCookie(response, request, db, user) -> str:
     userAgent = request.headers.get("User-Agent", "")
     expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
     session = SessionManager.createSession(db, user["userId"], userAgent, expiresAt)
@@ -50,12 +56,13 @@ def issueSessionCookie(response, request, db, user) -> tuple[str, str]:
         key=COOKIE_NAME,
         value=accessToken,
         httponly=True,
-        secure=isSecureScheme(request),
+        secure=True,
         samesite=COOKIE_SAMESITE,
         path=COOKIE_PATH,
         domain=cookieDomain,
     )
-    return accessToken, str(session.sessionId)
+    issueCsrfToken(response, request)
+    return str(session.sessionId)
 
 
 @router.get("/health")
@@ -63,6 +70,7 @@ def health(request: Request):
     return {"status": "ok", "service": "authentication"}
 
 
+@csrf_exempt
 @router.post("/register")
 @limiter.limit("10/minute")
 def register(
@@ -80,9 +88,9 @@ def register(
         if not user:
             raise HTTPException(status_code=401, detail="Auto-login failed after registration")
 
-        accessToken, _ = issueSessionCookie(response, request, db, user)
+        issueSessionCookie(response, request, db, user)
 
-        return {"message": "success", "accessToken": accessToken, "tokenType": "bearer", "user": user}
+        return {"message": "success", "user": user}
     except HTTPException as e:
         if e.status_code == 400:
             raise HTTPException(status_code=400, detail="Registration failed.")
@@ -95,6 +103,7 @@ def register(
         raise HTTPException(status_code=500, detail="Registration failed. Internal error.")
 
 
+@csrf_exempt
 @router.post("/login")
 @limiter.limit("10/minute")
 def login(
@@ -108,10 +117,10 @@ def login(
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    accessToken, sessionId = issueSessionCookie(response, request, db, user)
+    sessionId = issueSessionCookie(response, request, db, user)
     SessionManager.revokeAllExcept(db, user["userId"], sessionId)
 
-    return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
+    return {"user": user}
 
 
 @router.post("/logout")
@@ -137,11 +146,18 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
         except Exception as e:
             logger.debug(f"Logout token verification failed: {e}")
 
-    useCookieSecure = isSecureScheme(request)
+    useCookieSecure = True  # Secure-always: matches issueSessionCookie
     response.delete_cookie(
         key=COOKIE_NAME,
         httponly=True,
         secure=useCookieSecure,
+        samesite=COOKIE_SAMESITE,
+        path=COOKIE_PATH,
+        domain=resolveCookieDomain(request),
+    )
+    response.delete_cookie(
+        key=CSRF_COOKIE_NAME,
+        secure=True,
         samesite=COOKIE_SAMESITE,
         path=COOKIE_PATH,
         domain=resolveCookieDomain(request),
@@ -156,9 +172,7 @@ def introspect(
     db: Session = Depends(getSession),
     token: str | None = Body(default=None, embed=True),
 ):
-    # Derived, never the raw signing key: a leaked service token must not reveal it.
-    expected = hmac.new(Config.USER.JWT_SECRET_KEY.encode("utf-8"), b"auth-introspect", hashlib.sha256).hexdigest()
-    if not expected or not hmac.compare_digest(request.headers.get("X-Service-Token", ""), expected):
+    if not verifyServiceToken(request.headers.get("X-Service-Token", "")):
         raise HTTPException(status_code=401, detail="Unauthorized")
     auth = request.headers.get("Authorization", "")
     raw = (
@@ -175,6 +189,7 @@ def introspect(
         raise HTTPException(status_code=401, detail="Unauthorized")
 
 
+@csrf_exempt
 @router.get("/google")
 @limiter.limit("5/minute")
 async def googleLogin(request: Request):
@@ -191,6 +206,7 @@ async def googleLogin(request: Request):
     return googleRedirect
 
 
+@csrf_exempt
 @router.get("/callback")
 @limiter.limit("5/minute")
 async def googleCallback(request: Request, response: Response, db: Session = Depends(getSession)):
@@ -247,14 +263,15 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
 
         if redirectUrl:
             redirectResponse = RedirectResponse(url=redirectUrl)
-            _, sessionId = issueSessionCookie(redirectResponse, request, db, user)
+            sessionId = issueSessionCookie(redirectResponse, request, db, user)
             SessionManager.revokeAllExcept(db, user["userId"], sessionId)
             return redirectResponse
 
-        accessToken, sessionId = issueSessionCookie(response, request, db, user)
+        sessionId = issueSessionCookie(response, request, db, user)
         SessionManager.revokeAllExcept(db, user["userId"], sessionId)
         logger.info("--- Google Callback End ---")
-        return {"accessToken": accessToken, "tokenType": "bearer", "user": user}
+        # Cookie-only: token travels via HttpOnly Secure cookie, never JSON.
+        return {"user": user}
 
     except HTTPException:
         raise

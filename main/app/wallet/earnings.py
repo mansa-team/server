@@ -4,10 +4,10 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 
+from main.utils.sync_cache import MISS, syncCacheGet, syncCacheSet
 from main.app.wallet.entries import EntriesManager
-from main.app.wallet.market_data import MarketDataManager
-from main.app.wallet.wallets import WalletsManager
-from main.models.wallet import Earning, Holding, Transaction
+from main.app.wallet.positions import PositionsManager
+from main.models.wallet import Earning, Holding, Transaction, Wallet
 
 logger = logging.getLogger(__name__)
 
@@ -21,10 +21,50 @@ TIPO_MAP = {
 }
 
 
+# Kept: public API serialization used by wallet_controller — keep.
+def serialize_earning(earning) -> dict:
+    return {
+        "ticker": earning.ticker,
+        "kind": earning.kind,
+        "gross": float(earning.gross),
+        "net_ir_adjusted": float(earning.netIrAdjusted),
+        "status": earning.status,
+    }
+
+
 class EarningsManager:
+    AUTO_SYNC_TTL = "6h"
+    AUTO_SYNC_NEG_TTL = "5m"
+
     @classmethod
-    def syncEarnings(cls, db: Session, walletId: int, userId: int) -> dict:
-        WalletsManager.getWallet(db, walletId, userId)
+    def maybeAutoSync(cls, db: Session, wallet: Wallet) -> None:
+        try:
+            if syncCacheGet(f"wallet:earnings:autosync:{wallet.userId}") is not MISS:
+                return
+            result = cls.syncEarnings(db, wallet)
+            ttl = cls.AUTO_SYNC_TTL
+            walletId = int(wallet.walletId)
+            if (
+                result["accrued"] == 0
+                and db.query(Holding).filter(Holding.walletId == walletId, Holding.quantity > 0).count() > 0  # type: ignore[arg-type]
+                and db.query(Earning).filter(Earning.walletId == walletId).count() == 0
+            ):
+                ttl = cls.AUTO_SYNC_NEG_TTL
+            syncCacheSet(f"wallet:earnings:autosync:{wallet.userId}", 1, ttl)
+        except Exception:
+            logger.warning("earnings autosync failed for wallet %s", wallet.walletId, exc_info=True)
+            try:
+                db.rollback()
+            except Exception:
+                pass
+            try:
+                syncCacheSet(f"wallet:earnings:autosync:{wallet.userId}", 1, cls.AUTO_SYNC_NEG_TTL)
+            except Exception:
+                pass
+
+    @classmethod
+    def syncEarnings(cls, db: Session, wallet: Wallet) -> dict:
+        walletId = int(wallet.walletId)
 
         today = dateType.today()
         accrued = 0
@@ -44,7 +84,8 @@ class EarningsManager:
                 .all()
             )
 
-            for record in MarketDataManager.fetchMarketDividends(holdingTicker):
+            accruals: dict[tuple, list[tuple]] = {}
+            for record in PositionsManager.fetchMarketDividends(holdingTicker):
                 label = str(record.get("TIPO PROVENTO"))
                 kind = TIPO_MAP.get(label)
 
@@ -59,6 +100,15 @@ class EarningsManager:
                     perShare = float(record["VALOR AJUSTADO"])
                 except Exception:
                     continue
+
+                key = (exDate, kind)
+                installment = (payDate, perShare)
+                if installment not in accruals.setdefault(key, []):
+                    accruals[key].append(installment)
+
+            for (exDate, kind), installments in accruals.items():
+                payDate = max(pay for pay, _ in installments)
+                perShare = sum(share for _, share in installments)
 
                 quantityAtEx = EntriesManager.positionAtDate(ledgerEntries, exDate)
                 if quantityAtEx <= 0:
@@ -106,11 +156,9 @@ class EarningsManager:
         return {"accrued": accrued, "transitioned": transitioned, "skipped_unknown": skippedUnknown}
 
     @classmethod
-    def listEarnings(cls, db: Session, walletId: int, userId: int, status: str | None = None) -> list[Earning]:
-        WalletsManager.getWallet(db, walletId, userId)
+    def listEarnings(cls, db: Session, wallet: Wallet) -> list[Earning]:
+        walletId = int(wallet.walletId)
+        cls.maybeAutoSync(db, wallet)
         query = db.query(Earning).filter(Earning.walletId == walletId)
-
-        if status is not None:
-            query = query.filter(Earning.status == status)
 
         return query.order_by(Earning.exDate, Earning.earningId).all()

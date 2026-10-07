@@ -1,34 +1,35 @@
 import logging
 from datetime import date as dateType
+from datetime import timedelta
 from math import sqrt
 from statistics import stdev
 from types import SimpleNamespace
 
-from cashews import cache as cashewsCache
+from cashews import cache
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from main.app.stocks_api.sync_cache import cache as walletCache
+from main.utils.sync_cache import sync_cache
 from main.app.wallet.entries import EntriesManager
-from main.app.wallet.market_data import MarketDataManager
-from main.app.wallet.wallets import WalletsManager
-from main.models.wallet import Earning, Transaction
+from main.app.wallet.positions import PositionsManager
+from main.models.wallet import Earning, Transaction, Wallet
 
 logger = logging.getLogger(__name__)
 
-cashewsCache.setup("mem://")
+cache.setup("mem://")
 
 PERFORMANCE_EPOCH = "1970-01-01T00:00:00"
 
 
 class PerformanceManager:
     @classmethod
-    @walletCache(
+    @sync_cache(
         ttl="6h",
-        key="wallet:performance:{walletId}:{tickerKey}:{fromIso}:{toIso}:{recalcKey}:{entriesSnap}:{earningsSnap}",
+        key="wallet:performance:{userId}:{tickerKey}:{fromIso}:{toIso}:{recalcKey}:{entriesSnap}:{earningsSnap}:v2",
     )
     def cachedPerformance(
         cls,
-        walletId: int,
+        userId: int,
         tickerKey: str,
         fromIso: str,
         toIso: str,
@@ -53,7 +54,7 @@ class PerformanceManager:
                 if earnTicker == ticker and fromIso <= exIso <= toIso:
                     dividendsReceived += netValue
 
-            series = MarketDataManager.fetchPadraoCloses(ticker)
+            series = PositionsManager.fetchPadraoCloses(ticker)
 
             tickerEntries = [
                 (entryIso, entrySide, entryQty, entryPrice, entryCosts)
@@ -69,12 +70,18 @@ class PerformanceManager:
 
             positionQty, positionAvg = EntriesManager.applyEntries(0.0, 0.0, baselineRows)  # type: ignore[arg-type]
 
-            entriesByDay: dict[str, list] = {}
-            for entryIso, entrySide, entryQty, entryPrice, entryCosts in tickerEntries:
-                if fromIso <= entryIso <= toIso:
-                    entriesByDay.setdefault(entryIso, []).append(
-                        SimpleNamespace(side=entrySide, quantity=entryQty, price=entryPrice, costs=entryCosts)
+            pendingEntries = sorted(
+                (
+                    (
+                        SimpleNamespace(side=entrySide, quantity=entryQty, price=entryPrice, costs=entryCosts),
+                        entryIso,
                     )
+                    for entryIso, entrySide, entryQty, entryPrice, entryCosts in tickerEntries
+                    if fromIso <= entryIso <= toIso
+                ),
+                key=lambda pendingItem: pendingItem[1],
+            )
+            pendingIdx = 0
 
             closeByIso = {
                 closeDay.isoformat(): closePrice
@@ -92,8 +99,10 @@ class PerformanceManager:
 
             dayMap: dict[str, tuple[float, float, float]] = {}
             for dayIso in windowDays:
-                for datedRow in entriesByDay.get(dayIso, []):
-                    positionQty, positionAvg = EntriesManager.applyEntries(positionQty, positionAvg, [datedRow])  # type: ignore[arg-type]
+                while pendingIdx < len(pendingEntries) and pendingEntries[pendingIdx][1] <= dayIso:
+                    pendingRow = pendingEntries[pendingIdx][0]
+                    positionQty, positionAvg = EntriesManager.applyEntries(positionQty, positionAvg, [pendingRow])  # type: ignore[list-item]
+                    pendingIdx += 1
                 dayClose = closeByIso[dayIso]
 
                 if positionQty > 0 and prevClose:
@@ -151,10 +160,42 @@ class PerformanceManager:
         }
 
     @classmethod
+    def defaultWindow(
+        cls, db: Session, wallet: Wallet, start: dateType | None, end: dateType | None
+    ) -> tuple[dateType, dateType]:
+        # Fill omitted /performance bounds: lifetime window ending today.
+        walletId = int(wallet.walletId)
+        today = dateType.today()
+        if start is None:
+            firstRow = (
+                db.query(Transaction.date).filter(Transaction.walletId == walletId).order_by(Transaction.date).first()
+            )
+            start = firstRow[0] if firstRow is not None else today - timedelta(days=365)
+        if end is None:
+            end = today
+        return start, end
+
+    @classmethod
+    def resolveWindowFromIso(
+        cls,
+        db: Session,
+        wallet: Wallet,
+        fromIso: str | None,
+        toIso: str | None,
+    ) -> tuple[dateType, dateType]:
+        try:
+            start = dateType.fromisoformat(fromIso) if fromIso else None
+            end = dateType.fromisoformat(toIso) if toIso else None
+        except ValueError:
+            raise HTTPException(status_code=422, detail="invalid date, expected YYYY-MM-DD")
+        return cls.defaultWindow(db, wallet, start, end)
+
+    @classmethod
     def getPerformance(
-        cls, db: Session, walletId: int, userId: int, ticker: str | None, startDate: dateType, endDate: dateType
+        cls, db: Session, wallet: Wallet, ticker: str | None, startDate: dateType, endDate: dateType
     ) -> dict:
-        wallet = WalletsManager.getWallet(db, walletId, userId)
+        walletId = int(wallet.walletId)
+        userId = int(wallet.userId)
         recalcStamp = wallet.lastRecalc
         recalcKey = str(recalcStamp) if recalcStamp is not None else PERFORMANCE_EPOCH
         ledgerQuery = db.query(Transaction).filter(Transaction.walletId == walletId)
@@ -182,5 +223,5 @@ class PerformanceManager:
             for earningRow in earningRows
         )
         return cls.cachedPerformance(
-            walletId, ticker or "", startDate.isoformat(), endDate.isoformat(), recalcKey, entriesSnap, earningsSnap
+            userId, ticker or "", startDate.isoformat(), endDate.isoformat(), recalcKey, entriesSnap, earningsSnap
         )

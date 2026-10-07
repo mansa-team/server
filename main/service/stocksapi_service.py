@@ -1,3 +1,5 @@
+import logging
+
 from fastapi_mcp import FastApiMCP
 from fastapi.middleware.gzip import GZipMiddleware
 
@@ -5,6 +7,8 @@ from main.utils.service_manager import getApp
 from main.controller.stocksapi_controller import router as stocksRouter
 
 from main.app.stocks_api.cache import stocksCache
+
+logger = logging.getLogger(__name__)
 
 
 class MCPDetectMiddleware:

@@ -1,7 +1,6 @@
 from datetime import date as dateType
 from typing import Optional
 
-from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from main.app.orunmila.tools.context import closeOwnSession, popAuthSession
@@ -10,122 +9,80 @@ from main.app.wallet.performance import PerformanceManager
 from main.app.wallet.positions import PositionsManager
 from main.app.wallet.summary import SummaryManager
 from main.app.wallet.wallets import WalletsManager
+from main.models.wallet import Wallet
 
 
-def ensureOwnership(db: Session | None, walletId: int, userId: int) -> dict | None:
-    try:
-        WalletsManager.getWallet(
-            db,  # type: ignore[arg-type]
-            walletId,
-            userId,
-        )
-    except HTTPException:
-        return {"error": "not-owner"}
-    return None
+# Kept: back-compat alias identity asserted in tests/test_orunmila_wallet_tools.py:242 — keep.
+def resolveWallet(db: Session | None, userId: int) -> Wallet:
+    """Server-side wallet resolution: the wallet id never comes from the LLM."""
+    return WalletsManager.getMyWallet(db, userId)  # type: ignore[arg-type]
 
 
-async def wallet_positions(wallet_id: int, **_) -> dict:
-    """List wallet holdings with live prices, equity, allocation, and buy signals.
+# Back-compat alias: callers that still import resolveWalletId get the Wallet.
+resolveWalletId = resolveWallet
 
-    Read-only: never mutates wallet state.
 
-    Args:
-        wallet_id: Wallet to inspect (must belong to the caller)
-    """
+async def wallet_positions(**_) -> dict:
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
     try:
-        userId = user["userId"]
-        ownerError = ensureOwnership(db, wallet_id, userId)
-        if ownerError is not None:
-            return ownerError
-        return PositionsManager.getPositions(
-            db,  # type: ignore[arg-type]
-            wallet_id,
-            userId,
-        )
+        # Self-resolved wallet can't be foreign — no ownership check needed.
+        wallet = resolveWallet(db, user["userId"])
+        return PositionsManager.getPositions(db, wallet)  # type: ignore[arg-type]
     finally:
         closeOwnSession(db, ownSession)
 
 
-async def wallet_summary(wallet_id: int, **_) -> dict:
-    """Summarize applied capital, equity, and variation for a wallet.
-
-    Read-only: never mutates wallet state.
-
-    Args:
-        wallet_id: Wallet to summarize (must belong to the caller)
-    """
+async def wallet_summary(**_) -> dict:
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
     try:
-        userId = user["userId"]
-        ownerError = ensureOwnership(db, wallet_id, userId)
-        if ownerError is not None:
-            return ownerError
-        return SummaryManager.getSummary(
-            db,  # type: ignore[arg-type]
-            wallet_id,
-            userId,
-        )
+        # Self-resolved wallet can't be foreign — no ownership check needed.
+        wallet = resolveWallet(db, user["userId"])
+        return SummaryManager.getSummary(db, wallet)  # type: ignore[arg-type]
     finally:
         closeOwnSession(db, ownSession)
 
 
-async def wallet_allocation(wallet_id: int, group_by: str = "ticker", **_) -> dict:
-    """Break wallet equity down by ticker or asset type.
-
-    Read-only: never mutates wallet state.
-
-    Args:
-        wallet_id: Wallet to inspect (must belong to the caller)
-        group_by: Grouping key — "ticker" or "assetType" (default "ticker")
-    """
+async def wallet_allocation(group_by: str = "ticker", **_) -> dict:
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
     try:
-        userId = user["userId"]
-        ownerError = ensureOwnership(db, wallet_id, userId)
-        if ownerError is not None:
-            return ownerError
-        return SummaryManager.getAllocation(
-            db,  # type: ignore[arg-type]
-            wallet_id,
-            userId,
-            group_by,
-        )
-    finally:
-        closeOwnSession(db, ownSession)
-
-
-async def list_wallet_earnings(wallet_id: int, status: Optional[str] = "A Receber", **_) -> dict:
-    """List accrued earnings (dividends, JSCP) for a wallet.
-
-    Read-only: never mutates wallet state.
-
-    Args:
-        wallet_id: Wallet to inspect (must belong to the caller)
-        status: Filter by status — "A Receber", "Recebido", or None for all (default "A Receber")
-    """
-    user, db, ownSession, authError = popAuthSession(_)
-    if authError is not None:
-        return authError
-    try:
-        userId = user["userId"]
-        ownerError = ensureOwnership(db, wallet_id, userId)
-        if ownerError is not None:
-            return ownerError
-        rows = EarningsManager.listEarnings(
-            db,  # type: ignore[arg-type]
-            wallet_id,
-            userId,
-            status=status,
-        )
+        # Self-resolved wallet can't be foreign — no ownership check needed.
+        wallet = resolveWallet(db, user["userId"])
+        body = SummaryManager.getAllocation(db, wallet)  # type: ignore[arg-type]
+        # Grouping + pct are client-side (same as the HTTP endpoint).
+        groupEquity: dict[str, float] = {}
+        for item in body["items"]:
+            groupKey = item["ticker"] if group_by == "ticker" else item["asset_type"]
+            groupEquity[groupKey] = groupEquity.get(groupKey, 0.0) + item["equity"]
+        equityTotal = body["equity_total"]
         return {
-            "wallet_id": wallet_id,
+            "items": [
+                {"key": groupKey, "equity": groupValue, "pct": (groupValue / equityTotal) if equityTotal else 0}
+                for groupKey, groupValue in groupEquity.items()
+            ],
+            "equity_total": equityTotal,
+        }
+    finally:
+        closeOwnSession(db, ownSession)
+
+
+async def list_wallet_earnings(status: Optional[str] = "A Receber", **_) -> dict:
+    user, db, ownSession, authError = popAuthSession(_)
+    if authError is not None:
+        return authError
+    try:
+        # Self-resolved wallet can't be foreign — no ownership check needed.
+        wallet = resolveWallet(db, user["userId"])
+        rows = EarningsManager.listEarnings(db, wallet)  # type: ignore[arg-type]
+        if status is not None:
+            rows = [row for row in rows if str(row.status) == status]
+        return {
+            "wallet_id": int(wallet.walletId),
             "status": status,
             "earnings": [
                 {
@@ -145,17 +102,7 @@ async def list_wallet_earnings(wallet_id: int, status: Optional[str] = "A Recebe
         closeOwnSession(db, ownSession)
 
 
-async def wallet_performance(wallet_id: int, from_date: str, to_date: str, ticker: Optional[str] = None, **_) -> dict:
-    """Compute time-weighted return, volatility, and dividends for a wallet or ticker.
-
-    Read-only: never mutates wallet state.
-
-    Args:
-        wallet_id: Wallet to inspect (must belong to the caller)
-        from_date: Window start as YYYY-MM-DD
-        to_date: Window end as YYYY-MM-DD
-        ticker: Optional single ticker; omit for the whole wallet
-    """
+async def wallet_performance(from_date: str, to_date: str, ticker: Optional[str] = None, **_) -> dict:
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
@@ -166,14 +113,11 @@ async def wallet_performance(wallet_id: int, from_date: str, to_date: str, ticke
         except ValueError:
             return {"error": "invalid date, use YYYY-MM-DD"}
 
-        userId = user["userId"]
-        ownerError = ensureOwnership(db, wallet_id, userId)
-        if ownerError is not None:
-            return ownerError
+        # Self-resolved wallet can't be foreign — no ownership check needed.
+        wallet = resolveWallet(db, user["userId"])
         return PerformanceManager.getPerformance(
             db,  # type: ignore[arg-type]
-            wallet_id,
-            userId,
+            wallet,
             ticker,
             startDate,
             endDate,
@@ -182,26 +126,13 @@ async def wallet_performance(wallet_id: int, from_date: str, to_date: str, ticke
         closeOwnSession(db, ownSession)
 
 
-async def wallet_rebalance(wallet_id: int, **_) -> dict:
-    """Show weight-share rebalance deltas per ticker (buy/sell/hold).
-
-    Read-only: never mutates wallet state.
-
-    Args:
-        wallet_id: Wallet to inspect (must belong to the caller)
-    """
+async def wallet_rebalance(**_) -> dict:
     user, db, ownSession, authError = popAuthSession(_)
     if authError is not None:
         return authError
     try:
-        userId = user["userId"]
-        ownerError = ensureOwnership(db, wallet_id, userId)
-        if ownerError is not None:
-            return ownerError
-        return PositionsManager.getRebalance(
-            db,  # type: ignore[arg-type]
-            wallet_id,
-            userId,
-        )
+        # Self-resolved wallet can't be foreign — no ownership check needed.
+        wallet = resolveWallet(db, user["userId"])
+        return PositionsManager.getRebalance(db, wallet)  # type: ignore[arg-type]
     finally:
         closeOwnSession(db, ownSession)

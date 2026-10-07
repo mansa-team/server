@@ -16,7 +16,7 @@ dist
 build
 tests
 test
-graphify-out
+graft
 *.md
 LICENSE
 Dockerfile

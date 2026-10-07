@@ -162,8 +162,10 @@ class TestOAuthCallbackTokenNotInURL:
 
         assert response.status_code == 200
         data = response.json()
-        assert data["accessToken"] == "jwt-token-5"
-        assert data["tokenType"] == "bearer"
+        # Cookie-only: no accessToken in JSON; session via cookies.
+        assert "accessToken" not in data
+        assert data["user"]["username"] == "json"
+        assert "mansa_token=" in response.headers.get("set-cookie", "")
 
 
 class TestOAuthCallbackFrontendCompatibility:
@@ -226,4 +228,7 @@ class TestOAuthCallbackFrontendCompatibility:
         # Should NOT redirect to evil URL — falls through to JSON response
         assert response.status_code == 200
         data = response.json()
-        assert "accessToken" in data
+        # Cookie-only: session via cookies, no accessToken in JSON.
+        assert "accessToken" not in data
+        assert "user" in data
+        assert "mansa_token=" in response.headers.get("set-cookie", "")

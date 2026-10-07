@@ -16,6 +16,7 @@ bun.lock
 
 main/utils/models/*/
 frontend/
-graphify-out/graph.html
 
 benchmark_latency.py
+
+/graft/

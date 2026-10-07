@@ -24,6 +24,8 @@ class Wallet(Base):
     lastRecalc = Column(TIMESTAMP, nullable=True)
     createdAt = Column(TIMESTAMP, server_default=func.current_timestamp(), nullable=False)
 
+    __table_args__ = (UniqueConstraint("userId", name="uq_wallets_user"),)
+
 
 class Holding(Base):
     __tablename__ = "holdings"

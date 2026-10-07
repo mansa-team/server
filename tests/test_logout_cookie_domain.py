@@ -91,12 +91,39 @@ class TestLogoutCookieDomain:
 
         localhost_req = MagicMock()
         localhost_req.url.hostname = "localhost"
-        assert resolveCookieDomain(localhost_req) == "localhost"
+        # Loopback hosts must get a host-only cookie (no Domain attr):
+        # Domain=localhost is never sent back to 127.0.0.1, breaking auth.
+        assert resolveCookieDomain(localhost_req) is None
 
         loopback_req = MagicMock()
         loopback_req.url.hostname = "127.0.0.1"
-        assert resolveCookieDomain(loopback_req) == "localhost"
+        assert resolveCookieDomain(loopback_req) is None
 
         prod_req = MagicMock()
         prod_req.url.hostname = "app.example.com"
         assert resolveCookieDomain(prod_req) == "app.example.com"
+
+    @patch("main.controller.authentication_controller.SessionManager")
+    @patch("main.controller.authentication_controller.createAccessToken")
+    @patch("main.controller.authentication_controller.AuthenticationManager")
+    def test_loopback_login_sets_host_only_cookie(self, mock_auth_mgr, mock_create_token, mock_session_mgr):
+        """On 127.0.0.1 the login Set-Cookie must omit Domain so the browser sends it back."""
+        from main.controller.authentication_controller import router as authRouter
+        from main.utils.errors import registerErrorHandlers
+
+        app = FastAPI()
+        app.include_router(authRouter)
+        registerErrorHandlers(app)
+        client = TestClient(app, base_url="http://127.0.0.1", raise_server_exceptions=False)
+        mock_auth_mgr.authenticateUser.return_value = {"userId": 1, "username": "bob", "roles": ["USER"]}
+
+        mock_session = MagicMock()
+        mock_session.sessionId = "sess-123"
+        mock_session_mgr.createSession.return_value = mock_session
+        mock_create_token.return_value = "jwt-token-abc"
+
+        login = client.post("/auth/login", json={"username": "bob", "password": "secret123"})
+        assert login.status_code == 200
+        login_cookies = login.headers.get_list("set-cookie")
+        token_cookie = next(c for c in login_cookies if "mansa_token=" in c)
+        assert domain_of(token_cookie) is None, f"loopback cookie must be host-only: {token_cookie}"

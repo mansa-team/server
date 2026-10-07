@@ -97,3 +97,9 @@ class TestScraperTrigger:
             resp = statusClient.post("/scraper/run")
             assert resp.status_code == 200
             assert resp.json()["status"] == "error"
+
+    def test_scraper_trigger_no_auth_required(self, statusClient):
+        with patch("run.Config") as mockConfig, patch("run.runScraper"):
+            mockConfig.DEBUG_MODE = True
+            resp = statusClient.post("/scraper/run")
+            assert resp.status_code == 200

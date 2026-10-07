@@ -27,31 +27,31 @@ def _live_ok(url, params=None, headers=None, timeout=None):
     return Resp()
 
 
-def _seed(dbSession, client):
-    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+def _seed(client):
+    client.post("/wallet/wallets", json={"name": "W"})
     client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Stock",
+            "asset_type": "ACOES",
             "ticker": "PETR4",
             "date": "2026-01-10",
             "quantity": 10,
             "price": 10.0,
         },
     )
-    return walletId
 
 
 def test_positions_math_with_live_price(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_ok)
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = _seed(dbSession, client)
-    item = client.get(f"/wallet/positions?wallet_id={walletId}").json()["items"][0]
+    _seed(client)
+    item = client.get("/wallet/positions").json()["items"][0]
     assert item["current_price"] == 30.0
     assert item["equity"] == 300.0
-    assert item["appreciation"] == 200.0
+    # appreciation derives client-side: equity - qty*avg = 300 - 10*10.
+    assert item["quantity"] == 10.0 and item["avgPrice"] == 10.0
+    assert "appreciation" not in item and "percent_wallet" not in item and "buy_flag" not in item
 
 
 def test_live_timeout_falls_back_to_null(dbSession, monkeypatch):
@@ -60,8 +60,8 @@ def test_live_timeout_falls_back_to_null(dbSession, monkeypatch):
 
     monkeypatch.setattr(requests, "get", boom)
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = _seed(dbSession, client)
-    body = client.get(f"/wallet/positions?wallet_id={walletId}").json()
+    _seed(client)
+    body = client.get("/wallet/positions").json()
     assert body["items"][0]["current_price"] is None
     assert body["equity_total"] == 0
 
@@ -69,13 +69,12 @@ def test_live_timeout_falls_back_to_null(dbSession, monkeypatch):
 def test_unknown_ticker_returns_null_not_422(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_ok)
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+    client.post("/wallet/wallets", json={"name": "W"})
     resp = client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Compra",
-            "asset_type": "Crypto",
+            "asset_type": "OUTROS",
             "ticker": "BTC",
             "date": "2026-01-10",
             "quantity": 1,
@@ -83,7 +82,7 @@ def test_unknown_ticker_returns_null_not_422(dbSession, monkeypatch):
         },
     )
     assert resp.status_code == 201
-    item = client.get(f"/wallet/positions?wallet_id={walletId}").json()["items"][0]
+    item = client.get("/wallet/positions").json()["items"][0]
     assert item["current_price"] is None
 
 
@@ -103,6 +102,6 @@ def test_cached_fallback_serves_when_live_fails(dbSession, monkeypatch):
 
     monkeypatch.setattr(requests, "get", fake_get)
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = _seed(dbSession, client)
-    item = client.get(f"/wallet/positions?wallet_id={walletId}").json()["items"][0]
+    _seed(client)
+    item = client.get("/wallet/positions").json()["items"][0]
     assert item["current_price"] == 27.5
