@@ -25,8 +25,8 @@ class TestUserSessionModel:
 
 
 class TestSessionExpiration:
-    def test_session_expiry_days_is_7(self):
-        assert SESSION_EXPIRY_DAYS == 7
+    def test_session_expiry_days_is_30(self):
+        assert SESSION_EXPIRY_DAYS == 30
 
     def test_session_can_expire(self):
         now = datetime.now()
