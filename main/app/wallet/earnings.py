@@ -4,7 +4,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import Session
 
-from main.app.stocks_api.sync_cache import MISS, syncCacheGet, syncCacheSet
+from main.utils.sync_cache import MISS, syncCacheGet, syncCacheSet
 from main.app.wallet.entries import EntriesManager
 from main.app.wallet.positions import PositionsManager
 from main.models.wallet import Earning, Holding, Transaction, Wallet

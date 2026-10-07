@@ -4,7 +4,7 @@ import pytest_asyncio
 
 from cashews import cache as cashewsCache
 
-from main.app.stocks_api.sync_cache import cache
+from main.utils.sync_cache import sync_cache
 
 
 @pytest_asyncio.fixture(scope="module", loop_scope="module", autouse=True)
@@ -17,7 +17,7 @@ async def setup_cache():
 def test_hit_returns_cached_value_without_calling_func():
     calls = []
 
-    @cache(ttl="1h", key="test:simple:{x}")
+    @sync_cache(ttl="1h", key="test:simple:{x}")
     def fn(x):
         calls.append(x)
         return orjson.dumps({"x": x})
@@ -32,7 +32,7 @@ def test_hit_returns_cached_value_without_calling_func():
 def test_distinct_args_get_distinct_cache_entries():
     calls = []
 
-    @cache(ttl="1h", key="test:distinct:{x}")
+    @sync_cache(ttl="1h", key="test:distinct:{x}")
     def fn(x):
         calls.append(x)
         return orjson.dumps({"x": x})
@@ -46,7 +46,7 @@ def test_distinct_args_get_distinct_cache_entries():
 def test_params_not_in_template_are_excluded_from_key():
     calls = []
 
-    @cache(ttl="1h", key="test:exclude:{x}")
+    @sync_cache(ttl="1h", key="test:exclude:{x}")
     def fn(x, junk="ignored"):
         calls.append(x)
         return orjson.dumps({"x": x})
@@ -60,7 +60,7 @@ def test_params_not_in_template_are_excluded_from_key():
 def test_exceptions_propagate_and_are_not_cached():
     calls = []
 
-    @cache(ttl="1h", key="test:exc:{x}")
+    @sync_cache(ttl="1h", key="test:exc:{x}")
     def fn(x):
         calls.append(x)
         raise ValueError("boom")

@@ -3,7 +3,7 @@ from datetime import date as dateType
 
 from sqlalchemy.orm import Session
 
-from main.app.stocks_api.sync_cache import cache
+from main.utils.sync_cache import sync_cache
 from main.app.wallet.earnings import EarningsManager
 from main.app.wallet.positions import PositionsManager
 from main.models.wallet import Earning, Transaction, Wallet
@@ -16,7 +16,7 @@ MAX_POINTS = 2000
 
 class AnalyticsManager:
     @classmethod
-    @cache(
+    @sync_cache(
         ttl="6h",
         key="wallet:progression:{userId}:{fromIso}:{toIso}:{recalcKey}:{entriesSnap}",
     )

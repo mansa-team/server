@@ -55,7 +55,7 @@ def runAwaitable(awaitable: Any) -> Any:
         return pool.submit(lambda: asyncio.run(awaitCall())).result()
 
 
-def cache(ttl: str, key: str) -> Callable[[F], F]:
+def sync_cache(ttl: str, key: str) -> Callable[[F], F]:
     def decorator(func: F) -> F:
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:

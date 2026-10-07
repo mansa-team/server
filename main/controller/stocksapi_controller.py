@@ -9,7 +9,7 @@ from main.app.stocks_api.key import verifyAPIKey
 from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
 from main.app.stocks_api.compress import compressResponse, getNest
 from main.app.stocks_api.cache import stocksCache
-from main.app.stocks_api.sync_cache import cache
+from main.utils.sync_cache import sync_cache
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ def health():
 
 
 @router.get("/fields", operation_id="list_fields")
-@cache(ttl=STOCKS_TTL, key="stocks:fields")
+@sync_cache(ttl=STOCKS_TTL, key="stocks:fields")
 def listFields(response: Response):
     """Discover available field names before querying /historical or /fundamental.
 
@@ -87,7 +87,7 @@ def listFields(response: Response):
 
 
 @router.get("/historical", operation_id="get_historical")
-@cache(ttl=STOCKS_TTL, key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
+@sync_cache(ttl=STOCKS_TTL, key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 def getHistorical(
     response: Response,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -158,7 +158,7 @@ def getHistorical(
 
 
 @router.get("/fundamental", operation_id="get_fundamental")
-@cache(ttl=STOCKS_TTL, key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
+@sync_cache(ttl=STOCKS_TTL, key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 def getFundamental(
     response: Response,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -234,7 +234,7 @@ def getFundamental(
 
 
 @router.get("/cotations", operation_id="get_cotations")
-@cache(ttl=STOCKS_TTL, key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}")
+@sync_cache(ttl=STOCKS_TTL, key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}")
 def getCotations(
     response: Response,
     search: str = Query(..., min_length=1, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -296,7 +296,7 @@ def getCotations(
 
 
 @router.get("/cotations/live", operation_id="get_live_price")
-@cache(ttl=LIVE_TTL, key="stocks:live:{search}:{compact}")
+@sync_cache(ttl=LIVE_TTL, key="stocks:live:{search}:{compact}")
 def getLiveCotation(
     response: Response,
     search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),

@@ -7,23 +7,23 @@ from datetime import date as dateType
 from datetime import datetime
 
 import requests
-from cashews import cache as cashewsCache
+from cashews import cache
 from sqlalchemy.orm import Session
 
 from config import Config
-from main.app.stocks_api.sync_cache import cache
+from main.utils.sync_cache import sync_cache
 from main.models.wallet import Holding, Target, Wallet
 
 logger = logging.getLogger(__name__)
 
-cashewsCache.setup("mem://")
+cache.setup("mem://")
 
 closesSemaphore = threading.BoundedSemaphore(8)
 
 
 class PositionsManager:
     @classmethod
-    @cache(ttl="6h", key="wallet:xango:{tickers}")
+    @sync_cache(ttl="6h", key="wallet:xango:{tickers}")
     def fetchXangoScores(cls, tickers: tuple[str, ...]) -> dict[str, float | None]:
         scores: dict[str, float | None] = {}
         for ticker in tickers:
@@ -75,7 +75,7 @@ class PositionsManager:
                 pass
 
     @classmethod
-    @cache(ttl="15s", key="wallet:live:{tickers}")
+    @sync_cache(ttl="15s", key="wallet:live:{tickers}")
     def fetchLivePrices(cls, tickers: list[str]) -> dict[str, float | None]:
         if not tickers:
             return {}
@@ -167,7 +167,7 @@ class PositionsManager:
         return []
 
     @classmethod
-    @cache(ttl="6h", key="wallet:closes:{ticker}")
+    @sync_cache(ttl="6h", key="wallet:closes:{ticker}")
     def fetchPadraoCloses(cls, ticker: str) -> list[tuple[dateType, float]]:
         try:
             key = os.getenv("STOCKS_API_KEY", "")

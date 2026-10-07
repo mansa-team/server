@@ -5,25 +5,25 @@ from math import sqrt
 from statistics import stdev
 from types import SimpleNamespace
 
-from cashews import cache as cashewsCache
+from cashews import cache
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from main.app.stocks_api.sync_cache import cache
+from main.utils.sync_cache import sync_cache
 from main.app.wallet.entries import EntriesManager
 from main.app.wallet.positions import PositionsManager
 from main.models.wallet import Earning, Transaction, Wallet
 
 logger = logging.getLogger(__name__)
 
-cashewsCache.setup("mem://")
+cache.setup("mem://")
 
 PERFORMANCE_EPOCH = "1970-01-01T00:00:00"
 
 
 class PerformanceManager:
     @classmethod
-    @cache(
+    @sync_cache(
         ttl="6h",
         key="wallet:performance:{userId}:{tickerKey}:{fromIso}:{toIso}:{recalcKey}:{entriesSnap}:{earningsSnap}:v2",
     )
