@@ -32,18 +32,13 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
+# Kept: mocked seam (patched 6x in tests/test_controllers_coverage.py) — keep.
 def isSecureScheme(request: Request) -> bool:
-    # X-Forwarded-Proto trusted for scheme detection behind proxies/TLS
-    # terminators. Cookie `Secure` itself is always set (see below) so a
-    # spoofed `X-Forwarded-Proto: http` can never downgrade it.
     return getRequestScheme(request) == "https"
 
 
 def resolveCookieDomain(request: Request) -> str | None:
     hostname = request.url.hostname or "localhost"
-    # Local hosts get a host-only cookie (no Domain attribute): a cookie with
-    # Domain=localhost is never sent back to 127.0.0.1, which surfaces as 401
-    # "Session not found" on every cookie-authenticated route.
     if hostname in ("localhost", "127.0.0.1"):
         return None
     return hostname

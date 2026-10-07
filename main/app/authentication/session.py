@@ -14,16 +14,14 @@ def parseDeviceFields(userAgent: str | None) -> tuple[str | None, str | None, st
     if not userAgent:
         return None, None, None
     parsed = parseUserAgent(userAgent)
-    if parsed.is_tablet:
-        deviceType: str | None = "tablet"
-    elif parsed.is_mobile:
-        deviceType = "mobile"
-    elif parsed.is_pc:
-        deviceType = "desktop"
-    else:
-        deviceType = None
+    if parsed.is_tablet: deviceType: str | None = "tablet"
+    elif parsed.is_mobile: deviceType = "mobile"
+    elif parsed.is_pc: deviceType = "desktop"
+    else: deviceType = None
+
     browser = parsed.browser.family if parsed.browser.family != "Other" else None
     operatingSystem = parsed.os.family if parsed.os.family != "Other" else None
+    
     return deviceType, browser, operatingSystem
 
 
@@ -77,6 +75,7 @@ class SessionManager:
         return query.first()
 
     @staticmethod
+    # Kept: mocked seam (test_controllers_coverage.py) + direct test (test_sessions.py:177) — keep.
     def getCurrentSession(db: Session, userId: int) -> UserSession | None:
         return (
             db.query(UserSession)
