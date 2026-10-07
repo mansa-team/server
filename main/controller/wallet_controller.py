@@ -89,7 +89,7 @@ def delete_entry_route(
     return {"entryId": deletedId, "holding": serialize_holding(holding)}
 
 
-@router.get("/positions")
+@router.get("/positions", operation_id="wallet_positions")
 def list_positions_route(
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
@@ -98,7 +98,7 @@ def list_positions_route(
     return PositionsManager.getPositions(db, wallet)
 
 
-@router.get("/rebalance")
+@router.get("/rebalance", operation_id="wallet_rebalance")
 def get_rebalance_route(
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
@@ -107,7 +107,7 @@ def get_rebalance_route(
     return PositionsManager.getRebalance(db, wallet)
 
 
-@router.get("/summary")
+@router.get("/summary", operation_id="wallet_summary")
 def get_summary_route(
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
@@ -116,7 +116,7 @@ def get_summary_route(
     return SummaryManager.getSummary(db, wallet)
 
 
-@router.get("/allocation")
+@router.get("/allocation", operation_id="wallet_allocation")
 def get_allocation_route(
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
@@ -137,7 +137,7 @@ def set_rating_route(
     return {"ticker": holding.ticker, "rating": holding.rating}
 
 
-@router.get("/earnings")
+@router.get("/earnings", operation_id="wallet_earnings")
 def list_earnings_route(
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
@@ -146,7 +146,7 @@ def list_earnings_route(
     return {"items": [serialize_earning(item) for item in EarningsManager.listEarnings(db, wallet)]}
 
 
-@router.get("/performance")
+@router.get("/performance", operation_id="wallet_performance")
 def get_performance_route(
     ticker: str | None = None,
     fromIso: str | None = Query(default=None, alias="from"),
@@ -159,7 +159,7 @@ def get_performance_route(
     return PerformanceManager.getPerformance(db, wallet, ticker, startDate, endDate)
 
 
-@router.get("/progression")
+@router.get("/progression", operation_id="wallet_progression_series")
 def get_progression_route(
     fromIso: str | None = Query(default=None, alias="from"),
     toIso: str | None = Query(default=None, alias="to"),
