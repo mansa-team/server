@@ -19,6 +19,7 @@ from main.app.wallet.wallets import Wallet, WalletCreate, WalletsManager
 router = APIRouter(prefix="/wallet", tags=["wallet"], dependencies=[Depends(UserManager.getCurrentUser)])
 
 
+# Kept: FastAPI DI seam resolving the wallet for every wallet route — keep.
 def getMyWallet(
     db: Session = Depends(getSession),
     currentUser: dict = Depends(UserManager.getCurrentUser),
@@ -54,7 +55,7 @@ def create_entry_route(
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    entry, holding = EntriesManager.addEntry(db, int(currentUser["userId"]), int(wallet.walletId), payload)
+    entry, holding = EntriesManager.addEntry(db, wallet, payload)
     return {"entryId": entry.entryId, "holding": serialize_holding(holding)}
 
 
@@ -67,7 +68,7 @@ def list_entries_route(
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    total, items = EntriesManager.listEntries(db, int(currentUser["userId"]), int(wallet.walletId), ticker, limit, offset)
+    total, items = EntriesManager.listEntries(db, wallet, ticker, limit, offset)
     return {"total": total, "items": [serialize_entry(item) for item in items]}
 
 
@@ -76,9 +77,10 @@ def update_entry_route(
     entryId: int,
     payload: EntryUpdate,
     currentUser: dict = Depends(UserManager.getCurrentUser),
+    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    entry, holding = EntriesManager.updateEntry(db, int(currentUser["userId"]), entryId, payload)
+    entry, holding = EntriesManager.updateEntry(db, wallet, entryId, payload)
     return {"entryId": entry.entryId, "holding": serialize_holding(holding)}
 
 
@@ -86,9 +88,10 @@ def update_entry_route(
 def delete_entry_route(
     entryId: int,
     currentUser: dict = Depends(UserManager.getCurrentUser),
+    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    deletedId, holding = EntriesManager.deleteEntry(db, int(currentUser["userId"]), entryId)
+    deletedId, holding = EntriesManager.deleteEntry(db, wallet, entryId)
     return {"entryId": deletedId, "holding": serialize_holding(holding)}
 
 
@@ -98,7 +101,7 @@ def list_positions_route(
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    return PositionsManager.getPositions(db, int(wallet.walletId), int(currentUser["userId"]))
+    return PositionsManager.getPositions(db, wallet)
 
 
 @router.get("/rebalance", response_class=ORJSONResponse)
@@ -107,7 +110,7 @@ def get_rebalance_route(
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    return PositionsManager.getRebalance(db, int(wallet.walletId), int(currentUser["userId"]))
+    return PositionsManager.getRebalance(db, wallet)
 
 
 @router.get("/summary", response_class=ORJSONResponse)
@@ -116,7 +119,7 @@ def get_summary_route(
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    return SummaryManager.getSummary(db, int(wallet.walletId), int(currentUser["userId"]))
+    return SummaryManager.getSummary(db, wallet)
 
 
 @router.get("/allocation", response_class=ORJSONResponse)
@@ -125,7 +128,7 @@ def get_allocation_route(
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    return SummaryManager.getAllocation(db, int(wallet.walletId), int(currentUser["userId"]))
+    return SummaryManager.getAllocation(db, wallet)
 
 
 @router.put("/ratings", response_class=ORJSONResponse)
@@ -135,7 +138,7 @@ def set_rating_route(
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    holding = summary.set_rating(db, int(currentUser["userId"]), int(wallet.walletId), payload)
+    holding = summary.set_rating(db, wallet, payload)
     return {"ticker": holding.ticker, "rating": holding.rating}
 
 
@@ -145,12 +148,7 @@ def list_earnings_route(
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    return {
-        "items": [
-            serialize_earning(item)
-            for item in EarningsManager.listEarnings(db, int(wallet.walletId), int(currentUser["userId"]))
-        ]
-    }
+    return {"items": [serialize_earning(item) for item in EarningsManager.listEarnings(db, wallet)]}
 
 
 # Canonical raw: from/to + ticker only. Preset->date resolution and metric
@@ -164,9 +162,8 @@ def get_performance_route(
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    userId, walletId = int(currentUser["userId"]), int(wallet.walletId)
-    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, walletId, userId, fromIso, toIso)
-    return PerformanceManager.getPerformance(db, walletId, userId, ticker, startDate, endDate)
+    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet, fromIso, toIso)
+    return PerformanceManager.getPerformance(db, wallet, ticker, startDate, endDate)
 
 
 # Canonical daily: bucketing + granularity selection are client-side.
@@ -178,9 +175,8 @@ def get_progression_route(
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    userId, walletId = int(currentUser["userId"]), int(wallet.walletId)
-    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, walletId, userId, fromIso, toIso)
-    return AnalyticsManager.getProgression(db, walletId, userId, startDate, endDate)
+    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet, fromIso, toIso)
+    return AnalyticsManager.getProgression(db, wallet, startDate, endDate)
 
 
 @router.get("/cashflows", response_class=ORJSONResponse)
@@ -191,9 +187,8 @@ def get_cashflows_route(
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    userId, walletId = int(currentUser["userId"]), int(wallet.walletId)
-    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, walletId, userId, fromIso, toIso)
-    return AnalyticsManager.getCashflows(db, walletId, userId, startDate, endDate)
+    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet, fromIso, toIso)
+    return AnalyticsManager.getCashflows(db, wallet, startDate, endDate)
 
 
 @router.get("/dividends/monthly", response_class=ORJSONResponse)
@@ -204,6 +199,5 @@ def get_dividends_monthly_route(
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
-    userId, walletId = int(currentUser["userId"]), int(wallet.walletId)
-    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, walletId, userId, fromIso, toIso)
-    return AnalyticsManager.getDividendsMonthly(db, walletId, userId, startDate, endDate)
+    startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet, fromIso, toIso)
+    return AnalyticsManager.getDividendsMonthly(db, wallet, startDate, endDate)

@@ -11,9 +11,8 @@ from cashews import cache as cashewsCache
 from sqlalchemy.orm import Session
 
 from config import Config
-from main.app.stocks_api.sync_cache import cache as walletCache
-from main.app.wallet.wallets import WalletsManager
-from main.models.wallet import Holding, Target
+from main.app.stocks_api.sync_cache import cache
+from main.models.wallet import Holding, Target, Wallet
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +23,7 @@ closesSemaphore = threading.BoundedSemaphore(8)
 
 class PositionsManager:
     @classmethod
-    @walletCache(ttl="6h", key="wallet:xango:{tickers}")
+    @cache(ttl="6h", key="wallet:xango:{tickers}")
     def fetchXangoScores(cls, tickers: tuple[str, ...]) -> dict[str, float | None]:
         scores: dict[str, float | None] = {}
         for ticker in tickers:
@@ -53,12 +52,8 @@ class PositionsManager:
         return scores
 
     @classmethod
-    def maybeRefreshRatings(cls, db: Session, walletId: int) -> None:
-        # Refresh-on-read: holdings carry the LATEST XANGO score, not the buy-time
-        # snapshot (entries.py seeds rating once at creation). Cheap when fresh:
-        # fetchXangoScores is TTL-cached (6h). Never raises; on failure (or a None
-        # score) the stored rating is kept. Manual PUT /ratings is a user override
-        # that the next read overwrites — no pin flag exists without a migration.
+    def maybeRefreshRatings(cls, db: Session, wallet: Wallet) -> None:
+        walletId = int(wallet.walletId)
         try:
             holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
             if not holdings:
@@ -179,7 +174,7 @@ class PositionsManager:
         return []
 
     @classmethod
-    @walletCache(ttl="6h", key="wallet:closes:{ticker}")
+    @cache(ttl="6h", key="wallet:closes:{ticker}")
     def fetchPadraoCloses(cls, ticker: str) -> list[tuple[dateType, float]]:
         try:
             key = os.getenv("STOCKS_API_KEY", "")
@@ -217,10 +212,10 @@ class PositionsManager:
 
     @classmethod
     def pricePass(
-        cls, db: Session, walletId: int, userId: int
+        cls, db: Session, wallet: Wallet
     ) -> tuple[list[Holding], dict[str, float | None], dict[str, float | None], float]:
-        WalletsManager.getWallet(db, walletId, userId)
-        cls.maybeRefreshRatings(db, walletId)
+        walletId = int(wallet.walletId)
+        cls.maybeRefreshRatings(db, wallet)
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
 
         tickers = sorted({str(holding.ticker) for holding in holdings})
@@ -236,10 +231,11 @@ class PositionsManager:
         return holdings, prices, equities, equityTotal
 
     @classmethod
-    def getPositions(cls, db: Session, walletId: int, userId: int) -> dict:
+    def getPositions(cls, db: Session, wallet: Wallet) -> dict:
         # Canonical raw: holdings + live prices + per-ticker equity + total.
         # appreciation / percent_wallet / buy_flag derive client-side.
-        holdings, prices, equities, equityTotal = cls.pricePass(db, walletId, userId)
+        holdings, prices, equities, equityTotal = cls.pricePass(db, wallet)
+        walletId = int(wallet.walletId)
 
         targetRows = db.query(Target).filter(Target.walletId == walletId, Target.keyKind == "ticker").all()
         targetByTicker = {str(target.keyValue): float(target.percentIdeal) for target in targetRows}
@@ -272,11 +268,11 @@ class PositionsManager:
         return {"items": items, "equity_total": equityTotal}
 
     @classmethod
-    def getRebalance(cls, db: Session, walletId: int, userId: int) -> dict:
+    def getRebalance(cls, db: Session, wallet: Wallet) -> dict:
         # Canonical raw: weight + price + equity per ticker + total. target_pct /
         # current_pct / delta_qty / side derive client-side. Shares pricePass with
         # getPositions; the 15s live-price cache absorbs the second call.
-        holdings, prices, equities, equityTotal = cls.pricePass(db, walletId, userId)
+        holdings, prices, equities, equityTotal = cls.pricePass(db, wallet)
 
         items = []
         for holding in holdings:

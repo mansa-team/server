@@ -3,10 +3,10 @@ from datetime import date as dateType
 
 from sqlalchemy.orm import Session
 
-from main.app.stocks_api.sync_cache import cache as walletCache
+from main.app.stocks_api.sync_cache import cache
 from main.app.wallet.earnings import EarningsManager
 from main.app.wallet.positions import PositionsManager
-from main.models.wallet import Earning, Transaction
+from main.models.wallet import Earning, Transaction, Wallet
 
 logger = logging.getLogger(__name__)
 
@@ -27,13 +27,13 @@ class AnalyticsManager:
     # invested. Bucketing (weekly/monthly) + granularity resolution are
     # client-side. Only the MAX_POINTS stride cap stays server as payload guard.
     @classmethod
-    @walletCache(
+    @cache(
         ttl="6h",
-        key="wallet:progression:{walletId}:{fromIso}:{toIso}:{recalcKey}:{entriesSnap}",
+        key="wallet:progression:{userId}:{fromIso}:{toIso}:{recalcKey}:{entriesSnap}",
     )
     def cachedProgression(
         cls,
-        walletId: int,
+        userId: int,
         fromIso: str,
         toIso: str,
         recalcKey: str,
@@ -110,10 +110,10 @@ class AnalyticsManager:
         return {"granularity": "daily", "from": fromIso, "to": toIso, "points": points}
 
     @classmethod
-    def getProgression(cls, db: Session, walletId: int, userId: int, start: dateType, end: dateType) -> dict:
-        from main.app.wallet.wallets import WalletsManager
+    def getProgression(cls, db: Session, wallet: Wallet, start: dateType, end: dateType) -> dict:
 
-        wallet = WalletsManager.getWallet(db, walletId, userId)
+        walletId = int(wallet.walletId)
+        userId = int(wallet.userId)
         recalcStamp = wallet.lastRecalc
         recalcKey = str(recalcStamp) if recalcStamp is not None else PROGRESSION_EPOCH
         ledgerRows = (
@@ -136,14 +136,12 @@ class AnalyticsManager:
             )
             for ledgerRow in ledgerRows
         )
-        return cls.cachedProgression(walletId, start.isoformat(), end.isoformat(), recalcKey, entriesSnap)
+        return cls.cachedProgression(userId, start.isoformat(), end.isoformat(), recalcKey, entriesSnap)
 
     @classmethod
-    def getCashflows(cls, db: Session, walletId: int, userId: int, start: dateType, end: dateType) -> dict:
-        # Canonical raw: windowed ledger rows. Month buckets + rounding + totals are client-side.
-        from main.app.wallet.wallets import WalletsManager
+    def getCashflows(cls, db: Session, wallet: Wallet, start: dateType, end: dateType) -> dict:
 
-        WalletsManager.getWallet(db, walletId, userId)
+        walletId = int(wallet.walletId)
         ledgerRows = (
             db.query(Transaction)
             .filter(Transaction.walletId == walletId, Transaction.date >= start, Transaction.date <= end)
@@ -172,12 +170,10 @@ class AnalyticsManager:
         return {"from": start.isoformat(), "to": end.isoformat(), "rows": rows}
 
     @classmethod
-    def getDividendsMonthly(cls, db: Session, walletId: int, userId: int, start: dateType, end: dateType) -> dict:
-        # Canonical raw: windowed earning rows. Month buckets + rounding + totals are client-side.
-        from main.app.wallet.wallets import WalletsManager
+    def getDividendsMonthly(cls, db: Session, wallet: Wallet, start: dateType, end: dateType) -> dict:
 
-        WalletsManager.getWallet(db, walletId, userId)
-        EarningsManager.maybeAutoSync(db, walletId, userId)
+        walletId = int(wallet.walletId)
+        EarningsManager.maybeAutoSync(db, wallet)
         earningRows = (
             db.query(Earning)
             .filter(Earning.walletId == walletId, Earning.payDate >= start, Earning.payDate <= end)

@@ -7,8 +7,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from main.app.wallet.positions import PositionsManager
-from main.app.wallet.wallets import WalletsManager
-from main.models.wallet import Holding, Transaction
+from main.models.wallet import Holding, Transaction, Wallet
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +75,8 @@ class EntriesManager:
         return quantity, avg
 
     @classmethod
-    def recalcHolding(cls, db: Session, walletId: int, ticker: str) -> Holding | None:
+    def recalcHolding(cls, db: Session, wallet: Wallet, ticker: str) -> Holding | None:
+        walletId = int(wallet.walletId)
         entries = (
             db.query(Transaction)
             .filter(Transaction.walletId == walletId, Transaction.ticker == ticker)
@@ -112,8 +112,8 @@ class EntriesManager:
         return holding
 
     @classmethod
-    def addEntry(cls, db: Session, userId: int, walletId: int, data: EntryCreate) -> tuple[Transaction, Holding | None]:
-        WalletsManager.getWallet(db, walletId, userId)
+    def addEntry(cls, db: Session, wallet: Wallet, data: EntryCreate) -> tuple[Transaction, Holding | None]:
+        walletId = int(wallet.walletId)
         if data.asset_type not in ALLOWED_ASSET_TYPES:
             raise HTTPException(
                 status_code=422,
@@ -140,7 +140,7 @@ class EntriesManager:
         db.add(entry)
         db.flush()
 
-        holding = cls.recalcHolding(db, walletId, data.ticker)
+        holding = cls.recalcHolding(db, wallet, data.ticker)
 
         db.commit()
         db.refresh(entry)
@@ -152,9 +152,9 @@ class EntriesManager:
 
     @classmethod
     def listEntries(
-        cls, db: Session, userId: int, walletId: int, ticker: str | None = None, limit: int = 20, offset: int = 0
+        cls, db: Session, wallet: Wallet, ticker: str | None = None, limit: int = 20, offset: int = 0
     ) -> tuple[int, list[Transaction]]:
-        WalletsManager.getWallet(db, walletId, userId)
+        walletId = int(wallet.walletId)
         query = db.query(Transaction).filter(Transaction.walletId == walletId)
 
         if ticker is not None:
@@ -166,15 +166,14 @@ class EntriesManager:
         return total, items
 
     @classmethod
-    def updateEntry(
-        cls, db: Session, userId: int, entryId: int, patch: EntryUpdate
-    ) -> tuple[Transaction, Holding | None]:
+    def updateEntry(cls, db: Session, wallet: Wallet, entryId: int, patch: EntryUpdate) -> tuple[Transaction, Holding | None]:
         entry = db.query(Transaction).filter(Transaction.entryId == entryId).first()
 
         if entry is None:
             raise HTTPException(status_code=404, detail="entry not found")
 
-        WalletsManager.getWallet(db, int(entry.walletId), userId)
+        if int(entry.walletId) != int(wallet.walletId):
+            raise HTTPException(status_code=404, detail="entry not found")
 
         changes = patch.model_dump(exclude_unset=True)
         if changes.get("asset_type") is not None and changes["asset_type"] not in ALLOWED_ASSET_TYPES:
@@ -191,7 +190,7 @@ class EntriesManager:
         db.flush()
 
         try:
-            holding = cls.recalcHolding(db, int(entry.walletId), str(entry.ticker))
+            holding = cls.recalcHolding(db, wallet, str(entry.ticker))
         except HTTPException:
             db.rollback()
             raise
@@ -205,22 +204,22 @@ class EntriesManager:
         return entry, holding
 
     @classmethod
-    def deleteEntry(cls, db: Session, userId: int, entryId: int) -> tuple[int, Holding | None]:
+    def deleteEntry(cls, db: Session, wallet: Wallet, entryId: int) -> tuple[int, Holding | None]:
         entry = db.query(Transaction).filter(Transaction.entryId == entryId).first()
 
         if entry is None:
             raise HTTPException(status_code=404, detail="entry not found")
 
-        WalletsManager.getWallet(db, int(entry.walletId), userId)
+        if int(entry.walletId) != int(wallet.walletId):
+            raise HTTPException(status_code=404, detail="entry not found")
 
-        walletId = entry.walletId
         ticker = entry.ticker
 
         db.delete(entry)
         db.flush()
 
         try:
-            holding = cls.recalcHolding(db, int(walletId), str(ticker))
+            holding = cls.recalcHolding(db, wallet, str(ticker))
         except HTTPException:
             db.rollback()
             raise

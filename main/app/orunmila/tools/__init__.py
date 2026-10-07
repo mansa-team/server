@@ -23,6 +23,7 @@ TOOL_REGISTRY: dict[str, Any] = {
     "write_file": write_file,
     "list_files": list_files,
     "serve_file": serve_file,
+    
     "wallet_positions": wallet_positions,
     "wallet_summary": wallet_summary,
     "wallet_allocation": wallet_allocation,

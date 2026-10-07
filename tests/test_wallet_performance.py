@@ -38,7 +38,6 @@ def test_performance_splits_price_and_dividends(dbSession, monkeypatch):
     client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Compra",
             "asset_type": "ACOES",
             "ticker": "PETR4",
@@ -60,7 +59,7 @@ def test_performance_splits_price_and_dividends(dbSession, monkeypatch):
         )
     )
     dbSession.commit()
-    body = client.get(f"/wallet/performance?wallet_id={walletId}&ticker=PETR4&from=2026-01-01&to=2026-01-11").json()
+    body = client.get("/wallet/performance?ticker=PETR4&from=2026-01-01&to=2026-01-11").json()
     assert body["twr"] == pytest.approx(0.21)
     assert body["price_return"] == pytest.approx(0.1)
     assert body["dividends_received"] == 10.0
@@ -82,11 +81,10 @@ def test_performance_defaults_to_lifetime_window(dbSession, monkeypatch):
 
     monkeypatch.setattr(requests, "get", wrapped_series)
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+    client.post("/wallet/wallets", json={"name": "W"})
     client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Compra",
             "asset_type": "ACOES",
             "ticker": "PETR4",
@@ -95,7 +93,7 @@ def test_performance_defaults_to_lifetime_window(dbSession, monkeypatch):
             "price": 10.0,
         },
     )
-    body = client.get(f"/wallet/performance?wallet_id={walletId}").json()
+    body = client.get("/wallet/performance").json()
     assert body["twr"] == pytest.approx(0.1)
     assert body["price_return"] == pytest.approx(0.1)
     assert set(body) == {"twr", "twr_annualized", "volatility", "dividends_received", "price_return"}

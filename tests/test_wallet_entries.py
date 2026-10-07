@@ -16,11 +16,10 @@ async def clear_cashews_cache():
 
 def test_compra_average_includes_costs(dbSession):
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+    client.post("/wallet/wallets", json={"name": "W"})
     client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Compra",
             "asset_type": "ACOES",
             "ticker": "PETR4",
@@ -33,7 +32,6 @@ def test_compra_average_includes_costs(dbSession):
     resp = client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Compra",
             "asset_type": "ACOES",
             "ticker": "PETR4",
@@ -49,11 +47,10 @@ def test_compra_average_includes_costs(dbSession):
 
 def test_venda_keeps_avg_and_rejects_oversell(dbSession):
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+    client.post("/wallet/wallets", json={"name": "W"})
     client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Compra",
             "asset_type": "ACOES",
             "ticker": "PETR4",
@@ -65,7 +62,6 @@ def test_venda_keeps_avg_and_rejects_oversell(dbSession):
     resp = client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Venda",
             "asset_type": "ACOES",
             "ticker": "PETR4",
@@ -78,7 +74,6 @@ def test_venda_keeps_avg_and_rejects_oversell(dbSession):
     bad = client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Venda",
             "asset_type": "ACOES",
             "ticker": "PETR4",
@@ -88,17 +83,16 @@ def test_venda_keeps_avg_and_rejects_oversell(dbSession):
         },
     )
     assert bad.status_code == 422
-    items = client.get(f"/wallet/entries?wallet_id={walletId}").json()
+    items = client.get("/wallet/entries").json()
     assert items["total"] == 2
 
 
 def test_edit_replays_holding_from_ledger(dbSession):
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+    client.post("/wallet/wallets", json={"name": "W"})
     first = client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Compra",
             "asset_type": "ACOES",
             "ticker": "PETR4",
@@ -110,7 +104,6 @@ def test_edit_replays_holding_from_ledger(dbSession):
     client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Compra",
             "asset_type": "ACOES",
             "ticker": "PETR4",
@@ -172,11 +165,10 @@ def test_cross_user_wallet_isolated_404(dbSession):
 def test_compra_rejects_acao_singular(dbSession):
     # Strict shape: only "ACOES"/"OUTROS" accepted; the old singular form is 422.
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+    client.post("/wallet/wallets", json={"name": "W"})
     resp = client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Compra",
             "asset_type": "ACAO",
             "ticker": "WEGE3",
@@ -186,3 +178,38 @@ def test_compra_rejects_acao_singular(dbSession):
         },
     )
     assert resp.status_code == 422
+
+
+def test_second_user_sees_own_wallet_not_404(dbSession):
+    # Session scoping: user 2 resolves to their OWN wallet (200 + own rows),
+    # never user 1's data and never a 404 on collection reads.
+    user1, _, _ = make_wallet_client(db=dbSession)
+    user1.post("/wallet/wallets", json={"name": "W"})
+    user1.post(
+        "/wallet/entries",
+        json={
+            "side": "Compra",
+            "asset_type": "ACOES",
+            "ticker": "PETR4",
+            "date": "2026-01-10",
+            "quantity": 10,
+            "price": 10.0,
+        },
+    )
+    user2, _, _ = make_wallet_client(mock_identity={"userId": 2, "username": "other", "roles": ["USER"]}, db=dbSession)
+    assert user2.get("/wallet/entries").json() == {"total": 0, "items": []}
+    mine = user2.post(
+        "/wallet/entries",
+        json={
+            "side": "Compra",
+            "asset_type": "ACOES",
+            "ticker": "VALE3",
+            "date": "2026-01-10",
+            "quantity": 5,
+            "price": 20.0,
+        },
+    )
+    assert mine.status_code == 201
+    body = user2.get("/wallet/entries").json()
+    assert body["total"] == 1
+    assert [item["ticker"] for item in body["items"]] == ["VALE3"]

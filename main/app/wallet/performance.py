@@ -9,11 +9,10 @@ from cashews import cache as cashewsCache
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from main.app.stocks_api.sync_cache import cache as walletCache
+from main.app.stocks_api.sync_cache import cache
 from main.app.wallet.entries import EntriesManager
 from main.app.wallet.positions import PositionsManager
-from main.app.wallet.wallets import WalletsManager
-from main.models.wallet import Earning, Transaction
+from main.models.wallet import Earning, Transaction, Wallet
 
 logger = logging.getLogger(__name__)
 
@@ -24,13 +23,13 @@ PERFORMANCE_EPOCH = "1970-01-01T00:00:00"
 
 class PerformanceManager:
     @classmethod
-    @walletCache(
+    @cache(
         ttl="6h",
-        key="wallet:performance:{walletId}:{tickerKey}:{fromIso}:{toIso}:{recalcKey}:{entriesSnap}:{earningsSnap}:v2",
+        key="wallet:performance:{userId}:{tickerKey}:{fromIso}:{toIso}:{recalcKey}:{entriesSnap}:{earningsSnap}:v2",
     )
     def cachedPerformance(
         cls,
-        walletId: int,
+        userId: int,
         tickerKey: str,
         fromIso: str,
         toIso: str,
@@ -162,10 +161,10 @@ class PerformanceManager:
 
     @classmethod
     def defaultWindow(
-        cls, db: Session, walletId: int, userId: int, start: dateType | None, end: dateType | None
+        cls, db: Session, wallet: Wallet, start: dateType | None, end: dateType | None
     ) -> tuple[dateType, dateType]:
         # Fill omitted /performance bounds: lifetime window ending today.
-        WalletsManager.getWallet(db, walletId, userId)
+        walletId = int(wallet.walletId)
         today = dateType.today()
         if start is None:
             firstRow = (
@@ -177,23 +176,10 @@ class PerformanceManager:
         return start, end
 
     @classmethod
-    def resolveWindow(
-        cls,
-        db: Session,
-        walletId: int,
-        userId: int,
-        start: dateType | None,
-        end: dateType | None,
-    ) -> tuple[dateType, dateType]:
-        # Preset->date resolution is client-side; server takes explicit from/to only.
-        return cls.defaultWindow(db, walletId, userId, start, end)
-
-    @classmethod
     def resolveWindowFromIso(
         cls,
         db: Session,
-        walletId: int,
-        userId: int,
+        wallet: Wallet,
         fromIso: str | None,
         toIso: str | None,
     ) -> tuple[dateType, dateType]:
@@ -202,13 +188,14 @@ class PerformanceManager:
             end = dateType.fromisoformat(toIso) if toIso else None
         except ValueError:
             raise HTTPException(status_code=422, detail="invalid date, expected YYYY-MM-DD")
-        return cls.resolveWindow(db, walletId, userId, start, end)
+        return cls.defaultWindow(db, wallet, start, end)
 
     @classmethod
     def getPerformance(
-        cls, db: Session, walletId: int, userId: int, ticker: str | None, startDate: dateType, endDate: dateType
+        cls, db: Session, wallet: Wallet, ticker: str | None, startDate: dateType, endDate: dateType
     ) -> dict:
-        wallet = WalletsManager.getWallet(db, walletId, userId)
+        walletId = int(wallet.walletId)
+        userId = int(wallet.userId)
         recalcStamp = wallet.lastRecalc
         recalcKey = str(recalcStamp) if recalcStamp is not None else PERFORMANCE_EPOCH
         ledgerQuery = db.query(Transaction).filter(Transaction.walletId == walletId)
@@ -236,5 +223,5 @@ class PerformanceManager:
             for earningRow in earningRows
         )
         return cls.cachedPerformance(
-            walletId, ticker or "", startDate.isoformat(), endDate.isoformat(), recalcKey, entriesSnap, earningsSnap
+            userId, ticker or "", startDate.isoformat(), endDate.isoformat(), recalcKey, entriesSnap, earningsSnap
         )

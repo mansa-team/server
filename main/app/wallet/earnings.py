@@ -7,8 +7,7 @@ from sqlalchemy.orm import Session
 from main.app.stocks_api.sync_cache import MISS, syncCacheGet, syncCacheSet
 from main.app.wallet.entries import EntriesManager
 from main.app.wallet.positions import PositionsManager
-from main.app.wallet.wallets import WalletsManager
-from main.models.wallet import Earning, Holding, Transaction
+from main.models.wallet import Earning, Holding, Transaction, Wallet
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +21,7 @@ TIPO_MAP = {
 }
 
 
+# Kept: public API serialization used by wallet_controller — keep.
 def serialize_earning(earning) -> dict:
     return {
         "ticker": earning.ticker,
@@ -37,37 +37,34 @@ class EarningsManager:
     AUTO_SYNC_NEG_TTL = "5m"
 
     @classmethod
-    def autoSyncKey(cls, walletId: int) -> str:
-        return f"wallet:earnings:autosync:{walletId}"
-
-    @classmethod
-    def maybeAutoSync(cls, db: Session, walletId: int, userId: int) -> None:
+    def maybeAutoSync(cls, db: Session, wallet: Wallet) -> None:
         try:
-            if syncCacheGet(cls.autoSyncKey(walletId)) is not MISS:
+            if syncCacheGet(f"wallet:earnings:autosync:{wallet.userId}") is not MISS:
                 return
-            result = cls.syncEarnings(db, walletId, userId)
+            result = cls.syncEarnings(db, wallet)
             ttl = cls.AUTO_SYNC_TTL
+            walletId = int(wallet.walletId)
             if (
                 result["accrued"] == 0
                 and db.query(Holding).filter(Holding.walletId == walletId, Holding.quantity > 0).count() > 0
                 and db.query(Earning).filter(Earning.walletId == walletId).count() == 0
             ):
                 ttl = cls.AUTO_SYNC_NEG_TTL
-            syncCacheSet(cls.autoSyncKey(walletId), 1, ttl)
+            syncCacheSet(f"wallet:earnings:autosync:{wallet.userId}", 1, ttl)
         except Exception:
-            logger.warning("earnings autosync failed for wallet %s", walletId, exc_info=True)
+            logger.warning("earnings autosync failed for wallet %s", wallet.walletId, exc_info=True)
             try:
                 db.rollback()
             except Exception:
                 pass
             try:
-                syncCacheSet(cls.autoSyncKey(walletId), 1, cls.AUTO_SYNC_NEG_TTL)
+                syncCacheSet(f"wallet:earnings:autosync:{wallet.userId}", 1, cls.AUTO_SYNC_NEG_TTL)
             except Exception:
                 pass
 
     @classmethod
-    def syncEarnings(cls, db: Session, walletId: int, userId: int) -> dict:
-        WalletsManager.getWallet(db, walletId, userId)
+    def syncEarnings(cls, db: Session, wallet: Wallet) -> dict:
+        walletId = int(wallet.walletId)
 
         today = dateType.today()
         accrued = 0
@@ -159,10 +156,9 @@ class EarningsManager:
         return {"accrued": accrued, "transitioned": transitioned, "skipped_unknown": skippedUnknown}
 
     @classmethod
-    def listEarnings(cls, db: Session, walletId: int, userId: int) -> list[Earning]:
-        # Full list, always. Status filtering is client-side.
-        WalletsManager.getWallet(db, walletId, userId)
-        cls.maybeAutoSync(db, walletId, userId)
+    def listEarnings(cls, db: Session, wallet: Wallet) -> list[Earning]:
+        walletId = int(wallet.walletId)
+        cls.maybeAutoSync(db, wallet)
         query = db.query(Earning).filter(Earning.walletId == walletId)
 
         return query.order_by(Earning.exDate, Earning.earningId).all()

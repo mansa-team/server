@@ -81,11 +81,10 @@ def _div_fundamental(url, params=None, headers=None, timeout=None):
 def test_sync_accrues_with_qty_at_ex_date(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _div_fundamental)
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+    client.post("/wallet/wallets", json={"name": "W"})
     client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Compra",
             "asset_type": "ACOES",
             "ticker": "PETR4",
@@ -95,7 +94,7 @@ def test_sync_accrues_with_qty_at_ex_date(dbSession, monkeypatch):
         },
     )
     # GET auto-syncs on read: first read accrues, Bonificacao skipped (not stored).
-    items = client.get(f"/wallet/earnings?wallet_id={walletId}").json()["items"]
+    items = client.get("/wallet/earnings").json()["items"]
     assert len(items) == 2
     by_kind = {r["kind"]: r for r in items}
     assert by_kind["Div"] == {
@@ -120,11 +119,10 @@ def test_sync_repeated_ex_date_kind_aggregates_without_500(dbSession, monkeypatc
     # payout: sync must store ONE aggregated earning, not raise IntegrityError.
     monkeypatch.setattr(requests, "get", _div_fundamental)
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+    client.post("/wallet/wallets", json={"name": "W"})
     client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Compra",
             "asset_type": "ACOES",
             "ticker": "PETR4",
@@ -133,10 +131,10 @@ def test_sync_repeated_ex_date_kind_aggregates_without_500(dbSession, monkeypatc
             "price": 10.0,
         },
     )
-    first = client.get(f"/wallet/earnings?wallet_id={walletId}")
+    first = client.get("/wallet/earnings")
     assert first.status_code == 200
     assert len(first.json()["items"]) == 2
-    again = client.get(f"/wallet/earnings?wallet_id={walletId}")
+    again = client.get("/wallet/earnings")
     assert again.status_code == 200
     assert len(again.json()["items"]) == 2
 
@@ -145,11 +143,10 @@ def test_sync_repeated_ex_date_kind_aggregates_without_500(dbSession, monkeypatc
 def test_sync_is_idempotent(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _div_fundamental)
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+    client.post("/wallet/wallets", json={"name": "W"})
     client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Compra",
             "asset_type": "ACOES",
             "ticker": "PETR4",
@@ -158,7 +155,7 @@ def test_sync_is_idempotent(dbSession, monkeypatch):
             "price": 10.0,
         },
     )
-    first = client.get(f"/wallet/earnings?wallet_id={walletId}").json()["items"]
-    again = client.get(f"/wallet/earnings?wallet_id={walletId}").json()["items"]
+    first = client.get("/wallet/earnings").json()["items"]
+    again = client.get("/wallet/earnings").json()["items"]
     assert len(first) == 2
     assert again == first

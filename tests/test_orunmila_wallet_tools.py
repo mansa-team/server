@@ -49,7 +49,6 @@ def _seed_wallet(dbSession):
     client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Compra",
             "asset_type": "ACOES",
             "ticker": "PETR4",
@@ -211,9 +210,9 @@ def test_wallet_rebalance_single_holding_holds(dbSession, monkeypatch):
 
 
 def test_wallet_tools_cross_user_isolated(dbSession, monkeypatch):
-    # Tools take no wallet id: user 2 can only ever see their own (empty)
-    # wallet, never user 1's positions. The ownership assert stays as
-    # defense-in-depth and is covered directly below.
+    # Tools take no wallet id: user 2 only ever sees their own (empty)
+    # wallet, never user 1's positions. Self-resolved ids can't be foreign,
+    # so no per-call ownership check remains.
     import json
 
     monkeypatch.setattr(requests, "get", _live_ok)
@@ -228,12 +227,19 @@ def test_wallet_tools_cross_user_isolated(dbSession, monkeypatch):
         assert "PETR4" not in json.dumps(result, default=str)
 
 
-def test_ensure_ownership_denies_other_user(dbSession):
-    from main.app.orunmila.tools.wallet import ensureOwnership
+def test_resolve_wallet_is_session_scoped(dbSession):
+    # No wallet id is threaded anywhere: each user resolves to their OWN
+    # wallet object. User 2 gets a fresh own wallet, never user 1's.
+    from main.app.orunmila.tools.wallet import resolveWallet, resolveWalletId
 
-    walletId = _seed_wallet(dbSession)
-    assert ensureOwnership(dbSession, walletId, 1) is None
-    assert ensureOwnership(dbSession, walletId, 2) == {"error": "not-owner"}
+    user1WalletId = _seed_wallet(dbSession)
+    mine = resolveWallet(dbSession, 1)
+    other = resolveWallet(dbSession, 2)
+    assert int(mine.walletId) == user1WalletId
+    assert int(mine.userId) == 1
+    assert int(other.userId) == 2
+    assert int(other.walletId) != user1WalletId
+    assert resolveWalletId is resolveWallet
 
 
 def test_wallet_tools_no_auth_no_data():

@@ -6,8 +6,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from main.app.wallet.positions import PositionsManager
-from main.app.wallet.wallets import WalletsManager
-from main.models.wallet import Holding, Snapshot, Transaction
+from main.models.wallet import Holding, Snapshot, Transaction, Wallet
 
 
 class RatingUpsert(BaseModel):
@@ -17,15 +16,15 @@ class RatingUpsert(BaseModel):
 
 class SummaryManager:
     @classmethod
-    def getSummary(cls, db: Session, walletId: int, userId: int) -> dict:
-        # Canonical raw: applied/equity/variation + firstDate. TWR presets are
-        # client-side (GET /wallet/performance?from&to); no auto-TWR here.
-        wallet = WalletsManager.getWallet(db, walletId, userId)
-        PositionsManager.maybeRefreshRatings(db, walletId)
+    def getSummary(cls, db: Session, wallet: Wallet) -> dict:
+        walletId = int(wallet.walletId)
+        PositionsManager.maybeRefreshRatings(db, wallet)
+
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
         applied = sum(float(holding.quantity) * float(holding.avgPrice) for holding in holdings)
         tickers = sorted({str(holding.ticker) for holding in holdings})
         prices = PositionsManager.fetchLivePrices(tickers)
+
         PositionsManager.fillMissingCloses(prices)
 
         equity = 0.0
@@ -42,8 +41,6 @@ class SummaryManager:
 
         today = dateType.today()
 
-        # Snapshot keeps applied/equity/variation history; TWR columns stay NULL
-        # (client resolves TWRs, so server-computed snapshot TWRs would go stale).
         snapshot = db.query(Snapshot).filter(Snapshot.walletId == walletId, Snapshot.date == today).first()
         if snapshot is None:
             snapshot = Snapshot(
@@ -79,10 +76,9 @@ class SummaryManager:
         }
 
     @classmethod
-    def getAllocation(cls, db: Session, walletId: int, userId: int) -> dict:
-        # Canonical raw: per-holding equities + total. Grouping + pct are client-side.
-        WalletsManager.getWallet(db, walletId, userId)
-        PositionsManager.maybeRefreshRatings(db, walletId)
+    def getAllocation(cls, db: Session, wallet: Wallet) -> dict:
+        walletId = int(wallet.walletId)
+        PositionsManager.maybeRefreshRatings(db, wallet)
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
 
         tickers = sorted({str(holding.ticker) for holding in holdings})
@@ -106,8 +102,8 @@ class SummaryManager:
         return {"items": items, "equity_total": equityTotal}
 
     @classmethod
-    def set_rating(cls, db: Session, userId: int, walletId: int, data: RatingUpsert) -> Holding:
-        WalletsManager.getWallet(db, walletId, userId)
+    def set_rating(cls, db: Session, wallet: Wallet, data: RatingUpsert) -> Holding:
+        walletId = int(wallet.walletId)
         holding = db.query(Holding).filter(Holding.walletId == walletId, Holding.ticker == data.ticker).first()
 
         if holding is None:

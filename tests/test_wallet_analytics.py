@@ -41,7 +41,6 @@ def _seed_wallet(client):
     client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Compra",
             "asset_type": "ACOES",
             "ticker": "PETR4",
@@ -53,7 +52,6 @@ def _seed_wallet(client):
     client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Venda",
             "asset_type": "ACOES",
             "ticker": "PETR4",
@@ -68,8 +66,8 @@ def _seed_wallet(client):
 def test_progression_daily_values(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _mock_get)
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = _seed_wallet(client)
-    body = client.get(f"/wallet/progression?wallet_id={walletId}&from=2026-01-01&to=2026-01-10").json()
+    _seed_wallet(client)
+    body = client.get("/wallet/progression?from=2026-01-01&to=2026-01-10").json()
     assert body["granularity"] == "daily"
     byDate = {point["date"]: point for point in body["points"]}
     assert byDate["2026-01-02"] == {"date": "2026-01-02", "equity": 100.0, "invested": 100.0}
@@ -84,15 +82,15 @@ def test_progression_is_canonical_daily(dbSession, monkeypatch):
     # granularity is always "daily" regardless of window span.
     monkeypatch.setattr(requests, "get", _mock_get)
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = _seed_wallet(client)
-    body = client.get(f"/wallet/progression?wallet_id={walletId}&from=2026-01-01&to=2026-01-31").json()
+    _seed_wallet(client)
+    body = client.get("/wallet/progression?from=2026-01-01&to=2026-01-31").json()
     assert body["granularity"] == "daily"
     byDate = {point["date"]: point for point in body["points"]}
     assert byDate["2026-01-02"] == {"date": "2026-01-02", "equity": 100.0, "invested": 100.0}
     assert byDate["2026-01-08"] == {"date": "2026-01-08", "equity": 72.0, "invested": 52.0}
     assert byDate["2026-01-31"] == {"date": "2026-01-31", "equity": 72.0, "invested": 52.0}
     assert "2026-01-01" not in byDate
-    longBody = client.get(f"/wallet/progression?wallet_id={walletId}&from=2020-01-01&to=2026-02-04").json()
+    longBody = client.get("/wallet/progression?from=2020-01-01&to=2026-02-04").json()
     assert longBody["granularity"] == "daily"
 
 
@@ -101,8 +99,8 @@ def test_cashflows_returns_raw_rows(dbSession, monkeypatch):
     # windowed ledger rows with per-row in/out legs.
     monkeypatch.setattr(requests, "get", _mock_get)
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = _seed_wallet(client)
-    body = client.get(f"/wallet/cashflows?wallet_id={walletId}&from=2026-01-01&to=2026-02-28").json()
+    _seed_wallet(client)
+    body = client.get("/wallet/cashflows?from=2026-01-01&to=2026-02-28").json()
     assert (body["from"], body["to"]) == ("2026-01-01", "2026-02-28")
     assert body["rows"] == [
         {
@@ -157,7 +155,7 @@ def test_dividends_monthly(dbSession, monkeypatch):
         )
     )
     dbSession.commit()
-    body = client.get(f"/wallet/dividends/monthly?wallet_id={walletId}&from=2026-01-01&to=2026-02-28").json()
+    body = client.get("/wallet/dividends/monthly?from=2026-01-01&to=2026-02-28").json()
     assert (body["from"], body["to"]) == ("2026-01-01", "2026-02-28")
     assert body["rows"] == [
         {"pay_date": "2026-01-15", "ticker": "PETR4", "kind": "Div", "gross": 20.0, "net": 20.0},
@@ -169,8 +167,8 @@ def test_performance_returns_full_body(dbSession, monkeypatch):
     # Metric-subset moved client-side: server always returns the full body.
     monkeypatch.setattr(requests, "get", _mock_get)
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = _seed_wallet(client)
-    body = client.get(f"/wallet/performance?wallet_id={walletId}&from=2026-01-01&to=2026-01-11").json()
+    _seed_wallet(client)
+    body = client.get("/wallet/performance?from=2026-01-01&to=2026-01-11").json()
     assert set(body) == {"twr", "twr_annualized", "volatility", "dividends_received", "price_return"}
     assert body["twr"] == pytest.approx(0.2)
 
@@ -179,6 +177,6 @@ def test_performance_window_is_explicit_dates_only(dbSession, monkeypatch):
     # Preset->date resolution moved client-side: explicit from/to still works.
     monkeypatch.setattr(requests, "get", _mock_get)
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = _seed_wallet(client)
-    explicit = client.get(f"/wallet/performance?wallet_id={walletId}&from=2026-01-01&to=2026-01-11").json()
+    _seed_wallet(client)
+    explicit = client.get("/wallet/performance?from=2026-01-01&to=2026-01-11").json()
     assert explicit["twr"] == pytest.approx(0.2)

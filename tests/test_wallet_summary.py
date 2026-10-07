@@ -32,7 +32,6 @@ def _seed(client):
     client.post(
         "/wallet/entries",
         json={
-            "wallet_id": walletId,
             "side": "Compra",
             "asset_type": "ACOES",
             "ticker": "PETR4",
@@ -48,14 +47,14 @@ def test_summary_math_and_snapshot_upsert(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_ok)
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = _seed(client)
-    body = client.get(f"/wallet/summary?wallet_id={walletId}").json()
+    body = client.get("/wallet/summary").json()
     assert body == {
         "applied": 100.0,
         "equity": 300.0,
         "variation": 200.0,
         "first_date": "2026-01-10",
     }
-    again = client.get(f"/wallet/summary?wallet_id={walletId}").json()
+    again = client.get("/wallet/summary").json()
     assert again["variation"] == 200.0
     from main.models.wallet import Snapshot
 
@@ -65,18 +64,18 @@ def test_summary_math_and_snapshot_upsert(dbSession, monkeypatch):
 def test_ratings_gate_and_positions_buy_flag(dbSession, monkeypatch):
     monkeypatch.setattr(requests, "get", _live_ok)
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = _seed(client)
-    assert client.put("/wallet/ratings", json={"wallet_id": walletId, "ticker": "PETR4", "rating": 8}).json() == {
+    _seed(client)
+    assert client.put("/wallet/ratings", json={"ticker": "PETR4", "rating": 8}).json() == {
         "ticker": "PETR4",
         "rating": 8,
     }
     assert (
-        client.put("/wallet/ratings", json={"wallet_id": walletId, "ticker": "PETR4", "rating": 100}).status_code == 200
+        client.put("/wallet/ratings", json={"ticker": "PETR4", "rating": 100}).status_code == 200
     )
     assert (
-        client.put("/wallet/ratings", json={"wallet_id": walletId, "ticker": "PETR4", "rating": 101}).status_code == 422
+        client.put("/wallet/ratings", json={"ticker": "PETR4", "rating": 101}).status_code == 422
     )
-    item = client.get(f"/wallet/positions?wallet_id={walletId}").json()["items"][0]
+    item = client.get("/wallet/positions").json()["items"][0]
     # Canonical raw: weight-share deltas derive client-side. Single holding owns
     # 100% of both weight and equity → client delta 0 → hold.
     # No manual targets remain: percent_ideal is None (display-only legacy column).
@@ -112,12 +111,11 @@ def test_summary_returns_canonical_raw_no_twr(dbSession, monkeypatch):
     # TWR comes from /performance?from&to resolved by the client.
     monkeypatch.setattr(requests, "get", _twr_market_mock)
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
+    client.post("/wallet/wallets", json={"name": "W"})
     assert (
         client.post(
             "/wallet/entries",
             json={
-                "wallet_id": walletId,
                 "side": "Compra",
                 "asset_type": "ACOES",
                 "ticker": "WEGE3",
@@ -128,7 +126,7 @@ def test_summary_returns_canonical_raw_no_twr(dbSession, monkeypatch):
         ).status_code
         == 201
     )
-    body = client.get(f"/wallet/summary?wallet_id={walletId}").json()
+    body = client.get("/wallet/summary").json()
     assert body["applied"] == 400.0
     assert body["equity"] == 500.0
     assert body["variation"] == 100.0
@@ -137,5 +135,5 @@ def test_summary_returns_canonical_raw_no_twr(dbSession, monkeypatch):
     from datetime import date as dateType
 
     today = dateType.today().isoformat()
-    perf = client.get(f"/wallet/performance?wallet_id={walletId}&from=2026-01-01&to={today}").json()
+    perf = client.get(f"/wallet/performance?from=2026-01-01&to={today}").json()
     assert perf["twr"] == pytest.approx(0.25)
