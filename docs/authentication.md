@@ -10,7 +10,7 @@ JWT (HS256) + HttpOnly cookie + DB-tracked sessions for the Mansa ecosystem (`US
 
 ## Token extraction order
 
-`extractTokenPayload` (`main/app/authentication/util.py:54-62`) checks in this order:
+`extractTokenPayload` (`main/app/authentication/util.py:54-78`) checks in this order:
 
 1. `X-Access-Token` header
 2. `Authorization: Bearer <token>`
@@ -174,7 +174,6 @@ Internal endpoint. Flow (`:173-222`):
 - **Independent expiring service token** for `/introspect`: HS256 JWT `{"typ":"service","exp"}` signed with `INTROSPECT_SERVICE_SECRET` (never `JWT_SECRET_KEY`), `PREV` secret for rotation. Mint with `createServiceToken()` (`service_token.py`); rotation: set `PREV`=old, `SECRET`=new, re-mint, drop `PREV` after TTL. Legacy static HMAC is accepted only while neither secret is configured (migration window).
 - **Double-submit CSRF** on cookie-authenticated mutations (`mansa_csrf` cookie + `X-CSRF-Token` header; `GET /auth/csrf` to refresh).
 - **Auth-gated `/scraper/run`**: requires a valid session (`getCurrentUser`) even in `DEBUG_MODE`.
-- **Flag-only UA/subnet anomaly**: `validateSession` logs UA-family changes + surfaces `sessionAnomaly` on `/user/me` — never rejects.
 - **OAuth state allowlist**: only localhost hosts accepted for redirect; anything else falls back to JSON (open-redirect guard).
 - **CORS**: dynamic origin matching for trusted frontends.
 

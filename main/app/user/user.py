@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 
 from main.models.user import User
 
-from main.app.authentication.session import SessionManager, detectSessionAnomaly
-from main.app.authentication.util import extractTokenPayload, getClientIp
+from main.app.authentication.session import SessionManager
+from main.app.authentication.util import extractTokenPayload
 
 logger = logging.getLogger(__name__)
 
@@ -33,9 +33,7 @@ class UserManager:
                 logger.info("Missing sessionId in token, rejecting")
                 raise HTTPException(status_code=401, detail="Session required")
 
-            currentUa = request.headers.get("User-Agent") if request is not None else None
-            currentIp = getClientIp(request) if request is not None else None
-            isValid = SessionManager.validateSession(db, sessionId, int(userId), currentUa, currentIp)
+            isValid = SessionManager.validateSession(db, sessionId, int(userId))
             if not isValid:
                 logger.info(f"Session {sessionId} revoked, logging out user {userId}")
                 raise HTTPException(status_code=401, detail="Session revoked")
@@ -45,24 +43,12 @@ class UserManager:
             if not user:
                 raise HTTPException(status_code=401, detail="User no longer exists")
 
-            # Flag-only anomaly: surfaced, never rejects.
-            try:
-                session = SessionManager.getSessionById(db, str(sessionId), int(userId))
-                anomaly = (
-                    detectSessionAnomaly(session, currentUa, currentIp)
-                    if session is not None
-                    else {"userAgentChanged": False, "subnet": None}
-                )
-            except Exception:
-                anomaly = {"userAgentChanged": False, "subnet": None}
-
             result = {
                 "userId": user.userId,
                 "username": user.username,
                 "email": user.email,
                 "roles": UserManager.getRolesList(user),
                 "sessionId": sessionId,
-                "sessionAnomaly": anomaly,
             }
 
             return result
