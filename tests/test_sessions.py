@@ -16,11 +16,11 @@ from main.app.authentication.constants import SESSION_EXPIRY_DAYS
 
 class TestUserSessionModel:
     def test_isActive_default(self):
-        session = UserSession(sessionId="test-123", userId=1, accessTokenHash="abc", isActive=True)
+        session = UserSession(sessionId="test-123", userId=1, isActive=True)
         assert session.isActive is True
 
     def test_isActive_can_be_false(self):
-        session = UserSession(sessionId="test-123", userId=1, accessTokenHash="abc", isActive=False)
+        session = UserSession(sessionId="test-123", userId=1, isActive=False)
         assert session.isActive is False
 
 
@@ -35,7 +35,6 @@ class TestSessionExpiration:
         session = UserSession(
             sessionId="expired-session",
             userId=1,
-            accessTokenHash="abc",
             isActive=True,
             createdAt=expired_date,
             lastActivityAt=expired_date,
@@ -52,7 +51,6 @@ class TestSessionExpiration:
         session = UserSession(
             sessionId="valid-session",
             userId=1,
-            accessTokenHash="abc",
             isActive=True,
             createdAt=valid_date,
             lastActivityAt=valid_date,
@@ -68,7 +66,6 @@ class TestSessionExpiration:
         session = UserSession(
             sessionId="boundary-session",
             userId=1,
-            accessTokenHash="abc",
             isActive=True,
             createdAt=boundary_date,
             lastActivityAt=boundary_date,
@@ -83,7 +80,6 @@ class TestSessionExpiration:
         session = UserSession(
             sessionId="future-session",
             userId=1,
-            accessTokenHash="abc",
             isActive=True,
             createdAt=future,
         )
@@ -105,10 +101,6 @@ class TestSessionManager:
             "main.app.authentication.session.secrets.token_urlsafe",
             return_value="session-id-123",
         )
-        mocker.patch(
-            "main.app.authentication.session.secrets.token_hex",
-            return_value="a" * 64,
-        )
 
         mock_db = MagicMock()
 
@@ -125,10 +117,6 @@ class TestSessionManager:
         mocker.patch(
             "main.app.authentication.session.secrets.token_urlsafe",
             return_value="session-id-456",
-        )
-        mocker.patch(
-            "main.app.authentication.session.secrets.token_hex",
-            return_value="b" * 64,
         )
 
         mock_now = datetime(2026, 3, 23, 12, 0, 0, tzinfo=timezone.utc)

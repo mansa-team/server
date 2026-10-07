@@ -1,12 +1,13 @@
 import math
 import zstandard as zstd
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from fastapi import HTTPException
 import pandas as pd
 import orjson
 import requests
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
-from main.utils.http_session import getSession
+from main.utils.http_session import getSession, isTransientError
 
 from main.app.stocks_api.cache import stocksCache
 from main.app.stocks_api.util import JSON_COLUMNS, categorizeColumns, parseDateRange
@@ -243,7 +244,7 @@ def queryHistorical(
         )
     except HTTPException:
         raise
-    except Exception:
+    except (ValueError, TypeError, KeyError, AttributeError, IndexError):
         logger.exception("Cached historical query failed")
         raise HTTPException(status_code=500, detail="Internal server error while processing historical data")
 
@@ -296,7 +297,7 @@ def queryFundamental(
                     minDiffPerTicker = diffs.groupby(df["TICKER"]).transform("min")
                     mask = diffs == minDiffPerTicker
                     df = df[mask]
-            except Exception:
+            except (ValueError, TypeError, KeyError, AttributeError):
                 logger.exception("Date parsing failed")
                 raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
@@ -306,7 +307,7 @@ def queryFundamental(
         return finalize(df, tickerIndex, search, orderBy, limit, cols, fieldList, dates, "fundamental")
     except HTTPException:
         raise
-    except Exception:
+    except (ValueError, TypeError, KeyError, AttributeError, IndexError):
         logger.exception("Cached fundamental query failed")
         raise HTTPException(status_code=500, detail="Internal server error while processing fundamental data")
 
@@ -367,59 +368,115 @@ def queryCotations(
         )
     except HTTPException:
         raise
-    except Exception:
+    except (ValueError, TypeError, KeyError, AttributeError, IndexError):
         logger.exception("Cached cotations query failed")
         raise HTTPException(status_code=500, detail="Internal server error while processing cotations data")
 
 
-def isTransientLiveError(exc: BaseException) -> bool:
-    if isinstance(exc, (requests.exceptions.Timeout, requests.exceptions.ConnectionError)):
-        return True
-    if isinstance(exc, requests.exceptions.HTTPError):
-        status = getattr(getattr(exc, "response", None), "status_code", None)
-        return isinstance(status, int) and status >= 500
-    return False
+def queryLiveCotations(search: str):
+    """Single ticker or comma-separated tickers -> live B3 quotes, one code path.
 
+    Input is normalized to a ticker list and every entry flows through the same
+    concurrent fetch+parse loop. A one-ticker request returns the single-ticker
+    realtime-cotation envelope (failures raise 404 unknown / 502 malformed /
+    503 down); multi-ticker requests return the realtime-cotations envelope
+    with per-ticker errors.
+    """
+    tickers = [term.strip().upper() for term in search.split(",") if term.strip()]
+    if not tickers:
+        raise HTTPException(status_code=400, detail="search required")
 
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(),
-    retry=retry_if_exception(isTransientLiveError),
-    reraise=True,
-)
-def fetchLivePayload(search: str) -> dict:
-    resp = getSession().get(
-        f"https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/{search.upper()}",
-        timeout=5,
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(),
+        retry=retry_if_exception(isTransientError),
+        reraise=True,
     )
-    resp.raise_for_status()
-    return resp.json()
+    def quote(symbol: str) -> tuple:
+        """Single-ticker B3 GET (transient retry) + parse; 404 unknown, 502 malformed."""
+        resp = getSession().get(
+            f"https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/{symbol}",
+            timeout=5,
+        )
+        resp.raise_for_status()
+        payload = resp.json()
+        try:
+            trad = payload["Trad"]
+        except (KeyError, TypeError):
+            raise HTTPException(502, detail="B3 realtime malformed response")
+        if payload.get("BizSts", {}).get("cd") != "OK" or not trad:
+            raise HTTPException(404, detail=f"Ticker {symbol} not found")
+        try:
+            dtTm = payload["Msg"]["dtTm"]
+        except (KeyError, TypeError):
+            raise HTTPException(502, detail="B3 realtime malformed response")
 
+        try:
+            raw = trad[0]["scty"]["SctyQtn"]
+            row = {
+                "TICKER": trad[0]["scty"]["symb"],
+                "PRECO ATUAL": raw.get("curPrc"),
+                "PRECO ORIGINAL": raw.get("opngPric"),
+                "PRECO MINIMO": raw.get("minPric"),
+                "PRECO MAXIMO": raw.get("maxPric"),
+                "PRECO MEDIO": raw.get("avrgPric"),
+            }
+        except (KeyError, TypeError, IndexError):
+            raise HTTPException(502, detail="B3 realtime malformed response")
+        return row, dtTm
 
-def queryLiveCotation(search: str):
-    try:
-        payload = fetchLivePayload(search)
-    except Exception:
-        raise HTTPException(503, detail="B3 realtime unavailable")
+    # B3 instrumentQuotation is a single-ticker URL with no batch param, so the
+    # batch is one concurrent quote per deduped ticker; one ticker failing
+    # never fails the batch.
+    unique = list(dict.fromkeys(tickers))
+    rows: dict = {}
+    failures: dict = {}
+    with ThreadPoolExecutor(max_workers=min(8, len(unique))) as pool:
+        futures = {pool.submit(quote, ticker): ticker for ticker in unique}
+        for future in as_completed(futures):
+            ticker = futures[future]
+            try:
+                rows[ticker] = future.result()
+            except requests.RequestException as exc:
+                failures[ticker] = exc
+            except HTTPException as exc:
+                failures[ticker] = exc
+            except (ValueError, KeyError, TypeError, AttributeError) as exc:
+                failures[ticker] = exc
 
-    if payload.get("BizSts", {}).get("cd") != "OK" or not payload.get("Trad"):
-        raise HTTPException(404, detail=f"Ticker {search.upper()} not found")
+    if len(tickers) == 1:
+        symbol = unique[0]
+        if symbol in failures:
+            failure = failures[symbol]
+            if isinstance(failure, requests.RequestException):
+                raise HTTPException(503, detail="B3 realtime unavailable")
+            if isinstance(failure, HTTPException):
+                raise failure
+            raise HTTPException(502, detail="B3 realtime malformed response")
+        row, dtTm = rows[symbol]
+        return {
+            "search": symbol,
+            "type": "realtime-cotation",
+            "timestamp": dtTm,
+            "count": 1,
+            "data": [row],
+        }
 
-    dtTm = payload["Msg"]["dtTm"]
-    raw = payload["Trad"][0]["scty"]["SctyQtn"]
-    data = {
-        "TICKER": payload["Trad"][0]["scty"]["symb"],
-        "PRECO ATUAL": raw.get("curPrc"),
-        "PRECO ORIGINAL": raw.get("opngPric"),
-        "PRECO MINIMO": raw.get("minPric"),
-        "PRECO MAXIMO": raw.get("maxPric"),
-        "PRECO MEDIO": raw.get("avrgPric"),
+    errors = {
+        ticker: (
+            "B3 realtime unavailable"
+            if isinstance(failure, requests.RequestException)
+            else failure.detail
+            if isinstance(failure, HTTPException)
+            else "B3 realtime malformed response"
+        )
+        for ticker, failure in failures.items()
     }
-
+    data = [rows[ticker][0] for ticker in tickers if ticker not in errors]
     return {
-        "search": search.upper(),
-        "type": "realtime-cotation",
-        "timestamp": dtTm,
-        "count": 1,
-        "data": [data],
+        "search": ",".join(tickers),
+        "type": "realtime-cotations",
+        "count": len(data),
+        "data": data,
+        "errors": errors,
     }

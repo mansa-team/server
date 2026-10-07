@@ -18,41 +18,31 @@ flightLock = threading.Lock()
 flights: dict[str, threading.Event] = {}
 
 
+def bridge(awaitable: Any) -> Any:
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(awaitable)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+        return pool.submit(lambda: asyncio.run(awaitable)).result()
+
+
 def syncCacheGet(cacheKey: str) -> Any:
     async def getCall() -> Any:
         return await cashews.cache.get(cacheKey, default=MISS)
 
-    try:
-        asyncio.get_running_loop()
-    except RuntimeError:
-        return asyncio.run(getCall())
-    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-        return pool.submit(lambda: asyncio.run(getCall())).result()
+    return bridge(getCall())
 
 
 def syncCacheSet(cacheKey: str, value: Any, ttl: str) -> None:
     async def setCall() -> None:
         await cashews.cache.set(cacheKey, value, expire=ttl)
 
-    try:
-        asyncio.get_running_loop()
-    except RuntimeError:
-        asyncio.run(setCall())
-        return
-    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-        pool.submit(lambda: asyncio.run(setCall())).result()
+    bridge(setCall())
 
 
 def runAwaitable(awaitable: Any) -> Any:
-    async def awaitCall() -> Any:
-        return await awaitable
-
-    try:
-        asyncio.get_running_loop()
-    except RuntimeError:
-        return asyncio.run(awaitCall())
-    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-        return pool.submit(lambda: asyncio.run(awaitCall())).result()
+    return bridge(awaitable)
 
 
 def sync_cache(ttl: str, key: str) -> Callable[[F], F]:

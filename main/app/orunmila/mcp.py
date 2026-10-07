@@ -46,7 +46,7 @@ class MCPClientPool:
             try:
                 clients[name] = await connect(server)
                 logger.info("MCPClientPool: %s connected", name)
-            except Exception as e:
+            except (OSError, TimeoutError, ConnectionError, RuntimeError, ValueError) as e:
                 logger.error("MCPClientPool: %s connect failed: %s", name, e)
 
         self.clients = clients
@@ -68,7 +68,7 @@ class MCPClientPool:
             for name, client in self.clients.items():
                 try:
                     await client.session.list_tools()
-                except Exception as e:
+                except (OSError, TimeoutError, ConnectionError, RuntimeError, ValueError) as e:
                     logger.warning("MCPClientPool: %s unhealthy, reconnecting: %s", name, e)
                     await self.reconnect(name)
 
@@ -84,7 +84,7 @@ class MCPClientPool:
             new = await connect(server)
             self.clients[name] = new
             logger.info("MCPClientPool: %s reconnected", name)
-        except Exception as e:
+        except (OSError, TimeoutError, ConnectionError, RuntimeError, ValueError) as e:
             logger.error("MCPClientPool: %s reconnect failed: %s", name, e)
 
     async def close(self):

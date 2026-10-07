@@ -13,6 +13,8 @@ from fastapi import HTTPException
 from freezegun import freeze_time
 import pandas as pd
 import numpy as np
+import requests
+from sqlalchemy.exc import SQLAlchemyError
 
 from main.app.stocks_api import query as queryModule
 
@@ -258,7 +260,7 @@ class TestVerifyAPIKey:
         from fastapi import HTTPException
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
-        mock_db = self.makeDb([self.makeRow("k")], error=Exception("DB down"))
+        mock_db = self.makeDb([self.makeRow("k")], error=SQLAlchemyError("DB down"))
         with pytest.raises(HTTPException) as e:
             await verifyAPIKey(apiKey="k", db=mock_db)
         assert e.value.status_code == 500
@@ -566,7 +568,7 @@ class TestQueryHistorical:
 
             @property
             def columns(self):
-                raise Exception("simulated failure")
+                raise ValueError("simulated failure")
 
         mgr.STOCKS_CACHE = ExplodingDf()
         from fastapi import HTTPException
@@ -720,7 +722,7 @@ class TestQueryFundamental:
 
             @property
             def columns(self):
-                raise Exception("simulated failure")
+                raise ValueError("simulated failure")
 
         mgr.STOCKS_CACHE = ExplodingDf()
         from fastapi import HTTPException
@@ -1040,7 +1042,7 @@ class TestQueryCotations:
     # --- exception -> 500 ---
     def test_cotations_exception_returns_500(self):
         exploding = MagicMock()
-        exploding.columns = PropertyMock(side_effect=Exception("boom"))
+        exploding.columns = PropertyMock(side_effect=ValueError("boom"))
         mgr = self.make_manager(cache_df=exploding)
         from fastapi import HTTPException
 
@@ -1077,7 +1079,7 @@ class TestQueryCotations:
 # Tests for query.py â€“ queryRealtimeCotation
 # ===========================================================================
 class TestQueryLiveCotation:
-    """Tests for queryLiveCotation and /stocks/cotations/live."""
+    """Tests for queryLiveCotations and /stocks/cotations/live."""
 
     def make_manager(self):
         from main.app.stocks_api.cache import StocksCacheManager
@@ -1126,7 +1128,7 @@ class TestQueryLiveCotation:
     def test_success_returns_correct_shape(self):
         mgr = self.make_manager()
         with self.patch_session():
-            result = queryModule.queryLiveCotation("WEGE3")
+            result = queryModule.queryLiveCotations("WEGE3")
         assert result["type"] == "realtime-cotation"
         assert result["search"] == "WEGE3"
         assert result["count"] == 1
@@ -1143,7 +1145,7 @@ class TestQueryLiveCotation:
     def test_lowercase_ticker_uppercased(self):
         mgr = self.make_manager()
         with self.patch_session():
-            result = queryModule.queryLiveCotation("wege3")
+            result = queryModule.queryLiveCotations("wege3")
         assert result["search"] == "WEGE3"
         assert result["data"][0]["TICKER"] == "WEGE3"
 
@@ -1182,9 +1184,9 @@ class TestQueryLiveCotation:
         from fastapi import HTTPException
 
         mgr = self.make_manager()
-        with self.patch_session(side_effect=Exception("connection refused")):
+        with self.patch_session(side_effect=requests.ConnectionError("connection refused")):
             with pytest.raises(HTTPException) as exc_info:
-                queryModule.queryLiveCotation("WEGE3")
+                queryModule.queryLiveCotations("WEGE3")
         assert exc_info.value.status_code == 503
 
     def test_b3_bad_status_returns_404(self):
@@ -1194,7 +1196,7 @@ class TestQueryLiveCotation:
         payload = {"BizSts": {"cd": "ERR"}, "Trad": []}
         with self.patch_session(response=payload):
             with pytest.raises(HTTPException) as exc_info:
-                queryModule.queryLiveCotation("WEGE3")
+                queryModule.queryLiveCotations("WEGE3")
         assert exc_info.value.status_code == 404
 
     def test_http_route_returns_200(self, stocks_http_client):

@@ -1,5 +1,7 @@
 import time
+
 import pytest
+import requests
 from unittest.mock import patch, MagicMock
 import main.app.orunmila.compact as compactMod
 from main.app.orunmila.compact import (
@@ -303,7 +305,7 @@ class TestLoadFieldDataRetry:
         fakeResponse = MagicMock()
         fakeResponse.json.return_value = {"historical": {"LUCRO LIQUIDO": [2023]}, "fundamental": ["P/L"]}
         mockSession = MagicMock()
-        mockSession.get.side_effect = [Exception("boom"), fakeResponse]
+        mockSession.get.side_effect = [requests.RequestException("boom"), fakeResponse]
         with patch("main.app.orunmila.compact.getSession", return_value=mockSession):
             first = loadFieldData()
             assert first == {"historical": [], "fundamental": []}

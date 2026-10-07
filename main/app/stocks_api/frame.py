@@ -25,7 +25,7 @@ def optimizeDtypes(df: pd.DataFrame) -> pd.DataFrame:
                 continue
             if col not in CATEGORY_COLS and col not in JSON_COLUMNS and df[col].notna().all():
                 df[col] = df[col].astype("string[pyarrow]")
-    except Exception as e:
+    except (TypeError, ValueError, AttributeError) as e:
         logger.debug(f"Arrow string optimization skipped: {e}")
 
     return df

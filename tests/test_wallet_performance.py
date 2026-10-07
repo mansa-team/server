@@ -1,7 +1,7 @@
 from datetime import date
+from types import SimpleNamespace
 
 import pytest
-import requests
 
 import main.models.wallet  # noqa: F401
 from main.models.wallet import Earning
@@ -32,7 +32,7 @@ def _flat_series_with_one_div(url, params=None, headers=None, timeout=None):
 
 
 def test_performance_splits_price_and_dividends(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _flat_series_with_one_div)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_flat_series_with_one_div))
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = client.post("/wallet/wallets", json={"name": "W"}).json()["walletId"]
     client.post(
@@ -79,7 +79,7 @@ def test_performance_defaults_to_lifetime_window(dbSession, monkeypatch):
 
         return Resp()
 
-    monkeypatch.setattr(requests, "get", wrapped_series)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=wrapped_series))
     client, _, _ = make_wallet_client(db=dbSession)
     client.post("/wallet/wallets", json={"name": "W"})
     client.post(

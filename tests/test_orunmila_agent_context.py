@@ -283,10 +283,17 @@ class TestOrunmilaSendMessage:
         mock_config.STOCKS_API = {"HOST": "localhost", "PORT": 3200}
         mock_chat.getHistory.return_value = []
 
-        mock_pool_cls.clients = {"stocks": MagicMock(), "searxng": MagicMock()}
+        mock_stocks = MagicMock()
+        mock_searxng = MagicMock()
+        toolResult = MagicMock()
+        toolResult.isError = False
+        toolResult.content = []
+        mock_stocks.session.call_tool = AsyncMock(return_value=toolResult)
+        mock_searxng.session.call_tool = AsyncMock(return_value=toolResult)
+        mock_pool_cls.clients = {"stocks": mock_stocks, "searxng": mock_searxng}
         mock_pool_cls.getClients = AsyncMock(
             return_value=(
-                {"stocks": MagicMock(), "searxng": MagicMock()},
+                {"stocks": mock_stocks, "searxng": mock_searxng},
                 [MagicMock(), MagicMock()],
             )
         )

@@ -1,5 +1,6 @@
+from types import SimpleNamespace
+
 import pytest
-import requests
 
 import main.models.wallet  # noqa: F401
 from tests.conftest import make_wallet_client
@@ -44,7 +45,7 @@ def _seed(client):
 
 
 def test_summary_math_and_snapshot_upsert(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _live_ok)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = _seed(client)
     body = client.get("/wallet/summary").json()
@@ -62,7 +63,7 @@ def test_summary_math_and_snapshot_upsert(dbSession, monkeypatch):
 
 
 def test_ratings_gate_and_positions_buy_flag(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _live_ok)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     client, _, _ = make_wallet_client(db=dbSession)
     _seed(client)
     assert client.put("/wallet/ratings", json={"ticker": "PETR4", "rating": 8}).json() == {
@@ -105,7 +106,7 @@ def _twr_market_mock(url, params=None, headers=None, timeout=None):
 def test_summary_returns_canonical_raw_no_twr(dbSession, monkeypatch):
     # TWR presets moved client-side: /summary returns no TWR keys; the windowed
     # TWR comes from /performance?from&to resolved by the client.
-    monkeypatch.setattr(requests, "get", _twr_market_mock)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_twr_market_mock))
     client, _, _ = make_wallet_client(db=dbSession)
     client.post("/wallet/wallets", json={"name": "W"})
     assert (

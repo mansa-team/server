@@ -6,13 +6,13 @@ import uuid
 from collections.abc import MutableMapping
 from datetime import datetime
 
-import requests
 from tenacity import retry, retry_if_exception, stop_after_attempt, wait_exponential
 
+import requests
 from google import genai
 from sqlalchemy.orm import Session as DBSession
 
-from main.utils.http_session import getSession
+from main.utils.http_session import getSession, isTransientError
 from main.models.orunmila import OrunmilaSession
 
 logger = logging.getLogger(__name__)
@@ -36,9 +36,12 @@ def getTokenizer():
     global tokenizer
     if tokenizer is None:
         try:
-            tokenizer = genai.LocalTokenizer(model_name="gemini-flash-lite-latest")
+            factory = getattr(genai, "LocalTokenizer", None)
+            if factory is None:
+                return None
+            tokenizer = factory(model_name="gemini-flash-lite-latest")
             logger.info("Loaded Gemini local tokenizer")
-        except Exception as e:
+        except (OSError, ValueError, TypeError, RuntimeError, AttributeError) as e:
             logger.warning("Failed to load local tokenizer, using fallback: %s", e)
             tokenizer = None
     return tokenizer
@@ -61,19 +64,10 @@ fieldData: dict | None = None
 metricRegex: re.Pattern | None = None
 
 
-def isTransientFieldsError(exc: BaseException) -> bool:
-    if isinstance(exc, (requests.exceptions.Timeout, requests.exceptions.ConnectionError)):
-        return True
-    if isinstance(exc, requests.exceptions.HTTPError):
-        status = getattr(getattr(exc, "response", None), "status_code", None)
-        return isinstance(status, int) and status >= 500
-    return False
-
-
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(),
-    retry=retry_if_exception(isTransientFieldsError),
+    retry=retry_if_exception(isTransientError),
     reraise=True,
 )
 def fetchFieldsPayload() -> dict:
@@ -92,7 +86,7 @@ def loadFieldData() -> dict:
             fundamentalRaw = payload.get("fundamental", [])
             fundamentalCols = list(fundamentalRaw) if isinstance(fundamentalRaw, list) else []
             fieldData = {"historical": historicalFields, "fundamental": fundamentalCols}
-        except Exception as e:
+        except (requests.RequestException, ValueError, KeyError, TypeError, AttributeError) as e:
             logger.warning("Failed to load field data from STOCKS_API /fields: %s", e)
             return {"historical": [], "fundamental": []}
     return fieldData

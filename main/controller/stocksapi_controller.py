@@ -4,7 +4,7 @@ import logging
 from cashews import cache
 from fastapi import APIRouter, Depends, Query, HTTPException, Response
 
-from main.app.stocks_api.query import queryCotations, queryFundamental, queryHistorical, queryLiveCotation
+from main.app.stocks_api.query import queryCotations, queryFundamental, queryHistorical, queryLiveCotations
 from main.app.stocks_api.key import verifyAPIKey
 from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
 from main.app.stocks_api.compress import compressResponse, getNest
@@ -334,7 +334,7 @@ def getLiveCotation(
     - Real-time data is only available during B3 market hours (10:00-17:30 BRT).
     - Outside market hours, returns the last available closing price."""
     response.headers["Cache-Control"] = f"public, max-age={LIVE_MAX_AGE}"
-    result = queryLiveCotation(search)
+    result = queryLiveCotations(search)
     if compact:
         result = compressResponse(
             result, "get_live_price", {"search": search}, stocksCache.STOCKS_CACHE, stocksCache.nestedSample

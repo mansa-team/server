@@ -96,6 +96,11 @@ class TestStreamMessageNoChatSession:
         mock_stocks = MagicMock()
         mock_searxng = MagicMock()
         mock_pool.clients = {"stocks": mock_stocks, "searxng": mock_searxng}
+        toolResult = MagicMock()
+        toolResult.isError = False
+        toolResult.content = []
+        mock_stocks.session.call_tool = AsyncMock(return_value=toolResult)
+        mock_searxng.session.call_tool = AsyncMock(return_value=toolResult)
         mock_session_stocks = MagicMock()
         mock_session_searxng = MagicMock()
         mock_pool.getClients = AsyncMock(

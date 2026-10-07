@@ -1,7 +1,7 @@
 from datetime import date
+from types import SimpleNamespace
 
 import pytest
-import requests
 
 import main.models.wallet  # noqa: F401
 from main.models.wallet import Earning
@@ -64,7 +64,7 @@ def _seed_wallet(client):
 
 
 def test_progression_daily_values(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _mock_get)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_mock_get))
     client, _, _ = make_wallet_client(db=dbSession)
     _seed_wallet(client)
     body = client.get("/wallet/progression?from=2026-01-01&to=2026-01-10").json()
@@ -80,7 +80,7 @@ def test_progression_daily_values(dbSession, monkeypatch):
 def test_progression_is_canonical_daily(dbSession, monkeypatch):
     # Bucketing moved client-side: server always returns every daily point,
     # granularity is always "daily" regardless of window span.
-    monkeypatch.setattr(requests, "get", _mock_get)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_mock_get))
     client, _, _ = make_wallet_client(db=dbSession)
     _seed_wallet(client)
     body = client.get("/wallet/progression?from=2026-01-01&to=2026-01-31").json()
@@ -97,7 +97,7 @@ def test_progression_is_canonical_daily(dbSession, monkeypatch):
 def test_cashflows_returns_raw_rows(dbSession, monkeypatch):
     # Month buckets + rounding + totals moved client-side: server returns
     # windowed ledger rows with per-row in/out legs.
-    monkeypatch.setattr(requests, "get", _mock_get)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_mock_get))
     client, _, _ = make_wallet_client(db=dbSession)
     _seed_wallet(client)
     body = client.get("/wallet/cashflows?from=2026-01-01&to=2026-02-28").json()
@@ -127,7 +127,7 @@ def test_cashflows_returns_raw_rows(dbSession, monkeypatch):
 
 
 def test_dividends_monthly(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _mock_get)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_mock_get))
     client, _, _ = make_wallet_client(db=dbSession)
     walletId = _seed_wallet(client)
     dbSession.add(
@@ -165,7 +165,7 @@ def test_dividends_monthly(dbSession, monkeypatch):
 
 def test_performance_returns_full_body(dbSession, monkeypatch):
     # Metric-subset moved client-side: server always returns the full body.
-    monkeypatch.setattr(requests, "get", _mock_get)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_mock_get))
     client, _, _ = make_wallet_client(db=dbSession)
     _seed_wallet(client)
     body = client.get("/wallet/performance?from=2026-01-01&to=2026-01-11").json()
@@ -175,7 +175,7 @@ def test_performance_returns_full_body(dbSession, monkeypatch):
 
 def test_performance_window_is_explicit_dates_only(dbSession, monkeypatch):
     # Preset->date resolution moved client-side: explicit from/to still works.
-    monkeypatch.setattr(requests, "get", _mock_get)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_mock_get))
     client, _, _ = make_wallet_client(db=dbSession)
     _seed_wallet(client)
     explicit = client.get("/wallet/performance?from=2026-01-01&to=2026-01-11").json()

@@ -24,7 +24,7 @@ async def execute_code(code: str, timeout: int = 30, **_) -> dict:
         return await SandboxManager.execute(userId, code, sandboxId, timeout=timeout)
     except SandboxNotFound:
         return {"error": "Sandbox could not be respawned. Try again."}
-    except Exception as e:
+    except (OSError, TimeoutError, ConnectionError, RuntimeError, ValueError) as e:
         logger.error("Sandbox execution failed: %s", e)
         return {"error": f"Sandbox execution failed: {e}"}
 

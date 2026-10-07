@@ -1,17 +1,40 @@
+"""Dividend accruals derived from the transaction ledger.
+
+Source-of-truth rule (reviewer #1/#11): discovery iterates tickers that
+appear in the Transaction ledger — never current holdings — and entitlement
+replays the ledger up to each ex-date (position-at-date via
+``EntriesManager.applyEntries``). A user who owned shares on ex-date but
+fully liquidated before sync (or before pay-date) still accrues.
+
+Accrual semantics: one Earning per (wallet, ticker, exDate, kind)
+(``uq_earnings_accrual``); multiple market rows sharing (exDate, kind) are
+installments aggregated with payDate = latest. ``gross`` = perShare x
+qtyAtEx; ``netIrAdjusted`` = gross x (1 - IR) with Div 0%, JSCP and
+RendTributado 15%. Status flips to Recebido once payDate passes (re-checked
+every sync for pending rows). Unknown TIPO PROVENTO labels are skipped and
+reported, never stored.
+
+Money math is :class:`~decimal.Decimal`; ``float`` only at serialization.
+"""
+
 import logging
 from datetime import date as dateType
 from datetime import datetime
+from decimal import Decimal, InvalidOperation
+from typing import Any
 
+import requests
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from main.utils.sync_cache import MISS, syncCacheGet, syncCacheSet
-from main.app.wallet.entries import EntriesManager
+from main.app.wallet.entries import EntriesManager, toDecimal
 from main.app.wallet.positions import PositionsManager
-from main.models.wallet import Earning, Holding, Transaction, Wallet
+from main.models.wallet import Earning, Transaction, Wallet
 
 logger = logging.getLogger(__name__)
 
-IR_RATE = {"Div": 0.0, "JSCP": 0.15, "RendTributado": 0.15}
+IR_RATE = {"Div": Decimal("0"), "JSCP": Decimal("0.15"), "RendTributado": Decimal("0.15")}
 
 TIPO_MAP = {
     "Dividendo": "Div",
@@ -19,6 +42,20 @@ TIPO_MAP = {
     "Juros Sobre Capital Proprio": "JSCP",
     "Rend. Tributado": "RendTributado",
 }
+
+# Reviewer #8: only genuine data-source failures degrade (autosync is
+# best-effort); programming errors propagate. Cache-set failures degrade
+# narrowly too — a failed timestamp write must not mask the sync result.
+SYNC_ERRORS = (
+    requests.exceptions.RequestException,
+    ValueError,
+    KeyError,
+    TypeError,
+    AttributeError,
+    IndexError,
+    SQLAlchemyError,
+)
+CACHE_ERRORS = (RuntimeError, OSError, ValueError)
 
 
 # Kept: public API serialization used by wallet_controller — keep.
@@ -46,46 +83,43 @@ class EarningsManager:
             walletId = int(wallet.walletId)
             if (
                 result["accrued"] == 0
-                and db.query(Holding).filter(Holding.walletId == walletId, Holding.quantity > 0).count() > 0  # type: ignore[arg-type]
+                and db.query(Transaction).filter(Transaction.walletId == walletId).count() > 0
                 and db.query(Earning).filter(Earning.walletId == walletId).count() == 0
             ):
                 ttl = cls.AUTO_SYNC_NEG_TTL
             syncCacheSet(f"wallet:earnings:autosync:{wallet.userId}", 1, ttl)
-        except Exception:
+        except SYNC_ERRORS:
             logger.warning("earnings autosync failed for wallet %s", wallet.walletId, exc_info=True)
             try:
                 db.rollback()
-            except Exception:
+            except SQLAlchemyError:
                 pass
             try:
                 syncCacheSet(f"wallet:earnings:autosync:{wallet.userId}", 1, cls.AUTO_SYNC_NEG_TTL)
-            except Exception:
+            except CACHE_ERRORS:
                 pass
 
     @classmethod
     def syncEarnings(cls, db: Session, wallet: Wallet) -> dict:
+        """Accrue earnings for every ledger ticker with a position on ex-date."""
         walletId = int(wallet.walletId)
 
         today = dateType.today()
         accrued = 0
         skippedUnknown: list[str] = []
 
-        holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
-        for holding in holdings:
-            if float(holding.quantity) <= 0:
-                continue
-
-            holdingTicker = str(holding.ticker)
-
+        tickerRows: list[Any] = db.query(Transaction.ticker).filter(Transaction.walletId == walletId).distinct().all()
+        ledgerTickers: list[str] = sorted({str(ledgerTicker) for (ledgerTicker,) in tickerRows})
+        for ledgerTicker in ledgerTickers:
             ledgerEntries = (
                 db.query(Transaction)
-                .filter(Transaction.walletId == walletId, Transaction.ticker == holdingTicker)
+                .filter(Transaction.walletId == walletId, Transaction.ticker == ledgerTicker)
                 .order_by(Transaction.date, Transaction.entryId)
                 .all()
             )
 
             accruals: dict[tuple, list[tuple]] = {}
-            for record in PositionsManager.fetchMarketDividends(holdingTicker):
+            for record in PositionsManager.fetchMarketDividends(ledgerTicker):
                 label = str(record.get("TIPO PROVENTO"))
                 kind = TIPO_MAP.get(label)
 
@@ -97,8 +131,8 @@ class EarningsManager:
                 try:
                     exDate = datetime.strptime(record["DATA COM"], "%d-%m-%Y").date()
                     payDate = datetime.strptime(record["DATA PAGAMENTO"], "%d-%m-%Y").date()
-                    perShare = float(record["VALOR AJUSTADO"])
-                except Exception:
+                    perShare = toDecimal(record["VALOR AJUSTADO"])
+                except (ValueError, KeyError, TypeError, AttributeError, InvalidOperation):
                     continue
 
                 key = (exDate, kind)
@@ -108,9 +142,14 @@ class EarningsManager:
 
             for (exDate, kind), installments in accruals.items():
                 payDate = max(pay for pay, _ in installments)
-                perShare = sum(share for _, share in installments)
+                perShare = sum((share for _, share in installments), Decimal(0))
 
-                quantityAtEx = EntriesManager.positionAtDate(ledgerEntries, exDate)
+                # Position-at-date: replay only entries on/before ex-date, so
+                # post-ex sells (even full liquidation) keep the entitlement,
+                # while pre-ex sells reduce it.
+                quantityAtEx, _ = EntriesManager.applyEntries(
+                    Decimal(0), Decimal(0), [entry for entry in ledgerEntries if str(entry.date) <= exDate.isoformat()]
+                )
                 if quantityAtEx <= 0:
                     continue
 
@@ -118,7 +157,7 @@ class EarningsManager:
                     db.query(Earning)
                     .filter(
                         Earning.walletId == walletId,
-                        Earning.ticker == holdingTicker,
+                        Earning.ticker == ledgerTicker,
                         Earning.exDate == exDate,
                         Earning.kind == kind,
                     )
@@ -131,12 +170,12 @@ class EarningsManager:
                 gross = perShare * quantityAtEx
                 earning = Earning(
                     walletId=walletId,
-                    ticker=holdingTicker,
+                    ticker=ledgerTicker,
                     kind=kind,
                     exDate=exDate,
                     payDate=payDate,
                     gross=gross,
-                    netIrAdjusted=gross * (1 - IR_RATE[kind]),
+                    netIrAdjusted=gross * (Decimal(1) - IR_RATE[kind]),
                     status="Recebido" if payDate <= today else "A Receber",
                 )
 

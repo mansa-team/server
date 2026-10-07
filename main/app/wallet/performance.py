@@ -1,6 +1,32 @@
+"""Time-weighted performance over the transaction ledger.
+
+Metric semantics (explicit — reviewer #6, performance-owned portion):
+
+- ``twr``: dividend-inclusive time-weighted return. Each held day earns
+  ``(close - prevClose) / prevClose`` plus a dividend yield leg
+  ``(grossPerShare / qtyAtEx) / prevClose`` on ex-dates, where ``qtyAtEx``
+  replays the ledger up to that date (sells after ex keep the full yield).
+  Daily cross-ticker returns aggregate value-weighted by ``qty x prevClose``;
+  compounding is multiplicative. External contributions are neutral by
+  construction (mid-window buys at market price leave single-ticker TWR
+  unchanged — invariant-tested).
+- ``price_return``: same machinery with the dividend leg removed.
+- ``dividends_received``: sum of net (IR-adjusted) earnings whose ex-date
+  falls in the window.
+- ``volatility``: annualized stdev of daily total returns (x sqrt(252));
+  0.0 with fewer than 2 scored days.
+- ``twr_annualized``: ``(1 + twr) ** (365 / spanDays) - 1``.
+
+Money/quantity/price/yield/weight math is :class:`~decimal.Decimal`
+(coerced via entries.toDecimal, tolerant of legacy float snaps). ``float``
+appears only for stdev/sqrt/power (inherently floating) and at the output
+boundary.
+"""
+
 import logging
 from datetime import date as dateType
 from datetime import timedelta
+from decimal import Decimal
 from math import sqrt
 from statistics import stdev
 from types import SimpleNamespace
@@ -10,7 +36,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
 from main.utils.sync_cache import sync_cache
-from main.app.wallet.entries import EntriesManager
+from main.app.wallet.entries import EntriesManager, toDecimal
 from main.app.wallet.positions import PositionsManager
 from main.models.wallet import Earning, Transaction, Wallet
 
@@ -25,7 +51,7 @@ class PerformanceManager:
     @classmethod
     @sync_cache(
         ttl="6h",
-        key="wallet:performance:{userId}:{tickerKey}:{fromIso}:{toIso}:{recalcKey}:{entriesSnap}:{earningsSnap}:v2",
+        key="wallet:performance:{userId}:{tickerKey}:{fromIso}:{toIso}:{recalcKey}:{entriesSnap}:{earningsSnap}:v3",
     )
     def cachedPerformance(
         cls,
@@ -34,8 +60,8 @@ class PerformanceManager:
         fromIso: str,
         toIso: str,
         recalcKey: str,
-        entriesSnap: tuple[tuple[str, str, str, float, float, float, int], ...],
-        earningsSnap: tuple[tuple[str, str, float, float], ...],
+        entriesSnap: tuple[tuple[str, str, str, str, str, str, int], ...],
+        earningsSnap: tuple[tuple[str, str, str, str], ...],
     ) -> dict:
         del recalcKey
 
@@ -46,13 +72,13 @@ class PerformanceManager:
             universe.update(earnTicker for earnTicker, _, _, _ in earningsSnap)
             tickers = sorted(universe)
 
-        perTickerDays: dict[str, dict[str, tuple[float, float, float]]] = {}
+        perTickerDays: dict[str, dict[str, tuple[Decimal, Decimal, Decimal]]] = {}
 
-        dividendsReceived = 0.0
+        dividendsReceived = Decimal(0)
         for ticker in tickers:
             for earnTicker, exIso, _, netValue in earningsSnap:
                 if earnTicker == ticker and fromIso <= exIso <= toIso:
-                    dividendsReceived += netValue
+                    dividendsReceived += toDecimal(netValue)
 
             series = PositionsManager.fetchPadraoCloses(ticker)
 
@@ -68,7 +94,7 @@ class PerformanceManager:
                 if entryIso < fromIso
             ]
 
-            positionQty, positionAvg = EntriesManager.applyEntries(0.0, 0.0, baselineRows)  # type: ignore[arg-type]
+            positionQty, positionAvg = EntriesManager.applyEntries(Decimal(0), Decimal(0), baselineRows)
 
             pendingEntries = sorted(
                 (
@@ -84,7 +110,7 @@ class PerformanceManager:
             pendingIdx = 0
 
             closeByIso = {
-                closeDay.isoformat(): closePrice
+                closeDay.isoformat(): toDecimal(closePrice)
                 for closeDay, closePrice in series
                 if fromIso <= closeDay.isoformat() <= toIso
             }
@@ -93,25 +119,25 @@ class PerformanceManager:
             prevClose = None
             for seriesDay, seriesClose in series:
                 if seriesDay.isoformat() < fromIso:
-                    prevClose = seriesClose
+                    prevClose = toDecimal(seriesClose)
                 else:
                     break
 
-            dayMap: dict[str, tuple[float, float, float]] = {}
+            dayMap: dict[str, tuple[Decimal, Decimal, Decimal]] = {}
             for dayIso in windowDays:
                 while pendingIdx < len(pendingEntries) and pendingEntries[pendingIdx][1] <= dayIso:
                     pendingRow = pendingEntries[pendingIdx][0]
-                    positionQty, positionAvg = EntriesManager.applyEntries(positionQty, positionAvg, [pendingRow])  # type: ignore[list-item]
+                    positionQty, positionAvg = EntriesManager.applyEntries(positionQty, positionAvg, [pendingRow])
                     pendingIdx += 1
                 dayClose = closeByIso[dayIso]
 
                 if positionQty > 0 and prevClose:
                     priceDay = (dayClose - prevClose) / prevClose
-                    dividendYield = 0.0
+                    dividendYield = Decimal(0)
 
                     for earnTicker, exIso, grossValue, _ in earningsSnap:
                         if earnTicker == ticker and exIso == dayIso:
-                            dividendYield += (grossValue / positionQty) / prevClose
+                            dividendYield += (toDecimal(grossValue) / positionQty) / prevClose
                     dayMap[dayIso] = (priceDay + dividendYield, priceDay, positionQty * prevClose)
 
                 prevClose = dayClose
@@ -119,44 +145,58 @@ class PerformanceManager:
 
         allDays = sorted({dayIso for dayMap in perTickerDays.values() for dayIso in dayMap})
 
-        dailyTotal: list[float] = []
-        dailyPrice: list[float] = []
+        dailyTotal: list[Decimal] = []
+        dailyPrice: list[Decimal] = []
         for dayIso in allDays:
-            weightTotal = sum(dayMap[dayIso][2] for dayMap in perTickerDays.values() if dayIso in dayMap)
+            weightTotal = sum((dayMap[dayIso][2] for dayMap in perTickerDays.values() if dayIso in dayMap), Decimal(0))
             if weightTotal > 0:
                 dailyTotal.append(
-                    sum(dayMap[dayIso][0] * dayMap[dayIso][2] for dayMap in perTickerDays.values() if dayIso in dayMap)
+                    sum(
+                        (
+                            dayMap[dayIso][0] * dayMap[dayIso][2]
+                            for dayMap in perTickerDays.values()
+                            if dayIso in dayMap
+                        ),
+                        Decimal(0),
+                    )
                     / weightTotal
                 )
                 dailyPrice.append(
-                    sum(dayMap[dayIso][1] * dayMap[dayIso][2] for dayMap in perTickerDays.values() if dayIso in dayMap)
+                    sum(
+                        (
+                            dayMap[dayIso][1] * dayMap[dayIso][2]
+                            for dayMap in perTickerDays.values()
+                            if dayIso in dayMap
+                        ),
+                        Decimal(0),
+                    )
                     / weightTotal
                 )
 
-        twrValue = 1.0
+        twrTotal = Decimal(1)
         for dayReturn in dailyTotal:
-            twrValue *= 1 + dayReturn
+            twrTotal *= 1 + dayReturn
 
-        twrValue -= 1
-        priceValue = 1.0
+        twrTotal -= 1
+        priceTotal = Decimal(1)
         for priceDay in dailyPrice:
-            priceValue *= 1 + priceDay
+            priceTotal *= 1 + priceDay
 
-        priceValue -= 1
+        priceTotal -= 1
         spanDays = (dateType.fromisoformat(toIso) - dateType.fromisoformat(fromIso)).days
         if spanDays <= 0:
             annualizedValue = 0.0
         else:
-            annualizedValue = (1 + twrValue) ** (365 / spanDays) - 1
+            annualizedValue = float(1 + twrTotal) ** (365 / spanDays) - 1
 
-        volatilityValue = stdev(dailyTotal) * sqrt(252) if len(dailyTotal) >= 2 else 0.0
+        volatilityValue = float(stdev(dailyTotal)) * sqrt(252) if len(dailyTotal) >= 2 else 0.0
 
         return {
-            "twr": twrValue,
+            "twr": float(twrTotal),
             "twr_annualized": annualizedValue,
             "volatility": volatilityValue,
-            "dividends_received": dividendsReceived,
-            "price_return": priceValue,
+            "dividends_received": float(dividendsReceived),
+            "price_return": float(priceTotal),
         }
 
     @classmethod
@@ -202,24 +242,13 @@ class PerformanceManager:
         if ticker:
             ledgerQuery = ledgerQuery.filter(Transaction.ticker == ticker)
         ledgerRows = ledgerQuery.order_by(Transaction.date, Transaction.entryId).all()
-        entriesSnap = tuple(
-            (
-                str(ledgerRow.ticker),
-                str(ledgerRow.date),
-                str(ledgerRow.side),
-                float(ledgerRow.quantity),
-                float(ledgerRow.price),
-                float(ledgerRow.costs),
-                int(ledgerRow.entryId),
-            )
-            for ledgerRow in ledgerRows
-        )
+        entriesSnap = EntriesManager.snapshotEntries(ledgerRows)
         earningQuery = db.query(Earning).filter(Earning.walletId == walletId)
         if ticker:
             earningQuery = earningQuery.filter(Earning.ticker == ticker)
         earningRows = earningQuery.all()
         earningsSnap = tuple(
-            (str(earningRow.ticker), str(earningRow.exDate), float(earningRow.gross), float(earningRow.netIrAdjusted))
+            (str(earningRow.ticker), str(earningRow.exDate), str(earningRow.gross), str(earningRow.netIrAdjusted))
             for earningRow in earningRows
         )
         return cls.cachedPerformance(

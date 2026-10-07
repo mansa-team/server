@@ -1,7 +1,7 @@
 import json
+from types import SimpleNamespace
 
 import pytest
-import requests
 from freezegun import freeze_time
 
 import main.models.wallet  # noqa: F401
@@ -79,7 +79,7 @@ def _div_fundamental(url, params=None, headers=None, timeout=None):
 
 @freeze_time("2026-09-30")
 def test_sync_accrues_with_qty_at_ex_date(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _div_fundamental)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_div_fundamental))
     client, _, _ = make_wallet_client(db=dbSession)
     client.post("/wallet/wallets", json={"name": "W"})
     client.post(
@@ -117,7 +117,7 @@ def test_sync_accrues_with_qty_at_ex_date(dbSession, monkeypatch):
 def test_sync_repeated_ex_date_kind_aggregates_without_500(dbSession, monkeypatch):
     # Same (exDate, kind) twice with different pay dates = installments of one
     # payout: sync must store ONE aggregated earning, not raise IntegrityError.
-    monkeypatch.setattr(requests, "get", _div_fundamental)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_div_fundamental))
     client, _, _ = make_wallet_client(db=dbSession)
     client.post("/wallet/wallets", json={"name": "W"})
     client.post(
@@ -141,7 +141,7 @@ def test_sync_repeated_ex_date_kind_aggregates_without_500(dbSession, monkeypatc
 
 @freeze_time("2026-09-30")
 def test_sync_is_idempotent(dbSession, monkeypatch):
-    monkeypatch.setattr(requests, "get", _div_fundamental)
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_div_fundamental))
     client, _, _ = make_wallet_client(db=dbSession)
     client.post("/wallet/wallets", json={"name": "W"})
     client.post(
