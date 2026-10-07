@@ -3,14 +3,13 @@ import logging
 
 from cashews import cache
 from fastapi import APIRouter, Depends, Query, HTTPException, Response
-from fastapi.responses import ORJSONResponse
 
 from main.app.stocks_api.query import queryCotations, queryFundamental, queryHistorical, queryLiveCotation
 from main.app.stocks_api.key import verifyAPIKey
 from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
 from main.app.stocks_api.compress import compressResponse, getNest
 from main.app.stocks_api.cache import stocksCache
-from main.app.stocks_api.sync_cache import cache as endpointCache
+from main.app.stocks_api.sync_cache import cache
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +39,7 @@ def health():
 
 
 @router.get("/fields", operation_id="list_fields")
-@endpointCache(ttl=STOCKS_TTL, key="stocks:fields")
+@cache(ttl=STOCKS_TTL, key="stocks:fields")
 def listFields(response: Response):
     """Discover available field names before querying /historical or /fundamental.
 
@@ -87,8 +86,8 @@ def listFields(response: Response):
     return {"historical": historical, "fundamental": fundamental, "abbreviations": abbreviations, "nested": nested}
 
 
-@router.get("/historical", operation_id="get_historical", response_class=ORJSONResponse)
-@endpointCache(ttl=STOCKS_TTL, key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
+@router.get("/historical", operation_id="get_historical")
+@cache(ttl=STOCKS_TTL, key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 def getHistorical(
     response: Response,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -158,8 +157,8 @@ def getHistorical(
     return result
 
 
-@router.get("/fundamental", operation_id="get_fundamental", response_class=ORJSONResponse)
-@endpointCache(ttl=STOCKS_TTL, key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
+@router.get("/fundamental", operation_id="get_fundamental")
+@cache(ttl=STOCKS_TTL, key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 def getFundamental(
     response: Response,
     search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -234,8 +233,8 @@ def getFundamental(
     return result
 
 
-@router.get("/cotations", operation_id="get_cotations", response_class=ORJSONResponse)
-@endpointCache(ttl=STOCKS_TTL, key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}")
+@router.get("/cotations", operation_id="get_cotations")
+@cache(ttl=STOCKS_TTL, key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}")
 def getCotations(
     response: Response,
     search: str = Query(..., min_length=1, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -296,8 +295,8 @@ def getCotations(
     return result
 
 
-@router.get("/cotations/live", operation_id="get_live_price", response_class=ORJSONResponse)
-@endpointCache(ttl=LIVE_TTL, key="stocks:live:{search}:{compact}")
+@router.get("/cotations/live", operation_id="get_live_price")
+@cache(ttl=LIVE_TTL, key="stocks:live:{search}:{compact}")
 def getLiveCotation(
     response: Response,
     search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),
