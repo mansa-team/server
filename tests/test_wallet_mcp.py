@@ -1,21 +1,22 @@
 """Wallet MCP tests: tool scoping, middleware, mount wiring, JWT auth boundary.
 
 Tool surface is filtered by explicit operation IDs (WALLET_MCP_OPERATIONS) —
-exactly the 7 read routes; write routes must never leak into MCP. Auth rides as
-a call argument (the shared MCP pool freezes transport headers): the dispatcher
-injects `authorization`, FastApiMCP pops it into the replayed request headers,
-and getCurrentUser verifies it there.
+seven read routes plus four LLM-shaped wrappers; unwrapped writes must never
+leak into MCP. Auth rides as a call argument (the shared MCP pool freezes
+transport headers): the dispatcher injects `authorization`, FastApiMCP pops it
+into the replayed request headers, and getCurrentUser verifies it there.
 """
 
 import json
 import os
 import sys
+from datetime import date
 from unittest import mock
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 import pytest
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi_mcp import FastApiMCP
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -35,6 +36,15 @@ READ_TOOL_NAMES = {
     "wallet_performance",
     "wallet_progression_series",
 }
+
+WRAPPER_TOOL_NAMES = {
+    "record_entry",
+    "set_rating",
+    "explain_twr",
+    "wallet_progression",
+}
+
+EXPECTED_TOOL_NAMES = READ_TOOL_NAMES | WRAPPER_TOOL_NAMES
 
 
 @pytest.fixture(autouse=True)
@@ -71,10 +81,13 @@ def make_wallet_mcp(app):
 
 
 class TestWalletMCPToolScoping:
-    def test_mcp_exposes_exactly_seven_read_tools(self):
+    def test_mcp_exposes_exact_tool_surface(self):
         mcp = make_wallet_mcp(build_shared_app())
-        assert {t.name for t in mcp.tools} == READ_TOOL_NAMES
-        assert len(mcp.tools) == 7
+        tool_names = {t.name for t in mcp.tools}
+        assert tool_names == EXPECTED_TOOL_NAMES
+        assert len(mcp.tools) == 11
+        assert WRAPPER_TOOL_NAMES <= tool_names
+        assert READ_TOOL_NAMES <= tool_names
 
     def test_write_routes_excluded_from_mcp(self):
         mcp = make_wallet_mcp(build_shared_app())
@@ -86,7 +99,7 @@ class TestWalletMCPToolScoping:
             "list_entries",
             "update_entry",
             "delete_entry",
-            "set_rating",
+            "ratings",
             "cashflows",
             "dividends",
         ):
@@ -98,10 +111,29 @@ class TestWalletMCPToolScoping:
         for forbidden in ("stocks", "auth", "orunmila", "register", "login", "logout"):
             assert not any(forbidden in name.lower() for name in tool_names)
 
-    def test_descriptions_present(self):
+    def test_all_tools_have_anthropic_docstrings(self):
         mcp = make_wallet_mcp(build_shared_app())
+        assert len(mcp.tools) == 11
         for tool in mcp.tools:
             assert tool.description
+            for section in ("PARAMETERS:", "RESPONSE format:", "WORKFLOW:", "EXAMPLES:"):
+                assert section in tool.description, f"{tool.name} missing {section}"
+
+    def test_record_entry_schema_is_flat_body(self):
+        mcp = make_wallet_mcp(build_shared_app())
+        tool = next(t for t in mcp.tools if t.name == "record_entry")
+        properties = tool.inputSchema.get("properties", {})
+        assert set(properties) == {"side", "asset_type", "ticker", "date", "quantity", "price", "costs"}
+        assert tool.inputSchema["required"] == ["side", "asset_type", "ticker", "date", "quantity", "price"]
+        assert properties["side"]["enum"] == ["Compra", "Venda"]
+        assert properties["asset_type"]["enum"] == ["ACOES", "OUTROS"]
+
+    def test_wallet_progression_schema_bounds(self):
+        mcp = make_wallet_mcp(build_shared_app())
+        tool = next(t for t in mcp.tools if t.name == "wallet_progression")
+        props = tool.inputSchema["properties"]
+        assert props["max_points"]["minimum"] == 2
+        assert props["max_points"]["maximum"] == 2000
 
     def test_mount_returns_valid_response(self):
         app = build_shared_app()
@@ -161,6 +193,246 @@ class TestWalletServiceInitialize:
 
         # MCP mount registered
         assert any(getattr(route, "path", None) == "/wallet/mcp" for route in app.routes)
+
+
+def _make_wallet(dbSession):
+    """Real user + auto-created wallet (mirrors the session chain used by routes)."""
+    from main.app.wallet.wallets import WalletsManager
+    from main.models.user import User
+
+    user = User(username="wrapuser", email="wrap@example.com", passwordHash="h", roles="USER")
+    dbSession.add(user)
+    dbSession.commit()
+    dbSession.refresh(user)
+    wallet = WalletsManager.getMyWallet(dbSession, user.userId)
+    return user, wallet
+
+
+class TestWalletWrapperBehavior:
+    """Direct-call tests for the four MCP wrappers (no ASGI round trip)."""
+
+    def test_record_entry_coerces_date_and_serializes_holding(self, dbSession):
+        from main.controller.wallet_controller import record_entry_route
+
+        user, wallet = _make_wallet(dbSession)
+        result = record_entry_route(
+            side="Compra",
+            asset_type="ACOES",
+            ticker="PETR4",
+            date="2026-01-05",
+            quantity=10.0,
+            price=25.0,
+            costs=1.0,
+            authorization=None,
+            currentUser={"userId": str(user.userId)},
+            wallet=wallet,
+            db=dbSession,
+        )
+
+        assert result["entryId"] is not None
+        assert result["holding"] == {"ticker": "PETR4", "quantity": 10.0, "avgPrice": 25.1}
+
+    def test_record_entry_rejects_bad_date(self, dbSession):
+        from main.controller.wallet_controller import record_entry_route
+
+        user, wallet = _make_wallet(dbSession)
+        with pytest.raises(HTTPException) as excinfo:
+            record_entry_route(
+                side="Compra",
+                asset_type="ACOES",
+                ticker="PETR4",
+                date="05/01/2026",
+                quantity=10.0,
+                price=25.0,
+                costs=0.0,
+                authorization=None,
+                currentUser={"userId": str(user.userId)},
+                wallet=wallet,
+                db=dbSession,
+            )
+
+        assert excinfo.value.status_code == 422
+
+    def test_set_rating_wrapper_updates_single_rating(self, dbSession):
+        from main.app.wallet.entries import EntryCreate, EntriesManager
+        from main.controller.wallet_controller import set_rating_wrapper_route
+
+        user, wallet = _make_wallet(dbSession)
+        EntriesManager.addEntry(
+            dbSession,
+            wallet,
+            EntryCreate(
+                side="Compra", asset_type="ACOES", ticker="PETR4", date=date(2026, 1, 5), quantity=10, price=25.0
+            ),
+        )
+
+        result = set_rating_wrapper_route(
+            ticker="PETR4",
+            rating=80.0,
+            authorization=None,
+            currentUser={"userId": str(user.userId)},
+            wallet=wallet,
+            db=dbSession,
+        )
+
+        assert result == {"ticker": "PETR4", "rating": 80.0}
+
+    def test_set_rating_wrapper_404_when_not_held(self, dbSession):
+        from main.controller.wallet_controller import set_rating_wrapper_route
+
+        user, wallet = _make_wallet(dbSession)
+        with pytest.raises(HTTPException) as excinfo:
+            set_rating_wrapper_route(
+                ticker="VALE3",
+                rating=50.0,
+                authorization=None,
+                currentUser={"userId": str(user.userId)},
+                wallet=wallet,
+                db=dbSession,
+            )
+
+        assert excinfo.value.status_code == 404
+
+    def test_explain_twr_gloss_leg_and_per_ticker(self, dbSession, monkeypatch):
+        from main.app.wallet.entries import EntryCreate, EntriesManager
+        from main.app.wallet.performance import PerformanceManager
+        from main.controller.wallet_controller import explain_twr_route
+
+        user, wallet = _make_wallet(dbSession)
+        EntriesManager.addEntry(
+            dbSession,
+            wallet,
+            EntryCreate(
+                side="Compra", asset_type="ACOES", ticker="PETR4", date=date(2026, 1, 5), quantity=10, price=25.0
+            ),
+        )
+
+        fakePerf = {
+            "twr": 0.10,
+            "twr_annualized": 0.22,
+            "volatility": 0.15,
+            "dividends_received": 12.5,
+            "price_return": 0.08,
+        }
+        monkeypatch.setattr(
+            PerformanceManager,
+            "getPerformance",
+            classmethod(lambda cls, db, wallet, ticker, start, end: dict(fakePerf)),
+        )
+
+        result = explain_twr_route(
+            ticker=None,
+            from_date="2026-01-01",
+            to_date="2026-06-30",
+            authorization=None,
+            currentUser={"userId": str(user.userId)},
+            wallet=wallet,
+            db=dbSession,
+        )
+
+        assert result["from"] == "2026-01-01"
+        assert result["to"] == "2026-06-30"
+        assert result["twr"] == 0.10
+        assert result["dividend_leg"] == pytest.approx(0.02)
+        assert result["tickers"] == [{"ticker": "PETR4", "twr": 0.10}]
+        assert result["worst_tickers"] == [{"ticker": "PETR4", "twr": 0.10}]
+        assert "TWR 0.1000" in result["gloss"]
+
+    def test_explain_twr_ticker_scoped_skips_universe(self, dbSession, monkeypatch):
+        from main.app.wallet.performance import PerformanceManager
+        from main.controller.wallet_controller import explain_twr_route
+
+        user, wallet = _make_wallet(dbSession)
+        fakePerf = {
+            "twr": -0.04,
+            "twr_annualized": -0.1,
+            "volatility": 0.3,
+            "dividends_received": 0.0,
+            "price_return": -0.04,
+        }
+        monkeypatch.setattr(
+            PerformanceManager,
+            "getPerformance",
+            classmethod(lambda cls, db, wallet, ticker, start, end: dict(fakePerf)),
+        )
+
+        result = explain_twr_route(
+            ticker="VALE3",
+            from_date="2026-01-01",
+            to_date="2026-06-30",
+            authorization=None,
+            currentUser={"userId": str(user.userId)},
+            wallet=wallet,
+            db=dbSession,
+        )
+
+        assert result["ticker"] == "VALE3"
+        assert result["tickers"] == [{"ticker": "VALE3", "twr": -0.04}]
+        assert result["dividend_leg"] == 0.0
+
+    def test_wallet_progression_downsamples_with_stride(self, dbSession, monkeypatch):
+        from main.app.wallet.analytics import AnalyticsManager
+        from main.controller.wallet_controller import wallet_progression_route
+
+        user, wallet = _make_wallet(dbSession)
+
+        def makeSeries(count):
+            return {
+                "granularity": "daily",
+                "from": "2026-01-01",
+                "to": "2026-01-31",
+                "points": [{"date": f"d{index}", "equity": float(index), "invested": 1.0} for index in range(count)],
+            }
+
+        monkeypatch.setattr(
+            AnalyticsManager, "getProgression", classmethod(lambda cls, db, wallet, start, end: makeSeries(10))
+        )
+
+        result = wallet_progression_route(
+            from_date="2026-01-01",
+            to_date="2026-01-31",
+            max_points=4,
+            authorization=None,
+            currentUser={"userId": str(user.userId)},
+            wallet=wallet,
+            db=dbSession,
+        )
+
+        assert result["count"] == 10
+        assert result["stride"] == 3
+        assert [point["date"] for point in result["points"]] == ["d0", "d3", "d6", "d9"]
+        assert result["returned"] == 4
+
+    def test_wallet_progression_always_keeps_last_point(self, dbSession, monkeypatch):
+        from main.app.wallet.analytics import AnalyticsManager
+        from main.controller.wallet_controller import wallet_progression_route
+
+        user, wallet = _make_wallet(dbSession)
+        monkeypatch.setattr(
+            AnalyticsManager,
+            "getProgression",
+            classmethod(
+                lambda cls, db, wallet, start, end: {
+                    "granularity": "daily",
+                    "from": "2026-01-01",
+                    "to": "2026-01-31",
+                    "points": [{"date": f"d{index}", "equity": float(index), "invested": 1.0} for index in range(11)],
+                }
+            ),
+        )
+
+        result = wallet_progression_route(
+            from_date="2026-01-01",
+            to_date="2026-01-31",
+            max_points=4,
+            authorization=None,
+            currentUser={"userId": str(user.userId)},
+            wallet=wallet,
+            db=dbSession,
+        )
+
+        assert result["stride"] == 3
+        assert [point["date"] for point in result["points"]] == ["d0", "d3", "d6", "d9", "d10"]
 
 
 def _toolTextResult(text):
@@ -372,6 +644,64 @@ class TestWalletMCPAuthBoundary:
         payload = json.loads(result.content[0].text)
         assert payload["applied"] == 0.0
         assert payload["first_date"] is None
+
+    async def test_wrapper_call_without_token_is_rejected(self, dbSession):
+        app = _build_auth_app(dbSession)
+        async with _mcp_client(app) as client:
+            result = await client.call_tool(
+                "wallet_progression", {"from_date": "2026-01-01", "to_date": "2026-02-01"}, raise_on_error=False
+            )
+
+        assert result.is_error
+        assert "401" in result.content[0].text
+
+    async def test_record_entry_with_session_jwt_roundtrips(self, dbSession):
+        """Full write path over MCP: JWT argument → header pop → ledger write."""
+        app = _build_auth_app(dbSession)
+        token = _seed_session_token(dbSession)
+
+        async with _mcp_client(app) as client:
+            result = await client.call_tool(
+                "record_entry",
+                {
+                    "side": "Compra",
+                    "asset_type": "ACOES",
+                    "ticker": "PETR4",
+                    "date": "2026-01-05",
+                    "quantity": 10,
+                    "price": 25.0,
+                    "costs": 1.0,
+                    "authorization": f"Bearer {token}",
+                },
+                raise_on_error=False,
+            )
+
+        assert not result.is_error
+        payload = json.loads(result.content[0].text)
+        assert payload["entryId"] is not None
+        assert payload["holding"] == {"ticker": "PETR4", "quantity": 10.0, "avgPrice": 25.1}
+
+    async def test_record_entry_via_mcp_without_token_writes_nothing(self, dbSession):
+        from main.models.wallet import Transaction
+
+        app = _build_auth_app(dbSession)
+        async with _mcp_client(app) as client:
+            result = await client.call_tool(
+                "record_entry",
+                {
+                    "side": "Compra",
+                    "asset_type": "ACOES",
+                    "ticker": "PETR4",
+                    "date": "2026-01-05",
+                    "quantity": 10,
+                    "price": 25.0,
+                },
+                raise_on_error=False,
+            )
+
+        assert result.is_error
+        assert "401" in result.content[0].text
+        assert dbSession.query(Transaction).count() == 0
 
 
 class TestWalletMCPParams:

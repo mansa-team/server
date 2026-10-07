@@ -1,3 +1,12 @@
+"""Wallet service: HTTP routes plus the wallet MCP mount.
+
+The MCP surface is an explicit operation-ID allowlist (WALLET_MCP_OPERATIONS):
+seven read routes plus four LLM-shaped wrappers. Ledger writes stay off MCP
+unless wrapped, and wallet creation/lookup is always server-side. The middleware
+gates the compact convention on the X-MCP transport header only — plain HTTP
+responses are untouched.
+"""
+
 import logging
 
 from fastapi_mcp import FastApiMCP
@@ -9,6 +18,8 @@ logger = logging.getLogger(__name__)
 
 
 class MCPDetectMiddleware:
+    """Mark X-MCP requests (compact convention) without touching plain HTTP."""
+
     def __init__(self, app):
         self.app = app
 
@@ -22,6 +33,12 @@ class MCPDetectMiddleware:
                     scope["query_string"] = (qs + ("&" if qs else "") + "compact=true").encode("latin-1")
         await self.app(scope, receive, send)
 
+
+# Explicit MCP tool allowlist (IDs come from each route's operation_id).
+# Reads: positions/rebalance/summary/allocation/earnings/performance/progression.
+# Wrappers: record_entry/set_rating/explain_twr/wallet_progression.
+# Anything absent here cannot be called over MCP — entries PATCH/DELETE,
+# wallets create/list and the raw ratings PUT stay HTTP-only.
 WALLET_MCP_OPERATIONS = [
     "wallet_positions",
     "wallet_rebalance",
@@ -30,6 +47,10 @@ WALLET_MCP_OPERATIONS = [
     "wallet_earnings",
     "wallet_performance",
     "wallet_progression_series",
+    "record_entry",
+    "set_rating",
+    "explain_twr",
+    "wallet_progression",
 ]
 
 
