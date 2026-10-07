@@ -24,6 +24,11 @@ JSON_COLUMNS = ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDEN
 logger = logging.getLogger(__name__)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
+# Narrow external-data failure modes: network (OSError covers requests errors),
+# malformed payloads and bad arithmetic. Anything else (bugs, env failures)
+# propagates instead of silently degrading a ticker.
+TASK_ERRORS = (OSError, ValueError, TypeError, KeyError, AttributeError, IndexError, ZeroDivisionError)
+
 warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 
@@ -61,7 +66,7 @@ class B3Scraper:
 
         try:
             df = df.drop(columns={"companyid", "segmentid", "sectorid", "subsectorid"})
-        except:
+        except KeyError:
             df = df.drop(columns={"companyid"})
 
         df = df.rename(
@@ -299,19 +304,19 @@ class B3Scraper:
             if np.isnan(receita):
                 receita = data.get(f"RECEITA LIQUIDA {self.currentYear - 2}", np.nan)
             newDF["EBIT"] = (mEbit * receita) / 100 if receita and not np.isnan(receita) and receita > 0 else np.nan
-        except:
+        except TASK_ERRORS:
             newDF["EBIT"] = np.nan
 
         try:
             dyVals = np.array([data.get(f"DY {y}", np.nan) for y in range(self.currentYear - 5, self.currentYear)])
             newDF["DY MEDIO 5 ANOS"] = np.nanmean(dyVals)
-        except:
+        except TASK_ERRORS:
             newDF["DY MEDIO 5 ANOS"] = np.nan
 
         try:
             rent5y = data.get("RENT 5 ANOS", np.nan)
             newDF["RENT MEDIA 5 ANOS"] = rent5y / 5 if not np.isnan(rent5y) and rent5y != 0 else np.nan
-        except:
+        except TASK_ERRORS:
             newDF["RENT MEDIA 5 ANOS"] = np.nan
 
         try:
@@ -319,7 +324,7 @@ class B3Scraper:
                 [data.get(f"LUCRO LIQUIDO {y}", np.nan) for y in range(self.currentYear - 5, self.currentYear)]
             )
             newDF["LUCRO LIQUIDO MEDIO 5 ANOS"] = np.nanmean(incomes)
-        except:
+        except TASK_ERRORS:
             newDF["LUCRO LIQUIDO MEDIO 5 ANOS"] = np.nan
 
         try:
@@ -329,7 +334,7 @@ class B3Scraper:
                 newDF["CAGR DIVIDENDOS 5 ANOS"] = ((dEnd / dStart) ** 0.2 - 1) * 100
             else:
                 newDF["CAGR DIVIDENDOS 5 ANOS"] = np.nan
-        except:
+        except TASK_ERRORS:
             newDF["CAGR DIVIDENDOS 5 ANOS"] = np.nan
 
         try:
@@ -340,7 +345,7 @@ class B3Scraper:
             else:
                 cagr = np.nan
             newDF["CAGR LUCROS 10 ANOS"] = cagr
-        except:
+        except TASK_ERRORS:
             newDF["CAGR LUCROS 10 ANOS"] = np.nan
 
         try:
@@ -351,7 +356,7 @@ class B3Scraper:
                 newDF["SGR"] = roe * (1 - divY2 / netY2)
             else:
                 newDF["SGR"] = np.nan
-        except:
+        except TASK_ERRORS:
             newDF["SGR"] = np.nan
 
         try:
@@ -359,7 +364,7 @@ class B3Scraper:
             newDF["PRECO DE GRAHAM"] = (
                 np.sqrt(22.5 * lpa * vpa) if not np.isnan(lpa) and not np.isnan(vpa) and lpa > 0 and vpa > 0 else np.nan
             )
-        except:
+        except TASK_ERRORS:
             newDF["PRECO DE GRAHAM"] = np.nan
 
         try:
@@ -368,7 +373,7 @@ class B3Scraper:
             )
             avgDiv = np.nanmean(divs5y)
             newDF["PRECO DE BAZIN"] = avgDiv / 0.06 if not np.isnan(avgDiv) and avgDiv > 0 else np.nan
-        except:
+        except TASK_ERRORS:
             newDF["PRECO DE BAZIN"] = np.nan
 
         try:
@@ -408,7 +413,7 @@ class B3Scraper:
 
             for key in ["m_vol", "m_dd", "consistency", "growth"]:
                 newDF[f"XANGO {key.upper()}"] = result[key]
-        except Exception as e:
+        except TASK_ERRORS:
             newDF["XANGO INVESTING SCORE"] = np.nan
 
         return pd.DataFrame([newDF]).set_index("TICKER")
@@ -423,7 +428,6 @@ class B3Scraper:
             self.historicalDividendYields,
             self.historicalRevenue,
             self.historicalCotationProfits,
-            self.historicalCotationProfits_Oceans14,
             self.historicalCotations,
             self.tagAlong,
             self.stockNews,
@@ -433,13 +437,24 @@ class B3Scraper:
                 result = task(ticker)
                 data.update(result.iloc[0].to_dict())
                 stats["ok"] += 1
-            except Exception as e:
+            except TASK_ERRORS as e:
+                logger.error(f"Error ({ticker}) in {task.__name__}: {e}")
+                stats["err"] += 1
+
+        if not any(key.startswith("COTACAO ") for key in data):
+            task = self.historicalCotationProfits_Oceans14
+            stats = self.stats.setdefault(task.__name__, {"ok": 0, "err": 0})
+            try:
+                result = task(ticker)
+                data.update(result.iloc[0].to_dict())
+                stats["ok"] += 1
+            except TASK_ERRORS as e:
                 logger.error(f"Error ({ticker}) in {task.__name__}: {e}")
                 stats["err"] += 1
 
         try:
             data.update(self.fundamentalIndicators(ticker, data, stocksDF).iloc[0].to_dict())
-        except Exception as e:
+        except TASK_ERRORS as e:
             logger.error(f"Error ({ticker}) in fundamentalIndicators: {e}")
 
         return data
@@ -458,7 +473,7 @@ class B3Scraper:
                 ticker = futureToTicker[future]
                 try:
                     processedDicts.append(future.result())
-                except Exception as e:
+                except TASK_ERRORS as e:
                     logger.error(f"Error processing {ticker}: {e}")
 
         if processedDicts:
