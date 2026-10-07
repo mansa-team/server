@@ -147,7 +147,9 @@ class TestWalletMCPToolScoping:
 
         with TestClient(app, raise_server_exceptions=False) as client:
             resp = client.get("/wallet/mcp")
-            assert resp.status_code in (200, 405, 406)
+            # Streamable-HTTP GET without an Accept: text/event-stream header
+            # is rejected before any MCP session logic (verified in-process).
+            assert resp.status_code == 406
 
 
 class TestWalletServiceInitialize:
