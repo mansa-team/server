@@ -16,7 +16,7 @@ from main.models.base import Base
 
 
 class FakeOrunmila(Orunmila):
-    async def streamMessage(self, query=None, sessionId=None, db=None, user=None, file=None):
+    async def streamMessage(self, query=None, sessionId=None, db=None, user=None, file=None, rawToken=None):
         yield {"type": "text", "text": "first"}
         yield {"type": "text", "text": " second"}
 

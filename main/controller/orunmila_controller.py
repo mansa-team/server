@@ -17,6 +17,7 @@ from main.app.orunmila.agent import Orunmila
 from main.app.orunmila.chat import OrunmilaChatManager
 from main.app.orunmila.stream_bus import streamBus
 from main.app.orunmila.sandbox import SandboxManager, hostPath
+from main.app.authentication.util import extractRawToken
 
 logger = logging.getLogger(__name__)
 
@@ -131,12 +132,17 @@ async def chat_stream(
     correlationId = requestIdVar.get("") or uuid.uuid4().hex
     requestIdVar.set(correlationId)
 
+    # Raw session JWT (not the decoded payload) — forwarded to MCP-bound wallet
+    # tool calls by the dispatcher; transport headers on the shared MCP pool are
+    # frozen, so the token rides as a call argument instead.
+    rawToken = extractRawToken(request)
+
     async def runner() -> AsyncIterator[dict]:
         runDb = SessionLocal()
         try:
             yield {"type": "session", "sessionId": sessionId}
             async for event in Orunmila().streamMessage(
-                query, sessionId=sessionId, db=runDb, user=user, file=file_data
+                query, sessionId=sessionId, db=runDb, user=user, file=file_data, rawToken=rawToken
             ):
                 yield event
         except Exception as e:

@@ -1,10 +1,11 @@
 import pytest
 import sys
 import os
+from types import SimpleNamespace
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from main.app.authentication.util import hashPassword, verifyPassword, createAccessToken
+from main.app.authentication.util import hashPassword, verifyPassword, createAccessToken, extractRawToken
 from main.app.authentication.constants import SESSION_EXPIRY_DAYS
 from datetime import timedelta, datetime
 from unittest.mock import MagicMock, patch
@@ -115,6 +116,26 @@ class TestAuthUtilEdgeCases:
 
 
 # ---- moved from test_orunmila_auth_coverage.py (TestAuthenticationManager) ----
+
+
+class TestExtractRawToken:
+    """extractRawToken source precedence must mirror extractTokenPayload."""
+
+    def test_x_access_token_wins(self):
+        request = SimpleNamespace(headers={"X-Access-Token": "raw-header"}, cookies={"mansa_token": "raw-cookie"})
+        assert extractRawToken(request) == "raw-header"
+
+    def test_authorization_bearer_fallback(self):
+        request = SimpleNamespace(headers={"Authorization": "Bearer raw-bearer"}, cookies={"mansa_token": "raw-cookie"})
+        assert extractRawToken(request) == "raw-bearer"
+
+    def test_cookie_fallback(self):
+        request = SimpleNamespace(headers={}, cookies={"mansa_token": "raw-cookie"})
+        assert extractRawToken(request) == "raw-cookie"
+
+    def test_no_source_returns_none(self):
+        request = SimpleNamespace(headers={}, cookies={})
+        assert extractRawToken(request) is None
 
 
 class TestAuthenticationManager:

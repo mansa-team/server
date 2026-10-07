@@ -51,6 +51,25 @@ def verifyAccessToken(token: str) -> dict:
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
+def extractRawToken(request: Request) -> str | None:
+    """Raw session token from the request: X-Access-Token -> Authorization Bearer -> cookie.
+
+    Same source precedence as extractTokenPayload, but returns the raw string
+    (extractTokenPayload returns only the decoded payload). Used to forward the
+    caller's own session JWT to MCP-bound tool calls.
+    """
+    token = request.headers.get("X-Access-Token")
+    if not token:
+        authHeader = request.headers.get("Authorization")
+        if authHeader and authHeader.startswith("Bearer "):
+            token = authHeader.split(" ")[1]
+
+    if not token:
+        token = request.cookies.get(COOKIE_NAME)
+
+    return token
+
+
 def extractTokenPayload(request: Request) -> dict:
     token = request.headers.get("X-Access-Token")
     if not token:

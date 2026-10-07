@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Header, Query
 from sqlalchemy.orm import Session
 
 from config import getSession
@@ -11,6 +11,10 @@ from main.app.wallet.positions import PositionsManager
 from main.app.wallet.summary import RatingUpsert, SummaryManager
 from main.app.wallet.wallets import Wallet, WalletCreate, WalletsManager
 
+# MCP auth: the `authorization` header param on MCP-exposed routes is not used
+# by the handler itself — it puts the header in the OpenAPI schema so FastApiMCP
+# pops args["authorization"] (injected by the agent dispatcher, never the LLM)
+# into the replayed in-process request, where getCurrentUser verifies it.
 router = APIRouter(prefix="/wallet", tags=["Wallet"], dependencies=[Depends(UserManager.getCurrentUser)])
 
 
@@ -91,6 +95,7 @@ def delete_entry_route(
 
 @router.get("/positions", operation_id="wallet_positions")
 def list_positions_route(
+    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
@@ -100,6 +105,7 @@ def list_positions_route(
 
 @router.get("/rebalance", operation_id="wallet_rebalance")
 def get_rebalance_route(
+    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
@@ -109,6 +115,7 @@ def get_rebalance_route(
 
 @router.get("/summary", operation_id="wallet_summary")
 def get_summary_route(
+    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
@@ -118,6 +125,7 @@ def get_summary_route(
 
 @router.get("/allocation", operation_id="wallet_allocation")
 def get_allocation_route(
+    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
@@ -139,6 +147,7 @@ def set_rating_route(
 
 @router.get("/earnings", operation_id="wallet_earnings")
 def list_earnings_route(
+    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
@@ -151,6 +160,7 @@ def get_performance_route(
     ticker: str | None = None,
     fromIso: str | None = Query(default=None, alias="from"),
     toIso: str | None = Query(default=None, alias="to"),
+    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
@@ -163,6 +173,7 @@ def get_performance_route(
 def get_progression_route(
     fromIso: str | None = Query(default=None, alias="from"),
     toIso: str | None = Query(default=None, alias="to"),
+    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(UserManager.getCurrentUser),
     wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),

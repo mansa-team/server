@@ -39,6 +39,7 @@ async def dispatchToolCall(
     user=None,
     db=None,
     sandbox_id: Optional[str] = None,
+    rawToken: Optional[str] = None,
 ) -> dict:
     name = functionCall.name
     args = dict(functionCall.args or {})
@@ -52,9 +53,17 @@ async def dispatchToolCall(
         args["userId"] = user.get("userId", 0) if user else 0
         return await fn(**args)
 
-    for client in mcpClients.values():
+    for serverName, client in mcpClients.items():
         try:
-            mcpResult = await client.session.call_tool(name, args)
+            callArgs = dict(args)
+            # Session JWT rides as an argument: the shared MCP pool freezes
+            # transport headers at connect time. FastApiMCP pops
+            # args["authorization"] into the replayed request's headers, where
+            # the wallet's auth dependency verifies it. Wallet-only — other MCP
+            # servers don't accept this argument.
+            if rawToken and serverName == "wallet":
+                callArgs["authorization"] = f"Bearer {rawToken}"
+            mcpResult = await client.session.call_tool(name, callArgs)
             if getattr(mcpResult, "isError", False):
                 continue
             textParts = []
