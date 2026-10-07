@@ -11,7 +11,7 @@ from main.app.wallet.positions import PositionsManager
 from main.app.wallet.summary import RatingUpsert, SummaryManager
 from main.app.wallet.wallets import Wallet, WalletCreate, WalletsManager
 
-router = APIRouter(prefix="/wallet", tags=["wallet"], dependencies=[Depends(UserManager.getCurrentUser)])
+router = APIRouter(prefix="/wallet", tags=["Wallet"], dependencies=[Depends(UserManager.getCurrentUser)])
 
 
 def getMyWallet(
