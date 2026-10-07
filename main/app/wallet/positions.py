@@ -1,24 +1,21 @@
 import json
 import logging
 import os
-import threading
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date as dateType
 from datetime import datetime
 
-import requests
 from cashews import cache
 from sqlalchemy.orm import Session
 
 from config import Config
+from main.utils.http_session import getSession
 from main.utils.sync_cache import sync_cache
 from main.models.wallet import Holding, Target, Wallet
 
 logger = logging.getLogger(__name__)
 
 cache.setup("mem://")
-
-closesSemaphore = threading.BoundedSemaphore(8)
 
 
 class PositionsManager:
@@ -29,7 +26,7 @@ class PositionsManager:
         for ticker in tickers:
             try:
                 key = Config.STOCKS_API.KEY
-                resp = requests.get(
+                resp = getSession().get(
                     f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fundamental",
                     params={"search": ticker, "fields": "XANGO INVESTING SCORE", "compact": False},  # type: ignore[arg-type]
                     headers={"X-API-Key": key} if key else {},
@@ -50,6 +47,12 @@ class PositionsManager:
 
     @classmethod
     def maybeRefreshRatings(cls, db: Session, wallet: Wallet) -> None:
+        """Backfill-only Xango refresh: fills `rating` solely where NULL.
+
+        Single-rating rule: the Xango score is the initial/default value. It
+        seeds new holdings at creation and fills NULLs here; it never
+        overwrites an existing value (user overrides via PUT survive reads).
+        """
         walletId = int(wallet.walletId)
         try:
             holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
@@ -62,7 +65,7 @@ class PositionsManager:
                 score = scores.get(str(holding.ticker))
                 if score is None:
                     continue
-                if holding.rating is None or abs(float(holding.rating) - score) > 1e-9:
+                if holding.rating is None:
                     holding.rating = score  # type: ignore[assignment]
                     dirty = True
             if dirty:
@@ -83,7 +86,7 @@ class PositionsManager:
         def one(ticker: str) -> tuple[str, float | None]:
             try:
                 key = Config.STOCKS_API.KEY
-                resp = requests.get(
+                resp = getSession().get(
                     f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/cotations/live",
                     params={"search": ticker, "compact": False},  # type: ignore[arg-type]
                     headers={"X-API-Key": key} if key else {},
@@ -108,8 +111,7 @@ class PositionsManager:
             return prices
 
         def one(ticker: str) -> tuple[str, float | None]:
-            with closesSemaphore:
-                closes = cls.fetchPadraoCloses(ticker)
+            closes = cls.fetchPadraoCloses(ticker)
             return ticker, closes[-1][1] if closes else None
 
         with ThreadPoolExecutor(max_workers=min(8, max(1, len(missing)))) as pool:
@@ -121,7 +123,7 @@ class PositionsManager:
     def fetchMarketDividends(cls, ticker: str) -> list[dict]:
         try:
             key = os.getenv("STOCKS_API_KEY", "")
-            resp = requests.get(
+            resp = getSession().get(
                 f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fundamental",
                 params={"search": ticker, "fields": "HISTORICO DIVIDENDOS"},  # type: ignore[arg-type]
                 headers={"X-API-Key": key} if key else {},
@@ -171,7 +173,7 @@ class PositionsManager:
     def fetchPadraoCloses(cls, ticker: str) -> list[tuple[dateType, float]]:
         try:
             key = os.getenv("STOCKS_API_KEY", "")
-            resp = requests.get(
+            resp = getSession().get(
                 f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/cotations",
                 params={"search": ticker},
                 headers={"X-API-Key": key} if key else {},
