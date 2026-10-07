@@ -85,41 +85,21 @@ class TestStatusEndpoint:
 
 class TestScraperTrigger:
     def test_scraper_trigger_debug_mode(self, statusClient):
-        from main.app.user.user import UserManager
-
-        statusClient.app.dependency_overrides[UserManager.getCurrentUser] = lambda: {
-            "userId": 1,
-            "username": "tester",
-            "roles": ["USER"],
-        }
-        try:
-            with patch("run.Config") as mockConfig, patch("run.runScraper"):
-                mockConfig.DEBUG_MODE = True
-                resp = statusClient.post("/scraper/run")
-                assert resp.status_code == 200
-                assert resp.json()["status"] == "ok"
-        finally:
-            statusClient.app.dependency_overrides.pop(UserManager.getCurrentUser, None)
-
-    def test_scraper_trigger_not_debug(self, statusClient):
-        from main.app.user.user import UserManager
-
-        statusClient.app.dependency_overrides[UserManager.getCurrentUser] = lambda: {
-            "userId": 1,
-            "username": "tester",
-            "roles": ["USER"],
-        }
-        try:
-            with patch("run.Config") as mockConfig, patch("run.runScraper"):
-                mockConfig.DEBUG_MODE = False
-                resp = statusClient.post("/scraper/run")
-                assert resp.status_code == 200
-                assert resp.json()["status"] == "error"
-        finally:
-            statusClient.app.dependency_overrides.pop(UserManager.getCurrentUser, None)
-
-    def test_scraper_trigger_requires_auth(self, statusClient):
         with patch("run.Config") as mockConfig, patch("run.runScraper"):
             mockConfig.DEBUG_MODE = True
             resp = statusClient.post("/scraper/run")
-            assert resp.status_code in (401, 403)
+            assert resp.status_code == 200
+            assert resp.json()["status"] == "ok"
+
+    def test_scraper_trigger_not_debug(self, statusClient):
+        with patch("run.Config") as mockConfig, patch("run.runScraper"):
+            mockConfig.DEBUG_MODE = False
+            resp = statusClient.post("/scraper/run")
+            assert resp.status_code == 200
+            assert resp.json()["status"] == "error"
+
+    def test_scraper_trigger_no_auth_required(self, statusClient):
+        with patch("run.Config") as mockConfig, patch("run.runScraper"):
+            mockConfig.DEBUG_MODE = True
+            resp = statusClient.post("/scraper/run")
+            assert resp.status_code == 200

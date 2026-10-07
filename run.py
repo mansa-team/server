@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from fastapi import Depends, FastAPI, BackgroundTasks
+from fastapi import BackgroundTasks, FastAPI
 import uvicorn
 
 from contextlib import asynccontextmanager
@@ -12,7 +12,6 @@ from main.utils.connectivity import checkDatabaseConnection, checkServiceConnect
 from main.utils.service_manager import runAll
 from main.utils.migrator import runMigrations
 from main.utils.request_id import RequestIDMiddleware
-from main.utils.security_headers import CsrfProtectMiddleware, SecurityHeadersMiddleware
 from main.utils.errors import registerErrorHandlers
 
 from main.service.authentication_service import AuthenticationService
@@ -21,7 +20,6 @@ from main.service.wallet_service import WalletService
 from main.service.orunmila_service import OrunmilaService
 from main.service.scraper_service import ScraperService, runScraper
 from main.service.stocksapi_service import StocksAPIService
-from main.app.user.user import UserManager
 
 logger = logging.getLogger(__name__)
 appStartTime = datetime.now()
@@ -76,8 +74,6 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Mansa Server", lifespan=lifespan)
-app.add_middleware(SecurityHeadersMiddleware)
-app.add_middleware(CsrfProtectMiddleware)
 app.add_middleware(RequestIDMiddleware)
 registerErrorHandlers(app)
 
@@ -123,10 +119,7 @@ async def status():
 
 
 @app.post("/scraper/run")
-async def triggerScraper(
-    background_tasks: BackgroundTasks,
-    currentUser: dict = Depends(UserManager.getCurrentUser),
-):
+async def triggerScraper(background_tasks: BackgroundTasks):
     if not Config.DEBUG_MODE:
         return {"status": "error", "message": "Scraper trigger is only available in debug mode"}
     background_tasks.add_task(runScraper)
