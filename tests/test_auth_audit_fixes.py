@@ -135,27 +135,21 @@ class TestRegisterGeneric400:
 
 
 class TestLoginRevokesOthers:
-    def test_old_session_deactivated(self, dbSession, authDbClient, monkeypatch):
+    def test_old_session_stays_active(self, dbSession, authDbClient, monkeypatch):
         makeAccount(dbSession, "carol", "carol@example.com")
         user = AuthenticationManager.authenticateUser(dbSession, "carol", "secret123")
         old = SessionManager.createSession(dbSession, user["userId"], "pytest")
 
-        calls = {}
-        real = SessionManager.revokeAllExcept
+        def forbidden(db, user_id, keep_session_id):
+            raise AssertionError("revokeAllExcept must not run on password login")
 
-        def recording(db, user_id, keep_session_id):
-            calls["args"] = (user_id, keep_session_id)
-            return real(db, user_id, keep_session_id)
-
-        monkeypatch.setattr(SessionManager, "revokeAllExcept", recording)
+        monkeypatch.setattr(SessionManager, "revokeAllExcept", forbidden)
         resp = authDbClient.post("/auth/login", json={"username": "carol", "password": "secret123"})
         assert resp.status_code == 200
-        assert calls["args"][0] == user["userId"]
-        assert calls["args"][1] != old.sessionId
         dbSession.refresh(old)
-        assert old.isActive is False
-        kept = SessionManager.getSessionById(dbSession, calls["args"][1], user["userId"])
-        assert kept is not None and kept.isActive is True
+        assert old.isActive is True
+        sessions = SessionManager.getUserSessions(dbSession, user["userId"])
+        assert len([s for s in sessions if s.isActive]) == 2
 
 
 class TestIntrospectGate:

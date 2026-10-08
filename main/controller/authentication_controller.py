@@ -117,8 +117,7 @@ def login(
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    sessionId = issueSessionCookie(response, request, db, user)
-    SessionManager.revokeAllExcept(db, user["userId"], sessionId)
+    issueSessionCookie(response, request, db, user)
 
     return {"user": user}
 
