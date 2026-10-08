@@ -34,6 +34,7 @@ def pytest_configure(config):
     during collection. This hook runs before collection begins.
     """
     os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret-key-not-for-production")
+    os.environ.setdefault("INTROSPECT_SERVICE_SECRET", "test-service-secret-not-for-production")
 
 
 @pytest.fixture(autouse=True)
@@ -49,6 +50,14 @@ TEST_DATABASE_URL = "sqlite:///:memory:"
 
 @pytest.fixture(scope="function")
 def dbSession():
+    import main.models.memory  # noqa: F401
+    import main.models.orunmila  # noqa: F401
+    import main.models.sandbox  # noqa: F401
+    import main.models.stocksapi_key  # noqa: F401
+    import main.models.user  # noqa: F401
+    import main.models.user_session  # noqa: F401
+    import main.models.wallet  # noqa: F401
+
     engine = create_engine(
         TEST_DATABASE_URL,
         connect_args={"check_same_thread": False},
@@ -313,7 +322,7 @@ def make_wallet_client(mock_identity=None, db=None):
     from main.controller.wallet_controller import router as walletRouter
     from main.utils.errors import registerErrorHandlers
     from unittest.mock import MagicMock
-    from main.app.user.user import UserManager
+    from main.app.wallet.auth import getWalletUser
     import main.models.wallet  # noqa: F401
 
     app = FastAPI()
@@ -324,6 +333,6 @@ def make_wallet_client(mock_identity=None, db=None):
     app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: session
 
     identity = mock_identity or {"userId": 1, "username": "testuser", "roles": ["USER"]}
-    app.dependency_overrides[UserManager.getCurrentUser] = lambda: identity
+    app.dependency_overrides[getWalletUser] = lambda: identity
 
     return WalletTestClient(app, raise_server_exceptions=False), app, session
