@@ -47,13 +47,6 @@ def makeRequest(method="POST", sessionCookie=None, csrfCookie=None, csrfHeader=N
     return Request(scope)
 
 
-def markedEndpoint():
-    async def endpoint(request):
-        return {}
-
-    return csrf_exempt(endpoint)
-
-
 def plainEndpoint():
     async def endpoint(request):
         return {}
@@ -63,7 +56,7 @@ def plainEndpoint():
 
 class TestMarkerExemption:
     def test_marked_endpoint_skips_with_cookie_and_no_token(self):
-        req = makeRequest(sessionCookie="sess-1", endpoint=markedEndpoint())
+        req = makeRequest(sessionCookie="sess-1", endpoint=csrf_exempt(plainEndpoint()))
         assert isCsrfExemptEndpoint(req) is True
         validateCsrf(req, COOKIE_NAME)  # must not raise
 

@@ -140,12 +140,6 @@ def _mcp_client(app, headers=None):
     return Client(transport=transport)
 
 
-def _mintServiceToken(dbSession):
-    """Independent loopback token (same shape the pool sends at transport)."""
-
-    return createServiceToken(dbSession)
-
-
 def _makeDanceUser(dbSession, username, password="dancepass"):
 
     user = User(username=username, email=f"{username}@example.com", passwordHash=hashPassword(password), roles="USER")
@@ -443,7 +437,7 @@ class TestBackCompatAndPool:
         userJwt = createAccessToken({"userId": str(user.userId), "sessionId": session.sessionId})
 
         app = _build_dance_app(dbSession)
-        loopback = _mintServiceToken(dbSession)
+        loopback = createServiceToken(dbSession)
         async with _mcp_client(app, headers={"X-Service-Token": loopback}) as client:
             result = await client.call_tool(
                 "wallet_positions", {"authorization": f"Bearer {userJwt}"}, raise_on_error=False
@@ -456,7 +450,7 @@ class TestBackCompatAndPool:
 
     async def test_service_token_never_resolves_to_wallet(self, dbSession):
         app = _build_dance_app(dbSession)
-        loopback = _mintServiceToken(dbSession)
+        loopback = createServiceToken(dbSession)
         bearer = f"Bearer {loopback}"
         async with _mcp_client(app, headers={"X-Service-Token": loopback}) as client:
             result = await client.call_tool("wallet_positions", {"authorization": bearer}, raise_on_error=False)

@@ -141,33 +141,18 @@ class OrunmilaSessionFactory(factory.DictFactory):
 
 
 @pytest.fixture
-def userFactory():
-    return UserFactory
+def sampleUserData():
+    return UserFactory()
 
 
 @pytest.fixture
-def apiKeyFactory():
-    return APIKeyFactory
+def sampleAPIKeyData():
+    return APIKeyFactory()
 
 
 @pytest.fixture
-def orunmilaSessionFactory():
-    return OrunmilaSessionFactory
-
-
-@pytest.fixture
-def sampleUserData(userFactory):
-    return userFactory()
-
-
-@pytest.fixture
-def sampleAPIKeyData(apiKeyFactory):
-    return apiKeyFactory()
-
-
-@pytest.fixture
-def sampleOrunmilaSessionData(orunmilaSessionFactory):
-    return orunmilaSessionFactory()
+def sampleOrunmilaSessionData():
+    return OrunmilaSessionFactory()
 
 
 @pytest.fixture
