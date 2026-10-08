@@ -8,6 +8,7 @@ from pyarrow import feather
 
 from main.app.stocks_api.cache import StocksCacheManager
 from main.app.stocks_api.frame import PRESORTED_FLAG_KEY, optimizeDtypes
+import main.app.stocks_api.cache as cache_mod
 
 
 def test_optimize_dtypes_skips_pyarrow_for_compress_cols():
@@ -24,8 +25,6 @@ def test_optimize_dtypes_skips_pyarrow_for_compress_cols():
 
 
 def test_missing_feather_runs_loader_then_swaps(monkeypatch, tmp_path):
-    import main.app.stocks_api.cache as cache_mod
-
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     fake_df = pd.DataFrame({"TICKER": ["PETR4"]})
@@ -42,8 +41,6 @@ def test_missing_feather_runs_loader_then_swaps(monkeypatch, tmp_path):
 
 
 def test_stale_feather_serves_snapshot_and_spawns_refresh(monkeypatch, tmp_path):
-    import main.app.stocks_api.cache as cache_mod
-
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     cache_mod.STALE_AFTER_SECONDS = 6 * 3600
@@ -66,8 +63,6 @@ def test_stale_feather_serves_snapshot_and_spawns_refresh(monkeypatch, tmp_path)
 
 
 def test_fresh_feather_serves_snapshot_without_refresh(monkeypatch, tmp_path):
-    import main.app.stocks_api.cache as cache_mod
-
     cache_mod.CACHE_FEATHER_PATH = tmp_path / "cache.feather"
     cache_mod.CACHE_NESTED_PATH = tmp_path / "nested.feather"
     cache_mod.STALE_AFTER_SECONDS = 6 * 3600
@@ -90,8 +85,6 @@ def test_fresh_feather_serves_snapshot_without_refresh(monkeypatch, tmp_path):
 
 
 def test_read_feather_dataframe_uses_arrow_backed_columns(tmp_path):
-    import main.app.stocks_api.cache as cache_mod
-
     path = tmp_path / "cache.feather"
     feather.write_feather(
         pd.DataFrame({"TICKER": ["PETR4"], "NOME": ["PETROBRAS"], "PRECO": [1.5], "BLOB": [b"xy"]}), path
@@ -110,8 +103,6 @@ def test_read_feather_dataframe_uses_arrow_backed_columns(tmp_path):
 
 
 def test_read_feather_dataframe_detects_presorted_marker(tmp_path):
-    import main.app.stocks_api.cache as cache_mod
-
     path = tmp_path / "cache.feather"
     table = pa.Table.from_pandas(
         pd.DataFrame({"TICKER": ["PETR4"], "TIME": [pd.Timestamp("2024-01-01")]}), preserve_index=False
