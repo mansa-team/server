@@ -22,7 +22,7 @@ pyarrow
 orjson
 requests
 zstandard
-cashews
+cashews[redis]
 
 # ORUNMILA
 sse-starlette

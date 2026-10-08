@@ -12,6 +12,21 @@ services:
     volumes:
       - db_data:/var/lib/mysql
 
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: redis-server --save "" --appendonly no --maxmemory 256mb --maxmemory-policy allkeys-lru
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+          cpus: "0.5"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   searxng:
     image: dandehoon/searxng-mcp:latest
     restart: always
@@ -64,6 +79,9 @@ services:
     volumes:
       - .:/app
       - workspaces:/data/workspaces
+    depends_on:
+      redis:
+        condition: service_healthy
 
 volumes:
   db_data:
