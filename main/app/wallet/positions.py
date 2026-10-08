@@ -7,7 +7,6 @@ from datetime import datetime
 from decimal import Decimal
 
 import requests
-from cashews import cache
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -17,8 +16,6 @@ from main.utils.sync_cache import sync_cache
 from main.models.wallet import Holding, Target, Wallet
 
 logger = logging.getLogger(__name__)
-
-cache.setup("mem://")
 
 # Reviewer #8: external-data failures that legitimately degrade to a fallback
 # (network/timeout/HTTP/malformed payload/expected-missing-data). Anything

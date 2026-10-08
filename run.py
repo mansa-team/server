@@ -8,6 +8,8 @@ from contextlib import asynccontextmanager
 from tenacity import AsyncRetrying, RetryError, stop_after_attempt, wait_fixed
 
 from config import Config, LOCALHOST_ADDRESSES
+from cashews import cache
+
 from main.utils.connectivity import checkDatabaseConnection, checkServiceConnection
 from main.utils.service_manager import runAll
 from main.utils.migrator import runMigrations
@@ -20,6 +22,8 @@ from main.service.wallet_service import WalletService
 from main.service.orunmila_service import OrunmilaService
 from main.service.scraper_service import ScraperService, runScraper
 from main.service.stocksapi_service import StocksAPIService
+
+cache.setup(Config.CACHE.URL)
 
 logger = logging.getLogger(__name__)
 appStartTime = datetime.now()

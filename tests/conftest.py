@@ -47,6 +47,17 @@ def reset_rate_limiter():
     limiter.reset()
 
 
+@pytest.fixture(autouse=True, scope="function")
+def setup_caches():
+    """Central cache boot so no test depends on import order (mem:// default)."""
+    from cashews import cache as defaultCache
+
+    from main.app.orunmila.memory import matrixCache
+
+    defaultCache.setup(Config.CACHE.URL)
+    matrixCache.setup(Config.CACHE.URL)
+
+
 def pytest_configure(config):
     """Set required env vars before test collection.
 

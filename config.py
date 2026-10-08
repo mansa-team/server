@@ -103,6 +103,7 @@ class Config:
     SCRAPER = ScraperSettings()
     USER = UserSettings()
     DISCORD = DiscordSettings()
+    CACHE = CacheSettings()
 
 
 LOCALHOST_ADDRESSES = ["localhost", "127.0.0.1", "0.0.0.0", "None", "host.docker.internal", None]
