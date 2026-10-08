@@ -34,3 +34,5 @@ skills
 node_modules
 autoresearch-results.tsv
 .autoresearch
+
+cache/

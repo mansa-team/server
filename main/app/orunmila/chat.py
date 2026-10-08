@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 class OrunmilaChatManager:
     @classmethod
     def getUserSessions(cls, db: Session, userId: int):
-        # Row type is uninferable for a multi-entity Query (legacy Column() models, no Mapped[]).
         sessions: list = (
             db.query(OrunmilaSession.sessionId, OrunmilaSession.title, OrunmilaSession.lastActivity)
             .filter(OrunmilaSession.userId == userId)
