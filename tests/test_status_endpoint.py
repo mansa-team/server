@@ -13,13 +13,12 @@ if "xango" not in sys.modules:
 
 import pytest
 from fastapi.testclient import TestClient
+from run import app
 
 
 @pytest.fixture
 def statusClient():
     """Create a test client for the status endpoint without running lifespan."""
-    from run import app
-
     return TestClient(app, raise_server_exceptions=False)
 
 
