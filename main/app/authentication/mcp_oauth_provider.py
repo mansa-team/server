@@ -33,15 +33,17 @@ from mcp.server.auth.provider import (
     TokenError,
 )
 from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
+from pydantic import AnyUrl
 
-from config import Config
+from main.app.authentication.oauth_shared import (
+    ISSUER_URL,
+    RESOURCE_METADATA_URL,
+    RESOURCE_URL,
+    WALLET_SCOPE,
+    revokedAccessJtis,
+)
+from main.app.authentication.util import createAccessToken, verifyAccessToken
 
-# Wallet MCP is served on the USER port: derive all OAuth URLs from Config.USER.
-_issuerBase = f"http://{Config.USER.HOST}:{Config.USER.PORT}"
-ISSUER_URL = _issuerBase
-RESOURCE_URL = f"{_issuerBase}/wallet/mcp"
-RESOURCE_METADATA_URL = f"{_issuerBase}/.well-known/oauth-protected-resource/wallet/mcp"
-WALLET_SCOPE = "wallet"
 CODE_TTL_SECONDS = 600
 ACCESS_TTL_SECONDS = 3600
 REFRESH_TTL_SECONDS = 30 * 24 * 3600
@@ -57,7 +59,8 @@ class WalletOAuthProvider(OAuthAuthorizationServerProvider[AuthorizationCode, Re
         self.refreshTokens: dict[str, RefreshToken] = {}
         self.refreshSessions: dict[str, str] = {}
         self.pending: dict[str, dict] = {}
-        self.revokedAccess: set[str] = set()
+        # Alias to the shared leaf set: single revocation source of truth.
+        self.revokedAccess: set[str] = revokedAccessJtis
 
     def clear(self) -> None:
         self.clients.clear()
@@ -113,8 +116,6 @@ class WalletOAuthProvider(OAuthAuthorizationServerProvider[AuthorizationCode, Re
         scopes: list[str],
         resource: str,
     ) -> str:
-        from pydantic import AnyUrl
-
         code = secrets.token_urlsafe(32)
         self.codes[code] = AuthorizationCode(
             code=code,
@@ -143,8 +144,6 @@ class WalletOAuthProvider(OAuthAuthorizationServerProvider[AuthorizationCode, Re
     async def exchange_authorization_code(
         self, client: OAuthClientInformationFull, authorization_code: AuthorizationCode
     ) -> OAuthToken:
-        from main.app.authentication.util import createAccessToken
-
         stored = self.codes.pop(authorization_code.code, None)
         sessionId = self.codeSessions.pop(authorization_code.code, "")
         if not stored:
@@ -195,8 +194,6 @@ class WalletOAuthProvider(OAuthAuthorizationServerProvider[AuthorizationCode, Re
         refresh_token: RefreshToken,
         scopes: list[str],
     ) -> OAuthToken:
-        from main.app.authentication.util import createAccessToken
-
         stored = self.refreshTokens.pop(refresh_token.token, None)
         sessionId = self.refreshSessions.pop(refresh_token.token, "")
         if not stored:
@@ -234,8 +231,6 @@ class WalletOAuthProvider(OAuthAuthorizationServerProvider[AuthorizationCode, Re
         )
 
     async def load_access_token(self, token: str) -> AccessToken | None:
-        from main.app.authentication.util import verifyAccessToken
-
         try:
             payload = verifyAccessToken(token)
         except Exception:
@@ -272,8 +267,6 @@ class WalletOAuthProvider(OAuthAuthorizationServerProvider[AuthorizationCode, Re
             self.refreshSessions.pop(value, None)
             return
         try:
-            from main.app.authentication.util import verifyAccessToken
-
             payload = verifyAccessToken(value)
             jti = str(payload.get("jti") or "")
             if jti:
@@ -287,8 +280,6 @@ walletOAuthProvider = WalletOAuthProvider()
 
 def is_access_revoked(token: str) -> bool:
     try:
-        from main.app.authentication.util import verifyAccessToken
-
         payload = verifyAccessToken(token)
     except Exception:
         return False

@@ -6,6 +6,7 @@ auth/wallet split is config-only (same USER deployable today, localhost
 default keeps co-located working).
 """
 
+import inspect
 import logging
 
 import httpx
@@ -13,6 +14,7 @@ from fastapi import Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from config import Config, getSession
+from main.app.authentication import service_token as serviceTokens
 from main.app.authentication.constants import COOKIE_NAME
 
 logger = logging.getLogger(__name__)
@@ -23,9 +25,6 @@ def authServiceBaseUrl() -> str:
 
 
 def mintServiceToken(db: Session | None = None) -> str:
-    from main.app.authentication import service_token as serviceTokens
-    import inspect
-
     try:
         params = inspect.signature(serviceTokens.createServiceToken).parameters
     except (TypeError, ValueError):

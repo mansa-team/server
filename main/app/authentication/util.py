@@ -1,4 +1,5 @@
 import logging
+from urllib.parse import urlparse
 
 from fastapi import Depends, HTTPException, Request
 from datetime import datetime, timedelta, timezone
@@ -8,6 +9,8 @@ from sqlalchemy.orm import Session
 
 from config import Config, getSession
 from main.app.authentication.constants import TOKEN_EXPIRY_HOURS, COOKIE_NAME
+from main.app.authentication.oauth_shared import RESOURCE_METADATA_URL, revokedAccessJtis
+from main.app.authentication.service_token import verifyServiceToken
 
 logger = logging.getLogger(__name__)
 
@@ -77,8 +80,6 @@ def enforceResourceClaims(payload: dict) -> None:
     """Enforce aud/scope WHEN PRESENT; absent claims pass (session back-compat)."""
     aud = payload.get("aud")
     if aud is not None:
-        from urllib.parse import urlparse
-
         try:
             path = urlparse(str(aud)).path.rstrip("/")
         except Exception:
@@ -120,9 +121,7 @@ def extractTokenPayload(request: Request) -> dict:
     enforceResourceClaims(payload)
 
     try:
-        from main.app.authentication.mcp_oauth_provider import is_access_revoked
-
-        if payload.get("jti") and is_access_revoked(token):
+        if payload.get("jti") and payload.get("jti") in revokedAccessJtis:
             raise HTTPException(status_code=401, detail="Token revoked")
     except HTTPException:
         raise
@@ -143,8 +142,6 @@ def verifyMcpTransport(request: Request, db: Session = Depends(getSession)):
     if request.method == "GET":
         return None
 
-    from main.app.authentication.service_token import verifyServiceToken
-
     if verifyServiceToken(db, request.headers.get("X-Service-Token", "")):
         return {"type": "service"}
 
@@ -155,8 +152,6 @@ def verifyMcpTransport(request: Request, db: Session = Depends(getSession)):
             token = authHeader.split(" ")[1]
     if not token:
         token = request.cookies.get(COOKIE_NAME)
-
-    from main.app.authentication.mcp_oauth_provider import RESOURCE_METADATA_URL
 
     def challenge(detail: str):
         raise HTTPException(
@@ -184,9 +179,7 @@ def verifyMcpTransport(request: Request, db: Session = Depends(getSession)):
     except HTTPException:
         challenge("Invalid token claims")
     try:
-        from main.app.authentication.mcp_oauth_provider import is_access_revoked
-
-        if payload.get("jti") and is_access_revoked(token):
+        if payload.get("jti") and payload.get("jti") in revokedAccessJtis:
             challenge("Token revoked")
     except HTTPException:
         raise

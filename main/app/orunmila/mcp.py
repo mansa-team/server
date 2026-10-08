@@ -2,7 +2,8 @@ import logging
 import time
 import asyncio
 
-from config import Config
+from config import Config, SessionLocal
+from main.app.authentication.service_token import createServiceToken
 
 from fastmcp import Client
 from fastmcp.client.client import StreamableHttpTransport
@@ -18,9 +19,6 @@ def getLoopbackHeaders(db=None) -> dict:
     the wallet entry rather than holding a static restart-to-rotate token.
     """
     try:
-        from config import SessionLocal
-        from main.app.authentication.service_token import createServiceToken
-
         session = db if db is not None else SessionLocal()
         try:
             return {"X-Service-Token": createServiceToken(session)}

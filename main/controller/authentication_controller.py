@@ -2,7 +2,7 @@ import hashlib
 import hmac
 import logging
 from config import Config, getSession, LOCALHOST_ADDRESSES
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 
 from datetime import datetime, timedelta, timezone
 from main.utils.logging_config import limiter
