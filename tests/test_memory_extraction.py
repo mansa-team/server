@@ -11,6 +11,12 @@ from main.app.orunmila.memory import (
 )
 
 
+def _fakeEmbeddingModel():
+    model = MagicMock()
+    model.encode.return_value.tolist.return_value = [object()]
+    return model
+
+
 @pytest.fixture
 def db(dbSession):
     return dbSession
@@ -82,7 +88,7 @@ def test_at_budget_calls_api_and_upserts_inferred(db):
         patch("main.app.orunmila.memory.Roles.checkAccess", side_effect=premiumAccess),
         patch("main.app.orunmila.chat.OrunmilaChatManager.getHistory", return_value=makeHistory(3, "palavra " * 3000)),
         patch("main.app.orunmila.memory.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
-        patch("main.app.orunmila.memory.embed", return_value=[object()]),
+        patch("main.app.orunmila.memory.getEmbeddingModel", return_value=_fakeEmbeddingModel()),
         patch("main.app.orunmila.memory.getClient", return_value=client),
         patch("main.app.orunmila.memory.OrunmilaMemory.countMemories", return_value=0),
         patch(
@@ -107,7 +113,7 @@ def test_free_users_get_at_most_5_upserts(db):
         patch("main.app.orunmila.memory.Roles.checkAccess", side_effect=freeAccess),
         patch("main.app.orunmila.chat.OrunmilaChatManager.getHistory", return_value=makeHistory(3, "palavra " * 3000)),
         patch("main.app.orunmila.memory.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
-        patch("main.app.orunmila.memory.embed", return_value=[object()]),
+        patch("main.app.orunmila.memory.getEmbeddingModel", return_value=_fakeEmbeddingModel()),
         patch("main.app.orunmila.memory.getClient", return_value=makeClient(12)),
         patch("main.app.orunmila.memory.OrunmilaMemory.countMemories", return_value=0),
         patch("main.app.orunmila.memory.OrunmilaMemory.upsertMemory", new=fake.upsertMemory),
@@ -122,7 +128,7 @@ def test_premium_users_get_at_most_10_upserts(db):
         patch("main.app.orunmila.memory.Roles.checkAccess", side_effect=premiumAccess),
         patch("main.app.orunmila.chat.OrunmilaChatManager.getHistory", return_value=makeHistory(3, "palavra " * 3000)),
         patch("main.app.orunmila.memory.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
-        patch("main.app.orunmila.memory.embed", return_value=[object()]),
+        patch("main.app.orunmila.memory.getEmbeddingModel", return_value=_fakeEmbeddingModel()),
         patch("main.app.orunmila.memory.getClient", return_value=makeClient(12)),
         patch("main.app.orunmila.memory.OrunmilaMemory.countMemories", return_value=0),
         patch("main.app.orunmila.memory.OrunmilaMemory.upsertMemory", new=fake.upsertMemory),
@@ -141,7 +147,7 @@ def test_non_list_llm_response_returns_empty_without_raising(db):
         patch("main.app.orunmila.memory.Roles.checkAccess", side_effect=premiumAccess),
         patch("main.app.orunmila.chat.OrunmilaChatManager.getHistory", return_value=makeHistory(3, "palavra " * 3000)),
         patch("main.app.orunmila.memory.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
-        patch("main.app.orunmila.memory.embed", return_value=[object()]),
+        patch("main.app.orunmila.memory.getEmbeddingModel", return_value=_fakeEmbeddingModel()),
         patch("main.app.orunmila.memory.getClient", return_value=client),
         patch("main.app.orunmila.memory.OrunmilaMemory.countMemories", return_value=0),
         patch("main.app.orunmila.memory.OrunmilaMemory.upsertMemory", new=FakeMemory().upsertMemory),
@@ -167,7 +173,7 @@ def test_invalid_llm_items_dropped_valid_kept(db):
         patch("main.app.orunmila.memory.Roles.checkAccess", side_effect=premiumAccess),
         patch("main.app.orunmila.chat.OrunmilaChatManager.getHistory", return_value=makeHistory(3, "palavra " * 3000)),
         patch("main.app.orunmila.memory.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
-        patch("main.app.orunmila.memory.embed", return_value=[object()]),
+        patch("main.app.orunmila.memory.getEmbeddingModel", return_value=_fakeEmbeddingModel()),
         patch("main.app.orunmila.memory.getClient", return_value=client),
         patch("main.app.orunmila.memory.OrunmilaMemory.countMemories", return_value=0),
         patch("main.app.orunmila.memory.OrunmilaMemory.upsertMemory", new=fake.upsertMemory),

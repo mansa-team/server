@@ -1,15 +1,17 @@
+from datetime import date, timedelta
+from datetime import date as dateType
 from types import SimpleNamespace
 
 import pytest
+from cashews import cache as cashewsCache
 
 import main.models.wallet  # noqa: F401
+from main.models.wallet import Snapshot
 from tests.conftest import make_wallet_client
 
 
 @pytest.fixture(autouse=True)
 async def clear_cashews_cache():
-    from cashews import cache as cashewsCache
-
     cashewsCache.setup("mem://")
     await cashewsCache.clear()
     yield
@@ -57,7 +59,6 @@ def test_summary_math_and_snapshot_upsert(dbSession, monkeypatch):
     }
     again = client.get("/wallet/summary").json()
     assert again["variation"] == 200.0
-    from main.models.wallet import Snapshot
 
     assert dbSession.query(Snapshot).filter(Snapshot.walletId == walletId).count() == 1
 
@@ -81,8 +82,6 @@ def test_ratings_gate_and_positions_buy_flag(dbSession, monkeypatch):
 
 
 def _twr_market_mock(url, params=None, headers=None, timeout=None):
-    from datetime import date, timedelta
-
     class Resp:
         status_code = 200
 
@@ -129,7 +128,6 @@ def test_summary_returns_canonical_raw_no_twr(dbSession, monkeypatch):
     assert body["variation"] == 100.0
     assert body["first_date"] == "2026-01-10"
     assert "profit_twr" not in body and "profit_twr_12m" not in body
-    from datetime import date as dateType
 
     today = dateType.today().isoformat()
     perf = client.get(f"/wallet/performance?from=2026-01-01&to={today}").json()

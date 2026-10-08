@@ -20,10 +20,6 @@ class WalletsManager:
         return wallet
 
     @classmethod
-    def createWallet(cls, db: Session, userId: int, name: str) -> Wallet:
-        return cls.getMyWallet(db, userId, name)
-
-    @classmethod
     # Kept: manager layer API used by wallet_controller (Controller→Service boundary) — keep.
     def listWallets(cls, db: Session, userId: int) -> list[Wallet]:
         return db.query(Wallet).filter(Wallet.userId == userId).all()

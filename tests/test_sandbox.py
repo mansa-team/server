@@ -1,6 +1,7 @@
 import pytest
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
+from forgevm.exceptions import SandboxNotFound
 from tests.conftest import mock_forgevm
 from main.app.orunmila.sandbox import SandboxManager
 
@@ -107,7 +108,6 @@ class TestSandboxManager:
     @patch("main.app.orunmila.sandbox.getClient")
     async def test_execute_retries_on_sandbox_not_found(self, mock_get_client):
         """execute() catches SandboxNotFound from exec, calls getOrCreate, retries."""
-        from forgevm.exceptions import SandboxNotFound
 
         # First attempt: exec raises SandboxNotFound
         # getOrCreate creates new sandbox

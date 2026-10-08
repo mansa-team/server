@@ -4,6 +4,7 @@ import pytest
 import requests
 from unittest.mock import patch, MagicMock
 import main.app.orunmila.compact as compactMod
+import main.app.orunmila.compact as mod
 from main.app.orunmila.compact import (
     extractTickers,
     extractMetrics,
@@ -158,8 +159,6 @@ class TestCountTokens:
 
 class TestGetTokenizer:
     def test_caches_instance(self):
-        import main.app.orunmila.compact as mod
-
         mod.tokenizer = None
         with patch("main.app.orunmila.compact.genai") as mockGenai:
             mockGenai.LocalTokenizer.return_value = MagicMock()
@@ -170,8 +169,6 @@ class TestGetTokenizer:
         mod.tokenizer = None
 
     def test_returns_none_on_failure(self):
-        import main.app.orunmila.compact as mod
-
         mod.tokenizer = None
         with patch("main.app.orunmila.compact.genai") as mockGenai:
             mockGenai.LocalTokenizer.side_effect = RuntimeError("no model")

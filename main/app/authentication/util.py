@@ -1,12 +1,16 @@
 import logging
+from urllib.parse import urlparse
 
-from fastapi import HTTPException, Request
+from fastapi import Depends, HTTPException, Request
 from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
+from sqlalchemy.orm import Session
 
-from config import Config
+from config import Config, getSession
 from main.app.authentication.constants import TOKEN_EXPIRY_HOURS, COOKIE_NAME
+from main.app.authentication.oauth_shared import RESOURCE_METADATA_URL, revokedAccessJtis
+from main.app.authentication.service_token import verifyServiceToken
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +47,9 @@ def createAccessToken(data: dict | None, expiresDelta: timedelta | None = None):
 
 def verifyAccessToken(token: str) -> dict:
     try:
-        payload = jwt.decode(token, Config.USER.JWT_SECRET_KEY, algorithms=["HS256"])
+        # aud/scope are enforced manually by enforceResourceClaims (absent
+        # claims pass for session back-compat), so skip PyJWT's aud check.
+        payload = jwt.decode(token, Config.USER.JWT_SECRET_KEY, algorithms=["HS256"], options={"verify_aud": False})
         return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
@@ -68,6 +74,23 @@ def extractRawToken(request: Request) -> str | None:
         token = request.cookies.get(COOKIE_NAME)
 
     return token
+
+
+def enforceResourceClaims(payload: dict) -> None:
+    """Enforce aud/scope WHEN PRESENT; absent claims pass (session back-compat)."""
+    aud = payload.get("aud")
+    if aud is not None:
+        try:
+            path = urlparse(str(aud)).path.rstrip("/")
+        except Exception:
+            raise HTTPException(status_code=401, detail="Invalid audience")
+        if not path.endswith("/wallet/mcp"):
+            raise HTTPException(status_code=401, detail="Invalid audience")
+    scope = payload.get("scope") if payload.get("scope") is not None else payload.get("scp")
+    if scope is not None:
+        parts = scope.split() if isinstance(scope, str) else list(scope)
+        if "wallet" not in parts:
+            raise HTTPException(status_code=401, detail="Insufficient scope")
 
 
 def extractTokenPayload(request: Request) -> dict:
@@ -95,4 +118,73 @@ def extractTokenPayload(request: Request) -> dict:
     if payload.get("userId") is None:
         raise HTTPException(status_code=401, detail="Invalid Token")
 
+    enforceResourceClaims(payload)
+
+    try:
+        if payload.get("jti") and payload.get("jti") in revokedAccessJtis:
+            raise HTTPException(status_code=401, detail="Token revoked")
+    except HTTPException:
+        raise
+    except Exception:
+        pass
+
+    return payload
+
+
+def verifyMcpTransport(request: Request, db: Session = Depends(getSession)):
+    """Outer MCP challenge: service loopback OR user JWT, else 401+WWW-Authenticate.
+
+    GET passes through so the mount probe stays 406 (MCP calls are POST).
+    Service tokens (opaque X-Service-Token session rows) never resolve to a
+    user wallet: inner getCurrentUser still requires a user JWT and rejects
+    non-user sessions.
+    """
+    if request.method == "GET":
+        return None
+
+    if verifyServiceToken(db, request.headers.get("X-Service-Token", "")):
+        return {"type": "service"}
+
+    token = request.headers.get("X-Access-Token")
+    if not token:
+        authHeader = request.headers.get("Authorization")
+        if authHeader and authHeader.startswith("Bearer "):
+            token = authHeader.split(" ")[1]
+    if not token:
+        token = request.cookies.get(COOKIE_NAME)
+
+    def challenge(detail: str):
+        raise HTTPException(
+            status_code=401,
+            detail=detail,
+            headers={
+                "WWW-Authenticate": (
+                    f'Bearer resource_metadata="{RESOURCE_METADATA_URL}", '
+                    f'error="invalid_token", error_description="{detail}"'
+                )
+            },
+        )
+
+    if not token:
+        challenge("Authentication required")
+    assert token is not None
+    if verifyServiceToken(db, token):
+        return {"type": "service"}
+    try:
+        payload = verifyAccessToken(token)
+    except HTTPException:
+        challenge("Invalid token")
+    try:
+        enforceResourceClaims(payload)
+    except HTTPException:
+        challenge("Invalid token claims")
+    try:
+        if payload.get("jti") and payload.get("jti") in revokedAccessJtis:
+            challenge("Token revoked")
+    except HTTPException:
+        raise
+    except Exception:
+        pass
+    if payload.get("userId") is None or payload.get("sessionId") is None:
+        challenge("Invalid token")
     return payload

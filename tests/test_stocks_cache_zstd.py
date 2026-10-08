@@ -12,6 +12,8 @@ import main.app.stocks_api.cache as cache_mod
 from main.app.stocks_api.cache import StocksCacheManager
 from main.app.stocks_api.frame import PRESORTED_FLAG_KEY
 from main.app.stocks_api.query import deserializeJsonColumns, filterCotationColumn
+from main.app.stocks_api.util import detectNestedFields
+from main.app.stocks_api.compress import getNest, rebuildAbbrevs
 
 
 class FakeResult:
@@ -259,7 +261,6 @@ def test_build_null_first_chunk_numeric_column_uses_db_type(monkeypatch, tmp_pat
 
 
 def test_detect_nested_fields_tolerates_loose_nan_json():
-    from main.app.stocks_api.util import detectNestedFields
 
     df = pd.DataFrame(
         {
@@ -273,7 +274,6 @@ def test_detect_nested_fields_tolerates_loose_nan_json():
 
 
 def test_detect_nested_fields_skips_empty_array_head():
-    from main.app.stocks_api.util import detectNestedFields
 
     df = pd.DataFrame(
         {
@@ -324,7 +324,6 @@ def test_get_nest_keeps_compressed_column_subfields(monkeypatch, tmp_path):
     build_mod.buildFeatherCache()
     m = StocksCacheManager(None, threading.Lock())
     m.getCachedStocks()
-    from main.app.stocks_api.compress import getNest, rebuildAbbrevs
 
     rebuildAbbrevs()
     nest = getNest(m.STOCKS_CACHE, m.nestedSample)

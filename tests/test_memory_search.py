@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from types import SimpleNamespace
 
 from sqlalchemy import event
 from sqlalchemy.dialects import mysql
@@ -6,8 +7,17 @@ from sqlalchemy.dialects.mysql import match as mysqlMatch
 
 import main.app.orunmila.memory as memoryMod
 from main.app.orunmila.memory import clearAll
+from main.app.orunmila.memory import minMax
 from main.app.orunmila.memory import OrunmilaMemory as MemoryService
 from main.models.memory import OrunmilaMemory
+
+
+def _fakeModel(fn):
+    def _encode(texts, normalize_embeddings=True):
+        vals = fn(texts)
+        return SimpleNamespace(tolist=lambda: vals)
+
+    return SimpleNamespace(encode=_encode)
 
 
 USER_ID = 1
@@ -73,7 +83,7 @@ def countQueries(db):
 def test_search_defersEmbeddingBlob(dbSession, monkeypatch):
     clearAll()
     seedMemories(dbSession, userId=9, n=5)
-    monkeypatch.setattr(memoryMod, "embed", lambda texts: [[0.2] * 384 for _ in texts])
+    monkeypatch.setattr(memoryMod, "getEmbeddingModel", lambda: _fakeModel(lambda texts: [[0.2] * 384 for _ in texts]))
     with countQueries(dbSession) as q:
         res = MemoryService.search(dbSession, userId=9, query="gosto de dividendos")
     assert len(res) > 0
@@ -82,14 +92,12 @@ def test_search_defersEmbeddingBlob(dbSession, monkeypatch):
 
 
 def test_search_embedFailureFallsBackToFulltextRecency(dbSession, monkeypatch):
-    from main.app.orunmila.memory import minMax
-
     assert minMax([0.0, 0.0, 0.0]) == [0.0, 0.0, 0.0]
 
-    def failEmbed(texts):
+    def failEncode(texts=None, normalize_embeddings=True):
         raise RuntimeError("embed down")
 
-    monkeypatch.setattr(memoryMod, "embed", failEmbed)
+    monkeypatch.setattr(memoryMod, "getEmbeddingModel", lambda: SimpleNamespace(encode=failEncode))
     MemoryService.upsertMemory(
         dbSession,
         21,
@@ -112,7 +120,9 @@ def test_search_embedFailureFallsBackToFulltextRecency(dbSession, monkeypatch):
 
 
 def test_search_fusesFulltextOverVectorOnly(dbSession, monkeypatch):
-    monkeypatch.setattr(memoryMod, "embed", lambda texts: [[1.0] + [0.0] * 383 for _ in texts])
+    monkeypatch.setattr(
+        memoryMod, "getEmbeddingModel", lambda: _fakeModel(lambda texts: [[1.0] + [0.0] * 383 for _ in texts])
+    )
     MemoryService.upsertMemory(
         dbSession,
         11,

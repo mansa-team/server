@@ -1,7 +1,7 @@
 import asyncio
 
 from main.app.orunmila.memory import OrunmilaMemory
-from main.app.orunmila.vector import embed
+from main.utils.models.loader import getEmbeddingModel
 from main.app.orunmila.tools.context import closeOwnSession, popAuthSession
 
 
@@ -44,7 +44,7 @@ async def save_memory(key: str, value: str, type: str, **_) -> dict:
     if authError is not None:
         return authError
     try:
-        embedding = embed([value])[0]
+        embedding = getEmbeddingModel().encode([value], normalize_embeddings=True).tolist()[0]
         result = await asyncio.to_thread(
             OrunmilaMemory.upsertMemory,
             db,  # type: ignore[arg-type]

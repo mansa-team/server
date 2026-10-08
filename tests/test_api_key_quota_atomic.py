@@ -13,6 +13,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from main.models.stocksapi_key import StocksAPIKey
 from main.app.stocks_api.key import verifyAPIKey
+from tests.conftest import APIKeyFactory
 
 TEST_KEY_HASH = hashlib.sha256("test_key_12345".encode()).hexdigest()
 
@@ -30,9 +31,9 @@ def quotaUpdate(dbSession, apiKey):
 
 
 @pytest.fixture
-def sampleKeyData(apiKeyFactory):
+def sampleKeyData():
     """Sample API key data for tests (deterministic hash via factory override)."""
-    return apiKeyFactory(apiKey=TEST_KEY_HASH)
+    return APIKeyFactory(apiKey=TEST_KEY_HASH)
 
 
 class TestAtomicQuotaIncrement:

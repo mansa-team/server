@@ -2,20 +2,22 @@ import hashlib
 import hmac
 import logging
 from config import Config, getSession, LOCALHOST_ADDRESSES
+from urllib.parse import urlencode, urlparse
 
 from datetime import datetime, timedelta, timezone
 from main.utils.logging_config import limiter
 
-from fastapi import APIRouter, Response, HTTPException, Request, Depends, Body
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Response, HTTPException, Request, Depends, Body, Form
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi_sso.sso.base import SSOLoginError
 from sqlalchemy.orm import Session
 
 from main.app.authentication.authentication import AuthenticationManager
 from main.app.authentication.csrf import CSRF_COOKIE_NAME, csrf_exempt, issueCsrfToken
 from main.app.authentication.introspect import introspectToken
+from main.app.authentication.mcp_oauth_provider import WALLET_SCOPE, walletOAuthProvider
 from main.app.authentication.service_token import verifyServiceToken
-from main.app.authentication.util import createAccessToken, verifyAccessToken
+from main.app.authentication.util import createAccessToken, extractTokenPayload, verifyAccessToken
 from main.app.authentication.sso import getGoogleSSO
 from main.app.authentication.constants import (
     COOKIE_NAME,
@@ -25,16 +27,10 @@ from main.app.authentication.constants import (
 )
 from main.app.authentication.session import SessionManager
 from main.models.user import User
-from main.utils.security_headers import getRequestScheme
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
-
-
-# Kept: mocked seam (patched 6x in tests/test_controllers_coverage.py) — keep.
-def isSecureScheme(request: Request) -> bool:
-    return getRequestScheme(request) == "https"
 
 
 def resolveCookieDomain(request: Request) -> str | None:
@@ -117,8 +113,7 @@ def login(
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    sessionId = issueSessionCookie(response, request, db, user)
-    SessionManager.revokeAllExcept(db, user["userId"], sessionId)
+    issueSessionCookie(response, request, db, user)
 
     return {"user": user}
 
@@ -172,7 +167,7 @@ def introspect(
     db: Session = Depends(getSession),
     token: str | None = Body(default=None, embed=True),
 ):
-    if not verifyServiceToken(request.headers.get("X-Service-Token", "")):
+    if not verifyServiceToken(db, request.headers.get("X-Service-Token", "")):
         raise HTTPException(status_code=401, detail="Unauthorized")
     auth = request.headers.get("Authorization", "")
     raw = (
@@ -281,3 +276,82 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
     except Exception:
         logger.error("Critical error in Google callback", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error during Google login")
+
+
+def _consent_form(request_id: str) -> str:
+    return (
+        "<html><body><h1>Authorize Mansa Wallet MCP</h1>"
+        "<p>This client requests scope=<b>wallet</b> (read your wallet over MCP).</p>"
+        '<form method="post" action="/auth/consent">'
+        f'<input type="hidden" name="request_id" value="{request_id}"/>'
+        '<label>Username <input name="username"/></label><br/>'
+        '<label>Password <input type="password" name="password"/></label><br/>'
+        f'<button type="submit" name="approve" value="{WALLET_SCOPE}">Approve wallet</button>'
+        "</form></body></html>"
+    )
+
+
+@router.get("/consent", response_class=HTMLResponse)
+def oauth_consent_form(request_id: str):
+    if not walletOAuthProvider.pending.get(request_id):
+        raise HTTPException(status_code=400, detail="Unknown authorization request")
+    return HTMLResponse(_consent_form(request_id))
+
+
+@csrf_exempt
+@router.post("/consent")
+@limiter.limit("10/minute")
+def oauth_consent_submit(
+    request: Request,
+    request_id: str = Form(...),
+    username: str | None = Form(default=None),
+    password: str | None = Form(default=None),
+    approve: str = Form(...),
+    db: Session = Depends(getSession),
+):
+    """OAuth authorize step: logged-in session cookie OR username/password, one approve for scope=wallet."""
+    pending = walletOAuthProvider.take_pending(request_id)
+    if not pending:
+        raise HTTPException(status_code=400, detail="Unknown authorization request")
+    if approve != WALLET_SCOPE:
+        raise HTTPException(status_code=400, detail="Scope must be wallet")
+
+    userId: str | None = None
+    sessionId: str | None = None
+    try:
+        payload = extractTokenPayload(request)
+        userId = str(payload.get("userId"))
+        sessionId = str(payload.get("sessionId"))
+    except HTTPException:
+        userId = None
+
+    if userId is None or sessionId is None:
+        if not username or not password:
+            raise HTTPException(status_code=401, detail="Login required")
+        user = AuthenticationManager.authenticateUser(db, username, password)
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+        session = SessionManager.createSession(db, int(user["userId"]), request.headers.get("User-Agent", "oauth"))
+        userId = str(user["userId"])
+        sessionId = str(session.sessionId)
+
+    code = walletOAuthProvider.issue_code(
+        str(pending["client_id"]),
+        str(userId),
+        str(sessionId),
+        str(pending["code_challenge"]),
+        str(pending["redirect_uri"]),
+        bool(pending["redirect_provided"]),
+        list(pending["scopes"]),
+        str(pending["resource"]),
+    )
+    params: dict[str, str] = {"code": code}
+    if pending.get("state"):
+        params["state"] = str(pending["state"])
+    location = str(pending["redirect_uri"])
+    sep = "&" if "?" in location else "?"
+    return RedirectResponse(
+        url=f"{location}{sep}{urlencode(params)}",
+        status_code=302,
+        headers={"Cache-Control": "no-store"},
+    )

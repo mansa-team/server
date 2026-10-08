@@ -20,6 +20,7 @@ import pytest
 from main.app.orunmila.tools import TOOL_REGISTRY, dispatchToolCall
 from tests.test_wallet_mcp import _build_auth_app, _mcp_client, _seed_session_wallet
 from tests.test_wallet_positions import _live_ok
+from cashews import cache as cashewsCache
 
 LOCAL_TOOL_NAMES = {
     "search_memory",
@@ -48,7 +49,6 @@ WALLET_TOOL_NAMES = {
 
 @pytest.fixture(autouse=True)
 async def clear_cashews_cache():
-    from cashews import cache as cashewsCache
 
     cashewsCache.setup("mem://")
     await cashewsCache.clear()

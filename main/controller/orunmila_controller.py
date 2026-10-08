@@ -132,9 +132,6 @@ async def chat_stream(
     correlationId = requestIdVar.get("") or uuid.uuid4().hex
     requestIdVar.set(correlationId)
 
-    # Raw session JWT (not the decoded payload) — forwarded to MCP-bound wallet
-    # tool calls by the dispatcher; transport headers on the shared MCP pool are
-    # frozen, so the token rides as a call argument instead.
     rawToken = extractRawToken(request)
 
     async def runner() -> AsyncIterator[dict]:

@@ -11,6 +11,7 @@ from sqlalchemy.pool import StaticPool
 from config import getSession
 from main.models.base import Base
 from main.models.orunmila import OrunmilaSession
+import main.controller.orunmila_controller as controller_mod
 
 
 @pytest.fixture(autouse=True)
@@ -47,7 +48,6 @@ def test_streammessage_triggers_memory_extraction(client, monkeypatch):
 
     # The runner in orunmila_controller creates its own SessionLocal() from
     # config (MySQL 'db'); patch it so the background run uses the same sqlite.
-    import main.controller.orunmila_controller as controller_mod
 
     monkeypatch.setattr(controller_mod, "SessionLocal", lambda: dbSession)
 

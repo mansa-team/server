@@ -1,7 +1,5 @@
 """F-A audit tests: controller fixes — CSRF patch removal, SSO suffix-unique, generic 400s, login eviction, introspect gate, PII scrub."""
 
-import hashlib
-import hmac
 import os
 import sys
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -12,18 +10,17 @@ from fastapi.testclient import TestClient
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from config import Config, getSession
+from config import getSession
+from main.app.authentication.service_token import createServiceToken
 from main.app.authentication.authentication import AuthenticationManager
 from main.app.authentication.session import SessionManager
 from main.controller.authentication_controller import router as authRouter
 from main.models.user import User
 from main.utils.errors import registerErrorHandlers
 
-SERVICE_HEADERS = {
-    "X-Service-Token": hmac.new(
-        Config.USER.JWT_SECRET_KEY.encode("utf-8"), b"auth-introspect", hashlib.sha256
-    ).hexdigest()
-}
+
+def serviceHeaders(dbSession):
+    return {"X-Service-Token": createServiceToken(dbSession)}
 
 
 @pytest.fixture
@@ -135,27 +132,21 @@ class TestRegisterGeneric400:
 
 
 class TestLoginRevokesOthers:
-    def test_old_session_deactivated(self, dbSession, authDbClient, monkeypatch):
+    def test_old_session_stays_active(self, dbSession, authDbClient, monkeypatch):
         makeAccount(dbSession, "carol", "carol@example.com")
         user = AuthenticationManager.authenticateUser(dbSession, "carol", "secret123")
         old = SessionManager.createSession(dbSession, user["userId"], "pytest")
 
-        calls = {}
-        real = SessionManager.revokeAllExcept
+        def forbidden(db, user_id, keep_session_id):
+            raise AssertionError("revokeAllExcept must not run on password login")
 
-        def recording(db, user_id, keep_session_id):
-            calls["args"] = (user_id, keep_session_id)
-            return real(db, user_id, keep_session_id)
-
-        monkeypatch.setattr(SessionManager, "revokeAllExcept", recording)
+        monkeypatch.setattr(SessionManager, "revokeAllExcept", forbidden)
         resp = authDbClient.post("/auth/login", json={"username": "carol", "password": "secret123"})
         assert resp.status_code == 200
-        assert calls["args"][0] == user["userId"]
-        assert calls["args"][1] != old.sessionId
         dbSession.refresh(old)
-        assert old.isActive is False
-        kept = SessionManager.getSessionById(dbSession, calls["args"][1], user["userId"])
-        assert kept is not None and kept.isActive is True
+        assert old.isActive is True
+        sessions = SessionManager.getUserSessions(dbSession, user["userId"])
+        assert len([s for s in sessions if s.isActive]) == 2
 
 
 class TestIntrospectGate:
@@ -177,11 +168,11 @@ class TestIntrospectGate:
 
     def test_valid_token_with_header_200(self, dbSession, authDbClient):
         token = self._token(dbSession)
-        resp = authDbClient.post("/auth/introspect", json={"token": token}, headers=SERVICE_HEADERS)
+        resp = authDbClient.post("/auth/introspect", json={"token": token}, headers=serviceHeaders(dbSession))
         assert resp.status_code == 200
 
-    def test_invalid_token_generic_401(self, authDbClient):
-        resp = authDbClient.post("/auth/introspect", json={"token": "bad"}, headers=SERVICE_HEADERS)
+    def test_invalid_token_generic_401(self, dbSession, authDbClient):
+        resp = authDbClient.post("/auth/introspect", json={"token": "bad"}, headers=serviceHeaders(dbSession))
         body = resp.json()
         assert resp.status_code == 401
         assert "Unauthorized" in body.get("error", "")

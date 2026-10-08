@@ -1,3 +1,5 @@
+from datetime import date
+
 from main.models.base import Base
 from main.models.wallet import Earning, Holding, Snapshot, Target, Transaction, Wallet
 
@@ -21,9 +23,6 @@ def test_wallet_tables_create_and_round_trip(dbSession):
 
 
 def test_earning_round_trip(dbSession):
-    from datetime import date
-    from main.models.wallet import Wallet
-
     wallet = Wallet(userId=1, name="W")
     dbSession.add(wallet)
     dbSession.commit()

@@ -1,9 +1,11 @@
 """Tests for agent <-> persistent sandbox integration (Task 3)."""
 
+import inspect
 from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from main.app.orunmila import agent
 from main.app.orunmila.sandbox import SandboxManager
 
 
@@ -49,10 +51,6 @@ class TestPersistentSandboxLifecycle:
 
     async def test_no_create_in_agent_source(self):
         """Verify agent.py no longer calls SandboxManager.create directly."""
-        import inspect
-
-        from main.app.orunmila import agent
-
         source = inspect.getsource(agent)
         # The on-demand path should use getOrCreate, not create
         # (SandboxManager.create is still in sandbox.py — just not called from agent)

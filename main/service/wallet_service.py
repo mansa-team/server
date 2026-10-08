@@ -8,8 +8,10 @@ responses have no compact form: plain HTTP and MCP serve the same JSON.
 
 import logging
 
-from fastapi_mcp import FastApiMCP
+from fastapi import Depends
+from fastapi_mcp import AuthConfig, FastApiMCP
 
+from main.app.authentication.util import verifyMcpTransport
 from main.controller.wallet_controller import router as walletRouter
 from main.utils.service_manager import getApp
 
@@ -46,5 +48,6 @@ class WalletService:
             name="Mansa Wallet MCP",
             include_operations=WALLET_MCP_OPERATIONS,
             headers=["authorization"],
+            auth_config=AuthConfig(dependencies=[Depends(verifyMcpTransport)]),
         )
         mcp.mount_http(service, mount_path="/wallet/mcp")

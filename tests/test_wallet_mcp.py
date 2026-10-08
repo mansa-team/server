@@ -18,7 +18,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import httpx
 import jwt
 import pytest
+from cashews import cache as cashewsCache
 from fastapi import FastAPI, HTTPException
+from fastapi.testclient import TestClient
 from fastapi_mcp import FastApiMCP
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -26,8 +28,33 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from fastmcp import Client
 from fastmcp.client.client import StreamableHttpTransport
 
-from main.controller.wallet_controller import router as walletRouter
+from config import getSession
+from main.app.authentication.introspect import introspectToken
+from main.app.authentication.service_token import verifyServiceToken
+from main.app.authentication.session import SessionManager
+from main.app.authentication.util import createAccessToken
+from main.app.orunmila.agent import Orunmila
+from main.app.orunmila.tools import dispatchToolCall
+from main.app.wallet import auth as walletAuth
+from main.app.wallet.analytics import AnalyticsManager
+from main.app.wallet.entries import EntryCreate, EntriesManager
+from main.app.wallet.performance import PerformanceManager
+from main.app.wallet.wallets import WalletsManager
+from main.controller.authentication_controller import router as authRouter
+from main.controller.orunmila_controller import router as orunmilaRouter
+from main.controller.stocksapi_controller import router as stocksRouter
+from main.controller.user_controller import router as userRouter
+from main.controller.wallet_controller import (
+    explain_twr_route,
+    record_entry_route,
+    router as walletRouter,
+    set_rating_wrapper_route,
+    wallet_progression_route,
+)
+from main.models.user import User
+from main.models.wallet import Earning, Holding, Transaction
 from main.service.wallet_service import WALLET_MCP_OPERATIONS, WalletService
+from main.utils.errors import registerErrorHandlers
 from tests.test_wallet_positions import _live_ok
 
 READ_TOOL_NAMES = {
@@ -52,8 +79,6 @@ EXPECTED_TOOL_NAMES = READ_TOOL_NAMES | WRAPPER_TOOL_NAMES
 
 @pytest.fixture(autouse=True)
 async def clear_cashews_cache():
-    from cashews import cache as cashewsCache
-
     cashewsCache.setup("mem://")
     await cashewsCache.clear()
     yield
@@ -62,11 +87,6 @@ async def clear_cashews_cache():
 
 def build_shared_app():
     """All service routers on one app — mimics production shared port."""
-    from main.controller.authentication_controller import router as authRouter
-    from main.controller.orunmila_controller import router as orunmilaRouter
-    from main.controller.stocksapi_controller import router as stocksRouter
-    from main.controller.user_controller import router as userRouter
-
     app = FastAPI(title="Mansa Service 3200")
     for service_router in (authRouter, userRouter, orunmilaRouter, stocksRouter, walletRouter):
         app.include_router(service_router)
@@ -143,8 +163,6 @@ class TestWalletMCPToolScoping:
         mcp = make_wallet_mcp(app)
         mcp.mount_http(app, mount_path="/wallet/mcp")
 
-        from fastapi.testclient import TestClient
-
         with TestClient(app, raise_server_exceptions=False) as client:
             resp = client.get("/wallet/mcp")
             # Streamable-HTTP GET without an Accept: text/event-stream header
@@ -173,9 +191,6 @@ class TestWalletServiceInitialize:
 
 def _make_wallet(dbSession):
     """Real user + auto-created wallet (mirrors the session chain used by routes)."""
-    from main.app.wallet.wallets import WalletsManager
-    from main.models.user import User
-
     user = User(username="wrapuser", email="wrap@example.com", passwordHash="h", roles="USER")
     dbSession.add(user)
     dbSession.commit()
@@ -188,7 +203,6 @@ class TestWalletWrapperBehavior:
     """Direct-call tests for the four MCP wrappers (no ASGI round trip)."""
 
     def test_record_entry_coerces_date_and_serializes_holding(self, dbSession):
-        from main.controller.wallet_controller import record_entry_route
 
         user, wallet = _make_wallet(dbSession)
         result = record_entry_route(
@@ -201,7 +215,6 @@ class TestWalletWrapperBehavior:
             costs=1.0,
             authorization=None,
             currentUser={"userId": str(user.userId)},
-            wallet=wallet,
             db=dbSession,
         )
 
@@ -209,7 +222,6 @@ class TestWalletWrapperBehavior:
         assert result["holding"] == {"ticker": "PETR4", "quantity": 10.0, "avgPrice": 25.1}
 
     def test_record_entry_rejects_bad_date(self, dbSession):
-        from main.controller.wallet_controller import record_entry_route
 
         user, wallet = _make_wallet(dbSession)
         with pytest.raises(HTTPException) as excinfo:
@@ -223,15 +235,12 @@ class TestWalletWrapperBehavior:
                 costs=0.0,
                 authorization=None,
                 currentUser={"userId": str(user.userId)},
-                wallet=wallet,
                 db=dbSession,
             )
 
         assert excinfo.value.status_code == 422
 
     def test_set_rating_wrapper_updates_single_rating(self, dbSession):
-        from main.app.wallet.entries import EntryCreate, EntriesManager
-        from main.controller.wallet_controller import set_rating_wrapper_route
 
         user, wallet = _make_wallet(dbSession)
         EntriesManager.addEntry(
@@ -247,14 +256,12 @@ class TestWalletWrapperBehavior:
             rating=80.0,
             authorization=None,
             currentUser={"userId": str(user.userId)},
-            wallet=wallet,
             db=dbSession,
         )
 
         assert result == {"ticker": "PETR4", "rating": 80.0}
 
     def test_set_rating_wrapper_404_when_not_held(self, dbSession):
-        from main.controller.wallet_controller import set_rating_wrapper_route
 
         user, wallet = _make_wallet(dbSession)
         with pytest.raises(HTTPException) as excinfo:
@@ -263,16 +270,12 @@ class TestWalletWrapperBehavior:
                 rating=50.0,
                 authorization=None,
                 currentUser={"userId": str(user.userId)},
-                wallet=wallet,
                 db=dbSession,
             )
 
         assert excinfo.value.status_code == 404
 
     def test_explain_twr_gloss_leg_and_per_ticker(self, dbSession, monkeypatch):
-        from main.app.wallet.entries import EntryCreate, EntriesManager
-        from main.app.wallet.performance import PerformanceManager
-        from main.controller.wallet_controller import explain_twr_route
 
         user, wallet = _make_wallet(dbSession)
         EntriesManager.addEntry(
@@ -302,7 +305,6 @@ class TestWalletWrapperBehavior:
             to_date="2026-06-30",
             authorization=None,
             currentUser={"userId": str(user.userId)},
-            wallet=wallet,
             db=dbSession,
         )
 
@@ -315,8 +317,6 @@ class TestWalletWrapperBehavior:
         assert "TWR 0.1000" in result["gloss"]
 
     def test_explain_twr_ticker_scoped_skips_universe(self, dbSession, monkeypatch):
-        from main.app.wallet.performance import PerformanceManager
-        from main.controller.wallet_controller import explain_twr_route
 
         user, wallet = _make_wallet(dbSession)
         fakePerf = {
@@ -338,7 +338,6 @@ class TestWalletWrapperBehavior:
             to_date="2026-06-30",
             authorization=None,
             currentUser={"userId": str(user.userId)},
-            wallet=wallet,
             db=dbSession,
         )
 
@@ -347,8 +346,6 @@ class TestWalletWrapperBehavior:
         assert result["dividend_leg"] == 0.0
 
     def test_wallet_progression_downsamples_with_stride(self, dbSession, monkeypatch):
-        from main.app.wallet.analytics import AnalyticsManager
-        from main.controller.wallet_controller import wallet_progression_route
 
         user, wallet = _make_wallet(dbSession)
 
@@ -370,7 +367,6 @@ class TestWalletWrapperBehavior:
             max_points=4,
             authorization=None,
             currentUser={"userId": str(user.userId)},
-            wallet=wallet,
             db=dbSession,
         )
 
@@ -380,8 +376,6 @@ class TestWalletWrapperBehavior:
         assert result["returned"] == 4
 
     def test_wallet_progression_always_keeps_last_point(self, dbSession, monkeypatch):
-        from main.app.wallet.analytics import AnalyticsManager
-        from main.controller.wallet_controller import wallet_progression_route
 
         user, wallet = _make_wallet(dbSession)
         monkeypatch.setattr(
@@ -403,7 +397,6 @@ class TestWalletWrapperBehavior:
             max_points=4,
             authorization=None,
             currentUser={"userId": str(user.userId)},
-            wallet=wallet,
             db=dbSession,
         )
 
@@ -431,7 +424,6 @@ class TestDispatcherAuthInjection:
     """dispatchToolCall must inject the session JWT as an argument for wallet only."""
 
     async def test_wallet_call_gets_bearer_token(self):
-        from main.app.orunmila.tools import dispatchToolCall
 
         functionCall = MagicMock()
         functionCall.name = "wallet_progression_series"
@@ -447,7 +439,6 @@ class TestDispatcherAuthInjection:
         assert result == {"result": '{"items": []}'}
 
     async def test_other_mcp_clients_do_not_get_token(self):
-        from main.app.orunmila.tools import dispatchToolCall
 
         functionCall = MagicMock()
         functionCall.name = "search"
@@ -463,7 +454,6 @@ class TestDispatcherAuthInjection:
         searxngClient.session.call_tool.assert_awaited_once_with("search", {"query": "news"})
 
     async def test_no_raw_token_leaves_args_untouched(self):
-        from main.app.orunmila.tools import dispatchToolCall
 
         functionCall = MagicMock()
         functionCall.name = "wallet_progression_series"
@@ -521,8 +511,6 @@ class TestRawTokenThreading:
         mock_chat_session.send_message_stream = AsyncMock(side_effect=fake_stream)
         mock_dispatch.return_value = {"result": "ok"}
 
-        from main.app.orunmila.agent import Orunmila
-
         gen = Orunmila()
         gen.makeChat = MagicMock(return_value=mock_chat_session)
 
@@ -535,8 +523,28 @@ class TestRawTokenThreading:
 
 
 def _build_auth_app(dbSession):
-    from config import getSession
-    from main.utils.errors import registerErrorHandlers
+    class _FakeResp:
+        def __init__(self, status_code, payload):
+            self.status_code = status_code
+            self._payload = payload
+
+        def json(self):
+            return self._payload
+
+    def _fakePost(url, json=None, headers=None, timeout=None):
+        try:
+            ok = verifyServiceToken(dbSession, (headers or {}).get("X-Service-Token", ""))
+        except TypeError:
+            ok = verifyServiceToken((headers or {}).get("X-Service-Token", ""))
+        if not ok:
+            return _FakeResp(401, {"error": "Unauthorized"})
+        try:
+            payload = introspectToken(dbSession, (json or {}).get("token"))
+        except Exception:
+            return _FakeResp(401, {"error": "Unauthorized"})
+        return _FakeResp(200, payload)
+
+    walletAuth.httpx.post = _fakePost  # type: ignore[method-assign]
 
     app = FastAPI()
     registerErrorHandlers(app)
@@ -556,9 +564,6 @@ def _build_auth_app(dbSession):
 
 def _seed_session_user(dbSession, username="mcpuser"):
     """Real user + active session row (production auth chain)."""
-    from main.app.authentication.session import SessionManager
-    from main.models.user import User
-
     user = User(username=username, email=f"{username}@example.com", passwordHash="hash", roles="USER")
     dbSession.add(user)
     dbSession.commit()
@@ -569,8 +574,6 @@ def _seed_session_user(dbSession, username="mcpuser"):
 
 def _seed_session_token(dbSession, username="mcpuser"):
     """Signed session JWT for a freshly seeded user+session (production auth chain)."""
-    from main.app.authentication.util import createAccessToken
-
     user, session = _seed_session_user(dbSession, username)
     return createAccessToken({"userId": str(user.userId), "sessionId": session.sessionId})
 
@@ -583,10 +586,6 @@ def _seed_session_wallet(dbSession, ticker="PETR4", quantity=10, price=10.0, rat
     written. `rating` pins the single-rating value when a test asserts the
     rebalance `weight` (otherwise a live Xango fetch could reseed it).
     """
-    from main.app.wallet.entries import EntryCreate, EntriesManager
-    from main.app.wallet.wallets import WalletsManager
-    from main.models.user import User
-
     token = _seed_session_token(dbSession)
     user = dbSession.query(User).filter(User.username == "mcpuser").one()
     wallet = WalletsManager.getMyWallet(dbSession, user.userId)
@@ -708,8 +707,6 @@ class TestWalletMCPAuthBoundary:
 
     async def test_call_with_expired_jwt_is_rejected(self, dbSession):
         """Real user+session, token signed with the fixture util but exp in the past."""
-        from main.app.authentication.util import createAccessToken
-
         app = _build_auth_app(dbSession)
         user, session = _seed_session_user(dbSession, username="expireduser")
         expired = createAccessToken(
@@ -726,9 +723,6 @@ class TestWalletMCPAuthBoundary:
 
     async def test_call_with_revoked_session_is_rejected(self, dbSession):
         """Valid token, but its session row was revoked through the real manager."""
-        from main.app.authentication.session import SessionManager
-        from main.app.authentication.util import createAccessToken
-
         app = _build_auth_app(dbSession)
         user, session = _seed_session_user(dbSession, username="revokeduser")
         token = createAccessToken({"userId": str(user.userId), "sessionId": session.sessionId})
@@ -779,8 +773,6 @@ class TestWalletMCPAuthBoundary:
         assert payload["holding"] == {"ticker": "PETR4", "quantity": 10.0, "avgPrice": 25.1}
 
     async def test_record_entry_via_mcp_without_token_writes_nothing(self, dbSession):
-        from main.models.wallet import Transaction
-
         app = _build_auth_app(dbSession)
         async with _mcp_client(app) as client:
             result = await client.call_tool(
@@ -865,8 +857,6 @@ class TestWalletMCPEndToEnd:
 
     async def test_performance_dividend_drop_flow(self, dbSession, monkeypatch):
         """Flat closes with an ex-date dividend: dividend leg compensates the drop."""
-        from main.models.wallet import Earning
-
         monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_flatSeries))
         app = _build_auth_app(dbSession)
         token, _user, wallet = _seed_session_wallet(dbSession)
@@ -901,11 +891,6 @@ class TestWalletMCPEndToEnd:
 
     async def test_record_buy_via_dispatch_writes_ledger(self, dbSession):
         """Full write path: dispatchToolCall → wallet MCP client → DB row."""
-        from main.app.orunmila.tools import dispatchToolCall
-        from main.app.wallet.wallets import WalletsManager
-        from main.models.user import User
-        from main.models.wallet import Holding, Transaction
-
         app = _build_auth_app(dbSession)
         token = _seed_session_token(dbSession)
         functionCall = SimpleNamespace(

@@ -10,14 +10,14 @@ from unittest.mock import patch, MagicMock, AsyncMock
 from datetime import timedelta
 from fastapi import FastAPI
 from fastapi.testclient import TestClient as TestClient
+from main.controller.authentication_controller import router as authRouter
+from main.utils.errors import registerErrorHandlers
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
 def make_callback_client():
     """Return (client, app, mock_session) for testing Google callback."""
-    from main.controller.authentication_controller import router as authRouter
-    from main.utils.errors import registerErrorHandlers
 
     app = FastAPI()
     app.include_router(authRouter)

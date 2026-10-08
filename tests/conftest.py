@@ -14,14 +14,36 @@ fake = Faker()
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret-key-not-for-production")
+os.environ.setdefault("INTROSPECT_SERVICE_SECRET", "test-service-secret-not-for-production")
+
+from config import Config, getSession, getStocksSession  # noqa: E402
+from main.app.stocks_api.key import verifyAPIKey  # noqa: E402
+from main.app.user.user import UserManager  # noqa: E402
+from main.app.wallet.auth import getWalletUser  # noqa: E402
+from main.controller.authentication_controller import router as authRouter  # noqa: E402
+from main.controller.orunmila_controller import router as orunmilaRouter  # noqa: E402
+from main.controller.stocksapi_controller import router as stocksRouter  # noqa: E402
+from main.controller.user_controller import router as userRouter  # noqa: E402
+from main.controller.wallet_controller import router as walletRouter  # noqa: E402
 from main.models.base import Base  # noqa: E402
+import main.models.memory  # noqa: E402,F401
+import main.models.orunmila  # noqa: E402,F401
+import main.models.sandbox  # noqa: E402,F401
+import main.models.stocksapi_key  # noqa: E402,F401
+import main.models.user  # noqa: E402,F401
+import main.models.user_session  # noqa: E402,F401
+import main.models.wallet  # noqa: E402,F401
+from main.utils.errors import registerErrorHandlers  # noqa: E402
+from main.utils.logging_config import limiter  # noqa: E402
+
+promRouter = orunmilaRouter
+WalletTestClient = TestClient
 
 
 @pytest.fixture(autouse=True, scope="function")
 def reset_rate_limiter():
     """Reset slowapi in-memory rate limiter between every test."""
-    from main.utils.logging_config import limiter
-
     limiter.reset()
 
 
@@ -34,12 +56,11 @@ def pytest_configure(config):
     during collection. This hook runs before collection begins.
     """
     os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret-key-not-for-production")
+    os.environ.setdefault("INTROSPECT_SERVICE_SECRET", "test-service-secret-not-for-production")
 
 
 @pytest.fixture(autouse=True)
 def patch_secret_key(monkeypatch):
-    from config import Config
-
     if not Config.USER.JWT_SECRET_KEY:
         monkeypatch.setattr(Config.USER, "JWT_SECRET_KEY", "test-secret-key-not-empty")
 
@@ -92,8 +113,6 @@ def overrideStocksSession(app, session):
 
     Import path matches the app dependency name exactly (config.getStocksSession).
     """
-    from config import getStocksSession
-
     app.dependency_overrides[getStocksSession] = lambda: session
     return app
 
@@ -122,44 +141,23 @@ class OrunmilaSessionFactory(factory.DictFactory):
 
 
 @pytest.fixture
-def userFactory():
-    return UserFactory
+def sampleUserData():
+    return UserFactory()
 
 
 @pytest.fixture
-def apiKeyFactory():
-    return APIKeyFactory
+def sampleAPIKeyData():
+    return APIKeyFactory()
 
 
 @pytest.fixture
-def orunmilaSessionFactory():
-    return OrunmilaSessionFactory
-
-
-@pytest.fixture
-def sampleUserData(userFactory):
-    return userFactory()
-
-
-@pytest.fixture
-def sampleAPIKeyData(apiKeyFactory):
-    return apiKeyFactory()
-
-
-@pytest.fixture
-def sampleOrunmilaSessionData(orunmilaSessionFactory):
-    return orunmilaSessionFactory()
+def sampleOrunmilaSessionData():
+    return OrunmilaSessionFactory()
 
 
 @pytest.fixture
 def stocks_http_client():
     """TestClient with stocks router + verifyAPIKey override."""
-    from fastapi import FastAPI
-    from fastapi.testclient import TestClient as TestClient
-    from main.controller.stocksapi_controller import router as stocksRouter
-    from main.utils.errors import registerErrorHandlers
-    from main.app.stocks_api.key import verifyAPIKey
-
     app = FastAPI()
     app.include_router(stocksRouter)
     registerErrorHandlers(app)
@@ -177,23 +175,12 @@ def client():
     Overrides extractTokenPayload dependency so auth-gated endpoints
     don't block input validation tests.
     """
-    from fastapi import FastAPI
-    from fastapi.testclient import TestClient as TestClient
-    from main.controller.authentication_controller import router as authRouter
-    from main.controller.user_controller import router as userRouter
-    from main.controller.orunmila_controller import router as orunmilaRouter
-    from main.controller.stocksapi_controller import router as stocksRouter
-    from main.utils.errors import registerErrorHandlers
-
     testApp = FastAPI()
     testApp.include_router(authRouter)
     testApp.include_router(userRouter)
     testApp.include_router(orunmilaRouter)
     testApp.include_router(stocksRouter)
     registerErrorHandlers(testApp)
-
-    # Mock auth dependency so validation tests aren't blocked by 401
-    from main.app.user.user import UserManager
 
     def mock_get_current_user():
         return {"userId": 1, "username": "testuser", "email": "test@example.com", "roles": ["PREMIUM"]}
@@ -233,32 +220,24 @@ def mock_forgevm(mock_cls):
 # ---------------------------------------------------------------------------
 def make_auth_client():
     """Return (client, app) with auth + user routers and mocked getSession."""
-    from main.controller.authentication_controller import router as authRouter
-    from main.controller.user_controller import router as userRouter
-    from main.utils.errors import registerErrorHandlers
-
     app = FastAPI()
     app.include_router(authRouter)
     app.include_router(userRouter)
     registerErrorHandlers(app)
 
     mock_session = MagicMock()
-    app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
+    app.dependency_overrides[getSession] = lambda: mock_session
     return TestClient(app, raise_server_exceptions=False), app, mock_session
 
 
 def make_user_client(mock_current_user=None):
     """Return (client, app) with user router and mocked deps."""
-    from main.controller.user_controller import router as userRouter
-    from main.utils.errors import registerErrorHandlers
-    from main.app.user.user import UserManager
-
     app = FastAPI()
     app.include_router(userRouter)
     registerErrorHandlers(app)
 
     mock_session = MagicMock()
-    app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
+    app.dependency_overrides[getSession] = lambda: mock_session
 
     if mock_current_user is not None:
         app.dependency_overrides[UserManager.getCurrentUser] = lambda: mock_current_user
@@ -268,16 +247,12 @@ def make_user_client(mock_current_user=None):
 
 def make_orunmila_client(mock_current_user=None, mock_permission_user=None):
     """Return (client, app) with orunmila router and mocked deps."""
-    from main.controller.orunmila_controller import router as promRouter
-    from main.utils.errors import registerErrorHandlers
-    from main.app.user.user import UserManager
-
     app = FastAPI()
     app.include_router(promRouter)
     registerErrorHandlers(app)
 
     mock_session = MagicMock()
-    app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
+    app.dependency_overrides[getSession] = lambda: mock_session
 
     user = mock_current_user or {"userId": 1, "username": "testuser", "roles": ["PREMIUM"]}
     # ponytail: per-call Roles.requirePermission returns a fresh callable;
@@ -289,19 +264,14 @@ def make_orunmila_client(mock_current_user=None, mock_permission_user=None):
 
 def make_stocksapi_client(mock_api_key=None):
     """Return (client, app) with stocks router and mocked deps."""
-    from main.controller.stocksapi_controller import router as stocksRouter
-    from main.utils.errors import registerErrorHandlers
-
     app = FastAPI()
     app.include_router(stocksRouter)
     registerErrorHandlers(app)
 
     mock_session = MagicMock()
-    app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: mock_session
+    app.dependency_overrides[getSession] = lambda: mock_session
 
     if mock_api_key is not None:
-        from main.app.stocks_api.key import verifyAPIKey
-
         app.dependency_overrides[verifyAPIKey] = lambda: mock_api_key
 
     return TestClient(app, raise_server_exceptions=False), app, mock_session
@@ -309,21 +279,14 @@ def make_stocksapi_client(mock_api_key=None):
 
 def make_wallet_client(mock_identity=None, db=None):
     """Return (client, app) with wallet router and mocked deps."""
-    from fastapi.testclient import TestClient as WalletTestClient
-    from main.controller.wallet_controller import router as walletRouter
-    from main.utils.errors import registerErrorHandlers
-    from unittest.mock import MagicMock
-    from main.app.user.user import UserManager
-    import main.models.wallet  # noqa: F401
-
     app = FastAPI()
     app.include_router(walletRouter)
     registerErrorHandlers(app)
 
     session = db if db is not None else MagicMock()
-    app.dependency_overrides[__import__("config", fromlist=["getSession"]).getSession] = lambda: session
+    app.dependency_overrides[getSession] = lambda: session
 
     identity = mock_identity or {"userId": 1, "username": "testuser", "roles": ["USER"]}
-    app.dependency_overrides[UserManager.getCurrentUser] = lambda: identity
+    app.dependency_overrides[getWalletUser] = lambda: identity
 
     return WalletTestClient(app, raise_server_exceptions=False), app, session

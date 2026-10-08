@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from main.utils.request_id import requestIdVar
 
 
@@ -39,6 +40,7 @@ async def httpExceptionHandler(request: Request, exc):
     return JSONResponse(
         status_code=exc.status_code,
         content=buildErrorResponse(exc.status_code, str(exc.detail)),
+        headers=getattr(exc, "headers", None),
     )
 
 
@@ -64,8 +66,6 @@ async def genericExceptionHandler(request: Request, exc):
 
 
 def registerErrorHandlers(app: FastAPI):
-    from starlette.exceptions import HTTPException as StarletteHTTPException
-
     app.add_exception_handler(StarletteHTTPException, httpExceptionHandler)
     app.add_exception_handler(RequestValidationError, validationExceptionHandler)
     app.add_exception_handler(Exception, genericExceptionHandler)

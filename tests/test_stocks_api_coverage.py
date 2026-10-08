@@ -17,11 +17,19 @@ import requests
 from sqlalchemy.exc import SQLAlchemyError
 
 from main.app.stocks_api import query as queryModule
+from cashews import cache as cashews_cache
+from main.app.stocks_api.cache import StocksCacheManager
+from main.app.stocks_api.cache import stocksCache
+from datetime import datetime, timezone
+from types import SimpleNamespace
+from main.app.stocks_api.key import createStoredApiKey
+from main.app.stocks_api.key import verifyAPIKey
+from main.app.stocks_api.query import filterCotationColumn
+from datetime import date
 
 
 @pytest.fixture(autouse=True)
 async def clear_cashews_cache():
-    from cashews import cache as cashews_cache
 
     await cashews_cache.clear()
     yield
@@ -53,7 +61,6 @@ def make_stocks_df(rows=3):
 
 def make_query_manager(cache_df=None):
     """Single shared query helper (mock cache + optional data)."""
-    from main.app.stocks_api.cache import StocksCacheManager
 
     mock_cache = MagicMock(spec=StocksCacheManager)
     mock_cache.STOCKS_CACHE = cache_df
@@ -68,7 +75,6 @@ class TestStocksCacheManager:
     """Tests covering cache.py lines 28-76."""
 
     def make_manager(self):
-        from main.app.stocks_api.cache import StocksCacheManager
 
         mock_engine = MagicMock()
         lock = threading.Lock()
@@ -185,23 +191,18 @@ class TestVerifyAPIKey:
         return mock_db
 
     def makeRow(self, raw, usage=0, limit=100):
-        from types import SimpleNamespace
-        from main.app.stocks_api.key import createStoredApiKey
 
         _, stored = createStoredApiKey(raw)
         return SimpleNamespace(apiKey=stored, currentUsage=usage, requestLimit=limit)
 
     @patch("main.app.stocks_api.key.Config")
     async def test_verify_api_key_disabled_returns_none(self, mock_config):
-        from main.app.stocks_api.key import verifyAPIKey
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=False)
         assert await verifyAPIKey(apiKey=None, db=MagicMock()) is None
 
     @patch("main.app.stocks_api.key.Config")
     async def test_verify_api_key_missing_raises_401(self, mock_config):
-        from main.app.stocks_api.key import verifyAPIKey
-        from fastapi import HTTPException
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([])
@@ -212,7 +213,6 @@ class TestVerifyAPIKey:
 
     @patch("main.app.stocks_api.key.Config")
     async def test_verify_api_key_success(self, mock_config):
-        from main.app.stocks_api.key import verifyAPIKey
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([self.makeRow("valid_key")])
@@ -221,8 +221,6 @@ class TestVerifyAPIKey:
 
     @patch("main.app.stocks_api.key.Config")
     async def test_verify_api_key_invalid_key_raises_401(self, mock_config):
-        from main.app.stocks_api.key import verifyAPIKey
-        from fastapi import HTTPException
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([self.makeRow("other_key")])
@@ -232,8 +230,6 @@ class TestVerifyAPIKey:
 
     @patch("main.app.stocks_api.key.Config")
     async def test_verify_api_key_quota_exceeded(self, mock_config):
-        from main.app.stocks_api.key import verifyAPIKey
-        from fastapi import HTTPException
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([self.makeRow("valid_key", usage=100, limit=100)])
@@ -244,8 +240,6 @@ class TestVerifyAPIKey:
 
     @patch("main.app.stocks_api.key.Config")
     async def test_verify_api_key_lost_race_returns_429(self, mock_config):
-        from main.app.stocks_api.key import verifyAPIKey
-        from fastapi import HTTPException
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([self.makeRow("k")], rowcount=0)
@@ -256,8 +250,6 @@ class TestVerifyAPIKey:
 
     @patch("main.app.stocks_api.key.Config")
     async def test_verify_api_key_generic_exception_rollback(self, mock_config):
-        from main.app.stocks_api.key import verifyAPIKey
-        from fastapi import HTTPException
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([self.makeRow("k")], error=SQLAlchemyError("DB down"))
@@ -268,9 +260,6 @@ class TestVerifyAPIKey:
 
     @patch("main.app.stocks_api.key.Config")
     async def test_verify_api_key_legacy_row_rejected(self, mock_config):
-        from types import SimpleNamespace
-        from main.app.stocks_api.key import verifyAPIKey
-        from fastapi import HTTPException
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         legacy = SimpleNamespace(apiKey="a" * 64, currentUsage=0, requestLimit=100)
@@ -485,7 +474,6 @@ class TestQueryHistorical:
 
     def test_cache_not_initialized_raises_503(self):
         mgr = self.make_manager(cache_df=None)
-        from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
             queryModule.queryHistorical(cacheManager=mgr, search="TEST0")
@@ -538,7 +526,6 @@ class TestQueryHistorical:
         """No historical data columns -> 400 propagates (HTTPException is re-raised)."""
         df = pd.DataFrame({"TICKER": ["A"], "NOME": ["X"], "PRECO": [10.0]})
         mgr = self.make_manager(cache_df=df)
-        from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
             queryModule.queryHistorical(cacheManager=mgr, search="TEST0")
@@ -571,7 +558,6 @@ class TestQueryHistorical:
                 raise ValueError("simulated failure")
 
         mgr.STOCKS_CACHE = ExplodingDf()
-        from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
             queryModule.queryHistorical(cacheManager=mgr, search="TEST0")
@@ -581,7 +567,6 @@ class TestQueryHistorical:
         """Invalid date format raises exception (line 132)."""
         df = pd.DataFrame({"TICKER": ["A"], "NOME": ["X"], "LUCRO LIQUIDO 2023": [100]})
         mgr = self.make_manager(cache_df=df)
-        from fastapi import HTTPException
 
         with pytest.raises(HTTPException):
             queryModule.queryHistorical(cacheManager=mgr, dates="2020,2021,2022")
@@ -597,7 +582,6 @@ class TestQueryHistorical:
         """No historical columns at all -> inner 400 propagates (not swallowed as 500)."""
         df = pd.DataFrame({"TICKER": ["A"], "NOME": ["X"]})
         mgr = self.make_manager(cache_df=df)
-        from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
             queryModule.queryHistorical(cacheManager=mgr, fields="NONEXISTENT_FIELD")
@@ -622,7 +606,6 @@ class TestQueryHistorical:
         """Calling with all None returns 400."""
         df = make_stocks_df()
         mgr = self.make_manager(cache_df=df)
-        from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
             queryModule.queryHistorical(
@@ -639,7 +622,6 @@ class TestQueryFundamental:
 
     def test_cache_not_initialized_raises_503(self):
         mgr = self.make_manager(cache_df=None)
-        from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
             queryModule.queryFundamental(cacheManager=mgr, search="TEST0")
@@ -682,7 +664,6 @@ class TestQueryFundamental:
         """Invalid date -> inner 400 passes through (not wrapped as 500)."""
         df = make_stocks_df()
         mgr = self.make_manager(cache_df=df)
-        from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
             queryModule.queryFundamental(cacheManager=mgr, dates="not-a-date,also-not-a-date")
@@ -725,7 +706,6 @@ class TestQueryFundamental:
                 raise ValueError("simulated failure")
 
         mgr.STOCKS_CACHE = ExplodingDf()
-        from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
             queryModule.queryFundamental(cacheManager=mgr, search="TEST0")
@@ -771,7 +751,6 @@ class TestQueryFundamental:
         """Single invalid date -> inner 400 passes through."""
         df = make_stocks_df()
         mgr = self.make_manager(cache_df=df)
-        from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
             queryModule.queryFundamental(cacheManager=mgr, dates="not-a-date")
@@ -856,7 +835,6 @@ class TestQueryFundamental:
         """Regression: queryFundamental must not mutate the shared cache TIME column.
         Bug at line 243: df["TIME"] = ... on a view of STOCKS_CACHE converted
         datetime64 -> object strings on first call, breaking /cotations sort."""
-        from main.app.stocks_api.cache import StocksCacheManager
 
         cache = MagicMock(spec=StocksCacheManager)
         cache.STOCKS_CACHE = pd.DataFrame(
@@ -877,7 +855,6 @@ class TestQueryFundamental:
     def test_fundamental_requires_search_fields_or_dates(self):
         df = make_stocks_df()
         mgr = self.make_manager(cache_df=df)
-        from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
             queryModule.queryFundamental(
@@ -900,7 +877,6 @@ class TestQueryCotations:
     """Tests for queryCotations and /stocks/cotations."""
 
     def make_manager(self, cache_df=None):
-        from main.app.stocks_api.cache import StocksCacheManager
 
         mock_cache = MagicMock(spec=StocksCacheManager)
         mock_cache.STOCKS_CACHE = cache_df
@@ -926,7 +902,6 @@ class TestQueryCotations:
     # --- 503 cache-not-init ---
     def test_cotations_cache_not_initialized_raises_503(self):
         mgr = self.make_manager(cache_df=None)
-        from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
             queryModule.queryCotations(cacheManager=mgr, adjusted=False)
@@ -1044,7 +1019,6 @@ class TestQueryCotations:
         exploding = MagicMock()
         exploding.columns = PropertyMock(side_effect=ValueError("boom"))
         mgr = self.make_manager(cache_df=exploding)
-        from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
             queryModule.queryCotations(cacheManager=mgr, adjusted=False)
@@ -1053,7 +1027,6 @@ class TestQueryCotations:
     # --- HTTP integration: /stocks/cotations route (one test, parametrized conceptually) ---
     def test_cotations_http_route(self, stocks_http_client):
         """Hit the actual /stocks/cotations HTTP endpoint with adjusted=false."""
-        from main.app.stocks_api.cache import stocksCache
 
         original_cache = stocksCache.STOCKS_CACHE
         original_index = stocksCache.tickerIndex
@@ -1082,7 +1055,6 @@ class TestQueryLiveCotation:
     """Tests for queryLiveCotations and /stocks/cotations/live."""
 
     def make_manager(self):
-        from main.app.stocks_api.cache import StocksCacheManager
 
         mock_cache = MagicMock(spec=StocksCacheManager)
         mock_cache.STOCKS_CACHE = pd.DataFrame()
@@ -1150,7 +1122,6 @@ class TestQueryLiveCotation:
         assert result["data"][0]["TICKER"] == "WEGE3"
 
     async def test_live_route_cached_within_ttl(self, stocks_http_client):
-        from cashews import cache as cashews_cache
 
         await cashews_cache.clear()
         mock_session = MagicMock()
@@ -1166,7 +1137,6 @@ class TestQueryLiveCotation:
         assert mock_session.get.call_count == 1
 
     async def test_live_route_refetches_after_ttl(self, stocks_http_client):
-        from cashews import cache as cashews_cache
 
         await cashews_cache.clear()
         mock_session = MagicMock()
@@ -1181,7 +1151,6 @@ class TestQueryLiveCotation:
         assert mock_session.get.call_count == 2
 
     def test_b3_unavailable_returns_503(self):
-        from fastapi import HTTPException
 
         mgr = self.make_manager()
         with self.patch_session(side_effect=requests.ConnectionError("connection refused")):
@@ -1190,7 +1159,6 @@ class TestQueryLiveCotation:
         assert exc_info.value.status_code == 503
 
     def test_b3_bad_status_returns_404(self):
-        from fastapi import HTTPException
 
         mgr = self.make_manager()
         payload = {"BizSts": {"cd": "ERR"}, "Trad": []}
@@ -1214,8 +1182,6 @@ class TestQueryLiveCotation:
 
     # --- vectorized filterCotationColumn ---------------------------------
     def test_cotations_filter_cotation_column_filters_by_date(self):
-        from main.app.stocks_api.query import filterCotationColumn
-        from datetime import date
 
         series = pd.Series(
             [
@@ -1230,8 +1196,6 @@ class TestQueryLiveCotation:
         assert result[1] == []
 
     def test_cotations_filter_cotation_column_range(self):
-        from main.app.stocks_api.query import filterCotationColumn
-        from datetime import date
 
         series = pd.Series(
             [
@@ -1247,8 +1211,6 @@ class TestQueryLiveCotation:
         assert {e["DATA"] for e in result[0]} == {"01-12-2016", "02-12-2016"}
 
     def test_cotations_filter_cotation_column_handles_non_list(self):
-        from main.app.stocks_api.query import filterCotationColumn
-        from datetime import date
 
         series = pd.Series([None, [{"DATA": "01-12-2016", "PRECO": 1}], "not a list", []])
         result = filterCotationColumn(series, date(2016, 12, 1), date(2016, 12, 31))
@@ -1268,8 +1230,6 @@ class TestQueryLiveCotation:
 # ===========================================================================
 @freeze_time("2026-03-23 12:00:00", tz_offset=0)
 def test_health_reports_cache_age(stocks_http_client, monkeypatch):
-    from main.app.stocks_api.cache import stocksCache
-    from datetime import datetime, timezone
 
     monkeypatch.setattr(stocksCache, "STOCKS_CACHE", object())
     monkeypatch.setattr(stocksCache, "lastCacheUpdate", datetime(2026, 3, 23, 9, 0, tzinfo=timezone.utc))
