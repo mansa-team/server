@@ -41,10 +41,6 @@ def syncCacheSet(cacheKey: str, value: Any, ttl: str) -> None:
     bridge(setCall())
 
 
-def runAwaitable(awaitable: Any) -> Any:
-    return bridge(awaitable)
-
-
 def sync_cache(ttl: str, key: str) -> Callable[[F], F]:
     def decorator(func: F) -> F:
         @wraps(func)
@@ -54,7 +50,7 @@ def sync_cache(ttl: str, key: str) -> Callable[[F], F]:
             def fetchAndStore() -> Any:
                 result = func(*args, **kwargs)
                 if inspect.isawaitable(result):
-                    result = runAwaitable(result)
+                    result = bridge(result)
                 syncCacheSet(cacheKey, result, ttl)
                 return result
 
