@@ -35,28 +35,28 @@ from tests.conftest import (
 # 1. authentication_controller.py — 89 uncovered lines
 # =========================================================================
 class TestIsSecureScheme:
-    """Covers line 23: isSecureScheme helper."""
+    """Covers getRequestScheme == https checks (inlined former isSecureScheme helper)."""
 
     def test_is_secure_https(self):
-        from main.controller.authentication_controller import isSecureScheme
+        from main.utils.security_headers import getRequestScheme
 
         request = MagicMock()
         request.url.scheme = "https"
-        assert isSecureScheme(request) is True
+        assert (getRequestScheme(request) == "https") is True
 
     def test_is_secure_http(self):
-        from main.controller.authentication_controller import isSecureScheme
+        from main.utils.security_headers import getRequestScheme
 
         request = MagicMock()
         request.url.scheme = "http"
-        assert isSecureScheme(request) is False
+        assert (getRequestScheme(request) == "https") is False
 
     def test_is_secure_no_scheme(self):
-        from main.controller.authentication_controller import isSecureScheme
+        from main.utils.security_headers import getRequestScheme
 
         request = MagicMock()
         request.url.scheme = ""
-        assert isSecureScheme(request) is False
+        assert (getRequestScheme(request) == "https") is False
 
 
 class TestHealthEndpoint:
@@ -195,7 +195,7 @@ class TestLoginEndpoint:
 class TestLogoutEndpoint:
     """Covers lines 107, 109-130, 133: logout token extraction and revocation."""
 
-    @patch("main.controller.authentication_controller.isSecureScheme", return_value=False)
+    @patch("main.utils.security_headers.getRequestScheme", return_value="http")
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.verifyAccessToken")
     def test_logout_with_x_access_token(self, mock_verify, mock_session_mgr, mock_secure):
@@ -212,7 +212,7 @@ class TestLogoutEndpoint:
         assert response.json()["message"] == "Successfully logged out"
         mock_session_mgr.revokeSession.assert_called_once()
 
-    @patch("main.controller.authentication_controller.isSecureScheme", return_value=False)
+    @patch("main.utils.security_headers.getRequestScheme", return_value="http")
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.verifyAccessToken")
     def test_logout_with_bearer_header(self, mock_verify, mock_session_mgr, mock_secure):
@@ -227,7 +227,7 @@ class TestLogoutEndpoint:
         )
         assert response.status_code == 200
 
-    @patch("main.controller.authentication_controller.isSecureScheme", return_value=False)
+    @patch("main.utils.security_headers.getRequestScheme", return_value="http")
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.verifyAccessToken")
     def test_logout_with_invalid_session_id(self, mock_verify, mock_session_mgr, mock_secure):
@@ -242,7 +242,7 @@ class TestLogoutEndpoint:
         assert response.status_code == 200
         mock_session_mgr.revokeSession.assert_called_once()
 
-    @patch("main.controller.authentication_controller.isSecureScheme", return_value=False)
+    @patch("main.utils.security_headers.getRequestScheme", return_value="http")
     @patch("main.app.authentication.util.verifyAccessToken")
     def test_logout_with_verification_error(self, mock_verify, mock_secure):
         """Covers lines 126-128: verifyAccessToken raises Exception."""
@@ -255,7 +255,7 @@ class TestLogoutEndpoint:
         )
         assert response.status_code == 200
 
-    @patch("main.controller.authentication_controller.isSecureScheme", return_value=False)
+    @patch("main.utils.security_headers.getRequestScheme", return_value="http")
     def test_logout_without_token(self, mock_secure):
         """Covers lines 109-113: no token provided at all."""
         client, _, _ = make_auth_client()
@@ -264,7 +264,7 @@ class TestLogoutEndpoint:
         assert response.status_code == 200
         assert response.json()["message"] == "Successfully logged out"
 
-    @patch("main.controller.authentication_controller.isSecureScheme", return_value=False)
+    @patch("main.utils.security_headers.getRequestScheme", return_value="http")
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.verifyAccessToken")
     def test_logout_with_missing_user_and_session(self, mock_verify, mock_session_mgr, mock_secure):

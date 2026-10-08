@@ -27,16 +27,10 @@ from main.app.authentication.constants import (
 )
 from main.app.authentication.session import SessionManager
 from main.models.user import User
-from main.utils.security_headers import getRequestScheme
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
-
-
-# Kept: mocked seam (patched 6x in tests/test_controllers_coverage.py) — keep.
-def isSecureScheme(request: Request) -> bool:
-    return getRequestScheme(request) == "https"
 
 
 def resolveCookieDomain(request: Request) -> str | None:
