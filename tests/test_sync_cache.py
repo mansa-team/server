@@ -118,7 +118,7 @@ def test_per_call_loop_breaks_loop_bound_backend():
         asyncio.run(stub.get("k"))
 
 
-def test_bridge_pins_all_cache_io_to_one_loop(monkeypatch: pytest.MonkeyPatch):
+def test_runOnCacheLoop_pins_all_cache_io_to_one_loop(monkeypatch: pytest.MonkeyPatch):
     stub = LoopBindingStub()
     monkeypatch.setattr("main.utils.sync_cache.cache", stub)
     syncCacheSet("loop:a", "1", "1h")
@@ -128,7 +128,7 @@ def test_bridge_pins_all_cache_io_to_one_loop(monkeypatch: pytest.MonkeyPatch):
     assert stub.boundLoop is not None and stub.boundLoop.is_running()
 
 
-async def test_bridge_called_with_running_loop(monkeypatch: pytest.MonkeyPatch):
+async def test_runOnCacheLoop_called_with_running_loop(monkeypatch: pytest.MonkeyPatch):
     stub = LoopBindingStub()
     monkeypatch.setattr("main.utils.sync_cache.cache", stub)
     syncCacheSet("loop:c", "3", "1h")
@@ -151,7 +151,7 @@ def test_decorator_caches_without_recompute_on_loop_bound_backend(monkeypatch: p
     assert calls == [7]
 
 
-def test_clear_endpoint_cache_via_bridge(monkeypatch: pytest.MonkeyPatch):
+def test_clear_endpoint_cache_via_runner(monkeypatch: pytest.MonkeyPatch):
     stub = LoopBindingStub()
     monkeypatch.setattr("main.utils.sync_cache.cache", stub)
     syncCacheSet("stocks:t", "v", "1h")

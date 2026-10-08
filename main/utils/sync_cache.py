@@ -41,7 +41,7 @@ def getCacheLoop() -> asyncio.AbstractEventLoop:
         return loop
 
 
-def bridge(awaitable: Any) -> Any:
+def runOnCacheLoop(awaitable: Any) -> Any:
     loop = getCacheLoop()
     running: asyncio.AbstractEventLoop | None
     try:
@@ -58,14 +58,14 @@ def syncCacheGet(cacheKey: str) -> Any:
     async def getCall() -> Any:
         return await cache.get(cacheKey, default=MISS)
 
-    return bridge(getCall())
+    return runOnCacheLoop(getCall())
 
 
 def syncCacheSet(cacheKey: str, value: Any, ttl: str) -> None:
     async def setCall() -> None:
         await cache.set(cacheKey, value, expire=ttl)
 
-    bridge(setCall())
+    runOnCacheLoop(setCall())
 
 
 def sync_cache(ttl: str, key: str) -> Callable[[F], F]:
@@ -77,7 +77,7 @@ def sync_cache(ttl: str, key: str) -> Callable[[F], F]:
             def fetchAndStore() -> Any:
                 result = func(*args, **kwargs)
                 if inspect.isawaitable(result):
-                    result = bridge(result)
+                    result = runOnCacheLoop(result)
                 syncCacheSet(cacheKey, result, ttl)
                 return result
 
@@ -120,4 +120,4 @@ def clearEndpointCache() -> None:
         await cache.delete_match("stocks:*")
         await cache.delete_match("wallet:*")
 
-    bridge(clearPrefixes())
+    runOnCacheLoop(clearPrefixes())
