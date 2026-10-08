@@ -1,4 +1,5 @@
 import asyncio
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -7,6 +8,14 @@ import main.app.orunmila.memory as memoryMod
 import main.app.orunmila.tools.memory as toolsMemoryMod
 from main.app.orunmila.memory import OrunmilaMemory, clearAll, getMatrix
 from main.app.orunmila.tools import save_memory, search_memory
+
+
+def _fakeModel(fn):
+    def _encode(texts, normalize_embeddings=True):
+        vals = fn(texts)
+        return SimpleNamespace(tolist=lambda: vals)
+
+    return SimpleNamespace(encode=_encode)
 
 
 def makeQueryVector():
@@ -28,7 +37,9 @@ def makeFlatVector():
 class TestSearchVectorPath:
     def test_search_vectorPath(self, dbSession, monkeypatch):
         clearAll()
-        monkeypatch.setattr(memoryMod, "embed", lambda texts: [makeQueryVector() for _ in texts])
+        monkeypatch.setattr(
+            memoryMod, "getEmbeddingModel", lambda: _fakeModel(lambda texts: [makeQueryVector() for _ in texts])
+        )
         OrunmilaMemory.upsertMemory(
             dbSession,
             31,
@@ -53,7 +64,9 @@ class TestSearchVectorPath:
 class TestUpsertThenSearch:
     def test_upsertThenSearchFindsRow(self, dbSession, monkeypatch):
         clearAll()
-        monkeypatch.setattr(memoryMod, "embed", lambda texts: [makeFlatVector() for _ in texts])
+        monkeypatch.setattr(
+            memoryMod, "getEmbeddingModel", lambda: _fakeModel(lambda texts: [makeFlatVector() for _ in texts])
+        )
         OrunmilaMemory.upsertMemory(
             dbSession,
             32,
@@ -71,8 +84,12 @@ class TestToolsInsideLoop:
         # clearAll() is sync and drives the cache via asyncio.run — run it in a
         # worker thread since this test itself runs inside an event loop.
         await asyncio.to_thread(clearAll)
-        monkeypatch.setattr(toolsMemoryMod, "embed", lambda texts: [makeQueryVector() for _ in texts])
-        monkeypatch.setattr(memoryMod, "embed", lambda texts: [makeQueryVector() for _ in texts])
+        monkeypatch.setattr(
+            toolsMemoryMod, "getEmbeddingModel", lambda: _fakeModel(lambda texts: [makeQueryVector() for _ in texts])
+        )
+        monkeypatch.setattr(
+            memoryMod, "getEmbeddingModel", lambda: _fakeModel(lambda texts: [makeQueryVector() for _ in texts])
+        )
         saved = await save_memory(
             "ticker favorito",
             "minha acao favorita e WEGE3",

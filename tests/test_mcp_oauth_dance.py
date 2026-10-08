@@ -31,16 +31,20 @@ from fastmcp import Client
 from fastmcp.client.client import StreamableHttpTransport
 
 from config import getSession
+from mcp.server.auth.routes import create_auth_routes, create_protected_resource_routes
+from mcp.server.auth.settings import ClientRegistrationOptions, RevocationOptions
+from pydantic import AnyHttpUrl
+
 from main.app.authentication.mcp_oauth_provider import (
     ISSUER_URL,
     RESOURCE_METADATA_URL,
     RESOURCE_URL,
     walletOAuthProvider,
 )
+from main.app.authentication.oauth_shared import WALLET_SCOPE
 from main.app.authentication.util import verifyMcpTransport
 from main.controller.authentication_controller import router as authenticationRouter
 from main.controller.wallet_controller import router as walletRouter
-from main.service.authentication_service import AuthenticationService
 from main.service.wallet_service import WALLET_MCP_OPERATIONS
 from tests.test_wallet_mcp import _live_ok
 from cashews import cache as cashewsCache
@@ -119,7 +123,23 @@ def _build_dance_app(dbSession):
         auth_config=AuthConfig(dependencies=[Depends(verifyMcpTransport)]),
     )
     mcp.mount_http(app, mount_path="/wallet/mcp")
-    app.routes.extend(AuthenticationService.oauthRoutes())
+    app.routes.extend(
+        create_auth_routes(
+            walletOAuthProvider,
+            issuer_url=AnyHttpUrl(ISSUER_URL),
+            client_registration_options=ClientRegistrationOptions(
+                enabled=True,
+                valid_scopes=[WALLET_SCOPE],
+                default_scopes=[WALLET_SCOPE],
+            ),
+            revocation_options=RevocationOptions(enabled=True),
+        )
+        + create_protected_resource_routes(
+            resource_url=AnyHttpUrl(RESOURCE_URL),
+            authorization_servers=[AnyHttpUrl(ISSUER_URL)],
+            scopes_supported=[WALLET_SCOPE],
+        )
+    )
 
     app.dependency_overrides[getSession] = lambda: dbSession
     return app

@@ -316,5 +316,5 @@ def test_ratings_route_untouched():
     # server-side auth, never from client params, behind a router-level gate.
     params = inspect.signature(set_rating_route).parameters
     assert "userId" not in params and "wallet_id" not in params  # any client identity param fails loudly
-    assert "currentUser" in params and "wallet" in params
+    assert "currentUser" in params and "wallet" not in params
     assert router.dependencies  # router-level auth gate still mounted

@@ -215,7 +215,6 @@ class TestWalletWrapperBehavior:
             costs=1.0,
             authorization=None,
             currentUser={"userId": str(user.userId)},
-            wallet=wallet,
             db=dbSession,
         )
 
@@ -236,7 +235,6 @@ class TestWalletWrapperBehavior:
                 costs=0.0,
                 authorization=None,
                 currentUser={"userId": str(user.userId)},
-                wallet=wallet,
                 db=dbSession,
             )
 
@@ -258,7 +256,6 @@ class TestWalletWrapperBehavior:
             rating=80.0,
             authorization=None,
             currentUser={"userId": str(user.userId)},
-            wallet=wallet,
             db=dbSession,
         )
 
@@ -273,7 +270,6 @@ class TestWalletWrapperBehavior:
                 rating=50.0,
                 authorization=None,
                 currentUser={"userId": str(user.userId)},
-                wallet=wallet,
                 db=dbSession,
             )
 
@@ -309,7 +305,6 @@ class TestWalletWrapperBehavior:
             to_date="2026-06-30",
             authorization=None,
             currentUser={"userId": str(user.userId)},
-            wallet=wallet,
             db=dbSession,
         )
 
@@ -343,7 +338,6 @@ class TestWalletWrapperBehavior:
             to_date="2026-06-30",
             authorization=None,
             currentUser={"userId": str(user.userId)},
-            wallet=wallet,
             db=dbSession,
         )
 
@@ -373,7 +367,6 @@ class TestWalletWrapperBehavior:
             max_points=4,
             authorization=None,
             currentUser={"userId": str(user.userId)},
-            wallet=wallet,
             db=dbSession,
         )
 
@@ -404,7 +397,6 @@ class TestWalletWrapperBehavior:
             max_points=4,
             authorization=None,
             currentUser={"userId": str(user.userId)},
-            wallet=wallet,
             db=dbSession,
         )
 
