@@ -81,7 +81,7 @@ class SandboxManager:
                 client = getClient()
                 try:
                     sandbox = await client.get(mapping.sandboxId)
-                    await sandbox.extend_ttl(f"{Config.ORUNMILA.SANDBOX_TTL}m")
+                    await sandbox.extend_ttl(f"{SANDBOX_TTL}m")
                     await sandbox.exec(command="echo", args=["ok"], timeout="3s")
 
                     logger.info("Reusing sandbox %s for user %d", mapping.sandboxId, userId)
