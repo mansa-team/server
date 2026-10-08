@@ -1,5 +1,3 @@
-import hashlib
-import hmac
 import os
 import sys
 from datetime import datetime, timedelta, timezone
@@ -14,6 +12,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from config import Config, getSession
+from main.app.authentication.service_token import createServiceToken
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import createAccessToken
 from main.controller.authentication_controller import router as authRouter
@@ -41,28 +40,25 @@ def makeUserToken(dbSession, username="intro_user"):
     return user, session, token
 
 
-SERVICE_HEADERS = {
-    "X-Service-Token": hmac.new(
-        Config.USER.JWT_SECRET_KEY.encode("utf-8"), b"auth-introspect", hashlib.sha256
-    ).hexdigest()
-}
+def serviceHeaders(dbSession):
+    return {"X-Service-Token": createServiceToken(dbSession)}
 
 
 class TestAuthIntrospect:
     def test_valid_token_returns_user_payload(self, dbSession, authClient):
         user, _, token = makeUserToken(dbSession)
-        resp = authClient.post("/auth/introspect", json={"token": token}, headers=SERVICE_HEADERS)
+        resp = authClient.post("/auth/introspect", json={"token": token}, headers=serviceHeaders(dbSession))
         assert resp.status_code == 200
         assert resp.json() == {"userId": user.userId, "username": user.username, "roles": ["USER"]}
 
     def test_bearer_prefixed_body_token(self, dbSession, authClient):
         _, _, token = makeUserToken(dbSession)
-        resp = authClient.post("/auth/introspect", json={"token": f"Bearer {token}"}, headers=SERVICE_HEADERS)
+        resp = authClient.post("/auth/introspect", json={"token": f"Bearer {token}"}, headers=serviceHeaders(dbSession))
         assert resp.status_code == 200
 
     def test_header_fallback(self, dbSession, authClient):
         _, _, token = makeUserToken(dbSession)
-        resp = authClient.post("/auth/introspect", headers={"X-Access-Token": token, **SERVICE_HEADERS})
+        resp = authClient.post("/auth/introspect", headers={"X-Access-Token": token, **serviceHeaders(dbSession)})
         assert resp.status_code == 200
 
     def test_expired_token_401(self, dbSession, authClient):
@@ -71,18 +67,26 @@ class TestAuthIntrospect:
             {"userId": str(user.userId), "sessionId": session.sessionId},
             expiresDelta=timedelta(seconds=-1),
         )
-        assert authClient.post("/auth/introspect", json={"token": token}, headers=SERVICE_HEADERS).status_code == 401
+        assert (
+            authClient.post("/auth/introspect", json={"token": token}, headers=serviceHeaders(dbSession)).status_code
+            == 401
+        )
 
     def test_invalid_token_401(self, dbSession, authClient):
         assert (
-            authClient.post("/auth/introspect", json={"token": "not.a.real.token"}, headers=SERVICE_HEADERS).status_code
+            authClient.post(
+                "/auth/introspect", json={"token": "not.a.real.token"}, headers=serviceHeaders(dbSession)
+            ).status_code
             == 401
         )
 
     def test_revoked_session_401(self, dbSession, authClient):
         user, session, token = makeUserToken(dbSession)
         SessionManager.revokeSession(dbSession, session.sessionId, user.userId)
-        assert authClient.post("/auth/introspect", json={"token": token}, headers=SERVICE_HEADERS).status_code == 401
+        assert (
+            authClient.post("/auth/introspect", json={"token": token}, headers=serviceHeaders(dbSession)).status_code
+            == 401
+        )
 
     def test_expired_session_401(self, dbSession, authClient):
         user = User(username="exp_user", email="exp_user@example.com", passwordHash="h", roles="USER")
@@ -92,10 +96,13 @@ class TestAuthIntrospect:
         past = datetime.now(timezone.utc) - timedelta(days=1)
         session = SessionManager.createSession(dbSession, user.userId, "pytest", expiresAt=past)
         token = createAccessToken({"userId": str(user.userId), "sessionId": session.sessionId})
-        assert authClient.post("/auth/introspect", json={"token": token}, headers=SERVICE_HEADERS).status_code == 401
+        assert (
+            authClient.post("/auth/introspect", json={"token": token}, headers=serviceHeaders(dbSession)).status_code
+            == 401
+        )
 
-    def test_missing_token_401(self, authClient):
-        assert authClient.post("/auth/introspect", json={}, headers=SERVICE_HEADERS).status_code == 401
+    def test_missing_token_401(self, dbSession, authClient):
+        assert authClient.post("/auth/introspect", json={}, headers=serviceHeaders(dbSession)).status_code == 401
 
 
 class TestAuthIntrospectGenericDetail:
@@ -109,7 +116,7 @@ class TestAuthIntrospectGenericDetail:
         bodies = [{}, {"token": "not.a.real.token"}, {"token": expired}, {"token": token}]
         errors = set()
         for body in bodies:
-            resp = authClient.post("/auth/introspect", json=body, headers=SERVICE_HEADERS)
+            resp = authClient.post("/auth/introspect", json=body, headers=serviceHeaders(dbSession))
             assert resp.status_code == 401
             errors.add(resp.json()["error"])
         assert errors == {"Unauthorized"}
@@ -142,3 +149,43 @@ class TestServiceTokenDerivation:
             "/auth/introspect", json={"token": "x"}, headers={"X-Service-Token": Config.USER.JWT_SECRET_KEY}
         )
         assert resp.status_code == 401
+
+
+class TestServiceTokenLifecycle:
+    def test_minted_token_authenticates(self, dbSession, authClient):
+        _, _, token = makeUserToken(dbSession)
+        resp = authClient.post("/auth/introspect", json={"token": token}, headers=serviceHeaders(dbSession))
+        assert resp.status_code == 200
+
+    def test_unknown_token_401(self, dbSession, authClient):
+        resp = authClient.post(
+            "/auth/introspect", json={"token": "x"}, headers={"X-Service-Token": "no-such-service-token"}
+        )
+        assert resp.status_code == 401
+
+    def test_user_session_is_not_a_service_token(self, dbSession):
+        from main.app.authentication.service_token import verifyServiceToken
+
+        _, session, _ = makeUserToken(dbSession, username="notservice")
+        assert not verifyServiceToken(dbSession, session.sessionId)
+
+    def test_revoked_service_token_401_without_restart(self, dbSession, authClient):
+        from main.app.authentication.service_token import createServiceToken, getServiceUserId
+
+        _, _, token = makeUserToken(dbSession)
+        serviceToken = createServiceToken(dbSession)
+        headers = {"X-Service-Token": serviceToken}
+        assert authClient.post("/auth/introspect", json={"token": token}, headers=headers).status_code == 200
+        assert SessionManager.revokeSession(dbSession, serviceToken, getServiceUserId(dbSession))
+        assert authClient.post("/auth/introspect", json={"token": token}, headers=headers).status_code == 401
+
+    def test_expired_service_token_401(self, dbSession):
+        from main.app.authentication.service_token import createServiceToken, verifyServiceToken
+
+        serviceToken = createServiceToken(dbSession, expiresDelta=timedelta(seconds=-1))
+        assert not verifyServiceToken(dbSession, serviceToken)
+
+    def test_each_mint_is_unique(self, dbSession):
+        from main.app.authentication.service_token import createServiceToken
+
+        assert createServiceToken(dbSession) != createServiceToken(dbSession)

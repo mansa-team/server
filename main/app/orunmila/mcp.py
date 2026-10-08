@@ -1,12 +1,42 @@
 import logging
-from config import Config
 import time
 import asyncio
+
+from config import Config
 
 from fastmcp import Client
 from fastmcp.client.client import StreamableHttpTransport
 
 logger = logging.getLogger(__name__)
+
+
+def getLoopbackHeaders(db=None) -> dict:
+    """Fresh X-Service-Token per pool (re)connect, never import-time.
+
+    Mints an opaque service session row (rotation without restart is revoke).
+    Empty dict when the DB is unreachable: the pool logs and connects without
+    the wallet entry rather than holding a static restart-to-rotate token.
+    """
+    try:
+        from config import SessionLocal
+        from main.app.authentication.service_token import createServiceToken
+
+        session = db if db is not None else SessionLocal()
+        try:
+            return {"X-Service-Token": createServiceToken(session)}
+        finally:
+            if db is None:
+                session.close()
+    except Exception as exc:
+        logger.warning("MCPClientPool: loopback mint failed: %s", exc)
+        return {}
+
+
+def prepareServer(server, db=None):
+    if not server.get("service_loopback"):
+        return server
+    return {**server, "headers": {**server.get("headers", {}), **getLoopbackHeaders(db)}}
+
 
 MCP_SERVERS = [
     {
@@ -18,6 +48,7 @@ MCP_SERVERS = [
     {
         "name": "wallet",
         "url": f"http://{Config.USER.HOST}:{Config.USER.PORT}/wallet/mcp",
+        "service_loopback": True,
     },
 ]
 
@@ -48,7 +79,7 @@ class MCPClientPool:
         for server in MCP_SERVERS:
             name = server["name"]
             try:
-                clients[name] = await connect(server)
+                clients[name] = await connect(prepareServer(server))
                 logger.info("MCPClientPool: %s connected", name)
             except (OSError, TimeoutError, ConnectionError, RuntimeError, ValueError) as e:
                 logger.error("MCPClientPool: %s connect failed: %s", name, e)
@@ -85,7 +116,7 @@ class MCPClientPool:
         try:
             if name in self.clients:
                 await self.clients[name].__aexit__(None, None, None)
-            new = await connect(server)
+            new = await connect(prepareServer(server))
             self.clients[name] = new
             logger.info("MCPClientPool: %s reconnected", name)
         except (OSError, TimeoutError, ConnectionError, RuntimeError, ValueError) as e:
