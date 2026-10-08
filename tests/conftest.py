@@ -1,4 +1,5 @@
 import pytest
+import asyncio
 import sys
 import os
 from unittest.mock import AsyncMock, MagicMock
@@ -49,13 +50,22 @@ def reset_rate_limiter():
 
 @pytest.fixture(autouse=True, scope="function")
 def setup_caches():
-    """Central cache boot so no test depends on import order (mem:// default)."""
+    """Central cache boot so no test depends on import order.
+
+    Hardcoded mem:// (never Config.CACHE.REDIS_URL): a local .env pointing
+    at compose redis would otherwise red-test every cache test outside
+    compose, since pydantic-settings reads .env automatically.
+    """
     from cashews import cache as defaultCache
 
-    from main.app.orunmila.memory import matrixCache
+    defaultCache.setup("mem://")
 
-    defaultCache.setup(Config.CACHE.REDIS_URL)
-    matrixCache.setup(Config.CACHE.REDIS_URL)
+
+def clearAll() -> None:
+    """Test-only full cache wipe. Tests run mem:// — never call from prod."""
+    from cashews import cache as defaultCache
+
+    asyncio.run(defaultCache.clear())
 
 
 def pytest_configure(config):
