@@ -90,6 +90,11 @@ class DiscordSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
+class CacheSettings(BaseSettings):
+    URL: str = Field(default="mem://", validation_alias="CACHE_URL")
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+
 class Config:
     DEBUG_MODE: bool = os.getenv("DEBUG_MODE", "FALSE").upper() == "TRUE"
     MYSQL = MysqlSettings()

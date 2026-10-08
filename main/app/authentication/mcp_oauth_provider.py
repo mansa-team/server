@@ -1,23 +1,3 @@
-"""Native OAuth provider for the wallet MCP (MCP SDK Protocol, no external IdP).
-
-Implements mcp.server.auth.provider.OAuthAuthorizationServerProvider against
-existing primitives only: SessionManager rows (revocation source of truth),
-createAccessToken/verifyAccessToken (HS256, aud=resource URL/scope=wallet),
-authenticateUser-or-session-cookie at the consent step, getCurrentUser identity
-at the resource server.
-
-Storage is ephemeral in-memory (clients/codes/refresh/pending/denylist).
-UserSession reuse genuinely fails for these bindings: UserSession has no fields
-for redirect_uris/secrets (DCR), code_challenge/expiry/single-use (codes), or
-client bindings (500-char userAgent unfit, mixing concerns). New tables
-unnecessary: codes live 10min, DCR clients re-register on restart, refresh and
-access are stateless JWTs bound to sessionId with revocation enforced at the RS
-via SessionManager + denylist. Single-instance ceiling noted below.
-
-# ponytail: in-memory AS state, per-process only; move clients/codes/denylist
-# to DB tables (parent c3d4) if multi-instance or restart-persistent DCR matters.
-"""
-
 from __future__ import annotations
 
 import secrets
@@ -50,8 +30,6 @@ REFRESH_TTL_SECONDS = 30 * 24 * 3600
 
 
 class WalletOAuthProvider(OAuthAuthorizationServerProvider[AuthorizationCode, RefreshToken, AccessToken]):
-    """In-memory AS for native users. One instance shared per process."""
-
     def __init__(self) -> None:
         self.clients: dict[str, OAuthClientInformationFull] = {}
         self.codes: dict[str, AuthorizationCode] = {}
@@ -59,7 +37,6 @@ class WalletOAuthProvider(OAuthAuthorizationServerProvider[AuthorizationCode, Re
         self.refreshTokens: dict[str, RefreshToken] = {}
         self.refreshSessions: dict[str, str] = {}
         self.pending: dict[str, dict] = {}
-        # Alias to the shared leaf set: single revocation source of truth.
         self.revokedAccess: set[str] = revokedAccessJtis
 
     def clear(self) -> None:
@@ -196,8 +173,10 @@ class WalletOAuthProvider(OAuthAuthorizationServerProvider[AuthorizationCode, Re
     ) -> OAuthToken:
         stored = self.refreshTokens.pop(refresh_token.token, None)
         sessionId = self.refreshSessions.pop(refresh_token.token, "")
+
         if not stored:
             raise TokenError("invalid_grant", "refresh token does not exist")
+        
         userId = str(stored.subject or "")
         resource = stored.resource or RESOURCE_URL
         useScopes = scopes or stored.scopes

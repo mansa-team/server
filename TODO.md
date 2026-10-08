@@ -5,6 +5,9 @@
 
 ---
 
+- [ ] replace the current wallet mcp dance with a proper one or make it redirect to my frontend where i would just redirect to the auth page after logging in
+- [ ] nuke the current intorspect validation system and mcp auth from existance
+
 - [ ] Github OAuth
 - [ ] Implement an user management system so the user can customize its name, change password, profile picture and settings
 - [ ] Make an Password Recovery system and 2FA using the Email Protocol

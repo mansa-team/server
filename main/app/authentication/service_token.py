@@ -1,11 +1,3 @@
-"""Service loopback tokens: opaque session rows, minted per-request.
-
-A token is a UserSession.sessionId row owned by the internal service user,
-created via SessionManager and verified with a single ownership-checked read.
-Rotation without restart is SessionManager.revokeSession (or expiry).
-Replaces the retired JWT/HMAC dual-path: no crypto here, no import-time mint.
-"""
-
 import logging
 from datetime import datetime, timedelta, timezone
 
