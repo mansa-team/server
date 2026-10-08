@@ -92,21 +92,14 @@ Only three permissions exist: `USE_ORUNMILA`, `ORUNMILA_EXTENDED_MEMORIES`, `WAL
 
 ## Service token (`POST /auth/introspect`)
 
-Env (all optional except rotation needs `SECRET` set in prod):
+Opaque session-ID token bound to the `service-loopback` user — no secrets, no
+JWT, no rotation. Single fixed lifetime 30d/720h, hardcoded by design
+(`main/app/authentication/service_token.py:29-35`).
 
-```env
-INTROSPECT_SERVICE_SECRET=<random-32B-base64>      # primary signing secret (independent from JWT_SECRET_KEY)
-INTROSPECT_SERVICE_SECRET_PREV=<old-secret>         # previous secret during rotation, else empty
-INTROSPECT_SERVICE_TTL_HOURS=720                    # minted token lifetime, default 30d
-```
-
-Mint: `python -c "from main.app.authentication.service_token import createServiceToken; print(createServiceToken())"`.
-Send as `X-Service-Token: <jwt>`. Tokens carry `{"typ":"service","exp"}` and are
-verified against `SECRET` then `PREV` (constant-time). Rotation: set
-`PREV`=old, `SECRET`=new, re-mint callers, drop `PREV` after TTL. While
-neither secret is configured the legacy static `HMAC(JWT_SECRET_KEY,
-"auth-introspect")` is still accepted (migration window); configuring either
-secret disables it.
+Mint: `createServiceToken(db)` returns the new `session.sessionId`.
+Send as `X-Service-Token: <sessionId>`. Verification (`verifyServiceToken`,
+`:38-59`) checks the session row exists, is active, belongs to
+`service-loopback`, and is unexpired (lazily deactivates on expiry).
 | `GET /auth/google` | 5/minute |
 | `GET /auth/callback` | 5/minute |
 
@@ -174,7 +167,7 @@ Internal endpoint. Flow (`:173-222`):
 - **Hybrid sessions**: stateless JWT carrying `sessionId`, revocable via DB row (`isActive` flag).
 - **Secure-always cookies** (never downgradable via `X-Forwarded-Proto` spoof) + **HSTS** on https responses.
 - **Cookie-only login JSON** (no `accessToken` in bodies — closes XSS/sniff theft window; header bearer kept for non-browser API clients only).
-- **Independent expiring service token** for `/introspect`: HS256 JWT `{"typ":"service","exp"}` signed with `INTROSPECT_SERVICE_SECRET` (never `JWT_SECRET_KEY`), `PREV` secret for rotation. Mint with `createServiceToken()` (`service_token.py`); rotation: set `PREV`=old, `SECRET`=new, re-mint, drop `PREV` after TTL. Legacy static HMAC is accepted only while neither secret is configured (migration window).
+- **Opaque service token** for `/auth/introspect`: a `service-loopback` session-ID (`createServiceToken(db)`), fixed 30d/720h, no secrets or rotation (`service_token.py`).
 - **Double-submit CSRF** on cookie-authenticated mutations (`mansa_csrf` cookie + `X-CSRF-Token` header; fresh token issued with every login/register/OAuth Set-Cookie).
 - **Auth-gated `/scraper/run`**: requires a valid session (`getCurrentUser`) even in `DEBUG_MODE`.
 - **OAuth state allowlist**: only localhost hosts accepted for redirect; anything else falls back to JSON (open-redirect guard).
