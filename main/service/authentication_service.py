@@ -1,3 +1,13 @@
+from mcp.server.auth.routes import create_auth_routes, create_protected_resource_routes
+from mcp.server.auth.settings import ClientRegistrationOptions, RevocationOptions
+from pydantic import AnyHttpUrl
+
+from main.app.authentication.mcp_oauth_provider import (
+    ISSUER_URL,
+    RESOURCE_URL,
+    WALLET_SCOPE,
+    walletOAuthProvider,
+)
 from main.utils.service_manager import getApp
 from main.controller.authentication_controller import router as authenticationRouter
 
@@ -6,17 +16,6 @@ class AuthenticationService:
     @staticmethod
     def oauthRoutes():
         """SDK-native AS routes (DCR + metadata + token/refresh/revoke, Starlette)."""
-        from mcp.server.auth.routes import create_auth_routes, create_protected_resource_routes
-        from mcp.server.auth.settings import ClientRegistrationOptions, RevocationOptions
-        from pydantic import AnyHttpUrl
-
-        from main.app.authentication.mcp_oauth_provider import (
-            ISSUER_URL,
-            RESOURCE_URL,
-            WALLET_SCOPE,
-            walletOAuthProvider,
-        )
-
         return create_auth_routes(
             walletOAuthProvider,
             issuer_url=AnyHttpUrl(ISSUER_URL),

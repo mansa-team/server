@@ -2,6 +2,7 @@
 
 import logging
 
+from fastapi import HTTPException as FastAPIHTTPException
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
