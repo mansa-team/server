@@ -44,7 +44,7 @@ def create_wallet_route(
     currentUser: dict = Depends(getWalletUser),
     db: Session = Depends(getSession),
 ):
-    wallet = WalletsManager.createWallet(db, int(currentUser["userId"]), payload.name)
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]), payload.name)
     return {"walletId": wallet.walletId, "name": wallet.name}
 
 

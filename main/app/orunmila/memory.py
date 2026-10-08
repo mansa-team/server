@@ -22,7 +22,8 @@ from sqlalchemy.orm import Session, defer
 from main.models.memory import OrunmilaMemory as OrunmilaMemoryModel
 from main.utils.roles import Permission, Roles
 
-from main.app.orunmila.vector import batchCosineSimilarity, contentHash, decodeEmbeddings, getRelevanceScore, embed
+from main.app.orunmila.vector import batchCosineSimilarity, contentHash, decodeEmbeddings, getRelevanceScore
+from main.utils.models.loader import getEmbeddingModel
 from main.app.orunmila.chat import OrunmilaChatManager
 from main.app.orunmila.compact import countTokens
 
@@ -310,7 +311,7 @@ class OrunmilaMemory:
             try:
                 cachedIds, matrix = getMatrix((userId, memoryType), loadMatrix)
                 if cachedIds and matrix.shape[0] > 0:
-                    queryEmbedding = embed([query])[0]
+                    queryEmbedding = getEmbeddingModel().encode([query], normalize_embeddings=True).tolist()[0]
                     sims = batchCosineSimilarity(queryEmbedding, matrix)
                     simById = {mid: float(s) for mid, s in zip(cachedIds, sims)}
             except (OSError, RuntimeError, ValueError, TypeError) as e:
@@ -528,7 +529,7 @@ class OrunmilaMemory:
             created = []
             cands = candidates[:n]
             try:
-                embeddings = embed([c.value for c in cands])
+                embeddings = getEmbeddingModel().encode([c.value for c in cands], normalize_embeddings=True).tolist()
             except (OSError, RuntimeError, ValueError, TypeError) as e:
                 logger.warning("Memory batch embedding failed: %s", e)
                 embeddings = []
@@ -537,7 +538,7 @@ class OrunmilaMemory:
                     if idx < len(embeddings):
                         embedding = embeddings[idx]
                     else:
-                        embedding = embed([cand.value])[0]
+                        embedding = getEmbeddingModel().encode([cand.value], normalize_embeddings=True).tolist()[0]
                     result = OrunmilaMemory.upsertMemory(
                         db,
                         userId,

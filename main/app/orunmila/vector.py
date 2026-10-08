@@ -4,18 +4,11 @@ from datetime import datetime
 
 import numpy as np
 
-from main.utils.models.loader import getEmbeddingModel
-
 
 # Kept: directly tested in tests/test_vector_utils.py — keep.
 def normalizeRows(matrix: np.ndarray) -> np.ndarray:
     norms = np.linalg.norm(matrix, axis=1, keepdims=True)
     return matrix / np.where(norms == 0, 1.0, norms)
-
-
-# Kept: mocked seam (patched as memory.embed / tools.memory.embed in test_memory_*.py) — keep.
-def embed(texts: list[str]) -> list[list[float]]:
-    return getEmbeddingModel().encode(texts, normalize_embeddings=True).tolist()
 
 
 def decodeEmbeddings(rawEmbeddings: list[bytes]) -> np.ndarray:
