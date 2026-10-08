@@ -3,6 +3,7 @@
 from unittest.mock import patch, MagicMock
 import pytest
 from requests.exceptions import ConnectionError, Timeout, RequestException
+from main.utils.connectivity import checkDatabaseConnection, checkServiceConnection
 
 
 class TestCheckMySqlConnection:
@@ -15,8 +16,6 @@ class TestCheckMySqlConnection:
         mockEngine.connect.return_value.__enter__ = MagicMock(return_value=mockConn)
         mockEngine.connect.return_value.__exit__ = MagicMock(return_value=False)
 
-        from main.utils.connectivity import checkDatabaseConnection
-
         result = checkDatabaseConnection()
         assert result["user_db"]["status"] == "connected"
         assert result["stocks_db"]["status"] == "connected"
@@ -27,8 +26,6 @@ class TestCheckMySqlConnection:
     def test_user_db_connection_error(self, mockEngine):
         mockEngine.connect.side_effect = ConnectionError("refused")
 
-        from main.utils.connectivity import checkDatabaseConnection
-
         result = checkDatabaseConnection()
         assert result["user_db"]["status"] == "error"
 
@@ -36,8 +33,6 @@ class TestCheckMySqlConnection:
     @patch("main.utils.connectivity.engine")
     def test_user_db_timeout(self, mockEngine):
         mockEngine.connect.side_effect = Timeout("timed out")
-
-        from main.utils.connectivity import checkDatabaseConnection
 
         result = checkDatabaseConnection()
         assert result["user_db"]["status"] == "error"
@@ -47,15 +42,12 @@ class TestCheckMySqlConnection:
     def test_user_db_generic_exception(self, mockEngine):
         mockEngine.connect.side_effect = RuntimeError("something broke")
 
-        from main.utils.connectivity import checkDatabaseConnection
-
         result = checkDatabaseConnection()
         assert result["user_db"]["status"] == "error"
 
     @patch("main.utils.connectivity.engine", None)
     @patch("main.utils.connectivity.stocksEngine", MagicMock())
     def test_user_engine_none(self):
-        from main.utils.connectivity import checkDatabaseConnection
 
         result = checkDatabaseConnection()
         assert result["user_db"]["status"] == "not_configured"
@@ -68,8 +60,6 @@ class TestCheckMySqlConnection:
         mockUser.connect.return_value.__exit__ = MagicMock(return_value=False)
         mockStocks.connect.side_effect = ConnectionError("refused")
 
-        from main.utils.connectivity import checkDatabaseConnection
-
         result = checkDatabaseConnection()
         assert result["stocks_db"]["status"] == "error"
 
@@ -80,8 +70,6 @@ class TestCheckMySqlConnection:
         mockUser.connect.return_value.__enter__ = MagicMock(return_value=mockUserConn)
         mockUser.connect.return_value.__exit__ = MagicMock(return_value=False)
         mockStocks.connect.side_effect = Timeout("timed out")
-
-        from main.utils.connectivity import checkDatabaseConnection
 
         result = checkDatabaseConnection()
         assert result["stocks_db"]["status"] == "error"
@@ -94,8 +82,6 @@ class TestCheckMySqlConnection:
         mockUser.connect.return_value.__exit__ = MagicMock(return_value=False)
         mockStocks.connect.side_effect = RuntimeError("broke")
 
-        from main.utils.connectivity import checkDatabaseConnection
-
         result = checkDatabaseConnection()
         assert result["stocks_db"]["status"] == "error"
 
@@ -105,8 +91,6 @@ class TestCheckMySqlConnection:
         mockConn = MagicMock()
         mockUser.connect.return_value.__enter__ = MagicMock(return_value=mockConn)
         mockUser.connect.return_value.__exit__ = MagicMock(return_value=False)
-
-        from main.utils.connectivity import checkDatabaseConnection
 
         result = checkDatabaseConnection()
         assert result["stocks_db"]["status"] == "not_configured"
@@ -119,7 +103,6 @@ class TestCheckServiceConnection:
     @patch("main.utils.connectivity.Config")
     def test_service_not_found(self, mockConfig, mockGetSession):
         mockConfig.USER = None
-        from main.utils.connectivity import checkServiceConnection
 
         result = checkServiceConnection("USER")
         assert result is False
@@ -131,8 +114,6 @@ class TestCheckServiceConnection:
         mockResp = MagicMock()
         mockResp.status_code = 200
         mockGetSession.return_value.get.return_value = mockResp
-
-        from main.utils.connectivity import checkServiceConnection
 
         result = checkServiceConnection("STOCKS_API")
         assert result is True
@@ -146,8 +127,6 @@ class TestCheckServiceConnection:
         mockResp.status_code = 200
         mockGetSession.return_value.get.return_value = mockResp
 
-        from main.utils.connectivity import checkServiceConnection
-
         result = checkServiceConnection("USER")
         assert result is True
         mockGetSession.return_value.get.assert_called_once_with("http://127.0.0.1:3200/user/health", timeout=5)
@@ -160,8 +139,6 @@ class TestCheckServiceConnection:
         mockResp.status_code = 503
         mockGetSession.return_value.get.return_value = mockResp
 
-        from main.utils.connectivity import checkServiceConnection
-
         result = checkServiceConnection("USER")
         assert not result
 
@@ -170,8 +147,6 @@ class TestCheckServiceConnection:
     def test_connection_error(self, mockConfig, mockGetSession):
         mockConfig.USER = {"HOST": "127.0.0.1", "PORT": "3200"}
         mockGetSession.return_value.get.side_effect = ConnectionError("refused")
-
-        from main.utils.connectivity import checkServiceConnection
 
         result = checkServiceConnection("USER")
         assert result is False
@@ -182,8 +157,6 @@ class TestCheckServiceConnection:
         mockConfig.USER = {"HOST": "127.0.0.1", "PORT": "3200"}
         mockGetSession.return_value.get.side_effect = Timeout("slow")
 
-        from main.utils.connectivity import checkServiceConnection
-
         result = checkServiceConnection("USER")
         assert result is False
 
@@ -193,8 +166,6 @@ class TestCheckServiceConnection:
         mockConfig.USER = {"HOST": "127.0.0.1", "PORT": "3200"}
         mockGetSession.return_value.get.side_effect = RequestException("bad request")
 
-        from main.utils.connectivity import checkServiceConnection
-
         result = checkServiceConnection("USER")
         assert result is False
 
@@ -203,8 +174,6 @@ class TestCheckServiceConnection:
     def test_generic_exception(self, mockConfig, mockGetSession):
         mockConfig.USER = {"HOST": "127.0.0.1", "PORT": "3200"}
         mockGetSession.return_value.get.side_effect = RuntimeError("unexpected")
-
-        from main.utils.connectivity import checkServiceConnection
 
         result = checkServiceConnection("USER")
         assert result is False

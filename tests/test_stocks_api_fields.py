@@ -5,7 +5,10 @@ accepts all valid field names returned by /stocks/fields, including
 
 import re
 
+import pandas as pd
 import pytest
+from unittest.mock import patch
+from main.app.stocks_api.cache import stocksCache
 
 
 # The fixed pattern — allows uppercase, digits, comma, whitespace, /, ., -, :
@@ -89,10 +92,6 @@ class TestFundamentalDateFiltering:
 
     def test_single_date_returns_per_ticker_closest(self, stocks_http_client):
         """When tickers have different date coverage, each should get its closest snapshot."""
-        import pandas as pd
-        from unittest.mock import patch
-        from main.app.stocks_api.cache import stocksCache
-
         # Mock cache: PETR3 has exact match, WEGE3 only has distant dates
         mock_df = pd.DataFrame(
             {
