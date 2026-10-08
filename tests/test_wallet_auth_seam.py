@@ -10,18 +10,17 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from config import Config, getSession
+from main.app.authentication.introspect import introspectToken
+from main.app.authentication.service_token import verifyServiceToken
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import createAccessToken
+from main.app.wallet import auth as walletAuth
 from main.controller.wallet_controller import router as walletRouter
 from main.models.user import User
 from main.utils.errors import registerErrorHandlers
 
 
 def _fakeIntrospectPost(dbSession, monkeypatch):
-    from main.app.authentication.introspect import introspectToken
-    from main.app.authentication.service_token import verifyServiceToken
-    from main.app.wallet import auth as walletAuth
-
     calls: list[dict] = []
 
     class FakeResp:

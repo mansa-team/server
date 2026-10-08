@@ -1,13 +1,15 @@
+from datetime import date
+
 import pytest
+from cashews import cache as cashewsCache
 
 import main.models.wallet  # noqa: F401
+from main.models.wallet import Transaction, Wallet
 from tests.conftest import make_wallet_client
 
 
 @pytest.fixture(autouse=True)
 async def clear_cashews_cache():
-    from cashews import cache as cashewsCache
-
     cashewsCache.setup("mem://")
     await cashewsCache.clear()
     yield
@@ -121,10 +123,6 @@ def test_cross_user_wallet_isolated_404(dbSession):
     # No userId/wallet_id is accepted from the client anymore: user 2's wallet
     # is unreachable from user 1's identity. Collection reads show only my
     # data; entryId-scoped writes on another user's entries return 404.
-    from datetime import date
-
-    from main.models.wallet import Transaction, Wallet
-
     victim = Wallet(userId=2, name="Theirs")
     dbSession.add(victim)
     dbSession.flush()

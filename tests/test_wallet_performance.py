@@ -2,6 +2,7 @@ from datetime import date
 from types import SimpleNamespace
 
 import pytest
+from cashews import cache as cashewsCache
 
 import main.models.wallet  # noqa: F401
 from main.models.wallet import Earning
@@ -10,8 +11,6 @@ from tests.conftest import make_wallet_client
 
 @pytest.fixture(autouse=True)
 async def clear_cashews_cache():
-    from cashews import cache as cashewsCache
-
     cashewsCache.setup("mem://")
     await cashewsCache.clear()
     yield

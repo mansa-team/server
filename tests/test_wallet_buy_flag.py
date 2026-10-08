@@ -1,4 +1,5 @@
 import asyncio
+import inspect
 from types import SimpleNamespace
 
 import pytest
@@ -7,6 +8,7 @@ from cashews import cache as cashewsCache
 
 import main.models.wallet  # noqa: F401
 from main.app.wallet.positions import PositionsManager
+from main.controller.wallet_controller import router, set_rating_route
 from main.models.wallet import Holding
 from tests.conftest import make_wallet_client
 from tests.test_wallet_positions import _live_ok
@@ -312,10 +314,6 @@ def test_fetch_xango_scores_parses_fundamental(monkeypatch):
 def test_ratings_route_untouched():
     # Guard the IDOR fix, not a hash: identity and wallet must come from
     # server-side auth, never from client params, behind a router-level gate.
-    import inspect
-
-    from main.controller.wallet_controller import router, set_rating_route
-
     params = inspect.signature(set_rating_route).parameters
     assert "userId" not in params and "wallet_id" not in params  # any client identity param fails loudly
     assert "currentUser" in params and "wallet" in params

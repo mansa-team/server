@@ -12,6 +12,7 @@ from datetime import date, timedelta
 from types import SimpleNamespace
 
 import pytest
+from cashews import cache as cashewsCache
 from fastapi import HTTPException
 
 import main.models.wallet  # noqa: F401
@@ -21,8 +22,6 @@ from main.app.wallet.performance import PerformanceManager
 
 @pytest.fixture(autouse=True)
 async def clear_cashews_cache():
-    from cashews import cache as cashewsCache
-
     cashewsCache.setup("mem://")
     await cashewsCache.clear()
     yield
@@ -42,8 +41,6 @@ def _patch_closes(monkeypatch, closes_by_ticker):
 
 
 def _flat_series(start, days, price, prev_price=None):
-    from datetime import timedelta
-
     series = []
     if prev_price is not None:
         series.append((start - timedelta(days=1), prev_price))
