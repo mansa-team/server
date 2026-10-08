@@ -54,8 +54,8 @@ def setup_caches():
 
     from main.app.orunmila.memory import matrixCache
 
-    defaultCache.setup(Config.CACHE.URL)
-    matrixCache.setup(Config.CACHE.MATRIX_URL)
+    defaultCache.setup(Config.CACHE.REDIS_URL)
+    matrixCache.setup(Config.CACHE.REDIS_URL)
 
 
 def pytest_configure(config):
