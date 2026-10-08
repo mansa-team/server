@@ -23,7 +23,7 @@ from main.service.orunmila_service import OrunmilaService
 from main.service.scraper_service import ScraperService, runScraper
 from main.service.stocksapi_service import StocksAPIService
 
-cache.setup(Config.CACHE.URL)
+cache.setup(Config.CACHE.REDIS_URL)
 
 logger = logging.getLogger(__name__)
 appStartTime = datetime.now()

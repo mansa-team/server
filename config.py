@@ -80,7 +80,7 @@ class DiscordSettings(ServiceSettings):
 
 
 class CacheSettings(ServiceSettings):
-    URL: str = Field(default="mem://", validation_alias="CACHE_URL")
+    REDIS_URL: str = Field(default="mem://", validation_alias="REDIS_URL")
 
 
 class Config:

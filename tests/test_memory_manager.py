@@ -9,8 +9,8 @@ from main.app.orunmila.memory import (
     MEMORY_LIMIT_EXTENDED,
     getMatrix,
     invalidateUser,
-    clearAll,
 )
+from tests.conftest import clearAll
 from main.models.memory import OrunmilaMemory
 
 

@@ -8,7 +8,7 @@ import unicodedata
 from datetime import datetime, timezone
 from typing import Any, Callable, cast
 
-from cashews import Cache
+from cashews import cache
 from google import genai
 from google.genai import types
 import numpy as np
@@ -28,9 +28,6 @@ from main.utils.models.loader import getEmbeddingModel
 from main.app.orunmila.chat import OrunmilaChatManager
 from main.app.orunmila.compact import countTokens
 
-matrixCache = Cache()
-matrixCache.setup(Config.CACHE.URL)
-
 MATRIX_MISS = object()
 
 
@@ -43,11 +40,11 @@ def matrix_cache(func: Callable) -> Callable:
         else:
             uid = userId
             cacheKey = f"matrix:{userId}:v{1}"
-        cached = asyncio.run(matrixCache.get(cacheKey, default=MATRIX_MISS))
+        cached = asyncio.run(cache.get(cacheKey, default=MATRIX_MISS))
         if cached is not MATRIX_MISS:
             return cached
         result = func(userId, *args, **kwargs)
-        asyncio.run(matrixCache.set(cacheKey, result, tags=("matrix", f"matrix-user:{uid}")))
+        asyncio.run(cache.set(cacheKey, result, tags=("matrix", f"matrix-user:{uid}")))
         return result
 
     return wrapper
@@ -59,11 +56,7 @@ def getMatrix(userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]) -
 
 
 def invalidateUser(userId: int) -> None:
-    asyncio.run(matrixCache.delete_tags(f"matrix-user:{userId}"))
-
-
-def clearAll() -> None:
-    asyncio.run(matrixCache.clear())
+    asyncio.run(cache.delete_tags(f"matrix-user:{userId}"))
 
 
 logger = logging.getLogger(__name__)

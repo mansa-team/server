@@ -6,7 +6,8 @@ import pytest
 
 import main.app.orunmila.memory as memoryMod
 import main.app.orunmila.tools.memory as toolsMemoryMod
-from main.app.orunmila.memory import OrunmilaMemory, clearAll, getMatrix
+from main.app.orunmila.memory import OrunmilaMemory, getMatrix
+from tests.conftest import clearAll
 from main.app.orunmila.tools import save_memory, search_memory
 
 

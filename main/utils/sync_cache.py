@@ -5,7 +5,7 @@ import threading
 from functools import wraps
 from typing import Any, Callable, TypeVar
 
-import cashews
+from cashews import cache
 from cashews.key import get_cache_key
 
 MISS = object()
@@ -29,14 +29,14 @@ def bridge(awaitable: Any) -> Any:
 
 def syncCacheGet(cacheKey: str) -> Any:
     async def getCall() -> Any:
-        return await cashews.cache.get(cacheKey, default=MISS)
+        return await cache.get(cacheKey, default=MISS)
 
     return bridge(getCall())
 
 
 def syncCacheSet(cacheKey: str, value: Any, ttl: str) -> None:
     async def setCall() -> None:
-        await cashews.cache.set(cacheKey, value, expire=ttl)
+        await cache.set(cacheKey, value, expire=ttl)
 
     bridge(setCall())
 
@@ -89,4 +89,8 @@ def sync_cache(ttl: str, key: str) -> Callable[[F], F]:
 
 
 def clearEndpointCache() -> None:
-    asyncio.run(cashews.cache.clear())
+    async def clearPrefixes() -> None:
+        await cache.delete_match("stocks:*")
+        await cache.delete_match("wallet:*")
+
+    asyncio.run(clearPrefixes())

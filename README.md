@@ -85,7 +85,7 @@ DISCORD_WEBHOOK_URL=url
 #
 #$ CACHE
 #
-CACHE_URL=mem:// # default: process-local; use redis://... for shared/prod
+REDIS_URL=redis://redis:6379 # mem:// for in memory cache
 ```
 
 ## Health Check

@@ -6,7 +6,7 @@ from sqlalchemy.dialects import mysql
 from sqlalchemy.dialects.mysql import match as mysqlMatch
 
 import main.app.orunmila.memory as memoryMod
-from main.app.orunmila.memory import clearAll
+from tests.conftest import clearAll
 from main.app.orunmila.memory import minMax
 from main.app.orunmila.memory import OrunmilaMemory as MemoryService
 from main.models.memory import OrunmilaMemory
