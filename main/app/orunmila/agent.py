@@ -255,7 +255,9 @@ class Orunmila:
             model="gemini-flash-lite-latest", history=history, config=types.GenerateContentConfig(**kwargs)
         )
 
-    async def streamMessage(self, query=None, sessionId=None, db=None, user=None, file=None) -> AsyncIterator[dict]:
+    async def streamMessage(
+        self, query=None, sessionId=None, db=None, user=None, file=None, rawToken: str | None = None
+    ) -> AsyncIterator[dict]:
         if clientPool.clients is None:
             try:
                 await clientPool.initialize()
@@ -372,7 +374,9 @@ class Orunmila:
                             )
                             continue
 
-                    result = await dispatchToolCall(fc, mcpClients, user=user, db=db, sandbox_id=sandbox_id)
+                    result = await dispatchToolCall(
+                        fc, mcpClients, user=user, db=db, sandbox_id=sandbox_id, rawToken=rawToken
+                    )
                     history.append(
                         {
                             "role": "loop_event",

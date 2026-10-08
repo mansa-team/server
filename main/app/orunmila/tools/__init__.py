@@ -4,18 +4,14 @@ from typing import Any, Optional
 
 from main.app.orunmila.tools.memory import save_memory, search_memory
 from main.app.orunmila.tools.sandbox import execute_code, list_files, read_file, serve_file, write_file
-from main.app.orunmila.tools.wallet import (
-    wallet_allocation,
-    wallet_performance,
-    wallet_positions,
-    wallet_rebalance,
-    wallet_summary,
-    list_wallet_earnings,
-)
 
 logger = logging.getLogger(__name__)
 
 
+# Local in-process tools only. Wallet tools are served exclusively by the
+# wallet MCP server (/wallet/mcp): their names are absent here on purpose, so
+# dispatchToolCall routes them to the wallet MCP client with the session JWT
+# injected as an argument.
 TOOL_REGISTRY: dict[str, Any] = {
     "search_memory": search_memory,
     "save_memory": save_memory,
@@ -24,12 +20,6 @@ TOOL_REGISTRY: dict[str, Any] = {
     "write_file": write_file,
     "list_files": list_files,
     "serve_file": serve_file,
-    "wallet_positions": wallet_positions,
-    "wallet_summary": wallet_summary,
-    "wallet_allocation": wallet_allocation,
-    "list_wallet_earnings": list_wallet_earnings,
-    "wallet_performance": wallet_performance,
-    "wallet_rebalance": wallet_rebalance,
 }
 
 
@@ -39,6 +29,7 @@ async def dispatchToolCall(
     user=None,
     db=None,
     sandbox_id: Optional[str] = None,
+    rawToken: Optional[str] = None,
 ) -> dict:
     name = functionCall.name
     args = dict(functionCall.args or {})
@@ -52,9 +43,17 @@ async def dispatchToolCall(
         args["userId"] = user.get("userId", 0) if user else 0
         return await fn(**args)
 
-    for client in mcpClients.values():
+    for serverName, client in mcpClients.items():
         try:
-            mcpResult = await client.session.call_tool(name, args)
+            callArgs = dict(args)
+            # Session JWT rides as an argument: the shared MCP pool freezes
+            # transport headers at connect time. FastApiMCP pops
+            # args["authorization"] into the replayed request's headers, where
+            # the wallet's auth dependency verifies it. Wallet-only — other MCP
+            # servers don't accept this argument.
+            if rawToken and serverName == "wallet":
+                callArgs["authorization"] = f"Bearer {rawToken}"
+            mcpResult = await client.session.call_tool(name, callArgs)
             if getattr(mcpResult, "isError", False):
                 continue
             textParts = []
