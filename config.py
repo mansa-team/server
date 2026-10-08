@@ -20,7 +20,11 @@ def applyIPv4Force():
 applyIPv4Force()
 
 
-class MysqlSettings(BaseSettings):
+class ServiceSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+
+class MysqlSettings(ServiceSettings):
     USER_USER: Optional[str] = Field(default=None, validation_alias="USER_MYSQL_USER")
     USER_PASSWORD: Optional[str] = Field(default=None, validation_alias="USER_MYSQL_PASSWORD")
     USER_HOST: Optional[str] = Field(default=None, validation_alias="USER_MYSQL_HOST")
@@ -32,10 +36,9 @@ class MysqlSettings(BaseSettings):
     STOCKS_HOST: Optional[str] = Field(default=None, validation_alias="STOCKS_MYSQL_HOST")
     STOCKS_DATABASE: Optional[str] = Field(default=None, validation_alias="STOCKS_MYSQL_DATABASE")
     STOCKS_PORT: int = Field(default=3306, validation_alias="STOCKS_MYSQL_PORT")
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
-class UserSettings(BaseSettings):
+class UserSettings(ServiceSettings):
     ENABLED: bool = Field(default=True, validation_alias="USER_ENABLED")
     HOST: str = Field(default="localhost", validation_alias="USER_HOST")
     PORT: int = Field(default=3200, validation_alias="USER_PORT")
@@ -43,22 +46,17 @@ class UserSettings(BaseSettings):
     GOOGLE_CLIENT_ID: str = Field(default="", validation_alias="GOOGLE_CLIENT.ID")
     GOOGLE_CLIENT_SECRET: str = Field(default="", validation_alias="GOOGLE_CLIENT.SECRET")
     GOOGLE_REDIRECT_URI: str = Field(default="", validation_alias="GOOGLE_REDIRECT.URI")
-    SERVICE_TOKEN_SECRET: str = Field(default="", validation_alias="INTROSPECT_SERVICE_SECRET")
-    SERVICE_TOKEN_SECRET_PREV: str = Field(default="", validation_alias="INTROSPECT_SERVICE_SECRET_PREV")
-    SERVICE_TOKEN_TTL_HOURS: int = Field(default=720, validation_alias="INTROSPECT_SERVICE_TTL_HOURS")
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
-class StocksApiSettings(BaseSettings):
+class StocksApiSettings(ServiceSettings):
     ENABLED: bool = Field(default=True, validation_alias="STOCKSAPI_ENABLED")
     HOST: str = Field(default="localhost", validation_alias="STOCKSAPI_HOST")
     PORT: int = Field(default=3200, validation_alias="STOCKSAPI_PORT")
     KEY_SYSTEM: bool = Field(default=False, validation_alias="STOCKSAPI_KEY.SYSTEM")
     KEY: str = Field(default="", validation_alias="STOCKSAPI_PRIVATE.KEY")
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
-class OrunmilaSettings(BaseSettings):
+class OrunmilaSettings(ServiceSettings):
     ENABLED: bool = Field(default=True, validation_alias="ORUNMILA_ENABLED")
     HOST: str = Field(default="localhost", validation_alias="ORUNMILA_HOST")
     PORT: int = Field(default=3200, validation_alias="ORUNMILA_PORT")
@@ -66,28 +64,23 @@ class OrunmilaSettings(BaseSettings):
     SEARXNG_URL: str = Field(default="http://searxng:8888", validation_alias="SEARXNG_URL")
     FORGEVM_URL: str = Field(default="http://forgevm:7423", validation_alias="FORGEVM_URL")
     FORGEVM_API_TOKEN: str = Field(default="", validation_alias="FORGEVM_API_TOKEN")
-    SANDBOX_IMAGE: str = Field(default="sandbox-python:latest", validation_alias="SANDBOX_IMAGE")
-    SANDBOX_MEMORY: int = Field(default=512, validation_alias="SANDBOX_MEMORY")
-    SANDBOX_CPU: int = Field(default=1, validation_alias="SANDBOX_CPU")
-    SANDBOX_TTL: int = Field(default=5, validation_alias="SANDBOX_TTL")
-    WORKSPACE_MAX_UPLOAD_MB: int = Field(default=10, validation_alias="WORKSPACE_MAX_UPLOAD_MB")
-
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
-class ScraperSettings(BaseSettings):
+class ScraperSettings(ServiceSettings):
     ENABLED: bool = Field(default=False, validation_alias="SCRAPER_ENABLED")
     SCHEDULER: str = Field(default="", validation_alias="SCRAPER_SCHEDULER")
     JSON: bool = Field(default=False, validation_alias="JSON_EXPORT")
     MYSQL: bool = Field(default=True, validation_alias="MYSQL_EXPORT")
     MAX_WORKERS: int = Field(default=10, validation_alias="MAX_WORKERS")
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
-class DiscordSettings(BaseSettings):
+class DiscordSettings(ServiceSettings):
     ENABLED: bool = Field(default=False, validation_alias="DISCORD_ENABLED")
     WEBHOOK_URL: str = Field(default="", validation_alias="DISCORD_WEBHOOK_URL")
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+
+class CacheSettings(ServiceSettings):
+    URL: str = Field(default="mem://", validation_alias="CACHE_URL")
 
 
 class Config:
@@ -98,6 +91,7 @@ class Config:
     SCRAPER = ScraperSettings()
     USER = UserSettings()
     DISCORD = DiscordSettings()
+    CACHE = CacheSettings()
 
 
 LOCALHOST_ADDRESSES = ["localhost", "127.0.0.1", "0.0.0.0", "None", "host.docker.internal", None]

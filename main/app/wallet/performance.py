@@ -31,7 +31,6 @@ from math import sqrt
 from statistics import stdev
 from types import SimpleNamespace
 
-from cashews import cache
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
@@ -41,8 +40,6 @@ from main.app.wallet.positions import PositionsManager
 from main.models.wallet import Earning, Transaction, Wallet
 
 logger = logging.getLogger(__name__)
-
-cache.setup("mem://")
 
 PERFORMANCE_EPOCH = "1970-01-01T00:00:00"
 

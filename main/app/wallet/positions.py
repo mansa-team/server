@@ -7,7 +7,6 @@ from datetime import datetime
 from decimal import Decimal
 
 import requests
-from cashews import cache
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -18,12 +17,6 @@ from main.models.wallet import Holding, Target, Wallet
 
 logger = logging.getLogger(__name__)
 
-cache.setup("mem://")
-
-# Reviewer #8: external-data failures that legitimately degrade to a fallback
-# (network/timeout/HTTP/malformed payload/expected-missing-data). Anything
-# else — programming errors included — propagates instead of becoming a
-# silent null/empty fallback.
 EXTERNAL_ERRORS = (
     requests.exceptions.RequestException,
     ValueError,
@@ -37,7 +30,6 @@ REFRESH_ERRORS = EXTERNAL_ERRORS + (SQLAlchemyError,)
 
 class PositionsManager:
     @classmethod
-    @sync_cache(ttl="6h", key="wallet:xango:{tickers}")
     def fetchXangoScores(cls, tickers: tuple[str, ...]) -> dict[str, float | None]:
         scores: dict[str, float | None] = {}
         for ticker in tickers:
@@ -64,12 +56,6 @@ class PositionsManager:
 
     @classmethod
     def maybeRefreshRatings(cls, db: Session, wallet: Wallet) -> None:
-        """Backfill-only Xango refresh: fills `rating` solely where NULL.
-
-        Single-rating rule: the Xango score is the initial/default value. It
-        seeds new holdings at creation and fills NULLs here; it never
-        overwrites an existing value (user overrides via PUT survive reads).
-        """
         walletId = int(wallet.walletId)
         try:
             holdings = db.query(Holding).filter(Holding.walletId == walletId).all()

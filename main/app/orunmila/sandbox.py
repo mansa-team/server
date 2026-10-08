@@ -11,6 +11,10 @@ from main.models.sandbox import OrunmilaSandbox
 logger = logging.getLogger(__name__)
 
 WORKSPACE_ROOT = Path("/data/workspaces")
+SANDBOX_IMAGE = "sandbox-python:latest"
+SANDBOX_MEMORY = 512
+SANDBOX_CPU = 1
+SANDBOX_TTL = 15
 
 userLocks: dict[int, asyncio.Lock] = {}
 
@@ -44,10 +48,10 @@ class SandboxManager:
         client = getClient()
         try:
             sandbox = await client.spawn(
-                image=Config.ORUNMILA.SANDBOX_IMAGE,
-                memory_mb=Config.ORUNMILA.SANDBOX_MEMORY,
-                vcpus=Config.ORUNMILA.SANDBOX_CPU,
-                ttl=f"{Config.ORUNMILA.SANDBOX_TTL}m",
+                image=SANDBOX_IMAGE,
+                memory_mb=SANDBOX_MEMORY,
+                vcpus=SANDBOX_CPU,
+                ttl=f"{SANDBOX_TTL}m",
             )
             sandboxId = sandbox.id  # type: ignore[attr-defined]
             logger.info("Sandbox created: %s for user %d", sandboxId, userId)
@@ -77,7 +81,7 @@ class SandboxManager:
                 client = getClient()
                 try:
                     sandbox = await client.get(mapping.sandboxId)
-                    await sandbox.extend_ttl(f"{Config.ORUNMILA.SANDBOX_TTL}m")
+                    await sandbox.extend_ttl(f"{SANDBOX_TTL}m")
                     await sandbox.exec(command="echo", args=["ok"], timeout="3s")
 
                     logger.info("Reusing sandbox %s for user %d", mapping.sandboxId, userId)

@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 import logging
 
-from cashews import cache
 from fastapi import APIRouter, Depends, Query, HTTPException, Response
 
 from main.app.stocks_api.query import queryCotations, queryFundamental, queryHistorical, queryLiveCotations
@@ -12,8 +11,6 @@ from main.app.stocks_api.cache import stocksCache
 from main.utils.sync_cache import sync_cache
 
 logger = logging.getLogger(__name__)
-
-cache.setup("mem://")
 
 STOCKS_TTL = "6h"
 STOCKS_MAX_AGE = 6 * 3600

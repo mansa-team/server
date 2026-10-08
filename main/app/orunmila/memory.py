@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from collections.abc import MutableMapping
+from functools import wraps
 from config import Config, SessionLocal
 import json
 import unicodedata
@@ -28,27 +29,33 @@ from main.app.orunmila.chat import OrunmilaChatManager
 from main.app.orunmila.compact import countTokens
 
 matrixCache = Cache()
-matrixCache.setup("mem://")
+matrixCache.setup(Config.CACHE.URL)
 
 MATRIX_MISS = object()
 
 
+def matrix_cache(func: Callable) -> Callable:
+    @wraps(func)
+    def wrapper(userId: Any, *args: Any, **kwargs: Any) -> Any:
+        if isinstance(userId, tuple):
+            uid, memoryType = userId
+            cacheKey = f"matrix:{uid}:{memoryType}:v{1}"
+        else:
+            uid = userId
+            cacheKey = f"matrix:{userId}:v{1}"
+        cached = asyncio.run(matrixCache.get(cacheKey, default=MATRIX_MISS))
+        if cached is not MATRIX_MISS:
+            return cached
+        result = func(userId, *args, **kwargs)
+        asyncio.run(matrixCache.set(cacheKey, result, tags=("matrix", f"matrix-user:{uid}")))
+        return result
+
+    return wrapper
+
+
+@matrix_cache
 def getMatrix(userId: Any, loader: Callable[[], tuple[list[int], np.ndarray]]) -> tuple[list[int], np.ndarray]:
-    if isinstance(userId, tuple):
-        uid, memoryType = userId
-        cacheKey = f"matrix:{uid}:{memoryType}:v{1}"
-    else:
-        uid = userId
-        cacheKey = f"matrix:{userId}:v{1}"
-    cached = asyncio.run(matrixCache.get(cacheKey, default=MATRIX_MISS))
-    if cached is not MATRIX_MISS:
-        return cast(tuple[list[int], np.ndarray], cached)
-    freshIds, freshMatrix = loader()
-    asyncio.run(matrixCache.set(cacheKey, (freshIds, freshMatrix), tags=("matrix", f"matrix-user:{uid}")))
-    return cast(
-        tuple[list[int], np.ndarray],
-        asyncio.run(matrixCache.get(cacheKey, default=(freshIds, freshMatrix))),
-    )
+    return loader()
 
 
 def invalidateUser(userId: int) -> None:

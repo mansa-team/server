@@ -1,17 +1,8 @@
-"""Service loopback tokens: opaque session rows, minted per-request.
-
-A token is a UserSession.sessionId row owned by the internal service user,
-created via SessionManager and verified with a single ownership-checked read.
-Rotation without restart is SessionManager.revokeSession (or expiry).
-Replaces the retired JWT/HMAC dual-path: no crypto here, no import-time mint.
-"""
-
 import logging
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.orm import Session
 
-from config import Config
 from main.app.authentication.session import SessionManager
 from main.models.user import User
 
@@ -37,7 +28,8 @@ def getServiceUserId(db: Session) -> int:
 
 def createServiceToken(db: Session, expiresDelta: timedelta | None = None) -> str:
     if expiresDelta is None:
-        expiresDelta = timedelta(hours=Config.USER.SERVICE_TOKEN_TTL_HOURS)
+        # Single fixed service-token lifetime: 30d (720h). No env override by design.
+        expiresDelta = timedelta(hours=720)
     serviceId = getServiceUserId(db)
     session = SessionManager.createSession(db, serviceId, "service-loopback", datetime.now(timezone.utc) + expiresDelta)
     return str(session.sessionId)
