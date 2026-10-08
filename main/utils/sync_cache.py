@@ -17,14 +17,41 @@ SINGLEFLIGHT_TIMEOUT = 30.0
 flightLock = threading.Lock()
 flights: dict[str, threading.Event] = {}
 
+cacheLoopLock = threading.Lock()
+cacheLoop: asyncio.AbstractEventLoop | None = None
+
+
+def getCacheLoop() -> asyncio.AbstractEventLoop:
+    global cacheLoop
+    with cacheLoopLock:
+        if cacheLoop is not None and cacheLoop.is_running():
+            return cacheLoop
+        loop = asyncio.new_event_loop()
+        started = threading.Event()
+
+        def runCacheLoop() -> None:
+            asyncio.set_event_loop(loop)
+            loop.run_forever()
+
+        thread = threading.Thread(target=runCacheLoop, name="cashews-cache-loop", daemon=True)
+        thread.start()
+        loop.call_soon_threadsafe(started.set)
+        started.wait(timeout=5.0)
+        cacheLoop = loop
+        return loop
+
 
 def bridge(awaitable: Any) -> Any:
+    loop = getCacheLoop()
+    running: asyncio.AbstractEventLoop | None
     try:
-        asyncio.get_running_loop()
+        running = asyncio.get_running_loop()
     except RuntimeError:
-        return asyncio.run(awaitable)
-    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-        return pool.submit(lambda: asyncio.run(awaitable)).result()
+        running = None
+    if running is loop:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+            return pool.submit(lambda: asyncio.run(awaitable)).result()
+    return asyncio.run_coroutine_threadsafe(awaitable, loop).result()
 
 
 def syncCacheGet(cacheKey: str) -> Any:
@@ -93,4 +120,4 @@ def clearEndpointCache() -> None:
         await cache.delete_match("stocks:*")
         await cache.delete_match("wallet:*")
 
-    asyncio.run(clearPrefixes())
+    bridge(clearPrefixes())

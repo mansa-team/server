@@ -2,7 +2,6 @@ import asyncio
 from types import SimpleNamespace
 
 import numpy as np
-import pytest
 
 import main.app.orunmila.memory as memoryMod
 import main.app.orunmila.tools.memory as toolsMemoryMod
@@ -108,14 +107,20 @@ class TestToolsInsideLoop:
 
 
 class TestSyncDeadlockRegression:
-    def test_syncGetMatrixInsideLoopRaises(self):
-        clearAll()
+    async def test_syncGetMatrixInsideLoopSucceeds(self):
+        # The persistent cache loop owns all cache IO, so a sync cached call
+        # from a thread with a running loop blocks briefly and succeeds
+        # instead of raising (old per-call asyncio.run limitation).
+        await asyncio.to_thread(clearAll)
+        calls = []
 
         def seedLoader():
+            calls.append(1)
             return ([1], np.eye(1, dtype=np.float32))
 
-        async def inner():
-            return getMatrix(99, seedLoader)
-
-        with pytest.raises(RuntimeError):
-            asyncio.run(inner())
+        ids, matrix = getMatrix(99, seedLoader)
+        assert ids == [1]
+        assert matrix.shape == (1, 1)
+        idsAgain, _ = getMatrix(99, seedLoader)
+        assert idsAgain == [1]
+        assert calls == [1]  # second call is a cache hit

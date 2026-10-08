@@ -1,10 +1,13 @@
+import asyncio
+from typing import Any
+
 import orjson
 import pytest
 import pytest_asyncio
 
 from cashews import cache as cashewsCache
 
-from main.utils.sync_cache import sync_cache
+from main.utils.sync_cache import MISS, clearEndpointCache, sync_cache, syncCacheGet, syncCacheSet
 
 
 @pytest_asyncio.fixture(scope="module", loop_scope="module", autouse=True)
@@ -71,3 +74,88 @@ def test_exceptions_propagate_and_are_not_cached():
         fn(x=1)  # must re-raise, not return a cached exception
 
     assert calls == [1, 1]
+
+
+class LoopBindingStub:
+    """Fake backend mimicking redis.asyncio transport loop-binding.
+
+    The first event loop to touch it wins; any later loop raises the same
+    RuntimeError the redis dev stack 500ed with. mem:// never binds, which is
+    why per-call asyncio.run stayed green in CI while redis broke live.
+    """
+
+    def __init__(self) -> None:
+        self.store: dict[str, Any] = {}
+        self.boundLoop: asyncio.AbstractEventLoop | None = None
+
+    def pin(self) -> None:
+        loop = asyncio.get_running_loop()
+        if self.boundLoop is None:
+            self.boundLoop = loop
+        elif loop is not self.boundLoop:
+            raise RuntimeError("Event loop is closed")
+
+    async def get(self, key: str, default: Any = None) -> Any:
+        self.pin()
+        return self.store.get(key, default)
+
+    async def set(self, key: str, value: Any, expire: Any = None, **kwargs: Any) -> bool:
+        self.pin()
+        self.store[key] = value
+        return True
+
+    async def delete_match(self, pattern: str) -> None:
+        self.pin()
+        prefix = pattern.split("*")[0]
+        for key in [k for k in self.store if k.startswith(prefix)]:
+            del self.store[key]
+
+
+def test_per_call_loop_breaks_loop_bound_backend():
+    stub = LoopBindingStub()
+    asyncio.run(stub.set("k", "v"))
+    with pytest.raises(RuntimeError, match="Event loop is closed"):
+        asyncio.run(stub.get("k"))
+
+
+def test_bridge_pins_all_cache_io_to_one_loop(monkeypatch: pytest.MonkeyPatch):
+    stub = LoopBindingStub()
+    monkeypatch.setattr("main.utils.sync_cache.cache", stub)
+    syncCacheSet("loop:a", "1", "1h")
+    assert syncCacheGet("loop:a") == "1"
+    syncCacheSet("loop:b", "2", "1h")
+    assert syncCacheGet("loop:b") == "2"
+    assert stub.boundLoop is not None and stub.boundLoop.is_running()
+
+
+async def test_bridge_called_with_running_loop(monkeypatch: pytest.MonkeyPatch):
+    stub = LoopBindingStub()
+    monkeypatch.setattr("main.utils.sync_cache.cache", stub)
+    syncCacheSet("loop:c", "3", "1h")
+    assert syncCacheGet("loop:c") == "3"
+    assert stub.boundLoop is not None and stub.boundLoop is not asyncio.get_running_loop()
+
+
+def test_decorator_caches_without_recompute_on_loop_bound_backend(monkeypatch: pytest.MonkeyPatch):
+    stub = LoopBindingStub()
+    monkeypatch.setattr("main.utils.sync_cache.cache", stub)
+    calls = []
+
+    @sync_cache(ttl="1h", key="test:pinned:{x}")
+    def fn(x):
+        calls.append(x)
+        return {"x": x}
+
+    assert fn(x=7) == {"x": 7}
+    assert fn(x=7) == {"x": 7}
+    assert calls == [7]
+
+
+def test_clear_endpoint_cache_via_bridge(monkeypatch: pytest.MonkeyPatch):
+    stub = LoopBindingStub()
+    monkeypatch.setattr("main.utils.sync_cache.cache", stub)
+    syncCacheSet("stocks:t", "v", "1h")
+    syncCacheSet("wallet:t", "v", "1h")
+    clearEndpointCache()
+    assert syncCacheGet("stocks:t") is MISS
+    assert syncCacheGet("wallet:t") is MISS
