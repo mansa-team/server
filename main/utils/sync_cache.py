@@ -17,28 +17,55 @@ SINGLEFLIGHT_TIMEOUT = 30.0
 flightLock = threading.Lock()
 flights: dict[str, threading.Event] = {}
 
+cacheLoopLock = threading.Lock()
+cacheLoop: asyncio.AbstractEventLoop | None = None
 
-def bridge(awaitable: Any) -> Any:
+
+def getCacheLoop() -> asyncio.AbstractEventLoop:
+    global cacheLoop
+    with cacheLoopLock:
+        if cacheLoop is not None and cacheLoop.is_running():
+            return cacheLoop
+        loop = asyncio.new_event_loop()
+        started = threading.Event()
+
+        def runCacheLoop() -> None:
+            asyncio.set_event_loop(loop)
+            loop.run_forever()
+
+        thread = threading.Thread(target=runCacheLoop, name="cashews-cache-loop", daemon=True)
+        thread.start()
+        loop.call_soon_threadsafe(started.set)
+        started.wait(timeout=5.0)
+        cacheLoop = loop
+        return loop
+
+
+def runOnCacheLoop(awaitable: Any) -> Any:
+    loop = getCacheLoop()
+    running: asyncio.AbstractEventLoop | None
     try:
-        asyncio.get_running_loop()
+        running = asyncio.get_running_loop()
     except RuntimeError:
-        return asyncio.run(awaitable)
-    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-        return pool.submit(lambda: asyncio.run(awaitable)).result()
+        running = None
+    if running is loop:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+            return pool.submit(lambda: asyncio.run(awaitable)).result()
+    return asyncio.run_coroutine_threadsafe(awaitable, loop).result()
 
 
 def syncCacheGet(cacheKey: str) -> Any:
     async def getCall() -> Any:
         return await cache.get(cacheKey, default=MISS)
 
-    return bridge(getCall())
+    return runOnCacheLoop(getCall())
 
 
 def syncCacheSet(cacheKey: str, value: Any, ttl: str) -> None:
     async def setCall() -> None:
         await cache.set(cacheKey, value, expire=ttl)
 
-    bridge(setCall())
+    runOnCacheLoop(setCall())
 
 
 def sync_cache(ttl: str, key: str) -> Callable[[F], F]:
@@ -50,7 +77,7 @@ def sync_cache(ttl: str, key: str) -> Callable[[F], F]:
             def fetchAndStore() -> Any:
                 result = func(*args, **kwargs)
                 if inspect.isawaitable(result):
-                    result = bridge(result)
+                    result = runOnCacheLoop(result)
                 syncCacheSet(cacheKey, result, ttl)
                 return result
 
@@ -93,4 +120,4 @@ def clearEndpointCache() -> None:
         await cache.delete_match("stocks:*")
         await cache.delete_match("wallet:*")
 
-    asyncio.run(clearPrefixes())
+    runOnCacheLoop(clearPrefixes())
