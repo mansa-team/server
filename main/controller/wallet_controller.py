@@ -20,7 +20,7 @@ from main.app.wallet.entries import (
 from main.app.wallet.performance import PerformanceManager
 from main.app.wallet.positions import PositionsManager
 from main.app.wallet.summary import RatingUpsert, SummaryManager
-from main.app.wallet.wallets import Wallet, WalletCreate, WalletsManager
+from main.app.wallet.wallets import WalletCreate, WalletsManager
 from main.models.wallet import Transaction
 
 # MCP auth: the `authorization` header param on MCP-exposed routes is not used
@@ -29,13 +29,6 @@ from main.models.wallet import Transaction
 # into the replayed in-process request, where getWalletUser verifies it via
 # POST /auth/introspect.
 router = APIRouter(prefix="/wallet", tags=["Wallet"], dependencies=[Depends(getWalletUser)])
-
-
-def getMyWallet(
-    db: Session = Depends(getSession),
-    currentUser: dict = Depends(getWalletUser),
-) -> Wallet:
-    return WalletsManager.getMyWallet(db, int(currentUser["userId"]))
 
 
 @router.post("/wallets", status_code=201)
@@ -63,9 +56,9 @@ def list_wallets_route(
 def create_entry_route(
     payload: EntryCreate,
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     entry, holding = EntriesManager.addEntry(db, wallet, payload)
     return {"entryId": entry.entryId, "holding": serialize_holding(holding)}
 
@@ -76,9 +69,9 @@ def list_entries_route(
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     total, items = EntriesManager.listEntries(db, wallet, ticker, limit, offset)
     return {"total": total, "items": [serialize_entry(item) for item in items]}
 
@@ -88,9 +81,9 @@ def update_entry_route(
     entryId: int,
     payload: EntryUpdate,
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     entry, holding = EntriesManager.updateEntry(db, wallet, entryId, payload)
     return {"entryId": entry.entryId, "holding": serialize_holding(holding)}
 
@@ -99,9 +92,9 @@ def update_entry_route(
 def delete_entry_route(
     entryId: int,
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     deletedId, holding = EntriesManager.deleteEntry(db, wallet, entryId)
     return {"entryId": deletedId, "holding": serialize_holding(holding)}
 
@@ -110,7 +103,6 @@ def delete_entry_route(
 def list_positions_route(
     authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
     """Get the wallet's current positions with cost basis, market prices and equity.
@@ -131,6 +123,7 @@ def list_positions_route(
     EXAMPLES:
     - "What stocks do I own?" → call wallet_positions with no arguments
     """
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     return PositionsManager.getPositions(db, wallet)
 
 
@@ -138,7 +131,6 @@ def list_positions_route(
 def get_rebalance_route(
     authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
     """Get the target-weight snapshot used for rebalancing advice.
@@ -158,6 +150,7 @@ def get_rebalance_route(
     EXAMPLES:
     - "Am I overweight anywhere?" → wallet_rebalance + wallet_positions
     """
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     return PositionsManager.getRebalance(db, wallet)
 
 
@@ -165,7 +158,6 @@ def get_rebalance_route(
 def get_summary_route(
     authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
     """Get the ledger-derived wallet summary (applied capital, equity, variation).
@@ -184,6 +176,7 @@ def get_summary_route(
     EXAMPLES:
     - "How much have I made overall?" → wallet_summary
     """
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     return SummaryManager.getSummary(db, wallet)
 
 
@@ -191,7 +184,6 @@ def get_summary_route(
 def get_allocation_route(
     authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
     """Get per-position equity lines to group by ticker or asset type.
@@ -210,6 +202,7 @@ def get_allocation_route(
     EXAMPLES:
     - "How much of my wallet is in stocks vs other assets?" → wallet_allocation
     """
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     return SummaryManager.getAllocation(db, wallet)
 
 
@@ -217,10 +210,10 @@ def get_allocation_route(
 def set_rating_route(
     payload: RatingUpsert,
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
     """Single-rating override: PUT sets `Holding.rating` (Xango default, user-overwritable)."""
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     holding = SummaryManager.set_rating(db, wallet, payload)
     return {"ticker": holding.ticker, "rating": holding.rating}
 
@@ -229,7 +222,6 @@ def set_rating_route(
 def list_earnings_route(
     authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
     """List wallet earnings (dividends/JCP/rents) with status and net values.
@@ -248,6 +240,7 @@ def list_earnings_route(
     EXAMPLES:
     - "Which dividends are still to be paid?" → wallet_earnings, filter status
     """
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     return {"items": [serialize_earning(item) for item in EarningsManager.listEarnings(db, wallet)]}
 
 
@@ -258,7 +251,6 @@ def get_performance_route(
     toIso: str | None = Query(default=None, alias="to"),
     authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
     """Get time-weighted performance metrics (TWR, volatility, dividends) for a window.
@@ -281,6 +273,7 @@ def get_performance_route(
     - "My return since January?" → from="2026-01-01"
     - "VALE3 return this year?" → ticker="VALE3", from="2026-01-01"
     """
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet, fromIso, toIso)
     return PerformanceManager.getPerformance(db, wallet, ticker, startDate, endDate)
 
@@ -291,7 +284,6 @@ def get_progression_route(
     toIso: str | None = Query(default=None, alias="to"),
     authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
     """Get the raw daily equity/invested progression series (up to ~2000 points).
@@ -311,6 +303,7 @@ def get_progression_route(
     EXAMPLES:
     - "Every single day of my equity this year" → from="2026-01-01"
     """
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet, fromIso, toIso)
     return AnalyticsManager.getProgression(db, wallet, startDate, endDate)
 
@@ -326,7 +319,6 @@ def record_entry_route(
     costs: float = Body(default=0.0, ge=0),
     authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
     """Record a buy or sell in the wallet ledger from chat (MCP write wrapper).
@@ -357,6 +349,7 @@ def record_entry_route(
       asset_type="ACOES", ticker="VALE3", date="2026-09-30", quantity=50,
       price=61.2, costs=5.0
     """
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     try:
         parsedDate = dateType.fromisoformat(date)
     except ValueError:
@@ -384,7 +377,6 @@ def set_rating_wrapper_route(
     rating: float = Body(..., ge=0, le=100),
     authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
     """Set the user's rating (0-100) for a held ticker — single rating field.
@@ -404,6 +396,7 @@ def set_rating_wrapper_route(
     EXAMPLES:
     - "Raise PETR4 to 80 in my wallet" → ticker="PETR4", rating=80
     """
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     holding = SummaryManager.set_rating(db, wallet, RatingUpsert(ticker=ticker, rating=rating))
     return {"ticker": holding.ticker, "rating": holding.rating}
 
@@ -415,7 +408,6 @@ def explain_twr_route(
     to_date: str | None = None,
     authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
     """Explain time-weighted return: overall metrics, per-ticker TWR, worst tickers, dividend leg.
@@ -443,6 +435,7 @@ def explain_twr_route(
     - "Why is my return negative this year?" → from_date="2026-01-01"
     - "How did PETR4 do vs my wallet?" → ticker="PETR4"
     """
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet, from_date, to_date)
     overall = PerformanceManager.getPerformance(db, wallet, ticker, startDate, endDate)
 
@@ -495,7 +488,6 @@ def wallet_progression_route(
     max_points: int = Query(default=120, ge=2, le=2000),
     authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
     """Get a downsampled equity/invested progression for chart-style answers.
@@ -519,6 +511,7 @@ def wallet_progression_route(
     - "Chart my equity since January" → from_date="2026-01-01"
     - "Quick coarse look" → max_points=24
     """
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet, from_date, to_date)
     series = AnalyticsManager.getProgression(db, wallet, startDate, endDate)
     points = series["points"]
@@ -542,9 +535,9 @@ def get_cashflows_route(
     fromIso: str | None = Query(default=None, alias="from"),
     toIso: str | None = Query(default=None, alias="to"),
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet, fromIso, toIso)
     return AnalyticsManager.getCashflows(db, wallet, startDate, endDate)
 
@@ -554,8 +547,8 @@ def get_dividends_monthly_route(
     fromIso: str | None = Query(default=None, alias="from"),
     toIso: str | None = Query(default=None, alias="to"),
     currentUser: dict = Depends(getWalletUser),
-    wallet: Wallet = Depends(getMyWallet),
     db: Session = Depends(getSession),
 ):
+    wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet, fromIso, toIso)
     return AnalyticsManager.getDividendsMonthly(db, wallet, startDate, endDate)
