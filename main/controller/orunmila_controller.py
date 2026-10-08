@@ -116,12 +116,12 @@ async def chat_stream(
 
     file_data = None
     if file is not None:
-        maxBytes = Config.ORUNMILA.WORKSPACE_MAX_UPLOAD_MB * 1024 * 1024
+        maxBytes = 15 * 1024 * 1024
         content = await file.read(maxBytes + 1)
         if len(content) > maxBytes:
             raise HTTPException(
                 status_code=413,
-                detail=f"File exceeds {Config.ORUNMILA.WORKSPACE_MAX_UPLOAD_MB}MB limit",
+                detail=f"File exceeds 15MB limit",
             )
         file_data = {
             "name": file.filename,

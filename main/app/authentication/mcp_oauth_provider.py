@@ -176,7 +176,7 @@ class WalletOAuthProvider(OAuthAuthorizationServerProvider[AuthorizationCode, Re
 
         if not stored:
             raise TokenError("invalid_grant", "refresh token does not exist")
-        
+
         userId = str(stored.subject or "")
         resource = stored.resource or RESOURCE_URL
         useScopes = scopes or stored.scopes
