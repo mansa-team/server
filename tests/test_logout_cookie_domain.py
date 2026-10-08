@@ -11,13 +11,14 @@ from datetime import timedelta
 from unittest.mock import patch, MagicMock
 from fastapi import FastAPI
 from fastapi.testclient import TestClient as TestClient
+from main.controller.authentication_controller import router as authRouter
+from main.utils.errors import registerErrorHandlers
+from main.controller.authentication_controller import resolveCookieDomain
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
 def make_auth_client():
-    from main.controller.authentication_controller import router as authRouter
-    from main.utils.errors import registerErrorHandlers
 
     app = FastAPI()
     app.include_router(authRouter)
@@ -87,7 +88,6 @@ class TestLogoutCookieDomain:
         mock_session_mgr.revokeSession.assert_called_once()
 
     def test_resolve_cookie_domain_dev_and_prod(self):
-        from main.controller.authentication_controller import resolveCookieDomain
 
         localhost_req = MagicMock()
         localhost_req.url.hostname = "localhost"
@@ -108,8 +108,6 @@ class TestLogoutCookieDomain:
     @patch("main.controller.authentication_controller.AuthenticationManager")
     def test_loopback_login_sets_host_only_cookie(self, mock_auth_mgr, mock_create_token, mock_session_mgr):
         """On 127.0.0.1 the login Set-Cookie must omit Domain so the browser sends it back."""
-        from main.controller.authentication_controller import router as authRouter
-        from main.utils.errors import registerErrorHandlers
 
         app = FastAPI()
         app.include_router(authRouter)

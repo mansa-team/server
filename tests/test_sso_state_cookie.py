@@ -13,16 +13,21 @@ import os
 from unittest.mock import patch, AsyncMock, MagicMock
 from fastapi import FastAPI
 from fastapi.testclient import TestClient as TestClient
+from main.controller.authentication_controller import router as authRouter
+from main.utils.errors import registerErrorHandlers
+from main.utils.logging_config import limiter
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from config import getSession
+from starlette.responses import RedirectResponse
+from fastapi_sso.sso.base import SSOLoginError
+from urllib.parse import parse_qs, urlencode
+from main.app.authentication.sso import getGoogleSSO
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 
 def build_app():
-    from main.controller.authentication_controller import router as authRouter
-    from main.utils.errors import registerErrorHandlers
-    from main.utils.logging_config import limiter
-    from slowapi import _rate_limit_exceeded_handler
-    from slowapi.errors import RateLimitExceeded
 
     app = FastAPI()
     app.state.limiter = limiter
@@ -33,7 +38,6 @@ def build_app():
 
 
 def override_session(app, mock_session):
-    from config import getSession
 
     app.dependency_overrides[getSession] = lambda: mock_session
 
@@ -47,8 +51,6 @@ class TestGoogleEndpointSetsState:
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
         mock_sso.__aexit__ = AsyncMock(return_value=False)
-
-        from starlette.responses import RedirectResponse
 
         mock_sso.get_login_redirect = AsyncMock(
             return_value=RedirectResponse("https://accounts.google.com/o/oauth2/auth?state=test", status_code=303)
@@ -71,8 +73,6 @@ class TestGoogleEndpointSetsState:
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
         mock_sso.__aexit__ = AsyncMock(return_value=False)
 
-        from starlette.responses import RedirectResponse
-
         mock_sso.get_login_redirect = AsyncMock(
             return_value=RedirectResponse("https://accounts.google.com/o/oauth2/auth?state=test", status_code=303)
         )
@@ -90,8 +90,6 @@ class TestGoogleEndpointSetsState:
         mock_sso = AsyncMock()
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
         mock_sso.__aexit__ = AsyncMock(return_value=False)
-
-        from starlette.responses import RedirectResponse
 
         mock_sso.get_login_redirect = AsyncMock(
             return_value=RedirectResponse("https://accounts.google.com/o/oauth2/auth?state=test", status_code=303)
@@ -214,8 +212,6 @@ class TestSSOLoginErrorHandling:
         mock_sso.__aenter__ = AsyncMock(return_value=mock_sso)
         mock_sso.__aexit__ = AsyncMock(return_value=False)
 
-        from fastapi_sso.sso.base import SSOLoginError
-
         async def fake_verify(request):
             raise SSOLoginError(401, "Invalid state")
 
@@ -240,7 +236,6 @@ class TestStateSurvivesUrlEncoding:
 
     def test_url_in_state_survives_round_trip(self):
         """State with URL characters should survive round-trip through OAuth URL."""
-        from urllib.parse import parse_qs, urlencode
 
         state = "http://localhost:3000/orunmila?foo=bar&baz=qux"
         encoded = urlencode({"state": state})
@@ -257,7 +252,6 @@ class TestSSO:
     @patch("main.app.authentication.sso.Config")
     @patch("main.app.authentication.sso.GoogleSSO")
     def test_get_google_sso_with_redirect(self, mock_google_sso, mock_config):
-        from main.app.authentication.sso import getGoogleSSO
 
         mock_config.USER = MagicMock(
             GOOGLE_CLIENT_ID="cid",
@@ -276,7 +270,6 @@ class TestSSO:
     @patch("main.app.authentication.sso.Config")
     @patch("main.app.authentication.sso.GoogleSSO")
     def test_get_google_sso_default_redirect(self, mock_google_sso, mock_config):
-        from main.app.authentication.sso import getGoogleSSO
 
         mock_config.USER = MagicMock(
             GOOGLE_CLIENT_ID="cid",

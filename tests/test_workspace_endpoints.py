@@ -13,11 +13,13 @@ from fastapi.testclient import TestClient as TestClient
 
 from main.utils.errors import registerErrorHandlers
 from main.app.user.user import UserManager
+from main.controller.orunmila_controller import router as promRouter
+from fastapi.responses import FileResponse
+from main.controller import orunmila_controller as ctrl
 
 
 def make_client():
     """Minimal app with the orunmila router; auth deps stubbed."""
-    from main.controller.orunmila_controller import router as promRouter
 
     app = FastAPI()
     app.include_router(promRouter)
@@ -67,8 +69,6 @@ class TestWorkspaceDelete:
 
 class TestWorkspaceDownload:
     def test_download_returns_file(self):
-        from fastapi.responses import FileResponse
-        from main.controller import orunmila_controller as ctrl
 
         with (
             patch.object(ctrl, "hostPath") as m_host,

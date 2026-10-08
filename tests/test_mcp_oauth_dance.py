@@ -43,13 +43,29 @@ from main.controller.wallet_controller import router as walletRouter
 from main.service.authentication_service import AuthenticationService
 from main.service.wallet_service import WALLET_MCP_OPERATIONS
 from tests.test_wallet_mcp import _live_ok
+from cashews import cache as cashewsCache
+from main.utils.errors import registerErrorHandlers
+from main.app.authentication.introspect import introspectToken
+from main.app.authentication.service_token import verifyServiceToken
+from main.app.wallet import auth as walletAuth
+from main.app.authentication.service_token import createServiceToken
+from main.app.authentication.util import hashPassword
+from main.models.user import User
+from main.app.wallet.entries import EntryCreate, EntriesManager
+from main.app.wallet.wallets import WalletsManager
+from fastapi.testclient import TestClient
+from main.app.authentication.session import SessionManager
+from main.app.authentication.util import verifyAccessToken
+from main.app.authentication.util import createAccessToken
+from main.app.orunmila.mcp import MCP_SERVERS, prepareServer
+from fastapi import HTTPException
+from main.app.user.user import UserManager
 
 CALLBACK_URL = "http://127.0.0.1:8080/oauth/callback"
 
 
 @pytest.fixture(autouse=True)
 async def clear_cashews_cache():
-    from cashews import cache as cashewsCache
 
     cashewsCache.setup("mem://")
     await cashewsCache.clear()
@@ -66,11 +82,6 @@ def clear_oauth_state():
 
 def _build_dance_app(dbSession):
     """Production wire: auth + wallet routers, SDK AS routes, guarded mount."""
-    from main.utils.errors import registerErrorHandlers
-
-    from main.app.authentication.introspect import introspectToken
-    from main.app.authentication.service_token import verifyServiceToken
-    from main.app.wallet import auth as walletAuth
 
     class _FakeResp:
         def __init__(self, status_code, payload):
@@ -131,14 +142,11 @@ def _mcp_client(app, headers=None):
 
 def _mintServiceToken(dbSession):
     """Independent loopback token (same shape the pool sends at transport)."""
-    from main.app.authentication.service_token import createServiceToken
 
     return createServiceToken(dbSession)
 
 
 def _makeDanceUser(dbSession, username, password="dancepass"):
-    from main.app.authentication.util import hashPassword
-    from main.models.user import User
 
     user = User(username=username, email=f"{username}@example.com", passwordHash=hashPassword(password), roles="USER")
     dbSession.add(user)
@@ -148,8 +156,6 @@ def _makeDanceUser(dbSession, username, password="dancepass"):
 
 
 def _seedDanceWallet(dbSession, user, ticker="PETR4", quantity=10, price=10.0):
-    from main.app.wallet.entries import EntryCreate, EntriesManager
-    from main.app.wallet.wallets import WalletsManager
 
     wallet = WalletsManager.getMyWallet(dbSession, user.userId)
     EntriesManager.addEntry(
@@ -237,7 +243,6 @@ def _danceTokens(http, username, password="dancepass"):
 
 class TestDanceMetadata:
     def test_authorization_server_metadata_resolves(self, dbSession):
-        from fastapi.testclient import TestClient
 
         app = _build_dance_app(dbSession)
         with TestClient(app, raise_server_exceptions=False) as http:
@@ -251,7 +256,6 @@ class TestDanceMetadata:
         assert body["code_challenge_methods_supported"] == ["S256"]
 
     def test_protected_resource_metadata_resolves(self, dbSession):
-        from fastapi.testclient import TestClient
 
         app = _build_dance_app(dbSession)
         with TestClient(app, raise_server_exceptions=False) as http:
@@ -263,14 +267,12 @@ class TestDanceMetadata:
         assert any(server.rstrip("/") == ISSUER_URL.rstrip("/") for server in body["authorization_servers"])
 
     def test_mount_get_stays_406_with_guard(self, dbSession):
-        from fastapi.testclient import TestClient
 
         app = _build_dance_app(dbSession)
         with TestClient(app, raise_server_exceptions=False) as http:
             assert http.get("/wallet/mcp").status_code == 406
 
     def test_bare_mcp_post_challenges_with_resource_metadata(self, dbSession):
-        from fastapi.testclient import TestClient
 
         app = _build_dance_app(dbSession)
         with TestClient(app, raise_server_exceptions=False) as http:
@@ -282,7 +284,6 @@ class TestDanceMetadata:
 
 class TestFullDance:
     async def test_dance_token_reads_own_wallet(self, dbSession, monkeypatch):
-        from fastapi.testclient import TestClient
 
         monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
         user = _makeDanceUser(dbSession, "danceuser")
@@ -302,7 +303,6 @@ class TestFullDance:
         assert payload["equity_total"] == 300.0
 
     async def test_dance_tokens_are_cross_user_isolated(self, dbSession, monkeypatch):
-        from fastapi.testclient import TestClient
 
         monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
         userA = _makeDanceUser(dbSession, "danceA")
@@ -329,7 +329,6 @@ class TestFullDance:
         assert [item["ticker"] for item in json.loads(resultA.content[0].text)["items"]] == ["PETR4"]
 
     async def test_refresh_rotates_and_reuse_rejected(self, dbSession):
-        from fastapi.testclient import TestClient
 
         _makeDanceUser(dbSession, "refreshuser")
         app = _build_dance_app(dbSession)
@@ -365,10 +364,6 @@ class TestFullDance:
             assert reuse.json()["error"] == "invalid_grant"
 
     async def test_revoked_session_rejects_dance_token(self, dbSession):
-        from fastapi.testclient import TestClient
-
-        from main.app.authentication.session import SessionManager
-        from main.app.authentication.util import verifyAccessToken
 
         _makeDanceUser(dbSession, "revokeuser")
         app = _build_dance_app(dbSession)
@@ -386,7 +381,6 @@ class TestFullDance:
         assert "401" in result.content[0].text
 
     async def test_revoked_access_token_rejected(self, dbSession):
-        from fastapi.testclient import TestClient
 
         _makeDanceUser(dbSession, "denieduser")
         app = _build_dance_app(dbSession)
@@ -410,11 +404,6 @@ class TestFullDance:
 
 class TestBackCompatAndPool:
     async def test_legacy_session_jwt_still_200(self, dbSession):
-        from fastapi.testclient import TestClient
-
-        from main.app.authentication.session import SessionManager
-        from main.app.authentication.util import createAccessToken
-        from main.models.user import User
 
         user = User(username="legacyuser", email="legacyuser@example.com", passwordHash="h", roles="USER")
         dbSession.add(user)
@@ -431,11 +420,6 @@ class TestBackCompatAndPool:
         assert json.loads(result.content[0].text) == {"items": [], "equity_total": 0.0}
 
     def test_legacy_static_header_still_200(self, dbSession):
-        from fastapi.testclient import TestClient
-
-        from main.app.authentication.session import SessionManager
-        from main.app.authentication.util import createAccessToken
-        from main.models.user import User
 
         user = User(username="staticuser", email="staticuser@example.com", passwordHash="h", roles="USER")
         dbSession.add(user)
@@ -454,9 +438,6 @@ class TestBackCompatAndPool:
         monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
         user = _makeDanceUser(dbSession, "pooluser")
         _seedDanceWallet(dbSession, user)
-
-        from main.app.authentication.session import SessionManager
-        from main.app.authentication.util import createAccessToken
 
         session = SessionManager.createSession(dbSession, user.userId, "pytest")
         userJwt = createAccessToken({"userId": str(user.userId), "sessionId": session.sessionId})
@@ -483,8 +464,6 @@ class TestBackCompatAndPool:
         assert "401" in result.content[0].text
 
     def test_pool_wallet_entry_sends_loopback_header(self, dbSession):
-        from main.app.orunmila.mcp import MCP_SERVERS, prepareServer
-        from main.app.authentication.service_token import verifyServiceToken
 
         wallet = next(server for server in MCP_SERVERS if server["name"] == "wallet")
         prepared = prepareServer(wallet, dbSession)
@@ -492,9 +471,6 @@ class TestBackCompatAndPool:
 
     def test_inner_identity_rejects_service_payload(self, dbSession):
         """getCurrentUser requires user JWT: typ=service carries no user/session."""
-        from fastapi import HTTPException
-
-        from main.app.user.user import UserManager
 
         request = MagicMock()
         request.headers = {}
