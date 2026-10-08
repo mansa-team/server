@@ -86,7 +86,28 @@ DISCORD_WEBHOOK_URL=url
 #$ CACHE
 #
 REDIS_URL=redis://redis:6379 # mem:// for in memory cache
+
+#
+#$ NGINX
+#
+NGINX_PORT=8080 # pooled cache-proxy listen port (only port to publish)
 ```
+
+## Nginx cache proxy
+
+Single pooled URL: `http://localhost:8080` (`NGINX_PORT` in `.env`).
+Upstream is the `api` service on `STOCKSAPI_PORT` (3200); ports are never
+hardcoded in `nginx/` — `default.conf.template` renders via envsubst.
+
+- `/stocks/*` GETs are cached (`X-Cache-Status: HIT/MISS`, key splits on
+  `X-MCP` so compact vs full wire formats stay separate). TTLs mirror the
+  backend: 6h bulk, 15s live quotes.
+- `/wallet/ /auth/ /user/ /orunmila/ /mcp` proxy with caching OFF (BYPASS).
+
+BFF repoint (the ONE var): set `GATEWAY_API=http://localhost:8080`
+(`frontend/.env.example`) so the Next.js proxy BFF talks to nginx instead
+of `http://localhost:3200` directly. Nothing under `frontend/` is changed
+by this repo.
 
 ## Health Check
 

@@ -82,8 +82,31 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 180s
+
+  nginx:
+    image: nginx:1.27.4-alpine
+    restart: always
+    ports:
+      - "${NGINX_PORT:-8080}:${NGINX_PORT:-8080}"
+    environment:
+      - NGINX_PORT=${NGINX_PORT:-8080}
+      - STOCKSAPI_PORT=${STOCKSAPI_PORT:-3200}
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - nginx_cache:/var/cache/nginx
+    depends_on:
+      api:
+        condition: service_healthy
 
 volumes:
   db_data:
   forgevm-data:
   workspaces:
+  nginx_cache:

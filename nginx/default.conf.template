@@ -1,0 +1,91 @@
+# Rendered by the nginx image (envsubst) into /etc/nginx/conf.d/default.conf.
+# Ports come from the environment: NGINX_PORT (listen), STOCKSAPI_PORT
+# (upstream api). No hardcoded ports here on purpose.
+#
+# Backend stays TTL authority: stocksapi_controller emits
+# Cache-Control "public, max-age=21600" (STOCKS_MAX_AGE) on bulk endpoints
+# and "public, max-age=15" (LIVE_MAX_AGE) on /stocks/cotations/live.
+
+server {
+    listen ${NGINX_PORT};
+
+    # Live quotes: 15s TTL matches LIVE_MAX_AGE. Exact match wins over /stocks below.
+    location = /stocks/cotations/live {
+        proxy_cache stocks;
+        proxy_cache_key "$scheme$host$request_uri$http_x_mcp";
+        proxy_cache_methods GET HEAD;
+        proxy_cache_valid 200 15s;
+        proxy_pass http://api:${STOCKSAPI_PORT};
+        add_header X-Cache-Status $upstream_cache_status always;
+    }
+
+    # Bulk stocks data: 6h TTL matches STOCKS_MAX_AGE. GETs only.
+    # Key splits on X-MCP (load-bearing: X-MCP=true forces compact=true upstream,
+    # so compact vs full wire formats cache separately).
+    location /stocks {
+        proxy_cache stocks;
+        proxy_cache_key "$scheme$host$request_uri$http_x_mcp";
+        proxy_cache_methods GET HEAD;
+        proxy_cache_valid 200 6h;
+        proxy_pass http://api:${STOCKSAPI_PORT};
+        add_header X-Cache-Status $upstream_cache_status always;
+    }
+
+    # Agent traffic is never cached (covers /stocks/mcp and /wallet/mcp:
+    # regex beats the plain /stocks prefix above).
+    location ~* /mcp {
+        proxy_cache stocks;
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
+        proxy_pass http://api:${STOCKSAPI_PORT};
+        add_header X-Cache-Status $upstream_cache_status always;
+    }
+
+    # Everything else proxies with caching OFF (BYPASS, never HIT).
+    location /wallet {
+        proxy_cache stocks;
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
+        proxy_pass http://api:${STOCKSAPI_PORT};
+        add_header X-Cache-Status $upstream_cache_status always;
+    }
+
+    location /auth {
+        proxy_cache stocks;
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
+        proxy_pass http://api:${STOCKSAPI_PORT};
+        add_header X-Cache-Status $upstream_cache_status always;
+    }
+
+    location /user {
+        proxy_cache stocks;
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
+        proxy_pass http://api:${STOCKSAPI_PORT};
+        add_header X-Cache-Status $upstream_cache_status always;
+    }
+
+    # Chat streams: disable buffering so SSE is not delayed.
+    location /orunmila {
+        proxy_cache stocks;
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
+        proxy_buffering off;
+        proxy_pass http://api:${STOCKSAPI_PORT};
+        add_header X-Cache-Status $upstream_cache_status always;
+    }
+
+    # Root app (run.py:8000) owns /health and /status.
+    location = /health {
+        proxy_pass http://api:8000;
+    }
+
+    location = /status {
+        proxy_pass http://api:8000;
+    }
+
+    location / {
+        proxy_pass http://api:8000;
+    }
+}
