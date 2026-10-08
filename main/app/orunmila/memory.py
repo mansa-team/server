@@ -29,7 +29,7 @@ from main.app.orunmila.chat import OrunmilaChatManager
 from main.app.orunmila.compact import countTokens
 
 matrixCache = Cache()
-matrixCache.setup(Config.CACHE.MATRIX_URL)
+matrixCache.setup(Config.CACHE.REDIS_URL)
 
 MATRIX_MISS = object()
 
