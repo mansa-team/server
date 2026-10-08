@@ -39,6 +39,7 @@ async def httpExceptionHandler(request: Request, exc):
     return JSONResponse(
         status_code=exc.status_code,
         content=buildErrorResponse(exc.status_code, str(exc.detail)),
+        headers=getattr(exc, "headers", None),
     )
 
 
