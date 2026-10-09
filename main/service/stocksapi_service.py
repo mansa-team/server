@@ -1,7 +1,6 @@
 import logging
 
 from fastapi_mcp import FastApiMCP
-from fastapi.middleware.gzip import GZipMiddleware
 
 from main.utils.service_manager import getApp
 from main.controller.stocksapi_controller import router as stocksRouter
@@ -32,7 +31,6 @@ class StocksAPIService:
         service = getApp(port)
         service.add_middleware(MCPDetectMiddleware)
         service.include_router(stocksRouter)
-        service.add_middleware(GZipMiddleware, minimum_size=4096, compresslevel=3)
 
         mcp = FastApiMCP(
             service,
