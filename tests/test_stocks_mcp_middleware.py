@@ -89,10 +89,10 @@ class TestStocksAPIServiceInitialize:
         # Stocks router registered
         assert any(getattr(r, "path", "").startswith("/stocks/") for r in app.routes)
 
-        # Middleware stack
+        # Middleware stack: gzip owned by nginx edge, never Python.
         middleware_names = [m.cls.__name__ for m in app.user_middleware]
         assert "MCPDetectMiddleware" in middleware_names
-        assert "GZipMiddleware" in middleware_names
+        assert "GZipMiddleware" not in middleware_names
 
         # MCP mount registered
         assert any(getattr(r, "path", None) == "/stocks/mcp" for r in app.routes)
