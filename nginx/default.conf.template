@@ -6,6 +6,16 @@
 # Cache-Control "public, max-age=21600" (STOCKS_MAX_AGE) on bulk endpoints
 # and "public, max-age=15" (LIVE_MAX_AGE) on /stocks/cotations/live.
 
+upstream stocks_backend {
+    server api:${STOCKSAPI_PORT};
+    keepalive 32;
+}
+
+upstream root_backend {
+    server api:8000;
+    keepalive 16;
+}
+
 server {
     listen ${NGINX_PORT};
 
@@ -15,7 +25,9 @@ server {
         proxy_cache_key "$scheme$host$request_uri$http_x_mcp";
         proxy_cache_methods GET HEAD;
         proxy_cache_valid 200 15s;
-        proxy_pass http://api:${STOCKSAPI_PORT};
+        proxy_pass http://stocks_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
         add_header X-Cache-Status $upstream_cache_status always;
     }
 
@@ -27,7 +39,9 @@ server {
         proxy_cache_key "$scheme$host$request_uri$http_x_mcp";
         proxy_cache_methods GET HEAD;
         proxy_cache_valid 200 6h;
-        proxy_pass http://api:${STOCKSAPI_PORT};
+        proxy_pass http://stocks_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
         add_header X-Cache-Status $upstream_cache_status always;
     }
 
@@ -37,7 +51,9 @@ server {
         proxy_cache stocks;
         proxy_no_cache 1;
         proxy_cache_bypass 1;
-        proxy_pass http://api:${STOCKSAPI_PORT};
+        proxy_pass http://stocks_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
         add_header X-Cache-Status $upstream_cache_status always;
     }
 
@@ -46,7 +62,9 @@ server {
         proxy_cache stocks;
         proxy_no_cache 1;
         proxy_cache_bypass 1;
-        proxy_pass http://api:${STOCKSAPI_PORT};
+        proxy_pass http://stocks_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
         add_header X-Cache-Status $upstream_cache_status always;
     }
 
@@ -54,7 +72,9 @@ server {
         proxy_cache stocks;
         proxy_no_cache 1;
         proxy_cache_bypass 1;
-        proxy_pass http://api:${STOCKSAPI_PORT};
+        proxy_pass http://stocks_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
         add_header X-Cache-Status $upstream_cache_status always;
     }
 
@@ -62,7 +82,9 @@ server {
         proxy_cache stocks;
         proxy_no_cache 1;
         proxy_cache_bypass 1;
-        proxy_pass http://api:${STOCKSAPI_PORT};
+        proxy_pass http://stocks_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
         add_header X-Cache-Status $upstream_cache_status always;
     }
 
@@ -72,20 +94,28 @@ server {
         proxy_no_cache 1;
         proxy_cache_bypass 1;
         proxy_buffering off;
-        proxy_pass http://api:${STOCKSAPI_PORT};
+        proxy_pass http://stocks_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
         add_header X-Cache-Status $upstream_cache_status always;
     }
 
     # Root app (run.py:8000) owns /health and /status.
     location = /health {
-        proxy_pass http://api:8000;
+        proxy_pass http://root_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
     }
 
     location = /status {
-        proxy_pass http://api:8000;
+        proxy_pass http://root_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
     }
 
     location / {
-        proxy_pass http://api:8000;
+        proxy_pass http://root_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
     }
 }
