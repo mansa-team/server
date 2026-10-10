@@ -193,7 +193,5 @@ def verifyMcpTransport(request: Request, db: Session = Depends(getSession)):
 
 walletAuth = JWTVerifier(
     public_key=Config.USER.JWT_SECRET_KEY,
-    issuer=f"http://{Config.USER.HOST}:{Config.USER.PORT}",
-    audience=f"http://{Config.USER.HOST}:{Config.USER.PORT}/wallet/mcp",
     algorithm="HS256",
 )
