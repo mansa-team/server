@@ -2,7 +2,7 @@ from datetime import date as dateType
 from math import ceil
 from typing import Any, Literal
 
-from fastapi import APIRouter, Body, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from config import getSession
@@ -23,11 +23,6 @@ from main.app.wallet.summary import RatingUpsert, SummaryManager
 from main.app.wallet.wallets import WalletCreate, WalletsManager
 from main.models.wallet import Transaction
 
-# MCP auth: the `authorization` header param on MCP-exposed routes is not used
-# by the handler itself — it puts the header in the OpenAPI schema so FastApiMCP
-# pops args["authorization"] (injected by the agent dispatcher, never the LLM)
-# into the replayed in-process request, where getWalletUser verifies it via
-# POST /auth/introspect.
 router = APIRouter(prefix="/wallet", tags=["Wallet"], dependencies=[Depends(getWalletUser)])
 
 
@@ -101,7 +96,6 @@ def delete_entry_route(
 
 @router.get("/positions", operation_id="wallet_positions")
 def list_positions_route(
-    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
     db: Session = Depends(getSession),
 ):
@@ -129,7 +123,6 @@ def list_positions_route(
 
 @router.get("/rebalance", operation_id="wallet_rebalance")
 def get_rebalance_route(
-    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
     db: Session = Depends(getSession),
 ):
@@ -156,7 +149,6 @@ def get_rebalance_route(
 
 @router.get("/summary", operation_id="wallet_summary")
 def get_summary_route(
-    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
     db: Session = Depends(getSession),
 ):
@@ -182,7 +174,6 @@ def get_summary_route(
 
 @router.get("/allocation", operation_id="wallet_allocation")
 def get_allocation_route(
-    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
     db: Session = Depends(getSession),
 ):
@@ -220,7 +211,6 @@ def set_rating_route(
 
 @router.get("/earnings", operation_id="wallet_earnings")
 def list_earnings_route(
-    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
     db: Session = Depends(getSession),
 ):
@@ -249,7 +239,6 @@ def get_performance_route(
     ticker: str | None = None,
     fromIso: str | None = Query(default=None, alias="from"),
     toIso: str | None = Query(default=None, alias="to"),
-    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
     db: Session = Depends(getSession),
 ):
@@ -282,7 +271,6 @@ def get_performance_route(
 def get_progression_route(
     fromIso: str | None = Query(default=None, alias="from"),
     toIso: str | None = Query(default=None, alias="to"),
-    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
     db: Session = Depends(getSession),
 ):
@@ -317,7 +305,6 @@ def record_entry_route(
     quantity: float = Body(..., gt=0),
     price: float = Body(..., ge=0),
     costs: float = Body(default=0.0, ge=0),
-    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
     db: Session = Depends(getSession),
 ):
@@ -375,7 +362,6 @@ def record_entry_route(
 def set_rating_wrapper_route(
     ticker: str = Body(...),
     rating: float = Body(..., ge=0, le=100),
-    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
     db: Session = Depends(getSession),
 ):
@@ -406,7 +392,6 @@ def explain_twr_route(
     ticker: str | None = None,
     from_date: str | None = None,
     to_date: str | None = None,
-    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
     db: Session = Depends(getSession),
 ):
@@ -486,7 +471,6 @@ def wallet_progression_route(
     from_date: str | None = None,
     to_date: str | None = None,
     max_points: int = Query(default=120, ge=2, le=2000),
-    authorization: str | None = Header(default=None),
     currentUser: dict = Depends(getWalletUser),
     db: Session = Depends(getSession),
 ):

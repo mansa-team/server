@@ -1,10 +1,11 @@
 """Wallet MCP tests: tool scoping, mount wiring, JWT auth boundary.
 
-Tool surface is filtered by explicit operation IDs (WALLET_MCP_OPERATIONS) —
-seven read routes plus four LLM-shaped wrappers; unwrapped writes must never
-leak into MCP. Auth rides as a call argument (the shared MCP pool freezes
-transport headers): the dispatcher injects `authorization`, FastApiMCP pops it
-into the replayed request headers, and getCurrentUser verifies it there.
+The wallet MCP surface is eleven hand-written tools on buildWalletMCP()
+(seven read routes plus four LLM-shaped wrappers); unwrapped writes must
+never leak into MCP. Auth rides as a first-class `authorization` tool arg:
+the dispatcher injects the session JWT and resolveMcpIdentity verifies it
+per tool (the shared MCP pool freezes transport headers, so per-request
+headers cannot carry identity).
 """
 
 import json
@@ -21,7 +22,6 @@ import pytest
 from cashews import cache as cashewsCache
 from fastapi import FastAPI, HTTPException
 from fastapi.testclient import TestClient
-from fastapi_mcp import FastApiMCP
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
@@ -40,10 +40,6 @@ from main.app.wallet.analytics import AnalyticsManager
 from main.app.wallet.entries import EntryCreate, EntriesManager
 from main.app.wallet.performance import PerformanceManager
 from main.app.wallet.wallets import WalletsManager
-from main.controller.authentication_controller import router as authRouter
-from main.controller.orunmila_controller import router as orunmilaRouter
-from main.controller.stocksapi_controller import router as stocksRouter
-from main.controller.user_controller import router as userRouter
 from main.controller.wallet_controller import (
     explain_twr_route,
     record_entry_route,
@@ -53,7 +49,7 @@ from main.controller.wallet_controller import (
 )
 from main.models.user import User
 from main.models.wallet import Earning, Holding, Transaction
-from main.service.wallet_service import WALLET_MCP_OPERATIONS, WalletService
+from main.service.wallet_service import WalletService, buildWalletMCP
 from main.utils.errors import registerErrorHandlers
 from tests.test_wallet_positions import _live_ok
 
@@ -85,36 +81,22 @@ async def clear_cashews_cache():
     await cashewsCache.clear()
 
 
-def build_shared_app():
-    """All service routers on one app — mimics production shared port."""
-    app = FastAPI(title="Mansa Service 3200")
-    for service_router in (authRouter, userRouter, orunmilaRouter, stocksRouter, walletRouter):
-        app.include_router(service_router)
-    return app
-
-
-def make_wallet_mcp(app):
-    """Create MCP matching production config (operation-ID allowlist)."""
-    return FastApiMCP(
-        app,
-        name="Mansa Wallet MCP",
-        include_operations=WALLET_MCP_OPERATIONS,
-        headers=["authorization"],
-    )
+async def _wallet_tools():
+    """Hand-written tool surface, exactly what /wallet/mcp serves."""
+    async with Client(buildWalletMCP()) as client:
+        return await client.list_tools()
 
 
 class TestWalletMCPToolScoping:
-    def test_mcp_exposes_exact_tool_surface(self):
-        mcp = make_wallet_mcp(build_shared_app())
-        tool_names = {t.name for t in mcp.tools}
+    async def test_mcp_exposes_exact_tool_surface(self):
+        tool_names = {t.name for t in await _wallet_tools()}
         assert tool_names == EXPECTED_TOOL_NAMES
-        assert len(mcp.tools) == 11
+        assert len(tool_names) == 11
         assert WRAPPER_TOOL_NAMES <= tool_names
         assert READ_TOOL_NAMES <= tool_names
 
-    def test_write_routes_excluded_from_mcp(self):
-        mcp = make_wallet_mcp(build_shared_app())
-        tool_names = [t.name for t in mcp.tools]
+    async def test_write_routes_excluded_from_mcp(self):
+        tool_names = [t.name for t in await _wallet_tools()]
         for forbidden in (
             "create_wallet",
             "list_wallets",
@@ -128,50 +110,60 @@ class TestWalletMCPToolScoping:
         ):
             assert not any(forbidden in name for name in tool_names)
 
-    def test_no_other_service_routes_leak(self):
-        mcp = make_wallet_mcp(build_shared_app())
-        tool_names = [t.name for t in mcp.tools]
+    async def test_no_other_service_routes_leak(self):
+        tool_names = [t.name for t in await _wallet_tools()]
         for forbidden in ("stocks", "auth", "orunmila", "register", "login", "logout"):
             assert not any(forbidden in name.lower() for name in tool_names)
 
-    def test_all_tools_have_anthropic_docstrings(self):
-        mcp = make_wallet_mcp(build_shared_app())
-        assert len(mcp.tools) == 11
-        for tool in mcp.tools:
+    async def test_all_tools_have_anthropic_docstrings(self):
+        tools = await _wallet_tools()
+        assert len(tools) == 11
+        for tool in tools:
             assert tool.description
             for section in ("PARAMETERS:", "RESPONSE format:", "WORKFLOW:", "EXAMPLES:"):
                 assert section in tool.description, f"{tool.name} missing {section}"
 
-    def test_record_entry_schema_is_flat_body(self):
-        mcp = make_wallet_mcp(build_shared_app())
-        tool = next(t for t in mcp.tools if t.name == "record_entry")
-        properties = tool.inputSchema.get("properties", {})
-        assert set(properties) == {"side", "asset_type", "ticker", "date", "quantity", "price", "costs"}
-        assert tool.inputSchema["required"] == ["side", "asset_type", "ticker", "date", "quantity", "price"]
+    async def test_record_entry_schema_is_flat_body(self):
+        tools = await _wallet_tools()
+        tool = next(t for t in tools if t.name == "record_entry")
+        properties = tool.input_schema.get("properties", {})
+        assert set(properties) == {
+            "side",
+            "asset_type",
+            "ticker",
+            "date",
+            "quantity",
+            "price",
+            "costs",
+            "authorization",
+        }
+        # authorization is optional at the schema level: the dispatcher always
+        # supplies it, and the tool 401s without it.
+        assert tool.input_schema["required"] == ["side", "asset_type", "ticker", "date", "quantity", "price"]
         assert properties["side"]["enum"] == ["Compra", "Venda"]
         assert properties["asset_type"]["enum"] == ["ACOES", "OUTROS"]
 
-    def test_wallet_progression_schema_bounds(self):
-        mcp = make_wallet_mcp(build_shared_app())
-        tool = next(t for t in mcp.tools if t.name == "wallet_progression")
-        props = tool.inputSchema["properties"]
+    async def test_wallet_progression_schema_bounds(self):
+        tools = await _wallet_tools()
+        tool = next(t for t in tools if t.name == "wallet_progression")
+        props = tool.input_schema["properties"]
         assert props["max_points"]["minimum"] == 2
         assert props["max_points"]["maximum"] == 2000
 
     def test_mount_returns_valid_response(self):
-        app = build_shared_app()
-        mcp = make_wallet_mcp(app)
-        mcp.mount_http(app, mount_path="/wallet/mcp")
+        app = FastAPI()
+        mcpApp = buildWalletMCP().http_app(path="/", transport="streamable-http", stateless_http=True)
+        app.mount("/wallet/mcp", mcpApp)
 
         with TestClient(app, raise_server_exceptions=False) as client:
             resp = client.get("/wallet/mcp")
-            # Streamable-HTTP GET without an Accept: text/event-stream header
-            # is rejected before any MCP session logic (verified in-process).
-            assert resp.status_code == 406
+            # Streamable HTTP is POST-only: GET is rejected before any MCP
+            # session logic (verified in-process).
+            assert resp.status_code == 405
 
 
 class TestWalletServiceInitialize:
-    def test_initialize_wires_router_and_mount_without_compact_adapter(self):
+    def test_initialize_wires_router_and_mount(self):
         app = FastAPI()
         with mock.patch("main.service.wallet_service.getApp", return_value=app) as mock_get_app:
             WalletService.initialize(39999)
@@ -180,10 +172,6 @@ class TestWalletServiceInitialize:
 
         # Wallet router registered
         assert any(getattr(route, "path", "").startswith("/wallet/") for route in app.routes)
-
-        # No compact adapter: wallet serves plain JSON on every request path
-        middleware_names = [middleware.cls.__name__ for middleware in app.user_middleware]
-        assert "MCPDetectMiddleware" not in middleware_names
 
         # MCP mount registered
         assert any(getattr(route, "path", None) == "/wallet/mcp" for route in app.routes)
@@ -213,7 +201,6 @@ class TestWalletWrapperBehavior:
             quantity=10.0,
             price=25.0,
             costs=1.0,
-            authorization=None,
             currentUser={"userId": str(user.userId)},
             db=dbSession,
         )
@@ -233,7 +220,6 @@ class TestWalletWrapperBehavior:
                 quantity=10.0,
                 price=25.0,
                 costs=0.0,
-                authorization=None,
                 currentUser={"userId": str(user.userId)},
                 db=dbSession,
             )
@@ -254,7 +240,6 @@ class TestWalletWrapperBehavior:
         result = set_rating_wrapper_route(
             ticker="PETR4",
             rating=80.0,
-            authorization=None,
             currentUser={"userId": str(user.userId)},
             db=dbSession,
         )
@@ -268,7 +253,6 @@ class TestWalletWrapperBehavior:
             set_rating_wrapper_route(
                 ticker="VALE3",
                 rating=50.0,
-                authorization=None,
                 currentUser={"userId": str(user.userId)},
                 db=dbSession,
             )
@@ -303,7 +287,6 @@ class TestWalletWrapperBehavior:
             ticker=None,
             from_date="2026-01-01",
             to_date="2026-06-30",
-            authorization=None,
             currentUser={"userId": str(user.userId)},
             db=dbSession,
         )
@@ -336,7 +319,6 @@ class TestWalletWrapperBehavior:
             ticker="VALE3",
             from_date="2026-01-01",
             to_date="2026-06-30",
-            authorization=None,
             currentUser={"userId": str(user.userId)},
             db=dbSession,
         )
@@ -365,7 +347,6 @@ class TestWalletWrapperBehavior:
             from_date="2026-01-01",
             to_date="2026-01-31",
             max_points=4,
-            authorization=None,
             currentUser={"userId": str(user.userId)},
             db=dbSession,
         )
@@ -395,7 +376,6 @@ class TestWalletWrapperBehavior:
             from_date="2026-01-01",
             to_date="2026-01-31",
             max_points=4,
-            authorization=None,
             currentUser={"userId": str(user.userId)},
             db=dbSession,
         )
@@ -550,13 +530,8 @@ def _build_auth_app(dbSession):
     registerErrorHandlers(app)
     app.include_router(walletRouter)
 
-    mcp = FastApiMCP(
-        app,
-        name="Mansa Wallet MCP",
-        include_operations=WALLET_MCP_OPERATIONS,
-        headers=["authorization"],
-    )
-    mcp.mount_http(app, mount_path="/wallet/mcp")
+    mcpApp = buildWalletMCP().http_app(path="/", transport="streamable-http", stateless_http=True)
+    app.mount("/wallet/mcp", mcpApp)
 
     app.dependency_overrides[getSession] = lambda: dbSession
     return app
@@ -607,7 +582,12 @@ def _seed_session_wallet(dbSession, ticker="PETR4", quantity=10, price=10.0, rat
     return token, user, wallet
 
 
-def _mcp_client(app):
+def _mcp_client(app, headers=None):
+    """HTTP-level client for the mounted app. Pass transport headers (a user
+    Bearer or X-Service-Token): the FastMCP gate 401s unauthenticated
+    connects, while per-tool identity still comes from the `authorization`
+    tool arg alone."""
+
     def asgiFactory(**kwargs):
         clientArgs = {
             key: value for key, value in kwargs.items() if key in ("headers", "auth", "follow_redirects", "timeout")
@@ -616,17 +596,23 @@ def _mcp_client(app):
 
     transport = StreamableHttpTransport(
         url="http://apiserver/wallet/mcp",
+        headers=headers or {},
         httpx_client_factory=asgiFactory,
     )
     return Client(transport=transport)
 
 
+def _transport_headers(dbSession, username="transportuser"):
+    """Valid user Bearer for the transport gate (identity still per-tool)."""
+    return {"Authorization": f"Bearer {_seed_session_token(dbSession, username=username)}"}
+
+
 class TestWalletMCPAuthBoundary:
-    """End-to-end in-process MCP round trip through the replayed ASGI request."""
+    """End-to-end over the real HTTP mount: transport gate + per-tool identity."""
 
     async def test_call_without_token_is_rejected(self, dbSession):
         app = _build_auth_app(dbSession)
-        async with _mcp_client(app) as client:
+        async with _mcp_client(app, _transport_headers(dbSession)) as client:
             result = await client.call_tool("wallet_positions", {}, raise_on_error=False)
 
         assert result.is_error
@@ -636,7 +622,7 @@ class TestWalletMCPAuthBoundary:
         app = _build_auth_app(dbSession)
         token = _seed_session_token(dbSession)
 
-        async with _mcp_client(app) as client:
+        async with _mcp_client(app, {"Authorization": f"Bearer {token}"}) as client:
             result = await client.call_tool(
                 "wallet_positions", {"authorization": f"Bearer {token}"}, raise_on_error=False
             )
@@ -656,7 +642,8 @@ class TestWalletMCPAuthBoundary:
         tokenA, _userA, _walletA = _seed_session_wallet(dbSession)
         tokenB = _seed_session_token(dbSession, username="otheruser")
 
-        async with _mcp_client(app) as client:
+        # Transport rides as A: per-tool args (A vs B) alone decide identity.
+        async with _mcp_client(app, {"Authorization": f"Bearer {tokenA}"}) as client:
             positionsA = await client.call_tool(
                 "wallet_positions", {"authorization": f"Bearer {tokenA}"}, raise_on_error=False
             )
@@ -697,7 +684,7 @@ class TestWalletMCPAuthBoundary:
             algorithm="HS256",
         )
 
-        async with _mcp_client(app) as client:
+        async with _mcp_client(app, _transport_headers(dbSession)) as client:
             result = await client.call_tool(
                 "wallet_positions", {"authorization": f"Bearer {forged}"}, raise_on_error=False
             )
@@ -713,7 +700,7 @@ class TestWalletMCPAuthBoundary:
             {"userId": str(user.userId), "sessionId": session.sessionId}, expiresDelta=timedelta(seconds=-60)
         )
 
-        async with _mcp_client(app) as client:
+        async with _mcp_client(app, _transport_headers(dbSession)) as client:
             result = await client.call_tool(
                 "wallet_positions", {"authorization": f"Bearer {expired}"}, raise_on_error=False
             )
@@ -728,7 +715,7 @@ class TestWalletMCPAuthBoundary:
         token = createAccessToken({"userId": str(user.userId), "sessionId": session.sessionId})
         assert SessionManager.revokeSession(dbSession, session.sessionId, user.userId)
 
-        async with _mcp_client(app) as client:
+        async with _mcp_client(app, _transport_headers(dbSession)) as client:
             result = await client.call_tool(
                 "wallet_positions", {"authorization": f"Bearer {token}"}, raise_on_error=False
             )
@@ -738,7 +725,7 @@ class TestWalletMCPAuthBoundary:
 
     async def test_wrapper_call_without_token_is_rejected(self, dbSession):
         app = _build_auth_app(dbSession)
-        async with _mcp_client(app) as client:
+        async with _mcp_client(app, _transport_headers(dbSession)) as client:
             result = await client.call_tool(
                 "wallet_progression", {"from_date": "2026-01-01", "to_date": "2026-02-01"}, raise_on_error=False
             )
@@ -747,11 +734,11 @@ class TestWalletMCPAuthBoundary:
         assert "401" in result.content[0].text
 
     async def test_record_entry_with_session_jwt_roundtrips(self, dbSession):
-        """Full write path over MCP: JWT argument → header pop → ledger write."""
+        """Full write path over MCP: JWT tool argument → ledger write."""
         app = _build_auth_app(dbSession)
         token = _seed_session_token(dbSession)
 
-        async with _mcp_client(app) as client:
+        async with _mcp_client(app, {"Authorization": f"Bearer {token}"}) as client:
             result = await client.call_tool(
                 "record_entry",
                 {
@@ -774,7 +761,7 @@ class TestWalletMCPAuthBoundary:
 
     async def test_record_entry_via_mcp_without_token_writes_nothing(self, dbSession):
         app = _build_auth_app(dbSession)
-        async with _mcp_client(app) as client:
+        async with _mcp_client(app, _transport_headers(dbSession)) as client:
             result = await client.call_tool(
                 "record_entry",
                 {
@@ -794,23 +781,12 @@ class TestWalletMCPAuthBoundary:
 
 
 class TestWalletMCPParams:
-    """authorization rides on the operation (pop target) but stays off the tool schema."""
+    """authorization rides as a first-class tool arg the dispatcher supplies."""
 
-    def test_authorization_declared_on_operation_not_in_schema(self):
-        mcp = make_wallet_mcp(build_shared_app())
-        params = mcp.operation_map["wallet_positions"]["parameters"]
-        assert any(p.get("name") == "authorization" and p.get("in") == "header" for p in params)
-
-        # Hidden from the LLM-facing schema: only the dispatcher supplies it.
-        readTool = next(t for t in mcp.tools if t.name == "wallet_positions")
-        assert "authorization" not in readTool.inputSchema.get("properties", {})
-
-    def test_no_x_mcp_header_on_any_operation(self):
-        """The wallet dropped the compact convention: no X-MCP forwarding remains."""
-        mcp = make_wallet_mcp(build_shared_app())
-        for operation in mcp.operation_map.values():
-            for param in operation.get("parameters", []):
-                assert param.get("name", "").lower() != "x-mcp"
+    async def test_authorization_is_a_tool_arg(self):
+        tools = await _wallet_tools()
+        positions = next(t for t in tools if t.name == "wallet_positions")
+        assert "authorization" in positions.input_schema.get("properties", {})
 
 
 def _flatSeries(url, params=None, headers=None, timeout=None):
@@ -837,7 +813,7 @@ class TestWalletMCPEndToEnd:
         app = _build_auth_app(dbSession)
         token, _user, _wallet = _seed_session_wallet(dbSession, rating=72.0)
 
-        async with _mcp_client(app) as client:
+        async with _mcp_client(app, {"Authorization": f"Bearer {token}"}) as client:
             result = await client.call_tool(
                 "wallet_rebalance", {"authorization": f"Bearer {token}"}, raise_on_error=False
             )
@@ -875,7 +851,7 @@ class TestWalletMCPEndToEnd:
         )
         dbSession.commit()
 
-        async with _mcp_client(app) as client:
+        async with _mcp_client(app, {"Authorization": f"Bearer {token}"}) as client:
             result = await client.call_tool(
                 "wallet_performance",
                 {"ticker": "PETR4", "from": "2026-01-01", "to": "2026-01-11", "authorization": f"Bearer {token}"},
@@ -906,7 +882,7 @@ class TestWalletMCPEndToEnd:
             },
         )
 
-        async with _mcp_client(app) as client:
+        async with _mcp_client(app, {"Authorization": f"Bearer {token}"}) as client:
             result = await dispatchToolCall(functionCall, {"wallet": client}, rawToken=token)
 
         payload = json.loads(result["result"])

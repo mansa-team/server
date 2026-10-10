@@ -1,23 +1,21 @@
 import logging
 from urllib.parse import urlparse
 
-from fastapi import Depends, HTTPException, Request
+from fastapi import HTTPException, Request
 from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
 from fastmcp.server.auth import AccessToken, JWTVerifier
 from mcp.server.auth.middleware.auth_context import AuthContextMiddleware
 from mcp.server.auth.middleware.bearer_auth import AuthenticatedUser, BearerAuthBackend
-from sqlalchemy.orm import Session
 from starlette.authentication import AuthCredentials
 from starlette.middleware import Middleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.requests import HTTPConnection
 from starlette.types import ASGIApp, Receive, Scope, Send
 
-from config import Config, SessionLocal, getSession
+from config import Config, SessionLocal
 from main.app.authentication.constants import TOKEN_EXPIRY_HOURS, COOKIE_NAME
-from main.app.authentication.oauth_shared import RESOURCE_METADATA_URL, revokedAccessJtis
 from main.app.authentication.service_token import verifyServiceToken
 
 logger = logging.getLogger(__name__)
@@ -128,73 +126,6 @@ def extractTokenPayload(request: Request) -> dict:
 
     enforceResourceClaims(payload)
 
-    try:
-        if payload.get("jti") and payload.get("jti") in revokedAccessJtis:
-            raise HTTPException(status_code=401, detail="Token revoked")
-    except HTTPException:
-        raise
-    except Exception:
-        pass
-
-    return payload
-
-
-def verifyMcpTransport(request: Request, db: Session = Depends(getSession)):
-    """Outer MCP challenge: service loopback OR user JWT, else 401+WWW-Authenticate.
-
-    GET passes through so the mount probe stays 406 (MCP calls are POST).
-    Service tokens (opaque X-Service-Token session rows) never resolve to a
-    user wallet: inner getCurrentUser still requires a user JWT and rejects
-    non-user sessions.
-    """
-    if request.method == "GET":
-        return None
-
-    if verifyServiceToken(db, request.headers.get("X-Service-Token", "")):
-        return {"type": "service"}
-
-    token = request.headers.get("X-Access-Token")
-    if not token:
-        authHeader = request.headers.get("Authorization")
-        if authHeader and authHeader.startswith("Bearer "):
-            token = authHeader.split(" ")[1]
-    if not token:
-        token = request.cookies.get(COOKIE_NAME)
-
-    def challenge(detail: str):
-        raise HTTPException(
-            status_code=401,
-            detail=detail,
-            headers={
-                "WWW-Authenticate": (
-                    f'Bearer resource_metadata="{RESOURCE_METADATA_URL}", '
-                    f'error="invalid_token", error_description="{detail}"'
-                )
-            },
-        )
-
-    if not token:
-        challenge("Authentication required")
-    assert token is not None
-    if verifyServiceToken(db, token):
-        return {"type": "service"}
-    try:
-        payload = verifyAccessToken(token)
-    except HTTPException:
-        challenge("Invalid token")
-    try:
-        enforceResourceClaims(payload)
-    except HTTPException:
-        challenge("Invalid token claims")
-    try:
-        if payload.get("jti") and payload.get("jti") in revokedAccessJtis:
-            challenge("Token revoked")
-    except HTTPException:
-        raise
-    except Exception:
-        pass
-    if payload.get("userId") is None or payload.get("sessionId") is None:
-        challenge("Invalid token")
     return payload
 
 

@@ -1,139 +1,80 @@
 """Tests for MCP tool scoping in stocksapi_service.py.
 
-Verifies that FastApiMCP exposes exactly the 5 data query tools,
+Verifies that buildStocksMCP exposes exactly the 5 data query tools,
 excluding health and generateKey endpoints.
 """
 
-import sys
 import os
+import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from fastapi import FastAPI
-from fastapi_mcp import FastApiMCP
-from main.controller.stocksapi_controller import router as stocksRouter
-from main.controller.authentication_controller import router as authRouter
-from main.controller.user_controller import router as userRouter
-from main.controller.orunmila_controller import router as orunmilaRouter
+from fastapi.testclient import TestClient
+from fastmcp import Client
 
-# Production config: include_operations with custom operation_id names
-STOCKS_MCP_OPS = [
+from main.service.stocksapi_service import buildStocksMCP
+
+EXPECTED_STOCKS_TOOLS = {
     "list_fields",
     "get_historical",
     "get_fundamental",
     "get_cotations",
     "get_live_price",
-]
+}
 
 
-def build_app_with_all_routers():
-    """Build a FastAPI app with all service routers — mimics production shared port."""
-    app = FastAPI(title="Mansa Service 3200")
-    app.include_router(authRouter)
-    app.include_router(userRouter)
-    app.include_router(orunmilaRouter)
-    app.include_router(stocksRouter)
-    return app
-
-
-def make_mcp(app):
-    """Create MCP matching production config."""
-    return FastApiMCP(
-        app,
-        name="Mansa's Stocks API MCP",
-        include_operations=STOCKS_MCP_OPS,
-    )
+async def _stocks_tools():
+    """Hand-written tool surface, exactly what /stocks/mcp serves."""
+    async with Client(buildStocksMCP()) as client:
+        return await client.list_tools()
 
 
 class TestMCPToolScoping:
-    """Verify FastApiMCP exposes exactly the 5 data query tools."""
+    """Verify buildStocksMCP exposes exactly the 5 data query tools."""
 
-    def test_mcp_exactly_five_tools(self):
+    async def test_mcp_exactly_five_tools(self):
         """MCP should expose exactly 5 tools: fields, historical, fundamental, cotations, live."""
-        app = build_app_with_all_routers()
-        mcp = make_mcp(app)
-        assert len(mcp.tools) == 5
+        tools = await _stocks_tools()
+        assert {tool.name for tool in tools} == EXPECTED_STOCKS_TOOLS
 
-    def test_mcp_excludes_health(self):
+    async def test_mcp_excludes_health(self):
         """Health endpoint should not be an MCP tool."""
-        app = build_app_with_all_routers()
-        mcp = make_mcp(app)
-        tool_names = [t.name for t in mcp.tools]
-        assert not any("health" in n for n in tool_names)
+        tool_names = [tool.name for tool in await _stocks_tools()]
+        assert not any("health" in name for name in tool_names)
 
-    def test_mcp_excludes_generate_key(self):
+    async def test_mcp_excludes_generate_key(self):
         """Key generation endpoint should not be an MCP tool."""
-        app = build_app_with_all_routers()
-        mcp = make_mcp(app)
-        tool_names = [t.name for t in mcp.tools]
-        assert not any("generate" in n for n in tool_names)
+        tool_names = [tool.name for tool in await _stocks_tools()]
+        assert not any("generate" in name for name in tool_names)
 
-    def test_mcp_excludes_non_stocks_endpoints(self):
-        """Auth, user, and orunmila tools should not appear."""
-        app = build_app_with_all_routers()
-        mcp = make_mcp(app)
-        tool_names = [t.name for t in mcp.tools]
-        for forbidden in ["register", "login", "orunmila", "logout"]:
-            assert not any(forbidden in n.lower() for n in tool_names)
-
-    def test_mcp_tool_names_match_endpoints(self):
-        """Each MCP tool should correspond to a data endpoint."""
-        app = build_app_with_all_routers()
-        mcp = make_mcp(app)
-        tool_names = [t.name.lower() for t in mcp.tools]
-        for kw in ["fields", "historical", "fundamental", "cotations"]:
-            assert any(kw in name for name in tool_names)
-
-    def test_mcp_descriptions_are_meaningful(self):
+    async def test_mcp_descriptions_are_meaningful(self):
         """Tool descriptions should be more than just the function name."""
-        app = build_app_with_all_routers()
-        mcp = make_mcp(app)
-        for tool in mcp.tools:
+        for tool in await _stocks_tools():
             assert len(tool.description or "") > 50
 
     def test_mcp_mount_returns_valid_response(self):
         """MCP endpoint should respond — confirms mount is registered."""
-        app = build_app_with_all_routers()
-        mcp = make_mcp(app)
-        mcp.mount_http(app, mount_path="/stocks/mcp")
-
-        from fastapi.testclient import TestClient
+        app = FastAPI()
+        mcpApp = buildStocksMCP().http_app(path="/", transport="streamable-http", stateless_http=True)
+        app.mount("/stocks/mcp", mcpApp)
 
         with TestClient(app, raise_server_exceptions=False) as client:
             resp = client.get("/stocks/mcp")
             assert resp.status_code in (200, 405, 406)
 
-    def test_wrong_operation_ids_match_nothing(self):
-        """Short function names (the original bug) should match 0 tools."""
-        app = build_app_with_all_routers()
-        mcp_broken = FastApiMCP(
-            app,
-            name="broken",
-            include_operations=["getHistorical", "getFundamental"],
-        )
-        assert len(mcp_broken.tools) == 0
-
-    def test_listfields_tool_exists(self):
-        """The listFields discovery tool should be included."""
-        app = build_app_with_all_routers()
-        mcp = make_mcp(app)
-        tool_names = [t.name for t in mcp.tools]
-        assert any("listFields" in n or "list_fields" in n.lower() for n in tool_names)
-
-    def test_listfields_description_mentions_discovery(self):
+    async def test_listfields_description_mentions_discovery(self):
         """The listFields tool description should guide LLMs to call it first."""
-        app = build_app_with_all_routers()
-        mcp = make_mcp(app)
-        listfields_tool = next((t for t in mcp.tools if "ield" in t.name.lower()), None)
+        tools = await _stocks_tools()
+        listfields_tool = next((tool for tool in tools if "ield" in tool.name.lower()), None)
         assert listfields_tool is not None
         desc = (listfields_tool.description or "").lower()
         assert "discover" in desc or "available" in desc or "first" in desc
 
-    def test_historical_dates_format_in_description(self):
+    async def test_historical_dates_format_in_description(self):
         """Historical tool description should mention YYYY date format."""
-        app = build_app_with_all_routers()
-        mcp = make_mcp(app)
-        hist_tool = next((t for t in mcp.tools if "istorical" in t.name), None)
+        tools = await _stocks_tools()
+        hist_tool = next((tool for tool in tools if "istorical" in tool.name), None)
         assert hist_tool is not None
         desc = (hist_tool.description or "").lower()
         assert "yyyy" in desc
