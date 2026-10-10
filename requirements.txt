@@ -16,7 +16,6 @@ apscheduler
 
 # STOCKS-API
 fastapi
-fastapi_mcp
 uvicorn
 pyarrow
 orjson
@@ -28,10 +27,9 @@ cashews[redis]
 sse-starlette
 sentence-transformers
 huggingface-hub
-# fastapi_mcp 0.4.0 uses mcp 1.x Server API (positional description, list_tools);
-# mcp 2.x + fastmcp 4.x break it, so cap both below the breaking majors.
-fastmcp<4
-mcp<2
+fastmcp>=4.1,<5
+mcp>=2.3,<3
+httpx2>=2.10
 google-genai[local-tokenizer]
 forgevm
 python-multipart
