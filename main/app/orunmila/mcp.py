@@ -39,23 +39,26 @@ def prepareServer(server, db=None):
 MCP_SERVERS = [
     {
         "name": "stocks",
-        "url": f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/mcp",
+        "url": f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/mcp2",
         "headers": {"X-MCP": "true"},
     },
     {"name": "searxng", "url": f"{Config.ORUNMILA.SEARXNG_URL}/mcp/"},
     {
         "name": "wallet",
-        "url": f"http://{Config.USER.HOST}:{Config.USER.PORT}/wallet/mcp",
+        "url": f"http://{Config.USER.HOST}:{Config.USER.PORT}/wallet/mcp2",
         "service_loopback": True,
     },
 ]
 
 
-def buildClient(server):
+def buildClient(server, httpx_client_factory=None):
     url = server["url"]
     headers = server.get("headers", {})
-    if headers:
-        return Client(transport=StreamableHttpTransport(url, headers=headers))
+    if headers or httpx_client_factory is not None:
+        transportKwargs = {"headers": headers} if headers else {}
+        if httpx_client_factory is not None:
+            transportKwargs["httpx_client_factory"] = httpx_client_factory
+        return Client(transport=StreamableHttpTransport(url, **transportKwargs))
     return Client(url)
 
 
