@@ -5,6 +5,7 @@ from fastapi import Depends, HTTPException, Request
 from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
+from fastmcp.server.auth import JWTVerifier
 from sqlalchemy.orm import Session
 
 from config import Config, getSession
@@ -188,3 +189,11 @@ def verifyMcpTransport(request: Request, db: Session = Depends(getSession)):
     if payload.get("userId") is None or payload.get("sessionId") is None:
         challenge("Invalid token")
     return payload
+
+
+walletAuth = JWTVerifier(
+    public_key=Config.USER.JWT_SECRET_KEY,
+    issuer=f"http://{Config.USER.HOST}:{Config.USER.PORT}",
+    audience=f"http://{Config.USER.HOST}:{Config.USER.PORT}/wallet/mcp",
+    algorithm="HS256",
+)

@@ -9,13 +9,15 @@ responses have no compact form: plain HTTP and MCP serve the same JSON.
 import logging
 from typing import Annotated, Literal
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from fastapi_mcp import AuthConfig, FastApiMCP
 from fastmcp import FastMCP
 from pydantic import Field
+from sqlalchemy.orm import Session
 
 from config import SessionLocal
-from main.app.authentication.util import verifyAccessToken, verifyMcpTransport
+from main.app.authentication.session import SessionManager
+from main.app.authentication.util import verifyAccessToken, verifyMcpTransport, walletAuth
 from main.app.wallet.entries import AssetType
 from main.controller.wallet_controller import (
     router as walletRouter,
@@ -75,10 +77,26 @@ class WalletService:
         service.mount("/wallet/mcp2", mcp2App)
 
 
+def resolveMcpIdentity(authorization: str, db: Session) -> dict:
+    """Session JWT from an MCP tool arg -> verified claims with revocation check.
+
+    Raises HTTPException 401 on missing, expired, forged, or revoked sessions.
+    """
+    token = authorization[7:] if authorization.startswith("Bearer ") else authorization
+    currentUser = verifyAccessToken(token)
+    try:
+        userId = int(currentUser.get("userId"))
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=401, detail="Invalid token")
+    sessionId = currentUser.get("sessionId")
+    if not sessionId or not SessionManager.validateSession(db, str(sessionId), userId):
+        raise HTTPException(status_code=401, detail="Session revoked")
+    return currentUser
+
+
 def buildWalletMCP() -> FastMCP:
     """Hand-written wallet MCP server: 11 thin tools delegating to route functions."""
-    # auth wired in Task 4 (walletAuth)
-    mcp = FastMCP("Mansa Wallet MCP", auth=None)
+    mcp = FastMCP("Mansa Wallet MCP", auth=walletAuth)
 
     @mcp.tool
     def wallet_positions(authorization: str = "") -> dict:
@@ -100,9 +118,8 @@ def buildWalletMCP() -> FastMCP:
         EXAMPLES:
         - "What stocks do I own?" → call wallet_positions with no arguments
         """
-        token = authorization[7:] if authorization.startswith("Bearer ") else authorization
-        currentUser = verifyAccessToken(token)
         db = SessionLocal()
+        currentUser = resolveMcpIdentity(authorization, db)
         try:
             return list_positions_route(currentUser=currentUser, db=db)
         finally:
@@ -127,9 +144,8 @@ def buildWalletMCP() -> FastMCP:
         EXAMPLES:
         - "Am I overweight anywhere?" → wallet_rebalance + wallet_positions
         """
-        token = authorization[7:] if authorization.startswith("Bearer ") else authorization
-        currentUser = verifyAccessToken(token)
         db = SessionLocal()
+        currentUser = resolveMcpIdentity(authorization, db)
         try:
             return get_rebalance_route(currentUser=currentUser, db=db)
         finally:
@@ -153,9 +169,8 @@ def buildWalletMCP() -> FastMCP:
         EXAMPLES:
         - "How much have I made overall?" → wallet_summary
         """
-        token = authorization[7:] if authorization.startswith("Bearer ") else authorization
-        currentUser = verifyAccessToken(token)
         db = SessionLocal()
+        currentUser = resolveMcpIdentity(authorization, db)
         try:
             return get_summary_route(currentUser=currentUser, db=db)
         finally:
@@ -179,9 +194,8 @@ def buildWalletMCP() -> FastMCP:
         EXAMPLES:
         - "How much of my wallet is in stocks vs other assets?" → wallet_allocation
         """
-        token = authorization[7:] if authorization.startswith("Bearer ") else authorization
-        currentUser = verifyAccessToken(token)
         db = SessionLocal()
+        currentUser = resolveMcpIdentity(authorization, db)
         try:
             return get_allocation_route(currentUser=currentUser, db=db)
         finally:
@@ -205,9 +219,8 @@ def buildWalletMCP() -> FastMCP:
         EXAMPLES:
         - "Which dividends are still to be paid?" → wallet_earnings, filter status
         """
-        token = authorization[7:] if authorization.startswith("Bearer ") else authorization
-        currentUser = verifyAccessToken(token)
         db = SessionLocal()
+        currentUser = resolveMcpIdentity(authorization, db)
         try:
             return list_earnings_route(currentUser=currentUser, db=db)
         finally:
@@ -240,9 +253,8 @@ def buildWalletMCP() -> FastMCP:
         - "My return since January?" → from="2026-01-01"
         - "VALE3 return this year?" → ticker="VALE3", from="2026-01-01"
         """
-        token = authorization[7:] if authorization.startswith("Bearer ") else authorization
-        currentUser = verifyAccessToken(token)
         db = SessionLocal()
+        currentUser = resolveMcpIdentity(authorization, db)
         try:
             return get_performance_route(ticker=ticker, fromIso=fromIso, toIso=toIso, currentUser=currentUser, db=db)
         finally:
@@ -271,9 +283,8 @@ def buildWalletMCP() -> FastMCP:
         EXAMPLES:
         - "Every single day of my equity this year" → from="2026-01-01"
         """
-        token = authorization[7:] if authorization.startswith("Bearer ") else authorization
-        currentUser = verifyAccessToken(token)
         db = SessionLocal()
+        currentUser = resolveMcpIdentity(authorization, db)
         try:
             return get_progression_route(fromIso=fromIso, toIso=toIso, currentUser=currentUser, db=db)
         finally:
@@ -315,9 +326,8 @@ def buildWalletMCP() -> FastMCP:
         - "Bought 100 PETR4 at 25.50" → side="Compra", asset_type="ACOES", ticker="PETR4", date="2026-10-10", quantity=100, price=25.5
         - "Sold 50 VALE3 at 61.20 with 5 in fees" → side="Venda", asset_type="ACOES", ticker="VALE3", date="2026-09-30", quantity=50, price=61.2, costs=5.0
         """
-        token = authorization[7:] if authorization.startswith("Bearer ") else authorization
-        currentUser = verifyAccessToken(token)
         db = SessionLocal()
+        currentUser = resolveMcpIdentity(authorization, db)
         try:
             return record_entry_route(
                 side=side,
@@ -352,9 +362,8 @@ def buildWalletMCP() -> FastMCP:
         EXAMPLES:
         - "Raise PETR4 to 80 in my wallet" → ticker="PETR4", rating=80
         """
-        token = authorization[7:] if authorization.startswith("Bearer ") else authorization
-        currentUser = verifyAccessToken(token)
         db = SessionLocal()
+        currentUser = resolveMcpIdentity(authorization, db)
         try:
             return set_rating_wrapper_route(ticker=ticker, rating=rating, currentUser=currentUser, db=db)
         finally:
@@ -392,9 +401,8 @@ def buildWalletMCP() -> FastMCP:
         - "Why is my return negative this year?" → from_date="2026-01-01"
         - "How did PETR4 do vs my wallet?" → ticker="PETR4"
         """
-        token = authorization[7:] if authorization.startswith("Bearer ") else authorization
-        currentUser = verifyAccessToken(token)
         db = SessionLocal()
+        currentUser = resolveMcpIdentity(authorization, db)
         try:
             return explain_twr_route(
                 ticker=ticker, from_date=from_date, to_date=to_date, currentUser=currentUser, db=db
@@ -430,9 +438,8 @@ def buildWalletMCP() -> FastMCP:
         - "Chart my equity since January" → from_date="2026-01-01"
         - "Quick coarse look" → max_points=24
         """
-        token = authorization[7:] if authorization.startswith("Bearer ") else authorization
-        currentUser = verifyAccessToken(token)
         db = SessionLocal()
+        currentUser = resolveMcpIdentity(authorization, db)
         try:
             return wallet_progression_route(
                 from_date=from_date, to_date=to_date, max_points=max_points, currentUser=currentUser, db=db
