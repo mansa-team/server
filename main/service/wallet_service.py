@@ -119,8 +119,8 @@ def buildWalletMCP() -> FastMCP:
         - "What stocks do I own?" → call wallet_positions with no arguments
         """
         db = SessionLocal()
-        currentUser = resolveMcpIdentity(authorization, db)
         try:
+            currentUser = resolveMcpIdentity(authorization, db)
             return list_positions_route(currentUser=currentUser, db=db)
         finally:
             db.close()
@@ -145,8 +145,8 @@ def buildWalletMCP() -> FastMCP:
         - "Am I overweight anywhere?" → wallet_rebalance + wallet_positions
         """
         db = SessionLocal()
-        currentUser = resolveMcpIdentity(authorization, db)
         try:
+            currentUser = resolveMcpIdentity(authorization, db)
             return get_rebalance_route(currentUser=currentUser, db=db)
         finally:
             db.close()
@@ -170,8 +170,8 @@ def buildWalletMCP() -> FastMCP:
         - "How much have I made overall?" → wallet_summary
         """
         db = SessionLocal()
-        currentUser = resolveMcpIdentity(authorization, db)
         try:
+            currentUser = resolveMcpIdentity(authorization, db)
             return get_summary_route(currentUser=currentUser, db=db)
         finally:
             db.close()
@@ -195,8 +195,8 @@ def buildWalletMCP() -> FastMCP:
         - "How much of my wallet is in stocks vs other assets?" → wallet_allocation
         """
         db = SessionLocal()
-        currentUser = resolveMcpIdentity(authorization, db)
         try:
+            currentUser = resolveMcpIdentity(authorization, db)
             return get_allocation_route(currentUser=currentUser, db=db)
         finally:
             db.close()
@@ -220,8 +220,8 @@ def buildWalletMCP() -> FastMCP:
         - "Which dividends are still to be paid?" → wallet_earnings, filter status
         """
         db = SessionLocal()
-        currentUser = resolveMcpIdentity(authorization, db)
         try:
+            currentUser = resolveMcpIdentity(authorization, db)
             return list_earnings_route(currentUser=currentUser, db=db)
         finally:
             db.close()
@@ -254,8 +254,8 @@ def buildWalletMCP() -> FastMCP:
         - "VALE3 return this year?" → ticker="VALE3", from="2026-01-01"
         """
         db = SessionLocal()
-        currentUser = resolveMcpIdentity(authorization, db)
         try:
+            currentUser = resolveMcpIdentity(authorization, db)
             return get_performance_route(ticker=ticker, fromIso=fromIso, toIso=toIso, currentUser=currentUser, db=db)
         finally:
             db.close()
@@ -284,8 +284,8 @@ def buildWalletMCP() -> FastMCP:
         - "Every single day of my equity this year" → from="2026-01-01"
         """
         db = SessionLocal()
-        currentUser = resolveMcpIdentity(authorization, db)
         try:
+            currentUser = resolveMcpIdentity(authorization, db)
             return get_progression_route(fromIso=fromIso, toIso=toIso, currentUser=currentUser, db=db)
         finally:
             db.close()
@@ -327,8 +327,8 @@ def buildWalletMCP() -> FastMCP:
         - "Sold 50 VALE3 at 61.20 with 5 in fees" → side="Venda", asset_type="ACOES", ticker="VALE3", date="2026-09-30", quantity=50, price=61.2, costs=5.0
         """
         db = SessionLocal()
-        currentUser = resolveMcpIdentity(authorization, db)
         try:
+            currentUser = resolveMcpIdentity(authorization, db)
             return record_entry_route(
                 side=side,
                 asset_type=asset_type,
@@ -363,8 +363,8 @@ def buildWalletMCP() -> FastMCP:
         - "Raise PETR4 to 80 in my wallet" → ticker="PETR4", rating=80
         """
         db = SessionLocal()
-        currentUser = resolveMcpIdentity(authorization, db)
         try:
+            currentUser = resolveMcpIdentity(authorization, db)
             return set_rating_wrapper_route(ticker=ticker, rating=rating, currentUser=currentUser, db=db)
         finally:
             db.close()
@@ -402,8 +402,8 @@ def buildWalletMCP() -> FastMCP:
         - "How did PETR4 do vs my wallet?" → ticker="PETR4"
         """
         db = SessionLocal()
-        currentUser = resolveMcpIdentity(authorization, db)
         try:
+            currentUser = resolveMcpIdentity(authorization, db)
             return explain_twr_route(
                 ticker=ticker, from_date=from_date, to_date=to_date, currentUser=currentUser, db=db
             )
@@ -439,8 +439,8 @@ def buildWalletMCP() -> FastMCP:
         - "Quick coarse look" → max_points=24
         """
         db = SessionLocal()
-        currentUser = resolveMcpIdentity(authorization, db)
         try:
+            currentUser = resolveMcpIdentity(authorization, db)
             return wallet_progression_route(
                 from_date=from_date, to_date=to_date, max_points=max_points, currentUser=currentUser, db=db
             )
