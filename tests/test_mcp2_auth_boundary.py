@@ -1,4 +1,4 @@
-"""Wallet FastMCP (/wallet/mcp2) auth boundary — Task 4 of the FastMCP replacement plan.
+"""Wallet FastMCP (/wallet/mcp) auth boundary — Task 4 of the FastMCP replacement plan.
 
 In-process Client over buildWalletMCP(): the transport-level walletAuth gate is
 bypassed in-memory, so these tests pin the per-tool identity path

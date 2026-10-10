@@ -1,4 +1,4 @@
-"""Wallet FastMCP (/wallet/mcp2) scoping tests — Task 2 of the FastMCP replacement plan."""
+"""Wallet FastMCP (/wallet/mcp) scoping tests — Task 2 of the FastMCP replacement plan."""
 
 import pytest
 

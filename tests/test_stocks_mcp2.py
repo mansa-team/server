@@ -1,4 +1,4 @@
-"""Stocks FastMCP (/stocks/mcp2) scoping tests — Task 3 of the FastMCP replacement plan."""
+"""Stocks FastMCP (/stocks/mcp) scoping tests — Task 3 of the FastMCP replacement plan."""
 
 EXPECTED_STOCKS_MCP2_TOOLS = {
     "list_fields",

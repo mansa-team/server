@@ -1,7 +1,7 @@
-"""Orunmila pool → FastMCP /mcp2 endpoints — Task 5 of the FastMCP replacement plan.
+"""Orunmila pool → FastMCP /mcp endpoints — Task 5 of the FastMCP replacement plan.
 
-Proves the pool's buildClient talks to the /mcp2 mounts over Streamable HTTP
-(httpx2 ASGI factory in-process, FastMCP 4.1 API only): wallet/mcp2 lists the
+Proves the pool's buildClient talks to the /mcp mounts over Streamable HTTP
+(httpx2 ASGI factory in-process, FastMCP 4.1 API only): wallet/mcp lists the
 exact 11 tools, and dispatchToolCall still injects the session JWT as a
 first-class `authorization` tool arg for wallet only (no header-pop reliance).
 """
@@ -44,15 +44,15 @@ def _asgiFactory(app):
 
 async def test_pool_lists_mcp2_tools():
     urls = {server["name"]: server["url"] for server in MCP_SERVERS}
-    assert urls["wallet"].endswith("/wallet/mcp2")
-    assert urls["stocks"].endswith("/stocks/mcp2")
+    assert urls["wallet"].endswith("/wallet/mcp")
+    assert urls["stocks"].endswith("/stocks/mcp")
 
     from main.service.wallet_service import buildWalletMCP
 
     mcpServer = buildWalletMCP()
     mcpApp = mcpServer.http_app(path="/", transport="streamable-http", stateless_http=True)
     app = FastAPI()
-    app.mount("/wallet/mcp2", mcpApp)
+    app.mount("/wallet/mcp", mcpApp)
 
     # Transport-level JWTVerifier gate: pool connections carry a Bearer session
     # JWT as the HTTP Authorization header (per-tool identity still rides the
@@ -60,7 +60,7 @@ async def test_pool_lists_mcp2_tools():
     token = createAccessToken({"userId": "1", "sessionId": "pool-probe"})
     server = {
         "name": "wallet",
-        "url": "http://apiserver/wallet/mcp2",
+        "url": "http://apiserver/wallet/mcp",
         "headers": {"Authorization": f"Bearer {token}"},
     }
     async with mcpApp.lifespan(app):
@@ -79,7 +79,7 @@ def _errorResult():
 
 
 async def test_dispatch_injects_bearer_wallet_only():
-    """Mirrors test_wallet_mcp.py TestDispatcherAuthInjection on the /mcp2 path."""
+    """Mirrors test_wallet_mcp.py TestDispatcherAuthInjection on the /mcp path."""
     functionCall = MagicMock()
     functionCall.name = "wallet_positions"
     functionCall.args = {"group_by": "ticker"}
@@ -120,11 +120,11 @@ async def test_pool_lists_tools_with_service_token_only(monkeypatch):
     mcpServer = buildWalletMCP()
     mcpApp = mcpServer.http_app(path="/", transport="streamable-http", stateless_http=True)
     app = FastAPI()
-    app.mount("/wallet/mcp2", mcpApp)
+    app.mount("/wallet/mcp", mcpApp)
 
     server = {
         "name": "wallet",
-        "url": "http://apiserver/wallet/mcp2",
+        "url": "http://apiserver/wallet/mcp",
         "headers": {"X-Service-Token": "svc-probe"},
     }
     async with mcpApp.lifespan(app):
@@ -145,11 +145,11 @@ async def test_pool_rejects_forged_service_token(monkeypatch):
     mcpServer = buildWalletMCP()
     mcpApp = mcpServer.http_app(path="/", transport="streamable-http", stateless_http=True)
     app = FastAPI()
-    app.mount("/wallet/mcp2", mcpApp)
+    app.mount("/wallet/mcp", mcpApp)
 
     server = {
         "name": "wallet",
-        "url": "http://apiserver/wallet/mcp2",
+        "url": "http://apiserver/wallet/mcp",
         "headers": {"X-Service-Token": "forged-service-token"},
     }
     with pytest.raises(Exception):

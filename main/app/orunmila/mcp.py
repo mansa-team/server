@@ -40,13 +40,13 @@ def prepareServer(server, db=None):
 MCP_SERVERS = [
     {
         "name": "stocks",
-        "url": f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/mcp2",
+        "url": f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/mcp",
         "headers": {"X-MCP": "true"},
     },
     {"name": "searxng", "url": f"{Config.ORUNMILA.SEARXNG_URL}/mcp/"},
     {
         "name": "wallet",
-        "url": f"http://{Config.USER.HOST}:{Config.USER.PORT}/wallet/mcp2",
+        "url": f"http://{Config.USER.HOST}:{Config.USER.PORT}/wallet/mcp",
         "service_loopback": True,
     },
 ]

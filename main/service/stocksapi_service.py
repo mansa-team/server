@@ -2,7 +2,6 @@ import logging
 from typing import Annotated
 
 from fastapi import HTTPException
-from fastapi_mcp import FastApiMCP
 from fastmcp import FastMCP
 from pydantic import Field
 
@@ -17,45 +16,15 @@ from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
 logger = logging.getLogger(__name__)
 
 
-class MCPDetectMiddleware:
-    def __init__(self, app):
-        self.app = app
-
-    async def __call__(self, scope, receive, send):
-        if scope["type"] == "http":
-            headers = dict(scope.get("headers") or [])
-            if headers.get(b"x-mcp") == b"true":
-                scope.setdefault("state", {})["compressed"] = True
-                qs = scope.get("query_string", b"").decode("latin-1")
-                if "compact=" not in qs:
-                    scope["query_string"] = (qs + ("&" if qs else "") + "compact=true").encode("latin-1")
-        await self.app(scope, receive, send)
-
-
 class StocksAPIService:
     @staticmethod
     def initialize(port: int):
         service = getApp(port)
-        service.add_middleware(MCPDetectMiddleware)
         service.include_router(stocksRouter)
 
-        mcp = FastApiMCP(
-            service,
-            name="Mansa's Stocks API MCP",
-            include_operations=[
-                "list_fields",
-                "get_historical",
-                "get_fundamental",
-                "get_cotations",
-                "get_live_price",
-            ],
-            headers=["authorization", "x-mcp"],
-        )
-        mcp.mount_http(service, mount_path="/stocks/mcp")
-
         stocksMcp = buildStocksMCP()
-        mcp2App = stocksMcp.http_app(path="/", transport="streamable-http", stateless_http=True)
-        service.mount("/stocks/mcp2", mcp2App)
+        mcpApp = stocksMcp.http_app(path="/", transport="streamable-http", stateless_http=True)
+        service.mount("/stocks/mcp", mcpApp)
 
         stocksCache.cacheScheduler()
 

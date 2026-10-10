@@ -1,6 +1,6 @@
-"""Wallet service: HTTP routes plus the wallet MCP mount.
+"""Wallet service: HTTP routes plus the wallet MCP server.
 
-The MCP surface is an explicit operation-ID allowlist (WALLET_MCP_OPERATIONS):
+The MCP surface is eleven hand-written tools delegating to route functions:
 seven read routes plus four LLM-shaped wrappers. Ledger writes stay off MCP
 unless wrapped, and wallet creation/lookup is always server-side. Wallet
 responses have no compact form: plain HTTP and MCP serve the same JSON.
@@ -9,15 +9,14 @@ responses have no compact form: plain HTTP and MCP serve the same JSON.
 import logging
 from typing import Annotated, Literal
 
-from fastapi import Depends, HTTPException
-from fastapi_mcp import AuthConfig, FastApiMCP
+from fastapi import HTTPException
 from fastmcp import FastMCP
 from pydantic import Field
 from sqlalchemy.orm import Session
 
 from config import SessionLocal
 from main.app.authentication.session import SessionManager
-from main.app.authentication.util import verifyAccessToken, verifyMcpTransport, walletAuth
+from main.app.authentication.util import verifyAccessToken, walletAuth
 from main.app.wallet.entries import AssetType
 from main.controller.wallet_controller import (
     router as walletRouter,
@@ -37,25 +36,6 @@ from main.utils.service_manager import getApp
 
 logger = logging.getLogger(__name__)
 
-# Explicit MCP tool allowlist (IDs come from each route's operation_id).
-# Reads: positions/rebalance/summary/allocation/earnings/performance/progression.
-# Wrappers: record_entry/set_rating/explain_twr/wallet_progression.
-# Anything absent here cannot be called over MCP — entries PATCH/DELETE,
-# wallets create/list and the raw ratings PUT stay HTTP-only.
-WALLET_MCP_OPERATIONS = [
-    "wallet_positions",
-    "wallet_rebalance",
-    "wallet_summary",
-    "wallet_allocation",
-    "wallet_earnings",
-    "wallet_performance",
-    "wallet_progression_series",
-    "record_entry",
-    "set_rating",
-    "explain_twr",
-    "wallet_progression",
-]
-
 
 class WalletService:
     @staticmethod
@@ -63,18 +43,9 @@ class WalletService:
         service = getApp(port)
         service.include_router(walletRouter)
 
-        mcp = FastApiMCP(
-            service,
-            name="Mansa Wallet MCP",
-            include_operations=WALLET_MCP_OPERATIONS,
-            headers=["authorization"],
-            auth_config=AuthConfig(dependencies=[Depends(verifyMcpTransport)]),
-        )
-        mcp.mount_http(service, mount_path="/wallet/mcp")
-
         walletMcp = buildWalletMCP()
-        mcp2App = walletMcp.http_app(path="/", transport="streamable-http", stateless_http=True)
-        service.mount("/wallet/mcp2", mcp2App)
+        mcpApp = walletMcp.http_app(path="/", transport="streamable-http", stateless_http=True)
+        service.mount("/wallet/mcp", mcpApp)
 
 
 def resolveMcpIdentity(authorization: str, db: Session) -> dict:
