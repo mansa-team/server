@@ -4,6 +4,8 @@ import time
 
 from unittest.mock import ANY, AsyncMock, patch
 
+from mcp import MCPError
+
 import main.app.orunmila.mcp as mcp
 from main.app.orunmila.mcp import MCPClientPool, clientPool
 
@@ -269,6 +271,50 @@ class TestReconnect:
         ):
             await pool.reconnect("stocks")
         assert old.exited == 1  # old client torn down before the failed rebuild
+        assert pool.clients["stocks"] is old
+        mock_build.assert_called_once()
+        mock_logger.error.assert_called_once_with("MCPClientPool: %s reconnect failed: %s", "stocks", ANY)
+
+
+class TestMCPErrorDegrade:
+    """MCPError (dead wallet transport, e.g. 401) degrades instead of raising."""
+
+    async def test_initialize_continues_on_mcp_error(self):
+        bad = FakeClient("wallet", aenter_error=MCPError(-32000, "transport 401"))
+        good = FakeClient("searxng")
+        stocks = FakeClient("stocks")
+        fakes = {"stocks": stocks, "searxng": good, "wallet": bad}
+        pool = MCPClientPool()
+        with (
+            patch.object(mcp, "buildClient", side_effect=lambda s: fakes[s["name"]]),
+            patch.object(mcp, "logger") as mock_logger,
+        ):
+            await pool.initialize()
+        assert "wallet" not in pool.clients
+        assert pool.clients["searxng"] is good
+        assert pool.clients["stocks"] is stocks
+        mock_logger.error.assert_called_once_with("MCPClientPool: %s connect failed: %s", "wallet", ANY)
+
+    async def test_healthcheck_reconnects_on_mcp_error(self):
+        pool = MCPClientPool()
+        good = FakeClient("stocks")
+        bad = FakeClient("searxng", session=FakeSession(tools_error=MCPError(-32000, "transport 401")))
+        pool.clients = {"stocks": good, "searxng": bad}
+        pool.lastHealthCheck = 0.0
+        with patch.object(pool, "reconnect", new=AsyncMock()) as mock_reconnect:
+            await pool.healthCheck()
+        mock_reconnect.assert_awaited_once_with("searxng")
+
+    async def test_reconnect_keeps_old_client_on_mcp_error(self):
+        pool = MCPClientPool()
+        old = FakeClient("stocks")
+        bad = FakeClient("stocks", aenter_error=MCPError(-32000, "transport 401"))
+        pool.clients = {"stocks": old}
+        with (
+            patch.object(mcp, "buildClient", return_value=bad) as mock_build,
+            patch.object(mcp, "logger") as mock_logger,
+        ):
+            await pool.reconnect("stocks")
         assert pool.clients["stocks"] is old
         mock_build.assert_called_once()
         mock_logger.error.assert_called_once_with("MCPClientPool: %s reconnect failed: %s", "stocks", ANY)

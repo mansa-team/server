@@ -10,6 +10,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
 
 import httpx2
+import pytest
 from fastapi import FastAPI
 
 from main.app.authentication.util import createAccessToken
@@ -106,3 +107,53 @@ async def test_dispatch_leaves_non_wallet_args_untouched():
 
     stocksClient.session.call_tool.assert_awaited_once_with("search", {"query": "news"})
     searxngClient.session.call_tool.assert_awaited_once_with("search", {"query": "news"})
+
+
+async def test_pool_lists_tools_with_service_token_only(monkeypatch):
+    """R2: pool transport carries only X-Service-Token (no user JWT) and still lists."""
+    from main.app.authentication import util as authUtil
+
+    monkeypatch.setattr(authUtil, "verifyServiceToken", lambda db, token: token == "svc-probe")
+
+    from main.service.wallet_service import buildWalletMCP
+
+    mcpServer = buildWalletMCP()
+    mcpApp = mcpServer.http_app(path="/", transport="streamable-http", stateless_http=True)
+    app = FastAPI()
+    app.mount("/wallet/mcp2", mcpApp)
+
+    server = {
+        "name": "wallet",
+        "url": "http://apiserver/wallet/mcp2",
+        "headers": {"X-Service-Token": "svc-probe"},
+    }
+    async with mcpApp.lifespan(app):
+        client = buildClient(server, httpx_client_factory=_asgiFactory(app))
+        async with client:
+            tools = await client.list_tools()
+    assert {tool.name for tool in tools} == EXPECTED_WALLET_MCP2_TOOLS
+
+
+async def test_pool_rejects_forged_service_token(monkeypatch):
+    """R2: forged X-Service-Token still fails at the transport gate (no silent pass)."""
+    from main.app.authentication import util as authUtil
+
+    monkeypatch.setattr(authUtil, "verifyServiceToken", lambda db, token: False)
+
+    from main.service.wallet_service import buildWalletMCP
+
+    mcpServer = buildWalletMCP()
+    mcpApp = mcpServer.http_app(path="/", transport="streamable-http", stateless_http=True)
+    app = FastAPI()
+    app.mount("/wallet/mcp2", mcpApp)
+
+    server = {
+        "name": "wallet",
+        "url": "http://apiserver/wallet/mcp2",
+        "headers": {"X-Service-Token": "forged-service-token"},
+    }
+    with pytest.raises(Exception):
+        async with mcpApp.lifespan(app):
+            client = buildClient(server, httpx_client_factory=_asgiFactory(app))
+            async with client:
+                await client.list_tools()

@@ -5,10 +5,17 @@ from fastapi import Depends, HTTPException, Request
 from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
-from fastmcp.server.auth import JWTVerifier
+from fastmcp.server.auth import AccessToken, JWTVerifier
+from mcp.server.auth.middleware.auth_context import AuthContextMiddleware
+from mcp.server.auth.middleware.bearer_auth import AuthenticatedUser, BearerAuthBackend
 from sqlalchemy.orm import Session
+from starlette.authentication import AuthCredentials
+from starlette.middleware import Middleware
+from starlette.middleware.authentication import AuthenticationMiddleware
+from starlette.requests import HTTPConnection
+from starlette.types import ASGIApp, Receive, Scope, Send
 
-from config import Config, getSession
+from config import Config, SessionLocal, getSession
 from main.app.authentication.constants import TOKEN_EXPIRY_HOURS, COOKIE_NAME
 from main.app.authentication.oauth_shared import RESOURCE_METADATA_URL, revokedAccessJtis
 from main.app.authentication.service_token import verifyServiceToken
@@ -191,7 +198,73 @@ def verifyMcpTransport(request: Request, db: Session = Depends(getSession)):
     return payload
 
 
-walletAuth = JWTVerifier(
+class _ServiceLoopbackBackend(BearerAuthBackend):
+    """X-Service-Token (opaque service session row) OR Bearer user JWT.
+
+    Header read + DB check per request, never import-time. A valid service
+    token authenticates the pool's transport connection but resolves NO user:
+    per-tool `authorization` args stay the sole identity (an opaque service
+    token never decodes as a user JWT, so it 401s at the tool layer).
+    """
+
+    async def authenticate(self, conn: HTTPConnection) -> tuple | None:
+        serviceToken = conn.headers.get("x-service-token", "")
+        if serviceToken:
+            try:
+                session = SessionLocal()
+                try:
+                    valid = verifyServiceToken(session, serviceToken)
+                finally:
+                    session.close()
+            except Exception:
+                valid = False
+            if valid:
+                return AuthCredentials([]), AuthenticatedUser(
+                    AccessToken(token=serviceToken, client_id="service-loopback", scopes=[])
+                )
+        return await super().authenticate(conn)
+
+
+_SERVICE_LOOPBACK_MARKER = "service-loopback"
+
+
+class _ServiceLoopbackHeadersMiddleware:
+    """Presence shim for FastMCP's Bearer gate (RequireAuthMiddleware 401s with
+    no Authorization header before the auth backend ever runs).
+
+    When X-Service-Token rides without Authorization, injects a marker Bearer
+    so the request reaches the backend, which authenticates via X-Service-Token
+    (DB check) and never verifies the marker. Forged service tokens still 401
+    (invalid_token) at the backend; requests with neither header keep the
+    missing-auth 401.
+    """
+
+    def __init__(self, app: ASGIApp):
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] == "http":
+            names = {name.lower() for name, _value in scope.get("headers", [])}
+            if b"x-service-token" in names and b"authorization" not in names:
+                scope["headers"] = [
+                    *scope.get("headers", []),
+                    (b"authorization", f"Bearer {_SERVICE_LOOPBACK_MARKER}".encode()),
+                ]
+        await self.app(scope, receive, send)
+
+
+class ServiceLoopbackVerifier(JWTVerifier):
+    """User session JWTs plus the service-loopback credential on one transport."""
+
+    def get_middleware(self) -> list:
+        return [
+            Middleware(_ServiceLoopbackHeadersMiddleware),
+            Middleware(AuthenticationMiddleware, backend=_ServiceLoopbackBackend(self)),  # type: ignore[arg-type]
+            Middleware(AuthContextMiddleware),  # type: ignore[arg-type]
+        ]
+
+
+walletAuth = ServiceLoopbackVerifier(
     public_key=Config.USER.JWT_SECRET_KEY,
     algorithm="HS256",
 )

@@ -147,3 +147,14 @@ async def test_mcp2_cross_user_isolation(dbSession, monkeypatch):
     assert summaryPayloadB["first_date"] is None
     assert "PETR4" not in positionsB.content[0].text
     assert "PETR4" not in summaryB.content[0].text
+
+
+async def test_mcp2_service_token_never_resolves_user(dbSession, monkeypatch):
+    """R2: an opaque service token as the per-tool identity arg still 401s."""
+    _use_test_db(monkeypatch, dbSession)
+    async with Client(buildWalletMCP()) as client:
+        result = await client.call_tool(
+            "wallet_positions", {"authorization": "Bearer opaque-service-session-uuid"}, raise_on_error=False
+        )
+    assert result.is_error
+    assert "401" in result.content[0].text
