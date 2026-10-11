@@ -173,7 +173,7 @@ server {
         add_header X-Cache-Status $upstream_cache_status always;
     }
 
-    location /.well-known/ {
+    location ^~ /.well-known/ {
         rewrite ^/.well-known/(.*)$ /wallet/mcp/.well-known/$1 break;
         proxy_cache stocks;
         proxy_no_cache 1;
