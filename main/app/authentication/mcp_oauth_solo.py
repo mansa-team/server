@@ -16,7 +16,7 @@ from mcp.server.auth.provider import (
 )
 from mcp.server.auth.settings import RevocationOptions
 from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
-from pydantic import AnyUrl
+from pydantic import AnyHttpUrl, AnyUrl
 from starlette.middleware import Middleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 from mcp.server.auth.middleware.auth_context import AuthContextMiddleware
@@ -46,8 +46,6 @@ revokedAccessJtis: dict[str, float] = {}
 
 
 def oauthBaseUrl() -> str:
-    # Internal/direct-3200 reference only. Public metadata, endpoints and
-    # token audience speak publicMcpUrl()/publicIssuerUrl() instead.
     return f"http://{Config.USER.HOST}:{Config.USER.PORT}/wallet/mcp"
 
 
@@ -76,6 +74,15 @@ class LoopbackRedirectClient(OAuthClientInformationFull):
 
 
 class SoloOAuthProvider(OAuthProvider):
+    def _get_resource_url(self, path: str | None = None) -> AnyHttpUrl | None:
+        # Root-mounted http_app (path="/") joins as base_url + "/" (fastmcp
+        # server/auth/auth.py:479-482); strip so PRM resource == canonical
+        # publicMcpUrl() for RFC 9728 exact-match.
+        url = super()._get_resource_url(path)
+        if url is not None and path is not None and not path.strip("/"):
+            return AnyHttpUrl(str(url).rstrip("/"))
+        return url
+
     def __init__(self) -> None:
         super().__init__(
             base_url=publicMcpUrl(),
@@ -327,6 +334,15 @@ class SoloOAuthProvider(OAuthProvider):
 
 
 class SoloAuth(MultiAuth):
+    def _get_resource_url(self, path: str | None = None) -> AnyHttpUrl | None:
+        # Delegate to the server so the 401 challenge metadata URL agrees
+        # with the served PRM route (MultiAuth base would re-add the slash).
+        if self.server is not None:
+            getUrl = getattr(self.server, "_get_resource_url", None)
+            if callable(getUrl):
+                return getUrl(path)
+        return super()._get_resource_url(path)
+
     def get_middleware(self) -> list:
         return [
             Middleware(_ServiceLoopbackHeadersMiddleware),

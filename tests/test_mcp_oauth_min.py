@@ -429,3 +429,13 @@ def test_http_bearer_mcp_call_refresh_revoke_cycle(dbSession, monkeypatch):
         )
         after = httpClient.post("/", json=call, headers={"Accept": "application/json, text/event-stream", **bearer})
         assert "401" in after.text
+
+
+def test_prm_resource_has_no_trailing_slash(dbSession, monkeypatch):
+    """RFC 9728 exact-match: PRM resource == canonical publicMcpUrl (no slash)."""
+    _use_test_env(monkeypatch, dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        meta = httpClient.get("/.well-known/oauth-protected-resource/wallet/mcp", follow_redirects=False)
+        assert meta.status_code == 200, meta.text
+        assert meta.json()["resource"] == solo.publicMcpUrl()
+        assert not meta.json()["resource"].endswith("/")
