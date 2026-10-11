@@ -439,3 +439,125 @@ def test_prm_resource_has_no_trailing_slash(dbSession, monkeypatch):
         assert meta.status_code == 200, meta.text
         assert meta.json()["resource"] == solo.publicMcpUrl()
         assert not meta.json()["resource"].endswith("/")
+
+
+def test_http_login_form_has_google_link(dbSession, monkeypatch):
+    """No-session authorize form offers Google with the same request_id preserved."""
+    _use_test_env(monkeypatch, dbSession)
+    _seed_user(dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        requestId = _authorize_request_id(httpClient)
+        page = httpClient.get(f"/oauth/login?request_id={requestId}")
+        assert page.status_code == 200
+        assert "Continue with Google" in page.text
+        assert "/auth/google" in page.text
+        assert requestId in page.text
+        assert "redirect_url" in page.text
+
+
+def test_google_entry_preserves_oauth_resume(dbSession, monkeypatch):
+    """SSO entry keeps an OAuth resume target as state (mocked, no network)."""
+    from unittest.mock import AsyncMock, patch
+
+    from fastapi import FastAPI
+    from fastapi.responses import RedirectResponse
+
+    from main.controller.authentication_controller import router as authRouter
+
+    _use_test_env(monkeypatch, dbSession)
+    resume = solo.oauthResumePath("req-abc-123")
+
+    app = FastAPI()
+    app.include_router(authRouter)
+    mockSSO = AsyncMock()
+    mockSSO.__aenter__ = AsyncMock(return_value=mockSSO)
+    mockSSO.__aexit__ = AsyncMock(return_value=False)
+    mockSSO.get_login_redirect = AsyncMock(return_value=RedirectResponse("https://accounts.google.com/x"))
+    with patch("main.controller.authentication_controller.getGoogleSSO", return_value=mockSSO):
+        with TestClient(app, raise_server_exceptions=False) as authClient:
+            authClient.get("/auth/google", params={"redirect_url": resume}, follow_redirects=False)
+    assert mockSSO.get_login_redirect.call_args[1]["state"] == resume
+
+
+def test_oauth_resume_guard_rejects_open_redirect():
+    from main.controller.authentication_controller import isSafeOAuthResume
+
+    assert isSafeOAuthResume("/wallet/mcp/oauth/login?request_id=abc")
+    assert isSafeOAuthResume("/oauth/login?request_id=abc")
+    assert not isSafeOAuthResume("https://evil.example/callback")
+    assert not isSafeOAuthResume("//evil.example/wallet/mcp/oauth/login?request_id=abc")
+    assert not isSafeOAuthResume("/evil?request_id=abc")
+    assert not isSafeOAuthResume("/wallet/mcp/oauth/login")
+    assert not isSafeOAuthResume("/wallet/mcp/oauth/login?request_id=")
+    assert not isSafeOAuthResume("/oauth/evil?request_id=abc")
+
+
+def test_google_callback_resumes_pending_authorize(dbSession, monkeypatch):
+    """Mocked Google callback sets the session cookie, then login resumes to a code."""
+    from unittest.mock import AsyncMock, MagicMock, patch
+    from urllib.parse import parse_qs, quote, urlparse
+
+    from fastapi import FastAPI
+
+    from config import getSession
+    from main.controller.authentication_controller import router as authRouter
+
+    _use_test_env(monkeypatch, dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        requestId = _authorize_request_id(httpClient)
+        resume = solo.oauthResumePath(requestId)
+
+        authApp = FastAPI()
+        authApp.include_router(authRouter)
+        authApp.dependency_overrides[getSession] = lambda: dbSession
+        mockSSO = AsyncMock()
+        mockSSO.__aenter__ = AsyncMock(return_value=mockSSO)
+        mockSSO.__aexit__ = AsyncMock(return_value=False)
+        info = MagicMock()
+        info.id = "google-oauth-1"
+        info.email = "oauthgoogle@example.com"
+        mockSSO.verify_and_process = AsyncMock(return_value=info)
+        with patch("main.controller.authentication_controller.getGoogleSSO", return_value=mockSSO):
+            with TestClient(authApp, raise_server_exceptions=False) as authClient:
+                callback = authClient.get(
+                    f"/auth/callback?state={quote(resume, safe='')}&code=fake", follow_redirects=False
+                )
+        assert callback.status_code in (302, 303, 307), callback.text
+        assert urlparse(callback.headers["location"]).path in (
+            "/oauth/login",
+            "/wallet/mcp/oauth/login",
+        )
+        assert parse_qs(urlparse(callback.headers["location"]).query)["request_id"][0] == requestId
+        raw = callback.headers.get("set-cookie", "")
+        token = ""
+        for part in raw.split(";"):
+            if part.strip().startswith("mansa_token="):
+                token = part.strip().split("=", 1)[1].strip('"')
+        assert token
+        httpClient.cookies.set("mansa_token", token)
+        resumed = httpClient.get(f"/oauth/login?request_id={requestId}", follow_redirects=False)
+        assert resumed.status_code == 302
+        assert "code=" in resumed.headers["location"]
+
+
+def test_http_google_user_session_resumes_login(dbSession, monkeypatch):
+    """Passwordless Google-created users resume with their session cookie (no duplicate mint)."""
+    from urllib.parse import parse_qs, urlparse
+
+    from main.app.authentication.authentication import AuthenticationManager
+    from main.app.authentication.util import createAccessToken
+
+    _use_test_env(monkeypatch, dbSession)
+    AuthenticationManager.createUserAccount(
+        dbSession, username="guser", email="guser@example.com", googleId="google-xyz"
+    )
+    user = AuthenticationManager.authenticateGoogleUser(dbSession, "google-xyz")
+    assert user is not None
+    session = SessionManager.createSession(dbSession, int(user["userId"]), "pytest")
+    token = createAccessToken({"userId": str(user["userId"]), "sessionId": session.sessionId})
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        requestId = _authorize_request_id(httpClient)
+        httpClient.cookies.set("mansa_token", token)
+        resumed = httpClient.get(f"/oauth/login?request_id={requestId}", follow_redirects=False)
+        assert resumed.status_code == 302
+        assert "code" in parse_qs(urlparse(resumed.headers["location"]).query)

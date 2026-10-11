@@ -38,6 +38,22 @@ def resolveCookieDomain(request: Request) -> str | None:
     return hostname
 
 
+def isSafeOAuthResume(target: str) -> bool:
+    if not target or not target.startswith("/") or target.startswith("//"):
+        return False
+    if "\\" in target:
+        return False
+    from urllib.parse import parse_qs, urlparse
+
+    parsed = urlparse(target)
+    if parsed.scheme or parsed.netloc:
+        return False
+    if parsed.path not in ("/oauth/login", "/wallet/mcp/oauth/login"):
+        return False
+    requestIds = parse_qs(parsed.query).get("request_id", [])
+    return len(requestIds) == 1 and bool(requestIds[0])
+
+
 def issueSessionCookie(response, request, db, user) -> str:
     userAgent = request.headers.get("User-Agent", "")
     expiresAt = datetime.now(timezone.utc) + timedelta(hours=TOKEN_EXPIRY_HOURS)
@@ -259,6 +275,12 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
             sessionId = issueSessionCookie(redirectResponse, request, db, user)
             SessionManager.revokeAllExcept(db, user["userId"], sessionId)
             return redirectResponse
+
+        if isSafeOAuthResume(state_param):
+            resumeResponse = RedirectResponse(url=state_param)
+            resumeSessionId = issueSessionCookie(resumeResponse, request, db, user)
+            SessionManager.revokeAllExcept(db, user["userId"], resumeSessionId)
+            return resumeResponse
 
         sessionId = issueSessionCookie(response, request, db, user)
         SessionManager.revokeAllExcept(db, user["userId"], sessionId)

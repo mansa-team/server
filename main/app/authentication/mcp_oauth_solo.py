@@ -355,9 +355,16 @@ soloProvider = SoloOAuthProvider()
 soloAuth = SoloAuth(server=soloProvider, verifiers={"service-loopback": walletAuth}, required_scopes=[])
 
 
+def oauthResumePath(request_id: str) -> str:
+    basePath = urlparse(publicMcpUrl()).path.rstrip("/")
+    return f"{basePath}/oauth/login?{urlencode({'request_id': request_id})}"
+
+
 def _login_page(request_id: str, error: str | None) -> HTMLResponse:
     safeId = html.escape(request_id, quote=True)
     complaint = f"<p>{html.escape(error)}</p>" if error else ""
+    googleHref = f"/auth/google?{urlencode({'redirect_url': oauthResumePath(request_id)})}"
+    safeGoogle = html.escape(googleHref, quote=True)
     return HTMLResponse(
         "<!doctype html><html><body>"
         "<h1>Mansa Wallet</h1>"
@@ -367,7 +374,8 @@ def _login_page(request_id: str, error: str | None) -> HTMLResponse:
         '<label>user <input name="username"></label>'
         '<label>password <input type="password" name="password"></label>'
         '<button type="submit">continue</button>'
-        "</form></body></html>"
+        "</form>"
+        f'<p><a href="{safeGoogle}">Continue with Google</a></p></body></html>'
     )
 
 
