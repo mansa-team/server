@@ -9,7 +9,8 @@ from sqlalchemy.orm import Session
 
 from config import SessionLocal, getSession
 from main.app.authentication.session import SessionManager
-from main.app.authentication.util import verifyAccessToken, walletAuth
+from main.app.authentication.mcp_oauth_solo import register_login_routes, soloAuth
+from main.app.authentication.util import verifyAccessToken
 from main.app.wallet.auth import getWalletUser
 from main.app.wallet.analytics import AnalyticsManager
 from main.app.wallet.earnings import EarningsManager, serialize_earning
@@ -27,7 +28,8 @@ from main.app.wallet.summary import RatingUpsert, SummaryManager
 from main.app.wallet.wallets import WalletCreate, WalletsManager
 from main.models.wallet import Transaction
 
-walletMcp = FastMCP("Mansa Wallet MCP", auth=walletAuth)
+walletMcp = FastMCP("Mansa Wallet MCP", auth=soloAuth)
+register_login_routes(walletMcp)
 
 router = APIRouter(prefix="/wallet", tags=["Wallet"], dependencies=[Depends(getWalletUser)])
 
