@@ -1,6 +1,6 @@
 """Wallet FastMCP (/wallet/mcp) auth boundary — Task 4 of the FastMCP replacement plan.
 
-In-process Client over buildWalletMCP(): the transport-level walletAuth gate is
+In-process Client over walletMcp: the transport-level walletAuth gate is
 bypassed in-memory, so these tests pin the per-tool identity path
 (verifyAccessToken + SessionManager.validateSession revocation check).
 Mirrors tests/test_wallet_mcp.py TestWalletMCPAuthBoundary semantics.
@@ -24,7 +24,7 @@ from main.app.authentication.util import createAccessToken, walletAuth
 from main.app.wallet.entries import EntriesManager, EntryCreate
 from main.app.wallet.wallets import WalletsManager
 from main.models.user import User
-from main.controller.wallet_controller import buildWalletMCP
+from main.controller.wallet_controller import walletMcp
 from tests.test_wallet_positions import _live_ok
 
 
@@ -81,7 +81,7 @@ def _use_test_db(monkeypatch, dbSession):
 async def test_mcp_without_token_rejected(dbSession, monkeypatch):
     _use_test_db(monkeypatch, dbSession)
     assert walletAuth is not None
-    async with Client(buildWalletMCP()) as client:
+    async with Client(walletMcp) as client:
         result = await client.call_tool("wallet_positions", {}, raise_on_error=False)
     assert result.is_error
     assert "401" in result.content[0].text
@@ -90,7 +90,7 @@ async def test_mcp_without_token_rejected(dbSession, monkeypatch):
 async def test_mcp_with_valid_session_jwt_succeeds(dbSession, monkeypatch):
     _use_test_db(monkeypatch, dbSession)
     token = _seed_session_token(dbSession)
-    async with Client(buildWalletMCP()) as client:
+    async with Client(walletMcp) as client:
         result = await client.call_tool("wallet_positions", {"authorization": f"Bearer {token}"}, raise_on_error=False)
     assert not result.is_error
     assert json.loads(result.content[0].text) == {"items": [], "equity_total": 0.0}
@@ -111,7 +111,7 @@ async def test_mcp_expired_revoked_forged_rejected(dbSession, monkeypatch):
         "wrong-secret-not-the-real-signing-key",
         algorithm="HS256",
     )
-    async with Client(buildWalletMCP()) as client:
+    async with Client(walletMcp) as client:
         for bad in (expired, revokedToken, forged):
             result = await client.call_tool(
                 "wallet_positions", {"authorization": f"Bearer {bad}"}, raise_on_error=False
@@ -125,7 +125,7 @@ async def test_mcp_cross_user_isolation(dbSession, monkeypatch):
     _use_test_db(monkeypatch, dbSession)
     tokenA = _seed_session_wallet(dbSession)
     tokenB = _seed_session_token(dbSession, username="otheruser")
-    async with Client(buildWalletMCP()) as client:
+    async with Client(walletMcp) as client:
         positionsA = await client.call_tool(
             "wallet_positions", {"authorization": f"Bearer {tokenA}"}, raise_on_error=False
         )
@@ -152,7 +152,7 @@ async def test_mcp_cross_user_isolation(dbSession, monkeypatch):
 async def test_mcp_service_token_never_resolves_user(dbSession, monkeypatch):
     """R2: an opaque service token as the per-tool identity arg still 401s."""
     _use_test_db(monkeypatch, dbSession)
-    async with Client(buildWalletMCP()) as client:
+    async with Client(walletMcp) as client:
         result = await client.call_tool(
             "wallet_positions", {"authorization": "Bearer opaque-service-session-uuid"}, raise_on_error=False
         )

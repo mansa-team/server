@@ -1,6 +1,6 @@
 """Wallet MCP tests: tool scoping, mount wiring, JWT auth boundary.
 
-The wallet MCP surface is eleven hand-written tools on buildWalletMCP()
+The wallet MCP surface is eleven hand-written tools on walletMcp
 (seven read routes plus four LLM-shaped wrappers); unwrapped writes must
 never leak into MCP. Auth rides as a first-class `authorization` tool arg:
 the dispatcher injects the session JWT and resolveMcpIdentity verifies it
@@ -42,7 +42,7 @@ from main.app.wallet.entries import EntryCreate, EntriesManager
 from main.app.wallet.performance import PerformanceManager
 from main.app.wallet.wallets import WalletsManager
 from main.controller.wallet_controller import (
-    buildWalletMCP,
+    walletMcp,
     explain_twr_route,
     record_entry_route,
     router as walletRouter,
@@ -91,7 +91,7 @@ def route_mcp_tools_at_test_db(monkeypatch, dbSession):
 
 async def _wallet_tools():
     """Hand-written tool surface, exactly what /wallet/mcp serves."""
-    async with Client(buildWalletMCP()) as client:
+    async with Client(walletMcp) as client:
         return await client.list_tools()
 
 
@@ -160,7 +160,7 @@ class TestWalletMCPToolScoping:
 
     def test_mount_returns_valid_response(self):
         app = FastAPI()
-        mcpApp = buildWalletMCP().http_app(path="/", transport="streamable-http", stateless_http=True)
+        mcpApp = walletMcp.http_app(path="/", transport="streamable-http", stateless_http=True)
         app.mount("/wallet/mcp", mcpApp)
 
         with TestClient(app, raise_server_exceptions=False) as client:
@@ -538,7 +538,7 @@ def _build_auth_app(dbSession):
     registerErrorHandlers(app)
     app.include_router(walletRouter)
 
-    mcpApp = buildWalletMCP().http_app(path="/", transport="streamable-http", stateless_http=True)
+    mcpApp = walletMcp.http_app(path="/", transport="streamable-http", stateless_http=True)
     app.mount("/wallet/mcp", mcpApp)
     app.state.mcpLifespan = mcpApp.lifespan
 
