@@ -492,6 +492,29 @@ def test_oauth_resume_guard_rejects_open_redirect():
     assert not isSafeOAuthResume("/oauth/evil?request_id=abc")
 
 
+def test_oauth_resume_guard_rejects_edge_strings():
+    from main.controller.authentication_controller import isSafeOAuthResume
+
+    assert not isSafeOAuthResume("/oauth/login?request_id=x\\evil")
+    assert not isSafeOAuthResume("/oauth\\login?request_id=x")
+    assert not isSafeOAuthResume("/oauth/login/../x?request_id=x")
+    assert not isSafeOAuthResume("/oauth/login%2F..%2Fx?request_id=x")
+    assert not isSafeOAuthResume("/oauth/login%5C?request_id=x")
+    assert not isSafeOAuthResume("/oauth/login?request_id=a&request_id=b")
+    assert not isSafeOAuthResume("/oauth/login?request_id=")
+
+
+def test_oauth_resume_guard_pins_fragment_and_params_accept():
+    from main.controller.authentication_controller import isSafeOAuthResume
+
+    # Fragment is never sent over the wire; urlparse splits it off so the
+    # guard still sees path /oauth/login + single request_id -> accepts (harmless).
+    assert isSafeOAuthResume("/oauth/login?request_id=x#frag")
+    # urlparse splits ;evil into params, path stays /oauth/login, so the
+    # guard accepts -> pinned True; params change neither route nor query (harmless).
+    assert isSafeOAuthResume("/oauth/login;evil?request_id=x")
+
+
 def test_google_callback_resumes_pending_authorize(dbSession, monkeypatch):
     """Mocked Google callback sets the session cookie, then login resumes to a code."""
     from unittest.mock import AsyncMock, MagicMock, patch
