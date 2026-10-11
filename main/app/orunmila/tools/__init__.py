@@ -2,6 +2,8 @@ import logging
 import asyncio
 from typing import Any, Optional
 
+from mcp import MCPError
+
 from main.app.orunmila.tools.memory import save_memory, search_memory
 from main.app.orunmila.tools.sandbox import execute_code, list_files, read_file, serve_file, write_file
 
@@ -49,14 +51,14 @@ async def dispatchToolCall(
             if rawToken and serverName == "wallet":
                 callArgs["authorization"] = f"Bearer {rawToken}"
             mcpResult = await client.session.call_tool(name, callArgs)
-            if getattr(mcpResult, "isError", False):
+            if getattr(mcpResult, "is_error", False):
                 continue
             textParts = []
             if hasattr(mcpResult, "content") and mcpResult.content:
                 for block in mcpResult.content:
                     textParts.append(block.text if hasattr(block, "text") else str(block))
             return {"result": "\n".join(textParts) if textParts else str(mcpResult)}
-        except (OSError, asyncio.TimeoutError, TimeoutError, ConnectionError, ValueError, RuntimeError) as e:
+        except (OSError, asyncio.TimeoutError, TimeoutError, ConnectionError, ValueError, RuntimeError, MCPError) as e:
             logger.debug(f"MCP client failed for {name}: {e}")
             continue
 

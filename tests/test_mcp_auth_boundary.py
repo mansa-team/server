@@ -78,7 +78,7 @@ def _use_test_db(monkeypatch, dbSession):
     monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
 
 
-async def test_mcp2_without_token_rejected(dbSession, monkeypatch):
+async def test_mcp_without_token_rejected(dbSession, monkeypatch):
     _use_test_db(monkeypatch, dbSession)
     assert walletAuth is not None
     async with Client(buildWalletMCP()) as client:
@@ -87,7 +87,7 @@ async def test_mcp2_without_token_rejected(dbSession, monkeypatch):
     assert "401" in result.content[0].text
 
 
-async def test_mcp2_with_valid_session_jwt_succeeds(dbSession, monkeypatch):
+async def test_mcp_with_valid_session_jwt_succeeds(dbSession, monkeypatch):
     _use_test_db(monkeypatch, dbSession)
     token = _seed_session_token(dbSession)
     async with Client(buildWalletMCP()) as client:
@@ -96,7 +96,7 @@ async def test_mcp2_with_valid_session_jwt_succeeds(dbSession, monkeypatch):
     assert json.loads(result.content[0].text) == {"items": [], "equity_total": 0.0}
 
 
-async def test_mcp2_expired_revoked_forged_rejected(dbSession, monkeypatch):
+async def test_mcp_expired_revoked_forged_rejected(dbSession, monkeypatch):
     _use_test_db(monkeypatch, dbSession)
     user, session = _seed_session_user(dbSession, username="expireduser")
     expired = createAccessToken(
@@ -120,7 +120,7 @@ async def test_mcp2_expired_revoked_forged_rejected(dbSession, monkeypatch):
             assert "401" in result.content[0].text
 
 
-async def test_mcp2_cross_user_isolation(dbSession, monkeypatch):
+async def test_mcp_cross_user_isolation(dbSession, monkeypatch):
     """A's token sees A's PETR4 ledger; B's token sees B's own empty wallet."""
     _use_test_db(monkeypatch, dbSession)
     tokenA = _seed_session_wallet(dbSession)
@@ -149,7 +149,7 @@ async def test_mcp2_cross_user_isolation(dbSession, monkeypatch):
     assert "PETR4" not in summaryB.content[0].text
 
 
-async def test_mcp2_service_token_never_resolves_user(dbSession, monkeypatch):
+async def test_mcp_service_token_never_resolves_user(dbSession, monkeypatch):
     """R2: an opaque service token as the per-tool identity arg still 401s."""
     _use_test_db(monkeypatch, dbSession)
     async with Client(buildWalletMCP()) as client:

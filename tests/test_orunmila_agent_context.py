@@ -286,7 +286,7 @@ class TestOrunmilaSendMessage:
         mock_stocks = MagicMock()
         mock_searxng = MagicMock()
         toolResult = MagicMock()
-        toolResult.isError = False
+        toolResult.is_error = False
         toolResult.content = []
         mock_stocks.session.call_tool = AsyncMock(return_value=toolResult)
         mock_searxng.session.call_tool = AsyncMock(return_value=toolResult)

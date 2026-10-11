@@ -395,14 +395,14 @@ def _toolTextResult(text):
     block = MagicMock()
     block.text = text
     result = MagicMock()
-    result.isError = False
+    result.is_error = False
     result.content = [block]
     return result
 
 
 def _errorResult():
     result = MagicMock()
-    result.isError = True
+    result.is_error = True
     result.content = []
     return result
 

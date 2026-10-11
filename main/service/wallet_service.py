@@ -227,7 +227,7 @@ def buildWalletMCP() -> FastMCP:
         2. External contributions are neutral by construction (TWR)
 
         EXAMPLES:
-        - "My return since January?" → from="2026-01-01"
+        - "My return since January?" → fromIso="2026-01-01"
         - "VALE3 return this year?" → ticker="VALE3", fromIso="2026-01-01"
         """
         db = SessionLocal()

@@ -17,7 +17,7 @@ from main.app.authentication.util import createAccessToken
 from main.app.orunmila.mcp import MCP_SERVERS, buildClient
 from main.app.orunmila.tools import dispatchToolCall
 
-EXPECTED_WALLET_MCP2_TOOLS = {
+EXPECTED_WALLET_MCP_TOOLS = {
     "wallet_positions",
     "wallet_rebalance",
     "wallet_summary",
@@ -42,7 +42,7 @@ def _asgiFactory(app):
     return asgiFactory
 
 
-async def test_pool_lists_mcp2_tools():
+async def test_pool_lists_mcp_tools():
     urls = {server["name"]: server["url"] for server in MCP_SERVERS}
     assert urls["wallet"].endswith("/wallet/mcp")
     assert urls["stocks"].endswith("/stocks/mcp")
@@ -67,15 +67,15 @@ async def test_pool_lists_mcp2_tools():
         client = buildClient(server, httpx_client_factory=_asgiFactory(app))
         async with client:
             tools = await client.list_tools()
-    assert {tool.name for tool in tools} == EXPECTED_WALLET_MCP2_TOOLS
+    assert {tool.name for tool in tools} == EXPECTED_WALLET_MCP_TOOLS
 
 
 def _toolTextResult(text):
-    return SimpleNamespace(isError=False, content=[SimpleNamespace(text=text)])
+    return SimpleNamespace(is_error=False, content=[SimpleNamespace(text=text)])
 
 
 def _errorResult():
-    return SimpleNamespace(isError=True, content=[])
+    return SimpleNamespace(is_error=True, content=[])
 
 
 async def test_dispatch_injects_bearer_wallet_only():
@@ -131,7 +131,7 @@ async def test_pool_lists_tools_with_service_token_only(monkeypatch):
         client = buildClient(server, httpx_client_factory=_asgiFactory(app))
         async with client:
             tools = await client.list_tools()
-    assert {tool.name for tool in tools} == EXPECTED_WALLET_MCP2_TOOLS
+    assert {tool.name for tool in tools} == EXPECTED_WALLET_MCP_TOOLS
 
 
 async def test_pool_rejects_forged_service_token(monkeypatch):

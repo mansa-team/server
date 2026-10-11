@@ -2,7 +2,7 @@
 
 import pytest
 
-EXPECTED_MCP2_TOOLS = {
+EXPECTED_MCP_TOOLS = {
     "wallet_positions",
     "wallet_rebalance",
     "wallet_summary",
@@ -17,11 +17,11 @@ EXPECTED_MCP2_TOOLS = {
 }
 
 
-async def test_mcp2_exposes_exact_11():
+async def test_mcp_exposes_exact_11():
     from main.service.wallet_service import buildWalletMCP
 
     tools = await buildWalletMCP().list_tools()
-    assert {tool.name for tool in tools} == EXPECTED_MCP2_TOOLS
+    assert {tool.name for tool in tools} == EXPECTED_MCP_TOOLS
 
 
 async def test_all_tools_have_anthropic_docstrings():

@@ -56,7 +56,7 @@ async def clear_cashews_cache():
     await cashewsCache.clear()
 
 
-def _fakeMcpClient(text='{"items": []}', isError=False):
+def _fakeMcpClient(text='{"items": []}', is_error=False):
     """Minimal stand-in for the wallet MCP client: records call args."""
 
     class FakeMcpClient:
@@ -66,7 +66,7 @@ def _fakeMcpClient(text='{"items": []}', isError=False):
 
         async def _record(self, name, args):
             self.calls.append((name, args))
-            return SimpleNamespace(isError=isError, content=[SimpleNamespace(text=text)])
+            return SimpleNamespace(is_error=is_error, content=[SimpleNamespace(text=text)])
 
     return FakeMcpClient()
 
@@ -102,7 +102,7 @@ class TestWalletToolRouting:
 
     async def test_fallback_servers_never_get_authorization(self):
         functionCall = SimpleNamespace(name="wallet_summary", args={})
-        failingWallet = _fakeMcpClient(isError=True)
+        failingWallet = _fakeMcpClient(is_error=True)
         stocksClient = _fakeMcpClient()
 
         result = await dispatchToolCall(
