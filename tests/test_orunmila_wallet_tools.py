@@ -18,7 +18,7 @@ from types import SimpleNamespace
 import pytest
 
 from main.app.orunmila.tools import TOOL_REGISTRY, dispatchToolCall
-from tests.test_wallet_mcp import _build_auth_app, _mcp_client, _seed_session_wallet
+from tests.test_wallet_mcp import _build_auth_app, _mcp_client, _seed_session_wallet, _transport_headers
 from tests.test_wallet_positions import _live_ok
 from cashews import cache as cashewsCache
 
@@ -129,11 +129,12 @@ class TestWalletDispatchEndToEnd:
 
     async def test_read_dispatch_round_trips_through_wallet_mcp(self, dbSession, monkeypatch):
         monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
+        monkeypatch.setattr("main.service.wallet_service.SessionLocal", lambda: dbSession)
         app = _build_auth_app(dbSession)
         token, _user, _wallet = _seed_session_wallet(dbSession)
 
         functionCall = SimpleNamespace(name="wallet_positions", args={})
-        async with _mcp_client(app) as client:
+        async with _mcp_client(app, _transport_headers(dbSession)) as client:
             result = await dispatchToolCall(functionCall, {"wallet": client}, rawToken=token)
 
         payload = json.loads(result["result"])

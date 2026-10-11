@@ -11,6 +11,7 @@ headers cannot carry identity).
 import json
 import os
 import sys
+from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta, timezone
 from types import SimpleNamespace
 from unittest import mock
@@ -79,6 +80,12 @@ async def clear_cashews_cache():
     await cashewsCache.clear()
     yield
     await cashewsCache.clear()
+
+
+@pytest.fixture(autouse=True)
+def route_mcp_tools_at_test_db(monkeypatch, dbSession):
+    """MCP tools open their own SessionLocal: point it at the sqlite fixture."""
+    monkeypatch.setattr("main.service.wallet_service.SessionLocal", lambda: dbSession)
 
 
 async def _wallet_tools():
@@ -532,6 +539,7 @@ def _build_auth_app(dbSession):
 
     mcpApp = buildWalletMCP().http_app(path="/", transport="streamable-http", stateless_http=True)
     app.mount("/wallet/mcp", mcpApp)
+    app.state.mcpLifespan = mcpApp.lifespan
 
     app.dependency_overrides[getSession] = lambda: dbSession
     return app
@@ -582,7 +590,8 @@ def _seed_session_wallet(dbSession, ticker="PETR4", quantity=10, price=10.0, rat
     return token, user, wallet
 
 
-def _mcp_client(app, headers=None):
+@asynccontextmanager
+async def _mcp_client(app, headers=None):
     """HTTP-level client for the mounted app. Pass transport headers (a user
     Bearer or X-Service-Token): the FastMCP gate 401s unauthenticated
     connects, while per-tool identity still comes from the `authorization`
@@ -599,7 +608,11 @@ def _mcp_client(app, headers=None):
         headers=headers or {},
         httpx_client_factory=asgiFactory,
     )
-    return Client(transport=transport)
+    # ASGI transport never runs lifespan: enter the adopted mount lifespan so
+    # the streamable session manager is initialized for POST traffic.
+    async with app.state.mcpLifespan(app):
+        async with Client(transport=transport) as client:
+            yield client
 
 
 def _transport_headers(dbSession, username="transportuser"):
@@ -854,7 +867,7 @@ class TestWalletMCPEndToEnd:
         async with _mcp_client(app, {"Authorization": f"Bearer {token}"}) as client:
             result = await client.call_tool(
                 "wallet_performance",
-                {"ticker": "PETR4", "from": "2026-01-01", "to": "2026-01-11", "authorization": f"Bearer {token}"},
+                {"ticker": "PETR4", "fromIso": "2026-01-01", "toIso": "2026-01-11", "authorization": f"Bearer {token}"},
                 raise_on_error=False,
             )
 

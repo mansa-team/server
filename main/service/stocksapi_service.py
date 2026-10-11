@@ -25,6 +25,9 @@ class StocksAPIService:
         stocksMcp = buildStocksMCP()
         mcpApp = stocksMcp.http_app(path="/", transport="streamable-http", stateless_http=True)
         service.mount("/stocks/mcp", mcpApp)
+        # Mounted sub-app lifespans never run under uvicorn: adopt it so the
+        # streamable session manager is initialized for POST traffic.
+        service.router.lifespan_context = mcpApp.lifespan
 
         stocksCache.cacheScheduler()
 

@@ -46,6 +46,9 @@ class WalletService:
         walletMcp = buildWalletMCP()
         mcpApp = walletMcp.http_app(path="/", transport="streamable-http", stateless_http=True)
         service.mount("/wallet/mcp", mcpApp)
+        # Mounted sub-app lifespans never run under uvicorn: adopt it so the
+        # streamable session manager is initialized for POST traffic.
+        service.router.lifespan_context = mcpApp.lifespan
 
 
 def resolveMcpIdentity(authorization: str, db: Session) -> dict:
@@ -55,8 +58,11 @@ def resolveMcpIdentity(authorization: str, db: Session) -> dict:
     """
     token = authorization[7:] if authorization.startswith("Bearer ") else authorization
     currentUser = verifyAccessToken(token)
+    userIdRaw = currentUser.get("userId")
+    if userIdRaw is None:
+        raise HTTPException(status_code=401, detail="Invalid token")
     try:
-        userId = int(currentUser.get("userId"))
+        userId = int(userIdRaw)
     except (TypeError, ValueError):
         raise HTTPException(status_code=401, detail="Invalid token")
     sessionId = currentUser.get("sessionId")
@@ -222,7 +228,7 @@ def buildWalletMCP() -> FastMCP:
 
         EXAMPLES:
         - "My return since January?" → from="2026-01-01"
-        - "VALE3 return this year?" → ticker="VALE3", from="2026-01-01"
+        - "VALE3 return this year?" → ticker="VALE3", fromIso="2026-01-01"
         """
         db = SessionLocal()
         try:
