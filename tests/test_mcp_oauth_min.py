@@ -241,6 +241,114 @@ def _token_post(client, data):
     return client.post("/token", data=data)
 
 
+def _basic_header(secret=CLIENT_SECRET, clientId=CLIENT_ID):
+    return {"Authorization": f"Basic {base64.b64encode(f'{clientId}:{secret}'.encode()).decode()}"}
+
+
+def _fresh_code(httpClient):
+    requestId = _authorize_request_id(httpClient)
+    login = _login_post(httpClient, requestId)
+    assert login.status_code == 302
+    return parse_qs(urlparse(login.headers["location"]).query)["code"][0]
+
+
+def test_http_basic_only_exchange_200_and_bearer_call(dbSession, monkeypatch):
+    """OpenCode shape: Basic-only token POST (no body client_id) mints + Bearer MCP call works."""
+    _use_test_env(monkeypatch, dbSession)
+    _seed_user(dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        minted = _basic_token_post(httpClient, _fresh_code(httpClient))
+        assert minted.status_code == 200, minted.text
+        minted = minted.json()
+        assert minted["scope"] == "wallet" and minted["refresh_token"]
+        refreshed = httpClient.post(
+            "/token",
+            data={"grant_type": "refresh_token", "refresh_token": minted["refresh_token"]},
+            headers=_basic_header(),
+        )
+        assert refreshed.status_code == 200, refreshed.text
+        call = {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "method": "tools/call",
+            "params": {"name": "wallet_positions", "arguments": {"authorization": f"Bearer {minted['access_token']}"}},
+        }
+        authed = httpClient.post(
+            "/",
+            json=call,
+            headers={
+                "Accept": "application/json, text/event-stream",
+                "Authorization": f"Bearer {minted['access_token']}",
+            },
+        )
+        assert authed.status_code == 200, authed.text
+
+
+def _basic_token_post(httpClient, code, secret=CLIENT_SECRET, clientId=CLIENT_ID):
+    return httpClient.post(
+        "/token",
+        data={
+            "grant_type": "authorization_code",
+            "code": code,
+            "redirect_uri": REDIRECT_URI,
+            "code_verifier": VERIFIER,
+        },
+        headers=_basic_header(secret, clientId),
+    )
+
+
+def test_http_basic_only_exchange_posts_without_body_id(dbSession, monkeypatch):
+    _use_test_env(monkeypatch, dbSession)
+    _seed_user(dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        first = _basic_token_post(httpClient, _fresh_code(httpClient))
+        assert first.status_code == 200, first.text
+        assert first.json()["scope"] == "wallet"
+
+
+def test_http_basic_wrong_secret_401(dbSession, monkeypatch):
+    _use_test_env(monkeypatch, dbSession)
+    _seed_user(dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        wrong = _basic_token_post(httpClient, _fresh_code(httpClient), secret="nope")
+        assert wrong.status_code == 401 and "invalid_client" in wrong.text
+
+
+def test_http_missing_both_client_id_and_basic_401(dbSession, monkeypatch):
+    _use_test_env(monkeypatch, dbSession)
+    _seed_user(dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        missing = _token_post(
+            httpClient,
+            {
+                "grant_type": "authorization_code",
+                "code": _fresh_code(httpClient),
+                "redirect_uri": REDIRECT_URI,
+                "code_verifier": VERIFIER,
+            },
+        )
+        assert missing.status_code == 401 and "Missing client_id" in missing.text
+
+
+def test_http_body_shape_still_200(dbSession, monkeypatch):
+    """Pre-Basic contract: body client_id+client_secret keeps minting (no regression)."""
+    _use_test_env(monkeypatch, dbSession)
+    _seed_user(dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        body = _token_post(
+            httpClient,
+            {
+                "grant_type": "authorization_code",
+                "code": _fresh_code(httpClient),
+                "redirect_uri": REDIRECT_URI,
+                "client_id": CLIENT_ID,
+                "client_secret": CLIENT_SECRET,
+                "code_verifier": VERIFIER,
+            },
+        )
+        assert body.status_code == 200, body.text
+
+
 def test_issuer_advertises_public_base(dbSession, monkeypatch):
     """RFC 8414 §3.3: metadata issuer must equal the public origin clients fetch from."""
     _use_test_env(monkeypatch, dbSession)

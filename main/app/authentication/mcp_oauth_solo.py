@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import base64
+import binascii
 import html
 import secrets
 import time
@@ -7,6 +9,8 @@ from datetime import timedelta
 from urllib.parse import urlencode, urlparse
 
 from fastmcp.server.auth import AccessToken, MultiAuth, OAuthProvider
+from fastmcp.server.auth.auth import TokenHandler
+from mcp.server.auth.middleware.client_auth import ClientAuthenticator
 from mcp.server.auth.provider import (
     AuthorizationCode,
     AuthorizationParams,
@@ -14,6 +18,7 @@ from mcp.server.auth.provider import (
     RefreshToken,
     TokenError,
 )
+from mcp.server.auth.routes import cors_middleware
 from mcp.server.auth.settings import RevocationOptions
 from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
 from pydantic import AnyHttpUrl, AnyUrl
@@ -22,6 +27,7 @@ from starlette.middleware.authentication import AuthenticationMiddleware
 from mcp.server.auth.middleware.auth_context import AuthContextMiddleware
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse, Response
+from starlette.routing import Route
 
 from config import Config, SessionLocal
 from main.app.authentication.authentication import AuthenticationManager
@@ -71,6 +77,61 @@ class LoopbackRedirectClient(OAuthClientInformationFull):
             if host in LOOPBACK_HOSTS:
                 return redirect_uri
         return super().validate_redirect_uri(redirect_uri)
+
+
+class _FormBackfillRequest(Request):
+    """Non-mutating shim: original scope/headers, overridden form fields."""
+
+    def __init__(self, request: Request, form) -> None:
+        super().__init__(request.scope, request.receive)
+        self._shimForm = form
+
+    async def form(self):  # type: ignore[override]
+        return self._shimForm
+
+
+class BasicTolerantClientAuthenticator(ClientAuthenticator):
+    """Accept Basic-only /token calls (RFC 6749 S2.3.1 client_secret_basic).
+
+    Static confidential clients (OpenCode via the MCP TS SDK) send id:secret
+    ONLY in the Authorization header and omit client_id from the body, so the
+    SDK raises Missing client_id before ever parsing Basic. Backfill the Basic
+    pair as form fields via a non-mutating request shim. Every other path
+    (wrong secret, missing both, malformed header) keeps exact SDK errors.
+    Secrets are never logged.
+    """
+
+    async def authenticate_request(self, request: Request) -> OAuthClientInformationFull:
+        return await super().authenticate_request(await _backfillBasicClient(request))
+
+
+async def _backfillBasicClient(request: Request) -> Request:
+    """Present a Basic-only caller's id:secret as form fields (no mutation).
+
+    Used by the token endpoint wrapper (the SDK grant models also require
+    body client_id) and by the authenticator above. Returns the original
+    request unless the body lacks client_id AND a decodable Basic id:secret
+    pair is present.
+    """
+    form = await request.form()
+    if form.get("client_id"):
+        return request
+    header = request.headers.get("Authorization", "")
+    if not header.startswith("Basic "):
+        return request
+    try:
+        decoded = base64.b64decode(header[6:]).decode("utf-8")
+    except (ValueError, UnicodeDecodeError, binascii.Error):
+        return request
+    if ":" not in decoded:
+        return request
+    basicId, _, basicSecret = decoded.partition(":")
+    if not basicId:
+        return request
+    merged = dict(form)
+    merged["client_id"] = basicId
+    merged["client_secret"] = basicSecret
+    return _FormBackfillRequest(request, merged)
 
 
 class SoloOAuthProvider(OAuthProvider):
@@ -124,6 +185,33 @@ class SoloOAuthProvider(OAuthProvider):
 
     async def register_client(self, client_info: OAuthClientInformationFull) -> None:
         raise RuntimeError("client registration closed: single static client only")
+
+    def get_routes(self, mcp_path: str | None = None) -> list[Route]:
+        # The /token route bakes its authenticator at build time (FastMCP
+        # OAuthProvider.get_routes constructs TokenHandler with the SDK
+        # ClientAuthenticator, which rejects Basic-only callers), and the SDK
+        # grant models require body client_id too (mcp token.py). Rebuild only
+        # that route with our authenticator behind a backfill wrapper;
+        # everything else comes from super().
+        routes = super().get_routes(mcp_path)
+        rebuilt: list[Route] = []
+        for route in routes:
+            if isinstance(route, Route) and route.path == "/token" and route.methods and "POST" in route.methods:
+                handler = TokenHandler(provider=self, client_authenticator=BasicTolerantClientAuthenticator(self))
+
+                async def tokenEndpoint(request: Request):
+                    return await handler.handle(await _backfillBasicClient(request))
+
+                rebuilt.append(
+                    Route(
+                        path="/token",
+                        endpoint=cors_middleware(tokenEndpoint, ["POST", "OPTIONS"]),
+                        methods=["POST", "OPTIONS"],
+                    )
+                )
+            else:
+                rebuilt.append(route)
+        return rebuilt
 
     async def authorize(self, client: OAuthClientInformationFull, params: AuthorizationParams) -> str:
         if not getattr(params, "code_challenge", None) or getattr(params, "code_challenge_method", "S256") != "S256":
