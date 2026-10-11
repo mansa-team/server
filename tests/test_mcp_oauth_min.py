@@ -86,7 +86,7 @@ async def _login_code(provider, userId, sessionId, state="xyz"):
         pending["redirect_uri"],
         pending["redirect_provided"],
         pending["scopes"],
-        pending["resource"] or solo.oauthBaseUrl(),
+        pending["resource"] or solo.publicMcpUrl(),
     )
 
 
@@ -239,6 +239,19 @@ def _login_post(client, requestId, username="oauthuser", password="correct-horse
 
 def _token_post(client, data):
     return client.post("/token", data=data)
+
+
+def test_issuer_advertises_public_base(dbSession, monkeypatch):
+    """RFC 8414 §3.3: metadata issuer must equal the public origin clients fetch from."""
+    _use_test_env(monkeypatch, dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        meta = httpClient.get("/.well-known/oauth-authorization-server")
+        assert meta.status_code == 200, meta.text
+        body = meta.json()
+        public = Config.USER.MCP_PUBLIC_BASE_URL.rstrip("/")
+        assert body["issuer"] == f"{public}/"
+        assert str(body["authorization_endpoint"]).startswith(public)
+        assert str(body["token_endpoint"]).startswith(public)
 
 
 def test_http_no_session_shows_login_form(dbSession, monkeypatch):

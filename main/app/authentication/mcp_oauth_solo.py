@@ -1,25 +1,3 @@
-"""Single-client OAuth authorization server (SoloAS) for the wallet MCP surface.
-
-FastMCP-native subclass of ``fastmcp.server.auth.OAuthProvider``: no hand-rolled
-/authorize or /token endpoints (those come free once attached to ``walletMcp``).
-Closed for first-party testing: one static client (``opencode``), no DCR, PKCE-S256
-enforced by the SDK's authorization handler, scope ``wallet`` only.
-
-Source-verified against installed fastmcp 4.1.0 / mcp SDK:
-- ``OAuthProvider`` lives in ``fastmcp.server.auth.auth`` (re-exported from
-  ``fastmcp.server.auth``); there is NO ``fastmcp.server.auth.providers.oauth``.
-- Abstract hooks come from ``mcp.server.auth.provider.OAuthAuthorizationServerProvider``:
-  get_client / register_client / authorize / load_authorization_code /
-  exchange_authorization_code / load_refresh_token / exchange_refresh_token /
-  load_access_token / revoke_token. ``exchange_identity_assertion`` has a default
-  (rejects jwt-bearer) and ``verify_token`` / ``scopes_supported`` are concrete.
-- The SDK ``TokenHandler`` already enforces: client_secret (401 invalid_client),
-  code expiry + redirect_uri match + PKCE-S256 (invalid_grant), refresh
-  expiry and scope subsets. Provider hooks only mint / rotate / look up.
-- ``ClientRegistrationOptions.enabled`` and ``RevocationOptions.enabled`` both
-  default False: /register stays absent (closed), /revoke needs explicit opt-in.
-"""
-
 from __future__ import annotations
 
 import html
@@ -68,18 +46,24 @@ revokedAccessJtis: dict[str, float] = {}
 
 
 def oauthBaseUrl() -> str:
+    # Internal/direct-3200 reference only. Public metadata, endpoints and
+    # token audience speak publicMcpUrl()/publicIssuerUrl() instead.
     return f"http://{Config.USER.HOST}:{Config.USER.PORT}/wallet/mcp"
 
 
+def publicBaseUrl() -> str:
+    return Config.USER.MCP_PUBLIC_BASE_URL.rstrip("/")
+
+
+def publicMcpUrl() -> str:
+    return f"{publicBaseUrl()}/wallet/mcp"
+
+
+def publicIssuerUrl() -> str:
+    return f"{publicBaseUrl()}/"
+
+
 class LoopbackRedirectClient(OAuthClientInformationFull):
-    """Static first-party client: any loopback redirect_uri is accepted.
-
-    OpenCode's OAuth callback is a dynamic-port loopback server, so exact-match
-    registration is impossible. Per RFC 8252 section 7.3 any port on loopback is
-    acceptable for a native first-party client; non-loopback URIs fall through
-    to the strict exact-match check (and fail: nothing is registered).
-    """
-
     def validate_redirect_uri(self, redirect_uri: AnyUrl | None) -> AnyUrl:
         if redirect_uri is not None:
             try:
@@ -92,11 +76,10 @@ class LoopbackRedirectClient(OAuthClientInformationFull):
 
 
 class SoloOAuthProvider(OAuthProvider):
-    """Closed single-client AS: static ``opencode`` client, dict stores, HS256."""
-
     def __init__(self) -> None:
         super().__init__(
-            base_url=oauthBaseUrl(),
+            base_url=publicMcpUrl(),
+            issuer_url=publicIssuerUrl(),
             required_scopes=[WALLET_SCOPE],
             revocation_options=RevocationOptions(enabled=True),
         )
@@ -136,11 +119,6 @@ class SoloOAuthProvider(OAuthProvider):
         raise RuntimeError("client registration closed: single static client only")
 
     async def authorize(self, client: OAuthClientInformationFull, params: AuthorizationParams) -> str:
-        # Fail closed on PKCE: installed AuthorizationParams carries only
-        # code_challenge (no method field; the SDK wire type validates
-        # code_challenge_method == S256 before we are reached). Direct calls
-        # bypass the wire, so reject here on absent/empty challenge or on a
-        # non-S256 method if one is ever forwarded.
         if not getattr(params, "code_challenge", None) or getattr(params, "code_challenge_method", "S256") != "S256":
             raise AuthorizeError("invalid_request", "PKCE S256 code_challenge required")
         scopes = params.scopes or [WALLET_SCOPE]
@@ -297,9 +275,7 @@ class SoloOAuthProvider(OAuthProvider):
                 if seenAt < cutoff:
                     del revokedAccessJtis[oldJti]
             revokedAccessJtis[jti] = now
-        # The access token IS the session JWT: revoking it must end the grant,
-        # otherwise the loopback verifier + per-tool identity would still honor
-        # the same credential. Best-effort session revoke (logout semantics).
+
         userId, sessionId = payload.get("userId"), payload.get("sessionId")
         if userId is None or not sessionId:
             return
@@ -319,7 +295,7 @@ class SoloOAuthProvider(OAuthProvider):
         self, client_id: str, user_id: str, session_id: str, scopes: list[str], resource: str | None
     ) -> OAuthToken:
         useScopes = scopes or [WALLET_SCOPE]
-        aud = resource or oauthBaseUrl()
+        aud = resource or publicMcpUrl()
         access = createAccessToken(
             {
                 "userId": user_id,
@@ -351,13 +327,6 @@ class SoloOAuthProvider(OAuthProvider):
 
 
 class SoloAuth(MultiAuth):
-    """SoloAS + loopback composition that preserves the service-token transport.
-
-    MultiAuth's default middleware is Bearer-only: without the loopback
-    presence shim and service-token backend, pool traffic carrying only
-    X-Service-Token 401s before any verifier runs.
-    """
-
     def get_middleware(self) -> list:
         return [
             Middleware(_ServiceLoopbackHeadersMiddleware),
@@ -367,11 +336,6 @@ class SoloAuth(MultiAuth):
 
 
 soloProvider = SoloOAuthProvider()
-
-# Transport gate: SoloAS first, service-loopback second. required_scopes is
-# empty so loopback credentials (plain session JWTs / service tokens, which
-# carry no scope claim) keep working for the pool; "wallet only" is enforced
-# at authorize time and minted into OAuth tokens.
 soloAuth = SoloAuth(server=soloProvider, verifiers={"service-loopback": walletAuth}, required_scopes=[])
 
 
@@ -391,7 +355,7 @@ def _login_page(request_id: str, error: str | None) -> HTMLResponse:
     )
 
 
-def _session_from_cookie(request: Request, db) -> tuple[str, str] | None:
+def sessionFromCookie(request: Request, db) -> tuple[str, str] | None:
     raw = request.cookies.get(COOKIE_NAME)
     if not raw:
         return None
@@ -416,8 +380,6 @@ def _session_from_cookie(request: Request, db) -> tuple[str, str] | None:
 
 
 def register_login_routes(mcp) -> None:
-    """Authorize-time browser routes: session cookie resumes, else inline login."""
-
     @mcp.custom_route("/oauth/login", methods=["GET", "POST"])
     async def oauth_login(request: Request) -> Response:
         form = await request.form() if request.method == "POST" else {}
@@ -430,7 +392,7 @@ def register_login_routes(mcp) -> None:
 
         db = SessionLocal()
         try:
-            identity: tuple[str, str] | None = _session_from_cookie(request, db)
+            identity: tuple[str, str] | None = sessionFromCookie(request, db)
             resume = False
             freshToken: str | None = None
             if identity is None and request.method == "POST":
@@ -459,7 +421,7 @@ def register_login_routes(mcp) -> None:
                 live["redirect_uri"],
                 live["redirect_provided"],
                 live["scopes"],
-                live["resource"] or oauthBaseUrl(),
+                live["resource"] or publicMcpUrl(),
             )
             params = {"code": code}
             if live["state"]:
