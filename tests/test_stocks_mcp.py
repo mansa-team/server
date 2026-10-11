@@ -1,6 +1,6 @@
 """Tests for MCP tool scoping in main/controller/stocksapi_controller.py.
 
-Verifies that buildStocksMCP exposes exactly the 5 data query tools,
+Verifies that stocksMcp exposes exactly the 5 data query tools,
 excluding health and generateKey endpoints.
 """
 
@@ -13,7 +13,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from fastmcp import Client
 
-from main.controller.stocksapi_controller import buildStocksMCP
+from main.controller.stocksapi_controller import stocksMcp
 
 EXPECTED_STOCKS_TOOLS = {
     "list_fields",
@@ -26,12 +26,12 @@ EXPECTED_STOCKS_TOOLS = {
 
 async def _stocks_tools():
     """Hand-written tool surface, exactly what /stocks/mcp serves."""
-    async with Client(buildStocksMCP()) as client:
+    async with Client(stocksMcp) as client:
         return await client.list_tools()
 
 
 class TestMCPToolScoping:
-    """Verify buildStocksMCP exposes exactly the 5 data query tools."""
+    """Verify stocksMcp exposes exactly the 5 data query tools."""
 
     async def test_mcp_exactly_five_tools(self):
         """MCP should expose exactly 5 tools: fields, historical, fundamental, cotations, live."""
@@ -56,7 +56,7 @@ class TestMCPToolScoping:
     def test_mcp_mount_returns_valid_response(self):
         """MCP endpoint should respond — confirms mount is registered."""
         app = FastAPI()
-        mcpApp = buildStocksMCP().http_app(path="/", transport="streamable-http", stateless_http=True)
+        mcpApp = stocksMcp.http_app(path="/", transport="streamable-http", stateless_http=True)
         app.mount("/stocks/mcp", mcpApp)
 
         with TestClient(app, raise_server_exceptions=False) as client:

@@ -10,7 +10,7 @@ EXPECTED_STOCKS_MCP_TOOLS = {
 
 
 async def test_stocks_mcp_exposes_5():
-    from main.controller.stocksapi_controller import buildStocksMCP
+    from main.controller.stocksapi_controller import stocksMcp
 
-    tools = await buildStocksMCP().list_tools()
+    tools = await stocksMcp.list_tools()
     assert {tool.name for tool in tools} == EXPECTED_STOCKS_MCP_TOOLS
