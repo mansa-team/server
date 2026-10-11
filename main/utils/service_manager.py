@@ -1,4 +1,8 @@
 import logging
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+from typing import Any
+
 from config import Config
 from main.utils.logging_config import limiter
 
@@ -41,6 +45,43 @@ def getApp(port: int) -> FastAPI:
 
     instances[port] = app
     return app
+
+
+def adoptMcpLifespan(service: FastAPI, mcpHttp: Any) -> None:
+    """Chain an MCP http app lifespan onto a shared service app.
+
+    Starlette calls ``service.router.lifespan_context(app)`` with a single app
+    argument (see ``Router.lifespan``); FastMCP exposes the same shape via
+    ``mcpHttp.lifespan`` (an ``@asynccontextmanager lifespan(app)`` function).
+    Direct assignment last-writer-wins when two services share one app, so nest
+    the previous context with the new one instead of overwriting it.
+    """
+
+    previous: Any = getattr(service.router, "lifespan_context", None)
+    new: Any = mcpHttp.lifespan
+    if previous is None:
+        service.router.lifespan_context = new
+        return
+    if previous is new:
+        return
+    previousParts = getattr(previous, "_mcpChainedParts", None)
+    if previousParts is not None and new in previousParts:
+        return
+
+    @asynccontextmanager
+    async def chained(app: Any) -> AsyncIterator[Any]:
+        async with previous(app) as previousState:
+            async with new(app) as newState:
+                if isinstance(previousState, dict) and isinstance(newState, dict):
+                    yield {**previousState, **newState}
+                else:
+                    yield newState if newState is not None else previousState
+
+    if previousParts is None:
+        chained._mcpChainedParts = (previous, new)  # type: ignore[attr-defined]
+    else:
+        chained._mcpChainedParts = (*previousParts, new)  # type: ignore[attr-defined]
+    service.router.lifespan_context = chained  # type: ignore[assignment]
 
 
 def runAll():

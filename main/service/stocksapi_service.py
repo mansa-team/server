@@ -8,7 +8,7 @@ lifespan.
 
 from main.app.stocks_api.cache import stocksCache
 from main.controller.stocksapi_controller import router as stocksRouter, stocksMcp
-from main.utils.service_manager import getApp
+from main.utils.service_manager import adoptMcpLifespan, getApp
 
 
 class StocksAPIService:
@@ -21,6 +21,6 @@ class StocksAPIService:
         service.mount("/stocks/mcp", mcpHttp)
         # Mounted sub-app lifespans never run under uvicorn: adopt it so the
         # streamable session manager is initialized for POST traffic.
-        service.router.lifespan_context = mcpHttp.lifespan
+        adoptMcpLifespan(service, mcpHttp)
 
         stocksCache.cacheScheduler()
