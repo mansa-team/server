@@ -75,6 +75,7 @@ services:
       - STOCKS_MYSQL_USER
       - STOCKS_MYSQL_PASSWORD
       - STOCKS_MYSQL_DATABASE
+      - MCP_OAUTH.CLIENT_SECRET=${MCP_OAUTH_CLIENT_SECRET:-}
 
     volumes:
       - .:/app
