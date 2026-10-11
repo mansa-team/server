@@ -113,6 +113,77 @@ server {
         proxy_set_header Connection "";
     }
 
+    # SoloAS OAuth paths live in wallet-service (stocks_backend), not root_backend.
+    # Without these, location / sends /authorize etc to api:8000 which 404s.
+    # Upstream mounts them under /wallet/mcp (wallet_service mounts walletMcp
+    # http_app at /wallet/mcp, base_url=.../wallet/mcp), so rewrite root
+    # OAuth paths to /wallet/mcp/* before proxying.
+    location /authorize {
+        rewrite ^/authorize(.*)$ /wallet/mcp/authorize$1 break;
+        proxy_cache stocks;
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
+        proxy_pass http://stocks_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        add_header X-Cache-Status $upstream_cache_status always;
+    }
+
+    location /token {
+        rewrite ^/token(.*)$ /wallet/mcp/token$1 break;
+        proxy_cache stocks;
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
+        proxy_pass http://stocks_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        add_header X-Cache-Status $upstream_cache_status always;
+    }
+
+    location /revoke {
+        rewrite ^/revoke(.*)$ /wallet/mcp/revoke$1 break;
+        proxy_cache stocks;
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
+        proxy_pass http://stocks_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        add_header X-Cache-Status $upstream_cache_status always;
+    }
+
+    location /register {
+        rewrite ^/register(.*)$ /wallet/mcp/register$1 break;
+        proxy_cache stocks;
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
+        proxy_pass http://stocks_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        add_header X-Cache-Status $upstream_cache_status always;
+    }
+
+    location /oauth/ {
+        rewrite ^/oauth/(.*)$ /wallet/mcp/oauth/$1 break;
+        proxy_cache stocks;
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
+        proxy_pass http://stocks_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        add_header X-Cache-Status $upstream_cache_status always;
+    }
+
+    location /.well-known/ {
+        rewrite ^/.well-known/(.*)$ /wallet/mcp/.well-known/$1 break;
+        proxy_cache stocks;
+        proxy_no_cache 1;
+        proxy_cache_bypass 1;
+        proxy_pass http://stocks_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        add_header X-Cache-Status $upstream_cache_status always;
+    }
+
     location / {
         proxy_pass http://root_backend;
         proxy_http_version 1.1;
