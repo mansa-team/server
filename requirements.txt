@@ -1,7 +1,5 @@
+# top layer: volatile app/framework deps the team bumps often; slow/stable heavyweights live in base-requirements.txt.
 # GLOBAL
-pandas
-numpy
-sqlalchemy
 pymysql
 pydantic
 pydantic_settings
@@ -9,7 +7,6 @@ alembic
 user-agents
 
 # SCRAPER-B3
-lxml
 cloudscraper
 tenacity
 apscheduler
@@ -17,7 +14,6 @@ apscheduler
 # STOCKS-API
 fastapi
 uvicorn
-pyarrow
 orjson
 requests
 zstandard
@@ -25,12 +21,9 @@ cashews[redis]
 
 # ORUNMILA
 sse-starlette
-sentence-transformers
-huggingface-hub
 fastmcp>=4.1,<5
 mcp>=2.3,<3
 httpx2>=2.10
-google-genai[local-tokenizer]
 forgevm
 python-multipart
 cachetools
