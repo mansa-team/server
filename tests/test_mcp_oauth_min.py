@@ -692,3 +692,96 @@ def test_http_google_user_session_resumes_login(dbSession, monkeypatch):
         resumed = httpClient.get(f"/oauth/login?request_id={requestId}", follow_redirects=False)
         assert resumed.status_code == 302
         assert "code" in parse_qs(urlparse(resumed.headers["location"]).query)
+
+
+def test_transport_fallback_resolves_empty_arg(dbSession, monkeypatch):
+    """Empty tool arg + transport token set -> resolves to the token's user."""
+    from fastapi import HTTPException  # noqa: F401 (asserts raise type below)
+
+    from fastmcp.server.auth import AccessToken as FastAccessToken
+    from mcp.server.auth.middleware.auth_context import auth_context_var
+    from mcp.server.auth.middleware.bearer_auth import AuthenticatedUser
+
+    from main.controller import wallet_controller as walletController
+
+    _use_test_env(monkeypatch, dbSession)
+    userId, sessionId = _seed_user(dbSession, username="transportuser")
+    token = createAccessToken({"userId": str(userId), "sessionId": sessionId})
+    # Backing store: mcp/server/auth/middleware/auth_context.py:8 auth_context_var.
+    transport = FastAccessToken(token=token, client_id=CLIENT_ID, scopes=["wallet"])
+    varToken = auth_context_var.set(AuthenticatedUser(transport))
+    try:
+        claims = walletController.resolveMcpIdentity("", dbSession)
+    finally:
+        auth_context_var.reset(varToken)
+    assert claims["userId"] == str(userId)
+    assert claims["sessionId"] == sessionId
+
+
+def test_empty_arg_no_transport_401(dbSession, monkeypatch):
+    """Empty arg + NO transport context -> same 401 as today (no stale leak)."""
+    from fastapi import HTTPException
+
+    from main.controller import wallet_controller as walletController
+
+    _use_test_env(monkeypatch, dbSession)
+    _seed_user(dbSession)
+    for empty in ("", "   "):
+        with pytest.raises(HTTPException) as exc:
+            walletController.resolveMcpIdentity(empty, dbSession)
+        assert exc.value.status_code == 401
+
+
+def test_tool_arg_wins_over_transport(dbSession, monkeypatch):
+    """Arg present + DIFFERENT transport token -> per-tool arg wins (pool precedence)."""
+    from fastmcp.server.auth import AccessToken as FastAccessToken
+    from mcp.server.auth.middleware.auth_context import auth_context_var
+    from mcp.server.auth.middleware.bearer_auth import AuthenticatedUser
+
+    from main.controller import wallet_controller as walletController
+
+    _use_test_env(monkeypatch, dbSession)
+    userA, sessionA = _seed_user(dbSession, username="arguser")
+    userB, _ = _seed_user(dbSession, username="othertransport")
+    tokenA = createAccessToken({"userId": str(userA), "sessionId": sessionA})
+    tokenB = createAccessToken({"userId": str(userB), "sessionId": sessionA})
+    # Backing store: mcp/server/auth/middleware/auth_context.py:8 auth_context_var.
+    transport = FastAccessToken(token=tokenB, client_id=CLIENT_ID, scopes=["wallet"])
+    varToken = auth_context_var.set(AuthenticatedUser(transport))
+    try:
+        claims = walletController.resolveMcpIdentity(f"Bearer {tokenA}", dbSession)
+    finally:
+        auth_context_var.reset(varToken)
+    assert claims["userId"] == str(userA)
+
+
+def test_http_bearer_only_call_without_tool_arg_200(dbSession, monkeypatch):
+    """OpenCode shape: ONLY Authorization Bearer header, NO authorization arg -> 200 owner's data."""
+    _use_test_env(monkeypatch, dbSession)
+    userId, _ = _seed_user(dbSession)
+    wallet = WalletsManager.getMyWallet(dbSession, userId)
+    EntriesManager.addEntry(
+        dbSession,
+        wallet,
+        EntryCreate(side="Compra", asset_type="ACOES", ticker="PETR4", date=date(2026, 1, 2), quantity=10, price=10.0),
+    )
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        minted = _basic_token_post(httpClient, _fresh_code(httpClient))
+        assert minted.status_code == 200, minted.text
+        accessToken = minted.json()["access_token"]
+        call = {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "method": "tools/call",
+            "params": {"name": "wallet_positions", "arguments": {}},
+        }
+        authed = httpClient.post(
+            "/",
+            json=call,
+            headers={
+                "Accept": "application/json, text/event-stream",
+                "Authorization": f"Bearer {accessToken}",
+            },
+        )
+        assert authed.status_code == 200, authed.text
+        assert "PETR4" in authed.text

@@ -4,6 +4,7 @@ from typing import Annotated, Any, Literal
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from fastmcp import FastMCP
+from fastmcp.server.dependencies import get_access_token
 from pydantic import Field
 from sqlalchemy.orm import Session
 
@@ -549,8 +550,17 @@ def get_dividends_monthly_route(
 def resolveMcpIdentity(authorization: str, db: Session) -> dict:
     """Session JWT from an MCP tool arg -> verified claims with revocation check.
 
+    Falls back to the transport Bearer (OpenCode path) when the tool arg is
+    empty: per-tool `authorization` wins when present, otherwise the FastMCP
+    request token is validated through the identical path below. No transport
+    context (direct unit calls) keeps the existing 401.
+
     Raises HTTPException 401 on missing, expired, forged, or revoked sessions.
     """
+    if not authorization or not authorization.strip():
+        access = get_access_token()
+        raw = access.token if (access and access.token) else ""
+        authorization = raw
     token = authorization[7:] if authorization.startswith("Bearer ") else authorization
     currentUser = verifyAccessToken(token)
     userIdRaw = currentUser.get("userId")

@@ -5,7 +5,8 @@ The wallet MCP surface is eleven hand-written tools on walletMcp
 never leak into MCP. Auth rides as a first-class `authorization` tool arg:
 the dispatcher injects the session JWT and resolveMcpIdentity verifies it
 per tool (the shared MCP pool freezes transport headers, so per-request
-headers cannot carry identity).
+headers cannot carry identity there). Direct Bearer clients (OpenCode)
+fall back to the transport token when the tool arg is empty.
 """
 
 import json
@@ -617,20 +618,20 @@ async def _mcp_client(app, headers=None):
 
 
 def _transport_headers(dbSession, username="transportuser"):
-    """Valid user Bearer for the transport gate (identity still per-tool)."""
+    """Valid user Bearer for the transport gate (per-tool arg wins, else transport fallback)."""
     return {"Authorization": f"Bearer {_seed_session_token(dbSession, username=username)}"}
 
 
 class TestWalletMCPAuthBoundary:
-    """End-to-end over the real HTTP mount: transport gate + per-tool identity."""
+    """End-to-end over the real HTTP mount: transport gate + per-tool identity (transport fallback)."""
 
-    async def test_call_without_token_is_rejected(self, dbSession):
+    async def test_call_without_tool_arg_resolves_transport(self, dbSession):
         app = _build_auth_app(dbSession)
         async with _mcp_client(app, _transport_headers(dbSession)) as client:
             result = await client.call_tool("wallet_positions", {}, raise_on_error=False)
 
-        assert result.is_error
-        assert "401" in result.content[0].text
+        assert not result.is_error
+        assert json.loads(result.content[0].text) == {"items": [], "equity_total": 0.0}
 
     async def test_call_with_valid_session_jwt_succeeds(self, dbSession):
         app = _build_auth_app(dbSession)
@@ -656,7 +657,7 @@ class TestWalletMCPAuthBoundary:
         tokenA, _userA, _walletA = _seed_session_wallet(dbSession)
         tokenB = _seed_session_token(dbSession, username="otheruser")
 
-        # Transport rides as A: per-tool args (A vs B) alone decide identity.
+        # Transport rides as A: per-tool args (A vs B) win when present.
         async with _mcp_client(app, {"Authorization": f"Bearer {tokenA}"}) as client:
             positionsA = await client.call_tool(
                 "wallet_positions", {"authorization": f"Bearer {tokenA}"}, raise_on_error=False
@@ -737,15 +738,15 @@ class TestWalletMCPAuthBoundary:
         assert result.is_error
         assert "401" in result.content[0].text
 
-    async def test_wrapper_call_without_token_is_rejected(self, dbSession):
+    async def test_wrapper_call_without_tool_arg_resolves_transport(self, dbSession):
         app = _build_auth_app(dbSession)
         async with _mcp_client(app, _transport_headers(dbSession)) as client:
             result = await client.call_tool(
                 "wallet_progression", {"from_date": "2026-01-01", "to_date": "2026-02-01"}, raise_on_error=False
             )
 
-        assert result.is_error
-        assert "401" in result.content[0].text
+        assert not result.is_error
+        assert json.loads(result.content[0].text)["granularity"] == "daily"
 
     async def test_record_entry_with_session_jwt_roundtrips(self, dbSession):
         """Full write path over MCP: JWT tool argument → ledger write."""
@@ -773,7 +774,7 @@ class TestWalletMCPAuthBoundary:
         assert payload["entryId"] is not None
         assert payload["holding"] == {"ticker": "PETR4", "quantity": 10.0, "avgPrice": 25.1}
 
-    async def test_record_entry_via_mcp_without_token_writes_nothing(self, dbSession):
+    async def test_record_entry_without_tool_arg_writes_as_transport(self, dbSession):
         app = _build_auth_app(dbSession)
         async with _mcp_client(app, _transport_headers(dbSession)) as client:
             result = await client.call_tool(
@@ -789,9 +790,11 @@ class TestWalletMCPAuthBoundary:
                 raise_on_error=False,
             )
 
-        assert result.is_error
-        assert "401" in result.content[0].text
-        assert dbSession.query(Transaction).count() == 0
+        assert not result.is_error
+        payload = json.loads(result.content[0].text)
+        assert payload["entryId"] is not None
+        assert payload["holding"] == {"ticker": "PETR4", "quantity": 10.0, "avgPrice": 25.0}
+        assert dbSession.query(Transaction).count() == 1
 
 
 class TestWalletMCPParams:
