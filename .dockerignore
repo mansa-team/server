@@ -1,8 +1,12 @@
+# Docker build context ships the whole directory, so exclude everything the runtime image does not need.
+# Rule: keep only what `COPY . .` + `python run.py` (config, main/, migrations, requirements) needs at runtime.
 .git
 .github
 .gitignore
 __pycache__
+**/__pycache__/
 *.pyc
+**/*.pyc
 *.pyo
 .mypy_cache
 .pytest_cache
@@ -36,3 +40,11 @@ autoresearch-results.tsv
 .autoresearch
 
 cache/
+frontend/
+docs/
+nginx/
+.venv/
+venv/
+.env
+*.env
+coverage.xml
