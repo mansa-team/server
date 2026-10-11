@@ -47,7 +47,7 @@ async def test_pool_lists_mcp_tools():
     assert urls["wallet"].endswith("/wallet/mcp")
     assert urls["stocks"].endswith("/stocks/mcp")
 
-    from main.service.wallet_service import buildWalletMCP
+    from main.controller.wallet_controller import buildWalletMCP
 
     mcpServer = buildWalletMCP()
     mcpApp = mcpServer.http_app(path="/", transport="streamable-http", stateless_http=True)
@@ -115,7 +115,7 @@ async def test_pool_lists_tools_with_service_token_only(monkeypatch):
 
     monkeypatch.setattr(authUtil, "verifyServiceToken", lambda db, token: token == "svc-probe")
 
-    from main.service.wallet_service import buildWalletMCP
+    from main.controller.wallet_controller import buildWalletMCP
 
     mcpServer = buildWalletMCP()
     mcpApp = mcpServer.http_app(path="/", transport="streamable-http", stateless_http=True)
@@ -140,7 +140,7 @@ async def test_pool_rejects_forged_service_token(monkeypatch):
 
     monkeypatch.setattr(authUtil, "verifyServiceToken", lambda db, token: False)
 
-    from main.service.wallet_service import buildWalletMCP
+    from main.controller.wallet_controller import buildWalletMCP
 
     mcpServer = buildWalletMCP()
     mcpApp = mcpServer.http_app(path="/", transport="streamable-http", stateless_http=True)

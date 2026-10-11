@@ -129,7 +129,7 @@ class TestWalletDispatchEndToEnd:
 
     async def test_read_dispatch_round_trips_through_wallet_mcp(self, dbSession, monkeypatch):
         monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
-        monkeypatch.setattr("main.service.wallet_service.SessionLocal", lambda: dbSession)
+        monkeypatch.setattr("main.controller.wallet_controller.SessionLocal", lambda: dbSession)
         app = _build_auth_app(dbSession)
         token, _user, _wallet = _seed_session_wallet(dbSession)
 

@@ -24,7 +24,7 @@ from main.app.authentication.util import createAccessToken, walletAuth
 from main.app.wallet.entries import EntriesManager, EntryCreate
 from main.app.wallet.wallets import WalletsManager
 from main.models.user import User
-from main.service.wallet_service import buildWalletMCP
+from main.controller.wallet_controller import buildWalletMCP
 from tests.test_wallet_positions import _live_ok
 
 
@@ -74,7 +74,7 @@ def _seed_session_wallet(dbSession, ticker="PETR4", quantity=10, price=10.0):
 
 def _use_test_db(monkeypatch, dbSession):
     """Route tool bodies at the sqlite fixture instead of the production session."""
-    monkeypatch.setattr("main.service.wallet_service.SessionLocal", lambda: dbSession)
+    monkeypatch.setattr("main.controller.wallet_controller.SessionLocal", lambda: dbSession)
     monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
 
 

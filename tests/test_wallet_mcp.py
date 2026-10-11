@@ -42,6 +42,7 @@ from main.app.wallet.entries import EntryCreate, EntriesManager
 from main.app.wallet.performance import PerformanceManager
 from main.app.wallet.wallets import WalletsManager
 from main.controller.wallet_controller import (
+    buildWalletMCP,
     explain_twr_route,
     record_entry_route,
     router as walletRouter,
@@ -50,7 +51,7 @@ from main.controller.wallet_controller import (
 )
 from main.models.user import User
 from main.models.wallet import Earning, Holding, Transaction
-from main.service.wallet_service import WalletService, buildWalletMCP
+from main.service.wallet_service import WalletService
 from main.utils.errors import registerErrorHandlers
 from tests.test_wallet_positions import _live_ok
 
@@ -85,7 +86,7 @@ async def clear_cashews_cache():
 @pytest.fixture(autouse=True)
 def route_mcp_tools_at_test_db(monkeypatch, dbSession):
     """MCP tools open their own SessionLocal: point it at the sqlite fixture."""
-    monkeypatch.setattr("main.service.wallet_service.SessionLocal", lambda: dbSession)
+    monkeypatch.setattr("main.controller.wallet_controller.SessionLocal", lambda: dbSession)
 
 
 async def _wallet_tools():

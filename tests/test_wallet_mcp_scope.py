@@ -18,14 +18,14 @@ EXPECTED_MCP_TOOLS = {
 
 
 async def test_mcp_exposes_exact_11():
-    from main.service.wallet_service import buildWalletMCP
+    from main.controller.wallet_controller import buildWalletMCP
 
     tools = await buildWalletMCP().list_tools()
     assert {tool.name for tool in tools} == EXPECTED_MCP_TOOLS
 
 
 async def test_all_tools_have_anthropic_docstrings():
-    from main.service.wallet_service import buildWalletMCP
+    from main.controller.wallet_controller import buildWalletMCP
 
     tools = await buildWalletMCP().list_tools()
     for tool in tools:
@@ -34,7 +34,7 @@ async def test_all_tools_have_anthropic_docstrings():
 
 
 async def test_wallet_progression_schema_bounds():
-    from main.service.wallet_service import buildWalletMCP
+    from main.controller.wallet_controller import buildWalletMCP
 
     tools = await buildWalletMCP().list_tools()
     props = next(tool for tool in tools if tool.name == "wallet_progression").parameters["properties"]
