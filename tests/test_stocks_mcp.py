@@ -1,4 +1,4 @@
-"""Tests for MCP tool scoping in stocksapi_service.py.
+"""Tests for MCP tool scoping in main/controller/stocksapi_controller.py.
 
 Verifies that buildStocksMCP exposes exactly the 5 data query tools,
 excluding health and generateKey endpoints.

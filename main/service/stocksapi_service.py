@@ -7,8 +7,7 @@ lifespan.
 """
 
 from main.app.stocks_api.cache import stocksCache
-from main.controller.stocksapi_controller import buildStocksMCP
-from main.controller.stocksapi_controller import router as stocksRouter
+from main.controller.stocksapi_controller import buildStocksMCP, router as stocksRouter
 from main.utils.service_manager import getApp
 
 
