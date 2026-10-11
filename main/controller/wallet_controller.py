@@ -764,6 +764,7 @@ def wallet_progression_series(
 
 
 @walletMcp.tool
+# Keep EXAMPLES bullets single-line: FastMCP 4.1 drops the whole section on wrapped continuation lines.
 def record_entry(
     side: Literal["Compra", "Venda"],
     asset_type: AssetType,

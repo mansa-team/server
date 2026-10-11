@@ -1,3 +1,11 @@
+"""Stocks service: HTTP routes plus the stocks MCP server mount.
+
+The MCP surface (five hand-written tools) lives in
+main.controller.stocksapi_controller.stocksMcp next to the route functions
+it delegates to; this service only mounts it at /stocks/mcp and adopts its
+lifespan.
+"""
+
 from main.app.stocks_api.cache import stocksCache
 from main.controller.stocksapi_controller import router as stocksRouter, stocksMcp
 from main.utils.service_manager import getApp
@@ -11,6 +19,8 @@ class StocksAPIService:
 
         mcpHttp = stocksMcp.http_app(path="/", transport="streamable-http", stateless_http=True)
         service.mount("/stocks/mcp", mcpHttp)
+        # Mounted sub-app lifespans never run under uvicorn: adopt it so the
+        # streamable session manager is initialized for POST traffic.
         service.router.lifespan_context = mcpHttp.lifespan
 
         stocksCache.cacheScheduler()
