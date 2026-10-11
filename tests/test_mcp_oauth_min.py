@@ -139,6 +139,56 @@ async def test_empty_secret_refuses_authorize(dbSession, monkeypatch):
     assert await provider.get_client(CLIENT_ID) is None
 
 
+async def test_authorize_rejects_missing_pkce(dbSession, monkeypatch):
+    provider = _use_test_env(monkeypatch, dbSession)
+    from mcp.server.auth.provider import AuthorizeError
+
+    client = await provider.get_client(CLIENT_ID)
+    with pytest.raises(AuthorizeError):
+        await provider.authorize(client, _params(code_challenge=""))
+
+
+async def test_authorize_rejects_plain_pkce(dbSession, monkeypatch):
+    provider = _use_test_env(monkeypatch, dbSession)
+    from mcp.server.auth.provider import AuthorizeError
+
+    client = await provider.get_client(CLIENT_ID)
+    params = _params()
+    plain = SimpleNamespace(
+        state=params.state,
+        scopes=params.scopes,
+        code_challenge=params.code_challenge,
+        code_challenge_method="plain",
+        redirect_uri=params.redirect_uri,
+        redirect_uri_provided_explicitly=params.redirect_uri_provided_explicitly,
+        resource=params.resource,
+    )
+    with pytest.raises(AuthorizeError):
+        await provider.authorize(client, plain)
+
+
+async def test_expired_refresh_rejected(dbSession, monkeypatch):
+    import time
+
+    from mcp.server.auth.provider import RefreshToken, TokenError
+
+    provider = _use_test_env(monkeypatch, dbSession)
+    client = await provider.get_client(CLIENT_ID)
+    expired = RefreshToken(
+        token="expired-refresh-value",
+        client_id=CLIENT_ID,
+        scopes=["wallet"],
+        expires_at=int(time.time()) - 10,
+        resource=None,
+        subject="1",
+    )
+    provider.refreshTokens[expired.token] = expired
+    provider.refreshSessions[expired.token] = "sess"
+    with pytest.raises(TokenError) as exc:
+        await provider.exchange_refresh_token(client, expired, [])
+    assert exc.value.error == "invalid_grant"
+
+
 async def test_revoked_session_access_fails(dbSession, monkeypatch):
     provider = _use_test_env(monkeypatch, dbSession)
     userId, sessionId = _seed_user(dbSession)

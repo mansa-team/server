@@ -64,7 +64,7 @@ REFRESH_TTL_SECONDS = 30 * 24 * 3600
 
 LOOPBACK_HOSTS = ("localhost", "127.0.0.1", "::1")
 
-revokedAccessJtis: set[str] = set()
+revokedAccessJtis: dict[str, float] = {}
 
 
 def oauthBaseUrl() -> str:
@@ -136,6 +136,13 @@ class SoloOAuthProvider(OAuthProvider):
         raise RuntimeError("client registration closed: single static client only")
 
     async def authorize(self, client: OAuthClientInformationFull, params: AuthorizationParams) -> str:
+        # Fail closed on PKCE: installed AuthorizationParams carries only
+        # code_challenge (no method field; the SDK wire type validates
+        # code_challenge_method == S256 before we are reached). Direct calls
+        # bypass the wire, so reject here on absent/empty challenge or on a
+        # non-S256 method if one is ever forwarded.
+        if not getattr(params, "code_challenge", None) or getattr(params, "code_challenge_method", "S256") != "S256":
+            raise AuthorizeError("invalid_request", "PKCE S256 code_challenge required")
         scopes = params.scopes or [WALLET_SCOPE]
         for scope in scopes:
             if scope != WALLET_SCOPE:
@@ -227,6 +234,8 @@ class SoloOAuthProvider(OAuthProvider):
         sessionId = self.refreshSessions.pop(refresh_token.token, "")
         if not stored:
             raise TokenError("invalid_grant", "refresh token does not exist")
+        if stored.expires_at is not None and stored.expires_at < time.time():
+            raise TokenError("invalid_grant", "refresh token has expired")
         return self._mint(
             client.client_id, str(stored.subject or ""), sessionId, scopes or stored.scopes, stored.resource
         )
@@ -282,7 +291,12 @@ class SoloOAuthProvider(OAuthProvider):
             return
         jti = str(payload.get("jti") or "")
         if jti:
-            revokedAccessJtis.add(jti)
+            now = time.time()
+            cutoff = now - ACCESS_TTL_SECONDS
+            for oldJti, seenAt in list(revokedAccessJtis.items()):
+                if seenAt < cutoff:
+                    del revokedAccessJtis[oldJti]
+            revokedAccessJtis[jti] = now
         # The access token IS the session JWT: revoking it must end the grant,
         # otherwise the loopback verifier + per-tool identity would still honor
         # the same credential. Best-effort session revoke (logout semantics).
