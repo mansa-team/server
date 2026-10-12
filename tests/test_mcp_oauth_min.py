@@ -22,7 +22,7 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from config import Config
-from main.app.authentication import mcp_oauth_solo as solo
+from main.app.authentication import mcp_oauth as solo
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import createAccessToken, hashPassword
 from main.app.wallet.entries import EntriesManager, EntryCreate

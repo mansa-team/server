@@ -423,8 +423,6 @@ class SoloOAuthProvider(OAuthProvider):
 
 class SoloAuth(MultiAuth):
     def _get_resource_url(self, path: str | None = None) -> AnyHttpUrl | None:
-        # Delegate to the server so the 401 challenge metadata URL agrees
-        # with the served PRM route (MultiAuth base would re-add the slash).
         if self.server is not None:
             getUrl = getattr(self.server, "_get_resource_url", None)
             if callable(getUrl):

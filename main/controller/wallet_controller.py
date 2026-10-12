@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from config import SessionLocal, getSession
 from main.app.authentication.session import SessionManager
-from main.app.authentication.mcp_oauth_solo import register_login_routes, soloAuth
+from main.app.authentication.mcp_oauth import register_login_routes, soloAuth
 from main.app.authentication.util import verifyAccessToken
 from main.app.wallet.auth import getWalletUser
 from main.app.wallet.analytics import AnalyticsManager
