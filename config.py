@@ -46,6 +46,9 @@ class UserSettings(ServiceSettings):
     GOOGLE_CLIENT_ID: str = Field(default="", validation_alias="GOOGLE_CLIENT.ID")
     GOOGLE_CLIENT_SECRET: str = Field(default="", validation_alias="GOOGLE_CLIENT.SECRET")
     GOOGLE_REDIRECT_URI: str = Field(default="", validation_alias="GOOGLE_REDIRECT.URI")
+    MCP_OAUTH_CLIENT_ID: str = Field(default="opencode", validation_alias="MCP_OAUTH.CLIENT_ID")
+    MCP_OAUTH_CLIENT_SECRET: str = Field(default="", validation_alias="MCP_OAUTH.CLIENT_SECRET")
+    MCP_PUBLIC_BASE_URL: str = Field(default="http://localhost:8080", validation_alias="MCP_PUBLIC_BASE_URL")
 
 
 class StocksApiSettings(ServiceSettings):

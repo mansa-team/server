@@ -1,49 +1,26 @@
-import logging
+"""Stocks service: HTTP routes plus the stocks MCP server mount.
 
-from fastapi_mcp import FastApiMCP
-
-from main.utils.service_manager import getApp
-from main.controller.stocksapi_controller import router as stocksRouter
+The MCP surface (five hand-written tools) lives in
+main.controller.stocksapi_controller.stocksMcp next to the route functions
+it delegates to; this service only mounts it at /stocks/mcp and adopts its
+lifespan.
+"""
 
 from main.app.stocks_api.cache import stocksCache
-
-logger = logging.getLogger(__name__)
-
-
-class MCPDetectMiddleware:
-    def __init__(self, app):
-        self.app = app
-
-    async def __call__(self, scope, receive, send):
-        if scope["type"] == "http":
-            headers = dict(scope.get("headers") or [])
-            if headers.get(b"x-mcp") == b"true":
-                scope.setdefault("state", {})["compressed"] = True
-                qs = scope.get("query_string", b"").decode("latin-1")
-                if "compact=" not in qs:
-                    scope["query_string"] = (qs + ("&" if qs else "") + "compact=true").encode("latin-1")
-        await self.app(scope, receive, send)
+from main.controller.stocksapi_controller import router as stocksRouter, stocksMcp
+from main.utils.service_manager import adoptMcpLifespan, getApp
 
 
 class StocksAPIService:
     @staticmethod
     def initialize(port: int):
         service = getApp(port)
-        service.add_middleware(MCPDetectMiddleware)
         service.include_router(stocksRouter)
 
-        mcp = FastApiMCP(
-            service,
-            name="Mansa's Stocks API MCP",
-            include_operations=[
-                "list_fields",
-                "get_historical",
-                "get_fundamental",
-                "get_cotations",
-                "get_live_price",
-            ],
-            headers=["authorization", "x-mcp"],
-        )
-        mcp.mount_http(service, mount_path="/stocks/mcp")
+        mcpHttp = stocksMcp.http_app(path="/", transport="streamable-http", stateless_http=True)
+        service.mount("/stocks/mcp", mcpHttp)
+        # Mounted sub-app lifespans never run under uvicorn: adopt it so the
+        # streamable session manager is initialized for POST traffic.
+        adoptMcpLifespan(service, mcpHttp)
 
         stocksCache.cacheScheduler()

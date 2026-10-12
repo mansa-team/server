@@ -34,13 +34,6 @@ def sanitizeNanValues(obj):
 
 
 def cotationDateKey(data) -> str | None:
-    """Map a 'DD-MM-YYYY' DATA value to comparable 'YYYYMMDD', else None.
-
-    String comparison on the key equals day-granularity date comparison and
-    avoids pd.to_datetime on ~3k entries per request. Mirrors the old
-    format='%d-%m-%Y'/errors='coerce' semantics: malformed values are
-    excluded from the window rather than raising.
-    """
     if not isinstance(data, str) or len(data) != 10 or data[2] != "-" or data[5] != "-":
         return None
     key = data[6:10] + data[3:5] + data[0:2]
@@ -98,7 +91,6 @@ def validateFields(requested: str | None, available: list, typeName: str) -> lis
     return wanted
 
 
-# Kept: public API response envelope shared by all query endpoints — keep.
 def envelope(search, fields, dates, typeName, df: pd.DataFrame):
     return {
         "search": search or "all",
@@ -393,7 +385,6 @@ def queryLiveCotations(search: str):
         reraise=True,
     )
     def quote(symbol: str) -> tuple:
-        """Single-ticker B3 GET (transient retry) + parse; 404 unknown, 502 malformed."""
         resp = getSession().get(
             f"https://cotacao.b3.com.br/mds/api/v1/instrumentQuotation/{symbol}",
             timeout=5,
@@ -425,9 +416,6 @@ def queryLiveCotations(search: str):
             raise HTTPException(502, detail="B3 realtime malformed response")
         return row, dtTm
 
-    # B3 instrumentQuotation is a single-ticker URL with no batch param, so the
-    # batch is one concurrent quote per deduped ticker; one ticker failing
-    # never fails the batch.
     unique = list(dict.fromkeys(tickers))
     rows: dict = {}
     failures: dict = {}

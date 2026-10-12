@@ -1,15 +1,21 @@
 import logging
 from urllib.parse import urlparse
 
-from fastapi import Depends, HTTPException, Request
+from fastapi import HTTPException, Request
 from datetime import datetime, timedelta, timezone
 import bcrypt
 import jwt
-from sqlalchemy.orm import Session
+from fastmcp.server.auth import AccessToken, JWTVerifier
+from mcp.server.auth.middleware.auth_context import AuthContextMiddleware
+from mcp.server.auth.middleware.bearer_auth import AuthenticatedUser, BearerAuthBackend
+from starlette.authentication import AuthCredentials
+from starlette.middleware import Middleware
+from starlette.middleware.authentication import AuthenticationMiddleware
+from starlette.requests import HTTPConnection
+from starlette.types import ASGIApp, Receive, Scope, Send
 
-from config import Config, getSession
+from config import Config, SessionLocal
 from main.app.authentication.constants import TOKEN_EXPIRY_HOURS, COOKIE_NAME
-from main.app.authentication.oauth_shared import RESOURCE_METADATA_URL, revokedAccessJtis
 from main.app.authentication.service_token import verifyServiceToken
 
 logger = logging.getLogger(__name__)
@@ -120,71 +126,76 @@ def extractTokenPayload(request: Request) -> dict:
 
     enforceResourceClaims(payload)
 
-    try:
-        if payload.get("jti") and payload.get("jti") in revokedAccessJtis:
-            raise HTTPException(status_code=401, detail="Token revoked")
-    except HTTPException:
-        raise
-    except Exception:
-        pass
-
     return payload
 
 
-def verifyMcpTransport(request: Request, db: Session = Depends(getSession)):
-    """Outer MCP challenge: service loopback OR user JWT, else 401+WWW-Authenticate.
+class ServiceLoopbackBackend(BearerAuthBackend):
+    """X-Service-Token (opaque service session row) OR Bearer user JWT.
 
-    GET passes through so the mount probe stays 406 (MCP calls are POST).
-    Service tokens (opaque X-Service-Token session rows) never resolve to a
-    user wallet: inner getCurrentUser still requires a user JWT and rejects
-    non-user sessions.
+    Header read + DB check per request, never import-time. A valid service
+    token authenticates the pool's transport connection but resolves NO user:
+    per-tool `authorization` args stay the sole identity (an opaque service
+    token never decodes as a user JWT, so it 401s at the tool layer).
     """
-    if request.method == "GET":
-        return None
 
-    if verifyServiceToken(db, request.headers.get("X-Service-Token", "")):
-        return {"type": "service"}
-
-    token = request.headers.get("X-Access-Token")
-    if not token:
-        authHeader = request.headers.get("Authorization")
-        if authHeader and authHeader.startswith("Bearer "):
-            token = authHeader.split(" ")[1]
-    if not token:
-        token = request.cookies.get(COOKIE_NAME)
-
-    def challenge(detail: str):
-        raise HTTPException(
-            status_code=401,
-            detail=detail,
-            headers={
-                "WWW-Authenticate": (
-                    f'Bearer resource_metadata="{RESOURCE_METADATA_URL}", '
-                    f'error="invalid_token", error_description="{detail}"'
+    async def authenticate(self, conn: HTTPConnection) -> tuple | None:
+        serviceToken = conn.headers.get("x-service-token", "")
+        if serviceToken:
+            try:
+                session = SessionLocal()
+                try:
+                    valid = verifyServiceToken(session, serviceToken)
+                finally:
+                    session.close()
+            except Exception:
+                valid = False
+            if valid:
+                return AuthCredentials([]), AuthenticatedUser(
+                    AccessToken(token=serviceToken, client_id="service-loopback", scopes=[])
                 )
-            },
-        )
+        return await super().authenticate(conn)
 
-    if not token:
-        challenge("Authentication required")
-    assert token is not None
-    if verifyServiceToken(db, token):
-        return {"type": "service"}
-    try:
-        payload = verifyAccessToken(token)
-    except HTTPException:
-        challenge("Invalid token")
-    try:
-        enforceResourceClaims(payload)
-    except HTTPException:
-        challenge("Invalid token claims")
-    try:
-        if payload.get("jti") and payload.get("jti") in revokedAccessJtis:
-            challenge("Token revoked")
-    except HTTPException:
-        raise
-    except Exception:
-        pass
-    if payload.get("userId") is None or payload.get("sessionId") is None:
-        challenge("Invalid token")
-    return payload
+
+_SERVICE_LOOPBACK_MARKER = "service-loopback"
+
+
+class ServiceLoopbackHeadersMiddleware:
+    """Presence shim for FastMCP's Bearer gate (RequireAuthMiddleware 401s with
+    no Authorization header before the auth backend ever runs).
+
+    When X-Service-Token rides without Authorization, injects a marker Bearer
+    so the request reaches the backend, which authenticates via X-Service-Token
+    (DB check) and never verifies the marker. Forged service tokens still 401
+    (invalid_token) at the backend; requests with neither header keep the
+    missing-auth 401.
+    """
+
+    def __init__(self, app: ASGIApp):
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] == "http":
+            names = {name.lower() for name, _value in scope.get("headers", [])}
+            if b"x-service-token" in names and b"authorization" not in names:
+                scope["headers"] = [
+                    *scope.get("headers", []),
+                    (b"authorization", f"Bearer {_SERVICE_LOOPBACK_MARKER}".encode()),
+                ]
+        await self.app(scope, receive, send)
+
+
+class ServiceLoopbackVerifier(JWTVerifier):
+    """User session JWTs plus the service-loopback credential on one transport."""
+
+    def get_middleware(self) -> list:
+        return [
+            Middleware(ServiceLoopbackHeadersMiddleware),
+            Middleware(AuthenticationMiddleware, backend=ServiceLoopbackBackend(self)),  # type: ignore[arg-type]
+            Middleware(AuthContextMiddleware),  # type: ignore[arg-type]
+        ]
+
+
+walletAuth = ServiceLoopbackVerifier(
+    public_key=Config.USER.JWT_SECRET_KEY,
+    algorithm="HS256",
+)

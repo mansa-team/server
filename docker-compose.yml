@@ -58,6 +58,8 @@ services:
       context: .
       dockerfile: Dockerfile
     restart: always
+    env_file:
+      - .env
     ports:
       - "8000:8000"
       - "${STOCKSAPI_PORT:-3200}:${STOCKSAPI_PORT:-3200}"
@@ -75,6 +77,7 @@ services:
       - STOCKS_MYSQL_USER
       - STOCKS_MYSQL_PASSWORD
       - STOCKS_MYSQL_DATABASE
+      - MCP_OAUTH.CLIENT_SECRET=${MCP_OAUTH_CLIENT_SECRET:-}
 
     volumes:
       - .:/app

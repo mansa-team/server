@@ -146,7 +146,7 @@ class TestDispatchRoutesMemoryTools:
 
         mock_client = AsyncMock()
         mock_client.session.call_tool = AsyncMock(
-            return_value=AsyncMock(isError=False, content=[AsyncMock(text="28.50")])
+            return_value=AsyncMock(is_error=False, content=[AsyncMock(text="28.50")])
         )
 
         result = await dispatchToolCall(mock_fc, {"stocks": mock_client}, user={"userId": 1})

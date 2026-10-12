@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM python:3.13.13-slim AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -6,12 +7,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
+COPY base-requirements.txt .
+
+RUN --mount=type=cache,target=/root/.cache/pip pip install --upgrade pip && \
+    pip install --prefix=/install \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
+    -r base-requirements.txt
+
 COPY requirements.txt .
 
-RUN pip install --upgrade pip && \
-    pip install --no-cache-dir --prefix=/install \
-    torch --index-url https://download.pytorch.org/whl/cpu && \
-    pip install --no-cache-dir --prefix=/install \
+RUN --mount=type=cache,target=/root/.cache/pip pip install --prefix=/install \
     --extra-index-url https://download.pytorch.org/whl/cpu \
     -r requirements.txt
 

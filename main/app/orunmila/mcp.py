@@ -7,6 +7,7 @@ from main.app.authentication.service_token import createServiceToken
 
 from fastmcp import Client
 from fastmcp.client.client import StreamableHttpTransport
+from mcp import MCPError
 
 logger = logging.getLogger(__name__)
 
@@ -51,11 +52,14 @@ MCP_SERVERS = [
 ]
 
 
-def buildClient(server):
+def buildClient(server, httpx_client_factory=None):
     url = server["url"]
     headers = server.get("headers", {})
-    if headers:
-        return Client(transport=StreamableHttpTransport(url, headers=headers))
+    if headers or httpx_client_factory is not None:
+        transportKwargs = {"headers": headers} if headers else {}
+        if httpx_client_factory is not None:
+            transportKwargs["httpx_client_factory"] = httpx_client_factory
+        return Client(transport=StreamableHttpTransport(url, **transportKwargs))
     return Client(url)
 
 
@@ -79,7 +83,7 @@ class MCPClientPool:
             try:
                 clients[name] = await connect(prepareServer(server))
                 logger.info("MCPClientPool: %s connected", name)
-            except (OSError, TimeoutError, ConnectionError, RuntimeError, ValueError) as e:
+            except (OSError, TimeoutError, ConnectionError, RuntimeError, ValueError, MCPError) as e:
                 logger.error("MCPClientPool: %s connect failed: %s", name, e)
 
         self.clients = clients
@@ -101,7 +105,7 @@ class MCPClientPool:
             for name, client in self.clients.items():
                 try:
                     await client.session.list_tools()
-                except (OSError, TimeoutError, ConnectionError, RuntimeError, ValueError) as e:
+                except (OSError, TimeoutError, ConnectionError, RuntimeError, ValueError, MCPError) as e:
                     logger.warning("MCPClientPool: %s unhealthy, reconnecting: %s", name, e)
                     await self.reconnect(name)
 
@@ -117,7 +121,7 @@ class MCPClientPool:
             new = await connect(prepareServer(server))
             self.clients[name] = new
             logger.info("MCPClientPool: %s reconnected", name)
-        except (OSError, TimeoutError, ConnectionError, RuntimeError, ValueError) as e:
+        except (OSError, TimeoutError, ConnectionError, RuntimeError, ValueError, MCPError) as e:
             logger.error("MCPClientPool: %s reconnect failed: %s", name, e)
 
     async def close(self):

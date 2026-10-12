@@ -18,7 +18,7 @@ from types import SimpleNamespace
 import pytest
 
 from main.app.orunmila.tools import TOOL_REGISTRY, dispatchToolCall
-from tests.test_wallet_mcp import _build_auth_app, _mcp_client, _seed_session_wallet
+from tests.test_wallet_mcp import _build_auth_app, _mcp_client, _seed_session_wallet, _transport_headers
 from tests.test_wallet_positions import _live_ok
 from cashews import cache as cashewsCache
 
@@ -56,7 +56,7 @@ async def clear_cashews_cache():
     await cashewsCache.clear()
 
 
-def _fakeMcpClient(text='{"items": []}', isError=False):
+def _fakeMcpClient(text='{"items": []}', is_error=False):
     """Minimal stand-in for the wallet MCP client: records call args."""
 
     class FakeMcpClient:
@@ -66,7 +66,7 @@ def _fakeMcpClient(text='{"items": []}', isError=False):
 
         async def _record(self, name, args):
             self.calls.append((name, args))
-            return SimpleNamespace(isError=isError, content=[SimpleNamespace(text=text)])
+            return SimpleNamespace(is_error=is_error, content=[SimpleNamespace(text=text)])
 
     return FakeMcpClient()
 
@@ -102,7 +102,7 @@ class TestWalletToolRouting:
 
     async def test_fallback_servers_never_get_authorization(self):
         functionCall = SimpleNamespace(name="wallet_summary", args={})
-        failingWallet = _fakeMcpClient(isError=True)
+        failingWallet = _fakeMcpClient(is_error=True)
         stocksClient = _fakeMcpClient()
 
         result = await dispatchToolCall(
@@ -129,11 +129,12 @@ class TestWalletDispatchEndToEnd:
 
     async def test_read_dispatch_round_trips_through_wallet_mcp(self, dbSession, monkeypatch):
         monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
+        monkeypatch.setattr("main.controller.wallet_controller.SessionLocal", lambda: dbSession)
         app = _build_auth_app(dbSession)
         token, _user, _wallet = _seed_session_wallet(dbSession)
 
         functionCall = SimpleNamespace(name="wallet_positions", args={})
-        async with _mcp_client(app) as client:
+        async with _mcp_client(app, _transport_headers(dbSession)) as client:
             result = await dispatchToolCall(functionCall, {"wallet": client}, rawToken=token)
 
         payload = json.loads(result["result"])

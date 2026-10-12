@@ -1,7 +1,5 @@
+# top layer: volatile app/framework deps the team bumps often; slow/stable heavyweights live in base-requirements.txt.
 # GLOBAL
-pandas
-numpy
-sqlalchemy
 pymysql
 pydantic
 pydantic_settings
@@ -9,16 +7,13 @@ alembic
 user-agents
 
 # SCRAPER-B3
-lxml
 cloudscraper
 tenacity
 apscheduler
 
 # STOCKS-API
 fastapi
-fastapi_mcp
 uvicorn
-pyarrow
 orjson
 requests
 zstandard
@@ -26,13 +21,9 @@ cashews[redis]
 
 # ORUNMILA
 sse-starlette
-sentence-transformers
-huggingface-hub
-# fastapi_mcp 0.4.0 uses mcp 1.x Server API (positional description, list_tools);
-# mcp 2.x + fastmcp 4.x break it, so cap both below the breaking majors.
-fastmcp<4
-mcp<2
-google-genai[local-tokenizer]
+fastmcp>=4.1,<5
+mcp>=2.3,<3
+httpx2>=2.10
 forgevm
 python-multipart
 cachetools
