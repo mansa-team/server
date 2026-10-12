@@ -129,7 +129,7 @@ def extractTokenPayload(request: Request) -> dict:
     return payload
 
 
-class _ServiceLoopbackBackend(BearerAuthBackend):
+class ServiceLoopbackBackend(BearerAuthBackend):
     """X-Service-Token (opaque service session row) OR Bearer user JWT.
 
     Header read + DB check per request, never import-time. A valid service
@@ -159,7 +159,7 @@ class _ServiceLoopbackBackend(BearerAuthBackend):
 _SERVICE_LOOPBACK_MARKER = "service-loopback"
 
 
-class _ServiceLoopbackHeadersMiddleware:
+class ServiceLoopbackHeadersMiddleware:
     """Presence shim for FastMCP's Bearer gate (RequireAuthMiddleware 401s with
     no Authorization header before the auth backend ever runs).
 
@@ -189,8 +189,8 @@ class ServiceLoopbackVerifier(JWTVerifier):
 
     def get_middleware(self) -> list:
         return [
-            Middleware(_ServiceLoopbackHeadersMiddleware),
-            Middleware(AuthenticationMiddleware, backend=_ServiceLoopbackBackend(self)),  # type: ignore[arg-type]
+            Middleware(ServiceLoopbackHeadersMiddleware),
+            Middleware(AuthenticationMiddleware, backend=ServiceLoopbackBackend(self)),  # type: ignore[arg-type]
             Middleware(AuthContextMiddleware),  # type: ignore[arg-type]
         ]
 

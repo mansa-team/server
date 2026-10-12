@@ -34,8 +34,8 @@ from main.app.authentication.authentication import AuthenticationManager
 from main.app.authentication.constants import COOKIE_NAME, COOKIE_PATH, COOKIE_SAMESITE
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import (
-    _ServiceLoopbackBackend,
-    _ServiceLoopbackHeadersMiddleware,
+    ServiceLoopbackBackend,
+    ServiceLoopbackHeadersMiddleware,
     createAccessToken,
     verifyAccessToken,
     walletAuth,
@@ -64,8 +64,6 @@ class LoopbackRedirectClient(OAuthClientInformationFull):
 
 
 class FormBackfillRequest(Request):
-    """Non-mutating shim: original scope/headers, overridden form fields."""
-
     def __init__(self, request: Request, form) -> None:
         super().__init__(request.scope, request.receive)
         self.shimForm = form
@@ -75,28 +73,11 @@ class FormBackfillRequest(Request):
 
 
 class BasicTolerantClientAuthenticator(ClientAuthenticator):
-    """Accept Basic-only /token calls (RFC 6749 S2.3.1 client_secret_basic).
-
-    Static confidential clients (OpenCode via the MCP TS SDK) send id:secret
-    ONLY in the Authorization header and omit client_id from the body, so the
-    SDK raises Missing client_id before ever parsing Basic. Backfill the Basic
-    pair as form fields via a non-mutating request shim. Every other path
-    (wrong secret, missing both, malformed header) keeps exact SDK errors.
-    Secrets are never logged.
-    """
-
     async def authenticate_request(self, request: Request) -> OAuthClientInformationFull:
         return await super().authenticate_request(await backfillBasicClient(request))
 
 
 async def backfillBasicClient(request: Request) -> Request:
-    """Present a Basic-only caller's id:secret as form fields (no mutation).
-
-    Used by the token endpoint wrapper (the SDK grant models also require
-    body client_id) and by the authenticator above. Returns the original
-    request unless the body lacks client_id AND a decodable Basic id:secret
-    pair is present.
-    """
     form = await request.form()
     if form.get("client_id"):
         return request
@@ -120,9 +101,6 @@ async def backfillBasicClient(request: Request) -> Request:
 
 class SoloOAuthProvider(OAuthProvider):
     def _get_resource_url(self, path: str | None = None) -> AnyHttpUrl | None:
-        # Root-mounted http_app (path="/") joins as base_url + "/" (fastmcp
-        # server/auth/auth.py:479-482); strip so PRM resource == canonical
-        # wallet MCP URL for RFC 9728 exact-match.
         url = super()._get_resource_url(path)
         if url is not None and path is not None and not path.strip("/"):
             return AnyHttpUrl(str(url).rstrip("/"))
@@ -171,12 +149,6 @@ class SoloOAuthProvider(OAuthProvider):
         raise RuntimeError("client registration closed: single static client only")
 
     def get_routes(self, mcp_path: str | None = None) -> list[Route]:
-        # The /token route bakes its authenticator at build time (FastMCP
-        # OAuthProvider.get_routes constructs TokenHandler with the SDK
-        # ClientAuthenticator, which rejects Basic-only callers), and the SDK
-        # grant models require body client_id too (mcp token.py). Rebuild only
-        # that route with our authenticator behind a backfill wrapper;
-        # everything else comes from super().
         routes = super().get_routes(mcp_path)
         rebuilt: list[Route] = []
         for route in routes:
@@ -413,8 +385,8 @@ class SoloAuth(MultiAuth):
 
     def get_middleware(self) -> list:
         return [
-            Middleware(_ServiceLoopbackHeadersMiddleware),
-            Middleware(AuthenticationMiddleware, backend=_ServiceLoopbackBackend(self)),  # type: ignore[arg-type]
+            Middleware(ServiceLoopbackHeadersMiddleware),
+            Middleware(AuthenticationMiddleware, backend=ServiceLoopbackBackend(self)),  # type: ignore[arg-type]
             Middleware(AuthContextMiddleware),  # type: ignore[arg-type]
         ]
 
