@@ -51,22 +51,6 @@ LOOPBACK_HOSTS = ("localhost", "127.0.0.1", "::1")
 revokedAccessJtis: dict[str, float] = {}
 
 
-def oauthBaseUrl() -> str:
-    return f"http://{Config.USER.HOST}:{Config.USER.PORT}/wallet/mcp"
-
-
-def publicBaseUrl() -> str:
-    return Config.USER.MCP_PUBLIC_BASE_URL.rstrip("/")
-
-
-def publicMcpUrl() -> str:
-    return f"{publicBaseUrl()}/wallet/mcp"
-
-
-def publicIssuerUrl() -> str:
-    return f"{publicBaseUrl()}/"
-
-
 class LoopbackRedirectClient(OAuthClientInformationFull):
     def validate_redirect_uri(self, redirect_uri: AnyUrl | None) -> AnyUrl:
         if redirect_uri is not None:
@@ -79,15 +63,15 @@ class LoopbackRedirectClient(OAuthClientInformationFull):
         return super().validate_redirect_uri(redirect_uri)
 
 
-class _FormBackfillRequest(Request):
+class FormBackfillRequest(Request):
     """Non-mutating shim: original scope/headers, overridden form fields."""
 
     def __init__(self, request: Request, form) -> None:
         super().__init__(request.scope, request.receive)
-        self._shimForm = form
+        self.shimForm = form
 
     async def form(self):  # type: ignore[override]
-        return self._shimForm
+        return self.shimForm
 
 
 class BasicTolerantClientAuthenticator(ClientAuthenticator):
@@ -102,10 +86,10 @@ class BasicTolerantClientAuthenticator(ClientAuthenticator):
     """
 
     async def authenticate_request(self, request: Request) -> OAuthClientInformationFull:
-        return await super().authenticate_request(await _backfillBasicClient(request))
+        return await super().authenticate_request(await backfillBasicClient(request))
 
 
-async def _backfillBasicClient(request: Request) -> Request:
+async def backfillBasicClient(request: Request) -> Request:
     """Present a Basic-only caller's id:secret as form fields (no mutation).
 
     Used by the token endpoint wrapper (the SDK grant models also require
@@ -131,14 +115,14 @@ async def _backfillBasicClient(request: Request) -> Request:
     merged = dict(form)
     merged["client_id"] = basicId
     merged["client_secret"] = basicSecret
-    return _FormBackfillRequest(request, merged)
+    return FormBackfillRequest(request, merged)
 
 
 class SoloOAuthProvider(OAuthProvider):
     def _get_resource_url(self, path: str | None = None) -> AnyHttpUrl | None:
         # Root-mounted http_app (path="/") joins as base_url + "/" (fastmcp
         # server/auth/auth.py:479-482); strip so PRM resource == canonical
-        # publicMcpUrl() for RFC 9728 exact-match.
+        # wallet MCP URL for RFC 9728 exact-match.
         url = super()._get_resource_url(path)
         if url is not None and path is not None and not path.strip("/"):
             return AnyHttpUrl(str(url).rstrip("/"))
@@ -146,8 +130,8 @@ class SoloOAuthProvider(OAuthProvider):
 
     def __init__(self) -> None:
         super().__init__(
-            base_url=publicMcpUrl(),
-            issuer_url=publicIssuerUrl(),
+            base_url=f"{Config.USER.MCP_PUBLIC_BASE_URL.rstrip('/')}/wallet/mcp",
+            issuer_url=f"{Config.USER.MCP_PUBLIC_BASE_URL.rstrip('/')}/",
             required_scopes=[WALLET_SCOPE],
             revocation_options=RevocationOptions(enabled=True),
         )
@@ -200,7 +184,7 @@ class SoloOAuthProvider(OAuthProvider):
                 handler = TokenHandler(provider=self, client_authenticator=BasicTolerantClientAuthenticator(self))
 
                 async def tokenEndpoint(request: Request):
-                    return await handler.handle(await _backfillBasicClient(request))
+                    return await handler.handle(await backfillBasicClient(request))
 
                 rebuilt.append(
                     Route(
@@ -233,27 +217,27 @@ class SoloOAuthProvider(OAuthProvider):
         }
         return f"{str(self.base_url).rstrip('/')}/oauth/login?request_id={requestId}"
 
-    def take_pending(self, request_id: str) -> dict | None:
-        item = self.pending.pop(request_id, None)
+    def take_pending(self, requestId: str) -> dict | None:
+        item = self.pending.pop(requestId, None)
         if not item or item["expires_at"] < time.time():
             return None
         return item
 
-    def peek_pending(self, request_id: str) -> dict | None:
-        item = self.pending.get(request_id)
+    def peek_pending(self, requestId: str) -> dict | None:
+        item = self.pending.get(requestId)
         if not item or item["expires_at"] < time.time():
-            self.pending.pop(request_id, None)
+            self.pending.pop(requestId, None)
             return None
         return item
 
     def issue_code(
         self,
-        client_id: str,
-        user_id: str,
-        session_id: str,
-        code_challenge: str,
-        redirect_uri: str,
-        redirect_provided: bool,
+        clientId: str,
+        userId: str,
+        sessionId: str,
+        codeChallenge: str,
+        redirectUri: str,
+        redirectProvided: bool,
         scopes: list[str],
         resource: str | None,
     ) -> str:
@@ -262,14 +246,14 @@ class SoloOAuthProvider(OAuthProvider):
             code=code,
             scopes=scopes,
             expires_at=time.time() + CODE_TTL_SECONDS,
-            client_id=client_id,
-            code_challenge=code_challenge,
-            redirect_uri=AnyUrl(redirect_uri),
-            redirect_uri_provided_explicitly=redirect_provided,
+            client_id=clientId,
+            code_challenge=codeChallenge,
+            redirect_uri=AnyUrl(redirectUri),
+            redirect_uri_provided_explicitly=redirectProvided,
             resource=resource,
-            subject=str(user_id),
+            subject=str(userId),
         )
-        self.codeSessions[code] = str(session_id)
+        self.codeSessions[code] = str(sessionId)
         return code
 
     async def load_authorization_code(
@@ -289,7 +273,7 @@ class SoloOAuthProvider(OAuthProvider):
             raise TokenError("invalid_grant", "authorization code does not exist")
         if stored.expires_at < time.time():
             raise TokenError("invalid_grant", "authorization code has expired")
-        return self._mint(client.client_id, str(stored.subject or ""), sessionId, stored.scopes, stored.resource)
+        return self.mint(client.client_id, str(stored.subject or ""), sessionId, stored.scopes, stored.resource)
 
     async def load_refresh_token(self, client: OAuthClientInformationFull, refresh_token: str) -> RefreshToken | None:
         stored = self.refreshTokens.get(refresh_token)
@@ -309,7 +293,7 @@ class SoloOAuthProvider(OAuthProvider):
             raise TokenError("invalid_grant", "refresh token does not exist")
         if stored.expires_at is not None and stored.expires_at < time.time():
             raise TokenError("invalid_grant", "refresh token has expired")
-        return self._mint(
+        return self.mint(
             client.client_id, str(stored.subject or ""), sessionId, scopes or stored.scopes, stored.resource
         )
 
@@ -386,16 +370,14 @@ class SoloOAuthProvider(OAuthProvider):
         finally:
             db.close()
 
-    def _mint(
-        self, client_id: str, user_id: str, session_id: str, scopes: list[str], resource: str | None
-    ) -> OAuthToken:
+    def mint(self, clientId: str, userId: str, sessionId: str, scopes: list[str], resource: str | None) -> OAuthToken:
         useScopes = scopes or [WALLET_SCOPE]
-        aud = resource or publicMcpUrl()
+        aud = resource or f"{Config.USER.MCP_PUBLIC_BASE_URL.rstrip('/')}/wallet/mcp"
         access = createAccessToken(
             {
-                "userId": user_id,
-                "sessionId": str(session_id),
-                "client_id": client_id,
+                "userId": userId,
+                "sessionId": str(sessionId),
+                "client_id": clientId,
                 "aud": aud,
                 "scope": " ".join(useScopes),
                 "jti": secrets.token_urlsafe(16),
@@ -405,13 +387,13 @@ class SoloOAuthProvider(OAuthProvider):
         refreshValue = secrets.token_urlsafe(32)
         self.refreshTokens[refreshValue] = RefreshToken(
             token=refreshValue,
-            client_id=client_id,
+            client_id=clientId,
             scopes=useScopes,
             expires_at=int(time.time()) + REFRESH_TTL_SECONDS,
             resource=aud,
-            subject=user_id,
+            subject=userId,
         )
-        self.refreshSessions[refreshValue] = str(session_id)
+        self.refreshSessions[refreshValue] = str(sessionId)
         return OAuthToken(
             access_token=access,
             token_type="Bearer",
@@ -441,15 +423,15 @@ soloProvider = SoloOAuthProvider()
 soloAuth = SoloAuth(server=soloProvider, verifiers={"service-loopback": walletAuth}, required_scopes=[])
 
 
-def oauthResumePath(request_id: str) -> str:
-    basePath = urlparse(publicMcpUrl()).path.rstrip("/")
-    return f"{basePath}/oauth/login?{urlencode({'request_id': request_id})}"
+def oauthResumePath(requestId: str) -> str:
+    basePath = urlparse(f"{Config.USER.MCP_PUBLIC_BASE_URL.rstrip('/')}/wallet/mcp").path.rstrip("/")
+    return f"{basePath}/oauth/login?{urlencode({'request_id': requestId})}"
 
 
-def _login_page(request_id: str, error: str | None) -> HTMLResponse:
-    safeId = html.escape(request_id, quote=True)
+def loginPage(requestId: str, error: str | None) -> HTMLResponse:
+    safeId = html.escape(requestId, quote=True)
     complaint = f"<p>{html.escape(error)}</p>" if error else ""
-    googleHref = f"/auth/google?{urlencode({'redirect_url': oauthResumePath(request_id)})}"
+    googleHref = f"/auth/google?{urlencode({'redirect_url': oauthResumePath(requestId)})}"
     safeGoogle = html.escape(googleHref, quote=True)
     return HTMLResponse(
         "<!doctype html><html><body>"
@@ -489,9 +471,9 @@ def sessionFromCookie(request: Request, db) -> tuple[str, str] | None:
     return str(userId), str(sessionId)
 
 
-def register_login_routes(mcp) -> None:
+def registerLoginRoutes(mcp) -> None:
     @mcp.custom_route("/oauth/login", methods=["GET", "POST"])
-    async def oauth_login(request: Request) -> Response:
+    async def oauthLogin(request: Request) -> Response:
         form = await request.form() if request.method == "POST" else {}
         requestId = request.query_params.get("request_id") or (form.get("request_id") if form else None)
         if not isinstance(requestId, str) or not requestId:
@@ -512,13 +494,13 @@ def register_login_routes(mcp) -> None:
                 if isinstance(username, str) and isinstance(password, str):
                     user = AuthenticationManager.authenticateUser(db, username, password)
                 if not user:
-                    return _login_page(requestId, "invalid credentials")
+                    return loginPage(requestId, "invalid credentials")
                 session = SessionManager.createSession(db, int(user["userId"]), request.headers.get("User-Agent", ""))
                 freshToken = createAccessToken({"userId": str(user["userId"]), "sessionId": session.sessionId})
                 identity = (str(user["userId"]), str(session.sessionId))
                 resume = True
             elif identity is None:
-                return _login_page(requestId, None)
+                return loginPage(requestId, None)
 
             live = soloProvider.take_pending(requestId)
             if not live:
@@ -531,7 +513,7 @@ def register_login_routes(mcp) -> None:
                 live["redirect_uri"],
                 live["redirect_provided"],
                 live["scopes"],
-                live["resource"] or publicMcpUrl(),
+                live["resource"] or f"{Config.USER.MCP_PUBLIC_BASE_URL.rstrip('/')}/wallet/mcp",
             )
             params = {"code": code}
             if live["state"]:

@@ -86,7 +86,7 @@ async def _login_code(provider, userId, sessionId, state="xyz"):
         pending["redirect_uri"],
         pending["redirect_provided"],
         pending["scopes"],
-        pending["resource"] or solo.publicMcpUrl(),
+        pending["resource"] or f"{Config.USER.MCP_PUBLIC_BASE_URL.rstrip('/')}/wallet/mcp",
     )
 
 
@@ -540,12 +540,12 @@ def test_http_bearer_mcp_call_refresh_revoke_cycle(dbSession, monkeypatch):
 
 
 def test_prm_resource_has_no_trailing_slash(dbSession, monkeypatch):
-    """RFC 9728 exact-match: PRM resource == canonical publicMcpUrl (no slash)."""
+    """RFC 9728 exact-match: PRM resource == canonical wallet MCP URL (no slash)."""
     _use_test_env(monkeypatch, dbSession)
     with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
         meta = httpClient.get("/.well-known/oauth-protected-resource/wallet/mcp", follow_redirects=False)
         assert meta.status_code == 200, meta.text
-        assert meta.json()["resource"] == solo.publicMcpUrl()
+        assert meta.json()["resource"] == f"{Config.USER.MCP_PUBLIC_BASE_URL.rstrip('/')}/wallet/mcp"
         assert not meta.json()["resource"].endswith("/")
 
 
