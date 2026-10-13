@@ -564,12 +564,28 @@ class TestQueryHistorical:
         assert exc_info.value.status_code == 500
 
     def test_historical_with_invalid_dates(self):
-        """Invalid date format raises exception (line 132)."""
+        """Malformed date -> 400 with the date-format message, never 500 (line 132)."""
         df = pd.DataFrame({"TICKER": ["A"], "NOME": ["X"], "LUCRO LIQUIDO 2023": [100]})
         mgr = self.make_manager(cache_df=df)
 
-        with pytest.raises(HTTPException):
+        with pytest.raises(HTTPException) as exc_info:
+            queryModule.queryHistorical(cacheManager=mgr, dates="bogus")
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "Formato de data inválido. Use AAAA-MM-DD"
+
+        with pytest.raises(HTTPException) as exc_info:
             queryModule.queryHistorical(cacheManager=mgr, dates="2020,2021,2022")
+        assert exc_info.value.status_code == 400
+
+    @pytest.mark.parametrize("dates", [" ", "2024-13"])
+    def test_historical_malformed_dates_return_400(self, dates):
+        df = pd.DataFrame({"TICKER": ["A"], "NOME": ["X"], "LUCRO LIQUIDO 2023": [100]})
+        mgr = self.make_manager(cache_df=df)
+
+        with pytest.raises(HTTPException) as exc_info:
+            queryModule.queryHistorical(cacheManager=mgr, dates=dates)
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "Formato de data inválido. Use AAAA-MM-DD"
 
     def test_historical_search_with_no_results(self):
         df = make_stocks_df()
@@ -1000,6 +1016,16 @@ class TestQueryCotations:
         mgr = self.make_manager(cache_df=df)
         result = queryModule.queryCotations(cacheManager=mgr, adjusted=False, dates="2020-01-01,2024-12-31")
         assert result["dates"] == "2020-01-01,2024-12-31"
+
+    def test_cotations_malformed_dates_return_400(self):
+        """dates="bogus" -> 400 from finalize's date parsing (was 500)."""
+        df = self.make_cotations_df()
+        mgr = self.make_manager(cache_df=df)
+
+        with pytest.raises(HTTPException) as exc_info:
+            queryModule.queryCotations(cacheManager=mgr, adjusted=False, dates="bogus")
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "Formato de data inválido. Use AAAA-MM-DD"
 
     def test_cotations_dates_default_none(self):
         df = self.make_cotations_df()
