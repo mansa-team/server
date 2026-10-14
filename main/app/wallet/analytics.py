@@ -91,8 +91,13 @@ class AnalyticsManager:
                         tickerState["qty"] += entryQty
                         tickerState["invested"] += entryQty * entryPrice + entryCosts
                     else:
+                        basis = (
+                            tickerState["invested"] * (entryQty / tickerState["qty"])
+                            if tickerState["qty"] > 0
+                            else tickerState["invested"]
+                        )
                         tickerState["qty"] -= entryQty
-                        tickerState["invested"] -= entryQty * entryPrice - entryCosts
+                        tickerState["invested"] -= basis
                     tickerState["entryIdx"] += 1
 
                 series = closesByTicker[ticker]
