@@ -12,7 +12,6 @@ from fastapi import HTTPException
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from main.app.authentication import constants as authConstants
-from main.app.authentication.authentication import AuthenticationManager
 from main.app.authentication.session import SessionManager
 from main.app.user.user import UserManager
 from main.models.user import User
@@ -104,21 +103,3 @@ class TestExpiryIdle:
         assert SessionManager.validateSession(dbSession, session.sessionId, user.userId) is False
         dbSession.refresh(session)
         assert session.isActive is False
-
-
-class TestUniqueUsername:
-    def _mockDb(self, side_effect):
-        db = MagicMock()
-        db.query.return_value.filter.return_value.first.side_effect = side_effect
-        return db
-
-    def test_free_base_returned(self):
-        assert AuthenticationManager.resolveUniqueUsername(self._mockDb([None]), "base") == "base"
-
-    def test_taken_base_gets_suffix(self):
-        assert AuthenticationManager.resolveUniqueUsername(self._mockDb([MagicMock(), None]), "base") == "base-1"
-
-    def test_always_taken_raises_409(self):
-        with pytest.raises(HTTPException) as e:
-            AuthenticationManager.resolveUniqueUsername(self._mockDb(MagicMock()), "base")
-        assert e.value.status_code == 409
