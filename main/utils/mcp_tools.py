@@ -1,8 +1,8 @@
 import copy
 import inspect
-from typing import Any, Callable
+from typing import Any, Callable, cast
 
-from fastapi import params as fastapiParameters
+from fastapi import Response, params as fastapiParameters
 from fastapi.routing import APIRoute, APIRouter
 from fastmcp import FastMCP
 
@@ -17,8 +17,8 @@ def copyWithoutAlias(fieldInformation: fastapiParameters.FieldInfo) -> fastapiPa
 
 def buildToolFromRoute(
     route: APIRoute,
-    resolveIdentity: Callable[[str, Any], dict],
-    sessionFactory: Callable[[], Any],
+    resolveIdentity: Callable[[str, Any], dict] | None = None,
+    sessionFactory: Callable[[], Any] | None = None,
 ) -> Callable[..., Any]:
     routeFunction = route.endpoint
     try:
@@ -26,30 +26,52 @@ def buildToolFromRoute(
     except Exception:
         signature = inspect.signature(routeFunction)
 
+    parameterNames = set(signature.parameters)
+    injectIdentity = "currentUser" in parameterNames
+    injectSession = "db" in parameterNames
+    if injectIdentity and resolveIdentity is None:
+        raise RuntimeError(f"{route.operation_id}: declares currentUser but no resolveIdentity was given")
+    if (injectIdentity or injectSession) and sessionFactory is None:
+        raise RuntimeError(f"{route.operation_id}: declares db but no sessionFactory was given")
+    # guarded above: each is only called when a route declares the matching DI parameter
+    identityResolver = cast("Callable[[str, Any], dict]", resolveIdentity)
+    sessionProvider = cast("Callable[[], Any]", sessionFactory)
+
     parameters = []
+    responseNames = []
     for parameter in signature.parameters.values():
         if isinstance(parameter.default, fastapiParameters.Depends):
+            continue
+        if parameter.annotation is Response:
+            responseNames.append(parameter.name)
             continue
         if isinstance(parameter.default, fastapiParameters.FieldInfo):
             parameter = parameter.replace(default=copyWithoutAlias(parameter.default))
         parameters.append(parameter)
-    parameters.append(
-        inspect.Parameter(
-            "authorization",
-            kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
-            annotation=str,
-            default="",
+    if injectIdentity or injectSession:
+        parameters.append(
+            inspect.Parameter(
+                "authorization",
+                kind=inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                annotation=str,
+                default="",
+            )
         )
-    )
 
     def toolCallable(**kwargs: Any) -> Any:
         authorization = kwargs.pop("authorization", "")
-        databaseSession = sessionFactory()
+        databaseSession = sessionProvider() if (injectIdentity or injectSession) else None
         try:
-            identity = resolveIdentity(authorization, databaseSession)
-            return routeFunction(**{**kwargs, "currentUser": identity, "db": databaseSession})
+            if injectIdentity:
+                kwargs["currentUser"] = identityResolver(authorization, databaseSession)
+            if injectSession:
+                kwargs["db"] = databaseSession
+            for name in responseNames:
+                kwargs[name] = Response()
+            return routeFunction(**kwargs)
         finally:
-            databaseSession.close()
+            if databaseSession is not None:
+                databaseSession.close()
 
     toolCallable.__signature__ = signature.replace(parameters=parameters)  # type: ignore[attr-defined]
     toolCallable.__annotations__ = {
@@ -68,8 +90,8 @@ def mcpToolDecorator(
     mcpServer: FastMCP,
     router: APIRouter,
     *,
-    resolveIdentity: Callable[[str, Any], dict],
-    sessionFactory: Callable[[], Any],
+    resolveIdentity: Callable[[str, Any], dict] | None = None,
+    sessionFactory: Callable[[], Any] | None = None,
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     def registerTool(routeFunction: Callable[..., Any]) -> Callable[..., Any]:
         route = next(

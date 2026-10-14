@@ -1,16 +1,15 @@
 from datetime import datetime, timezone
 import logging
-from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, HTTPException, Response
 from fastmcp import FastMCP
-from pydantic import Field
 
 from main.app.stocks_api.query import queryCotations, queryFundamental, queryHistorical, queryLiveCotations
 from main.app.stocks_api.key import verifyAPIKey
 from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
 from main.app.stocks_api.compress import compressResponse, getNest
 from main.app.stocks_api.cache import stocksCache
+from main.utils.mcp_tools import mcpToolDecorator
 from main.utils.sync_cache import sync_cache
 
 stocksMcp = FastMCP("Mansa Stocks MCP")
@@ -23,6 +22,8 @@ LIVE_TTL = "15s"
 LIVE_MAX_AGE = 15
 
 router = APIRouter(prefix="/stocks", tags=["Stocks API"])
+
+stocksMcpTool = mcpToolDecorator(stocksMcp, router)
 
 
 @router.get("/health")
@@ -40,10 +41,11 @@ def health():
     }
 
 
+@stocksMcpTool
 @router.get("/fields", operation_id="list_fields")
 @sync_cache(ttl=STOCKS_TTL, key="stocks:fields")
 def listFields(response: Response):
-    """Discover available field names before querying /historical or /fundamental.
+    """Discover available field names before querying get_historical or get_fundamental.
 
     IMPORTANT: Call this tool FIRST to get exact field names. Do NOT guess field names —
     they are dynamic and change when the database is updated.
@@ -51,18 +53,18 @@ def listFields(response: Response):
     The response contains four categories:
     - "historical": object mapping field names to arrays of available years.
       Example: {"LUCRO LIQUIDO": [2020, 2021, 2022, 2023, 2024], "RECEITA LIQUIDA": [2020, ...]}
-      Use these field names (without the year) in the /historical endpoint's `fields` parameter.
+      Use these field names (without the year) in the get_historical tool's `fields` parameter.
     - "fundamental": array of available field names.
       Example: ["P/L", "P/VP", "ROE", "DY", "LIQUIDEZ CORRENTE"]
-      Use these exact names in the /fundamental endpoint's `fields` parameter.
+      Use these exact names in the get_fundamental tool's `fields` parameter.
     - "abbreviations": object mapping full names to short abbreviations.
       Example: {"LUCRO LIQUIDO": "LL", "P/L": "PL", "TICKER": "TK"}
-      Use these abbreviations in compact responses (they appear in compressed data).
+      Use these abbreviations to decode compact responses (they appear when compact=true).
     - "nested": object describing JSON array fields and their subfield abbreviations.
       Example: {"NOTICIAS": {"subfields": {"TITULO": "T", "LINK": "L"}, "dropped_in_compact": ["LINK"]}}
-      These subfields appear when compact=true or X-MCP header is set.
+      These subfields appear when compact=true.
 
-    Response format:
+    RESPONSE format:
     {
       "historical": {"FIELD_NAME": [year1, year2, ...], ...},
       "fundamental": ["FIELD1", "FIELD2", ...],
@@ -70,12 +72,14 @@ def listFields(response: Response):
       "nested": {"FIELD": {"subfields": {...}, "dropped_in_compact": [...], "max_items_compact": N}}
     }
 
-    Typical workflow:
-    1. Call this endpoint to get available fields
-    2. Pick field names from the response
-    3. Pass them to /historical or /fundamental via the `fields` parameter
-    4. Use abbreviations from the response to decode compressed responses
-    5. Use nested docs to understand compressed subfields in NOTICIAS/DIVIDENDOS"""
+    WORKFLOW:
+    1. Call this FIRST to discover the available fields; never guess them
+    2. Pick historical or fundamental names and pass them to the matching tool
+    3. Use abbreviations from the response to decode compact responses
+    4. Use nested docs to understand compressed subfields in NOTICIAS/DIVIDENDOS
+
+    EXAMPLES:
+    - "What fields are available?" → call list_fields with no arguments"""
     if stocksCache.STOCKS_CACHE is None:
         raise HTTPException(status_code=503, detail="Cache not initialized")
 
@@ -88,15 +92,16 @@ def listFields(response: Response):
     return {"historical": historical, "fundamental": fundamental, "abbreviations": abbreviations, "nested": nested}
 
 
+@stocksMcpTool
 @router.get("/historical", operation_id="get_historical")
 @sync_cache(ttl=STOCKS_TTL, key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 def getHistorical(
     response: Response,
-    search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
-    fields: str = Query(None, max_length=500, pattern=r"^[A-Za-z0-9,\s/.-]+$"),
-    dates: str = Query(None, max_length=21),
-    orderBy: str = Query(None),
-    limit: int = Query(None, ge=1, le=1000),
+    search: str | None = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
+    fields: str | None = Query(None, max_length=500, pattern=r"^[A-Za-z0-9,\s/.-]+$"),
+    dates: str | None = Query(None, max_length=21),
+    orderBy: str | None = Query(None),
+    limit: int | None = Query(None, ge=1, le=1000),
     compact: bool = Query(False),
     apiKey: str = Depends(verifyAPIKey),
 ):
@@ -115,7 +120,7 @@ def getHistorical(
 
     - `fields` (optional): Comma-separated metric names (WITHOUT year suffix).
       Examples: "LUCRO LIQUIDO", "LUCRO LIQUIDO,RECEITA LIQUIDA,EBITDA".
-      These must match the names returned by /stocks/fields under "historical".
+      These must match the names returned by list_fields under "historical".
       If omitted, returns ALL available historical fields for the date range.
 
     - `dates` (optional): Year range in YYYY format, separated by comma.
@@ -126,11 +131,11 @@ def getHistorical(
 
     - `orderBy` (optional): Sort results by a column name (descending).
     - `limit` (optional): Maximum number of stocks to return (1-1000).
+    - `compact` (optional): Abbreviated keys and capped lists for chat.
 
-    WORKFLOW (recommended):
-    1. Call /stocks/fields to discover available field names
-    2. Pick the fields you need (historical section)
-    3. Call this endpoint with those field names and a year range
+    WORKFLOW:
+    1. Call list_fields first to discover exact historical field names
+    2. Pass those names plus a year range to this tool
 
     RESPONSE format:
     {
@@ -159,22 +164,23 @@ def getHistorical(
     return result
 
 
+@stocksMcpTool
 @router.get("/fundamental", operation_id="get_fundamental")
 @sync_cache(ttl=STOCKS_TTL, key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 def getFundamental(
     response: Response,
-    search: str = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
-    fields: str = Query(None, max_length=500, pattern=r"^[A-Za-z0-9,\s/.-]+$"),
-    dates: str = Query(None, max_length=21),
-    orderBy: str = Query(None),
-    limit: int = Query(None, ge=1, le=1000),
+    search: str | None = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
+    fields: str | None = Query(None, max_length=500, pattern=r"^[A-Za-z0-9,\s/.-]+$"),
+    dates: str | None = Query(None, max_length=21),
+    orderBy: str | None = Query(None),
+    limit: int | None = Query(None, ge=1, le=1000),
     compact: bool = Query(False),
     apiKey: str = Depends(verifyAPIKey),
 ):
     """Get point-in-time fundamental/valuation data for Brazilian B3 stocks.
 
     Returns valuation metrics and financial ratios at specific dates.
-    Unlike /historical (year-based), this endpoint works with exact dates
+    Unlike get_historical (year-based), this tool works with exact dates
     and returns the most recent data available up to the requested date.
 
     PARAMETERS:
@@ -184,7 +190,7 @@ def getFundamental(
 
     - `fields` (optional): Comma-separated metric names (point-in-time, no year suffix).
       Examples: "P/L", "P/L,ROE,DY", "P/VP,LIQUIDEZ CORRENTE".
-      These must match the names returned by /stocks/fields under "fundamental".
+      These must match the names returned by list_fields under "fundamental".
       If omitted, returns ALL available fundamental fields.
 
     - `dates` (optional): Date filter in one of these formats:
@@ -201,11 +207,11 @@ def getFundamental(
 
     - `orderBy` (optional): Sort results by a column name (descending).
     - `limit` (optional): Maximum number of stocks to return (1-1000).
+    - `compact` (optional): Abbreviated keys and capped lists for chat.
 
-    WORKFLOW (recommended):
-    1. Call /stocks/fields to discover available field names
-    2. Pick the fields you need (fundamental section)
-    3. Call this endpoint with those field names and optional date
+    WORKFLOW:
+    1. Call list_fields first to discover exact fundamental field names
+    2. Pass those names plus an optional date to this tool
 
     RESPONSE format:
     {
@@ -235,17 +241,19 @@ def getFundamental(
     return result
 
 
+@stocksMcpTool
 @router.get("/cotations", operation_id="get_cotations")
-@sync_cache(ttl=STOCKS_TTL, key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}")
+@sync_cache(ttl=STOCKS_TTL, key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}:{max_points}")
 def getCotations(
     response: Response,
     search: str = Query(..., min_length=1, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
-    dates: str = Query(None, max_length=21),
+    dates: str | None = Query(None, max_length=21),
     adjusted: bool = Query(False),
     compact: bool = Query(False),
+    max_points: int = Query(default=2000, ge=2, le=2000),
     apiKey: str = Depends(verifyAPIKey),
 ):
-    """Get 10-year daily price history (cotation) for Brazilian B3 stocks.
+    """Get 10-year daily price history (cotation) for Brazilian B3 stocks, downsampled to max_points.
 
     Returns a time series of daily closing prices for each requested ticker.
     Each ticker's data is a list of {DATA, PRECO} entries covering up to 10 years.
@@ -262,6 +270,9 @@ def getCotations(
     - `adjusted` (optional, default false):
       false → nominal prices (raw B3 data).
       true → inflation-adjusted prices (real returns).
+
+    - `compact` (optional): Column-packed entries (h/d) for chat.
+    - `max_points` (optional): Cap per-ticker daily entries, 2..2000, default 2000.
 
     RESPONSE format:
     {
@@ -280,210 +291,16 @@ def getCotations(
       }]
     }
 
+    WORKFLOW:
+    1. Pass the tickers wanted; narrow with dates for a window
+    2. stride>1: every nth day kept; first and last day always included
+    3. Use compact for chat; use get_live_price for a single current price
+
     EXAMPLES:
     - Get PETR4 full price history: search="PETR4"
     - Get PETR4 + VALE3 2023 prices: search="PETR4,VALE3", dates="2023-01-01,2023-12-31"
     - Get inflation-adjusted prices: search="ITUB4", adjusted=true"""
     response.headers["Cache-Control"] = f"public, max-age={STOCKS_MAX_AGE}"
-    result = queryCotations(search, dates, adjusted)
-    if compact:
-        result = compressResponse(
-            result,
-            "get_cotations",
-            {"search": search, "dates": dates},
-            stocksCache.STOCKS_CACHE,
-            stocksCache.nestedSample,
-        )
-    return result
-
-
-@router.get("/cotations/live", operation_id="get_live_price")
-@sync_cache(ttl=LIVE_TTL, key="stocks:live:{search}:{compact}")
-def getLiveCotation(
-    response: Response,
-    search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),
-    compact: bool = Query(False),
-    apiKey: str = Depends(verifyAPIKey),
-):
-    """Get real-time price quotation for a single Brazilian B3 stock.
-
-    Returns the current (live) price directly from B3's trading system.
-    Updates every 15 seconds during market hours. Only works for one ticker at a time.
-
-    PARAMETERS:
-    - `search` (REQUIRED): Single ticker symbol (4-5 characters).
-      Examples: "PETR4", "VALE3", "ITUB4", "BBDC4".
-      Must be an exact ticker — prefix matching is NOT supported for live quotes.
-
-    RESPONSE format:
-    {
-      "search": "PETR4",
-      "type": "realtime-cotation",
-      "timestamp": "2024-01-15T15:30:00",
-      "count": 1,
-      "data": [{
-        "TICKER": "PETR4",
-        "PRECO ATUAL": 28.50,
-        "PRECO ORIGINAL": 28.30,
-        "PRECO MINIMO": 28.00,
-        "PRECO MAXIMO": 28.80,
-        "PRECO MEDIO": 28.45
-      }]
-    }
-
-    LIMITATIONS:
-    - Only one ticker per request (max 7 chars for the search param).
-    - Real-time data is only available during B3 market hours (10:00-17:30 BRT).
-    - Outside market hours, returns the last available closing price."""
-    response.headers["Cache-Control"] = f"public, max-age={LIVE_MAX_AGE}"
-    result = queryLiveCotations(search)
-    if compact:
-        result = compressResponse(
-            result, "get_live_price", {"search": search}, stocksCache.STOCKS_CACHE, stocksCache.nestedSample
-        )
-    return result
-
-
-@stocksMcp.tool
-def list_fields() -> dict:
-    """Discover available field names before querying get_historical or get_fundamental.
-
-    PARAMETERS:
-    - None: returns the full historical/fundamental field catalog with abbreviations.
-
-    RESPONSE format:
-    {"historical": {"FIELD_NAME": [year1, year2, ...]}, "fundamental": ["FIELD1", ...], "abbreviations": {"FULL_NAME": "ABBREV"}, "nested": {...}}
-
-    WORKFLOW:
-    1. Call this FIRST to get exact field names; never guess them
-    2. Pick historical or fundamental names and pass them to the matching tool
-    3. Use abbreviations to decode compact responses
-
-    EXAMPLES:
-    - "What fields are available?" → call list_fields with no arguments
-    """
-    if stocksCache.STOCKS_CACHE is None:
-        raise HTTPException(status_code=503, detail="Cache not initialized")
-    cols = stocksCache.STOCKS_CACHE.columns.tolist()
-    historical, fundamental = categorizeColumns(cols)
-    abbreviations = generateAbbreviations(historical, fundamental)
-    nested = getNest(stocksCache.STOCKS_CACHE, stocksCache.nestedSample)
-    return {"historical": historical, "fundamental": fundamental, "abbreviations": abbreviations, "nested": nested}
-
-
-@stocksMcp.tool
-def get_historical(
-    search: str | None = None,
-    fields: str | None = None,
-    dates: str | None = None,
-    orderBy: str | None = None,
-    limit: int | None = None,
-    compact: bool = False,
-) -> dict:
-    """Get year-based historical financial data for Brazilian B3 stocks.
-
-    PARAMETERS:
-    - `search` (optional): Comma-separated tickers, e.g. "PETR4,VALE3".
-    - `fields` (optional): Comma-separated metric names WITHOUT year suffix.
-    - `dates` (optional): Year range "YYYY" or "YYYY,YYYY".
-    - `orderBy` (optional): Sort results by a column name (descending).
-    - `limit` (optional): Maximum stocks to return (1-1000).
-    - `compact` (optional): Abbreviated keys and capped lists for chat.
-
-    RESPONSE format:
-    {"search": "PETR4", "fields": ["LUCRO LIQUIDO"], "dates": [2022, 2024], "type": "historical", "count": 1, "data": [...]}
-
-    WORKFLOW:
-    1. Call list_fields first to discover exact historical field names
-    2. Pass those names plus a year range to this tool
-
-    EXAMPLES:
-    - Get PETR4 net income 2022-2024: search="PETR4", fields="LUCRO LIQUIDO", dates="2022,2024"
-    - Compare top 10 by EBITDA: fields="EBITDA", orderBy="EBITDA", limit=10
-    """
-    result = queryHistorical(search, fields, dates, orderBy, limit)
-    if compact:
-        result = compressResponse(
-            result,
-            "get_historical",
-            {"search": search, "fields": fields, "dates": dates},
-            stocksCache.STOCKS_CACHE,
-            stocksCache.nestedSample,
-        )
-    return result
-
-
-@stocksMcp.tool
-def get_fundamental(
-    search: str | None = None,
-    fields: str | None = None,
-    dates: str | None = None,
-    orderBy: str | None = None,
-    limit: int | None = None,
-    compact: bool = False,
-) -> dict:
-    """Get point-in-time fundamental/valuation data for Brazilian B3 stocks.
-
-    PARAMETERS:
-    - `search` (optional): Comma-separated tickers, e.g. "PETR4,VALE3".
-    - `fields` (optional): Comma-separated metric names, e.g. "P/L,ROE,DY".
-    - `dates` (optional): "YYYY", "YYYY-MM", "YYYY-MM-DD" or "START,END" range.
-    - `orderBy` (optional): Sort results by a column name (descending).
-    - `limit` (optional): Maximum stocks to return (1-1000).
-    - `compact` (optional): Abbreviated keys and capped lists for chat.
-
-    RESPONSE format:
-    {"search": "PETR4", "fields": ["P/L", "ROE"], "type": "fundamental", "count": 1, "data": [...]}
-
-    WORKFLOW:
-    1. Call list_fields first to discover exact fundamental field names
-    2. Pass those names plus an optional date to this tool
-
-    EXAMPLES:
-    - Get PETR4 valuation: search="PETR4", fields="P/L,P/VP,ROE"
-    - Compare P/L across tickers: search="PETR4,VALE3,ITUB4", fields="P/L", orderBy="P/L"
-    """
-    result = queryFundamental(search, fields, dates, orderBy, limit)
-    if compact:
-        result = compressResponse(
-            result,
-            "get_fundamental",
-            {"search": search, "fields": fields, "dates": dates},
-            stocksCache.STOCKS_CACHE,
-            stocksCache.nestedSample,
-        )
-    return result
-
-
-@stocksMcp.tool
-def get_cotations(
-    search: str,
-    dates: str | None = None,
-    adjusted: bool = False,
-    compact: bool = False,
-    max_points: Annotated[int, Field(ge=2, le=2000)] = 2000,
-) -> dict:
-    """Get 10-year daily price history for Brazilian B3 stocks (downsampled to max_points).
-
-    PARAMETERS:
-    - `search` (required): Comma-separated tickers, e.g. "PETR4,VALE3".
-    - `dates` (optional): Date range "YYYY-MM-DD,YYYY-MM-DD".
-    - `adjusted` (optional): True for inflation-adjusted prices, default false.
-    - `compact` (optional): Column-packed entries (h/d) for chat.
-    - `max_points` (optional): Cap per-ticker daily entries, 2..2000, default 2000.
-
-    RESPONSE format:
-    {"search": "PETR4", "type": "cotations", "count": 1, "data": [{"TICKER": "PETR4", "COTACAO 10Y PADRAO": [{"DATA": "15-01-2024", "PRECO": 28.5}]}]}
-
-    WORKFLOW:
-    1. Pass the tickers wanted; narrow with dates for a window
-    2. stride>1: every nth day kept; first and last day always included
-
-    EXAMPLES:
-    - Get PETR4 full price history: search="PETR4"
-    - Get PETR4 + VALE3 2023 prices: search="PETR4,VALE3", dates="2023-01-01,2023-12-31"
-    - Get inflation-adjusted prices: search="ITUB4", adjusted=true
-    """
     result = queryCotations(search, dates, adjusted)
     rows = result.get("data")
     if isinstance(rows, list):
@@ -511,25 +328,55 @@ def get_cotations(
     return result
 
 
-@stocksMcp.tool
-def get_live_price(search: str, compact: bool = False) -> dict:
-    """Get real-time price quotation for Brazilian B3 stocks.
+@stocksMcpTool
+@router.get("/cotations/live", operation_id="get_live_price")
+@sync_cache(ttl=LIVE_TTL, key="stocks:live:{search}:{compact}")
+def getLiveCotation(
+    response: Response,
+    search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),
+    compact: bool = Query(False),
+    apiKey: str = Depends(verifyAPIKey),
+):
+    """Get real-time price quotation for a single Brazilian B3 stock.
+
+    Returns the current (live) price directly from B3's trading system.
+    Updates every 15 seconds during market hours. Only works for one ticker at a time.
 
     PARAMETERS:
-    - `search` (required): Single ticker symbol, e.g. "PETR4".
+    - `search` (REQUIRED): Single ticker symbol (4-5 characters).
+      Examples: "PETR4", "VALE3", "ITUB4", "BBDC4".
+      Must be an exact ticker — prefix matching is NOT supported for live quotes.
+
     - `compact` (optional): Abbreviated price keys (PA/PO/PMN/PMX/PMD) for chat.
 
     RESPONSE format:
-    {"search": "PETR4", "type": "realtime-cotation", "count": 1, "data": [{"TICKER": "PETR4", "PRECO ATUAL": 28.5}]}
+    {
+      "search": "PETR4",
+      "type": "realtime-cotation",
+      "timestamp": "2024-01-15T15:30:00",
+      "count": 1,
+      "data": [{
+        "TICKER": "PETR4",
+        "PRECO ATUAL": 28.50,
+        "PRECO ORIGINAL": 28.30,
+        "PRECO MINIMO": 28.00,
+        "PRECO MAXIMO": 28.80,
+        "PRECO MEDIO": 28.45
+      }]
+    }
 
     WORKFLOW:
     1. Pass one exact ticker; use get_cotations for history instead
-    2. Outside B3 market hours (10:00-17:30 BRT) returns the last closing price
+
+    LIMITATIONS:
+    - Only one ticker per request (max 7 chars for the search param).
+    - Real-time data is only available during B3 market hours (10:00-17:30 BRT).
+    - Outside market hours, returns the last available closing price.
 
     EXAMPLES:
     - Get live PETR4 price: search="PETR4"
-    - Get live VALE3 price in compact form: search="VALE3", compact=true
-    """
+    - Get live VALE3 price in compact form: search="VALE3", compact=true"""
+    response.headers["Cache-Control"] = f"public, max-age={LIVE_MAX_AGE}"
     result = queryLiveCotations(search)
     if compact:
         result = compressResponse(

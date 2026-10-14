@@ -13,7 +13,7 @@ from __future__ import annotations
 from typing import Literal
 
 import pytest
-from fastapi import APIRouter, Body, Depends, HTTPException, Query
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Response
 from fastmcp import Client, FastMCP
 
 from main.utils.mcp_tools import buildToolFromRoute, mcpToolDecorator
@@ -169,6 +169,31 @@ async def test_docstring_propagated():
     assert "PARAMETERS:" in tool.description
 
 
+async def test_response_param_hidden_and_fresh_per_call():
+    """A route writing headers on `Response` gets a fresh one injected, never exposed as an argument."""
+    mcp = FastMCP("test-mcp")
+    router = APIRouter(prefix="/stocks")
+    tool = mcpToolDecorator(mcp, router)
+    responses = []
+
+    @tool
+    @router.get("/fields", operation_id="list_fields")
+    def list_fields(response: Response) -> dict:
+        """Fields."""
+        response.headers["Cache-Control"] = "public, max-age=1"
+        responses.append(response)
+        return {}
+
+    async with Client(mcp) as client:
+        assert (await listTools(mcp))[0].input_schema["properties"] == {}
+        await client.call_tool("list_fields", {})
+        await client.call_tool("list_fields", {})
+    assert len(responses) == 2
+    assert responses[0] is not responses[1]
+    assert responses[0].headers["Cache-Control"] == "public, max-age=1"
+    assert "authorization" not in (await listTools(mcp))[0].input_schema["properties"]
+
+
 async def test_tool_body_delegates_with_identity_and_session():
     spy = Spy()
     seen = []
@@ -231,4 +256,32 @@ def test_guard_raises_without_operation_id():
         @tool
         @router.get("/no-id")
         def no_id_route():
+            return {}
+
+
+def test_missing_session_factory_raises_for_db_route():
+    """A route declaring `db` with no sessionFactory is a registration error, not a silent no-op."""
+    mcp = FastMCP("test-mcp")
+    router = APIRouter()
+    tool = mcpToolDecorator(mcp, router)
+
+    with pytest.raises(RuntimeError, match="sessionFactory"):
+
+        @tool
+        @router.get("/needs-db", operation_id="needs_db")
+        def needs_db(db=Depends(lambda: None)):
+            return {}
+
+
+def test_missing_resolve_identity_raises_for_identity_route():
+    """A route declaring `currentUser` with no resolveIdentity is a registration error."""
+    mcp = FastMCP("test-mcp")
+    router = APIRouter()
+    tool = mcpToolDecorator(mcp, router, sessionFactory=lambda: None)
+
+    with pytest.raises(RuntimeError, match="resolveIdentity"):
+
+        @tool
+        @router.get("/needs-identity", operation_id="needs_identity")
+        def needs_identity(currentUser=Depends(lambda: None)):
             return {}
