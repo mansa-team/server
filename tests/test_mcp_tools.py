@@ -1,10 +1,10 @@
-"""mcpToolFor: route metadata -> MCP tool, without hand-written wrappers.
+"""mcpToolDecorator: route metadata -> MCP tool, without hand-written wrappers.
 
 `from __future__ import annotations` is deliberate: it makes every annotation in
 the fixture routes below a string, the worst case for the helper's annotation
 transfer. The helper's own module must NOT use it.
 
-`mcpToolFor` returns a decorator that must sit ABOVE `@router.<verb>(...)`, so
+`mcpToolDecorator` returns a decorator that must sit ABOVE `@router.<verb>(...)`, so
 `build()` binds it before declaring the routes and stacks it on each one.
 """
 
@@ -16,7 +16,7 @@ import pytest
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from fastmcp import Client, FastMCP
 
-from main.utils.mcp_tools import mcpToolFor
+from main.utils.mcp_tools import mcpToolDecorator
 
 
 async def listTools(mcp):
@@ -43,7 +43,7 @@ def build(routeIdentity=None, sessionFactory=None):
     mcp = FastMCP("test-mcp")
     router = APIRouter(prefix="/wallet")
     calls = []
-    tool = mcpToolFor(
+    tool = mcpToolDecorator(
         mcp,
         router,
         resolveIdentity=routeIdentity or (lambda authorization, db: {"userId": 7}),
@@ -194,7 +194,7 @@ def test_guard_raises_without_an_underlying_route():
     """Decorator stacked on a function that is not a route."""
     mcp = FastMCP("test-mcp")
     router = APIRouter()
-    tool = mcpToolFor(mcp, router, resolveIdentity=lambda authorization, db: {}, sessionFactory=lambda: None)
+    tool = mcpToolDecorator(mcp, router, resolveIdentity=lambda authorization, db: {}, sessionFactory=lambda: None)
 
     with pytest.raises(RuntimeError, match="not_a_route"):
 
@@ -207,7 +207,7 @@ def test_guard_raises_without_operation_id():
     """Route exists but declares no operation_id (so it names no tool)."""
     mcp = FastMCP("test-mcp")
     router = APIRouter()
-    tool = mcpToolFor(mcp, router, resolveIdentity=lambda authorization, db: {}, sessionFactory=lambda: None)
+    tool = mcpToolDecorator(mcp, router, resolveIdentity=lambda authorization, db: {}, sessionFactory=lambda: None)
 
     with pytest.raises(RuntimeError, match="no_id_route"):
 

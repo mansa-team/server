@@ -27,14 +27,14 @@ from main.app.wallet.positions import PositionsManager
 from main.app.wallet.summary import RatingUpsert, SummaryManager
 from main.app.wallet.wallets import WalletCreate, WalletsManager
 from main.models.wallet import Transaction
-from main.utils.mcp_tools import mcpToolFor
+from main.utils.mcp_tools import mcpToolDecorator
 
 walletMcp = FastMCP("Mansa Wallet MCP", auth=soloAuth)
 registerLoginRoutes(walletMcp)
 
 router = APIRouter(prefix="/wallet", tags=["Wallet"], dependencies=[Depends(getWalletUser)])
 
-walletMcpTool = mcpToolFor(
+walletMcpTool = mcpToolDecorator(
     walletMcp,
     router,
     # deferred: resolveMcpIdentity is defined below, after the routes
