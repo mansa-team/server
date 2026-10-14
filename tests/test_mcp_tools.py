@@ -16,7 +16,7 @@ import pytest
 from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from fastmcp import Client, FastMCP
 
-from main.utils.mcp_tools import mcpToolDecorator
+from main.utils.mcp_tools import buildToolFromRoute, mcpToolDecorator
 
 
 async def listTools(mcp):
@@ -143,6 +143,23 @@ async def test_annotations_resolve_without_future_import():
     mcp, _ = build()
     tools = {t.name: t for t in await listTools(mcp)}
     assert tools["record_entry"].input_schema["properties"]["side"]["enum"] == ["Compra", "Venda"]
+
+
+def unresolvedAnnotationRoute(unresolvableType: UnresolvableType = None) -> dict:  # noqa: F821  # deliberately undefined
+    """Annotation with no binding in this module's globals: eval_str cannot resolve it."""
+    return {}
+
+
+def test_unresolvable_annotation_falls_back_to_raw_string():
+    """The helper degrades to raw annotations instead of raising when eval_str fails."""
+    router = APIRouter(prefix="/wallet")
+    router.get("/unresolvable", operation_id="unresolved_annotation")(unresolvedAnnotationRoute)
+
+    tool = buildToolFromRoute(router.routes[-1], lambda authorization, db: {"userId": 7}, lambda: None)
+
+    assert tool.__name__ == "unresolved_annotation"
+    assert tool.__annotations__["unresolvableType"] == "UnresolvableType"
+    assert tool.__signature__.parameters["unresolvableType"].annotation == "UnresolvableType"
 
 
 async def test_docstring_propagated():
