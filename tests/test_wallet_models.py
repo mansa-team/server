@@ -1,5 +1,7 @@
 from datetime import date
 
+from sqlalchemy import Numeric
+
 from main.models.base import Base
 from main.models.wallet import Earning, Holding, Target, Transaction, Wallet
 
@@ -20,6 +22,30 @@ def test_wallet_tables_create_and_round_trip(dbSession):
     dbSession.commit()
     assert holding.holdingId == 1
     assert holding.rating is None
+
+
+def test_holding_rating_keeps_decimal_scores(dbSession):
+    wallet = Wallet(userId=1, name="W")
+    dbSession.add(wallet)
+    dbSession.commit()
+    holding = Holding(
+        walletId=wallet.walletId,
+        assetType="ACOES",
+        ticker="PETR4",
+        quantity=10,
+        avgPrice=28.5,
+        rating=72.5,
+    )
+    dbSession.add(holding)
+    dbSession.commit()
+    dbSession.expire_all()
+    stored = dbSession.query(Holding).filter(Holding.holdingId == holding.holdingId).first()
+    assert stored.rating == 72.5
+
+
+def test_holding_rating_column_is_decimal_capable():
+    # MySQL SMALLINT rounds 72.5 to an integer; the column must hold decimal scores.
+    assert isinstance(Holding.__table__.c.rating.type, Numeric)
 
 
 def test_earning_round_trip(dbSession):

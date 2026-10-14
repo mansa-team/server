@@ -5,7 +5,6 @@ from sqlalchemy import (
     ForeignKey,
     Integer,
     Numeric,
-    SmallInteger,
     String,
     TIMESTAMP,
     UniqueConstraint,
@@ -36,7 +35,7 @@ class Holding(Base):
     ticker = Column(String(20), nullable=False, index=True)
     quantity = Column(Numeric(18, 8), nullable=False)
     avgPrice = Column(Numeric(18, 6), nullable=False)
-    rating = Column(SmallInteger, nullable=True)
+    rating = Column(Numeric(5, 2), nullable=True)
     updatedAt = Column(TIMESTAMP, server_default=func.current_timestamp(), nullable=False)
 
     __table_args__ = (UniqueConstraint("walletId", "ticker", name="uq_holdings_wallet_ticker"),)
