@@ -39,8 +39,6 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
 class CsrfProtectMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
-        from fastapi import HTTPException as FastAPIHTTPException
-
         try:
             validateCsrf(request, COOKIE_NAME)
         except FastAPIHTTPException as exc:
