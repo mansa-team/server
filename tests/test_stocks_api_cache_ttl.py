@@ -67,11 +67,14 @@ def test_fields_second_call_is_a_cache_hit(monkeypatch):
 
     response = Response()
     first = mod.listFields(response)
-    second = mod.listFields(Response())
+    hitResponse = Response()
+    second = mod.listFields(hitResponse)
 
     assert first == second
     assert calls == [("TICKER",)]  # computed once; the second call is a cache hit
     assert response.headers["Cache-Control"] == f"public, max-age={mod.STOCKS_MAX_AGE}"
+    # the cache-hit call must carry the header too (the endpoint body never ran)
+    assert hitResponse.headers["Cache-Control"] == f"public, max-age={mod.STOCKS_MAX_AGE}"
 
 
 def test_fields_503_is_not_cached(monkeypatch):

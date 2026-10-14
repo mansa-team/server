@@ -68,11 +68,26 @@ def syncCacheSet(cacheKey: str, value: Any, ttl: str) -> None:
     runOnCacheLoop(setCall())
 
 
-def sync_cache(ttl: str, key: str) -> Callable[[F], F]:
+def findResponse(args: tuple, kwargs: dict) -> Any:
+    # duck-typed Starlette Response: utils stays free of web-framework imports
+    for candidate in (*args, *kwargs.values()):
+        if hasattr(candidate, "headers") and hasattr(candidate, "status_code"):
+            return candidate
+    return None
+
+
+def sync_cache(ttl: str, key: str, headers: dict[str, str] | None = None) -> Callable[[F], F]:
     def decorator(func: F) -> F:
         @wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             cacheKey = get_cache_key(func, key, args, kwargs)
+            response = findResponse(args, kwargs)
+
+            def applyHeaders(value: Any) -> Any:
+                if response is not None and headers:
+                    for name, headerValue in headers.items():
+                        response.headers[name] = headerValue
+                return value
 
             def fetchAndStore() -> Any:
                 result = func(*args, **kwargs)
@@ -83,7 +98,7 @@ def sync_cache(ttl: str, key: str) -> Callable[[F], F]:
 
             cached = syncCacheGet(cacheKey)
             if cached is not MISS:
-                return cached
+                return applyHeaders(cached)
             with flightLock:
                 flight = flights.get(cacheKey)
                 if flight is None:
@@ -96,15 +111,15 @@ def sync_cache(ttl: str, key: str) -> Callable[[F], F]:
                 flight.wait(timeout=SINGLEFLIGHT_TIMEOUT)
                 # ponytail: waiter timeout falls through to a direct fetch, never blocks forever
                 joined = syncCacheGet(cacheKey)
-                return joined if joined is not MISS else fetchAndStore()
+                return applyHeaders(joined if joined is not MISS else fetchAndStore())
             filled = syncCacheGet(cacheKey)
             if filled is not MISS:
                 with flightLock:
                     flights.pop(cacheKey, None)
                 flight.set()
-                return filled
+                return applyHeaders(filled)
             try:
-                return fetchAndStore()
+                return applyHeaders(fetchAndStore())
             finally:
                 with flightLock:
                     flights.pop(cacheKey, None)
