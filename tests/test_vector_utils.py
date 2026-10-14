@@ -5,8 +5,6 @@ from main.app.orunmila.vector import (
     contentHash,
     decodeEmbeddings,
     normalizeRows,
-    toVectorString,
-    fromVectorString,
 )
 
 
@@ -92,13 +90,3 @@ def test_decodeEmbeddings_emptyReturnsZeroRows():
     got = decodeEmbeddings([])
     assert got.shape == (0, 0)
     assert got.dtype == np.float32
-
-
-def test_codec_roundTrip():
-    vec = [0.5, -0.25, 0.125]
-    assert fromVectorString(toVectorString(vec), dims=3) == vec
-
-
-def test_codec_rejectsBadDims():
-    with pytest.raises(ValueError):
-        fromVectorString("[0.1,0.2]", dims=3)

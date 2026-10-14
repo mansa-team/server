@@ -116,11 +116,11 @@ def test_second_post_to_same_session_replaces_log(client, monkeypatch):
     assert [p["text"] for p in second if p["type"] == "text"] == ["first", " second"]
 
 
-async def test_forward_terminates_when_finished_channel_has_empty_replay(monkeypatch):
+async def test_resume_finished_channel_with_empty_replay_terminates(monkeypatch):
     """Regression (I2): resuming a finished channel at cursor == len(events)
-    yields an empty replay, so forward must terminate via the finished check
-    instead of streaming keepalives forever. No DB needed - drives
-    streamBus.forward directly against a prepared StreamBus."""
+    yields an empty replay, so the SSE generator must terminate via the
+    finished check instead of streaming keepalives forever. No DB needed -
+    drives streamBus.eventGenerator directly against a prepared StreamBus."""
     real_wait_for = asyncio.wait_for
 
     async def quick_wait_for(coro, timeout=None):
@@ -128,27 +128,23 @@ async def test_forward_terminates_when_finished_channel_has_empty_replay(monkeyp
 
     monkeypatch.setattr(asyncio, "wait_for", quick_wait_for)
 
-    async def scenario():
-        async def runner():
-            yield {"type": "text", "text": "x"}
+    async def runner():
+        yield {"type": "text", "text": "x"}
 
-        # Drive the module-level singleton directly: _forward subscribes via
-        # streamBus, so a local StreamBus() instance would never be visible to it.
-        streamBus.startRun("s1", runner)
-        q0, ch = streamBus.subscribe("s1")
-        assert (await asyncio.wait_for(q0.get(), 1))["text"] == "x"
-        assert await asyncio.wait_for(q0.get(), 1) == {"type": "done"}
-        streamBus.unsubscribe("s1", q0)
-        assert ch.finished is True
+    # Drive the module-level singleton directly: the resume endpoint subscribes
+    # via streamBus, so a local StreamBus() instance would never be visible.
+    streamBus.startRun("s1", runner)
+    q0, ch = streamBus.subscribe("s1")
+    assert (await asyncio.wait_for(q0.get(), 1))["text"] == "x"
+    assert await asyncio.wait_for(q0.get(), 1) == {"type": "done"}
+    streamBus.unsubscribe("s1", q0)
+    assert ch.finished is True
 
-        # events = [text, done]; cursor=2 replays nothing.
-        return [line async for line in streamBus.forward("s1", cursor=2)]
-
-    lines = await scenario()
-    data = [ln for ln in lines if ln.startswith("data: ")]
-    done_events = [json.loads(ln[6:].strip()) for ln in data if ln[6:].strip() != "[DONE]"]
-    assert {"type": "done"} in done_events
-    assert "data: [DONE]\n\n" in data
+    # events = [text, done]; cursor=2 replays nothing.
+    items = [item async for item in streamBus.eventGenerator("s1", cursor=2)]
+    data = [json.loads(item.data) for item in items if not isinstance(item, str)]
+    assert {"type": "done"} in data
+    assert "[DONE]" in items
 
 
 # ---- moved from test_orunmila_auth_coverage.py (TestOrunmilaChatManager) ----

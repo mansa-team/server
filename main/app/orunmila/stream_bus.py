@@ -1,5 +1,4 @@
 import asyncio
-import json
 import logging
 from collections.abc import AsyncIterator, Callable
 
@@ -109,30 +108,6 @@ class StreamBus:
     # Kept: public SSE API boundary used by both stream endpoints — keep.
     def streamResponse(self, sessionId: str, cursor: int = 0) -> EventSourceResponse:
         return EventSourceResponse(self.eventGenerator(sessionId, cursor), ping=15)
-
-    async def forward(self, sessionId: str, cursor: int = 0) -> AsyncIterator[str]:
-        sub = self.subscribe(sessionId, cursor)
-        if sub is None:
-            yield "data: [DONE]\n\n"
-            return
-        q, ch = sub
-        try:
-            while True:
-                try:
-                    event = await asyncio.wait_for(q.get(), timeout=30)
-                except asyncio.TimeoutError:
-                    if ch.finished:
-                        yield "data: " + json.dumps({"type": "done"}) + "\n\n"
-                        yield "data: [DONE]\n\n"
-                        return
-                    yield ": keepalive\n\n"
-                    continue
-                yield f"data: {json.dumps(event)}\n\n"
-                if event.get("type") == "done":
-                    yield "data: [DONE]\n\n"
-                    return
-        finally:
-            self.unsubscribe(sessionId, q)
 
 
 streamBus = StreamBus()
