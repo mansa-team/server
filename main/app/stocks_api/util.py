@@ -84,7 +84,7 @@ def parseDate(dateStr: str, end: bool = False) -> date:
             return date(year, month, 1)
         return date.fromisoformat(dateStr)
     except ValueError:
-        raise HTTPException(status_code=400, detail="Formato de data inválido. Use AAAA-MM-DD") from None
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD") from None
 
 
 def parseDateRange(dates: str | None) -> tuple[date | None, date | None]:

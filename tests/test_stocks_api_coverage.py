@@ -571,7 +571,7 @@ class TestQueryHistorical:
         with pytest.raises(HTTPException) as exc_info:
             queryModule.queryHistorical(cacheManager=mgr, dates="bogus")
         assert exc_info.value.status_code == 400
-        assert exc_info.value.detail == "Formato de data inválido. Use AAAA-MM-DD"
+        assert exc_info.value.detail == "Invalid date format. Use YYYY-MM-DD"
 
         with pytest.raises(HTTPException) as exc_info:
             queryModule.queryHistorical(cacheManager=mgr, dates="2020,2021,2022")
@@ -585,7 +585,7 @@ class TestQueryHistorical:
         with pytest.raises(HTTPException) as exc_info:
             queryModule.queryHistorical(cacheManager=mgr, dates=dates)
         assert exc_info.value.status_code == 400
-        assert exc_info.value.detail == "Formato de data inválido. Use AAAA-MM-DD"
+        assert exc_info.value.detail == "Invalid date format. Use YYYY-MM-DD"
 
     def test_historical_search_with_no_results(self):
         df = make_stocks_df()
@@ -1025,7 +1025,7 @@ class TestQueryCotations:
         with pytest.raises(HTTPException) as exc_info:
             queryModule.queryCotations(cacheManager=mgr, adjusted=False, dates="bogus")
         assert exc_info.value.status_code == 400
-        assert exc_info.value.detail == "Formato de data inválido. Use AAAA-MM-DD"
+        assert exc_info.value.detail == "Invalid date format. Use YYYY-MM-DD"
 
     def test_cotations_dates_default_none(self):
         df = self.make_cotations_df()

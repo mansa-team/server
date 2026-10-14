@@ -210,7 +210,7 @@ def queryHistorical(
         if dates:
             startDate, endDate = parseDateRange(dates)
             if startDate is None or endDate is None:
-                raise HTTPException(status_code=400, detail="Formato de data inválido. Use AAAA-MM-DD")
+                raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
             yearStart, yearEnd = startDate.year, endDate.year
         else:
             yearStart, yearEnd = availableYears[0], availableYears[-1]

@@ -88,7 +88,7 @@ class TestParseDateRange:
         with pytest.raises(HTTPException) as exc_info:
             parseDateRange("bogus")
         assert exc_info.value.status_code == 400
-        assert exc_info.value.detail == "Formato de data inválido. Use AAAA-MM-DD"
+        assert exc_info.value.detail == "Invalid date format. Use YYYY-MM-DD"
 
 
 class TestParseDate:
@@ -108,4 +108,4 @@ class TestParseDate:
         with pytest.raises(HTTPException) as exc_info:
             parseDate(bad)
         assert exc_info.value.status_code == 400
-        assert exc_info.value.detail == "Formato de data inválido. Use AAAA-MM-DD"
+        assert exc_info.value.detail == "Invalid date format. Use YYYY-MM-DD"
