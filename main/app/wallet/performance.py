@@ -154,7 +154,7 @@ class PerformanceManager:
         if spanDays <= 0:
             annualizedValue = 0.0
         else:
-            annualizedValue = float(max(0.0, 1 + twrTotal)) ** (365 / spanDays) - 1
+            annualizedValue = float(max(Decimal(0), 1 + twrTotal)) ** (365 / spanDays) - 1
 
         volatilityValue = float(stdev(dailyTotal)) * sqrt(252) if len(dailyTotal) >= 2 else 0.0
 
