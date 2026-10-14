@@ -336,6 +336,7 @@ class Orunmila:
                 turn_start = int(time.time() * 1000)
                 tools_used = []
                 responses = []
+                turnEvents: list[dict] = []
 
                 sandbox_id = None
                 for fc in function_calls:
@@ -351,14 +352,12 @@ class Orunmila:
                     yield {"type": "tool_call", "tool": fc.name, "args": fc.args or {}, "turn": turn}
 
                     if sessionId:
-                        persistEvent(
-                            db,
-                            str(sessionId),
+                        turnEvents.append(
                             {
                                 "role": "loop_event",
                                 "eventType": "tool_call",
                                 "metadata": {"toolName": fc.name, "args": fc.args or {}, "turn": turn},
-                            },
+                            }
                         )
 
                     if fc.name == "execute_code":
@@ -389,14 +388,12 @@ class Orunmila:
                     responses.append(types.Part.from_function_response(name=fc.name, response=result))
 
                     if sessionId:
-                        persistEvent(
-                            db,
-                            str(sessionId),
+                        turnEvents.append(
                             {
                                 "role": "loop_event",
                                 "eventType": "tool_result",
                                 "metadata": {"toolName": fc.name, "result": result, "turn": turn},
-                            },
+                            }
                         )
 
                 history.append(
@@ -419,9 +416,7 @@ class Orunmila:
                 }
 
                 if sessionId:
-                    persistEvent(
-                        db,
-                        str(sessionId),
+                    turnEvents.append(
                         {
                             "role": "loop_event",
                             "eventType": "turn_end",
@@ -430,8 +425,9 @@ class Orunmila:
                                 "durationMs": int(time.time() * 1000) - turn_start,
                                 "toolsUsed": tools_used,
                             },
-                        },
+                        }
                     )
+                    persistEvent(db, str(sessionId), turnEvents)
 
                 turn += 1
                 stream = await chat.send_message_stream(responses)

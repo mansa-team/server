@@ -4,7 +4,7 @@ import json
 import main.controller.orunmila_controller as controller_mod
 import pytest
 from datetime import datetime
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -114,6 +114,68 @@ def test_second_post_to_same_session_replaces_log(client, monkeypatch):
     types = [p["type"] for p in second]
     assert types == ["session", "text", "text", "done"]
     assert [p["text"] for p in second if p["type"] == "text"] == ["first", " second"]
+
+
+async def test_turn_events_persisted_in_single_commit():
+    """One turn's tool events (call + result + turn_end) must reach the DB in ONE commit."""
+    mockSession = MagicMock()
+    mockSession.history = []
+    mockDb = MagicMock()
+    mockDb.query.return_value.filter.return_value.first.return_value = mockSession
+
+    commits = []
+
+    def recordCommit():
+        commits.append([e.get("eventType") or e.get("role") for e in mockSession.history])
+
+    mockDb.commit.side_effect = recordCommit
+
+    class FakeChunk:
+        def __init__(self, text=None, function_calls=None):
+            self.text = text
+            self.function_calls = function_calls
+
+    class FakeFunctionCall:
+        name = "search"
+        args = {"query": "test"}
+
+    async def first_stream():
+        yield FakeChunk(function_calls=[FakeFunctionCall()])
+
+    async def second_stream():
+        yield FakeChunk(text="final answer")
+
+    streams = iter([first_stream(), second_stream()])
+    mockChatSession = MagicMock()
+    mockChatSession.send_message_stream = AsyncMock(side_effect=lambda *a, **k: next(streams))
+
+    gen = Orunmila()
+    gen.makeChat = MagicMock(return_value=mockChatSession)
+
+    with (
+        patch("main.app.orunmila.agent.clientPool") as mockPool,
+        patch("main.app.orunmila.agent.dispatchToolCall", new=AsyncMock(return_value={"ok": True})),
+    ):
+        mockPool.clients = {"stocks": MagicMock()}
+        mockPool.getClients = AsyncMock(return_value=({"stocks": MagicMock()}, [MagicMock()]))
+        events = [e async for e in gen.streamMessage(query="q", sessionId="s1", db=mockDb, user=None)]
+
+    assert [e["type"] for e in events if e["type"] in ("tool_call", "tool_result", "turn_end")] == [
+        "tool_call",
+        "tool_result",
+        "turn_end",
+    ]
+    assert [e["eventType"] for e in mockSession.history if e.get("role") == "loop_event"] == [
+        "tool_call",
+        "tool_result",
+        "turn_end",
+    ]
+    # user append (1 commit) + the whole turn (1 commit) + assistant append (1 commit)
+    assert commits == [
+        ["user"],
+        ["user", "tool_call", "tool_result", "turn_end"],
+        ["user", "tool_call", "tool_result", "turn_end", "assistant"],
+    ]
 
 
 async def test_resume_finished_channel_with_empty_replay_terminates(monkeypatch):

@@ -49,16 +49,18 @@ class OrunmilaChatManager:
         return True
 
     @classmethod
-    def appendHistory(cls, db: Session, sessionId: str, entry: dict):
+    def appendHistory(cls, db: Session, sessionId: str, events: dict | list[dict]):
         session = db.query(OrunmilaSession).filter(OrunmilaSession.sessionId == sessionId).first()
 
         if session:
             if session.history is None:
                 session.history = []
 
-            entry["timestamp"] = datetime.now().isoformat()
-
-            session.history.append(entry)
+            batch = [events] if isinstance(events, dict) else events
+            timestamp = datetime.now().isoformat()
+            for entry in batch:
+                entry["timestamp"] = timestamp
+                session.history.append(entry)
 
             flag_modified(session, "history")
 
