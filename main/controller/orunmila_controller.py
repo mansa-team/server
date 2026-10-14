@@ -148,7 +148,8 @@ async def chat_stream(
         finally:
             runDb.close()
 
-    streamBus.startRun(sessionId, runner)
+    if not streamBus.startRun(sessionId, runner):
+        raise HTTPException(status_code=409, detail="A response is already streaming for this session")
 
     return streamBus.streamResponse(sessionId, cursor=0)
 

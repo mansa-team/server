@@ -116,6 +116,14 @@ def test_second_post_to_same_session_replaces_log(client, monkeypatch):
     assert [p["text"] for p in second if p["type"] == "text"] == ["first", " second"]
 
 
+def test_concurrent_stream_is_rejected_with_409(client, monkeypatch):
+    """A live run on the session channel must translate to a 409, not a cancellation."""
+    monkeypatch.setattr(streamBus, "startRun", lambda sessionId, runnerFactory: False)
+
+    with client.stream("POST", "/orunmila/chat/stream", data={"query": "oi"}, files={}) as r:
+        assert r.status_code == 409
+
+
 async def test_turn_events_persisted_in_single_commit():
     """One turn's tool events (call + result + turn_end) must reach the DB in ONE commit."""
     mockSession = MagicMock()
