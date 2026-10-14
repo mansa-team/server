@@ -20,6 +20,13 @@ from main.app.authentication.service_token import verifyServiceToken
 
 logger = logging.getLogger(__name__)
 
+MAX_PASSWORD_BYTES = 72
+
+
+def passwordExceedsByteLimit(password: str) -> bool:
+    """bcrypt 5 raises past 72 bytes; every caller must reject before hashing."""
+    return len(password.encode("utf-8")) > MAX_PASSWORD_BYTES
+
 
 def hashPassword(password: str):
     if not password:
@@ -31,6 +38,8 @@ def hashPassword(password: str):
 
 def verifyPassword(plainPassword: str | None, hashedPassword: str | None) -> bool:
     if not plainPassword or not hashedPassword:
+        return False
+    if passwordExceedsByteLimit(plainPassword):
         return False
     try:
         return bcrypt.checkpw(plainPassword.encode("utf-8"), hashedPassword.encode("utf-8"))

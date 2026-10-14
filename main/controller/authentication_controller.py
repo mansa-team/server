@@ -15,7 +15,12 @@ from main.app.authentication.authentication import AuthenticationManager
 from main.app.authentication.csrf import CSRF_COOKIE_NAME, csrf_exempt, issueCsrfToken
 from main.app.authentication.introspect import introspectToken
 from main.app.authentication.service_token import verifyServiceToken
-from main.app.authentication.util import createAccessToken, verifyAccessToken
+from main.app.authentication.util import (
+    MAX_PASSWORD_BYTES,
+    createAccessToken,
+    passwordExceedsByteLimit,
+    verifyAccessToken,
+)
 from main.app.authentication.sso import getGoogleSSO
 from main.app.authentication.constants import (
     COOKIE_NAME,
@@ -91,6 +96,8 @@ def register(
     password: str = Body(..., min_length=6, max_length=128),
     db: Session = Depends(getSession),
 ):
+    if passwordExceedsByteLimit(password):
+        raise HTTPException(status_code=400, detail=f"Password must be at most {MAX_PASSWORD_BYTES} bytes")
     try:
         AuthenticationManager.createUserAccount(db, username, email, password)
 
@@ -123,6 +130,8 @@ def login(
     password: str = Body(..., min_length=6, max_length=128),
     db: Session = Depends(getSession),
 ):
+    if passwordExceedsByteLimit(password):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
     user = AuthenticationManager.authenticateUser(db, username, password)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
