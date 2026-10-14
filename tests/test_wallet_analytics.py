@@ -196,7 +196,7 @@ def test_progression_invested_uses_cost_basis(monkeypatch):
         ("PETR4", "2026-01-02", "Compra", "100", "10", "0", 1),
         ("PETR4", "2026-01-05", "Venda", "100", "20", "0", 2),
     )
-    body = AnalyticsManager.cachedProgression(1, "2026-01-01", "2026-01-06", "test", entriesSnap)
+    body = AnalyticsManager.cachedProgression(1, "2026-01-01", "2026-01-06", entriesSnap)
     byDate = {point["date"]: point for point in body["points"]}
     assert byDate["2026-01-02"]["invested"] == 1000.0
     assert byDate["2026-01-05"]["invested"] == 0.0
@@ -209,7 +209,7 @@ def test_progression_invested_partial_sale_keeps_cost_basis(monkeypatch):
         ("PETR4", "2026-01-02", "Compra", "100", "10", "0", 1),
         ("PETR4", "2026-01-05", "Venda", "50", "12", "0", 2),
     )
-    body = AnalyticsManager.cachedProgression(1, "2026-01-01", "2026-01-05", "test", entriesSnap)
+    body = AnalyticsManager.cachedProgression(1, "2026-01-01", "2026-01-05", entriesSnap)
     byDate = {point["date"]: point for point in body["points"]}
     assert byDate["2026-01-05"]["invested"] == 500.0
 
@@ -218,6 +218,11 @@ def test_progression_sell_without_position_does_not_divide_by_zero(monkeypatch):
     # Sell more than held (borrow): the basis math must not divide by zero.
     _patch_closes(monkeypatch, [(date(2026, 1, 5), 20.0)])
     entriesSnap = (("PETR4", "2026-01-05", "Venda", "10", "20", "0", 1),)
-    body = AnalyticsManager.cachedProgression(1, "2026-01-01", "2026-01-05", "test", entriesSnap)
+    body = AnalyticsManager.cachedProgression(1, "2026-01-01", "2026-01-05", entriesSnap)
     byDate = {point["date"]: point for point in body["points"]}
     assert byDate["2026-01-05"]["invested"] == 0.0
+
+
+def test_cached_progression_accepts_no_recalc_key():
+    body = AnalyticsManager.cachedProgression(1, "2026-01-01", "2026-01-02", ())
+    assert body == {"granularity": "daily", "from": "2026-01-01", "to": "2026-01-02", "points": []}

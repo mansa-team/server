@@ -6,7 +6,7 @@ import pytest
 from cashews import cache as cashewsCache
 
 import main.models.wallet  # noqa: F401
-from main.models.wallet import Snapshot
+from main.models.wallet import Snapshot, Wallet
 from tests.conftest import make_wallet_client
 
 
@@ -61,6 +61,16 @@ def test_summary_math_and_snapshot_upsert(dbSession, monkeypatch):
     assert again["variation"] == 200.0
 
     assert dbSession.query(Snapshot).filter(Snapshot.walletId == walletId).count() == 1
+
+
+def test_summary_does_not_touch_last_recalc(dbSession, monkeypatch):
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
+    client, _, _ = make_wallet_client(db=dbSession)
+    walletId = _seed(client)
+    client.get("/wallet/summary")
+    dbSession.expire_all()
+    wallet = dbSession.query(Wallet).filter(Wallet.walletId == walletId).first()
+    assert wallet.lastRecalc is None
 
 
 def test_ratings_gate_and_positions_buy_flag(dbSession, monkeypatch):

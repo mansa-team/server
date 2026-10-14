@@ -110,7 +110,6 @@ def test_twr_annualized_survives_sub_minus_100_window(monkeypatch):
         "PETR4",
         "2026-01-02",
         "2026-01-04",
-        "test",
         (("PETR4", "2025-12-20", "Compra", 10.0, 10.0, 0.0, 1),),
         (),
     )

@@ -60,7 +60,6 @@ def _twr(monkeypatch, entries, earnings, series, from_iso, to_iso, ticker="PETR4
         ticker,
         from_iso,
         to_iso,
-        "test",
         tuple(entries),
         tuple(earnings),
     )

@@ -12,7 +12,6 @@ from main.models.wallet import Earning, Transaction, Wallet
 
 logger = logging.getLogger(__name__)
 
-PROGRESSION_EPOCH = "1970-01-01T00:00:00"
 MAX_POINTS = 2000
 
 
@@ -20,18 +19,15 @@ class AnalyticsManager:
     @classmethod
     @sync_cache(
         ttl="6h",
-        key="wallet:progression:{userId}:{fromIso}:{toIso}:{recalcKey}:{entriesSnap}",
+        key="wallet:progression:{userId}:{fromIso}:{toIso}:{entriesSnap}",
     )
     def cachedProgression(
         cls,
         userId: int,
         fromIso: str,
         toIso: str,
-        recalcKey: str,
         entriesSnap: tuple[tuple[str, str, str, str, str, str, int], ...],
     ) -> dict:
-        del recalcKey
-
         tickers = sorted({entryTicker for entryTicker, _, _, _, _, _, _ in entriesSnap})
         closesByTicker: dict[str, list] = {}
         for ticker in tickers:
@@ -117,8 +113,6 @@ class AnalyticsManager:
 
         walletId = int(wallet.walletId)
         userId = int(wallet.userId)
-        recalcStamp = wallet.lastRecalc
-        recalcKey = str(recalcStamp) if recalcStamp is not None else PROGRESSION_EPOCH
         ledgerRows = (
             db.query(Transaction)
             .filter(Transaction.walletId == walletId)
@@ -128,7 +122,7 @@ class AnalyticsManager:
         if not ledgerRows:
             return {"granularity": "daily", "from": start.isoformat(), "to": end.isoformat(), "points": []}
         entriesSnap = EntriesManager.snapshotEntries(ledgerRows)
-        return cls.cachedProgression(userId, start.isoformat(), end.isoformat(), recalcKey, entriesSnap)
+        return cls.cachedProgression(userId, start.isoformat(), end.isoformat(), entriesSnap)
 
     @classmethod
     def getCashflows(cls, db: Session, wallet: Wallet, start: dateType, end: dateType) -> dict:

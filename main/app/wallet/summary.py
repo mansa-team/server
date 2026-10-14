@@ -1,5 +1,4 @@
 from datetime import date as dateType
-from datetime import datetime
 from decimal import Decimal
 
 from fastapi import HTTPException
@@ -87,8 +86,6 @@ class SummaryManager:
             snapshot.profitAmount = variation  # type: ignore[assignment]
             snapshot.profitTwr12m = None  # type: ignore[assignment]
             snapshot.profitTwr12mAmount = variation  # type: ignore[assignment]
-
-        wallet.lastRecalc = datetime.now()  # type: ignore[assignment]
 
         db.commit()
 
