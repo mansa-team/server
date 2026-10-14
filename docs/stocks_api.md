@@ -101,9 +101,9 @@ curl -H "X-API-Key: YOUR_KEY" "http://localhost:3200/stocks/cotations/live?searc
 
 ### MCP (AI agent tools)
 
-Mounted at `/stocks/mcp` via FastApiMCP (stocksapi_service.py:33-45) exposing 5 operations: `list_fields`, `get_historical`, `get_fundamental`, `get_cotations`, `get_live_price`.
+Mounted at `/stocks/mcp` via plain FastMCP tools (`stocksMcp`, `main/controller/stocksapi_controller.py:16`, tools at `:347-514`), mounted by `main/service/stocksapi_service.py:20-24`, exposing 5 operations: `list_fields`, `get_historical`, `get_fundamental`, `get_cotations`, `get_live_price`.
 
-`MCPDetectMiddleware` (stocksapi_service.py:10-22): any request with `X-MCP: true` forces `compact=true`. `?compact=true` (or the header) returns the abbreviated form: meta/historical/fundamental abbreviations, nested subfield compression, cotation `h`/`d` column form, live `PA/PO/PMN/PMX/PMD` keys, single-row `data` unwrapped, `count/search/fields/dates/type` stripped (compress.py).
+Compact output is opt-in per request, not middleware: every HTTP route takes `?compact=true` (stocksapi_controller.py:100,171,245,305) and every MCP tool exposes its own `compact` argument (:381,423,463,515). `X-MCP: true` is a client header set by Orunmila's MCP pool (main/app/orunmila/mcp.py:44), used only as an nginx cache-key component (nginx/default.conf.template:39) so compact and full wire forms cache separately. Either form returns the abbreviated shape: meta/historical/fundamental abbreviations, nested subfield compression, cotation `h`/`d` column form, live `PA/PO/PMN/PMX/PMD` keys, single-row `data` unwrapped, `count/search/fields/dates/type` stripped (compress.py).
 
 ## Response Format
 
