@@ -40,3 +40,11 @@ async def test_wallet_progression_schema_bounds():
     props = next(tool for tool in tools if tool.name == "wallet_progression").parameters["properties"]
     assert props["max_points"]["minimum"] == 2
     assert props["max_points"]["maximum"] == 2000
+
+
+async def test_tool_set_matches_operation_id_routes():
+    from main.controller.wallet_controller import router, walletMcp
+
+    expected = {r.operation_id for r in router.routes if getattr(r, "operation_id", None)}
+    assert expected == EXPECTED_MCP_TOOLS
+    assert {tool.name for tool in await walletMcp.list_tools()} == expected

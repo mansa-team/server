@@ -1,6 +1,6 @@
 """Wallet MCP tests: tool scoping, mount wiring, JWT auth boundary.
 
-The wallet MCP surface is eleven hand-written tools on walletMcp
+The wallet MCP surface is eleven tools derived from the wallet routes' operation_id
 (seven read routes plus four LLM-shaped wrappers); unwrapped writes must
 never leak into MCP. Auth rides as a first-class `authorization` tool arg:
 the dispatcher injects the session JWT and resolveMcpIdentity verifies it
@@ -91,7 +91,7 @@ def route_mcp_tools_at_test_db(monkeypatch, dbSession):
 
 
 async def _wallet_tools():
-    """Hand-written tool surface, exactly what /wallet/mcp serves."""
+    """Route-derived tool surface, exactly what /wallet/mcp serves."""
     async with Client(walletMcp) as client:
         return await client.list_tools()
 
