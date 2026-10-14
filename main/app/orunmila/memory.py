@@ -11,7 +11,7 @@ from google import genai
 from google.genai import types
 import numpy as np
 from pydantic import BaseModel
-from rapidfuzz import fuzz
+from rapidfuzz import fuzz, process
 
 from sqlalchemy import func, desc
 from sqlalchemy.dialects.mysql import match as mysqlMatch
@@ -117,18 +117,15 @@ def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8
         .filter(OrunmilaMemoryModel.userId == userId, OrunmilaMemoryModel.archivedAt.is_(None))
         .all()
     )
-    newNormalized = normalizeKey(newKey)
+    candidates = [(m, normalizeKey(str(m.memoryKey))) for m in existing]
+    candidates = [(m, key) for m, key in candidates if key]
+    if not candidates:
+        return None
 
-    for m in existing:
-        existingNormalized = normalizeKey(str(m.memoryKey))
-
-        if not newNormalized and not existingNormalized:
-            continue
-
-        if fuzz.ratio(newNormalized, existingNormalized) > threshold * 100:
-            return m
-
-    return None
+    match = process.extractOne(normalizeKey(newKey), [key for _, key in candidates], scorer=fuzz.ratio)
+    if match is None or match[1] <= threshold * 100:
+        return None
+    return candidates[match[2]][0]
 
 
 def scoreRecency(candidateRows: list[Any], limit: int) -> list[dict]:
