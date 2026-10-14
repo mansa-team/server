@@ -12,14 +12,11 @@ The signature/annotation transfer below is FastMCP's own recipe
 
 import copy
 import inspect
-import logging
 from typing import Any, Callable, get_type_hints
 
 from fastapi import params as fastapiParams
 from fastapi.routing import APIRoute, APIRouter
 from fastmcp import FastMCP
-
-logger = logging.getLogger(__name__)
 
 _AUTH_PARAM = "authorization"
 _IDENTITY_PARAM = "currentUser"
@@ -92,19 +89,34 @@ def buildToolFunction(
     return tool
 
 
-def wireRouteTools(
+def mcpToolFor(
     mcp: FastMCP,
     router: APIRouter,
     *,
     resolveIdentity: Callable[[str, Any], dict],
     sessionFactory: Callable[[], Any],
-) -> list[str]:
-    """Register one MCP tool per route that declares an `operation_id`."""
-    names: list[str] = []
-    for route in router.routes:
-        if not isinstance(route, APIRoute) or not route.operation_id:
-            continue
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    """Build a decorator that registers a route endpoint as an MCP tool.
+
+    Stack it ABOVE `@router.<verb>(...)`, as the outermost decorator: the
+    `APIRoute` object (and its `operation_id`) only exists after the FastAPI
+    decorator has run. `operation_id` names the tool and marks the MCP surface;
+    a route without one is never exposed and raises here.
+    """
+
+    def decorator(routeFn: Callable[..., Any]) -> Callable[..., Any]:
+        route = next(
+            (r for r in reversed(router.routes) if isinstance(r, APIRoute) and r.endpoint is routeFn),
+            None,
+        )
+        if route is None:
+            raise RuntimeError(
+                f"{routeFn.__qualname__}: no APIRoute for this endpoint; "
+                "stack the MCP decorator above @router.<verb>(...)"
+            )
+        if not route.operation_id:
+            raise RuntimeError(f"{routeFn.__qualname__}: route needs an operation_id to become an MCP tool")
         mcp.tool(buildToolFunction(route, resolveIdentity, sessionFactory))
-        names.append(str(route.operation_id))
-    logger.info("wireRouteTools: registered %s", names)
-    return names
+        return routeFn
+
+    return decorator

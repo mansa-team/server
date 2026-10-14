@@ -27,12 +27,20 @@ from main.app.wallet.positions import PositionsManager
 from main.app.wallet.summary import RatingUpsert, SummaryManager
 from main.app.wallet.wallets import WalletCreate, WalletsManager
 from main.models.wallet import Transaction
-from main.utils.mcp_tools import wireRouteTools
+from main.utils.mcp_tools import mcpToolFor
 
 walletMcp = FastMCP("Mansa Wallet MCP", auth=soloAuth)
 registerLoginRoutes(walletMcp)
 
 router = APIRouter(prefix="/wallet", tags=["Wallet"], dependencies=[Depends(getWalletUser)])
+
+walletMcpTool = mcpToolFor(
+    walletMcp,
+    router,
+    # deferred: resolveMcpIdentity is defined below, after the routes
+    resolveIdentity=lambda authorization, db: resolveMcpIdentity(authorization, db),
+    sessionFactory=lambda: SessionLocal(),
+)
 
 
 @router.post("/wallets", status_code=201)
@@ -103,6 +111,7 @@ def delete_entry_route(
     return {"entryId": deletedId, "holding": serialize_holding(holding)}
 
 
+@walletMcpTool
 @router.get("/positions", operation_id="wallet_positions")
 def list_positions_route(
     currentUser: dict = Depends(getWalletUser),
@@ -130,6 +139,7 @@ def list_positions_route(
     return PositionsManager.getPositions(db, wallet)
 
 
+@walletMcpTool
 @router.get("/rebalance", operation_id="wallet_rebalance")
 def get_rebalance_route(
     currentUser: dict = Depends(getWalletUser),
@@ -156,6 +166,7 @@ def get_rebalance_route(
     return PositionsManager.getRebalance(db, wallet)
 
 
+@walletMcpTool
 @router.get("/summary", operation_id="wallet_summary")
 def get_summary_route(
     currentUser: dict = Depends(getWalletUser),
@@ -181,6 +192,7 @@ def get_summary_route(
     return SummaryManager.getSummary(db, wallet)
 
 
+@walletMcpTool
 @router.get("/allocation", operation_id="wallet_allocation")
 def get_allocation_route(
     currentUser: dict = Depends(getWalletUser),
@@ -218,6 +230,7 @@ def set_rating_route(
     return {"ticker": holding.ticker, "rating": holding.rating}
 
 
+@walletMcpTool
 @router.get("/earnings", operation_id="wallet_earnings")
 def list_earnings_route(
     currentUser: dict = Depends(getWalletUser),
@@ -243,6 +256,7 @@ def list_earnings_route(
     return {"items": [serialize_earning(item) for item in EarningsManager.listEarnings(db, wallet)]}
 
 
+@walletMcpTool
 @router.get("/performance", operation_id="wallet_performance")
 def get_performance_route(
     ticker: str | None = None,
@@ -276,6 +290,7 @@ def get_performance_route(
     return PerformanceManager.getPerformance(db, wallet, ticker, startDate, endDate)
 
 
+@walletMcpTool
 @router.get("/progression", operation_id="wallet_progression_series")
 def get_progression_route(
     fromIso: str | None = Query(default=None, alias="from"),
@@ -306,6 +321,7 @@ def get_progression_route(
 
 
 # Keep EXAMPLES bullets single-line: FastMCP 4.1 drops the whole section on wrapped continuation lines.
+@walletMcpTool
 @router.post("/record-entry", operation_id="record_entry")
 def record_entry_route(
     side: Literal["Compra", "Venda"] = Body(...),
@@ -365,6 +381,7 @@ def record_entry_route(
     return {"entryId": entry.entryId, "holding": serialize_holding(holding)}
 
 
+@walletMcpTool
 @router.put("/set-rating", operation_id="set_rating")
 def set_rating_wrapper_route(
     ticker: str = Body(...),
@@ -394,6 +411,7 @@ def set_rating_wrapper_route(
     return {"ticker": holding.ticker, "rating": holding.rating}
 
 
+@walletMcpTool
 @router.get("/explain-twr", operation_id="explain_twr")
 def explain_twr_route(
     ticker: str | None = None,
@@ -473,6 +491,7 @@ def explain_twr_route(
     }
 
 
+@walletMcpTool
 @router.get("/progression-summary", operation_id="wallet_progression")
 def wallet_progression_route(
     from_date: str | None = None,
@@ -572,11 +591,3 @@ def resolveMcpIdentity(authorization: str, db: Session) -> dict:
     if not sessionId or not SessionManager.validateSession(db, str(sessionId), userId):
         raise HTTPException(status_code=401, detail="Session revoked")
     return currentUser
-
-
-wireRouteTools(
-    walletMcp,
-    router,
-    resolveIdentity=resolveMcpIdentity,
-    sessionFactory=lambda: SessionLocal(),
-)
