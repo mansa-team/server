@@ -191,6 +191,34 @@ class TestOrunmilaCompactor:
     def test_should_compact_empty(self):
         assert self.compactor.shouldCompact([]) is False
 
+    def test_should_compact_counts_large_tool_result(self):
+        history = [
+            {"role": "user", "content": "short"},
+            {
+                "role": "loop_event",
+                "eventType": "tool_result",
+                "metadata": {"toolName": "get_fundamental", "result": "x" * 40000, "turn": 0},
+            },
+        ]
+        assert self.compactor.shouldCompact(history) is True
+
+    def test_should_compact_counts_tool_result_with_cache(self):
+        history = [
+            {"role": "user", "content": "short"},
+            {
+                "role": "loop_event",
+                "eventType": "tool_result",
+                "metadata": {"toolName": "get_fundamental", "result": "x" * 40000, "turn": 0},
+            },
+        ]
+        cache = {}
+        assert self.compactor.shouldCompact(history, cache) is True
+        assert cache
+
+    def test_should_compact_small_content_only_stays_false(self):
+        history = [{"role": "user", "content": "short"}, {"role": "model", "content": "reply"}]
+        assert self.compactor.shouldCompact(history) is False
+
     def test_extract_basic(self):
         chunk = [
             {"role": "user", "content": "Analise PETR4 e VALE3"},

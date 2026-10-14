@@ -178,17 +178,24 @@ def buildSummary(
     return " | ".join(parts) if parts else "Session with no extractable data."
 
 
+def historyTokenText(m: dict) -> str:
+    """Text the compaction budget counts: message content, or the serialized tool payload for loop events."""
+    if m.get("role") == "loop_event":
+        return json.dumps(m.get("metadata", {}), ensure_ascii=False, default=str)
+    return m.get("content", "")
+
+
 class OrunmilaCompactor:
     def shouldCompact(self, history: list, tokenCache: MutableMapping | None = None) -> bool:
         if not history:
             return False
 
         if tokenCache is None:
-            total = sum(countTokens(m.get("content", "")) for m in history)
+            total = sum(countTokens(historyTokenText(m)) for m in history)
         else:
             total = 0
             for m in history:
-                text = m.get("content", "")
+                text = historyTokenText(m)
                 cached = tokenCache.get(text)
                 if cached is None:
                     cached = countTokens(text)
