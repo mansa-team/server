@@ -2,16 +2,15 @@ import logging
 from collections.abc import MutableMapping
 from functools import wraps
 from config import Config, SessionLocal
-import json
 import unicodedata
 from datetime import datetime, timezone
-from typing import Any, Callable, cast
+from typing import Any, Callable, Literal, cast
 
 from cashews import cache
 from google import genai
 from google.genai import types
 import numpy as np
-from pydantic import BaseModel, TypeAdapter
+from pydantic import BaseModel
 from rapidfuzz import fuzz
 
 from sqlalchemy import func, desc
@@ -65,10 +64,8 @@ logger = logging.getLogger(__name__)
 class MemoryCandidate(BaseModel):
     key: str
     value: str
-    type: str = "context"
+    type: Literal["preference", "analysis", "feedback", "context"] = "context"
 
-
-candidateAdapter = TypeAdapter(MemoryCandidate)
 
 MEMORY_LIMIT_BASIC = 50
 MEMORY_LIMIT_EXTENDED = 250
@@ -492,37 +489,18 @@ class OrunmilaMemory:
                     config=types.GenerateContentConfig(
                         response_mime_type="application/json",
                         temperature=0.2,
-                        response_schema=types.Schema(
-                            type=types.Type.ARRAY,
-                            items=types.Schema(
-                                type=types.Type.OBJECT,
-                                properties={
-                                    "key": types.Schema(type=types.Type.STRING),
-                                    "value": types.Schema(type=types.Type.STRING),
-                                    "type": types.Schema(
-                                        type=types.Type.STRING,
-                                        enum=["preference", "analysis", "feedback", "context"],
-                                    ),
-                                },
-                                required=["key", "value", "type"],
-                            ),
-                        ),
+                        response_schema=list[MemoryCandidate],
                     ),
                 )
-                rawCandidates = json.loads(response.text)
             except (OSError, RuntimeError, ValueError, TypeError) as e:
                 logger.warning("Memory extraction LLM call failed: %s", e)
                 return []
 
-            if not isinstance(rawCandidates, list):
+            parsed: Any = response.parsed
+            if not isinstance(parsed, list):
                 return []
 
-            candidates: list[MemoryCandidate] = []
-            for raw in rawCandidates:
-                try:
-                    candidates.append(candidateAdapter.validate_python(raw))
-                except (ValueError, TypeError) as e:
-                    logger.warning("Memory extraction dropped invalid item: %s", e)
+            candidates = [c for c in parsed if isinstance(c, MemoryCandidate)]
             if not candidates:
                 return []
 
