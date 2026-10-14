@@ -1,10 +1,10 @@
 import json
 import logging
-import os
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date as dateType
 from datetime import datetime
 from decimal import Decimal
+from typing import Any
 
 import requests
 from sqlalchemy.exc import SQLAlchemyError
@@ -29,22 +29,33 @@ REFRESH_ERRORS = EXTERNAL_ERRORS + (SQLAlchemyError,)
 
 
 class PositionsManager:
+    @staticmethod
+    def stocksGet(path: str, params: dict, timeout: float = 3.0) -> Any:
+        key = Config.STOCKS_API.KEY
+        try:
+            resp = getSession().get(
+                f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}{path}",
+                params=params,
+                headers={"X-API-Key": key} if key else {},
+                timeout=timeout,
+            )
+            if resp.status_code == 429:
+                logger.warning("Stocks API quota exhausted for %s", params.get("search"))
+            if resp.status_code != 200:
+                return None
+            return resp.json()["data"]
+        except EXTERNAL_ERRORS:
+            return None
+
     @classmethod
     def fetchXangoScores(cls, tickers: tuple[str, ...]) -> dict[str, float | None]:
         scores: dict[str, float | None] = {}
         for ticker in tickers:
             try:
-                key = Config.STOCKS_API.KEY
-                resp = getSession().get(
-                    f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fundamental",
-                    params={"search": ticker, "fields": "XANGO INVESTING SCORE", "compact": False},  # type: ignore[arg-type]
-                    headers={"X-API-Key": key} if key else {},
-                    timeout=3,
+                payload = cls.stocksGet(
+                    "/stocks/fundamental",
+                    {"search": ticker, "fields": "XANGO INVESTING SCORE", "compact": False},
                 )
-                if resp.status_code != 200:
-                    scores[ticker] = None
-                    continue
-                payload = resp.json()["data"]
                 row = payload[0] if payload else None
                 if isinstance(row, dict) and "XANGO INVESTING SCORE" in row:
                     scores[ticker] = min(max(float(row["XANGO INVESTING SCORE"]), 0.0), 100.0)
@@ -88,19 +99,10 @@ class PositionsManager:
 
         def one(ticker: str) -> tuple[str, float | None]:
             try:
-                key = Config.STOCKS_API.KEY
-                resp = getSession().get(
-                    f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/cotations/live",
-                    params={"search": ticker, "compact": False},  # type: ignore[arg-type]
-                    headers={"X-API-Key": key} if key else {},
-                    timeout=3,
-                )
-                if resp.status_code == 429:
-                    logger.warning("Live price quota exhausted for %s", ticker)
+                payload = cls.stocksGet("/stocks/cotations/live", {"search": ticker, "compact": False})
+                if payload is None:
                     return ticker, None
-                if resp.status_code != 200:
-                    return ticker, None
-                return ticker, float(resp.json()["data"][0]["PRECO ATUAL"])
+                return ticker, float(payload[0]["PRECO ATUAL"])
             except EXTERNAL_ERRORS:
                 return ticker, None
 
@@ -125,16 +127,11 @@ class PositionsManager:
     @classmethod
     def fetchMarketDividends(cls, ticker: str) -> list[dict]:
         try:
-            key = os.getenv("STOCKS_API_KEY", "")
-            resp = getSession().get(
-                f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/fundamental",
-                params={"search": ticker, "fields": "HISTORICO DIVIDENDOS"},  # type: ignore[arg-type]
-                headers={"X-API-Key": key} if key else {},
+            payload = cls.stocksGet(
+                "/stocks/fundamental",
+                {"search": ticker, "fields": "HISTORICO DIVIDENDOS"},
                 timeout=10,
             )
-            if resp.status_code != 200:
-                return []
-            payload = resp.json()["data"]
             if not isinstance(payload, list) or not payload:
                 return []
 
@@ -175,16 +172,9 @@ class PositionsManager:
     @sync_cache(ttl="6h", key="wallet:closes:{ticker}")
     def fetchPadraoCloses(cls, ticker: str) -> list[tuple[dateType, float]]:
         try:
-            key = os.getenv("STOCKS_API_KEY", "")
-            resp = getSession().get(
-                f"http://{Config.STOCKS_API.HOST}:{Config.STOCKS_API.PORT}/stocks/cotations",
-                params={"search": ticker},
-                headers={"X-API-Key": key} if key else {},
-                timeout=3,
-            )
-            if resp.status_code != 200:
+            payload = cls.stocksGet("/stocks/cotations", {"search": ticker})
+            if payload is None:
                 return []
-            payload = resp.json()["data"]
             if isinstance(payload, dict):
                 payload = [payload]
             closeRows: list = []

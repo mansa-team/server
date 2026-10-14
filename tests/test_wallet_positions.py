@@ -1,3 +1,4 @@
+import os
 from types import SimpleNamespace
 
 import pytest
@@ -5,6 +6,8 @@ import requests
 from cashews import cache as cashewsCache
 
 import main.models.wallet  # noqa: F401
+from config import Config
+from main.app.wallet.positions import PositionsManager
 from tests.conftest import make_wallet_client
 
 
@@ -109,3 +112,29 @@ def test_cached_fallback_serves_when_live_fails(dbSession, monkeypatch):
     _seed(client)
     item = client.get("/wallet/positions").json()["items"][0]
     assert item["current_price"] == 27.5
+
+
+def test_stocks_get_uses_config_key(monkeypatch):
+    captured = {}
+
+    class FakeResponse:
+        status_code = 200
+
+        def json(self):
+            return {"data": []}
+
+    def fakeGet(url, params=None, headers=None, timeout=None):
+        captured["headers"] = headers or {}
+        captured["url"] = url
+        return FakeResponse()
+
+    class FakeSession:
+        get = staticmethod(fakeGet)
+
+    monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: FakeSession())
+    monkeypatch.setattr(Config.STOCKS_API, "KEY", "test-key")
+
+    PositionsManager.fetchMarketDividends("PETR4")
+
+    assert captured["headers"]["X-API-Key"] == "test-key"
+    assert "STOCKS_API_KEY" not in os.environ  # the old env var is gone from the code path
