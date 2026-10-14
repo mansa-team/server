@@ -1,11 +1,3 @@
-"""Wallet auth verifier behind the auth introspect seam.
-
-Only auth touches sessions; wallet validates via POST /auth/introspect
-with X-Service-Token. Base URL comes from Config.USER.HOST/PORT so the
-auth/wallet split is config-only (same USER deployable today, localhost
-default keeps co-located working).
-"""
-
 import inspect
 import logging
 
@@ -18,10 +10,6 @@ from main.app.authentication import service_token as serviceTokens
 from main.app.authentication.constants import COOKIE_NAME
 
 logger = logging.getLogger(__name__)
-
-
-def authServiceBaseUrl() -> str:
-    return f"http://{Config.USER.HOST}:{Config.USER.PORT}"
 
 
 def mintServiceToken(db: Session | None = None) -> str:
@@ -55,7 +43,7 @@ def getWalletUser(request: Request, db: Session = Depends(getSession)) -> dict:
         serviceToken = mintServiceToken(db)
     except Exception:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    url = f"{authServiceBaseUrl()}/auth/introspect"
+    url = f"http://{Config.USER.HOST}:{Config.USER.PORT}/auth/introspect"
     try:
         resp = httpx.post(
             url,

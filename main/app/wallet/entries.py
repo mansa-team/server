@@ -1,20 +1,3 @@
-"""Ledger-sourced holdings and cost-basis engine.
-
-Cost-basis semantics (explicit — reviewer #7, entries-owned portion):
-
-- Buy cost = quantity x price + costs. Costs are capitalized into the
-  average: ``avg = (qty*avg + buyQty*buyPrice + buyCosts) / newQty``.
-- Sell does NOT change the average price. Sale proceeds are net of costs
-  (``qty*price - costs``); realized P&L per sale = proceeds - qty x avg.
-- Unrealized P&L = ``qty x (market - avg)`` (market from positions pass).
-- TWR treats costs as above (buy costs raise the invested base; sell costs
-  reduce proceeds); cash-flow legs mirror this (see analytics.py).
-
-All domain math uses :class:`~decimal.Decimal`. ``float`` appears only at
-the API/serialization boundary (pydantic inputs, ``serialize_*`` outputs).
-Callers inside the domain (e.g. summary.ledgerPositions) receive Decimals.
-"""
-
 import logging
 from collections.abc import Sequence
 from datetime import date as dateType
@@ -38,12 +21,6 @@ NUMERIC_PATCH_FIELDS = frozenset({"quantity", "price", "costs"})
 
 
 def toDecimal(value: Decimal | float | int | str | Column[Decimal]) -> Decimal:
-    """Coerce a DB/API numeric to Decimal via its shortest repr.
-
-    ``Decimal(str(floatValue))`` keeps the human-meaningful value (0.1 stays
-    0.1) instead of inheriting binary float error. Malformed input raises
-    (never silently becomes a fallback figure).
-    """
     if isinstance(value, Decimal):
         return value
     return Decimal(str(value))
@@ -55,7 +32,6 @@ def serialize_holding(holding) -> dict | None:
     return {"ticker": holding.ticker, "quantity": float(holding.quantity), "avgPrice": float(holding.avgPrice)}
 
 
-# Kept: public API serialization used by wallet_controller — keep.
 def serialize_entry(entry) -> dict:
     return {
         "entryId": entry.entryId,
@@ -92,8 +68,6 @@ class EntryUpdate(BaseModel):
 class EntriesManager:
     @classmethod
     def snapshotEntries(cls, rows: list[Transaction]) -> tuple[tuple[str, str, str, str, str, str, int], ...]:
-        # Numerics travel as shortest-repr strings: Decimal-exact and stable
-        # as cache-key material. Consumers coerce via toDecimal.
         return tuple(
             (
                 str(ledgerRow.ticker),
@@ -111,9 +85,6 @@ class EntriesManager:
     def applyEntries(
         cls, quantity: Decimal | float, avg: Decimal | float, entries: Sequence[Any]
     ) -> tuple[Decimal, Decimal]:
-        # Seeds accept float (cross-lane callers) but every step below is
-        # Decimal: buy basis = qty*price + costs capitalized into avg; sell
-        # only reduces quantity (avg untouched), oversell rejected.
         runningQty = toDecimal(quantity)
         runningAvg = toDecimal(avg)
         for entry in entries:

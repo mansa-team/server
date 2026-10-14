@@ -24,7 +24,7 @@ from main.app.authentication.util import createAccessToken, walletAuth
 from main.app.wallet.entries import EntriesManager, EntryCreate
 from main.app.wallet.wallets import WalletsManager
 from main.models.user import User
-from main.controller.wallet_controller import walletMcp
+from main.controller.wallet_controller import mcp as walletMcp
 from tests.test_wallet_positions import _live_ok
 
 

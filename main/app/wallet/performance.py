@@ -1,28 +1,3 @@
-"""Time-weighted performance over the transaction ledger.
-
-Metric semantics (explicit — reviewer #6, performance-owned portion):
-
-- ``twr``: dividend-inclusive time-weighted return. Each held day earns
-  ``(close - prevClose) / prevClose`` plus a dividend yield leg
-  ``(grossPerShare / qtyAtEx) / prevClose`` on ex-dates, where ``qtyAtEx``
-  replays the ledger up to that date (sells after ex keep the full yield).
-  Daily cross-ticker returns aggregate value-weighted by ``qty x prevClose``;
-  compounding is multiplicative. External contributions are neutral by
-  construction (mid-window buys at market price leave single-ticker TWR
-  unchanged — invariant-tested).
-- ``price_return``: same machinery with the dividend leg removed.
-- ``dividends_received``: sum of net (IR-adjusted) earnings whose ex-date
-  falls in the window.
-- ``volatility``: annualized stdev of daily total returns (x sqrt(252));
-  0.0 with fewer than 2 scored days.
-- ``twr_annualized``: ``(1 + twr) ** (365 / spanDays) - 1``.
-
-Money/quantity/price/yield/weight math is :class:`~decimal.Decimal`
-(coerced via entries.toDecimal, tolerant of legacy float snaps). ``float``
-appears only for stdev/sqrt/power (inherently floating) and at the output
-boundary.
-"""
-
 import logging
 from datetime import date as dateType
 from datetime import timedelta
@@ -200,7 +175,6 @@ class PerformanceManager:
     def defaultWindow(
         cls, db: Session, wallet: Wallet, start: dateType | None, end: dateType | None
     ) -> tuple[dateType, dateType]:
-        # Fill omitted /performance bounds: lifetime window ending today.
         walletId = int(wallet.walletId)
         today = dateType.today()
         if start is None:

@@ -16,6 +16,8 @@ services:
     image: redis:7-alpine
     restart: always
     command: redis-server --save "" --appendonly no --maxmemory 512mb --maxmemory-policy allkeys-lru
+    ports:
+      - "127.0.0.1:6379:6379"
     deploy:
       resources:
         limits:

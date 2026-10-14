@@ -14,7 +14,6 @@ class Permission(IntFlag):
     WALLET = auto()
 
     @classmethod
-    # Kept: directly asserted in tests/test_roles.py — keep.
     def ALL(cls):
         return sum(cls)
 

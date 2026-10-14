@@ -1,9 +1,11 @@
 """Tests for main/app/stocks_api/util.py."""
 
+from datetime import date
+
 import pandas as pd
 import pytest
 from fastapi import HTTPException
-from main.app.stocks_api.util import categorizeColumns, parseDateRange
+from main.app.stocks_api.util import categorizeColumns, parseDate, parseDateRange
 
 
 class TestCategorizeColumns:
@@ -81,3 +83,29 @@ class TestParseDateRange:
     def test_full_date(self):
         start, end = parseDateRange("2026-06-15")
         assert start == end
+
+    def test_malformed_raises_400(self):
+        with pytest.raises(HTTPException) as exc_info:
+            parseDateRange("bogus")
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "Invalid date format. Use YYYY-MM-DD"
+
+
+class TestParseDate:
+    def test_year(self):
+        assert parseDate("2022") == date(2022, 1, 1)
+        assert parseDate("2022", end=True) == date(2022, 12, 31)
+
+    def test_month(self):
+        assert parseDate("2022-06") == date(2022, 6, 1)
+        assert parseDate("2022-06", end=True) == date(2022, 6, 30)
+
+    def test_full_date(self):
+        assert parseDate("2022-06-15") == date(2022, 6, 15)
+
+    @pytest.mark.parametrize("bad", ["bogus", "2024-13", "2024-13-01", "2024-06-31"])
+    def test_malformed_raises_400(self, bad):
+        with pytest.raises(HTTPException) as exc_info:
+            parseDate(bad)
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "Invalid date format. Use YYYY-MM-DD"

@@ -74,14 +74,17 @@ def categorizeColumns(columns: list) -> tuple:
 
 def parseDate(dateStr: str, end: bool = False) -> date:
     dateStr = dateStr.strip()
-    if re.match(r"^\d{4}$", dateStr):
-        return date(int(dateStr), 12, 31) if end else date(int(dateStr), 1, 1)
-    if re.match(r"^\d{4}-\d{2}$", dateStr):
-        year, month = map(int, dateStr.split("-"))
-        if end:
-            return date(year, month, calendar.monthrange(year, month)[1])
-        return date(year, month, 1)
-    return date.fromisoformat(dateStr)
+    try:
+        if re.match(r"^\d{4}$", dateStr):
+            return date(int(dateStr), 12, 31) if end else date(int(dateStr), 1, 1)
+        if re.match(r"^\d{4}-\d{2}$", dateStr):
+            year, month = map(int, dateStr.split("-"))
+            if end:
+                return date(year, month, calendar.monthrange(year, month)[1])
+            return date(year, month, 1)
+        return date.fromisoformat(dateStr)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD") from None
 
 
 def parseDateRange(dates: str | None) -> tuple[date | None, date | None]:

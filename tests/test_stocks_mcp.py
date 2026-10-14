@@ -13,7 +13,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from fastmcp import Client
 
-from main.controller.stocksapi_controller import stocksMcp
+from main.controller.stocksapi_controller import mcp as stocksMcp
 
 EXPECTED_STOCKS_TOOLS = {
     "list_fields",

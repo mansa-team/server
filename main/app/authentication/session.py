@@ -76,7 +76,6 @@ class SessionManager:
         return query.first()
 
     @staticmethod
-    # Kept: mocked seam (test_controllers_coverage.py) + direct test (test_sessions.py:177) — keep.
     def getCurrentSession(db: Session, userId: int) -> UserSession | None:
         return (
             db.query(UserSession)

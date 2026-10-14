@@ -44,7 +44,6 @@ async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depend
         raise HTTPException(status_code=401, detail="Unauthorized")
 
     try:
-        # ponytail: full-table scan, move to server-side salted lookup if keys table grows large
         rows = db.query(StocksAPIKey).all()
         matchedPk = None
         exhaustedMatch = False

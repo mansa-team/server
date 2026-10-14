@@ -13,12 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 def getLoopbackHeaders(db=None) -> dict:
-    """Fresh X-Service-Token per pool (re)connect, never import-time.
-
-    Mints an opaque service session row (rotation without restart is revoke).
-    Empty dict when the DB is unreachable: the pool logs and connects without
-    the wallet entry rather than holding a static restart-to-rotate token.
-    """
     try:
         session = db if db is not None else SessionLocal()
         try:
