@@ -5,6 +5,7 @@ import pytest
 from cashews import cache as cashewsCache
 
 import main.models.wallet  # noqa: F401
+from main.app.wallet.performance import PerformanceManager
 from main.models.wallet import Earning
 from tests.conftest import make_wallet_client
 
@@ -96,3 +97,23 @@ def test_performance_defaults_to_lifetime_window(dbSession, monkeypatch):
     assert body["twr"] == pytest.approx(0.1)
     assert body["price_return"] == pytest.approx(0.1)
     assert set(body) == {"twr", "twr_annualized", "volatility", "dividends_received", "price_return"}
+
+
+def test_twr_annualized_survives_sub_minus_100_window(monkeypatch):
+    # A window losing more than 100% (a -120% day) must return a float, not raise TypeError.
+    def fake_closes(cls, ticker):
+        return [(date(2025, 12, 31), 10.0), (date(2026, 1, 2), 10.0), (date(2026, 1, 3), -2.0)]
+
+    monkeypatch.setattr("main.app.wallet.performance.PositionsManager.fetchPadraoCloses", classmethod(fake_closes))
+    out = PerformanceManager.cachedPerformance(
+        7,
+        "PETR4",
+        "2026-01-02",
+        "2026-01-04",
+        "test",
+        (("PETR4", "2025-12-20", "Compra", 10.0, 10.0, 0.0, 1),),
+        (),
+    )
+    assert out["twr"] == pytest.approx(-1.2)
+    assert isinstance(out["twr_annualized"], float)
+    assert out["twr_annualized"] == -1.0
