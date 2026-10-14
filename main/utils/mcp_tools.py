@@ -1,13 +1,8 @@
 """Derive MCP tools from FastAPI routes.
 
-FastMCP hides only its own `uncalled_for.Depends` parameters
-(fastmcp/server/dependencies.py:752 -> uncalled_for/introspection.py:43), so a
-function that still carries `fastapi.Depends` defaults leaks them into the tool
-schema. Enable a route as a tool by giving it an `operation_id`: that attribute
-already names the tool and marks the MCP surface in this repo.
-
-The signature/annotation transfer below is FastMCP's own recipe
-(fastmcp/server/dependencies.py:805-812); do not invent a variant.
+FastMCP hides only its own `uncalled_for.Depends`, so a route's `fastapi.Depends` params leak into the tool
+schema. A route opts in by declaring an `operation_id`: the tool name and this repo's MCP-surface marker.
+The signature/annotation transfer below is FastMCP's own recipe (fastmcp/server/dependencies.py:805-812).
 """
 
 import copy
@@ -19,21 +14,16 @@ from fastapi.routing import APIRoute, APIRouter
 from fastmcp import FastMCP
 
 _AUTH_PARAM = "authorization"
-_IDENTITY_PARAM = "currentUser"
-_SESSION_PARAM = "db"
 
 
 def withoutAlias(fieldInfo: fastapiParams.FieldInfo) -> fastapiParams.FieldInfo:
     """Copy a Query/Body FieldInfo without its alias.
 
-    pydantic derives the schema property name from the alias, which would
-    rename the tool argument (`fromIso` -> `from`). Constraints live in
-    `metadata` and are copied untouched.
+    pydantic takes the schema property name from the alias (`fromIso` -> `from`), so stripping it keeps
+    the tool argument name; constraints live in `metadata`, copied untouched.
     """
     stripped = copy.copy(fieldInfo)
-    stripped.alias = None
-    stripped.validation_alias = None
-    stripped.serialization_alias = None
+    stripped.alias = stripped.validation_alias = stripped.serialization_alias = None
     return stripped
 
 
@@ -42,45 +32,35 @@ def buildToolFunction(
 ) -> Callable[..., Any]:
     routeFn = route.endpoint
     signature = inspect.signature(routeFn)
-    hidden = {
-        name for name, parameter in signature.parameters.items() if isinstance(parameter.default, fastapiParams.Depends)
-    }
-
-    parameters = [
-        parameter
-        if not isinstance(parameter.default, fastapiParams.FieldInfo)
-        else parameter.replace(default=withoutAlias(parameter.default))
-        for name, parameter in signature.parameters.items()
-        if name not in hidden
-    ]
+    parameters = []
+    for parameter in signature.parameters.values():
+        if isinstance(parameter.default, fastapiParams.Depends):
+            continue  # FastMCP hides only its own Depends; these must not reach the schema
+        if isinstance(parameter.default, fastapiParams.FieldInfo):
+            parameter = parameter.replace(default=withoutAlias(parameter.default))
+        parameters.append(parameter)
     parameters.append(
         inspect.Parameter(_AUTH_PARAM, kind=inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=str, default="")
     )
-
     try:
         annotations = get_type_hints(routeFn)
     except Exception:  # pragma: no cover - unresolved forward reference
         annotations = dict(getattr(routeFn, "__annotations__", {}))
 
     def tool(**kwargs: Any) -> Any:
-        # shortcut: identity/session are injected by these exact names, this
-        # repo's route convention; generalise if a route renames its DI params.
+        # shortcut: identity/session are injected by these exact names (this repo's route convention).
         authorization = kwargs.pop(_AUTH_PARAM, "")
         db = sessionFactory()
         try:
-            currentUser = resolveIdentity(authorization, db)
-            return routeFn(**{**kwargs, _IDENTITY_PARAM: currentUser, _SESSION_PARAM: db})
+            return routeFn(**{**kwargs, "currentUser": resolveIdentity(authorization, db), "db": db})
         finally:
             db.close()
 
-    newSignature = signature.replace(
+    tool.__signature__ = signature.replace(  # type: ignore[attr-defined]
         parameters=parameters,
         return_annotation=annotations.get("return", signature.return_annotation),
     )
-    tool.__signature__ = newSignature  # type: ignore[attr-defined]
-    tool.__annotations__ = {
-        name: annotation for name, annotation in annotations.items() if name not in hidden and name != "return"
-    }
+    tool.__annotations__ = {p.name: annotations[p.name] for p in parameters if p.name in annotations}
     tool.__annotations__[_AUTH_PARAM] = str
     tool.__name__ = str(route.operation_id)
     tool.__doc__ = routeFn.__doc__
@@ -98,24 +78,17 @@ def mcpToolFor(
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """Build a decorator that registers a route endpoint as an MCP tool.
 
-    Stack it ABOVE `@router.<verb>(...)`, as the outermost decorator: the
-    `APIRoute` object (and its `operation_id`) only exists after the FastAPI
-    decorator has run. `operation_id` names the tool and marks the MCP surface;
-    a route without one is never exposed and raises here.
+    Stack it ABOVE `@router.<verb>(...)`: the `APIRoute` and its `operation_id` only exist after the
+    FastAPI decorator has run; a route without either raises here.
     """
 
     def decorator(routeFn: Callable[..., Any]) -> Callable[..., Any]:
-        route = next(
-            (r for r in reversed(router.routes) if isinstance(r, APIRoute) and r.endpoint is routeFn),
-            None,
-        )
-        if route is None:
+        route = next((r for r in reversed(router.routes) if isinstance(r, APIRoute) and r.endpoint is routeFn), None)
+        if route is None or not route.operation_id:
             raise RuntimeError(
-                f"{routeFn.__qualname__}: no APIRoute for this endpoint; "
-                "stack the MCP decorator above @router.<verb>(...)"
+                f"{routeFn.__qualname__}: needs an APIRoute stacked above @router.<verb>(...) "
+                "and its operation_id to become an MCP tool"
             )
-        if not route.operation_id:
-            raise RuntimeError(f"{routeFn.__qualname__}: route needs an operation_id to become an MCP tool")
         mcp.tool(buildToolFunction(route, resolveIdentity, sessionFactory))
         return routeFn
 
