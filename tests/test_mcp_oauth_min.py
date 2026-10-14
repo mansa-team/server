@@ -199,7 +199,7 @@ async def test_revoked_session_access_fails(dbSession, monkeypatch):
 
 
 def _http_app():
-    from main.controller.wallet_controller import walletMcp
+    from main.controller.wallet_controller import mcp as walletMcp
 
     return walletMcp.http_app(path="/", transport="streamable-http", stateless_http=True)
 

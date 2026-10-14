@@ -43,7 +43,7 @@ from main.app.wallet.entries import EntryCreate, EntriesManager
 from main.app.wallet.performance import PerformanceManager
 from main.app.wallet.wallets import WalletsManager
 from main.controller.wallet_controller import (
-    walletMcp,
+    mcp as walletMcp,
     explain_twr_route,
     record_entry_route,
     router as walletRouter,
