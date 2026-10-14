@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from typing import Any, Callable, Literal, cast
 
 from cashews import cache
+from cachetools import TTLCache
 from google import genai
 from google.genai import types
 import numpy as np
@@ -443,6 +444,9 @@ class OrunmilaMemory:
             if db is None:
                 logger.error("Failed to acquire DB session for memory search")
                 return []
+            if tokenCache is None:
+                # Built inside the worker thread: cachetools.TTLCache is not thread-safe.
+                tokenCache = TTLCache(maxsize=TOKEN_CACHE_MAXSIZE, ttl=TOKEN_CACHE_TTL_SECONDS)
             cap = (
                 MEMORY_EXTRACT_PREMIUM_CAP
                 if Roles.checkAccess(userRoles, Permission.ORUNMILA_EXTENDED_MEMORIES)
@@ -459,14 +463,11 @@ class OrunmilaMemory:
             for msg in reversed(msgs):
                 text = (msg.get("parts") or [{}])[0].get("text", "")
                 acc.append(text)
-                if tokenCache is None:
-                    tokens += countTokens(text)
-                else:
-                    cached = tokenCache.get(text)
-                    if cached is None:
-                        cached = countTokens(text)
-                        tokenCache[text] = cached
-                    tokens += cached
+                cached = tokenCache.get(text)
+                if cached is None:
+                    cached = countTokens(text)
+                    tokenCache[text] = cached
+                tokens += cached
                 if tokens >= MEMORY_EXTRACTION_TOKEN_BUDGET:
                     break
 

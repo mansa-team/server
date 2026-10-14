@@ -282,7 +282,6 @@ class Orunmila:
                                 user.get("userId"),
                                 str(sessionId),
                                 user.get("roles", []),
-                                tokenCache,
                             )
                         except Exception as e:
                             logger.debug("Memory extraction failed: %s", e)

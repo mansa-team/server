@@ -6,10 +6,11 @@ Issue 6: requests.Session usage is thread-safe via per-thread sessions
          stored in threading.local().
 """
 
+import asyncio
 import logging
 import threading
 import time
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 
 import pytest
 
@@ -203,3 +204,62 @@ class TestDiscordHandlerThreadPool:
                 w.join(timeout=5)
 
             assert mock_post.call_count == 20
+
+
+# ---------------------------------------------------------------------------
+# Orunmila memory extraction – the loop-side TTLCache must not cross threads
+# ---------------------------------------------------------------------------
+
+
+class TestOrunmilaExtractionCacheIsolation:
+    """cachetools.TTLCache is not thread-safe: the cache used on the event-loop
+    thread must never be handed to the asyncio.to_thread extraction worker."""
+
+    async def test_extraction_does_not_receive_the_loop_cache(self):
+        from main.app.orunmila import agent as agentMod
+        from main.app.orunmila.agent import Orunmila
+        from main.app.orunmila.compact import OrunmilaCompactor
+        from main.app.orunmila.memory import OrunmilaMemory
+
+        mockSession = MagicMock()
+        mockSession.history = [{"role": "user", "content": "hi", "timestamp": "2026-01-01T00:00:00"}]
+        mockDb = MagicMock()
+        mockDb.query.return_value.filter.return_value.first.return_value = mockSession
+
+        class FakeChunk:
+            text = "ok"
+            function_calls = None
+
+        async def fakeStream():
+            yield FakeChunk()
+
+        mockChatSession = MagicMock()
+        mockChatSession.send_message_stream = AsyncMock(return_value=fakeStream())
+
+        gen = Orunmila.__new__(Orunmila)  # skip __init__ (no real genai client needed)
+        gen.client = MagicMock()
+        gen.makeChat = MagicMock(return_value=mockChatSession)
+
+        with (
+            patch.object(OrunmilaCompactor, "compact", autospec=True) as mockCompact,
+            patch.object(OrunmilaMemory, "search", return_value=[]),
+            patch.object(OrunmilaMemory, "extract") as mockExtract,
+            patch("main.app.orunmila.agent.clientPool") as mockPool,
+        ):
+            mockPool.clients = {"stocks": MagicMock()}
+            mockPool.getClients = AsyncMock(return_value=({"stocks": MagicMock()}, [MagicMock()]))
+            async for _ in gen.streamMessage(
+                query="q", sessionId="s1", db=mockDb, user={"userId": 1, "roles": ["PREMIUM"]}
+            ):
+                pass
+            if agentMod.pendingExtractions:
+                await asyncio.gather(*agentMod.pendingExtractions)
+
+        loopCache = mockCompact.call_args.args[3]
+        assert loopCache is not None
+
+        callArgs = mockExtract.call_args
+        passedCache = callArgs.kwargs.get("tokenCache")
+        if passedCache is None and len(callArgs.args) >= 5:
+            passedCache = callArgs.args[4]
+        assert passedCache is not loopCache
