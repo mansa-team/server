@@ -298,7 +298,7 @@ def get_progression_route(
        when the full daily granularity is explicitly needed
 
     EXAMPLES:
-    - "Every single day of my equity this year" → from="2026-01-01"
+    - "Every single day of my equity this year" → fromIso="2026-01-01"
     """
     wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     startDate, endDate = PerformanceManager.resolveWindowFromIso(db, wallet, fromIso, toIso)
