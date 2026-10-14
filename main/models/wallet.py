@@ -69,23 +69,6 @@ class Target(Base):
     __table_args__ = (UniqueConstraint("walletId", "keyKind", "keyValue", name="uq_targets_wallet_key"),)
 
 
-class Snapshot(Base):
-    __tablename__ = "snapshots"
-
-    snapshotId = Column(Integer, primary_key=True, autoincrement=True)
-    walletId = Column(Integer, ForeignKey("wallets.walletId", ondelete="RESTRICT"), nullable=False, index=True)
-    date = Column(Date, nullable=False, index=True)
-    applied = Column(Numeric(18, 2), nullable=False)
-    equity = Column(Numeric(18, 2), nullable=False)
-    variation = Column(Numeric(18, 2), nullable=False)
-    profitTwr = Column(Numeric(10, 6), nullable=True)
-    profitAmount = Column(Numeric(18, 2), nullable=False)
-    profitTwr12m = Column(Numeric(10, 6), nullable=True)
-    profitTwr12mAmount = Column(Numeric(18, 2), nullable=False)
-
-    __table_args__ = (UniqueConstraint("walletId", "date", name="uq_snapshots_wallet_date"),)
-
-
 class Earning(Base):
     __tablename__ = "earnings"
 

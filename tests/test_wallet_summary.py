@@ -6,7 +6,8 @@ import pytest
 from cashews import cache as cashewsCache
 
 import main.models.wallet  # noqa: F401
-from main.models.wallet import Snapshot, Wallet
+from main.models.base import Base
+from main.models.wallet import Wallet
 from tests.conftest import make_wallet_client
 
 
@@ -46,10 +47,10 @@ def _seed(client):
     return walletId
 
 
-def test_summary_math_and_snapshot_upsert(dbSession, monkeypatch):
+def test_summary_math_without_snapshot_persistence(dbSession, monkeypatch):
     monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     client, _, _ = make_wallet_client(db=dbSession)
-    walletId = _seed(client)
+    _seed(client)
     body = client.get("/wallet/summary").json()
     assert body == {
         "applied": 100.0,
@@ -60,7 +61,8 @@ def test_summary_math_and_snapshot_upsert(dbSession, monkeypatch):
     again = client.get("/wallet/summary").json()
     assert again["variation"] == 200.0
 
-    assert dbSession.query(Snapshot).filter(Snapshot.walletId == walletId).count() == 1
+    # The write-only Snapshot persistence is gone end-to-end.
+    assert "snapshots" not in Base.metadata.tables
 
 
 def test_summary_does_not_touch_last_recalc(dbSession, monkeypatch):

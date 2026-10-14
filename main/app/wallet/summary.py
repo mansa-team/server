@@ -1,4 +1,3 @@
-from datetime import date as dateType
 from decimal import Decimal
 
 from fastapi import HTTPException
@@ -7,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from main.app.wallet.entries import EntriesManager
 from main.app.wallet.positions import PositionsManager
-from main.models.wallet import Holding, Snapshot, Transaction, Wallet
+from main.models.wallet import Holding, Transaction, Wallet
 
 
 class RatingUpsert(BaseModel):
@@ -61,33 +60,6 @@ class SummaryManager:
             db.query(Transaction.date).filter(Transaction.walletId == walletId).order_by(Transaction.date).first()
         )
         firstDate = firstRow[0].isoformat() if firstRow else None
-
-        today = dateType.today()
-
-        snapshot = db.query(Snapshot).filter(Snapshot.walletId == walletId, Snapshot.date == today).first()
-        if snapshot is None:
-            snapshot = Snapshot(
-                walletId=walletId,
-                date=today,
-                applied=applied,
-                equity=equity,
-                variation=variation,
-                profitTwr=None,
-                profitAmount=variation,
-                profitTwr12m=None,
-                profitTwr12mAmount=variation,
-            )
-            db.add(snapshot)
-        else:
-            snapshot.applied = applied  # type: ignore[assignment]
-            snapshot.equity = equity  # type: ignore[assignment]
-            snapshot.variation = variation  # type: ignore[assignment]
-            snapshot.profitTwr = None  # type: ignore[assignment]
-            snapshot.profitAmount = variation  # type: ignore[assignment]
-            snapshot.profitTwr12m = None  # type: ignore[assignment]
-            snapshot.profitTwr12mAmount = variation  # type: ignore[assignment]
-
-        db.commit()
 
         return {
             "applied": float(applied),

@@ -1,7 +1,7 @@
 from datetime import date
 
 from main.models.base import Base
-from main.models.wallet import Earning, Holding, Snapshot, Target, Transaction, Wallet
+from main.models.wallet import Earning, Holding, Target, Transaction, Wallet
 
 
 def test_wallet_tables_create_and_round_trip(dbSession):
