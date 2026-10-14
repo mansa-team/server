@@ -23,6 +23,9 @@ class Roles(IntFlag):
 
     PREMIUM = USER | Permission.USE_ORUNMILA | Permission.ORUNMILA_EXTENDED_MEMORIES
 
+    # Loopback identity that exists to reach wallet routes.
+    SERVICE = Permission.WALLET
+
     DEVELOPER_STARTER = USER
 
     DEVELOPER_ENTERPRISE = DEVELOPER_STARTER

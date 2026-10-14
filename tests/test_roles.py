@@ -73,6 +73,12 @@ class TestRoles:
     def test_check_access_user_has_wallet(self):
         assert Roles.checkAccess(["USER"], Permission.WALLET) is True
 
+    def test_check_access_service_has_wallet(self):
+        assert Roles.checkAccess(["SERVICE"], Permission.WALLET) is True
+
+    def test_check_access_service_has_no_orunmila(self):
+        assert Roles.checkAccess(["SERVICE"], Permission.USE_ORUNMILA) is False
+
 
 class TestRequirePermission:
     async def test_raises_403_when_missing(self):
