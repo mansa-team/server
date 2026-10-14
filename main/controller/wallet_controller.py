@@ -34,7 +34,7 @@ registerLoginRoutes(walletMcp)
 
 router = APIRouter(prefix="/wallet", tags=["Wallet"], dependencies=[Depends(getWalletUser)])
 
-walletMcpTool = mcpToolDecorator(
+mcp_tool = mcpToolDecorator(
     walletMcp,
     router,
     # deferred: resolveMcpIdentity is defined below, after the routes
@@ -111,7 +111,7 @@ def delete_entry_route(
     return {"entryId": deletedId, "holding": serialize_holding(holding)}
 
 
-@walletMcpTool
+@mcp_tool
 @router.get("/positions", operation_id="wallet_positions")
 def list_positions_route(
     currentUser: dict = Depends(getWalletUser),
@@ -139,7 +139,7 @@ def list_positions_route(
     return PositionsManager.getPositions(db, wallet)
 
 
-@walletMcpTool
+@mcp_tool
 @router.get("/rebalance", operation_id="wallet_rebalance")
 def get_rebalance_route(
     currentUser: dict = Depends(getWalletUser),
@@ -166,7 +166,7 @@ def get_rebalance_route(
     return PositionsManager.getRebalance(db, wallet)
 
 
-@walletMcpTool
+@mcp_tool
 @router.get("/summary", operation_id="wallet_summary")
 def get_summary_route(
     currentUser: dict = Depends(getWalletUser),
@@ -192,7 +192,7 @@ def get_summary_route(
     return SummaryManager.getSummary(db, wallet)
 
 
-@walletMcpTool
+@mcp_tool
 @router.get("/allocation", operation_id="wallet_allocation")
 def get_allocation_route(
     currentUser: dict = Depends(getWalletUser),
@@ -230,7 +230,7 @@ def set_rating_route(
     return {"ticker": holding.ticker, "rating": holding.rating}
 
 
-@walletMcpTool
+@mcp_tool
 @router.get("/earnings", operation_id="wallet_earnings")
 def list_earnings_route(
     currentUser: dict = Depends(getWalletUser),
@@ -256,7 +256,7 @@ def list_earnings_route(
     return {"items": [serialize_earning(item) for item in EarningsManager.listEarnings(db, wallet)]}
 
 
-@walletMcpTool
+@mcp_tool
 @router.get("/performance", operation_id="wallet_performance")
 def get_performance_route(
     ticker: str | None = None,
@@ -290,7 +290,7 @@ def get_performance_route(
     return PerformanceManager.getPerformance(db, wallet, ticker, startDate, endDate)
 
 
-@walletMcpTool
+@mcp_tool
 @router.get("/progression", operation_id="wallet_progression_series")
 def get_progression_route(
     fromIso: str | None = Query(default=None, alias="from"),
@@ -321,7 +321,7 @@ def get_progression_route(
 
 
 # Keep EXAMPLES bullets single-line: FastMCP 4.1 drops the whole section on wrapped continuation lines.
-@walletMcpTool
+@mcp_tool
 @router.post("/record-entry", operation_id="record_entry")
 def record_entry_route(
     side: Literal["Compra", "Venda"] = Body(...),
@@ -381,7 +381,7 @@ def record_entry_route(
     return {"entryId": entry.entryId, "holding": serialize_holding(holding)}
 
 
-@walletMcpTool
+@mcp_tool
 @router.put("/set-rating", operation_id="set_rating")
 def set_rating_wrapper_route(
     ticker: str = Body(...),
@@ -411,7 +411,7 @@ def set_rating_wrapper_route(
     return {"ticker": holding.ticker, "rating": holding.rating}
 
 
-@walletMcpTool
+@mcp_tool
 @router.get("/explain-twr", operation_id="explain_twr")
 def explain_twr_route(
     ticker: str | None = None,
@@ -491,7 +491,7 @@ def explain_twr_route(
     }
 
 
-@walletMcpTool
+@mcp_tool
 @router.get("/progression-summary", operation_id="wallet_progression")
 def wallet_progression_route(
     from_date: str | None = None,

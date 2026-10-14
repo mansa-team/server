@@ -23,7 +23,7 @@ LIVE_MAX_AGE = 15
 
 router = APIRouter(prefix="/stocks", tags=["Stocks API"])
 
-stocksMcpTool = mcpToolDecorator(stocksMcp, router)
+mcp_tool = mcpToolDecorator(stocksMcp, router)
 
 
 @router.get("/health")
@@ -41,7 +41,7 @@ def health():
     }
 
 
-@stocksMcpTool
+@mcp_tool
 @router.get("/fields", operation_id="list_fields")
 @sync_cache(ttl=STOCKS_TTL, key="stocks:fields")
 def listFields(response: Response):
@@ -92,7 +92,7 @@ def listFields(response: Response):
     return {"historical": historical, "fundamental": fundamental, "abbreviations": abbreviations, "nested": nested}
 
 
-@stocksMcpTool
+@mcp_tool
 @router.get("/historical", operation_id="get_historical")
 @sync_cache(ttl=STOCKS_TTL, key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 def getHistorical(
@@ -164,7 +164,7 @@ def getHistorical(
     return result
 
 
-@stocksMcpTool
+@mcp_tool
 @router.get("/fundamental", operation_id="get_fundamental")
 @sync_cache(ttl=STOCKS_TTL, key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
 def getFundamental(
@@ -241,7 +241,7 @@ def getFundamental(
     return result
 
 
-@stocksMcpTool
+@mcp_tool
 @router.get("/cotations", operation_id="get_cotations")
 @sync_cache(ttl=STOCKS_TTL, key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}:{max_points}")
 def getCotations(
@@ -328,7 +328,7 @@ def getCotations(
     return result
 
 
-@stocksMcpTool
+@mcp_tool
 @router.get("/cotations/live", operation_id="get_live_price")
 @sync_cache(ttl=LIVE_TTL, key="stocks:live:{search}:{compact}")
 def getLiveCotation(
