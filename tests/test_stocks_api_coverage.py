@@ -196,75 +196,75 @@ class TestVerifyAPIKey:
         return SimpleNamespace(apiKey=stored, currentUsage=usage, requestLimit=limit)
 
     @patch("main.app.stocks_api.key.Config")
-    async def test_verify_api_key_disabled_returns_none(self, mock_config):
+    def test_verify_api_key_disabled_returns_none(self, mock_config):
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=False)
-        assert await verifyAPIKey(apiKey=None, db=MagicMock()) is None
+        assert verifyAPIKey(apiKey=None, db=MagicMock()) is None
 
     @patch("main.app.stocks_api.key.Config")
-    async def test_verify_api_key_missing_raises_401(self, mock_config):
+    def test_verify_api_key_missing_raises_401(self, mock_config):
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([])
         with pytest.raises(HTTPException) as e:
-            await verifyAPIKey(apiKey=None, db=mock_db)
+            verifyAPIKey(apiKey=None, db=mock_db)
         assert (e.value.status_code, e.value.detail) == (401, "Unauthorized")
         mock_db.query.assert_not_called()
 
     @patch("main.app.stocks_api.key.Config")
-    async def test_verify_api_key_success(self, mock_config):
+    def test_verify_api_key_success(self, mock_config):
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([self.makeRow("valid_key")])
-        assert await verifyAPIKey(apiKey="valid_key", db=mock_db) == "valid_key"
+        assert verifyAPIKey(apiKey="valid_key", db=mock_db) == "valid_key"
         mock_db.commit.assert_called_once()
 
     @patch("main.app.stocks_api.key.Config")
-    async def test_verify_api_key_invalid_key_raises_401(self, mock_config):
+    def test_verify_api_key_invalid_key_raises_401(self, mock_config):
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([self.makeRow("other_key")])
         with pytest.raises(HTTPException) as e:
-            await verifyAPIKey(apiKey="bad_key", db=mock_db)
+            verifyAPIKey(apiKey="bad_key", db=mock_db)
         assert (e.value.status_code, e.value.detail) == (401, "Unauthorized")
 
     @patch("main.app.stocks_api.key.Config")
-    async def test_verify_api_key_quota_exceeded(self, mock_config):
+    def test_verify_api_key_quota_exceeded(self, mock_config):
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([self.makeRow("valid_key", usage=100, limit=100)])
         with pytest.raises(HTTPException) as e:
-            await verifyAPIKey(apiKey="valid_key", db=mock_db)
+            verifyAPIKey(apiKey="valid_key", db=mock_db)
         assert (e.value.status_code, e.value.detail) == (429, "Too many requests")
         mock_db.execute.assert_not_called()
 
     @patch("main.app.stocks_api.key.Config")
-    async def test_verify_api_key_lost_race_returns_429(self, mock_config):
+    def test_verify_api_key_lost_race_returns_429(self, mock_config):
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([self.makeRow("k")], rowcount=0)
         with pytest.raises(HTTPException) as e:
-            await verifyAPIKey(apiKey="k", db=mock_db)
+            verifyAPIKey(apiKey="k", db=mock_db)
         assert e.value.status_code == 429
         mock_db.rollback.assert_called_once()
 
     @patch("main.app.stocks_api.key.Config")
-    async def test_verify_api_key_generic_exception_rollback(self, mock_config):
+    def test_verify_api_key_generic_exception_rollback(self, mock_config):
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         mock_db = self.makeDb([self.makeRow("k")], error=SQLAlchemyError("DB down"))
         with pytest.raises(HTTPException) as e:
-            await verifyAPIKey(apiKey="k", db=mock_db)
+            verifyAPIKey(apiKey="k", db=mock_db)
         assert e.value.status_code == 500
         mock_db.rollback.assert_called_once()
 
     @patch("main.app.stocks_api.key.Config")
-    async def test_verify_api_key_legacy_row_rejected(self, mock_config):
+    def test_verify_api_key_legacy_row_rejected(self, mock_config):
 
         mock_config.STOCKS_API = MagicMock(KEY_SYSTEM=True)
         legacy = SimpleNamespace(apiKey="a" * 64, currentUsage=0, requestLimit=100)
         with pytest.raises(HTTPException) as e:
-            await verifyAPIKey(apiKey="x", db=self.makeDb([legacy]))
+            verifyAPIKey(apiKey="x", db=self.makeDb([legacy]))
         assert e.value.status_code == 401
 
 

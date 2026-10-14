@@ -36,7 +36,7 @@ def isValidStoredKey(providedKey: str, storedKey: str | None) -> bool:
         return False
 
 
-async def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depends(getStocksSession)):
+def verifyAPIKey(apiKey: str = Depends(apiKeyHeader), db: Session = Depends(getStocksSession)):
     if not Config.STOCKS_API.KEY_SYSTEM:
         return None
 
