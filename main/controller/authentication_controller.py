@@ -155,11 +155,10 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
         except Exception as e:
             logger.debug(f"Logout token verification failed: {e}")
 
-    useCookieSecure = True  # Secure-always: matches issueSessionCookie
     response.delete_cookie(
         key=COOKIE_NAME,
         httponly=True,
-        secure=useCookieSecure,
+        secure=True,
         samesite=COOKIE_SAMESITE,
         path=COOKIE_PATH,
         domain=resolveCookieDomain(request),
@@ -285,7 +284,6 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
         sessionId = issueSessionCookie(response, request, db, user)
         SessionManager.revokeAllExcept(db, user["userId"], sessionId)
         logger.info("--- Google Callback End ---")
-        # Cookie-only: token travels via HttpOnly Secure cookie, never JSON.
         return {"user": user}
 
     except HTTPException:

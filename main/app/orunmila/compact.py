@@ -106,12 +106,10 @@ def getMetricRegex() -> re.Pattern:
     return metricRegex
 
 
-# Kept: mocked seam in tests/test_compact.py:212 + direct unit tests — keep.
 def extractTickers(text: str) -> list[str]:
     return list(dict.fromkeys(re.compile(r"\b([A-Z]{4}[0-9])\b").findall(text)))
 
 
-# Kept: mocked seam in tests/test_compact.py:212 + direct unit tests — keep.
 def extractMetrics(text: str) -> list[str]:
     return list(dict.fromkeys(getMetricRegex().findall(text)))
 

@@ -212,14 +212,6 @@ class PositionsManager:
     def pricePass(
         cls, db: Session, wallet: Wallet
     ) -> tuple[list[Holding], dict[str, Decimal | None], dict[str, Decimal | None], Decimal]:
-        """Holdings + market prices + per-ticker equity + total.
-
-        Metric semantics (reviewer #6, positions-owned portion): ``equity``
-        per ticker = ledger quantity x current market price (live, else last
-        close fallback); ``equity_total`` = sum over priced tickers only.
-        Unpriced tickers surface as ``None`` (unknown), never zero.
-        Domain math is Decimal; public dict outputs convert to float.
-        """
         walletId = int(wallet.walletId)
         cls.maybeRefreshRatings(db, wallet)
         holdings = db.query(Holding).filter(Holding.walletId == walletId).all()
@@ -234,8 +226,6 @@ class PositionsManager:
         equities: dict[str, Decimal | None] = {}
         for holding in holdings:
             price = prices.get(str(holding.ticker))
-            # NOTE: entries.py intentionally avoids importing this module
-            # (circular); Decimal(str(...)) inline instead of toDecimal.
             equities[str(holding.ticker)] = Decimal(str(holding.quantity)) * price if price is not None else None
 
         equityTotal = sum((equity for equity in equities.values() if equity is not None), Decimal(0))
@@ -243,8 +233,6 @@ class PositionsManager:
 
     @classmethod
     def getPositions(cls, db: Session, wallet: Wallet) -> dict:
-        # Canonical raw: holdings + live prices + per-ticker equity + total.
-        # appreciation / percent_wallet / buy_flag derive client-side.
         holdings, prices, equities, equityTotal = cls.pricePass(db, wallet)
         walletId = int(wallet.walletId)
 
@@ -280,9 +268,6 @@ class PositionsManager:
 
     @classmethod
     def getRebalance(cls, db: Session, wallet: Wallet) -> dict:
-        # Canonical raw: weight + price + equity per ticker + total. target_pct /
-        # current_pct / delta_qty / side derive client-side. Shares pricePass with
-        # getPositions; the 15s live-price cache absorbs the second call.
         holdings, prices, equities, equityTotal = cls.pricePass(db, wallet)
 
         items = []

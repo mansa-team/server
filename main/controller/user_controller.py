@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/user", tags=["User"])
 
 
-# Kept: public API serialization shape (documented in docs/user.md) — keep.
 def sessionToDict(s, isCurrent=False):
     return {
         "sessionId": s.sessionId,

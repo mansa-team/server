@@ -5,7 +5,6 @@ from datetime import datetime
 import numpy as np
 
 
-# Kept: directly tested in tests/test_vector_utils.py — keep.
 def normalizeRows(matrix: np.ndarray) -> np.ndarray:
     norms = np.linalg.norm(matrix, axis=1, keepdims=True)
     return matrix / np.where(norms == 0, 1.0, norms)
@@ -43,12 +42,10 @@ def batchCosineSimilarity(query: list[float], matrix: np.ndarray) -> np.ndarray:
     return normalizeRows(matrix) @ (q / qNorm)
 
 
-# Kept: directly tested in tests/test_vector_utils.py — keep.
 def contentHash(text: str) -> str:
     return hashlib.md5(text.encode("utf-8"), usedforsecurity=False).hexdigest()
 
 
-# Kept: directly tested in tests/test_vector_utils.py — keep.
 def toVectorString(vec: list[float]) -> str:
     return np.array(vec, dtype=np.float32).tobytes().hex()
 

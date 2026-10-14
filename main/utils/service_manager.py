@@ -48,15 +48,6 @@ def getApp(port: int) -> FastAPI:
 
 
 def adoptMcpLifespan(service: FastAPI, mcpHttp: Any) -> None:
-    """Chain an MCP http app lifespan onto a shared service app.
-
-    Starlette calls ``service.router.lifespan_context(app)`` with a single app
-    argument (see ``Router.lifespan``); FastMCP exposes the same shape via
-    ``mcpHttp.lifespan`` (an ``@asynccontextmanager lifespan(app)`` function).
-    Direct assignment last-writer-wins when two services share one app, so nest
-    the previous context with the new one instead of overwriting it.
-    """
-
     previous: Any = getattr(service.router, "lifespan_context", None)
     new: Any = mcpHttp.lifespan
     if previous is None:

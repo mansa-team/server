@@ -1,22 +1,3 @@
-"""Ledger-derived progression, cash flows and dividend rollups.
-
-Metric semantics (explicit — reviewer #6, analytics-owned portion):
-
-- ``invested`` (progression): net cash applied = sum over buys of
-  ``qty x price + costs`` minus, over sells, net proceeds
-  ``qty x price - costs``. This is cumulative cash in/out, NOT remaining
-  cost basis (a sale at a gain drives ``invested`` below cost basis).
-- ``equity`` (progression): ``qty x lastClose`` per ticker, summed.
-- Cash-flow rows: ``in`` = ``qty x price + costs`` on buys (0 on sells);
-  ``out`` = ``qty x price - costs`` on sells (0 on buys). Selling costs
-  reduce proceeds; they are not booked separately (reviewer #7).
-- Dividends monthly: stored earnings grouped by ``payDate``; ``gross`` as
-  accrued, ``net`` IR-adjusted (Div x1.0, JSCP/RendTributado x0.85).
-
-Money/quantity math is :class:`~decimal.Decimal`; ``float`` only at the
-point/row output boundary.
-"""
-
 import logging
 from datetime import date as dateType
 from decimal import Decimal

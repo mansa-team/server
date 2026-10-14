@@ -12,8 +12,6 @@ from main.app.stocks_api.cache import stocksCache
 from main.utils.mcp_tools import mcpToolDecorator
 from main.utils.sync_cache import sync_cache
 
-stocksMcp = FastMCP("Mansa Stocks MCP")
-
 logger = logging.getLogger(__name__)
 
 STOCKS_TTL = "6h"
@@ -22,8 +20,9 @@ LIVE_TTL = "15s"
 LIVE_MAX_AGE = 15
 
 router = APIRouter(prefix="/stocks", tags=["Stocks API"])
+mcp = FastMCP("Mansa Stocks MCP")
 
-mcp_tool = mcpToolDecorator(stocksMcp, router)
+mcp_tool = mcpToolDecorator(mcp, router)
 
 
 @router.get("/health")

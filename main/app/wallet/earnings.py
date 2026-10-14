@@ -1,22 +1,3 @@
-"""Dividend accruals derived from the transaction ledger.
-
-Source-of-truth rule (reviewer #1/#11): discovery iterates tickers that
-appear in the Transaction ledger — never current holdings — and entitlement
-replays the ledger up to each ex-date (position-at-date via
-``EntriesManager.applyEntries``). A user who owned shares on ex-date but
-fully liquidated before sync (or before pay-date) still accrues.
-
-Accrual semantics: one Earning per (wallet, ticker, exDate, kind)
-(``uq_earnings_accrual``); multiple market rows sharing (exDate, kind) are
-installments aggregated with payDate = latest. ``gross`` = perShare x
-qtyAtEx; ``netIrAdjusted`` = gross x (1 - IR) with Div 0%, JSCP and
-RendTributado 15%. Status flips to Recebido once payDate passes (re-checked
-every sync for pending rows). Unknown TIPO PROVENTO labels are skipped and
-reported, never stored.
-
-Money math is :class:`~decimal.Decimal`; ``float`` only at serialization.
-"""
-
 import logging
 from datetime import date as dateType
 from datetime import datetime
@@ -43,9 +24,6 @@ TIPO_MAP = {
     "Rend. Tributado": "RendTributado",
 }
 
-# Reviewer #8: only genuine data-source failures degrade (autosync is
-# best-effort); programming errors propagate. Cache-set failures degrade
-# narrowly too — a failed timestamp write must not mask the sync result.
 SYNC_ERRORS = (
     requests.exceptions.RequestException,
     ValueError,
@@ -58,7 +36,6 @@ SYNC_ERRORS = (
 CACHE_ERRORS = (RuntimeError, OSError, ValueError)
 
 
-# Kept: public API serialization used by wallet_controller — keep.
 def serialize_earning(earning) -> dict:
     return {
         "ticker": earning.ticker,
@@ -101,7 +78,6 @@ class EarningsManager:
 
     @classmethod
     def syncEarnings(cls, db: Session, wallet: Wallet) -> dict:
-        """Accrue earnings for every ledger ticker with a position on ex-date."""
         walletId = int(wallet.walletId)
 
         today = dateType.today()
@@ -144,9 +120,6 @@ class EarningsManager:
                 payDate = max(pay for pay, _ in installments)
                 perShare = sum((share for _, share in installments), Decimal(0))
 
-                # Position-at-date: replay only entries on/before ex-date, so
-                # post-ex sells (even full liquidation) keep the entitlement,
-                # while pre-ex sells reduce it.
                 quantityAtEx, _ = EntriesManager.applyEntries(
                     Decimal(0), Decimal(0), [entry for entry in ledgerEntries if str(entry.date) <= exDate.isoformat()]
                 )

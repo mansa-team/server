@@ -53,8 +53,6 @@ def createAccessToken(data: dict | None, expiresDelta: timedelta | None = None):
 
 def verifyAccessToken(token: str) -> dict:
     try:
-        # aud/scope are enforced manually by enforceResourceClaims (absent
-        # claims pass for session back-compat), so skip PyJWT's aud check.
         payload = jwt.decode(token, Config.USER.JWT_SECRET_KEY, algorithms=["HS256"], options={"verify_aud": False})
         return payload
     except jwt.ExpiredSignatureError:
@@ -64,12 +62,6 @@ def verifyAccessToken(token: str) -> dict:
 
 
 def extractRawToken(request: Request) -> str | None:
-    """Raw session token from the request: X-Access-Token -> Authorization Bearer -> cookie.
-
-    Same source precedence as extractTokenPayload, but returns the raw string
-    (extractTokenPayload returns only the decoded payload). Used to forward the
-    caller's own session JWT to MCP-bound tool calls.
-    """
     token = request.headers.get("X-Access-Token")
     if not token:
         authHeader = request.headers.get("Authorization")
@@ -83,7 +75,6 @@ def extractRawToken(request: Request) -> str | None:
 
 
 def enforceResourceClaims(payload: dict) -> None:
-    """Enforce aud/scope WHEN PRESENT; absent claims pass (session back-compat)."""
     aud = payload.get("aud")
     if aud is not None:
         try:
@@ -130,14 +121,6 @@ def extractTokenPayload(request: Request) -> dict:
 
 
 class ServiceLoopbackBackend(BearerAuthBackend):
-    """X-Service-Token (opaque service session row) OR Bearer user JWT.
-
-    Header read + DB check per request, never import-time. A valid service
-    token authenticates the pool's transport connection but resolves NO user:
-    per-tool `authorization` args stay the sole identity (an opaque service
-    token never decodes as a user JWT, so it 401s at the tool layer).
-    """
-
     async def authenticate(self, conn: HTTPConnection) -> tuple | None:
         serviceToken = conn.headers.get("x-service-token", "")
         if serviceToken:
@@ -160,16 +143,6 @@ _SERVICE_LOOPBACK_MARKER = "service-loopback"
 
 
 class ServiceLoopbackHeadersMiddleware:
-    """Presence shim for FastMCP's Bearer gate (RequireAuthMiddleware 401s with
-    no Authorization header before the auth backend ever runs).
-
-    When X-Service-Token rides without Authorization, injects a marker Bearer
-    so the request reaches the backend, which authenticates via X-Service-Token
-    (DB check) and never verifies the marker. Forged service tokens still 401
-    (invalid_token) at the backend; requests with neither header keep the
-    missing-auth 401.
-    """
-
     def __init__(self, app: ASGIApp):
         self.app = app
 
@@ -185,8 +158,6 @@ class ServiceLoopbackHeadersMiddleware:
 
 
 class ServiceLoopbackVerifier(JWTVerifier):
-    """User session JWTs plus the service-loopback credential on one transport."""
-
     def get_middleware(self) -> list:
         return [
             Middleware(ServiceLoopbackHeadersMiddleware),

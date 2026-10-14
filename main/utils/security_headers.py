@@ -1,5 +1,3 @@
-"""Shared security middlewares: HSTS (XFP-aware) + CSRF double-submit."""
-
 import logging
 
 from fastapi import HTTPException as FastAPIHTTPException

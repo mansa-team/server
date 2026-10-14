@@ -10,10 +10,6 @@ from main.app.orunmila.tools.sandbox import execute_code, list_files, read_file,
 logger = logging.getLogger(__name__)
 
 
-# Local in-process tools only. Wallet tools are served exclusively by the
-# wallet MCP server (/wallet/mcp): their names are absent here on purpose, so
-# dispatchToolCall routes them to the wallet MCP client with the session JWT
-# injected as an argument.
 TOOL_REGISTRY: dict[str, Any] = {
     "search_memory": search_memory,
     "save_memory": save_memory,

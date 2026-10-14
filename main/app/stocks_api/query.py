@@ -321,10 +321,6 @@ def queryCotations(
             return envelope(search, responseFields, dates, "cotations", df.iloc[0:0])
 
         cols = ["TICKER", "NOME", "TIME", targetCol]
-        # Fast path: exact tickers resolve to precomputed latest-snapshot rows,
-        # skipping the full-frame boolean take (~300ms on 75k rows x 301 cols).
-        # Sorted positions keep the stable-sort input order identical to the
-        # filter path, so multi-ticker ordering is unchanged.
         side = getattr(manager, "cotationFrame", None)
         sideIndex = getattr(manager, "cotationIndex", None)
         terms = [term.strip().upper() for term in search.split(",") if term.strip()] if search else []
@@ -336,8 +332,6 @@ def queryCotations(
         ):
             work = side.iloc[sorted(sideIndex[term] for term in dict.fromkeys(terms))] if terms else side
         else:
-            # Fallback (prefix search or no side frame): project columns BEFORE
-            # the boolean take so it copies 4 cols instead of 301 (~95ms).
             work = df[[column for column in cols if column in df.columns]]
             if search:
                 work = filterBySearchTerms(work, search, tickerIndex)
@@ -366,14 +360,6 @@ def queryCotations(
 
 
 def queryLiveCotations(search: str):
-    """Single ticker or comma-separated tickers -> live B3 quotes, one code path.
-
-    Input is normalized to a ticker list and every entry flows through the same
-    concurrent fetch+parse loop. A one-ticker request returns the single-ticker
-    realtime-cotation envelope (failures raise 404 unknown / 502 malformed /
-    503 down); multi-ticker requests return the realtime-cotations envelope
-    with per-ticker errors.
-    """
     tickers = [term.strip().upper() for term in search.split(",") if term.strip()]
     if not tickers:
         raise HTTPException(status_code=400, detail="search required")

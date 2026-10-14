@@ -19,13 +19,6 @@ class RatingUpsert(BaseModel):
 class SummaryManager:
     @classmethod
     def ledgerPositions(cls, db: Session, wallet: Wallet) -> dict[str, dict]:
-        """Replay the transaction ledger per ticker -> {ticker: quantity/avgPrice/assetType}.
-
-        Ledger-as-truth (#11): quantities and cost-basis averages derive from
-        Transaction rows ordered by (date, entryId), never from Holding rows.
-        A ticker whose ledger fails consistency replay (oversell) is treated as
-        flat rather than failing the whole read.
-        """
         walletId = int(wallet.walletId)
         rows = (
             db.query(Transaction)
@@ -53,14 +46,6 @@ class SummaryManager:
 
     @classmethod
     def getSummary(cls, db: Session, wallet: Wallet) -> dict:
-        """Canonical raw: applied/variation/equity/first_date — see docs/wallet_metrics.md.
-
-        Quantities and cost basis replay from the ledger (ledgerPositions);
-        only live prices come from the market-data pass. Snapshot-on-read
-        (today upsert + lastRecalc) is intentionally kept: it implements the
-        user-approved autosync behavior (reviewer #5 conflicts with it, so #5
-        is NOT applied — see envelope/docs).
-        """
         walletId = int(wallet.walletId)
         _, prices, _, _ = PositionsManager.pricePass(db, wallet)
         positions = cls.ledgerPositions(db, wallet)
@@ -116,7 +101,6 @@ class SummaryManager:
 
     @classmethod
     def getAllocation(cls, db: Session, wallet: Wallet) -> dict:
-        """Canonical raw: per-ticker equity + total. Shares derive client-side."""
         _, prices, _, _ = PositionsManager.pricePass(db, wallet)
         positions = cls.ledgerPositions(db, wallet)
 
@@ -138,13 +122,6 @@ class SummaryManager:
 
     @classmethod
     def set_rating(cls, db: Session, wallet: Wallet, data: RatingUpsert) -> Holding:
-        """Single-rating authority: PUT overwrites `Holding.rating` (0-100).
-
-        `rating` holds the Xango score as its initial/default value (seeded at
-        holding creation, backfilled when NULL on read); this endpoint is the
-        only writer of user overrides, and the Xango refresh never clobbers an
-        existing value.
-        """
         walletId = int(wallet.walletId)
         holding = db.query(Holding).filter(Holding.walletId == walletId, Holding.ticker == data.ticker).first()
 

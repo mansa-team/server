@@ -28,8 +28,8 @@ def getServiceUserId(db: Session) -> int:
 
 def createServiceToken(db: Session, expiresDelta: timedelta | None = None) -> str:
     if expiresDelta is None:
-        # Single fixed service-token lifetime: 30d (720h). No env override by design.
         expiresDelta = timedelta(hours=720)
+        
     serviceId = getServiceUserId(db)
     session = SessionManager.createSession(db, serviceId, "service-loopback", datetime.now(timezone.utc) + expiresDelta)
     return str(session.sessionId)
