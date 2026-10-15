@@ -22,6 +22,8 @@ logger = logging.getLogger(__name__)
 
 MAX_PASSWORD_BYTES = 72
 
+JWT_ALGORITHM = "HS256"
+
 
 def passwordExceedsByteLimit(password: str) -> bool:
     return len(password.encode("utf-8")) > MAX_PASSWORD_BYTES
@@ -55,13 +57,13 @@ def createAccessToken(data: dict | None, expiresDelta: timedelta | None = None):
     payload = data.copy()
     payload["exp"] = datetime.now(timezone.utc) + expiresDelta
 
-    token = jwt.encode(payload, Config.USER.JWT_SECRET_KEY, algorithm="HS256")
+    token = jwt.encode(payload, Config.USER.JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
     return token
 
 
 def verifyAccessToken(token: str) -> dict:
     try:
-        payload = jwt.decode(token, Config.USER.JWT_SECRET_KEY, algorithms=["HS256"], options={"verify_aud": False})
+        payload = jwt.decode(token, Config.USER.JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM], options={"verify_aud": False})
         return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
