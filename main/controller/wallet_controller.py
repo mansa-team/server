@@ -7,10 +7,10 @@ from fastmcp import FastMCP
 from fastmcp.server.dependencies import get_access_token
 from sqlalchemy.orm import Session
 
-from config import SessionLocal, getSession
+from config import Config, SessionLocal, getSession
+from main.app.authentication.mcp_oauth import SoloAuth, SoloOAuthProvider, registerLoginRoutes
 from main.app.authentication.session import SessionManager
-from main.app.authentication.mcp_oauth import registerLoginRoutes, soloAuth
-from main.app.authentication.util import verifyAccessToken
+from main.app.authentication.util import ServiceLoopbackVerifier, verifyAccessToken
 from main.app.wallet.auth import getWalletUser
 from main.app.wallet.analytics import AnalyticsManager
 from main.app.wallet.earnings import EarningsManager, serialize_earning
@@ -27,12 +27,16 @@ from main.app.wallet.positions import PositionsManager
 from main.app.wallet.summary import RatingUpsert, SummaryManager
 from main.app.wallet.wallets import WalletCreate, WalletsManager
 from main.models.wallet import Transaction
-from main.utils.mcp_tools import mcpToolDecorator
+from main.utils.mcp import mcpToolDecorator
 
 
 router = APIRouter(prefix="/wallet", tags=["Wallet"], dependencies=[Depends(getWalletUser)])
-mcp = FastMCP("Mansa Wallet MCP", auth=soloAuth)
-registerLoginRoutes(mcp)
+
+walletVerifier = ServiceLoopbackVerifier(public_key=Config.USER.JWT_SECRET_KEY, algorithm="HS256")
+walletProvider = SoloOAuthProvider()
+walletAuth = SoloAuth(server=walletProvider, verifiers={"service-loopback": walletVerifier}, required_scopes=[])
+mcp = FastMCP("Mansa Wallet MCP", auth=walletAuth)
+registerLoginRoutes(mcp, walletProvider)
 
 mcp_tool = mcpToolDecorator(
     mcp,

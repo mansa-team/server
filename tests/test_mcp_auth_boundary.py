@@ -20,11 +20,11 @@ from fastmcp import Client
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from main.app.authentication.session import SessionManager
-from main.app.authentication.util import createAccessToken, walletAuth
+from main.app.authentication.util import createAccessToken
 from main.app.wallet.entries import EntriesManager, EntryCreate
 from main.app.wallet.wallets import WalletsManager
 from main.models.user import User
-from main.controller.wallet_controller import mcp as walletMcp
+from main.controller.wallet_controller import mcp as walletMcp, walletAuth
 from tests.test_wallet_positions import _live_ok
 
 
