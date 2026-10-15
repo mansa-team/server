@@ -163,10 +163,14 @@ class ServiceLoopbackHeadersMiddleware:
         await self.app(scope, receive, send)
 
 
+def loopbackMiddleware(receiver) -> list:
+    return [
+        Middleware(ServiceLoopbackHeadersMiddleware),
+        Middleware(AuthenticationMiddleware, backend=ServiceLoopbackBackend(receiver)),  # type: ignore[arg-type]
+        Middleware(AuthContextMiddleware),  # type: ignore[arg-type]
+    ]
+
+
 class ServiceLoopbackVerifier(JWTVerifier):
     def get_middleware(self) -> list:
-        return [
-            Middleware(ServiceLoopbackHeadersMiddleware),
-            Middleware(AuthenticationMiddleware, backend=ServiceLoopbackBackend(self)),  # type: ignore[arg-type]
-            Middleware(AuthContextMiddleware),  # type: ignore[arg-type]
-        ]
+        return loopbackMiddleware(self)

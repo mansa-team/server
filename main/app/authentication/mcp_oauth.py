@@ -23,9 +23,6 @@ from mcp.server.auth.routes import cors_middleware
 from mcp.server.auth.settings import RevocationOptions
 from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
 from pydantic import AnyHttpUrl, AnyUrl
-from starlette.middleware import Middleware
-from starlette.middleware.authentication import AuthenticationMiddleware
-from mcp.server.auth.middleware.auth_context import AuthContextMiddleware
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse, Response
 from starlette.routing import Route
@@ -43,9 +40,8 @@ from main.app.authentication.csrf import CSRF_COOKIE_NAME, CSRF_HEADER_NAME, iss
 from main.app.authentication.introspect import resolveSessionIdentity
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import (
-    ServiceLoopbackBackend,
-    ServiceLoopbackHeadersMiddleware,
     createAccessToken,
+    loopbackMiddleware,
     verifyAccessToken,
 )
 
@@ -381,11 +377,7 @@ class SoloAuth(MultiAuth):
         return super()._get_resource_url(path)
 
     def get_middleware(self) -> list:
-        return [
-            Middleware(ServiceLoopbackHeadersMiddleware),
-            Middleware(AuthenticationMiddleware, backend=ServiceLoopbackBackend(self)),  # type: ignore[arg-type]
-            Middleware(AuthContextMiddleware),  # type: ignore[arg-type]
-        ]
+        return loopbackMiddleware(self)
 
 
 def oauthResumePath(requestId: str) -> str:
