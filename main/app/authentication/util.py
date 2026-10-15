@@ -15,7 +15,12 @@ from starlette.requests import HTTPConnection
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 from config import Config, SessionLocal
-from main.app.authentication.constants import TOKEN_EXPIRY_HOURS, COOKIE_NAME
+from main.app.authentication.constants import (
+    COOKIE_NAME,
+    TOKEN_EXPIRY_HOURS,
+    WALLET_RESOURCE_PATH,
+    WALLET_SCOPE,
+)
 from main.app.authentication.service_token import verifyServiceToken
 
 logger = logging.getLogger(__name__)
@@ -63,7 +68,9 @@ def createAccessToken(data: dict | None, expiresDelta: timedelta | None = None):
 
 def verifyAccessToken(token: str) -> dict:
     try:
-        payload = jwt.decode(token, Config.USER.JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM], options={"verify_aud": False})
+        payload = jwt.decode(
+            token, Config.USER.JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM], options={"verify_aud": False}
+        )
         return payload
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
@@ -84,19 +91,19 @@ def extractRawToken(request: Request) -> str | None:
     return token
 
 
-def enforceResourceClaims(payload: dict) -> None:
+def enforceResourceClaims(payload: dict, resourcePath: str, requiredScope: str) -> None:
     aud = payload.get("aud")
     if aud is not None:
         try:
             path = urlparse(str(aud)).path.rstrip("/")
         except Exception:
             raise HTTPException(status_code=401, detail="Invalid audience")
-        if not path.endswith("/wallet/mcp"):
+        if not path.endswith(resourcePath):
             raise HTTPException(status_code=401, detail="Invalid audience")
     scope = payload.get("scope") if payload.get("scope") is not None else payload.get("scp")
     if scope is not None:
         parts = scope.split() if isinstance(scope, str) else list(scope)
-        if "wallet" not in parts:
+        if requiredScope not in parts:
             raise HTTPException(status_code=401, detail="Insufficient scope")
 
 
@@ -117,7 +124,7 @@ def extractTokenPayload(request: Request) -> dict:
     if payload.get("userId") is None:
         raise HTTPException(status_code=401, detail="Invalid Token")
 
-    enforceResourceClaims(payload)
+    enforceResourceClaims(payload, WALLET_RESOURCE_PATH, WALLET_SCOPE)
 
     return payload
 

@@ -32,7 +32,13 @@ from starlette.routing import Route
 
 from config import Config, SessionLocal
 from main.app.authentication.authentication import AuthenticationManager
-from main.app.authentication.constants import COOKIE_NAME, COOKIE_PATH, COOKIE_SAMESITE
+from main.app.authentication.constants import (
+    COOKIE_NAME,
+    COOKIE_PATH,
+    COOKIE_SAMESITE,
+    WALLET_RESOURCE_PATH,
+    WALLET_SCOPE,
+)
 from main.app.authentication.csrf import CSRF_COOKIE_NAME, CSRF_HEADER_NAME, issueCsrfToken
 from main.app.authentication.introspect import resolveSessionIdentity
 from main.app.authentication.session import SessionManager
@@ -43,7 +49,6 @@ from main.app.authentication.util import (
     verifyAccessToken,
 )
 
-WALLET_SCOPE = "wallet"
 CODE_TTL_SECONDS = 600
 ACCESS_TTL_SECONDS = 3600
 REFRESH_TTL_SECONDS = 30 * 24 * 3600
@@ -110,7 +115,7 @@ class SoloOAuthProvider(OAuthProvider):
 
     def __init__(self) -> None:
         super().__init__(
-            base_url=f"{Config.USER.MCP_PUBLIC_BASE_URL.rstrip('/')}/wallet/mcp",
+            base_url=f"{Config.USER.MCP_PUBLIC_BASE_URL.rstrip('/')}{WALLET_RESOURCE_PATH}",
             issuer_url=f"{Config.USER.MCP_PUBLIC_BASE_URL.rstrip('/')}/",
             required_scopes=[WALLET_SCOPE],
             revocation_options=RevocationOptions(enabled=True),
@@ -336,7 +341,7 @@ class SoloOAuthProvider(OAuthProvider):
 
     def mint(self, clientId: str, userId: str, sessionId: str, scopes: list[str], resource: str | None) -> OAuthToken:
         useScopes = scopes or [WALLET_SCOPE]
-        aud = resource or f"{Config.USER.MCP_PUBLIC_BASE_URL.rstrip('/')}/wallet/mcp"
+        aud = resource or f"{Config.USER.MCP_PUBLIC_BASE_URL.rstrip('/')}{WALLET_RESOURCE_PATH}"
         access = createAccessToken(
             {
                 "userId": userId,
@@ -384,7 +389,7 @@ class SoloAuth(MultiAuth):
 
 
 def oauthResumePath(requestId: str) -> str:
-    basePath = urlparse(f"{Config.USER.MCP_PUBLIC_BASE_URL.rstrip('/')}/wallet/mcp").path.rstrip("/")
+    basePath = urlparse(f"{Config.USER.MCP_PUBLIC_BASE_URL.rstrip('/')}{WALLET_RESOURCE_PATH}").path.rstrip("/")
     return f"{basePath}/oauth/login?{urlencode({'request_id': requestId})}"
 
 
@@ -468,7 +473,7 @@ def registerLoginRoutes(mcp, provider) -> None:
                 live["redirect_uri"],
                 live["redirect_provided"],
                 live["scopes"],
-                live["resource"] or f"{Config.USER.MCP_PUBLIC_BASE_URL.rstrip('/')}/wallet/mcp",
+                live["resource"] or f"{Config.USER.MCP_PUBLIC_BASE_URL.rstrip('/')}{WALLET_RESOURCE_PATH}",
             )
             params = {"code": code}
             if live["state"]:
