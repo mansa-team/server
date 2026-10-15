@@ -4,7 +4,7 @@ from config import getSession
 from fastapi import HTTPException, Depends, Request
 from sqlalchemy.orm import Session
 
-from main.models.user import User
+from main.models.user import User, getRolesList
 
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import extractTokenPayload
@@ -13,12 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 class UserManager:
-    @staticmethod
-    def getRolesList(user: User) -> list[str]:
-        if not user.roles:
-            return ["USER"]
-        return [role.strip() for role in user.roles.split(",")]
-
     @staticmethod
     def getCurrentUser(
         request: Request,
@@ -47,7 +41,7 @@ class UserManager:
                 "userId": user.userId,
                 "username": user.username,
                 "email": user.email,
-                "roles": UserManager.getRolesList(user),
+                "roles": getRolesList(user),
                 "sessionId": sessionId,
             }
 

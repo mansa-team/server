@@ -17,6 +17,12 @@ class User(Base):
     sessions = relationship("UserSession", back_populates="user", cascade="all, delete-orphan")
 
 
+def getRolesList(user: User) -> list[str]:
+    if not user.roles:
+        return ["USER"]
+    return [role.strip() for role in user.roles.split(",")]
+
+
 # Bottom import breaks User <-> UserSession cycle order-independently:
 # - Order A (import user first): defines User, then loads UserSession (which
 #   reuses the already-defined User) -> both in registry.

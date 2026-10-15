@@ -5,8 +5,7 @@ from sqlalchemy.orm import Session
 
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import verifyAccessToken
-from main.app.user.user import UserManager
-from main.models.user import User
+from main.models.user import User, getRolesList
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +31,7 @@ def introspectToken(db: Session, token: str | None) -> dict:
         if not user:
             raise HTTPException(status_code=401, detail="Unauthorized")
 
-        return {"userId": user.userId, "username": user.username, "roles": UserManager.getRolesList(user)}
+        return {"userId": user.userId, "username": user.username, "roles": getRolesList(user)}
     except HTTPException:
         raise HTTPException(status_code=401, detail="Unauthorized")
     except Exception as e:
