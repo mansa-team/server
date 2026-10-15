@@ -43,6 +43,14 @@ def serialize_entry(entry) -> dict:
     }
 
 
+def checkAssetType(assetType: str) -> None:
+    if assetType not in ALLOWED_ASSET_TYPES:
+        raise HTTPException(
+            status_code=422,
+            detail=f"unknown asset_type '{assetType}', expected one of: {', '.join(sorted(ALLOWED_ASSET_TYPES))}",
+        )
+
+
 class EntryCreate(BaseModel):
     side: Literal["Compra", "Venda"]
     asset_type: AssetType
@@ -143,11 +151,7 @@ class EntriesManager:
     @classmethod
     def addEntry(cls, db: Session, wallet: Wallet, data: EntryCreate) -> tuple[Transaction, Holding | None]:
         walletId = int(wallet.walletId)
-        if data.asset_type not in ALLOWED_ASSET_TYPES:
-            raise HTTPException(
-                status_code=422,
-                detail=f"unknown asset_type '{data.asset_type}', expected one of: {', '.join(sorted(ALLOWED_ASSET_TYPES))}",
-            )
+        checkAssetType(data.asset_type)
         if data.side == "Venda":
             holding = db.query(Holding).filter(Holding.walletId == walletId, Holding.ticker == data.ticker).first()
             if holding is None or toDecimal(data.quantity) > toDecimal(holding.quantity):
@@ -193,23 +197,21 @@ class EntriesManager:
         return total, items
 
     @classmethod
+    def ownedEntry(cls, db: Session, wallet: Wallet, entryId: int) -> Transaction:
+        entry = db.query(Transaction).filter(Transaction.entryId == entryId).first()
+        if entry is None or int(entry.walletId) != int(wallet.walletId):
+            raise HTTPException(status_code=404, detail="entry not found")
+        return entry
+
+    @classmethod
     def updateEntry(
         cls, db: Session, wallet: Wallet, entryId: int, patch: EntryUpdate
     ) -> tuple[Transaction, Holding | None]:
-        entry = db.query(Transaction).filter(Transaction.entryId == entryId).first()
-
-        if entry is None:
-            raise HTTPException(status_code=404, detail="entry not found")
-
-        if int(entry.walletId) != int(wallet.walletId):
-            raise HTTPException(status_code=404, detail="entry not found")
+        entry = cls.ownedEntry(db, wallet, entryId)
 
         changes = patch.model_dump(exclude_unset=True)
-        if changes.get("asset_type") is not None and changes["asset_type"] not in ALLOWED_ASSET_TYPES:
-            raise HTTPException(
-                status_code=422,
-                detail=f"unknown asset_type '{changes['asset_type']}', expected one of: {', '.join(sorted(ALLOWED_ASSET_TYPES))}",
-            )
+        if changes.get("asset_type") is not None:
+            checkAssetType(changes["asset_type"])
         if "asset_type" in changes:
             entry.assetType = changes.pop("asset_type")  # type: ignore[assignment]
         for fieldName, fieldValue in changes.items():
@@ -236,13 +238,7 @@ class EntriesManager:
 
     @classmethod
     def deleteEntry(cls, db: Session, wallet: Wallet, entryId: int) -> tuple[int, Holding | None]:
-        entry = db.query(Transaction).filter(Transaction.entryId == entryId).first()
-
-        if entry is None:
-            raise HTTPException(status_code=404, detail="entry not found")
-
-        if int(entry.walletId) != int(wallet.walletId):
-            raise HTTPException(status_code=404, detail="entry not found")
+        entry = cls.ownedEntry(db, wallet, entryId)
 
         ticker = entry.ticker
 
