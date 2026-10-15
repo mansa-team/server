@@ -161,9 +161,3 @@ class ServiceLoopbackVerifier(JWTVerifier):
             Middleware(AuthenticationMiddleware, backend=ServiceLoopbackBackend(self)),  # type: ignore[arg-type]
             Middleware(AuthContextMiddleware),  # type: ignore[arg-type]
         ]
-
-
-walletAuth = ServiceLoopbackVerifier(
-    public_key=Config.USER.JWT_SECRET_KEY,
-    algorithm="HS256",
-)
