@@ -32,6 +32,7 @@ from starlette.routing import Route
 from config import Config, SessionLocal
 from main.app.authentication.authentication import AuthenticationManager
 from main.app.authentication.constants import COOKIE_NAME, COOKIE_PATH, COOKIE_SAMESITE
+from main.app.authentication.introspect import resolveSessionIdentity
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import (
     ServiceLoopbackBackend,
@@ -276,22 +277,12 @@ class SoloOAuthProvider(OAuthProvider):
             return None
         if str(payload.get("jti") or "") in revokedAccessJtis:
             return None
-        userIdRaw = payload.get("userId")
-        sessionId = payload.get("sessionId")
-        if userIdRaw is None or not sessionId:
-            return None
-        try:
-            userId = int(userIdRaw)
-        except (TypeError, ValueError):
-            return None
         db = SessionLocal()
         try:
-            valid = SessionManager.validateSession(db, str(sessionId), userId)
-        except Exception:
-            return None
+            identity = resolveSessionIdentity(db, token)
         finally:
             db.close()
-        if not valid:
+        if identity is None:
             return None
         scopeRaw = payload.get("scope") or ""
         scopes = scopeRaw.split() if isinstance(scopeRaw, str) and scopeRaw else [WALLET_SCOPE]
@@ -303,7 +294,7 @@ class SoloOAuthProvider(OAuthProvider):
             scopes=scopes,
             expires_at=int(exp) if isinstance(exp, (int, float)) else None,
             resource=str(resource) if resource else None,
-            subject=str(userIdRaw),
+            subject=str(payload.get("userId")),
         )
 
     async def revoke_token(self, token: AccessToken | RefreshToken) -> None:
@@ -423,34 +414,20 @@ def sessionFromCookie(request: Request, db) -> tuple[str, str] | None:
     raw = request.cookies.get(COOKIE_NAME)
     if not raw:
         return None
-    try:
-        payload = verifyAccessToken(raw)
-    except Exception:
+    identity = resolveSessionIdentity(db, raw)
+    if identity is None:
         return None
-    userId, sessionId = payload.get("userId"), payload.get("sessionId")
-    if userId is None or not sessionId:
-        return None
-    try:
-        userIdInt = int(userId)
-    except (TypeError, ValueError):
-        return None
-    try:
-        valid = SessionManager.validateSession(db, str(sessionId), userIdInt)
-    except Exception:
-        return None
-    if not valid:
-        return None
-    return str(userId), str(sessionId)
+    return str(identity[0]), str(identity[1])
 
 
-def registerLoginRoutes(mcp) -> None:
+def registerLoginRoutes(mcp, provider) -> None:
     @mcp.custom_route("/oauth/login", methods=["GET", "POST"])
     async def oauthLogin(request: Request) -> Response:
         form = await request.form() if request.method == "POST" else {}
         requestId = request.query_params.get("request_id") or (form.get("request_id") if form else None)
         if not isinstance(requestId, str) or not requestId:
             return HTMLResponse("missing request", status_code=400)
-        pending = soloProvider.peek_pending(requestId)
+        pending = provider.peek_pending(requestId)
         if not pending:
             return HTMLResponse("expired request", status_code=400)
 
@@ -474,10 +451,10 @@ def registerLoginRoutes(mcp) -> None:
             elif identity is None:
                 return loginPage(requestId, None)
 
-            live = soloProvider.take_pending(requestId)
+            live = provider.take_pending(requestId)
             if not live:
                 return HTMLResponse("expired request", status_code=400)
-            code = soloProvider.issue_code(
+            code = provider.issue_code(
                 live["client_id"],
                 identity[0],
                 identity[1],
