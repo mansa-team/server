@@ -108,14 +108,8 @@ class AnalyticsManager:
     @classmethod
     def getProgression(cls, db: Session, wallet: Wallet, start: dateType, end: dateType) -> dict:
 
-        walletId = int(wallet.walletId)
         userId = int(wallet.userId)
-        ledgerRows = (
-            db.query(Transaction)
-            .filter(Transaction.walletId == walletId)
-            .order_by(Transaction.date, Transaction.entryId)
-            .all()
-        )
+        ledgerRows = EntriesManager.ledgerRows(db, wallet)
         if not ledgerRows:
             return {"granularity": "daily", "from": start.isoformat(), "to": end.isoformat(), "points": []}
         entriesSnap = EntriesManager.snapshotEntries(ledgerRows)

@@ -17,13 +17,7 @@ class RatingUpsert(BaseModel):
 class SummaryManager:
     @classmethod
     def ledgerPositions(cls, db: Session, wallet: Wallet) -> dict[str, dict]:
-        walletId = int(wallet.walletId)
-        rows = (
-            db.query(Transaction)
-            .filter(Transaction.walletId == walletId)
-            .order_by(Transaction.date, Transaction.entryId)
-            .all()
-        )
+        rows = EntriesManager.ledgerRows(db, wallet)
         byTicker: dict[str, list] = {}
         for row in rows:
             byTicker.setdefault(str(row.ticker), []).append(row)

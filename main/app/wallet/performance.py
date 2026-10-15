@@ -199,10 +199,7 @@ class PerformanceManager:
     ) -> dict:
         walletId = int(wallet.walletId)
         userId = int(wallet.userId)
-        ledgerQuery = db.query(Transaction).filter(Transaction.walletId == walletId)
-        if ticker:
-            ledgerQuery = ledgerQuery.filter(Transaction.ticker == ticker)
-        ledgerRows = ledgerQuery.order_by(Transaction.date, Transaction.entryId).all()
+        ledgerRows = EntriesManager.ledgerRows(db, wallet, ticker)
         entriesSnap = EntriesManager.snapshotEntries(ledgerRows)
         earningQuery = db.query(Earning).filter(Earning.walletId == walletId)
         if ticker:

@@ -102,14 +102,16 @@ class EntriesManager:
         return runningQty, runningAvg
 
     @classmethod
+    def ledgerRows(cls, db: Session, wallet: Wallet, ticker: str | None = None) -> list[Transaction]:
+        query = db.query(Transaction).filter(Transaction.walletId == int(wallet.walletId))
+        if ticker:
+            query = query.filter(Transaction.ticker == ticker)
+        return query.order_by(Transaction.date, Transaction.entryId).all()
+
+    @classmethod
     def recalcHolding(cls, db: Session, wallet: Wallet, ticker: str) -> Holding | None:
         walletId = int(wallet.walletId)
-        entries = (
-            db.query(Transaction)
-            .filter(Transaction.walletId == walletId, Transaction.ticker == ticker)
-            .order_by(Transaction.date, Transaction.entryId)
-            .all()
-        )
+        entries = cls.ledgerRows(db, wallet, ticker)
 
         holding = db.query(Holding).filter(Holding.walletId == walletId, Holding.ticker == ticker).first()
 
