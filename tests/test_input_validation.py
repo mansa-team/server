@@ -50,6 +50,22 @@ class TestRegisterValidation:
         )
         assert response.status_code == 422
 
+    def test_password_over_72_bytes_rejected(self, client):
+        """bcrypt 5 raises past 72 bytes — must be a clean 400, never a 500."""
+        response = client.post(
+            "/auth/register",
+            json={"username": "Alice", "email": "alice@example.com", "password": "x" * 80},
+        )
+        assert response.status_code == 400
+
+    def test_multibyte_password_over_72_bytes_rejected(self, client):
+        """40 chars but 80 UTF-8 bytes: the cap is bytes, not characters."""
+        response = client.post(
+            "/auth/register",
+            json={"username": "Alice", "email": "alice@example.com", "password": "é" * 40},
+        )
+        assert response.status_code == 400
+
 
 class TestLoginValidation:
     """POST /auth/login — validates username, password via Body(...)"""
@@ -75,6 +91,13 @@ class TestLoginValidation:
             json={"username": "Alice", "password": "ab"},
         )
         assert response.status_code == 422
+
+    def test_password_over_72_bytes_is_clean_401(self, client):
+        response = client.post(
+            "/auth/login",
+            json={"username": "Alice", "password": "x" * 80},
+        )
+        assert response.status_code == 401
 
 
 class TestOrunmilaSessionValidation:

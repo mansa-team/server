@@ -150,11 +150,9 @@ def deserializeJsonColumns(df: pd.DataFrame) -> pd.DataFrame:
             return cell
 
     decompressor = zstd.ZstdDecompressor()
-    for col in df.columns:
+    for col in df.columns.intersection(JSON_COLUMNS):
         dtype = df[col].dtype
-        if col in JSON_COLUMNS and (
-            dtype == "object" or pd.api.types.is_string_dtype(dtype) or isinstance(dtype, pd.ArrowDtype)
-        ):
+        if dtype == "object" or pd.api.types.is_string_dtype(dtype) or isinstance(dtype, pd.ArrowDtype):
             df[col] = df[col].apply(
                 lambda cell: (
                     sanitizeNanValues(parseJSON(cell, decompressor))
@@ -293,10 +291,18 @@ def queryFundamental(
                 logger.exception("Date parsing failed")
                 raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
 
-        if not search or search.strip() == "":
-            df = df.drop_duplicates(subset=["TICKER"], keep="first")
-
-        return finalize(df, tickerIndex, search, orderBy, limit, cols, fieldList, dates, "fundamental")
+        return finalize(
+            df,
+            tickerIndex,
+            search,
+            orderBy,
+            limit,
+            cols,
+            fieldList,
+            dates,
+            "fundamental",
+            dedupTickers=not search or search.strip() == "",
+        )
     except HTTPException:
         raise
     except (ValueError, TypeError, KeyError, AttributeError, IndexError):
@@ -338,7 +344,6 @@ def queryCotations(
 
         if "TIME" in work.columns:
             work = work.sort_values(by="TIME", ascending=False, kind="mergesort")
-        work = work.drop_duplicates(subset=["TICKER"], keep="first")
 
         return finalize(
             work,
@@ -350,6 +355,7 @@ def queryCotations(
             responseFields,
             dates,
             "cotations",
+            dedupTickers=True,
             cotationCol=targetCol,
         )
     except HTTPException:

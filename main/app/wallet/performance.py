@@ -16,14 +16,12 @@ from main.models.wallet import Earning, Transaction, Wallet
 
 logger = logging.getLogger(__name__)
 
-PERFORMANCE_EPOCH = "1970-01-01T00:00:00"
-
 
 class PerformanceManager:
     @classmethod
     @sync_cache(
         ttl="6h",
-        key="wallet:performance:{userId}:{tickerKey}:{fromIso}:{toIso}:{recalcKey}:{entriesSnap}:{earningsSnap}:v3",
+        key="wallet:performance:{userId}:{tickerKey}:{fromIso}:{toIso}:{entriesSnap}:{earningsSnap}:v3",
     )
     def cachedPerformance(
         cls,
@@ -31,12 +29,9 @@ class PerformanceManager:
         tickerKey: str,
         fromIso: str,
         toIso: str,
-        recalcKey: str,
         entriesSnap: tuple[tuple[str, str, str, str, str, str, int], ...],
         earningsSnap: tuple[tuple[str, str, str, str], ...],
     ) -> dict:
-        del recalcKey
-
         if tickerKey:
             tickers = [tickerKey]
         else:
@@ -159,7 +154,7 @@ class PerformanceManager:
         if spanDays <= 0:
             annualizedValue = 0.0
         else:
-            annualizedValue = float(1 + twrTotal) ** (365 / spanDays) - 1
+            annualizedValue = float(max(Decimal(0), 1 + twrTotal)) ** (365 / spanDays) - 1
 
         volatilityValue = float(stdev(dailyTotal)) * sqrt(252) if len(dailyTotal) >= 2 else 0.0
 
@@ -207,8 +202,6 @@ class PerformanceManager:
     ) -> dict:
         walletId = int(wallet.walletId)
         userId = int(wallet.userId)
-        recalcStamp = wallet.lastRecalc
-        recalcKey = str(recalcStamp) if recalcStamp is not None else PERFORMANCE_EPOCH
         ledgerQuery = db.query(Transaction).filter(Transaction.walletId == walletId)
         if ticker:
             ledgerQuery = ledgerQuery.filter(Transaction.ticker == ticker)
@@ -223,5 +216,5 @@ class PerformanceManager:
             for earningRow in earningRows
         )
         return cls.cachedPerformance(
-            userId, ticker or "", startDate.isoformat(), endDate.isoformat(), recalcKey, entriesSnap, earningsSnap
+            userId, ticker or "", startDate.isoformat(), endDate.isoformat(), entriesSnap, earningsSnap
         )

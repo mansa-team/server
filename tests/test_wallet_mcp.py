@@ -31,13 +31,10 @@ from fastmcp import Client
 from fastmcp.client.client import StreamableHttpTransport
 
 from config import getSession
-from main.app.authentication.introspect import introspectToken
-from main.app.authentication.service_token import verifyServiceToken
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import createAccessToken
 from main.app.orunmila.agent import Orunmila
 from main.app.orunmila.tools import dispatchToolCall
-from main.app.wallet import auth as walletAuth
 from main.app.wallet.analytics import AnalyticsManager
 from main.app.wallet.entries import EntryCreate, EntriesManager
 from main.app.wallet.performance import PerformanceManager
@@ -512,29 +509,6 @@ class TestRawTokenThreading:
 
 
 def _build_auth_app(dbSession):
-    class _FakeResp:
-        def __init__(self, status_code, payload):
-            self.status_code = status_code
-            self._payload = payload
-
-        def json(self):
-            return self._payload
-
-    def _fakePost(url, json=None, headers=None, timeout=None):
-        try:
-            ok = verifyServiceToken(dbSession, (headers or {}).get("X-Service-Token", ""))
-        except TypeError:
-            ok = verifyServiceToken((headers or {}).get("X-Service-Token", ""))
-        if not ok:
-            return _FakeResp(401, {"error": "Unauthorized"})
-        try:
-            payload = introspectToken(dbSession, (json or {}).get("token"))
-        except Exception:
-            return _FakeResp(401, {"error": "Unauthorized"})
-        return _FakeResp(200, payload)
-
-    walletAuth.httpx.post = _fakePost  # type: ignore[method-assign]
-
     app = FastAPI()
     registerErrorHandlers(app)
     app.include_router(walletRouter)

@@ -20,6 +20,12 @@ from main.app.authentication.service_token import verifyServiceToken
 
 logger = logging.getLogger(__name__)
 
+MAX_PASSWORD_BYTES = 72
+
+
+def passwordExceedsByteLimit(password: str) -> bool:
+    return len(password.encode("utf-8")) > MAX_PASSWORD_BYTES
+
 
 def hashPassword(password: str):
     if not password:
@@ -31,6 +37,8 @@ def hashPassword(password: str):
 
 def verifyPassword(plainPassword: str | None, hashedPassword: str | None) -> bool:
     if not plainPassword or not hashedPassword:
+        return False
+    if passwordExceedsByteLimit(plainPassword):
         return False
     try:
         return bcrypt.checkpw(plainPassword.encode("utf-8"), hashedPassword.encode("utf-8"))
@@ -139,9 +147,6 @@ class ServiceLoopbackBackend(BearerAuthBackend):
         return await super().authenticate(conn)
 
 
-_SERVICE_LOOPBACK_MARKER = "service-loopback"
-
-
 class ServiceLoopbackHeadersMiddleware:
     def __init__(self, app: ASGIApp):
         self.app = app
@@ -152,7 +157,7 @@ class ServiceLoopbackHeadersMiddleware:
             if b"x-service-token" in names and b"authorization" not in names:
                 scope["headers"] = [
                     *scope.get("headers", []),
-                    (b"authorization", f"Bearer {_SERVICE_LOOPBACK_MARKER}".encode()),
+                    (b"authorization", f"Bearer {'service-loopback'}".encode()),
                 ]
         await self.app(scope, receive, send)
 

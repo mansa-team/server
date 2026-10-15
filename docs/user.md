@@ -44,7 +44,7 @@ Returns `{message: "Admin access granted", user}` when `ADMIN` is in roles, else
 
 ## Session management
 
-Sessions live **30 days** (`SESSION_EXPIRY_DAYS = 30`, `main/app/authentication/constants.py:3`). Each row stores **only** `sessionId`, `userId`, `accessTokenHash`, `deviceType`, `browser`, `operatingSystem`, `userAgent`, `isActive`, `createdAt`, `lastActivityAt`, `expiresAt` (`main/models/user_session.py:11-21`). Device fields are family-only (`None` when `user_agents` reports `Other`); there is **no** `browserVersion`, `osVersion`, `ipAddress`, `deviceName`, or fingerprint. `updateLastActive` (`main/app/authentication/session.py:117`) has zero callers — dead / not wired, so `lastActivityAt` never refreshes.
+Sessions live **30 days** (`SESSION_EXPIRY_DAYS = 30`, `main/app/authentication/constants.py:3`). Each row stores **only** `sessionId`, `userId`, `accessTokenHash`, `deviceType`, `browser`, `operatingSystem`, `userAgent`, `isActive`, `createdAt`, `lastActivityAt`, `expiresAt` (`main/models/user_session.py:11-21`). Device fields are family-only (`None` when `user_agents` reports `Other`); there is **no** `browserVersion`, `osVersion`, `ipAddress`, `deviceName`, or fingerprint. `updateLastActive` (`main/app/authentication/session.py:133-140`) refreshes `lastActivityAt` from `validateSession`, throttled to once per 5 minutes.
 
 Serialized shape (`sessionToDict`, `main/controller/user_controller.py:16-25`): `sessionId`, `deviceType`, `lastActiveAt`, `createdAt`, `isActive`, `isCurrent`, `userAgent`. No `browser`/`operatingSystem` keys are returned (they exist in DB but are not serialized).
 

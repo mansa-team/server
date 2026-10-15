@@ -1,6 +1,6 @@
 import asyncio
 
-from main.app.orunmila.stream_bus import StreamBus
+from main.app.orunmila.stream_bus import CHANNEL_TTL_SECONDS, StreamBus
 
 
 async def test_subscribe_replays_buffered_events_from_cursor():
@@ -49,7 +49,8 @@ async def test_runner_exception_still_publishes_done():
     bus.unsubscribe("s1", q)
 
 
-async def test_start_run_replaces_active_run():
+async def test_start_run_rejects_second_concurrent_run():
+    """A second run on a channel with a LIVE run must be rejected, not cancel the first."""
     bus = StreamBus()
 
     async def runner1():
@@ -59,15 +60,45 @@ async def test_start_run_replaces_active_run():
     async def runner2():
         yield {"type": "text", "text": "new"}
 
-    bus.startRun("s1", runner1)
-    q1, _ = bus.subscribe("s1")
+    assert bus.startRun("s1", runner1) is True
+    q1, ch = bus.subscribe("s1")
     assert (await asyncio.wait_for(q1.get(), 1))["text"] == "old"
-    bus.startRun("s1", runner2)
-    q2, _ = bus.subscribe("s1")
-    assert (await asyncio.wait_for(q2.get(), 1))["text"] == "new"
-    assert await asyncio.wait_for(q2.get(), 1) == {"type": "done"}
+
+    assert bus.startRun("s1", runner2) is False
+    assert ch.task is not None and not ch.task.cancelled()
+
+    # The first run is untouched; cancel it for cleanup and let it finalize.
+    ch.task.cancel()
+    try:
+        await ch.task
+    except asyncio.CancelledError:
+        pass
+    assert ch.finished is True
     bus.unsubscribe("s1", q1)
-    bus.unsubscribe("s1", q2)
+
+
+async def test_finished_channels_swept_after_ttl():
+    """Finished channels are evicted once the resume window elapses."""
+    bus = StreamBus()
+
+    async def runner():
+        yield {"type": "text", "text": "x"}
+
+    bus.startRun("s1", runner)
+    q, ch = bus.subscribe("s1")
+    assert (await asyncio.wait_for(q.get(), 1))["text"] == "x"
+    assert await asyncio.wait_for(q.get(), 1) == {"type": "done"}
+    bus.unsubscribe("s1", q)
+    assert ch.finished is True
+    assert ch.finishedAt is not None
+
+    # Inside the TTL the buffer stays readable for resume.
+    bus.sweep(now=ch.finishedAt + 1)
+    assert "s1" in bus.channels
+
+    # Past the TTL the channel is evicted.
+    bus.sweep(now=ch.finishedAt + CHANNEL_TTL_SECONDS + 1)
+    assert "s1" not in bus.channels
 
 
 async def test_second_run_after_finished_run_replaces_log():

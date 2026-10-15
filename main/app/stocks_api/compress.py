@@ -18,8 +18,6 @@ SUF = [(1e12, "T"), (1e9, "B"), (1e6, "M"), (1e3, "K")]
 DMY_DATE = re.compile(r"^\d{2}-\d{2}-(\d{4})$")
 ISO_DATE = re.compile(r"^(\d{4})-\d{2}-\d{2}$")
 
-ABBR_FALLBACK = {"meta": {"TICKER": "TK", "NOME": "NM", "TIME": "TI"}, "historical": {}, "fundamental": {}}
-
 abbrFrame: pd.DataFrame | None = None
 abbrValue: dict | None = None
 nestFrame: pd.DataFrame | None = None
@@ -31,13 +29,9 @@ def getAbbr(df: pd.DataFrame | None = None) -> dict:
     global abbrFrame, abbrValue
     if abbrValue is not None and abbrFrame is df:
         return abbrValue
-    if df is not None:
-        historical, fundamental = categorizeColumns(df.columns.tolist())
-        value = generateAbbreviations(historical, fundamental)
-    else:
-        value = {"meta": dict(ABBR_FALLBACK["meta"]), "historical": {}, "fundamental": {}}
-    abbrFrame, abbrValue = df, value
-    return value
+    historical, fundamental = categorizeColumns(df.columns.tolist() if df is not None else [])
+    abbrFrame, abbrValue = df, generateAbbreviations(historical, fundamental)
+    return abbrValue
 
 
 def getNest(df: pd.DataFrame | None = None, nestedSample: pd.DataFrame | None = None) -> dict:

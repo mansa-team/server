@@ -1,12 +1,10 @@
-import json
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from google.genai import types
-
 from main.app.orunmila.memory import (
     MEMORY_EXTRACTION_TOKEN_BUDGET,
+    MemoryCandidate,
     OrunmilaMemory,
 )
 
@@ -36,14 +34,18 @@ class FakeMemory:
 
 
 class FakeResponse:
-    text = json.dumps([{"key": "estilo", "value": "value investing", "type": "preference"}])
+    parsed = None
 
 
-def makeClient(result_count=1):
+def makeClient(result_count=1, parsed=None):
     client = type("C", (), {})()
     client.models = type("M", (), {})()
     resp = FakeResponse()
-    resp.text = json.dumps([{"key": f"k{i}", "value": f"v{i}", "type": "context"} for i in range(result_count)])
+    resp.parsed = (
+        parsed
+        if parsed is not None
+        else [MemoryCandidate(key=f"k{i}", value=f"v{i}", type="context") for i in range(result_count)]
+    )
 
     def generate_content(**kw):
         client.last_config = kw.get("config")
@@ -83,7 +85,7 @@ def test_below_token_budget_skips_api_call(db):
 
 
 def test_at_budget_calls_api_and_upserts_inferred(db):
-    client = makeClient()
+    client = makeClient(parsed=[MemoryCandidate(key="estilo", value="value investing", type="preference")])
     with (
         patch("main.app.orunmila.memory.Roles.checkAccess", side_effect=premiumAccess),
         patch("main.app.orunmila.chat.OrunmilaChatManager.getHistory", return_value=makeHistory(3, "palavra " * 3000)),
@@ -96,15 +98,15 @@ def test_at_budget_calls_api_and_upserts_inferred(db):
         ) as up,
     ):
         result = OrunmilaMemory.extract(db, 1, "s1", ["PREMIUM"])
-        assert result
+        assert len(result) == 1
+        assert up.call_args.kwargs["key"] == "estilo"
+        assert up.call_args.kwargs["value"] == "value investing"
+        assert up.call_args.kwargs["memoryType"] == "preference"
         assert up.call_args.kwargs["source"] == "inferred"
 
-        schema = client.last_config.response_schema
-        assert schema is not None
-        assert schema.type == types.Type.ARRAY
-        assert schema.items.type == types.Type.OBJECT
-        assert schema.items.required == ["key", "value", "type"]
-        assert set(schema.items.properties["type"].enum) == {"preference", "analysis", "feedback", "context"}
+        config = client.last_config
+        assert config.response_schema == list[MemoryCandidate]
+        assert config.response_mime_type == "application/json"
 
 
 def test_free_users_get_at_most_5_upserts(db):
@@ -141,7 +143,7 @@ def test_non_list_llm_response_returns_empty_without_raising(db):
     client = type("C", (), {})()
     client.models = type("M", (), {})()
     resp = FakeResponse()
-    resp.text = json.dumps({"memories": [{"key": "a", "value": "b", "type": "context"}]})
+    resp.parsed = {"memories": [{"key": "a", "value": "b", "type": "context"}]}
     client.models.generate_content = lambda **kw: resp
     with (
         patch("main.app.orunmila.memory.Roles.checkAccess", side_effect=premiumAccess),
@@ -155,19 +157,31 @@ def test_non_list_llm_response_returns_empty_without_raising(db):
         assert OrunmilaMemory.extract(db, 1, "s1", ["PREMIUM"]) == []
 
 
-def test_invalid_llm_items_dropped_valid_kept(db):
+def test_none_parsed_returns_empty_without_raising(db):
+    """The SDK leaves `.parsed` as None when the model output fails schema validation."""
     client = type("C", (), {})()
     client.models = type("M", (), {})()
-    resp = FakeResponse()
-    resp.text = json.dumps(
-        [
-            {"key": "estilo", "value": "value investing", "type": "preference"},
-            {"value": "missing key", "type": "context"},
-            {"key": "bad", "value": 123, "type": "context"},
-            "not a dict",
+    resp = FakeResponse()  # parsed is None
+    client.models.generate_content = lambda **kw: resp
+    with (
+        patch("main.app.orunmila.memory.Roles.checkAccess", side_effect=premiumAccess),
+        patch("main.app.orunmila.chat.OrunmilaChatManager.getHistory", return_value=makeHistory(3, "palavra " * 3000)),
+        patch("main.app.orunmila.memory.countTokens", return_value=MEMORY_EXTRACTION_TOKEN_BUDGET),
+        patch("main.app.orunmila.memory.getEmbeddingModel", return_value=_fakeEmbeddingModel()),
+        patch("main.app.orunmila.memory.getClient", return_value=client),
+        patch("main.app.orunmila.memory.OrunmilaMemory.countMemories", return_value=0),
+        patch("main.app.orunmila.memory.OrunmilaMemory.upsertMemory", new=FakeMemory().upsertMemory),
+    ):
+        assert OrunmilaMemory.extract(db, 1, "s1", ["PREMIUM"]) == []
+
+
+def test_non_candidate_items_are_ignored(db):
+    client = makeClient(
+        parsed=[
+            MemoryCandidate(key="estilo", value="value investing", type="preference"),
+            {"key": "not a model"},
         ]
     )
-    client.models.generate_content = lambda **kw: resp
     fake = FakeMemory()
     with (
         patch("main.app.orunmila.memory.Roles.checkAccess", side_effect=premiumAccess),

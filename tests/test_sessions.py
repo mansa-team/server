@@ -290,6 +290,39 @@ class TestSessionManager:
         result = SessionManager.validateSession(mock_db, "sess-123", userId=1)
         assert result is True
 
+    def test_validate_session_fresh_row_is_not_rewritten(self):
+        """Throttle: a row active within the touch interval is not written."""
+        from main.app.authentication.session import SessionManager
+
+        mock_db = MagicMock()
+        mock_session = MagicMock()
+        mock_session.isActive = True
+        mock_session.expiresAt = datetime(2026, 12, 31, tzinfo=ZoneInfo("America/Sao_Paulo"))
+        mock_session.lastActivityAt = datetime.now(timezone.utc)
+        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = mock_session
+
+        assert SessionManager.validateSession(mock_db, "sess-123", userId=1) is True
+        assert SessionManager.validateSession(mock_db, "sess-123", userId=1) is True
+        mock_db.commit.assert_not_called()
+
+    def test_validate_session_stale_row_refreshed_once(self):
+        """Throttle: a row stale past the interval is refreshed; the next call is not."""
+        from main.app.authentication.session import SessionManager
+
+        mock_db = MagicMock()
+        mock_session = MagicMock()
+        mock_session.isActive = True
+        mock_session.expiresAt = datetime(2026, 12, 31, tzinfo=ZoneInfo("America/Sao_Paulo"))
+        stale = datetime.now(timezone.utc) - timedelta(minutes=10)
+        mock_session.lastActivityAt = stale
+        mock_db.query.return_value.filter.return_value.first.return_value = mock_session
+        mock_db.query.return_value.filter.return_value.filter.return_value.first.return_value = mock_session
+
+        assert SessionManager.validateSession(mock_db, "sess-123", userId=1) is True
+        assert mock_session.lastActivityAt > stale
+        assert SessionManager.validateSession(mock_db, "sess-123", userId=1) is True
+        mock_db.commit.assert_called_once()
+
 
 # ---------------------------------------------------------------------------
 # SSO (sso.py)

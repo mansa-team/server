@@ -66,7 +66,7 @@ Missing token → 401 `Session not found`; expired → 401 `Token expired`; bad 
 
 Parsing: `parseDeviceFields` (`main/app/authentication/session.py:12-28`, stored `:45-58`). There is **no** `browserVersion`, `osVersion`, `ipAddress`, `deviceName`, or fingerprint column — any doc claiming them is stale. There is also **no** `accessTokenHash` column (removed reviewer #9: it hashed a random token whose pre-image was never stored, so nothing ever verified against it; session lookup/revocation keys on `sessionId` only).
 
-`updateLastActive` (`session.py:131-139`) exists but has **zero callers — dead / not wired**. `lastActivityAt` is set at creation and never refreshed.
+`updateLastActive` (`session.py:133-140`) is called by `validateSession` as a **throttled touch** — `lastActivityAt` refreshes at most once per 5 minutes per session (`SESSION_TOUCH_INTERVAL_MINUTES`).
 
 ## Roles and permissions
 

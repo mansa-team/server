@@ -1,6 +1,8 @@
 import logging
-import subprocess  # nosec: B404
 import os
+
+from alembic import command
+from alembic.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -10,25 +12,17 @@ def runMigrations():
         rootPath = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
         if os.path.exists(os.path.join(rootPath, "alembic.ini")):
-            cwd = rootPath
+            migrationRoot = rootPath
         elif os.path.exists("alembic.ini"):
-            cwd = os.getcwd()
+            migrationRoot = os.getcwd()
         else:
             logger.error(f"alembic.ini not found in {os.getcwd()} or {rootPath}")
             return
 
-        result = subprocess.run(  # nosec: B607, B603
-            ["alembic", "upgrade", "head"], capture_output=True, text=True, env=os.environ.copy(), cwd=cwd
-        )
-
-        if result.returncode == 0:
-            logger.info("Successfully updated database to the latest version.")
-            if result.stdout:
-                logger.info(result.stdout.strip())
-        else:
-            logger.error("Error during migration:")
-            logger.error(result.stdout)
-            logger.error(result.stderr)
+        config = Config()
+        config.set_main_option("script_location", os.path.join(migrationRoot, "migrations"))
+        command.upgrade(config, "head")
+        logger.info("Successfully updated database to the latest version.")
 
     except Exception as e:
         logger.error(f"Failed to execute migrations: {e}")

@@ -30,7 +30,6 @@ from main.models.wallet import Transaction
 from main.utils.mcp_tools import mcpToolDecorator
 
 
-
 router = APIRouter(prefix="/wallet", tags=["Wallet"], dependencies=[Depends(getWalletUser)])
 mcp = FastMCP("Mansa Wallet MCP", auth=soloAuth)
 registerLoginRoutes(mcp)

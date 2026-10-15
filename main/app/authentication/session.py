@@ -8,6 +8,8 @@ from main.app.authentication.constants import SESSION_EXPIRY_DAYS, SESSION_IDLE_
 
 logger = logging.getLogger(__name__)
 
+SESSION_TOUCH_INTERVAL_MINUTES = 5
+
 
 def parseDeviceFields(userAgent: str | None) -> tuple[str | None, str | None, str | None]:
     if not userAgent:
@@ -168,7 +170,8 @@ class SessionManager:
                 session.isActive = False  # type: ignore[assignment]
                 db.commit()
                 return False
+            if now - lastActive <= timedelta(minutes=SESSION_TOUCH_INTERVAL_MINUTES):
+                return True
 
-        session.lastActivityAt = now  # type: ignore[assignment]
-        db.commit()
+        SessionManager.updateLastActive(db, sessionId)
         return True

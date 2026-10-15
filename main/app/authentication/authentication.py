@@ -74,17 +74,3 @@ class AuthenticationManager:
         except Exception as e:
             logger.debug(f"Error authenticating user: {str(e)}", exc_info=True)
             return None
-
-    @staticmethod
-    def resolveUniqueUsername(db: Session, baseUsername: str, maxAttempts: int = 100) -> str:
-        base = (baseUsername or "").strip() or "user"
-        candidate = base[:255]
-        suffix = 0
-        for _ in range(maxAttempts):
-            exists = db.query(User).filter(User.username == candidate).first()
-            if not exists:
-                return candidate
-            suffix += 1
-            tail = f"-{suffix}"
-            candidate = f"{base[: 255 - len(tail)]}{tail}"
-        raise HTTPException(status_code=409, detail="Could not resolve unique username")

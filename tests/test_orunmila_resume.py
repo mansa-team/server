@@ -4,7 +4,7 @@ import json
 import main.controller.orunmila_controller as controller_mod
 import pytest
 from datetime import datetime
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -116,11 +116,81 @@ def test_second_post_to_same_session_replaces_log(client, monkeypatch):
     assert [p["text"] for p in second if p["type"] == "text"] == ["first", " second"]
 
 
-async def test_forward_terminates_when_finished_channel_has_empty_replay(monkeypatch):
+def test_concurrent_stream_is_rejected_with_409(client, monkeypatch):
+    """A live run on the session channel must translate to a 409, not a cancellation."""
+    monkeypatch.setattr(streamBus, "startRun", lambda sessionId, runnerFactory: False)
+
+    with client.stream("POST", "/orunmila/chat/stream", data={"query": "oi"}, files={}) as r:
+        assert r.status_code == 409
+
+
+async def test_turn_events_persisted_in_single_commit():
+    """One turn's tool events (call + result + turn_end) must reach the DB in ONE commit."""
+    mockSession = MagicMock()
+    mockSession.history = []
+    mockDb = MagicMock()
+    mockDb.query.return_value.filter.return_value.first.return_value = mockSession
+
+    commits = []
+
+    def recordCommit():
+        commits.append([e.get("eventType") or e.get("role") for e in mockSession.history])
+
+    mockDb.commit.side_effect = recordCommit
+
+    class FakeChunk:
+        def __init__(self, text=None, function_calls=None):
+            self.text = text
+            self.function_calls = function_calls
+
+    class FakeFunctionCall:
+        name = "search"
+        args = {"query": "test"}
+
+    async def first_stream():
+        yield FakeChunk(function_calls=[FakeFunctionCall()])
+
+    async def second_stream():
+        yield FakeChunk(text="final answer")
+
+    streams = iter([first_stream(), second_stream()])
+    mockChatSession = MagicMock()
+    mockChatSession.send_message_stream = AsyncMock(side_effect=lambda *a, **k: next(streams))
+
+    gen = Orunmila()
+    gen.makeChat = MagicMock(return_value=mockChatSession)
+
+    with (
+        patch("main.app.orunmila.agent.clientPool") as mockPool,
+        patch("main.app.orunmila.agent.dispatchToolCall", new=AsyncMock(return_value={"ok": True})),
+    ):
+        mockPool.clients = {"stocks": MagicMock()}
+        mockPool.getClients = AsyncMock(return_value=({"stocks": MagicMock()}, [MagicMock()]))
+        events = [e async for e in gen.streamMessage(query="q", sessionId="s1", db=mockDb, user=None)]
+
+    assert [e["type"] for e in events if e["type"] in ("tool_call", "tool_result", "turn_end")] == [
+        "tool_call",
+        "tool_result",
+        "turn_end",
+    ]
+    assert [e["eventType"] for e in mockSession.history if e.get("role") == "loop_event"] == [
+        "tool_call",
+        "tool_result",
+        "turn_end",
+    ]
+    # user append (1 commit) + the whole turn (1 commit) + assistant append (1 commit)
+    assert commits == [
+        ["user"],
+        ["user", "tool_call", "tool_result", "turn_end"],
+        ["user", "tool_call", "tool_result", "turn_end", "assistant"],
+    ]
+
+
+async def test_resume_finished_channel_with_empty_replay_terminates(monkeypatch):
     """Regression (I2): resuming a finished channel at cursor == len(events)
-    yields an empty replay, so forward must terminate via the finished check
-    instead of streaming keepalives forever. No DB needed - drives
-    streamBus.forward directly against a prepared StreamBus."""
+    yields an empty replay, so the SSE generator must terminate via the
+    finished check instead of streaming keepalives forever. No DB needed -
+    drives streamBus.eventGenerator directly against a prepared StreamBus."""
     real_wait_for = asyncio.wait_for
 
     async def quick_wait_for(coro, timeout=None):
@@ -128,27 +198,23 @@ async def test_forward_terminates_when_finished_channel_has_empty_replay(monkeyp
 
     monkeypatch.setattr(asyncio, "wait_for", quick_wait_for)
 
-    async def scenario():
-        async def runner():
-            yield {"type": "text", "text": "x"}
+    async def runner():
+        yield {"type": "text", "text": "x"}
 
-        # Drive the module-level singleton directly: _forward subscribes via
-        # streamBus, so a local StreamBus() instance would never be visible to it.
-        streamBus.startRun("s1", runner)
-        q0, ch = streamBus.subscribe("s1")
-        assert (await asyncio.wait_for(q0.get(), 1))["text"] == "x"
-        assert await asyncio.wait_for(q0.get(), 1) == {"type": "done"}
-        streamBus.unsubscribe("s1", q0)
-        assert ch.finished is True
+    # Drive the module-level singleton directly: the resume endpoint subscribes
+    # via streamBus, so a local StreamBus() instance would never be visible.
+    streamBus.startRun("s1", runner)
+    q0, ch = streamBus.subscribe("s1")
+    assert (await asyncio.wait_for(q0.get(), 1))["text"] == "x"
+    assert await asyncio.wait_for(q0.get(), 1) == {"type": "done"}
+    streamBus.unsubscribe("s1", q0)
+    assert ch.finished is True
 
-        # events = [text, done]; cursor=2 replays nothing.
-        return [line async for line in streamBus.forward("s1", cursor=2)]
-
-    lines = await scenario()
-    data = [ln for ln in lines if ln.startswith("data: ")]
-    done_events = [json.loads(ln[6:].strip()) for ln in data if ln[6:].strip() != "[DONE]"]
-    assert {"type": "done"} in done_events
-    assert "data: [DONE]\n\n" in data
+    # events = [text, done]; cursor=2 replays nothing.
+    items = [item async for item in streamBus.eventGenerator("s1", cursor=2)]
+    data = [json.loads(item.data) for item in items if not isinstance(item, str)]
+    assert {"type": "done"} in data
+    assert "[DONE]" in items
 
 
 # ---- moved from test_orunmila_auth_coverage.py (TestOrunmilaChatManager) ----

@@ -19,6 +19,9 @@ STOCKS_MAX_AGE = 6 * 3600
 LIVE_TTL = "15s"
 LIVE_MAX_AGE = 15
 
+STOCKS_CACHE_HEADERS = {"Cache-Control": f"public, max-age={STOCKS_MAX_AGE}"}
+LIVE_CACHE_HEADERS = {"Cache-Control": f"public, max-age={LIVE_MAX_AGE}"}
+
 router = APIRouter(prefix="/stocks", tags=["Stocks API"])
 mcp = FastMCP("Mansa Stocks MCP")
 
@@ -42,7 +45,7 @@ def health():
 
 @mcp_tool
 @router.get("/fields", operation_id="list_fields")
-@sync_cache(ttl=STOCKS_TTL, key="stocks:fields")
+@sync_cache(ttl=STOCKS_TTL, key="stocks:fields", headers=STOCKS_CACHE_HEADERS)
 def listFields(response: Response):
     """Discover available field names before querying get_historical or get_fundamental.
 
@@ -87,13 +90,16 @@ def listFields(response: Response):
     abbreviations = generateAbbreviations(historical, fundamental)
     nested = getNest(stocksCache.STOCKS_CACHE, stocksCache.nestedSample)
 
-    response.headers["Cache-Control"] = f"public, max-age={STOCKS_MAX_AGE}"
     return {"historical": historical, "fundamental": fundamental, "abbreviations": abbreviations, "nested": nested}
 
 
 @mcp_tool
 @router.get("/historical", operation_id="get_historical")
-@sync_cache(ttl=STOCKS_TTL, key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
+@sync_cache(
+    ttl=STOCKS_TTL,
+    key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}",
+    headers=STOCKS_CACHE_HEADERS,
+)
 def getHistorical(
     response: Response,
     search: str | None = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -150,7 +156,6 @@ def getHistorical(
     - Get PETR4 net income 2022-2024: search="PETR4", fields="LUCRO LIQUIDO", dates="2022,2024"
     - Get all revenue data for VALE3: search="VALE3", fields="RECEITA LIQUIDA"
     - Compare top 10 by EBITDA: fields="EBITDA", orderBy="EBITDA", limit=10"""
-    response.headers["Cache-Control"] = f"public, max-age={STOCKS_MAX_AGE}"
     result = queryHistorical(search, fields, dates, orderBy, limit)
     if compact:
         result = compressResponse(
@@ -165,7 +170,11 @@ def getHistorical(
 
 @mcp_tool
 @router.get("/fundamental", operation_id="get_fundamental")
-@sync_cache(ttl=STOCKS_TTL, key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}")
+@sync_cache(
+    ttl=STOCKS_TTL,
+    key="stocks:fundamental:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}",
+    headers=STOCKS_CACHE_HEADERS,
+)
 def getFundamental(
     response: Response,
     search: str | None = Query(None, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -227,7 +236,6 @@ def getFundamental(
     - Get all stocks' dividend yield latest: fields="DY"
     - Compare P/L across tickers: search="PETR4,VALE3,ITUB4", fields="P/L", orderBy="P/L"
     - Q1 2024 fundamental snapshot: fields="P/L,ROE", dates="2024-01-01,2024-03-31" """
-    response.headers["Cache-Control"] = f"public, max-age={STOCKS_MAX_AGE}"
     result = queryFundamental(search, fields, dates, orderBy, limit)
     if compact:
         result = compressResponse(
@@ -242,7 +250,11 @@ def getFundamental(
 
 @mcp_tool
 @router.get("/cotations", operation_id="get_cotations")
-@sync_cache(ttl=STOCKS_TTL, key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}:{max_points}")
+@sync_cache(
+    ttl=STOCKS_TTL,
+    key="stocks:cotations:{search}:{dates}:{adjusted}:{compact}:{max_points}",
+    headers=STOCKS_CACHE_HEADERS,
+)
 def getCotations(
     response: Response,
     search: str = Query(..., min_length=1, max_length=3780, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -299,7 +311,6 @@ def getCotations(
     - Get PETR4 full price history: search="PETR4"
     - Get PETR4 + VALE3 2023 prices: search="PETR4,VALE3", dates="2023-01-01,2023-12-31"
     - Get inflation-adjusted prices: search="ITUB4", adjusted=true"""
-    response.headers["Cache-Control"] = f"public, max-age={STOCKS_MAX_AGE}"
     result = queryCotations(search, dates, adjusted)
     rows = result.get("data")
     if isinstance(rows, list):
@@ -329,7 +340,7 @@ def getCotations(
 
 @mcp_tool
 @router.get("/cotations/live", operation_id="get_live_price")
-@sync_cache(ttl=LIVE_TTL, key="stocks:live:{search}:{compact}")
+@sync_cache(ttl=LIVE_TTL, key="stocks:live:{search}:{compact}", headers=LIVE_CACHE_HEADERS)
 def getLiveCotation(
     response: Response,
     search: str = Query(..., min_length=1, max_length=7, pattern=r"^[A-Za-z0-9,\s]*$"),
@@ -375,7 +386,6 @@ def getLiveCotation(
     EXAMPLES:
     - Get live PETR4 price: search="PETR4"
     - Get live VALE3 price in compact form: search="VALE3", compact=true"""
-    response.headers["Cache-Control"] = f"public, max-age={LIVE_MAX_AGE}"
     result = queryLiveCotations(search)
     if compact:
         result = compressResponse(

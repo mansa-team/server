@@ -33,7 +33,7 @@ def buildToolFromRoute(
         raise RuntimeError(f"{route.operation_id}: declares currentUser but no resolveIdentity was given")
     if (injectIdentity or injectSession) and sessionFactory is None:
         raise RuntimeError(f"{route.operation_id}: declares db but no sessionFactory was given")
-    
+
     identityResolver = cast("Callable[[str, Any], dict]", resolveIdentity)
     sessionProvider = cast("Callable[[], Any]", sessionFactory)
 

@@ -1,6 +1,6 @@
 import asyncio
-import json
 import logging
+import time
 from collections.abc import AsyncIterator, Callable
 
 from sse_starlette.event import JSONServerSentEvent
@@ -9,6 +9,7 @@ from sse_starlette.sse import EventSourceResponse
 logger = logging.getLogger(__name__)
 
 MAX_BUFFER_EVENTS = 5000  # ponytail: hard cap; older events dropped, clients reconcile from history
+CHANNEL_TTL_SECONDS = 300  # ponytail: finished channels kept this long so resume can still replay the buffer
 
 
 class StreamChannel:
@@ -17,6 +18,7 @@ class StreamChannel:
         self.subscribers: set[asyncio.Queue] = set()
         self.task: asyncio.Task | None = None
         self.finished = False
+        self.finishedAt: float | None = None
 
     def publish(self, event: dict) -> None:
         self.events.append(event)
@@ -61,12 +63,16 @@ class StreamBus:
         if ch:
             ch.subscribers.discard(q)
 
-    def startRun(self, sessionId: str, runner_factory: Callable[[], AsyncIterator[dict]]) -> None:
+    def startRun(self, sessionId: str, runner_factory: Callable[[], AsyncIterator[dict]]) -> bool:
+        """Start a run; returns False when the channel already has a live run (never cancels it)."""
+        self.sweep()
         ch = self.getOrCreate(sessionId)
-        if ch.task:
-            ch.task.cancel()
-            ch.events.clear()
-            ch.finished = False
+        if ch.task is not None and not ch.task.done():
+            return False
+
+        ch.events.clear()
+        ch.finished = False
+        ch.finishedAt = None
 
         async def run() -> None:
             try:
@@ -79,9 +85,18 @@ class StreamBus:
             finally:
                 if ch.task is asyncio.current_task():
                     ch.finished = True
+                    ch.finishedAt = time.monotonic()
                     ch.publish({"type": "done"})
 
         ch.task = asyncio.get_running_loop().create_task(run())
+        return True
+
+    def sweep(self, now: float | None = None) -> None:
+        """Evict finished channels once their resume window has elapsed."""
+        current = time.monotonic() if now is None else now
+        for sessionId, ch in list(self.channels.items()):
+            if ch.finished and ch.finishedAt is not None and current - ch.finishedAt > CHANNEL_TTL_SECONDS:
+                self.channels.pop(sessionId, None)
 
     async def eventGenerator(self, sessionId: str, cursor: int = 0) -> AsyncIterator[JSONServerSentEvent | str]:
         sub = self.subscribe(sessionId, cursor)
@@ -109,30 +124,6 @@ class StreamBus:
     # Kept: public SSE API boundary used by both stream endpoints — keep.
     def streamResponse(self, sessionId: str, cursor: int = 0) -> EventSourceResponse:
         return EventSourceResponse(self.eventGenerator(sessionId, cursor), ping=15)
-
-    async def forward(self, sessionId: str, cursor: int = 0) -> AsyncIterator[str]:
-        sub = self.subscribe(sessionId, cursor)
-        if sub is None:
-            yield "data: [DONE]\n\n"
-            return
-        q, ch = sub
-        try:
-            while True:
-                try:
-                    event = await asyncio.wait_for(q.get(), timeout=30)
-                except asyncio.TimeoutError:
-                    if ch.finished:
-                        yield "data: " + json.dumps({"type": "done"}) + "\n\n"
-                        yield "data: [DONE]\n\n"
-                        return
-                    yield ": keepalive\n\n"
-                    continue
-                yield f"data: {json.dumps(event)}\n\n"
-                if event.get("type") == "done":
-                    yield "data: [DONE]\n\n"
-                    return
-        finally:
-            self.unsubscribe(sessionId, q)
 
 
 streamBus = StreamBus()

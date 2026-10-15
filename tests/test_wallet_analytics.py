@@ -5,6 +5,7 @@ import pytest
 from cashews import cache as cashewsCache
 
 import main.models.wallet  # noqa: F401
+from main.app.wallet.analytics import AnalyticsManager
 from main.models.wallet import Earning
 from tests.conftest import make_wallet_client
 
@@ -71,8 +72,8 @@ def test_progression_daily_values(dbSession, monkeypatch):
     byDate = {point["date"]: point for point in body["points"]}
     assert byDate["2026-01-02"] == {"date": "2026-01-02", "equity": 100.0, "invested": 100.0}
     assert byDate["2026-01-07"] == {"date": "2026-01-07", "equity": 100.0, "invested": 100.0}
-    assert byDate["2026-01-08"] == {"date": "2026-01-08", "equity": 72.0, "invested": 52.0}
-    assert byDate["2026-01-10"] == {"date": "2026-01-10", "equity": 72.0, "invested": 52.0}
+    assert byDate["2026-01-08"] == {"date": "2026-01-08", "equity": 72.0, "invested": 60.0}
+    assert byDate["2026-01-10"] == {"date": "2026-01-10", "equity": 72.0, "invested": 60.0}
     assert "2026-01-01" not in byDate
 
 
@@ -86,8 +87,8 @@ def test_progression_is_canonical_daily(dbSession, monkeypatch):
     assert body["granularity"] == "daily"
     byDate = {point["date"]: point for point in body["points"]}
     assert byDate["2026-01-02"] == {"date": "2026-01-02", "equity": 100.0, "invested": 100.0}
-    assert byDate["2026-01-08"] == {"date": "2026-01-08", "equity": 72.0, "invested": 52.0}
-    assert byDate["2026-01-31"] == {"date": "2026-01-31", "equity": 72.0, "invested": 52.0}
+    assert byDate["2026-01-08"] == {"date": "2026-01-08", "equity": 72.0, "invested": 60.0}
+    assert byDate["2026-01-31"] == {"date": "2026-01-31", "equity": 72.0, "invested": 60.0}
     assert "2026-01-01" not in byDate
     longBody = client.get("/wallet/progression?from=2020-01-01&to=2026-02-04").json()
     assert longBody["granularity"] == "daily"
@@ -179,3 +180,49 @@ def test_performance_window_is_explicit_dates_only(dbSession, monkeypatch):
     _seed_wallet(client)
     explicit = client.get("/wallet/performance?from=2026-01-01&to=2026-01-11").json()
     assert explicit["twr"] == pytest.approx(0.2)
+
+
+def _patch_closes(monkeypatch, series):
+    def fake(cls, ticker):
+        return list(series)
+
+    monkeypatch.setattr("main.app.wallet.analytics.PositionsManager.fetchPadraoCloses", classmethod(fake))
+
+
+def test_progression_invested_uses_cost_basis(monkeypatch):
+    # Sell-all at a profit: invested drops to the sold cost basis (1000), not proceeds (2000).
+    _patch_closes(monkeypatch, [(date(2026, 1, 2), 10.0), (date(2026, 1, 5), 20.0), (date(2026, 1, 6), 20.0)])
+    entriesSnap = (
+        ("PETR4", "2026-01-02", "Compra", "100", "10", "0", 1),
+        ("PETR4", "2026-01-05", "Venda", "100", "20", "0", 2),
+    )
+    body = AnalyticsManager.cachedProgression(1, "2026-01-01", "2026-01-06", entriesSnap)
+    byDate = {point["date"]: point for point in body["points"]}
+    assert byDate["2026-01-02"]["invested"] == 1000.0
+    assert byDate["2026-01-05"]["invested"] == 0.0
+    assert byDate["2026-01-06"]["invested"] == 0.0
+
+
+def test_progression_invested_partial_sale_keeps_cost_basis(monkeypatch):
+    _patch_closes(monkeypatch, [(date(2026, 1, 2), 10.0), (date(2026, 1, 5), 12.0)])
+    entriesSnap = (
+        ("PETR4", "2026-01-02", "Compra", "100", "10", "0", 1),
+        ("PETR4", "2026-01-05", "Venda", "50", "12", "0", 2),
+    )
+    body = AnalyticsManager.cachedProgression(1, "2026-01-01", "2026-01-05", entriesSnap)
+    byDate = {point["date"]: point for point in body["points"]}
+    assert byDate["2026-01-05"]["invested"] == 500.0
+
+
+def test_progression_sell_without_position_does_not_divide_by_zero(monkeypatch):
+    # Sell more than held (borrow): the basis math must not divide by zero.
+    _patch_closes(monkeypatch, [(date(2026, 1, 5), 20.0)])
+    entriesSnap = (("PETR4", "2026-01-05", "Venda", "10", "20", "0", 1),)
+    body = AnalyticsManager.cachedProgression(1, "2026-01-01", "2026-01-05", entriesSnap)
+    byDate = {point["date"]: point for point in body["points"]}
+    assert byDate["2026-01-05"]["invested"] == 0.0
+
+
+def test_cached_progression_accepts_no_recalc_key():
+    body = AnalyticsManager.cachedProgression(1, "2026-01-01", "2026-01-02", ())
+    assert body == {"granularity": "daily", "from": "2026-01-01", "to": "2026-01-02", "points": []}

@@ -2,17 +2,17 @@ import logging
 from collections.abc import MutableMapping
 from functools import wraps
 from config import Config, SessionLocal
-import json
 import unicodedata
 from datetime import datetime, timezone
-from typing import Any, Callable, cast
+from typing import Any, Callable, Literal, cast
 
 from cashews import cache
+from cachetools import TTLCache
 from google import genai
 from google.genai import types
 import numpy as np
-from pydantic import BaseModel, TypeAdapter
-from rapidfuzz import fuzz
+from pydantic import BaseModel
+from rapidfuzz import fuzz, process
 
 from sqlalchemy import func, desc
 from sqlalchemy.dialects.mysql import match as mysqlMatch
@@ -65,10 +65,8 @@ logger = logging.getLogger(__name__)
 class MemoryCandidate(BaseModel):
     key: str
     value: str
-    type: str = "context"
+    type: Literal["preference", "analysis", "feedback", "context"] = "context"
 
-
-candidateAdapter = TypeAdapter(MemoryCandidate)
 
 MEMORY_LIMIT_BASIC = 50
 MEMORY_LIMIT_EXTENDED = 250
@@ -120,18 +118,15 @@ def findSimilarKey(db: Session, userId: int, newKey: str, threshold: float = 0.8
         .filter(OrunmilaMemoryModel.userId == userId, OrunmilaMemoryModel.archivedAt.is_(None))
         .all()
     )
-    newNormalized = normalizeKey(newKey)
+    candidates = [(m, normalizeKey(str(m.memoryKey))) for m in existing]
+    candidates = [(m, key) for m, key in candidates if key]
+    if not candidates:
+        return None
 
-    for m in existing:
-        existingNormalized = normalizeKey(str(m.memoryKey))
-
-        if not newNormalized and not existingNormalized:
-            continue
-
-        if fuzz.ratio(newNormalized, existingNormalized) > threshold * 100:
-            return m
-
-    return None
+    match = process.extractOne(normalizeKey(newKey), [key for _, key in candidates], scorer=fuzz.ratio)
+    if match is None or match[1] <= threshold * 100:
+        return None
+    return candidates[match[2]][0]
 
 
 def scoreRecency(candidateRows: list[Any], limit: int) -> list[dict]:
@@ -449,6 +444,9 @@ class OrunmilaMemory:
             if db is None:
                 logger.error("Failed to acquire DB session for memory search")
                 return []
+            if tokenCache is None:
+                # Built inside the worker thread: cachetools.TTLCache is not thread-safe.
+                tokenCache = TTLCache(maxsize=TOKEN_CACHE_MAXSIZE, ttl=TOKEN_CACHE_TTL_SECONDS)
             cap = (
                 MEMORY_EXTRACT_PREMIUM_CAP
                 if Roles.checkAccess(userRoles, Permission.ORUNMILA_EXTENDED_MEMORIES)
@@ -465,14 +463,11 @@ class OrunmilaMemory:
             for msg in reversed(msgs):
                 text = (msg.get("parts") or [{}])[0].get("text", "")
                 acc.append(text)
-                if tokenCache is None:
-                    tokens += countTokens(text)
-                else:
-                    cached = tokenCache.get(text)
-                    if cached is None:
-                        cached = countTokens(text)
-                        tokenCache[text] = cached
-                    tokens += cached
+                cached = tokenCache.get(text)
+                if cached is None:
+                    cached = countTokens(text)
+                    tokenCache[text] = cached
+                tokens += cached
                 if tokens >= MEMORY_EXTRACTION_TOKEN_BUDGET:
                     break
 
@@ -492,37 +487,18 @@ class OrunmilaMemory:
                     config=types.GenerateContentConfig(
                         response_mime_type="application/json",
                         temperature=0.2,
-                        response_schema=types.Schema(
-                            type=types.Type.ARRAY,
-                            items=types.Schema(
-                                type=types.Type.OBJECT,
-                                properties={
-                                    "key": types.Schema(type=types.Type.STRING),
-                                    "value": types.Schema(type=types.Type.STRING),
-                                    "type": types.Schema(
-                                        type=types.Type.STRING,
-                                        enum=["preference", "analysis", "feedback", "context"],
-                                    ),
-                                },
-                                required=["key", "value", "type"],
-                            ),
-                        ),
+                        response_schema=list[MemoryCandidate],
                     ),
                 )
-                rawCandidates = json.loads(response.text)
             except (OSError, RuntimeError, ValueError, TypeError) as e:
                 logger.warning("Memory extraction LLM call failed: %s", e)
                 return []
 
-            if not isinstance(rawCandidates, list):
+            parsed: Any = response.parsed
+            if not isinstance(parsed, list):
                 return []
 
-            candidates: list[MemoryCandidate] = []
-            for raw in rawCandidates:
-                try:
-                    candidates.append(candidateAdapter.validate_python(raw))
-                except (ValueError, TypeError) as e:
-                    logger.warning("Memory extraction dropped invalid item: %s", e)
+            candidates = [c for c in parsed if isinstance(c, MemoryCandidate)]
             if not candidates:
                 return []
 

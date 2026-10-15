@@ -102,6 +102,16 @@ class TestAuthUtilEdgeCases:
         result = verifyPassword(None, None)
         assert result is False
 
+    def test_verify_password_over_72_bytes_returns_false(self):
+        hashed = hashPassword("short-password")
+        assert verifyPassword("x" * 80, hashed) is False
+
+    def test_verify_password_72_byte_boundary(self):
+        password = "x" * 72
+        hashed = hashPassword(password)
+        assert verifyPassword(password, hashed) is True
+        assert verifyPassword("x" * 73, hashed) is False
+
     def test_create_access_token_with_empty_data(self):
         token = createAccessToken({})
         decoded = jwt.decode(token, options={"verify_signature": False})

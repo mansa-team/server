@@ -1,3 +1,5 @@
+from unittest.mock import MagicMock
+
 from main.app.orunmila.memory import OrunmilaMemory as MemoryService, findSimilarKey
 from main.models.memory import OrunmilaMemory
 
@@ -101,3 +103,40 @@ class TestTypoAccentRegression:
         assert result["status"] == "merged"
         assert result["memory"].memoryValue == "v2"
         assert count_memories(dbSession) == 1
+
+
+class TestFindSimilarKey:
+    """findSimilarKey semantics after the rapidfuzz extractOne swap."""
+
+    def test_exact_duplicate_returns_existing(self, dbSession):
+        MemoryService.upsertMemory(dbSession, USER_ID, "petrobras preferencia", "v1")
+        match = findSimilarKey(dbSession, USER_ID, "PETROBRAS PREFERENCIA")
+        assert match is not None
+        assert match.memoryKey == "petrobras preferencia"
+
+    def test_clearly_different_returns_none(self, dbSession):
+        MemoryService.upsertMemory(dbSession, USER_ID, "petrobras preferencia", "v1")
+        assert findSimilarKey(dbSession, USER_ID, "dividendos mensais") is None
+
+    def test_blank_keys_are_ignored(self, dbSession):
+        MemoryService.upsertMemory(dbSession, USER_ID, "   ", "v1")
+        assert findSimilarKey(dbSession, USER_ID, "   ") is None
+
+    def test_boundary_score_is_not_a_match(self, dbSession):
+        """fuzz.ratio("a b d", "a b c") == 80.0 and 0.8 * 100 == 80.00000000000001 → strict > must reject."""
+        MemoryService.upsertMemory(dbSession, USER_ID, "a b c", "v1")
+        assert findSimilarKey(dbSession, USER_ID, "a b d") is None
+
+    def test_best_match_wins_over_first_passing(self):
+        """extractOne returns the best match, not the first row above the threshold."""
+
+        class Row:
+            def __init__(self, key):
+                self.memoryKey = key
+
+        worse = Row("dividendos mensais usuario")  # ratio 81.8 vs query
+        better = Row("dividendos mensais agora")  # ratio 85.7 vs query
+        db = MagicMock()
+        db.query.return_value.filter.return_value.all.return_value = [worse, better]
+
+        assert findSimilarKey(db, USER_ID, "dividendos mensais") is better
