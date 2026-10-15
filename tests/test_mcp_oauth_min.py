@@ -27,6 +27,7 @@ from main.app.authentication.session import SessionManager
 from main.app.authentication.util import createAccessToken, hashPassword
 from main.app.wallet.entries import EntriesManager, EntryCreate
 from main.app.wallet.wallets import WalletsManager
+from main.controller import wallet_controller as walletController
 from main.models.user import User
 from tests.test_wallet_positions import _live_ok
 
@@ -41,10 +42,10 @@ def _use_test_env(monkeypatch, dbSession):
     monkeypatch.setattr(Config.USER, "MCP_OAUTH_CLIENT_ID", CLIENT_ID)
     monkeypatch.setattr(Config.USER, "MCP_OAUTH_CLIENT_SECRET", CLIENT_SECRET)
     monkeypatch.setattr(solo, "SessionLocal", lambda: dbSession)
-    monkeypatch.setattr("main.controller.wallet_controller.SessionLocal", lambda: dbSession)
+    monkeypatch.setattr(walletController, "SessionLocal", lambda: dbSession)
     monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     provider = solo.SoloOAuthProvider()
-    solo.soloProvider.clear()
+    walletController.walletProvider.clear()
     solo.revokedAccessJtis.clear()
     return provider
 
@@ -453,7 +454,7 @@ def test_http_full_flow_token_refresh_revoke(dbSession, monkeypatch):
             data={"token": secondTokens["access_token"], "client_id": CLIENT_ID, "client_secret": CLIENT_SECRET},
         )
         assert revoke.status_code == 200
-        assert solo.soloProvider.codes == {}
+        assert walletController.walletProvider.codes == {}
 
 
 def test_http_pkce_mismatch_and_wrong_secret(dbSession, monkeypatch):

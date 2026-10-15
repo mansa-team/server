@@ -41,7 +41,6 @@ from main.app.authentication.util import (
     ServiceLoopbackHeadersMiddleware,
     createAccessToken,
     verifyAccessToken,
-    walletAuth,
 )
 
 WALLET_SCOPE = "wallet"
@@ -382,10 +381,6 @@ class SoloAuth(MultiAuth):
             Middleware(AuthenticationMiddleware, backend=ServiceLoopbackBackend(self)),  # type: ignore[arg-type]
             Middleware(AuthContextMiddleware),  # type: ignore[arg-type]
         ]
-
-
-soloProvider = SoloOAuthProvider()
-soloAuth = SoloAuth(server=soloProvider, verifiers={"service-loopback": walletAuth}, required_scopes=[])
 
 
 def oauthResumePath(requestId: str) -> str:
