@@ -99,15 +99,7 @@ def enforceResourceClaims(payload: dict) -> None:
 
 
 def extractTokenPayload(request: Request) -> dict:
-    token = request.headers.get("X-Access-Token")
-    if not token:
-        authHeader = request.headers.get("Authorization")
-        if authHeader and authHeader.startswith("Bearer "):
-            token = authHeader.split(" ")[1]
-
-    if not token:
-        token = request.cookies.get(COOKIE_NAME)
-        logger.info(f"Cookie fallback: token={'FOUND' if token else 'NONE'}, cookies={list(request.cookies.keys())}")
+    token = extractRawToken(request)
 
     if not token:
         raise HTTPException(status_code=401, detail="Session not found")
