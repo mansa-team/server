@@ -1,4 +1,3 @@
-import logging
 from datetime import date as dateType
 from datetime import timedelta
 from decimal import Decimal
@@ -13,8 +12,6 @@ from main.utils.sync_cache import sync_cache
 from main.app.wallet.entries import EntriesManager, toDecimal
 from main.app.wallet.positions import PositionsManager
 from main.models.wallet import Earning, Transaction, Wallet
-
-logger = logging.getLogger(__name__)
 
 
 class PerformanceManager:

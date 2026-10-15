@@ -1,4 +1,3 @@
-import logging
 from datetime import date as dateType
 from decimal import Decimal
 
@@ -9,8 +8,6 @@ from main.app.wallet.earnings import EarningsManager
 from main.app.wallet.entries import EntriesManager, toDecimal
 from main.app.wallet.positions import PositionsManager
 from main.models.wallet import Earning, Transaction, Wallet
-
-logger = logging.getLogger(__name__)
 
 MAX_POINTS = 2000
 

@@ -1,4 +1,3 @@
-import logging
 from collections.abc import Sequence
 from datetime import date as dateType
 from decimal import Decimal
@@ -11,8 +10,6 @@ from sqlalchemy.orm import Session
 
 from main.app.wallet.positions import PositionsManager
 from main.models.wallet import Holding, Transaction, Wallet
-
-logger = logging.getLogger(__name__)
 
 AssetType = Literal["ACOES", "OUTROS"]
 ALLOWED_ASSET_TYPES = frozenset(get_args(AssetType))
