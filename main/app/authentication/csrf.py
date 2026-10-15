@@ -29,8 +29,8 @@ def isCsrfExemptEndpoint(request: Request) -> bool:
     return bool(getattr(endpoint, "_csrf_exempt", False))
 
 
-def issueCsrfToken(response: Response, request=None) -> str:
-    token = secrets.token_urlsafe(32)
+def issueCsrfToken(response: Response, request=None, token: str | None = None) -> str:
+    token = token or secrets.token_urlsafe(32)
     response.set_cookie(
         key=CSRF_COOKIE_NAME,
         value=token,
