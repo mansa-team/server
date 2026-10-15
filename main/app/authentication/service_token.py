@@ -8,14 +8,12 @@ from main.models.user import User
 
 logger = logging.getLogger(__name__)
 
-SERVICE_USERNAME = "service-loopback"
-
 
 def getServiceUserId(db: Session) -> int:
-    user = db.query(User).filter(User.username == SERVICE_USERNAME).first()
+    user = db.query(User).filter(User.username == "service-loopback").first()
     if user is None:
         user = User(
-            username=SERVICE_USERNAME,
+            username="service-loopback",
             email="service-loopback@internal",
             passwordHash=None,
             roles="SERVICE",
@@ -41,7 +39,7 @@ def verifyServiceToken(db: Session, provided: str | None) -> bool:
         return False
     try:
         session = SessionManager.getSessionById(db, token)
-        service = db.query(User).filter(User.username == SERVICE_USERNAME).first()
+        service = db.query(User).filter(User.username == "service-loopback").first()
     except Exception:
         return False
     if session is None or not session.isActive:

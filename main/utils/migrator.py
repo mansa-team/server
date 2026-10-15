@@ -19,8 +19,6 @@ def runMigrations():
             logger.error(f"alembic.ini not found in {os.getcwd()} or {rootPath}")
             return
 
-        # File-less Config on purpose: migrations/env.py calls fileConfig() when an
-        # ini is attached, which would disable every existing logger in this process.
         config = Config()
         config.set_main_option("script_location", os.path.join(migrationRoot, "migrations"))
         command.upgrade(config, "head")

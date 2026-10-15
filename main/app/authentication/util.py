@@ -24,7 +24,6 @@ MAX_PASSWORD_BYTES = 72
 
 
 def passwordExceedsByteLimit(password: str) -> bool:
-    """bcrypt 5 raises past 72 bytes; every caller must reject before hashing."""
     return len(password.encode("utf-8")) > MAX_PASSWORD_BYTES
 
 
@@ -148,9 +147,6 @@ class ServiceLoopbackBackend(BearerAuthBackend):
         return await super().authenticate(conn)
 
 
-_SERVICE_LOOPBACK_MARKER = "service-loopback"
-
-
 class ServiceLoopbackHeadersMiddleware:
     def __init__(self, app: ASGIApp):
         self.app = app
@@ -161,7 +157,7 @@ class ServiceLoopbackHeadersMiddleware:
             if b"x-service-token" in names and b"authorization" not in names:
                 scope["headers"] = [
                     *scope.get("headers", []),
-                    (b"authorization", f"Bearer {_SERVICE_LOOPBACK_MARKER}".encode()),
+                    (b"authorization", f"Bearer {"service-loopback"}".encode()),
                 ]
         await self.app(scope, receive, send)
 

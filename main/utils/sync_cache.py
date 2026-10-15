@@ -69,7 +69,6 @@ def syncCacheSet(cacheKey: str, value: Any, ttl: str) -> None:
 
 
 def findResponse(args: tuple, kwargs: dict) -> Any:
-    # duck-typed Starlette Response: utils stays free of web-framework imports
     for candidate in (*args, *kwargs.values()):
         if hasattr(candidate, "headers") and hasattr(candidate, "status_code"):
             return candidate
