@@ -1,6 +1,7 @@
 import logging
 from config import SessionLocal
 
+from main.app.authentication.csrf import CsrfProtectMiddleware
 from main.app.authentication.session import SessionManager
 from main.utils.service_manager import getApp
 from main.utils.scheduler import registerJob
@@ -23,7 +24,7 @@ def removeInactiveSessions():
 class UserService:
     @staticmethod
     def initialize(port: int):
-        service = getApp(port)
+        service = getApp(port, middleware=[CsrfProtectMiddleware])
         service.include_router(userRouter)
 
         registerJob(
