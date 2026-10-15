@@ -157,7 +157,7 @@ class ServiceLoopbackHeadersMiddleware:
             if b"x-service-token" in names and b"authorization" not in names:
                 scope["headers"] = [
                     *scope.get("headers", []),
-                    (b"authorization", f"Bearer {"service-loopback"}".encode()),
+                    (b"authorization", f"Bearer {'service-loopback'}".encode()),
                 ]
         await self.app(scope, receive, send)
 
