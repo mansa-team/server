@@ -11,13 +11,14 @@ from main.utils.logging_config import limiter
 from main.utils.request_id import requestIdVar
 
 from main.models.orunmila import OrunmilaSession
-from main.utils.roles import Roles, Permission
+from main.utils.roles import Permission
 
 from main.app.orunmila.agent import Orunmila
 from main.app.orunmila.chat import OrunmilaChatManager
 from main.app.orunmila.stream_bus import streamBus
 from main.app.orunmila.sandbox import SandboxManager, hostPath
 from main.app.authentication.util import extractRawToken
+from main.app.user.user import requirePermission
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ def health():
 @router.get("/sessions")
 def getSessions(
     db: Session = Depends(getSession),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
+    user: dict = Depends(requirePermission(Permission.USE_ORUNMILA)),
     limit: int = Query(20, ge=1, le=100, description="Number of items per page"),
     offset: int = Query(0, ge=0, description="Number of items to skip"),
 ):
@@ -58,7 +59,7 @@ def updateSessionTitle(
     sessionId: str,
     db: Session = Depends(getSession),
     title: str = Body(..., min_length=1, max_length=200, embed=True),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
+    user: dict = Depends(requirePermission(Permission.USE_ORUNMILA)),
 ):
     verifySessionOwnsership(db, sessionId, user["userId"])
 
@@ -72,7 +73,7 @@ def updateSessionTitle(
 def getHistory(
     sessionId: str,
     db: Session = Depends(getSession),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
+    user: dict = Depends(requirePermission(Permission.USE_ORUNMILA)),
 ):
     verifySessionOwnsership(db, sessionId, user["userId"])
     session = (
@@ -91,7 +92,7 @@ def getHistory(
 def deleteSession(
     sessionId: str,
     db: Session = Depends(getSession),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
+    user: dict = Depends(requirePermission(Permission.USE_ORUNMILA)),
 ):
     success = OrunmilaChatManager.deleteSession(db, sessionId, user["userId"])
     if not success:
@@ -107,7 +108,7 @@ async def chat_stream(
     query: str = Form(..., min_length=1, max_length=10000),
     sessionId: str = Form(default=None),
     file: UploadFile | None = File(default=None),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
+    user: dict = Depends(requirePermission(Permission.USE_ORUNMILA)),
 ):
     if not sessionId:
         sessionId = OrunmilaChatManager.createSession(db, user["userId"], query[:30] + "...")
@@ -159,7 +160,7 @@ async def resumeChatStream(
     sessionId: str,
     db: Session = Depends(getSession),
     cursor: int = Query(0, ge=0),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
+    user: dict = Depends(requirePermission(Permission.USE_ORUNMILA)),
 ):
     verifySessionOwnsership(db, sessionId, user["userId"])
     return streamBus.streamResponse(sessionId, cursor=cursor)
@@ -171,7 +172,7 @@ def deleteWorkspaceFile(
     request: Request,
     db: Session = Depends(getSession),
     path: str = Body(..., min_length=1, max_length=1000, embed=True),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
+    user: dict = Depends(requirePermission(Permission.USE_ORUNMILA)),
 ):
     ok = SandboxManager.delete_file(user["userId"], path)
     if not ok:
@@ -183,7 +184,7 @@ def deleteWorkspaceFile(
 def downloadWorkspaceFile(
     db: Session = Depends(getSession),
     path: str = Query(..., min_length=1, max_length=1000),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
+    user: dict = Depends(requirePermission(Permission.USE_ORUNMILA)),
 ):
     try:
         host = hostPath(user["userId"], path)
@@ -199,7 +200,7 @@ def downloadWorkspaceFile(
 def listWorkspaceFiles(
     db: Session = Depends(getSession),
     path: str = Query("/workspace", max_length=1000),
-    user: dict = Depends(Roles.requirePermission(Permission.USE_ORUNMILA)),
+    user: dict = Depends(requirePermission(Permission.USE_ORUNMILA)),
 ):
     try:
         return SandboxManager.list_files(user["userId"], path)

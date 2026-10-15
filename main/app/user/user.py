@@ -8,6 +8,7 @@ from main.models.user import User, getRolesList
 
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import extractTokenPayload
+from main.utils.roles import Permission, Roles
 
 logger = logging.getLogger(__name__)
 
@@ -52,3 +53,12 @@ class UserManager:
         except Exception as e:
             logger.error(f"Error in getCurrentUser: {str(e)}", exc_info=True)
             raise HTTPException(status_code=401, detail="Could not validate credentials")
+
+
+def requirePermission(perm: Permission):
+    async def checker(user: dict = Depends(UserManager.getCurrentUser)):
+        if not Roles.checkAccess(user.get("roles", []), perm):
+            raise HTTPException(status_code=403, detail=f"Missing required permission: {perm.name}")
+        return user
+
+    return checker

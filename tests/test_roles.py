@@ -1,5 +1,6 @@
 import pytest
 from fastapi import HTTPException
+from main.app.user.user import requirePermission
 from main.utils.roles import Permission, Roles
 
 
@@ -82,7 +83,7 @@ class TestRoles:
 
 class TestRequirePermission:
     async def test_raises_403_when_missing(self):
-        checker = Roles.requirePermission(Permission.USE_ORUNMILA)
+        checker = requirePermission(Permission.USE_ORUNMILA)
 
         try:
             await checker({"roles": ["USER"]})
@@ -94,7 +95,7 @@ class TestRequirePermission:
         assert result.status_code == 403
 
     async def test_passes_when_has_permission(self):
-        checker = Roles.requirePermission(Permission.USE_ORUNMILA)
+        checker = requirePermission(Permission.USE_ORUNMILA)
 
         try:
             result = await checker({"roles": ["PREMIUM"]})
