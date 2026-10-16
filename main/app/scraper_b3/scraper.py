@@ -7,6 +7,7 @@ from datetime import datetime
 from io import StringIO
 import re
 import json
+import unicodedata
 
 import pandas as pd
 import numpy as np
@@ -223,6 +224,31 @@ class B3Scraper:
             **{f"COTACAO {year}": float(row["quotation"]) for year, row in df.iterrows()},
             **{f"LUCRO LIQUIDO {year}": row["net_profit"] for year, row in df.iterrows()},
         }
+
+        return pd.DataFrame([newDF]).set_index("TICKER")
+
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=3))
+    def quarterlyBalanceSheet(self, TICKER):
+        companyId = self.requests.get(f"https://investidor10.com.br/api/rest/assets/tickers/{TICKER.lower()}").json()[
+            "ticker"
+        ]["company_id"]
+        rows = self.requests.get(
+            f"https://investidor10.com.br/api/balancos/balancoresultados/chart/{companyId}/100/quarterly"
+        ).json()
+        header = rows[0]
+
+        quarterIndexes = [i for i, label in enumerate(header) if re.match(r"^\d+T\d{4}$", str(label))]
+
+        newDF = {"TICKER": TICKER}
+        for row in rows[1:]:
+            metric = re.sub(r"\s*-\s*\(.*\)$", "", row[0])
+            metric = unicodedata.normalize("NFKD", metric).encode("ascii", "ignore").decode().upper()
+            for i in reversed(quarterIndexes):
+                cell = row[i][-1] if isinstance(row[i], list) else row[i]
+                text = str(cell).replace("%", "").strip()
+                newDF[f"{metric} {header[i]}"] = (
+                    float("nan") if text in ("", "-") else float(text.replace(".", "").replace(",", "."))
+                )
 
         return pd.DataFrame([newDF]).set_index("TICKER")
 
