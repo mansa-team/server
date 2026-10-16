@@ -16,7 +16,7 @@ import pytest
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, Response
 from fastmcp import Client, FastMCP
 
-from main.utils.mcp_tools import buildToolFromRoute, mcpToolDecorator
+from main.utils.mcp import buildToolFromRoute, mcpToolDecorator
 
 
 async def listTools(mcp):
