@@ -169,7 +169,7 @@ class TestCompactCotations:
                     "TK": "PETR4",
                     "NM": "PETROBRAS PN",
                     "TI": "06-15",
-                    "C10": {"h": "D,P", "d": ["06-15|28.5"]},
+                    "COTA": {"h": "D,P", "d": ["06-15|28.5"]},
                 },
             ),
             (
@@ -178,7 +178,7 @@ class TestCompactCotations:
             ),
             (
                 {"TICKER": "PETR4", "COTACAO PADRAO": [{"DATA": "15-06-2026", "PRECO": 1.0}]},
-                {"TK": "PETR4", "NM": "", "TI": "", "C10": {"h": "D,P", "d": ["06-15|1.0"]}},
+                {"TK": "PETR4", "NM": "", "TI": "", "COTA": {"h": "D,P", "d": ["06-15|1.0"]}},
             ),
         ],
     )
@@ -211,7 +211,7 @@ class TestCompactCotations:
     def test_to_col_non_dict_rows(self):
         result = {"data": [{"TICKER": "PETR4", "COTACAO PADRAO": [["a", "b"], ["c", "d"]]}]}
         out = compactCotations(result)
-        assert out["C10"] == {"h": "v", "d": ["a|b", "c|d"]}
+        assert out["COTA"] == {"h": "v", "d": ["a|b", "c|d"]}
 
 
 class TestAbbrevCaches:
@@ -350,7 +350,7 @@ class TestCompressResponse:
             "TK": "PETR4",
             "NM": "PETROBRAS PN",
             "TI": "06-15",
-            "C10": {"h": "D,P", "d": ["06-15|28.5"]},
+            "COTA": {"h": "D,P", "d": ["06-15|28.5"]},
         }
 
     def test_get_live_price_remaps_price_keys(self):
