@@ -4,6 +4,7 @@ import math
 from datetime import datetime
 
 from sqlalchemy.orm import Session
+from main.app.authentication.csrf import CsrfProtectMiddleware
 from main.utils.service_manager import getApp
 
 from main.models.memory import OrunmilaMemory
@@ -65,7 +66,7 @@ def memoryMaintenance(db: Session | None = None):
 class OrunmilaService:
     @staticmethod
     def initialize(port: int):
-        service = getApp(port)
+        service = getApp(port, middleware=[CsrfProtectMiddleware])
         service.include_router(orunmilaRouter)
 
         getEmbeddingModel()

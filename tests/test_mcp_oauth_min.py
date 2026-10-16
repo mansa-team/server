@@ -27,6 +27,7 @@ from main.app.authentication.session import SessionManager
 from main.app.authentication.util import createAccessToken, hashPassword
 from main.app.wallet.entries import EntriesManager, EntryCreate
 from main.app.wallet.wallets import WalletsManager
+from main.controller import wallet_controller as walletController
 from main.models.user import User
 from tests.test_wallet_positions import _live_ok
 
@@ -41,10 +42,10 @@ def _use_test_env(monkeypatch, dbSession):
     monkeypatch.setattr(Config.USER, "MCP_OAUTH_CLIENT_ID", CLIENT_ID)
     monkeypatch.setattr(Config.USER, "MCP_OAUTH_CLIENT_SECRET", CLIENT_SECRET)
     monkeypatch.setattr(solo, "SessionLocal", lambda: dbSession)
-    monkeypatch.setattr("main.controller.wallet_controller.SessionLocal", lambda: dbSession)
+    monkeypatch.setattr(walletController, "SessionLocal", lambda: dbSession)
     monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     provider = solo.SoloOAuthProvider()
-    solo.soloProvider.clear()
+    walletController.walletProvider.clear()
     solo.revokedAccessJtis.clear()
     return provider
 
@@ -223,13 +224,17 @@ def _authorize_request_id(client):
 
 
 def _login_post(client, requestId, username="oauthuser", password="correct-horse-9"):
+    page = client.get(f"/oauth/login?request_id={requestId}")
+    csrf = page.text.split('name="csrf_token" value="', 1)[1].split('"', 1)[0]
+    # The csrf + session cookies are Secure (prod parity): httpx's jar drops
+    # Secure cookies on http, so propagate them explicitly like a browser on
+    # localhost.
+    client.cookies.set("mansa_csrf", csrf)
     response = client.post(
         f"/oauth/login?request_id={requestId}",
-        data={"username": username, "password": password},
+        data={"username": username, "password": password, "csrf_token": csrf},
         follow_redirects=False,
     )
-    # The session cookie is Secure (prod parity): httpx's jar drops Secure
-    # cookies on http, so propagate it explicitly like a browser on localhost.
     raw = response.headers.get("set-cookie", "")
     for part in raw.split(";"):
         if part.strip().startswith("mansa_token="):
@@ -370,6 +375,29 @@ def test_http_no_session_shows_login_form(dbSession, monkeypatch):
         page = httpClient.get(f"/oauth/login?request_id={requestId}")
         assert page.status_code == 200
         assert "<form" in page.text and "password" in page.text
+        assert 'name="csrf_token"' in page.text
+        assert "mansa_csrf=" in page.headers.get("set-cookie", "")
+
+
+def test_http_login_post_requires_csrf(dbSession, monkeypatch):
+    _use_test_env(monkeypatch, dbSession)
+    _seed_user(dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        requestId = _authorize_request_id(httpClient)
+        httpClient.get(f"/oauth/login?request_id={requestId}")
+        missing = httpClient.post(
+            f"/oauth/login?request_id={requestId}",
+            data={"username": "oauthuser", "password": "correct-horse-9"},
+            follow_redirects=False,
+        )
+        assert missing.status_code == 403
+        httpClient.cookies.set("mansa_csrf", "attacker-chosen")
+        mismatch = httpClient.post(
+            f"/oauth/login?request_id={requestId}",
+            data={"username": "oauthuser", "password": "correct-horse-9", "csrf_token": "other"},
+            follow_redirects=False,
+        )
+        assert mismatch.status_code == 403
 
 
 def test_http_full_flow_token_refresh_revoke(dbSession, monkeypatch):
@@ -426,7 +454,7 @@ def test_http_full_flow_token_refresh_revoke(dbSession, monkeypatch):
             data={"token": secondTokens["access_token"], "client_id": CLIENT_ID, "client_secret": CLIENT_SECRET},
         )
         assert revoke.status_code == 200
-        assert solo.soloProvider.codes == {}
+        assert walletController.walletProvider.codes == {}
 
 
 def test_http_pkce_mismatch_and_wrong_secret(dbSession, monkeypatch):

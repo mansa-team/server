@@ -806,9 +806,9 @@ class TestOrunmilaGetHistory:
         mock_session.userId = 1
         mock_session.history = [{"role": "user", "content": "hello"}]
 
-        # The orunmila router uses Roles.requirePermission(Permission.USE_ORUNMILA) as a dep.
+        # The orunmila router uses requirePermission(Permission.USE_ORUNMILA) as a dep.
         # This creates a new callable each time, so dependency_overrides can't match it.
-        # Instead, we patch the module-level Roles to return a fixed checker.
+        # Instead, we patch the module-level requirePermission to return a fixed checker.
         from main.app.user.user import UserManager
         from main.app.authentication.util import extractTokenPayload
 
@@ -830,13 +830,13 @@ class TestOrunmilaGetHistory:
         # Patch the session query chain
         mock_db.query.return_value.filter.return_value.first.return_value = mock_session
 
-        # Patch Roles.requirePermission to return a function that always passes
-        with patch("main.controller.orunmila_controller.Roles") as mock_roles:
+        # Patch requirePermission to return a function that always passes
+        with patch("main.controller.orunmila_controller.requirePermission") as mock_permission:
 
             async def mock_checker(user=None, **kwargs):
                 return user or {"userId": 1, "username": "alice", "roles": ["PREMIUM"]}
 
-            mock_roles.requirePermission.return_value = mock_checker
+            mock_permission.return_value = mock_checker
 
             client = TestClient(app, raise_server_exceptions=False)
             resp = client.get("/orunmila/history/s1")
@@ -866,12 +866,12 @@ class TestOrunmilaGetHistory:
         # Session not found
         mock_db.query.return_value.filter.return_value.first.return_value = None
 
-        with patch("main.controller.orunmila_controller.Roles") as mock_roles:
+        with patch("main.controller.orunmila_controller.requirePermission") as mock_permission:
 
             async def mock_checker(user=None, **kwargs):
                 return user or {"userId": 1, "username": "alice", "roles": ["PREMIUM"]}
 
-            mock_roles.requirePermission.return_value = mock_checker
+            mock_permission.return_value = mock_checker
 
             client = TestClient(app, raise_server_exceptions=False)
             resp = client.get("/orunmila/history/s1")
@@ -949,13 +949,13 @@ class TestOrunmilaChat:
         with (
             patch("main.controller.orunmila_controller.OrunmilaChatManager") as mock_pcm,
             patch("main.controller.orunmila_controller.Orunmila") as mock_prom,
-            patch("main.controller.orunmila_controller.Roles") as mock_roles,
+            patch("main.controller.orunmila_controller.requirePermission") as mock_permission,
         ):
 
             async def mock_checker(user=None, **kwargs):
                 return user or {"userId": 1, "username": "alice", "roles": ["PREMIUM"]}
 
-            mock_roles.requirePermission.return_value = mock_checker
+            mock_permission.return_value = mock_checker
 
             mock_pcm.verifySessionOwnership.return_value = True
             mock_pcm.getHistory.return_value = [{"role": "user", "parts": [{"text": "hi"}]}]
@@ -990,13 +990,13 @@ class TestOrunmilaChat:
 
         with (
             patch("main.controller.orunmila_controller.OrunmilaChatManager") as mock_pcm,
-            patch("main.controller.orunmila_controller.Roles") as mock_roles,
+            patch("main.controller.orunmila_controller.requirePermission") as mock_permission,
         ):
 
             async def mock_checker(user=None, **kwargs):
                 return user or {"userId": 1, "username": "alice", "roles": ["PREMIUM"]}
 
-            mock_roles.requirePermission.return_value = mock_checker
+            mock_permission.return_value = mock_checker
 
             mock_pcm.verifySessionOwnership.return_value = False
 

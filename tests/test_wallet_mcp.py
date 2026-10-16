@@ -31,6 +31,7 @@ from fastmcp import Client
 from fastmcp.client.client import StreamableHttpTransport
 
 from config import getSession
+from main.app.authentication.csrf import CsrfProtectMiddleware
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import createAccessToken
 from main.app.orunmila.agent import Orunmila
@@ -174,7 +175,7 @@ class TestWalletServiceInitialize:
         with mock.patch("main.service.wallet_service.getApp", return_value=app) as mock_get_app:
             WalletService.initialize(39999)
 
-        mock_get_app.assert_called_once_with(39999)
+        mock_get_app.assert_called_once_with(39999, middleware=[CsrfProtectMiddleware])
 
         # Wallet router registered
         assert any(getattr(route, "path", "").startswith("/wallet/") for route in app.routes)

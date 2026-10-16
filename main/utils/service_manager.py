@@ -14,22 +14,21 @@ from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 
 from main.utils.request_id import RequestIDMiddleware
-from main.utils.security_headers import CsrfProtectMiddleware, SecurityHeadersMiddleware
+from main.utils.security_headers import SecurityHeadersMiddleware
 
 logger = logging.getLogger(__name__)
 
 instances: dict[int, FastAPI] = {}
 
 
-def getApp(port: int) -> FastAPI:
+def getApp(port: int, middleware: list | None = None) -> FastAPI:
     if port in instances:
         return instances[port]
 
     app = FastAPI(title=f"Mansa Service {port}")
     app.state.limiter = limiter
-    app.add_middleware(SecurityHeadersMiddleware)
-    app.add_middleware(CsrfProtectMiddleware)
-    app.add_middleware(RequestIDMiddleware)
+    for middlewareClass in [RequestIDMiddleware, SecurityHeadersMiddleware, *(middleware or [])]:
+        app.add_middleware(middlewareClass)
 
     @app.exception_handler(RateLimitExceeded)
     async def rateLimitExceededHandler(request: Request, exc: RateLimitExceeded):

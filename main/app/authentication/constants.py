@@ -7,3 +7,6 @@ SESSION_IDLE_TIMEOUT_HOURS = 24
 COOKIE_NAME = "mansa_token"
 COOKIE_PATH = "/"
 COOKIE_SAMESITE: Literal["lax", "strict", "none"] | None = "lax"
+
+WALLET_SCOPE = "wallet"
+WALLET_RESOURCE_PATH = "/wallet/mcp"

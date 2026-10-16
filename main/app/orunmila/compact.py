@@ -179,7 +179,6 @@ def buildSummary(
 
 
 def historyTokenText(m: dict) -> str:
-    """Text the compaction budget counts: message content, or the serialized tool payload for loop events."""
     if m.get("role") == "loop_event":
         return json.dumps(m.get("metadata", {}), ensure_ascii=False, default=str)
     return m.get("content", "")

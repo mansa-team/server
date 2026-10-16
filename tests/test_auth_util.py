@@ -234,7 +234,6 @@ class TestAuthenticationManager:
         mock_user = MagicMock()
         mock_user.userId = 1
         mock_user.username = "testuser"
-        mock_user.getRolesList.return_value = ["USER"]
         mock_db.query.return_value.filter.return_value.first.return_value = mock_user
 
         result = AuthenticationManager.authenticateGoogleUser(mock_db, "google-123")
@@ -269,7 +268,6 @@ class TestAuthenticationManager:
         mock_user.userId = 1
         mock_user.username = "testuser"
         mock_user.passwordHash = "hashed"
-        mock_user.getRolesList.return_value = ["USER"]
         mock_db.query.return_value.filter.return_value.first.return_value = mock_user
         mock_verify.return_value = True
 

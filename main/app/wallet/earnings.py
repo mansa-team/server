@@ -87,12 +87,7 @@ class EarningsManager:
         tickerRows: list[Any] = db.query(Transaction.ticker).filter(Transaction.walletId == walletId).distinct().all()
         ledgerTickers: list[str] = sorted({str(ledgerTicker) for (ledgerTicker,) in tickerRows})
         for ledgerTicker in ledgerTickers:
-            ledgerEntries = (
-                db.query(Transaction)
-                .filter(Transaction.walletId == walletId, Transaction.ticker == ledgerTicker)
-                .order_by(Transaction.date, Transaction.entryId)
-                .all()
-            )
+            ledgerEntries = EntriesManager.ledgerRows(db, wallet, ledgerTicker)
 
             accruals: dict[tuple, list[tuple]] = {}
             for record in PositionsManager.fetchMarketDividends(ledgerTicker):

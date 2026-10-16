@@ -3,8 +3,10 @@ import logging
 import secrets
 
 from fastapi import HTTPException, Request, Response
+from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 
-from main.app.authentication.constants import COOKIE_PATH, COOKIE_SAMESITE
+from main.app.authentication.constants import COOKIE_NAME, COOKIE_PATH, COOKIE_SAMESITE
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +29,8 @@ def isCsrfExemptEndpoint(request: Request) -> bool:
     return bool(getattr(endpoint, "_csrf_exempt", False))
 
 
-def issueCsrfToken(response: Response, request=None) -> str:
-    token = secrets.token_urlsafe(32)
+def issueCsrfToken(response: Response, request=None, token: str | None = None) -> str:
+    token = token or secrets.token_urlsafe(32)
     response.set_cookie(
         key=CSRF_COOKIE_NAME,
         value=token,
@@ -52,3 +54,12 @@ def validateCsrf(request: Request, sessionCookieName: str) -> None:
     provided = request.headers.get(CSRF_HEADER_NAME, "") or request.headers.get("X-CSRFToken", "")
     if not expected or not provided or not hmac.compare_digest(provided, expected):
         raise HTTPException(status_code=403, detail="CSRF token missing or invalid")
+
+
+class CsrfProtectMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        try:
+            validateCsrf(request, COOKIE_NAME)
+        except HTTPException as exc:
+            return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+        return await call_next(request)

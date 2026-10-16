@@ -9,7 +9,7 @@ from main.app.stocks_api.key import verifyAPIKey
 from main.app.stocks_api.util import categorizeColumns, generateAbbreviations
 from main.app.stocks_api.compress import compressResponse, getNest
 from main.app.stocks_api.cache import stocksCache
-from main.utils.mcp_tools import mcpToolDecorator
+from main.utils.mcp import mcpToolDecorator
 from main.utils.sync_cache import sync_cache
 
 logger = logging.getLogger(__name__)

@@ -33,12 +33,12 @@ def make_client():
         "roles": ["PREMIUM"],
     }
 
-    with patch("main.controller.orunmila_controller.Roles") as mock_roles:
+    with patch("main.controller.orunmila_controller.requirePermission") as mock_permission:
 
         async def mock_checker(user=None, **kwargs):
             return user or {"userId": 1, "username": "alice", "roles": ["PREMIUM"]}
 
-        mock_roles.requirePermission.return_value = mock_checker
+        mock_permission.return_value = mock_checker
 
         return TestClient(app, raise_server_exceptions=False)
 

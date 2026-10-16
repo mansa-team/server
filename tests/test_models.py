@@ -1,8 +1,7 @@
 import pytest
-from main.models.user import User
+from main.models.user import User, getRolesList
 from main.models.stocksapi_key import StocksAPIKey
 from main.models.orunmila import OrunmilaSession
-from main.app.user.user import UserManager
 from datetime import datetime, timedelta
 
 
@@ -20,17 +19,17 @@ class TestUserModel:
     def test_get_roles_list_default(self, dbSession, sampleUserData):
         user = User(**sampleUserData)
         user.roles = None
-        assert UserManager.getRolesList(user) == ["USER"]
+        assert getRolesList(user) == ["USER"]
 
     def test_get_roles_list_single_role(self, dbSession, sampleUserData):
         user = User(**sampleUserData)
         user.roles = "ADMIN"
-        assert UserManager.getRolesList(user) == ["ADMIN"]
+        assert getRolesList(user) == ["ADMIN"]
 
     def test_get_roles_list_multiple_roles(self, dbSession, sampleUserData):
         user = User(**sampleUserData)
         user.roles = "ADMIN,USER,PREMIUM"
-        roles = UserManager.getRolesList(user)
+        roles = getRolesList(user)
         assert "ADMIN" in roles
         assert "USER" in roles
         assert "PREMIUM" in roles

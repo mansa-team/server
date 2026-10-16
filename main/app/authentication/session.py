@@ -1,6 +1,7 @@
 import logging
 import secrets
 from datetime import datetime, timedelta, timezone
+from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 from user_agents import parse as parseUserAgent
 from main.models.user_session import UserSession
@@ -175,3 +176,16 @@ class SessionManager:
 
         SessionManager.updateLastActive(db, sessionId)
         return True
+
+    @staticmethod
+    def purgeInactive(db: Session) -> int:
+        now = datetime.now(timezone.utc)
+        thresholdDate = now - timedelta(days=SESSION_EXPIRY_DAYS)
+
+        activeExpired = and_(UserSession.isActive.is_(True), UserSession.expiresAt.op("<")(now))
+        inactiveStale = and_(UserSession.isActive.is_(False), UserSession.lastActivityAt.op("<")(thresholdDate))
+
+        deleted = db.query(UserSession).filter(or_(activeExpired, inactiveStale)).delete(synchronize_session=False)
+        db.commit()
+        logger.info(f"Removed {deleted} inactive sessions")
+        return deleted
