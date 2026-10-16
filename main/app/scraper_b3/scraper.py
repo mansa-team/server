@@ -269,7 +269,7 @@ class B3Scraper:
         newDF = {"TICKER": TICKER}
 
         for state in [False, True]:
-            url = f"https://investidor10.com.br/api/cotacoes/acao/chart/{TICKER}/3650/{str(state)}/real"
+            url = f"https://investidor10.com.br/api/cotacoes/acao/chart/{TICKER}/100000/{str(state)}/real"
             cotationsList = self.requests.get(url).json().get("real", [])
             cotations = [
                 {"DATA": item["created_at"].split(" ")[0].replace("/", "-"), "PRECO": item["price"]}
@@ -277,7 +277,7 @@ class B3Scraper:
             ]
 
             prefix = "AJUSTADA" if state else "PADRAO"
-            newDF[f"COTACAO 10Y {prefix}"] = cotations
+            newDF[f"COTACAO {prefix}"] = cotations
 
         return pd.DataFrame([newDF]).set_index("TICKER")
 
