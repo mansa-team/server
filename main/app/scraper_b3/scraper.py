@@ -20,7 +20,7 @@ from sqlalchemy import text
 
 from main.app.scraper_b3.xango import calculateInvestingScore
 
-JSON_COLUMNS = ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS")
+JSON_COLUMNS = ("COTACAO PADRAO", "COTACAO AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS")
 
 logger = logging.getLogger(__name__)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
@@ -450,6 +450,7 @@ class B3Scraper:
             self.historicalRevenue,
             self.historicalCotationProfits,
             self.historicalCotationProfits_Oceans14,
+            self.quarterlyBalanceSheet,
             self.historicalCotations,
             self.tagAlong,
             self.stockNews,
@@ -510,7 +511,7 @@ class B3Scraper:
             for name, taskStats in sorted(self.stats.items(), key=lambda item: item[1]["err"], reverse=True)
             if taskStats["err"]
         )
-        msg = f"**Scraper** — {total} tasks, {failures} errors"
+        msg = f"**Scraper** - {total} tasks, {failures} errors"
         if failures:
             msg += f"\n{failedLines}"
         logger.error(msg)
