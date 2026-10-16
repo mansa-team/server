@@ -18,7 +18,7 @@ def _seeded_sqlite(path):
         conn.execute(
             text(
                 "CREATE TABLE b3_stocks (TICKER VARCHAR(20), NOME VARCHAR(255), "
-                "TIME DATETIME, PRECO DOUBLE, `COTACAO 10Y PADRAO` TEXT)"
+                "TIME DATETIME, PRECO DOUBLE, `COTACAO PADRAO` TEXT)"
             )
         )
         conn.execute(
@@ -43,7 +43,7 @@ def test_build_and_read_roundtrip(tmp_path, monkeypatch):
     assert presorted is True
     assert len(df) == 3
     assert df.iloc[0]["TICKER"] == "PETR4"  # presorted: TICKER ASC, TIME DESC
-    assert "COTACAO 10Y PADRAO" in df.columns
+    assert "COTACAO PADRAO" in df.columns
 
 
 def test_empty_table_builds_no_feather(tmp_path, monkeypatch):

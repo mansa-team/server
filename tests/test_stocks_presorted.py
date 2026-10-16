@@ -33,7 +33,7 @@ def makeFrame():
                     "PRECO 2023": preco,
                     "PRECO 2022": preco - 1.0,
                     "P/L": pl,
-                    "COTACAO 10Y PADRAO": f"cot-{ticker}-{date}",
+                    "COTACAO PADRAO": f"cot-{ticker}-{date}",
                 }
             )
     # Deliberately shuffled load order: newest rows are NOT first.
@@ -99,8 +99,8 @@ class TestPresortedQueryBehavior:
         qm = makeManager(makeFrame())
         res = queryCotations(search="AAA,ZZZ", cacheManager=qm)
         assert res["count"] == 2
-        assert res["data"][0]["COTACAO 10Y PADRAO"] == "cot-AAA-2024-06-01"
-        assert res["data"][1]["COTACAO 10Y PADRAO"] == "cot-ZZZ-2024-06-01"
+        assert res["data"][0]["COTACAO PADRAO"] == "cot-AAA-2024-06-01"
+        assert res["data"][1]["COTACAO PADRAO"] == "cot-ZZZ-2024-06-01"
 
 
 class TestPresortedTimingSmoke:
@@ -118,7 +118,7 @@ class TestPresortedTimingSmoke:
                         "TIME": pd.Timestamp(f"2024-{m % 12 + 1:02d}-15"),
                         "PRECO 2023": float(m),
                         "PRECO 2022": float(m - 1),
-                        "COTACAO 10Y PADRAO": payload,
+                        "COTACAO PADRAO": payload,
                     }
                 )
         qm = makeManager(pd.DataFrame(rows))

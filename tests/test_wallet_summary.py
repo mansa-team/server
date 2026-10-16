@@ -108,7 +108,7 @@ def _twr_market_mock(url, params=None, headers=None, timeout=None):
                 while day <= today:
                     rows.append({"DATA": day.strftime("%d-%m-%Y"), "PRECO": 50.0 if day == today else 40.0})
                     day += timedelta(days=1)
-                return {"data": [{"TICKER": "WEGE3", "COTACAO 10Y PADRAO": rows}]}
+                return {"data": [{"TICKER": "WEGE3", "COTACAO PADRAO": rows}]}
             return {"data": []}
 
     return Resp()

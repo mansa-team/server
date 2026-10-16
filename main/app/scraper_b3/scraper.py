@@ -7,6 +7,7 @@ from datetime import datetime
 from io import StringIO
 import re
 import json
+import unicodedata
 
 import pandas as pd
 import numpy as np
@@ -19,7 +20,7 @@ from sqlalchemy import text
 
 from main.app.scraper_b3.xango import calculateInvestingScore
 
-JSON_COLUMNS = ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS")
+JSON_COLUMNS = ("COTACAO PADRAO", "COTACAO AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS")
 
 logger = logging.getLogger(__name__)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
@@ -226,6 +227,31 @@ class B3Scraper:
 
         return pd.DataFrame([newDF]).set_index("TICKER")
 
+    @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=1, max=3))
+    def quarterlyBalanceSheet(self, TICKER):
+        companyId = self.requests.get(f"https://investidor10.com.br/api/rest/assets/tickers/{TICKER.lower()}").json()[
+            "ticker"
+        ]["company_id"]
+        rows = self.requests.get(
+            f"https://investidor10.com.br/api/balancos/balancoresultados/chart/{companyId}/100/quarterly"
+        ).json()
+        header = rows[0]
+
+        quarterIndexes = [i for i, label in enumerate(header) if re.match(r"^\d+T\d{4}$", str(label))]
+
+        newDF = {"TICKER": TICKER}
+        for row in rows[1:]:
+            metric = re.sub(r"\s*-\s*\(.*\)$", "", row[0])
+            metric = unicodedata.normalize("NFKD", metric).encode("ascii", "ignore").decode().upper()
+            for i in reversed(quarterIndexes):
+                cell = row[i][-1] if isinstance(row[i], list) else row[i]
+                text = str(cell).replace("%", "").strip()
+                newDF[f"{metric} {header[i]}"] = (
+                    float("nan") if text in ("", "-") else float(text.replace(".", "").replace(",", "."))
+                )
+
+        return pd.DataFrame([newDF]).set_index("TICKER")
+
     def historicalCotationProfits_Oceans14(self, TICKER):
         url = f"https://www.oceans14.com.br/rendaVariavel/acoes/respostaAjax/gHistoricoCotacaoLucro.aspx?papel={TICKER}"
         df = self.requests.get(url).json()
@@ -243,7 +269,7 @@ class B3Scraper:
         newDF = {"TICKER": TICKER}
 
         for state in [False, True]:
-            url = f"https://investidor10.com.br/api/cotacoes/acao/chart/{TICKER}/3650/{str(state)}/real"
+            url = f"https://investidor10.com.br/api/cotacoes/acao/chart/{TICKER}/100000/{str(state)}/real"
             cotationsList = self.requests.get(url).json().get("real", [])
             cotations = [
                 {"DATA": item["created_at"].split(" ")[0].replace("/", "-"), "PRECO": item["price"]}
@@ -251,7 +277,7 @@ class B3Scraper:
             ]
 
             prefix = "AJUSTADA" if state else "PADRAO"
-            newDF[f"COTACAO 10Y {prefix}"] = cotations
+            newDF[f"COTACAO {prefix}"] = cotations
 
         return pd.DataFrame([newDF]).set_index("TICKER")
 
@@ -424,6 +450,7 @@ class B3Scraper:
             self.historicalRevenue,
             self.historicalCotationProfits,
             self.historicalCotationProfits_Oceans14,
+            self.quarterlyBalanceSheet,
             self.historicalCotations,
             self.tagAlong,
             self.stockNews,
@@ -484,7 +511,7 @@ class B3Scraper:
             for name, taskStats in sorted(self.stats.items(), key=lambda item: item[1]["err"], reverse=True)
             if taskStats["err"]
         )
-        msg = f"**Scraper** — {total} tasks, {failures} errors"
+        msg = f"**Scraper** - {total} tasks, {failures} errors"
         if failures:
             msg += f"\n{failedLines}"
         logger.error(msg)

@@ -8,7 +8,7 @@ from typing import Any
 from fastapi import HTTPException
 import pandas as pd
 
-JSON_COLUMNS = ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS")
+JSON_COLUMNS = ("COTACAO PADRAO", "COTACAO AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS")
 
 PREPOSITIONS = frozenset({"DE", "DO", "DA", "DOS", "DAS", "E", "O", "A", "EM", "COM", "POR", "PARA"})
 URL_HINTS = frozenset({"link", "url", "href"})

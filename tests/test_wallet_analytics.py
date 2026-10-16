@@ -31,7 +31,7 @@ def _mock_get(url, params=None, headers=None, timeout=None):
 
         @staticmethod
         def json():
-            return {"data": [{"TICKER": ticker, "COTACAO 10Y PADRAO": _jan_series(closes)}]}
+            return {"data": [{"TICKER": ticker, "COTACAO PADRAO": _jan_series(closes)}]}
 
     return Resp()
 

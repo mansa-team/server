@@ -69,7 +69,7 @@ curl -H "X-API-Key: YOUR_KEY" "http://localhost:3200/stocks/fundamental?search=V
 ```
 
 - `search`: same tickers-only regex + prefix match as historical. Empty/blank search dedups to one row per ticker (`drop_duplicates TICKER`, query.py:280-281).
-- `fields`: point-in-time names, no year suffix. Cotation columns (`COTACAO 10Y PADRAO/AJUSTADA`) are excluded even if requested (query.py:245-256).
+- `fields`: point-in-time names, no year suffix. Cotation columns (`COTACAO PADRAO/AJUSTADA`) are excluded even if requested (query.py:245-256).
 - `dates`: `YYYY` → last snapshot of the year; `YYYY-MM` → last of the month; `YYYY-MM-DD` → closest single snapshot per ticker (min-abs-diff grouping, query.py:262-275); `START,END` → range filter. Unparseable = `400`.
 - Empty request (no `search`/`fields`/`dates`) → `400`.
 - `TIME` normalized to `YYYY-MM-DD` (query.py:116-117).
@@ -84,7 +84,7 @@ curl -H "X-API-Key: YOUR_KEY" "http://localhost:3200/stocks/cotations?search=ITU
 
 - `search` REQUIRED (min 1 char). Same ticker regex as above.
 - `dates`: optional `YYYY-MM-DD,YYYY-MM-DD` filter on each `{DATA, PRECO}` entry; omitted = full 10-year series.
-- `adjusted=false` → `COTACAO 10Y PADRAO` (nominal B3); `true` → `COTACAO 10Y AJUSTADA` (real returns).
+- `adjusted=false` → `COTACAO PADRAO` (nominal B3); `true` → `COTACAO AJUSTADA` (real returns).
 - Sorted by `TIME` desc, deduped to latest row per ticker.
 - Cache TTL `5m`, `Cache-Control: public, max-age=300` (controller:219,267).
 

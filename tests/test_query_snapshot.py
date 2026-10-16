@@ -20,7 +20,7 @@ def make_df(tickers):
             "TIME": pd.to_datetime(["2024-01-15"] * len(tickers)),
             "P/L": [5.0 + i for i in range(len(tickers))],
             "LUCRO LIQUIDO 2023": [100.0 + 10.0 * i for i in range(len(tickers))],
-            "COTACAO 10Y PADRAO": [10.0 + i for i in range(len(tickers))],
+            "COTACAO PADRAO": [10.0 + i for i in range(len(tickers))],
         }
     )
 
