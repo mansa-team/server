@@ -97,7 +97,7 @@ def listFields(response: Response):
 @router.get("/historical", operation_id="get_historical")
 @sync_cache(
     ttl=STOCKS_TTL,
-    key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{compact}",
+    key="stocks:historical:{search}:{fields}:{dates}:{orderBy}:{limit}:{quarterly}:{compact}",
     headers=STOCKS_CACHE_HEADERS,
 )
 def getHistorical(
@@ -108,13 +108,16 @@ def getHistorical(
     orderBy: str | None = Query(None),
     limit: int | None = Query(None, ge=1, le=1000),
     compact: bool = Query(False),
+    quarterly: str | None = Query(None, max_length=8),
     apiKey: str = Depends(verifyAPIKey),
 ):
     """Get year-based historical financial data for Brazilian B3 stocks.
 
     Returns financial metrics aggregated by year. Each data row contains
     TICKER, NOME, and selected metric columns named as "FIELD_NAME YEAR"
-    (e.g. "LUCRO LIQUIDO 2023", "RECEITA LIQUIDA 2022").
+    (e.g. "LUCRO LIQUIDO 2023", "RECEITA LIQUIDA 2022"). Pass `quarterly`
+    to get per-trimester columns instead, named "FIELD_NAME QT YEAR"
+    (e.g. "LUCRO LIQUIDO 1T 2023").
 
     PARAMETERS:
     - `search` (optional): Comma-separated ticker symbols to filter.
@@ -137,6 +140,10 @@ def getHistorical(
     - `orderBy` (optional): Sort results by a column name (descending).
     - `limit` (optional): Maximum number of stocks to return (1-1000).
     - `compact` (optional): Abbreviated keys and capped lists for chat.
+    - `quarterly` (optional): Trimester token "T1".."T4" (or "1T".."4T",
+      case-insensitive). When set, returns per-quarter columns
+      ("FIELD_NAME QT YEAR") instead of per-year columns; any other value
+      returns HTTP 400. Omit for the default year-based behavior.
 
     WORKFLOW:
     1. Call list_fields first to discover exact historical field names
@@ -156,7 +163,7 @@ def getHistorical(
     - Get PETR4 net income 2022-2024: search="PETR4", fields="LUCRO LIQUIDO", dates="2022,2024"
     - Get all revenue data for VALE3: search="VALE3", fields="RECEITA LIQUIDA"
     - Compare top 10 by EBITDA: fields="EBITDA", orderBy="EBITDA", limit=10"""
-    result = queryHistorical(search, fields, dates, orderBy, limit)
+    result = queryHistorical(search, fields, dates, orderBy, limit, quarterly=quarterly)
     if compact:
         result = compressResponse(
             result,

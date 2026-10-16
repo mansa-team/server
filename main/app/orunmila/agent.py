@@ -114,7 +114,7 @@ You have full access to B3-listed stock data: valuation metrics, financial state
 price history, and live quotes.
 
 - Field names are uppercase with spaces (e.g., "P/L", "LUCRO LIQUIDO", "CAGR LUCROS 10 ANOS").
-- Historical fields are year-based (e.g., LUCRO LIQUIDO, RECEITA LIQUIDA, DIVIDENDOS).
+- Historical fields are year-based (e.g., LUCRO LIQUIDO, RECEITA LIQUIDA, DIVIDENDOS). Pass quarterly=T1..T4 to get per-trimester values instead (columns like "LUCRO LIQUIDO 1T 2024").
 - Fundamental fields are date-based (e.g., P/L, ROE, DY, XANGO INVESTING SCORE, CAGR, margins).
 - ALWAYS discover available field names first before querying — never guess.
 - NEVER mix historical and fundamental fields in a single query — use separate calls.

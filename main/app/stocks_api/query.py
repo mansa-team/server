@@ -1,4 +1,5 @@
 import math
+import re
 import zstandard as zstd
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from fastapi import HTTPException
@@ -182,16 +183,37 @@ def filterBySearchTerms(df: pd.DataFrame, search: str, index: dict | None = None
     return df[exactMask]
 
 
+quarterTokenPattern = re.compile(r"^(?:T([1-4])|([1-4])T)$", re.IGNORECASE)
+
+
+def normalizeQuarterly(quarterly: str | None) -> str | None:
+    if not quarterly or not quarterly.strip():
+        return None
+    matched = quarterTokenPattern.match(quarterly.strip())
+    if not matched:
+        raise HTTPException(status_code=400, detail="Invalid quarterly value. Use T1-T4 (e.g. T1 or 1T).")
+    return f"{matched.group(1) or matched.group(2)}T"
+
+
+def baseMetricName(field: str) -> str:
+    head, _, tail = field.rpartition(" ")
+    if head and quarterTokenPattern.match(tail):
+        return head
+    return field
+
+
 def queryHistorical(
     search: str | None = None,
     fields: str | None = None,
     dates: str | None = None,
     orderBy: str | None = None,
     limit: int | None = None,
+    quarterly: str | None = None,
     cacheManager=None,
 ):
     if not (search or fields or dates):
         raise HTTPException(status_code=400, detail="at least one of search/fields/dates required")
+    quarterToken = normalizeQuarterly(quarterly)
     df, tickerIndex = baseFrame(cacheManager)
 
     try:
@@ -202,9 +224,28 @@ def queryHistorical(
         if not historicalFields:
             raise HTTPException(status_code=400, detail="No historical data available in cache")
 
-        fieldList = validateFields(fields, sorted(historicalFields.keys()), "historical")
+        if quarterToken:
+            baseFields: dict[str, list[str]] = {}
+            for field in historicalFields:
+                baseFields.setdefault(baseMetricName(field), []).append(field)
+            carriesQuarter = [
+                field
+                for field in (fields or "").split(",")
+                if field.strip() and quarterTokenPattern.match(field.strip().rpartition(" ")[2])
+            ]
+            if carriesQuarter:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Do not include a trimester token in fields: {carriesQuarter}.",
+                )
+            fieldList = validateFields(fields, sorted(baseFields.keys()), "historical")
+            availableYears = sorted(
+                set(year for field in fieldList for key in baseFields.get(field, []) for year in historicalFields[key])
+            )
+        else:
+            fieldList = validateFields(fields, sorted(historicalFields.keys()), "historical")
+            availableYears = sorted(set(year for field in fieldList for year in historicalFields[field]))
 
-        availableYears = sorted(set(year for field in fieldList for year in historicalFields[field]))
         if dates:
             startDate, endDate = parseDateRange(dates)
             if startDate is None or endDate is None:
@@ -213,12 +254,22 @@ def queryHistorical(
         else:
             yearStart, yearEnd = availableYears[0], availableYears[-1]
 
-        cols = ["TICKER", "NOME"] + [
-            f"{field} {year}"
-            for field in fieldList
-            for year in range(yearEnd, yearStart - 1, -1)
-            if f"{field} {year}" in availableColumnsSet
-        ]
+        if quarterToken:
+            cols = ["TICKER", "NOME"] + [
+                f"{field} {quarterToken} {year}"
+                for field in fieldList
+                for year in range(yearEnd, yearStart - 1, -1)
+                if f"{field} {quarterToken} {year}" in availableColumnsSet
+            ]
+            if len(cols) <= 2:
+                raise HTTPException(status_code=400, detail="No quarterly data available in cache")
+        else:
+            cols = ["TICKER", "NOME"] + [
+                f"{field} {year}"
+                for field in fieldList
+                for year in range(yearEnd, yearStart - 1, -1)
+                if f"{field} {year}" in availableColumnsSet
+            ]
 
         return finalize(
             df,
