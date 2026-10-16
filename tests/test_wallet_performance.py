@@ -75,7 +75,7 @@ def test_performance_defaults_to_lifetime_window(dbSession, monkeypatch):
             def json():
                 rows = [{"DATA": f"{d:02d}-01-2026", "PRECO": 10.0} for d in range(1, 10)]
                 rows += [{"DATA": "10-01-2026", "PRECO": 10.0}, {"DATA": "11-01-2026", "PRECO": 11.0}]
-                return {"data": [{"TICKER": "PETR4", "COTACAO 10Y PADRAO": rows}]}
+                return {"data": [{"TICKER": "PETR4", "COTACAO PADRAO": rows}]}
 
         return Resp()
 

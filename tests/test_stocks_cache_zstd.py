@@ -84,7 +84,7 @@ def test_get_cached_stocks_does_not_build_date_index(monkeypatch, tmp_path):
         {
             "TICKER": ["PETR4"],
             "NOME": ["PETROBRAS PN"],
-            "COTACAO 10Y PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 1.0}]'],
+            "COTACAO PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 1.0}]'],
         }
     )
     monkeypatch.setattr(build_mod.stocksEngine, "connect", lambda: FakeConn([df]))
@@ -105,7 +105,7 @@ def test_get_cached_stocks_skips_build_when_another_process_holds_lock(monkeypat
         {
             "TICKER": ["PETR4"],
             "NOME": ["PETROBRAS PN"],
-            "COTACAO 10Y PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 1.0}]'],
+            "COTACAO PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 1.0}]'],
         }
     )
     monkeypatch.setattr(build_mod.stocksEngine, "connect", lambda: FakeConn([df]))
@@ -133,7 +133,7 @@ def makeDf():
             "TICKER": ["PETR4", "VALE3"],
             "NOME": ["PETROBRAS PN", "VALE ON"],
             "TIME": ["29-07-2026", "29-07-2026"],
-            "COTACAO 10Y PADRAO": [
+            "COTACAO PADRAO": [
                 '[{"DATA": "01-01-2024", "PRECO": 10.0}, {"DATA": "15-06-2026", "PRECO": 11.0}]',
                 '[{"DATA": "01-01-2024", "PRECO": 20.0}, {"DATA": "10-07-2026", "PRECO": 22.0}]',
             ],
@@ -153,8 +153,8 @@ def test_get_cached_stocks_compresses_jsoncolumns(monkeypatch, tmp_path):
     m = StocksCacheManager(None, threading.Lock())
     m.getCachedStocks()
     df = m.STOCKS_CACHE
-    assert isinstance(df["COTACAO 10Y PADRAO"].iloc[0], bytes)
-    assert zstd.ZstdDecompressor().decompress(df["COTACAO 10Y PADRAO"].iloc[0]).decode("utf-8").startswith("[{")
+    assert isinstance(df["COTACAO PADRAO"].iloc[0], bytes)
+    assert zstd.ZstdDecompressor().decompress(df["COTACAO PADRAO"].iloc[0]).decode("utf-8").startswith("[{")
     assert isinstance(df["NOTICIAS"].iloc[0], bytes)
     assert pd.isna(df["NOTICIAS"].iloc[1])  # ArrowDtype null cells are pd.NA
 
@@ -168,8 +168,8 @@ def test_get_cached_stocks_keeps_raw_nested_sample(monkeypatch, tmp_path):
     build_mod.buildFeatherCache()
     nested = pd.read_feather(cache_mod.CACHE_NESTED_PATH)
     assert nested is not None
-    assert isinstance(nested["COTACAO 10Y PADRAO"].iloc[0], str)
-    assert nested["COTACAO 10Y PADRAO"].iloc[0].startswith("[{")
+    assert isinstance(nested["COTACAO PADRAO"].iloc[0], str)
+    assert nested["COTACAO PADRAO"].iloc[0].startswith("[{")
 
 
 def test_nested_sample_skips_all_null_leading_rows(monkeypatch, tmp_path):
@@ -178,7 +178,7 @@ def test_nested_sample_skips_all_null_leading_rows(monkeypatch, tmp_path):
             "TICKER": ["AAA1", "BBB2"],
             "NOME": ["x", "y"],
             "TIME": [None, None],
-            "COTACAO 10Y PADRAO": [None, None],
+            "COTACAO PADRAO": [None, None],
             "NOTICIAS": [None, None],
         }
     )
@@ -190,8 +190,8 @@ def test_nested_sample_skips_all_null_leading_rows(monkeypatch, tmp_path):
     build_mod.buildFeatherCache()
     nested = pd.read_feather(cache_mod.CACHE_NESTED_PATH)
     assert nested is not None
-    assert isinstance(nested["COTACAO 10Y PADRAO"].iloc[0], str)
-    assert nested["COTACAO 10Y PADRAO"].iloc[0].startswith("[{")
+    assert isinstance(nested["COTACAO PADRAO"].iloc[0], str)
+    assert nested["COTACAO PADRAO"].iloc[0].startswith("[{")
 
 
 def test_nested_sample_captures_sparsecolumns_across_chunks(monkeypatch, tmp_path):
@@ -199,7 +199,7 @@ def test_nested_sample_captures_sparsecolumns_across_chunks(monkeypatch, tmp_pat
         {
             "TICKER": ["PETR4", "VALE3"],
             "NOME": ["PETROBRAS PN", "VALE ON"],
-            "COTACAO 10Y PADRAO": [
+            "COTACAO PADRAO": [
                 '[{"DATA": "01-01-2024", "PRECO": 10.0}]',
                 '[{"DATA": "01-01-2024", "PRECO": 20.0}]',
             ],
@@ -210,7 +210,7 @@ def test_nested_sample_captures_sparsecolumns_across_chunks(monkeypatch, tmp_pat
         {
             "TICKER": ["WEGE3"],
             "NOME": ["WEG ON"],
-            "COTACAO 10Y PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 30.0}]'],
+            "COTACAO PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 30.0}]'],
             "NOTICIAS": ['[{"TITULO": "noticia", "LINK": "http://x"}]'],
         }
     )
@@ -222,7 +222,7 @@ def test_nested_sample_captures_sparsecolumns_across_chunks(monkeypatch, tmp_pat
     build_mod.buildFeatherCache()
     nested = pd.read_feather(cache_mod.CACHE_NESTED_PATH)
     assert nested is not None
-    assert isinstance(nested["COTACAO 10Y PADRAO"].iloc[0], str)
+    assert isinstance(nested["COTACAO PADRAO"].iloc[0], str)
     assert isinstance(nested["NOTICIAS"].iloc[0], str)
     assert nested["NOTICIAS"].iloc[0].startswith("[{")
 
@@ -290,22 +290,22 @@ def test_deserialize_jsoncolumns_decompresses_bytes():
     df = pd.DataFrame(
         {
             "TICKER": ["PETR4"],
-            "COTACAO 10Y PADRAO": [zstd.ZstdCompressor(level=3).compress(b'[{"DATA": "01-01-2024", "PRECO": 10.0}]')],
+            "COTACAO PADRAO": [zstd.ZstdCompressor(level=3).compress(b'[{"DATA": "01-01-2024", "PRECO": 10.0}]')],
         }
     )
     out = deserializeJsonColumns(df)
-    assert out["COTACAO 10Y PADRAO"].iloc[0] == [{"DATA": "01-01-2024", "PRECO": 10.0}]
+    assert out["COTACAO PADRAO"].iloc[0] == [{"DATA": "01-01-2024", "PRECO": 10.0}]
 
 
 def test_deserialize_jsoncolumns_handles_arrowdtype_binary():
     payload = zstd.ZstdCompressor(level=3).compress(b'[{"DATA": "01-01-2024", "PRECO": 10.5}]')
     df = pd.DataFrame(
-        {"TICKER": ["PETR4"], "COTACAO 10Y PADRAO": pd.array([payload], dtype=pd.ArrowDtype(pa.binary()))}
+        {"TICKER": ["PETR4"], "COTACAO PADRAO": pd.array([payload], dtype=pd.ArrowDtype(pa.binary()))}
     )
 
     out = deserializeJsonColumns(df)
 
-    assert out["COTACAO 10Y PADRAO"].iloc[0] == [{"DATA": "01-01-2024", "PRECO": 10.5}]
+    assert out["COTACAO PADRAO"].iloc[0] == [{"DATA": "01-01-2024", "PRECO": 10.5}]
 
 
 def test_get_nest_keeps_compressed_column_subfields(monkeypatch, tmp_path):
@@ -313,7 +313,7 @@ def test_get_nest_keeps_compressed_column_subfields(monkeypatch, tmp_path):
         {
             "TICKER": ["PETR4"],
             "NOME": ["PETROBRAS PN"],
-            "COTACAO 10Y PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 1.0}]'],
+            "COTACAO PADRAO": ['[{"DATA": "01-01-2024", "PRECO": 1.0}]'],
         }
     )
     monkeypatch.setattr(build_mod.stocksEngine, "connect", lambda: FakeConn([df]))
@@ -327,8 +327,8 @@ def test_get_nest_keeps_compressed_column_subfields(monkeypatch, tmp_path):
 
     rebuildAbbrevs()
     nest = getNest(m.STOCKS_CACHE, m.nestedSample)
-    assert "COTACAO 10Y PADRAO" in nest
-    assert set(nest["COTACAO 10Y PADRAO"]["subfields"]) >= {"DATA", "PRECO"}
+    assert "COTACAO PADRAO" in nest
+    assert set(nest["COTACAO PADRAO"]["subfields"]) >= {"DATA", "PRECO"}
 
 
 def test_build_requests_presorted_rows(monkeypatch, tmp_path):

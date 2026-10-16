@@ -180,7 +180,7 @@ class PositionsManager:
             closeRows: list = []
             for item in payload if isinstance(payload, list) else []:
                 if isinstance(item, dict):
-                    nested = item.get("COTACAO 10Y PADRAO", item.get("COTACAO 10Y AJUSTADA"))
+                    nested = item.get("COTACAO PADRAO", item.get("COTACAO AJUSTADA"))
                     if isinstance(nested, list):
                         closeRows.extend(nested)
                         continue

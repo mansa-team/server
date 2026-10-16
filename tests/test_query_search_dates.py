@@ -16,7 +16,7 @@ def make_multi_df():
             "NOME": ["Petrobras PN"] * 3 + ["Vale ON"],
             "TIME": pd.to_datetime(["2024-01-15", "2024-02-15", "2024-03-15", "2024-01-15"]),
             "P/L": [5.0, 5.1, 5.2, 6.0],
-            "COTACAO 10Y PADRAO": [10.0, 10.1, 10.2, 11.0],
+            "COTACAO PADRAO": [10.0, 10.1, 10.2, 11.0],
         }
     )
 

@@ -292,9 +292,9 @@ class TestDeserializeJsonColumns:
     def test_deserialize_json_dict_in_special_col(self):
         mgr = self.make_manager()
         json_str = json.dumps({"key": "value", "nested": {"a": 1}})
-        df = pd.DataFrame({"COTACAO 10Y PADRAO": [json_str], "TICKER": ["A"]})
+        df = pd.DataFrame({"COTACAO PADRAO": [json_str], "TICKER": ["A"]})
         result = queryModule.deserializeJsonColumns(df)
-        assert result["COTACAO 10Y PADRAO"].iloc[0] == {"key": "value", "nested": {"a": 1}}
+        assert result["COTACAO PADRAO"].iloc[0] == {"key": "value", "nested": {"a": 1}}
 
     def test_deserialize_json_list_in_special_col(self):
         mgr = self.make_manager()
@@ -318,9 +318,9 @@ class TestDeserializeJsonColumns:
 
     def test_deserialize_nested_nan_in_dict(self):
         mgr = self.make_manager()
-        df = pd.DataFrame({"COTACAO 10Y AJUSTADA": [[{"outer": {"inner": float("nan")}}][0]], "TICKER": ["A"]})
+        df = pd.DataFrame({"COTACAO AJUSTADA": [[{"outer": {"inner": float("nan")}}][0]], "TICKER": ["A"]})
         result = queryModule.deserializeJsonColumns(df)
-        assert result["COTACAO 10Y AJUSTADA"].iloc[0]["outer"]["inner"] is None
+        assert result["COTACAO AJUSTADA"].iloc[0]["outer"]["inner"] is None
 
     def test_deserialize_invalid_json_passes_through(self):
         mgr = self.make_manager()
@@ -390,16 +390,16 @@ class TestDeserializeJsonColumns:
         json_str = json.dumps([{"DATA": "01-12-2016", "PRECO": 14.92}])
         df = pd.DataFrame(
             {
-                "COTACAO 10Y PADRAO": [json_str, None],
+                "COTACAO PADRAO": [json_str, None],
                 "TICKER": ["AALR3", "VALE3"],
             }
         )
         result = queryModule.deserializeJsonColumns(df)
         # Row with JSON string should be parsed into a list of dicts
-        assert isinstance(result["COTACAO 10Y PADRAO"].iloc[0], list)
-        assert result["COTACAO 10Y PADRAO"].iloc[0][0]["DATA"] == "01-12-2016"
+        assert isinstance(result["COTACAO PADRAO"].iloc[0], list)
+        assert result["COTACAO PADRAO"].iloc[0][0]["DATA"] == "01-12-2016"
         # Row with None should stay None
-        assert result["COTACAO 10Y PADRAO"].iloc[1] is None
+        assert result["COTACAO PADRAO"].iloc[1] is None
 
     def test_deserialize_multiple_special_cols_with_none(self):
         """All four SPECIAL_COLS should parse correctly when mixed with None."""
@@ -408,8 +408,8 @@ class TestDeserializeJsonColumns:
         json_noticias = json.dumps({"titulo": "test", "data": "2026-01-01"})
         df = pd.DataFrame(
             {
-                "COTACAO 10Y PADRAO": [json_cotacao, None],
-                "COTACAO 10Y AJUSTADA": [None, json_cotacao],
+                "COTACAO PADRAO": [json_cotacao, None],
+                "COTACAO AJUSTADA": [None, json_cotacao],
                 "NOTICIAS": [json_noticias, None],
                 "HISTORICO DIVIDENDOS": [None, json_cotacao],
                 "TICKER": ["AALR3", "VALE3"],
@@ -417,12 +417,12 @@ class TestDeserializeJsonColumns:
         )
         result = queryModule.deserializeJsonColumns(df)
         # Each SPECIAL_COL with data should be parsed
-        assert isinstance(result["COTACAO 10Y PADRAO"].iloc[0], list)
-        assert isinstance(result["COTACAO 10Y AJUSTADA"].iloc[1], list)
+        assert isinstance(result["COTACAO PADRAO"].iloc[0], list)
+        assert isinstance(result["COTACAO AJUSTADA"].iloc[1], list)
         assert isinstance(result["NOTICIAS"].iloc[0], dict)
         assert isinstance(result["HISTORICO DIVIDENDOS"].iloc[1], list)
         # None values should remain None
-        assert result["COTACAO 10Y PADRAO"].iloc[1] is None
+        assert result["COTACAO PADRAO"].iloc[1] is None
         assert result["NOTICIAS"].iloc[1] is None
 
 
@@ -821,7 +821,7 @@ class TestQueryFundamental:
         assert result["count"] == 2
 
     def test_fundamental_excludes_cotacao_10y(self):
-        """COTACAO 10Y PADRAO and COTACAO 10Y AJUSTADA belong to /cotations, not /fundamental."""
+        """COTACAO PADRAO and COTACAO AJUSTADA belong to /cotations, not /fundamental."""
         df = pd.DataFrame(
             {
                 "TICKER": ["A", "B"],
@@ -829,11 +829,11 @@ class TestQueryFundamental:
                 "TIME": pd.to_datetime(["2024-01-15", "2024-06-15"]),
                 "PRECO": [10.0, 15.0],
                 "P/L": [5.0, 8.0],
-                "COTACAO 10Y PADRAO": [
+                "COTACAO PADRAO": [
                     '[{"DATA": "01-12-2016", "PRECO": 14.92}]',
                     '[{"DATA": "01-12-2016", "PRECO": 12.5}]',
                 ],
-                "COTACAO 10Y AJUSTADA": [
+                "COTACAO AJUSTADA": [
                     '[{"DATA": "01-12-2016", "PRECO": 12.5}]',
                     '[{"DATA": "01-12-2016", "PRECO": 10.0}]',
                 ],
@@ -841,11 +841,11 @@ class TestQueryFundamental:
         )
         mgr = self.make_manager(cache_df=df)
         result = queryModule.queryFundamental(cacheManager=mgr, search="TEST0")
-        assert "COTACAO 10Y PADRAO" not in result["fields"]
-        assert "COTACAO 10Y AJUSTADA" not in result["fields"]
+        assert "COTACAO PADRAO" not in result["fields"]
+        assert "COTACAO AJUSTADA" not in result["fields"]
         for d in result["data"]:
-            assert "COTACAO 10Y PADRAO" not in d
-            assert "COTACAO 10Y AJUSTADA" not in d
+            assert "COTACAO PADRAO" not in d
+            assert "COTACAO AJUSTADA" not in d
 
     def test_fundamental_does_not_mutate_cache_time_dtype(self):
         """Regression: queryFundamental must not mutate the shared cache TIME column.
@@ -885,7 +885,7 @@ class TestQueryFundamental:
 # Tests for query.py â€“ queryCotations
 # Architectural contract:
 #   1. For each TICKER, return only the MOST RECENT row (TIME desc, keep first).
-#   2. The COTACAO 10Y column is a JSON list of {DATA: "DD-MM-YYYY", PRECO: float}.
+#   2. The COTACAO column is a JSON list of {DATA: "DD-MM-YYYY", PRECO: float}.
 #   3. The `dates` param filters the INNER JSON entries (DATA field),
 #      NOT the outer stock rows. The outer TIME is for picking the latest row.
 # ===========================================================================
@@ -910,9 +910,9 @@ class TestQueryCotations:
             "PRECO": [10.0, 11.0, 20.0, 21.0],
         }
         if with_padrao:
-            data["COTACAO 10Y PADRAO"] = [json.dumps(entries)] * 4
+            data["COTACAO PADRAO"] = [json.dumps(entries)] * 4
         if with_ajustada:
-            data["COTACAO 10Y AJUSTADA"] = [json.dumps(entries)] * 4
+            data["COTACAO AJUSTADA"] = [json.dumps(entries)] * 4
         return pd.DataFrame(data)
 
     # --- 503 cache-not-init ---
@@ -929,9 +929,9 @@ class TestQueryCotations:
         mgr = self.make_manager(cache_df=df)
         result = queryModule.queryCotations(cacheManager=mgr, adjusted=False)
         assert result["type"] == "cotations"
-        assert result["fields"] == ["COTACAO 10Y PADRAO"]
-        assert "COTACAO 10Y PADRAO" in result["data"][0]
-        assert "COTACAO 10Y AJUSTADA" not in result["data"][0]
+        assert result["fields"] == ["COTACAO PADRAO"]
+        assert "COTACAO PADRAO" in result["data"][0]
+        assert "COTACAO AJUSTADA" not in result["data"][0]
 
     # --- adjusted=True -> AJUSTADA ---
     def test_cotations_adjusted_true_returns_ajustada(self):
@@ -939,9 +939,9 @@ class TestQueryCotations:
         mgr = self.make_manager(cache_df=df)
         result = queryModule.queryCotations(cacheManager=mgr, adjusted=True)
         assert result["type"] == "cotations"
-        assert result["fields"] == ["COTACAO 10Y AJUSTADA"]
-        assert "COTACAO 10Y AJUSTADA" in result["data"][0]
-        assert "COTACAO 10Y PADRAO" not in result["data"][0]
+        assert result["fields"] == ["COTACAO AJUSTADA"]
+        assert "COTACAO AJUSTADA" in result["data"][0]
+        assert "COTACAO PADRAO" not in result["data"][0]
 
     # --- ARCHITECTURAL FIX: most recent row per TICKER (.iloc[0] semantics) ---
     def test_cotations_returns_most_recent_per_ticker(self):
@@ -963,7 +963,7 @@ class TestQueryCotations:
         result = queryModule.queryCotations(cacheManager=mgr, adjusted=False, dates="2016-12-02,2016-12-02")
         assert result["count"] == 2
         for d in result["data"]:
-            cotation = d["COTACAO 10Y PADRAO"]
+            cotation = d["COTACAO PADRAO"]
             assert isinstance(cotation, list)
             assert len(cotation) == 1
             assert cotation[0]["DATA"] == "02-12-2016"
@@ -974,14 +974,14 @@ class TestQueryCotations:
         result = queryModule.queryCotations(cacheManager=mgr, adjusted=False, dates="2016-12-01,2016-12-31")
         assert result["count"] == 2
         for d in result["data"]:
-            assert len(d["COTACAO 10Y PADRAO"]) == 2
+            assert len(d["COTACAO PADRAO"]) == 2
 
     def test_cotations_no_dates_keeps_all_inner_entries(self):
         df = self.make_cotations_df()
         mgr = self.make_manager(cache_df=df)
         result = queryModule.queryCotations(cacheManager=mgr, adjusted=False)
         for d in result["data"]:
-            assert len(d["COTACAO 10Y PADRAO"]) == 2
+            assert len(d["COTACAO PADRAO"]) == 2
 
     # --- search filter ---
     def test_cotations_with_search_filter(self):
@@ -1007,7 +1007,7 @@ class TestQueryCotations:
         result = queryModule.queryCotations(cacheManager=mgr, adjusted=False)
         assert result["count"] == 0
         assert result["data"] == []
-        assert result["fields"] == ["COTACAO 10Y PADRAO"]
+        assert result["fields"] == ["COTACAO PADRAO"]
         assert result["type"] == "cotations"
 
     # --- dates param stored in response ---
@@ -1063,12 +1063,12 @@ class TestQueryCotations:
             assert resp.status_code == 200
             body = resp.json()
             assert body["type"] == "cotations"
-            assert body["fields"] == ["COTACAO 10Y PADRAO"]
+            assert body["fields"] == ["COTACAO PADRAO"]
             assert body["count"] == 1
             assert "Cache-Control" in resp.headers
             for d in body["data"]:
-                assert len(d["COTACAO 10Y PADRAO"]) == 1
-                assert d["COTACAO 10Y PADRAO"][0]["DATA"] == "02-12-2016"
+                assert len(d["COTACAO PADRAO"]) == 1
+                assert d["COTACAO PADRAO"][0]["DATA"] == "02-12-2016"
         finally:
             stocksCache.STOCKS_CACHE = original_cache
             stocksCache.tickerIndex = original_index

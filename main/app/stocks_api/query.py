@@ -257,13 +257,13 @@ def queryFundamental(
         ignored, fundamentalCols = categorizeColumns(availableColumns)
 
         fundamentalColsFiltered = [
-            column for column in fundamentalCols if column not in ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA")
+            column for column in fundamentalCols if column not in ("COTACAO PADRAO", "COTACAO AJUSTADA")
         ]
         fieldList = (
             [
                 field
                 for field in validateFields(fields, fundamentalCols, "fundamental")
-                if field not in ("COTACAO 10Y PADRAO", "COTACAO 10Y AJUSTADA")
+                if field not in ("COTACAO PADRAO", "COTACAO AJUSTADA")
             ]
             if fields
             else fundamentalColsFiltered
@@ -320,7 +320,7 @@ def queryCotations(
     df, tickerIndex = baseFrame(cacheManager)
 
     try:
-        targetCol = "COTACAO 10Y AJUSTADA" if adjusted else "COTACAO 10Y PADRAO"
+        targetCol = "COTACAO AJUSTADA" if adjusted else "COTACAO PADRAO"
         responseFields = [targetCol]
 
         if targetCol not in df.columns:

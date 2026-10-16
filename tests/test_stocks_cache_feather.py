@@ -15,12 +15,12 @@ def test_optimize_dtypes_skips_pyarrow_for_compress_cols():
     df = pd.DataFrame(
         {
             "TICKER": ["PETR4", "VALE3"],
-            "COTACAO 10Y PADRAO": ['{"DATA": "x"}', '{"DATA": "y"}'],
+            "COTACAO PADRAO": ['{"DATA": "x"}', '{"DATA": "y"}'],
             "NOME": ["PETROBRAS", "VALE"],
         }
     )
     result = optimizeDtypes(df)
-    assert str(result["COTACAO 10Y PADRAO"].dtype) in ("object", "str")
+    assert str(result["COTACAO PADRAO"].dtype) in ("object", "str")
     assert str(result["NOME"].dtype) == "category"
 
 

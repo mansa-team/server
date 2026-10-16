@@ -294,7 +294,7 @@ def getCotations(
         "TICKER": "PETR4",
         "NOME": "PETROBRAS PN",
         "TIME": "2024-01-15",
-        "COTACAO 10Y PADRAO": [
+        "COTACAO PADRAO": [
           {"DATA": "15-01-2024", "PRECO": 28.50},
           {"DATA": "12-01-2024", "PRECO": 28.30},
           ...

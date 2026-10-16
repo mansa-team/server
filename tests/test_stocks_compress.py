@@ -148,7 +148,7 @@ class TestCompactCotations:
             {"data": "x", "count": 1},
             {"count": 1},
             {"data": [{"TICKER": "PETR4"}]},
-            {"data": [{"TICKER": "PETR4", "COTACAO 10Y PADRAO": []}]},
+            {"data": [{"TICKER": "PETR4", "COTACAO PADRAO": []}]},
             {"data": [1, 2]},
         ],
     )
@@ -163,7 +163,7 @@ class TestCompactCotations:
                     "TICKER": "PETR4",
                     "NOME": "PETROBRAS PN",
                     "TIME": "2026-06-15",
-                    "COTACAO 10Y PADRAO": [{"DATA": "15-06-2026", "PRECO": 28.5}],
+                    "COTACAO PADRAO": [{"DATA": "15-06-2026", "PRECO": 28.5}],
                 },
                 {
                     "TK": "PETR4",
@@ -177,7 +177,7 @@ class TestCompactCotations:
                 {"TK": "PETR4", "NM": "", "TI": "", "COTA": {"h": "D,P", "d": ["06-15|1.0"]}},
             ),
             (
-                {"TICKER": "PETR4", "COTACAO 10Y PADRAO": [{"DATA": "15-06-2026", "PRECO": 1.0}]},
+                {"TICKER": "PETR4", "COTACAO PADRAO": [{"DATA": "15-06-2026", "PRECO": 1.0}]},
                 {"TK": "PETR4", "NM": "", "TI": "", "C10": {"h": "D,P", "d": ["06-15|1.0"]}},
             ),
         ],
@@ -190,18 +190,18 @@ class TestCompactCotations:
     def test_multi_entry(self):
         result = {
             "data": [
-                {"TICKER": "PETR4", "COTACAO 10Y PADRAO": [{"DATA": "15-06-2026", "PRECO": 1.0}]},
-                {"TICKER": "VALE3", "COTACAO 10Y PADRAO": [{"DATA": "16-06-2026", "PRECO": 2.0}]},
+                {"TICKER": "PETR4", "COTACAO PADRAO": [{"DATA": "15-06-2026", "PRECO": 1.0}]},
+                {"TICKER": "VALE3", "COTACAO PADRAO": [{"DATA": "16-06-2026", "PRECO": 2.0}]},
             ]
         }
         out = compactCotations(result)
         assert out["data"][0] == {
             "TICKER": "PETR4",
-            "COTACAO 10Y PADRAO": {"h": "D,P", "d": ["06-15|1.0"]},
+            "COTACAO PADRAO": {"h": "D,P", "d": ["06-15|1.0"]},
         }
         assert out["data"][1] == {
             "TICKER": "VALE3",
-            "COTACAO 10Y PADRAO": {"h": "D,P", "d": ["06-16|2.0"]},
+            "COTACAO PADRAO": {"h": "D,P", "d": ["06-16|2.0"]},
         }
 
     def test_multi_entry_non_dict_entries_unchanged(self):
@@ -209,7 +209,7 @@ class TestCompactCotations:
         assert compactCotations(result) == result
 
     def test_to_col_non_dict_rows(self):
-        result = {"data": [{"TICKER": "PETR4", "COTACAO 10Y PADRAO": [["a", "b"], ["c", "d"]]}]}
+        result = {"data": [{"TICKER": "PETR4", "COTACAO PADRAO": [["a", "b"], ["c", "d"]]}]}
         out = compactCotations(result)
         assert out["C10"] == {"h": "v", "d": ["a|b", "c|d"]}
 
@@ -341,7 +341,7 @@ class TestCompressResponse:
                     "TICKER": "PETR4",
                     "NOME": "PETROBRAS PN",
                     "TIME": "2026-06-15",
-                    "COTACAO 10Y PADRAO": [{"DATA": "15-06-2026", "PRECO": 28.5}],
+                    "COTACAO PADRAO": [{"DATA": "15-06-2026", "PRECO": 28.5}],
                 }
             ],
         }
