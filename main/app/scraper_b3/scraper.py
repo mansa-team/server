@@ -22,6 +22,11 @@ from main.app.scraper_b3.xango import calculateInvestingScore
 
 JSON_COLUMNS = ("COTACAO PADRAO", "COTACAO AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS")
 
+# cloudscraper's bundled user agents are 2015-2017 browsers, which statusinvest's Cloudflare blocks; keep current.
+BROWSER_USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+)
+
 logger = logging.getLogger(__name__)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
@@ -46,7 +51,7 @@ class B3Scraper:
         self.scraperDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.stats = {}
 
-        self.requests = cloudscraper.create_scraper(browser="chrome")
+        self.requests = cloudscraper.create_scraper(browser={"custom": BROWSER_USER_AGENT})
         adapter = cloudscraper.requests.adapters.HTTPAdapter(pool_connections=100, pool_maxsize=100, max_retries=3)
         self.requests.mount("http://", adapter)
         self.requests.mount("https://", adapter)
