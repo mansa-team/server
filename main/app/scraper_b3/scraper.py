@@ -49,6 +49,28 @@ def attachQuarterlyPayload(df):
     return payloadDf
 
 
+def ensureLongTextColumns(conn, df):
+    for col in JSON_COLUMNS:
+        if col not in df.columns:
+            continue
+
+        dataType = conn.execute(
+            text(
+                """
+                SELECT DATA_TYPE
+                FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND TABLE_NAME = 'b3_stocks'
+                  AND COLUMN_NAME = :col
+                """
+            ),
+            {"col": col},
+        ).scalar()
+
+        if str(dataType).lower() != "longtext":
+            conn.execute(text(f"ALTER TABLE b3_stocks MODIFY COLUMN `{col}` LONGTEXT NULL"))
+
+
 # cloudscraper's bundled user agents are 2015-2017 browsers, which statusinvest's Cloudflare blocks; keep current.
 BROWSER_USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
@@ -609,9 +631,7 @@ class B3Scraper:
                         )
                         conn.execute(text(f"ALTER TABLE b3_stocks ADD COLUMN `{col}` {dtype} NULL"))
 
-                for col in JSON_COLUMNS:
-                    if col in df.columns:
-                        conn.execute(text(f"ALTER TABLE b3_stocks MODIFY COLUMN `{col}` LONGTEXT NULL"))
+                ensureLongTextColumns(conn, df)
 
                 df.to_sql("b3_stocks", con=conn, if_exists="append", index=False, method="multi", chunksize=50)
 

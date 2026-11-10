@@ -9,6 +9,7 @@ import pandas as pd
 from main.app.scraper_b3.scraper import (
     QUARTERLY_COLUMN,
     attachQuarterlyPayload,
+    ensureLongTextColumns,
     normalizeQuarterLabel,
     quarterColumnPattern,
 )
@@ -94,3 +95,42 @@ def test_scraper_has_no_b3_quarterly_sql():
     sourcePath = Path(__file__).resolve().parents[1] / "main/app/scraper_b3/scraper.py"
 
     assert "b3_quarterly" not in sourcePath.read_text(encoding="utf-8")
+
+
+class _ScalarResult:
+    def __init__(self, value):
+        self.value = value
+
+    def scalar(self):
+        return self.value
+
+
+class _QueryConn:
+    def __init__(self, dataType):
+        self.dataType = dataType
+        self.statements = []
+
+    def execute(self, statement, parameters=None):
+        self.statements.append(str(statement))
+        return _ScalarResult(self.dataType)
+
+
+def test_ensureLongTextColumns_skips_alter_when_already_longtext():
+    conn = _QueryConn("longtext")
+    df = pd.DataFrame({"TICKER": ["PETR4"], "COTACAO PADRAO": ['{"a": 1}']})
+
+    ensureLongTextColumns(conn, df)
+
+    assert not any("MODIFY COLUMN" in statement for statement in conn.statements)
+    assert any("information_schema.COLUMNS" in statement for statement in conn.statements)
+
+
+def test_ensureLongTextColumns_alters_when_type_is_not_longtext():
+    conn = _QueryConn("text")
+    df = pd.DataFrame({"TICKER": ["PETR4"], "COTACAO PADRAO": ['{"a": 1}']})
+
+    ensureLongTextColumns(conn, df)
+
+    alters = [statement for statement in conn.statements if "MODIFY COLUMN" in statement]
+    assert len(alters) == 1
+    assert "`COTACAO PADRAO` LONGTEXT NULL" in alters[0]
