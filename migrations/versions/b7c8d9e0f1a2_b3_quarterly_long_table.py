@@ -19,6 +19,10 @@ errno 1118 ("Row size too large (> 8126)"). The 655 columns are dropped
 here in INSTANT chunks; a JSON value lives off-page as a 20-byte pointer
 on this ROW_FORMAT=DYNAMIC table, so it does not recreate that wall.
 
+The column pattern matches both the old glued `METRIC 1T2015` and the
+spaced `METRIC 1T 2015` form, so a scrape that writes either one is
+cleaned up instead of being left in the schema.
+
 The filename still says b3_quarterly for history only: that table is
 dropped by this migration and must not be recreated.
 
@@ -42,8 +46,9 @@ depends_on: Union[str, Sequence[str], None] = None
 
 LOGGER = logging.getLogger(__name__)
 
-# Glued source form only; the spaced form `METRIC 1T 2015` never existed.
-QUARTER_PATTERN = r"[1-4]T[0-9]{4}$"
+# Both the old glued `METRIC 1T2015` and the spaced `METRIC 1T 2015` form.
+QUARTER_PATTERN = r"[1-4]T\s*[0-9]{4}$"
+QUARTER_NAME = re.compile(r"^(?P<metric>.+) (?P<quarter>[1-4])T\s*(?P<year>\d{4})$")
 CHUNK_SIZE = 100
 HISTORY_COLUMN = "HISTORICO TRIMESTRAL"
 
@@ -78,7 +83,7 @@ def quoteColumn(name: str) -> str:
 def quarterColumns(conn: Connection) -> list[str]:
     found = conn.execute(text(QUARTER_COLUMNS_SQL), {"pattern": QUARTER_PATTERN}).scalars()
     columns = list(found)
-    unparsed = [name for name in columns if not re.match(r"^.+ [1-4]T\d{4}$", name)]
+    unparsed = [name for name in columns if not QUARTER_NAME.match(name)]
     if unparsed:
         raise RuntimeError(f"quarter columns do not parse as 'METRIC 1TYYYY': {unparsed}")
     return columns

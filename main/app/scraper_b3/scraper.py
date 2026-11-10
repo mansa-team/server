@@ -22,7 +22,7 @@ from main.app.scraper_b3.xango import calculateInvestingScore
 
 JSON_COLUMNS = ("COTACAO PADRAO", "COTACAO AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS")
 
-quarterColumnPattern = re.compile(r"^(?P<metric>.+) (?P<quarter>[1-4]T) (?P<year>\d{4})$")
+quarterColumnPattern = re.compile(r"^(?P<metric>.+) (?P<quarter>[1-4]T)\s*(?P<year>\d{4})$")
 QUARTERLY_COLUMN = "HISTORICO TRIMESTRAL"
 
 
@@ -37,7 +37,11 @@ def attachQuarterlyPayload(df):
 
     payloads = []
     for _, row in df[quarterCols].iterrows():
-        payload = {col: float(value) for col, value in row.items() if pd.notna(value)}
+        payload = {}
+        for col, value in row.items():
+            if pd.notna(value):
+                match = quarterColumnPattern.match(str(col))
+                payload[f"{match['metric']} {match['quarter']} {match['year']}"] = float(value)
         payloads.append(json.dumps(payload, ensure_ascii=False) if payload else None)
 
     payloadDf = df.drop(columns=quarterCols).copy()

@@ -1,4 +1,4 @@
-"""Quarterly export: canonical labels, one JSON payload column, no second table."""
+"""Quarterly export: canonical JSON payloads for glued and spaced quarter columns."""
 
 import json
 from pathlib import Path
@@ -10,7 +10,12 @@ from main.app.scraper_b3.scraper import (
     QUARTERLY_COLUMN,
     attachQuarterlyPayload,
     normalizeQuarterLabel,
+    quarterColumnPattern,
 )
+
+
+def quarterColumnsIn(df):
+    return [col for col in df.columns if quarterColumnPattern.match(str(col))]
 
 
 def test_normalizeQuarterLabel():
@@ -18,13 +23,12 @@ def test_normalizeQuarterLabel():
     assert normalizeQuarterLabel("4T 2015") == "4T 2015"
 
 
-def test_attachQuarterlyPayload_uses_canonical_keys_and_drops_wide_columns():
+def test_attachQuarterlyPayload_spaced_columns_use_canonical_keys():
     df = pd.DataFrame(
         {
-            "TICKER": ["PETR4", "VALE3"],
-            "NOME": ["Petrobras", "Vale"],
-            "MARGEM BRUTA 1T 2024": [12.5, 20.0],
-            "MARGEM BRUTA 4T 2023": [np.nan, 18.0],
+            "TICKER": ["PETR4"],
+            "NOME": ["Petrobras"],
+            "MARGEM BRUTA 1T 2024": [12.5],
         }
     )
 
@@ -32,14 +36,47 @@ def test_attachQuarterlyPayload_uses_canonical_keys_and_drops_wide_columns():
 
     assert list(result.columns) == ["TICKER", "NOME", QUARTERLY_COLUMN]
     assert json.loads(result[QUARTERLY_COLUMN].iloc[0]) == {"MARGEM BRUTA 1T 2024": 12.5}
+    assert quarterColumnsIn(result) == []
+
+
+def test_attachQuarterlyPayload_glued_columns_are_canonicalized_and_dropped():
+    df = pd.DataFrame(
+        {
+            "TICKER": ["PETR4"],
+            "MARGEM BRUTA 4T2010": [12.5],
+            "MARGEM BRUTA 1T2024": [np.nan],
+        }
+    )
+
+    result = attachQuarterlyPayload(df)
+
+    assert list(result.columns) == ["TICKER", QUARTERLY_COLUMN]
+    assert json.loads(result[QUARTERLY_COLUMN].iloc[0]) == {"MARGEM BRUTA 4T 2010": 12.5}
+    assert quarterColumnsIn(result) == []
+
+
+def test_attachQuarterlyPayload_mixed_forms_use_canonical_keys():
+    df = pd.DataFrame(
+        {
+            "TICKER": ["PETR4", "VALE3"],
+            "MARGEM BRUTA 4T2010": [12.5, 1.0],
+            "LUCRO LIQUIDO 1T 2024": [np.nan, 30.0],
+        }
+    )
+
+    result = attachQuarterlyPayload(df)
+
+    assert list(result.columns) == ["TICKER", QUARTERLY_COLUMN]
+    assert json.loads(result[QUARTERLY_COLUMN].iloc[0]) == {"MARGEM BRUTA 4T 2010": 12.5}
     assert json.loads(result[QUARTERLY_COLUMN].iloc[1]) == {
-        "MARGEM BRUTA 1T 2024": 20.0,
-        "MARGEM BRUTA 4T 2023": 18.0,
+        "MARGEM BRUTA 4T 2010": 1.0,
+        "LUCRO LIQUIDO 1T 2024": 30.0,
     }
+    assert quarterColumnsIn(result) == []
 
 
 def test_attachQuarterlyPayload_empty_payload_is_none():
-    df = pd.DataFrame({"TICKER": ["PETR4"], "MARGEM BRUTA 1T 2024": [np.nan]})
+    df = pd.DataFrame({"TICKER": ["PETR4"], "MARGEM BRUTA 4T2010": [np.nan]})
 
     result = attachQuarterlyPayload(df)
 
