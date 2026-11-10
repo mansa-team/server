@@ -35,9 +35,10 @@ class FakeResult:
 
 
 class FakeConn:
-    def __init__(self, frames=None, col_types=None):
+    def __init__(self, frames=None, col_types=None, quarterly_rows=None):
         self.frames = frames or []
         self.col_types = col_types or {}
+        self.quarterly_rows = quarterly_rows or []
 
     def __enter__(self):
         return self
@@ -52,6 +53,9 @@ class FakeConn:
         if "SHOW COLUMNS" in sql:
             typeDf = pd.DataFrame({"Field": list(self.col_types), "Type": list(self.col_types.values())})
             return FakeResult([typeDf])
+        if "HISTORICO TRIMESTRAL" in sql:
+            quarterlyDf = pd.DataFrame(self.quarterly_rows, columns=["TICKER", "HISTORICO TRIMESTRAL"])
+            return FakeResult([quarterlyDf])
         return FakeResult(self.frames)
 
 
@@ -260,6 +264,26 @@ def test_build_null_first_chunk_numeric_column_uses_db_type(monkeypatch, tmp_pat
     assert str(df["DIVIDENDOS 2027"].dtype).startswith("float")
 
 
+def test_build_null_first_chunk_quarterly_column_stays_numeric(monkeypatch, tmp_path):
+    """Quarterly columns are absent from SHOW COLUMNS b3_stocks; an all-NaN first chunk
+    must still be pinned to double so a later chunk's float value does not hit a
+    string field (ArrowInvalid)."""
+    first = pd.DataFrame({"TICKER": ["PETR4", "VALE3"], "NOME": ["PETROBRAS PN", "VALE ON"]})
+    later = pd.DataFrame({"TICKER": ["WEGE3"], "NOME": ["WEG ON"]})
+    conn = FakeConn([first, later], quarterly_rows=[("WEGE3", '{"MARGEM BRUTA 1T 2024": 1.25}')])
+    monkeypatch.setattr(build_mod.stocksEngine, "connect", lambda: conn)
+    monkeypatch.setattr(build_mod, "CACHE_FEATHER_PATH", tmp_path / "cache.feather")
+    monkeypatch.setattr(build_mod, "CACHE_NESTED_PATH", tmp_path / "nested.feather")
+
+    build_mod.buildFeatherCache()
+
+    table = feather.read_table(build_mod.CACHE_FEATHER_PATH)
+    assert pa.types.is_floating(table.schema.field("MARGEM BRUTA 1T 2024").type)
+    df = pd.read_feather(build_mod.CACHE_FEATHER_PATH)
+    assert df["MARGEM BRUTA 1T 2024"].iloc[2] == 1.25
+    assert str(df["MARGEM BRUTA 1T 2024"].dtype).startswith("float")
+
+
 def test_detect_nested_fields_tolerates_loose_nan_json():
 
     df = pd.DataFrame(
@@ -299,9 +323,7 @@ def test_deserialize_jsoncolumns_decompresses_bytes():
 
 def test_deserialize_jsoncolumns_handles_arrowdtype_binary():
     payload = zstd.ZstdCompressor(level=3).compress(b'[{"DATA": "01-01-2024", "PRECO": 10.5}]')
-    df = pd.DataFrame(
-        {"TICKER": ["PETR4"], "COTACAO PADRAO": pd.array([payload], dtype=pd.ArrowDtype(pa.binary()))}
-    )
+    df = pd.DataFrame({"TICKER": ["PETR4"], "COTACAO PADRAO": pd.array([payload], dtype=pd.ArrowDtype(pa.binary()))})
 
     out = deserializeJsonColumns(df)
 

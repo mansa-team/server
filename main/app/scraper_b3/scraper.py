@@ -22,6 +22,29 @@ from main.app.scraper_b3.xango import calculateInvestingScore
 
 JSON_COLUMNS = ("COTACAO PADRAO", "COTACAO AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS")
 
+quarterColumnPattern = re.compile(r"^(?P<metric>.+) (?P<quarter>[1-4]T) (?P<year>\d{4})$")
+QUARTERLY_COLUMN = "HISTORICO TRIMESTRAL"
+
+
+def normalizeQuarterLabel(label):
+    return re.sub(r"^\s*([1-4]T)\s*(\d{4})\s*$", r"\1 \2", str(label))
+
+
+def attachQuarterlyPayload(df):
+    quarterCols = [col for col in df.columns if quarterColumnPattern.match(str(col))]
+    if not quarterCols:
+        return df
+
+    payloads = []
+    for _, row in df[quarterCols].iterrows():
+        payload = {col: float(value) for col, value in row.items() if pd.notna(value)}
+        payloads.append(json.dumps(payload, ensure_ascii=False) if payload else None)
+
+    payloadDf = df.drop(columns=quarterCols).copy()
+    payloadDf[QUARTERLY_COLUMN] = payloads
+    return payloadDf
+
+
 # cloudscraper's bundled user agents are 2015-2017 browsers, which statusinvest's Cloudflare blocks; keep current.
 BROWSER_USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
@@ -251,7 +274,7 @@ class B3Scraper:
             for i in reversed(quarterIndexes):
                 cell = row[i][-1] if isinstance(row[i], list) else row[i]
                 text = str(cell).replace("%", "").strip()
-                newDF[f"{metric} {header[i]}"] = (
+                newDF[f"{metric} {normalizeQuarterLabel(header[i])}"] = (
                     float("nan") if text in ("", "-") else float(text.replace(".", "").replace(",", "."))
                 )
 
@@ -564,6 +587,8 @@ class B3Scraper:
             return
 
         try:
+            df = attachQuarterlyPayload(df)
+
             with self.engine.begin() as conn:
                 existingCols = pd.read_sql("SELECT * FROM b3_stocks LIMIT 1", con=conn).columns.tolist()
                 newCols = [c for c in df.columns if c not in existingCols]
