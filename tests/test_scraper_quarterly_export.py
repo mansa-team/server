@@ -1,6 +1,7 @@
 """Quarterly export: canonical JSON payloads for glued and spaced quarter columns."""
 
 import json
+import re
 from pathlib import Path
 
 import numpy as np
@@ -13,7 +14,8 @@ scraper = object.__new__(B3Scraper)
 
 
 def quarterColumnsIn(df):
-    return [col for col in df.columns if B3Scraper.QUARTER_COLUMN_PATTERN.match(str(col))]
+    pattern = re.compile(r"^(?P<metric>.+) (?P<quarter>[1-4]T)\s*(?P<year>\d{4})$")
+    return [col for col in df.columns if pattern.match(str(col))]
 
 
 def test_attachQuarterlyPayload_spaced_columns_use_canonical_keys():
@@ -27,8 +29,8 @@ def test_attachQuarterlyPayload_spaced_columns_use_canonical_keys():
 
     result = scraper.attachQuarterlyPayload(df)
 
-    assert list(result.columns) == ["TICKER", "NOME", B3Scraper.QUARTERLY_COLUMN]
-    assert json.loads(result[B3Scraper.QUARTERLY_COLUMN].iloc[0]) == {"MARGEM BRUTA 1T 2024": 12.5}
+    assert list(result.columns) == ["TICKER", "NOME", "HISTORICO TRIMESTRAL"]
+    assert json.loads(result["HISTORICO TRIMESTRAL"].iloc[0]) == {"MARGEM BRUTA 1T 2024": 12.5}
     assert quarterColumnsIn(result) == []
 
 
@@ -43,8 +45,8 @@ def test_attachQuarterlyPayload_glued_columns_are_canonicalized_and_dropped():
 
     result = scraper.attachQuarterlyPayload(df)
 
-    assert list(result.columns) == ["TICKER", B3Scraper.QUARTERLY_COLUMN]
-    assert json.loads(result[B3Scraper.QUARTERLY_COLUMN].iloc[0]) == {"MARGEM BRUTA 4T 2010": 12.5}
+    assert list(result.columns) == ["TICKER", "HISTORICO TRIMESTRAL"]
+    assert json.loads(result["HISTORICO TRIMESTRAL"].iloc[0]) == {"MARGEM BRUTA 4T 2010": 12.5}
     assert quarterColumnsIn(result) == []
 
 
@@ -59,9 +61,9 @@ def test_attachQuarterlyPayload_mixed_forms_use_canonical_keys():
 
     result = scraper.attachQuarterlyPayload(df)
 
-    assert list(result.columns) == ["TICKER", B3Scraper.QUARTERLY_COLUMN]
-    assert json.loads(result[B3Scraper.QUARTERLY_COLUMN].iloc[0]) == {"MARGEM BRUTA 4T 2010": 12.5}
-    assert json.loads(result[B3Scraper.QUARTERLY_COLUMN].iloc[1]) == {
+    assert list(result.columns) == ["TICKER", "HISTORICO TRIMESTRAL"]
+    assert json.loads(result["HISTORICO TRIMESTRAL"].iloc[0]) == {"MARGEM BRUTA 4T 2010": 12.5}
+    assert json.loads(result["HISTORICO TRIMESTRAL"].iloc[1]) == {
         "MARGEM BRUTA 4T 2010": 1.0,
         "LUCRO LIQUIDO 1T 2024": 30.0,
     }
@@ -73,8 +75,8 @@ def test_attachQuarterlyPayload_empty_payload_is_none():
 
     result = scraper.attachQuarterlyPayload(df)
 
-    assert list(result.columns) == ["TICKER", B3Scraper.QUARTERLY_COLUMN]
-    assert result[B3Scraper.QUARTERLY_COLUMN].iloc[0] is None
+    assert list(result.columns) == ["TICKER", "HISTORICO TRIMESTRAL"]
+    assert result["HISTORICO TRIMESTRAL"].iloc[0] is None
 
 
 def test_attachQuarterlyPayload_without_quarter_columns_returns_df():

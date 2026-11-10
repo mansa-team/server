@@ -46,9 +46,6 @@ def getCurrentSelic():
 
 
 class B3Scraper:
-    QUARTERLY_COLUMN = "HISTORICO TRIMESTRAL"
-    QUARTER_COLUMN_PATTERN = re.compile(r"^(?P<metric>.+) (?P<quarter>[1-4]T)\s*(?P<year>\d{4})$")
-
     def __init__(self, engine=None):
         self.engine = engine if engine is not None else stocksEngine
         self.currentYear = datetime.now().year
@@ -557,7 +554,8 @@ class B3Scraper:
         return df
 
     def attachQuarterlyPayload(self, df):
-        quarterCols = [col for col in df.columns if self.QUARTER_COLUMN_PATTERN.match(str(col))]
+        quarterPattern = re.compile(r"^(?P<metric>.+) (?P<quarter>[1-4]T)\s*(?P<year>\d{4})$")
+        quarterCols = [col for col in df.columns if quarterPattern.match(str(col))]
         if not quarterCols:
             return df
 
@@ -566,12 +564,12 @@ class B3Scraper:
             payload = {}
             for col, value in row.items():
                 if pd.notna(value):
-                    match = self.QUARTER_COLUMN_PATTERN.match(str(col))
+                    match = quarterPattern.match(str(col))
                     payload[f"{match['metric']} {match['quarter']} {match['year']}"] = float(value)
             payloads.append(json.dumps(payload, ensure_ascii=False) if payload else None)
 
         payloadDf = df.drop(columns=quarterCols).copy()
-        payloadDf[self.QUARTERLY_COLUMN] = payloads
+        payloadDf["HISTORICO TRIMESTRAL"] = payloads
         return payloadDf
 
     def ensureLongTextColumns(self, conn, df):
