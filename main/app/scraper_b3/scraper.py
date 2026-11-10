@@ -508,6 +508,21 @@ class B3Scraper:
         finalDf = self.reorderColumns(finalDf)
         finalDf = self.serializeComplexTypes(finalDf)
 
+        quarterPattern = re.compile(r"^(?P<metric>.+) (?P<quarter>[1-4]T)\s*(?P<year>\d{4})$")
+        quarterCols = [col for col in finalDf.columns if quarterPattern.match(str(col))]
+        if quarterCols:
+            payloads = []
+            for _, row in finalDf[quarterCols].iterrows():
+                payload = {}
+                for col, value in row.items():
+                    if pd.notna(value):
+                        match = quarterPattern.match(str(col))
+                        payload[f"{match['metric']} {match['quarter']} {match['year']}"] = float(value)
+                payloads.append(json.dumps(payload, ensure_ascii=False) if payload else None)
+
+            finalDf = finalDf.drop(columns=quarterCols).copy()
+            finalDf["HISTORICO TRIMESTRAL"] = payloads
+
         self.exportJson(finalDf)
         self.exportMysql(finalDf)
 
@@ -553,46 +568,6 @@ class B3Scraper:
 
         return df
 
-    def attachQuarterlyPayload(self, df):
-        quarterPattern = re.compile(r"^(?P<metric>.+) (?P<quarter>[1-4]T)\s*(?P<year>\d{4})$")
-        quarterCols = [col for col in df.columns if quarterPattern.match(str(col))]
-        if not quarterCols:
-            return df
-
-        payloads = []
-        for _, row in df[quarterCols].iterrows():
-            payload = {}
-            for col, value in row.items():
-                if pd.notna(value):
-                    match = quarterPattern.match(str(col))
-                    payload[f"{match['metric']} {match['quarter']} {match['year']}"] = float(value)
-            payloads.append(json.dumps(payload, ensure_ascii=False) if payload else None)
-
-        payloadDf = df.drop(columns=quarterCols).copy()
-        payloadDf["HISTORICO TRIMESTRAL"] = payloads
-        return payloadDf
-
-    def ensureLongTextColumns(self, conn, df):
-        for col in JSON_COLUMNS:
-            if col not in df.columns:
-                continue
-
-            dataType = conn.execute(
-                text(
-                    """
-                    SELECT DATA_TYPE
-                    FROM information_schema.COLUMNS
-                    WHERE TABLE_SCHEMA = DATABASE()
-                      AND TABLE_NAME = 'b3_stocks'
-                      AND COLUMN_NAME = :col
-                    """
-                ),
-                {"col": col},
-            ).scalar()
-
-            if str(dataType).lower() != "longtext":
-                conn.execute(text(f"ALTER TABLE b3_stocks MODIFY COLUMN `{col}` LONGTEXT NULL"))
-
     def exportJson(self, df):
         if Config.SCRAPER.JSON and not df.empty:
             df = df.copy()
@@ -606,8 +581,6 @@ class B3Scraper:
             return
 
         try:
-            df = self.attachQuarterlyPayload(df)
-
             with self.engine.begin() as conn:
                 existingCols = pd.read_sql("SELECT * FROM b3_stocks LIMIT 1", con=conn).columns.tolist()
                 newCols = [c for c in df.columns if c not in existingCols]
@@ -624,7 +597,25 @@ class B3Scraper:
                         )
                         conn.execute(text(f"ALTER TABLE b3_stocks ADD COLUMN `{col}` {dtype} NULL"))
 
-                self.ensureLongTextColumns(conn, df)
+                for col in JSON_COLUMNS:
+                    if col not in df.columns:
+                        continue
+
+                    dataType = conn.execute(
+                        text(
+                            """
+                            SELECT DATA_TYPE
+                            FROM information_schema.COLUMNS
+                            WHERE TABLE_SCHEMA = DATABASE()
+                              AND TABLE_NAME = 'b3_stocks'
+                              AND COLUMN_NAME = :col
+                            """
+                        ),
+                        {"col": col},
+                    ).scalar()
+
+                    if str(dataType).lower() != "longtext":
+                        conn.execute(text(f"ALTER TABLE b3_stocks MODIFY COLUMN `{col}` LONGTEXT NULL"))
 
                 df.to_sql("b3_stocks", con=conn, if_exists="append", index=False, method="multi", chunksize=50)
 
