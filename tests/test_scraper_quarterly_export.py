@@ -6,22 +6,14 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from main.app.scraper_b3.scraper import (
-    QUARTERLY_COLUMN,
-    attachQuarterlyPayload,
-    ensureLongTextColumns,
-    normalizeQuarterLabel,
-    quarterColumnPattern,
-)
+from main.app.scraper_b3.scraper import B3Scraper
+
+
+scraper = object.__new__(B3Scraper)
 
 
 def quarterColumnsIn(df):
-    return [col for col in df.columns if quarterColumnPattern.match(str(col))]
-
-
-def test_normalizeQuarterLabel():
-    assert normalizeQuarterLabel("1T2024") == "1T 2024"
-    assert normalizeQuarterLabel("4T 2015") == "4T 2015"
+    return [col for col in df.columns if B3Scraper.QUARTER_COLUMN_PATTERN.match(str(col))]
 
 
 def test_attachQuarterlyPayload_spaced_columns_use_canonical_keys():
@@ -33,10 +25,10 @@ def test_attachQuarterlyPayload_spaced_columns_use_canonical_keys():
         }
     )
 
-    result = attachQuarterlyPayload(df)
+    result = scraper.attachQuarterlyPayload(df)
 
-    assert list(result.columns) == ["TICKER", "NOME", QUARTERLY_COLUMN]
-    assert json.loads(result[QUARTERLY_COLUMN].iloc[0]) == {"MARGEM BRUTA 1T 2024": 12.5}
+    assert list(result.columns) == ["TICKER", "NOME", B3Scraper.QUARTERLY_COLUMN]
+    assert json.loads(result[B3Scraper.QUARTERLY_COLUMN].iloc[0]) == {"MARGEM BRUTA 1T 2024": 12.5}
     assert quarterColumnsIn(result) == []
 
 
@@ -49,10 +41,10 @@ def test_attachQuarterlyPayload_glued_columns_are_canonicalized_and_dropped():
         }
     )
 
-    result = attachQuarterlyPayload(df)
+    result = scraper.attachQuarterlyPayload(df)
 
-    assert list(result.columns) == ["TICKER", QUARTERLY_COLUMN]
-    assert json.loads(result[QUARTERLY_COLUMN].iloc[0]) == {"MARGEM BRUTA 4T 2010": 12.5}
+    assert list(result.columns) == ["TICKER", B3Scraper.QUARTERLY_COLUMN]
+    assert json.loads(result[B3Scraper.QUARTERLY_COLUMN].iloc[0]) == {"MARGEM BRUTA 4T 2010": 12.5}
     assert quarterColumnsIn(result) == []
 
 
@@ -65,11 +57,11 @@ def test_attachQuarterlyPayload_mixed_forms_use_canonical_keys():
         }
     )
 
-    result = attachQuarterlyPayload(df)
+    result = scraper.attachQuarterlyPayload(df)
 
-    assert list(result.columns) == ["TICKER", QUARTERLY_COLUMN]
-    assert json.loads(result[QUARTERLY_COLUMN].iloc[0]) == {"MARGEM BRUTA 4T 2010": 12.5}
-    assert json.loads(result[QUARTERLY_COLUMN].iloc[1]) == {
+    assert list(result.columns) == ["TICKER", B3Scraper.QUARTERLY_COLUMN]
+    assert json.loads(result[B3Scraper.QUARTERLY_COLUMN].iloc[0]) == {"MARGEM BRUTA 4T 2010": 12.5}
+    assert json.loads(result[B3Scraper.QUARTERLY_COLUMN].iloc[1]) == {
         "MARGEM BRUTA 4T 2010": 1.0,
         "LUCRO LIQUIDO 1T 2024": 30.0,
     }
@@ -79,16 +71,16 @@ def test_attachQuarterlyPayload_mixed_forms_use_canonical_keys():
 def test_attachQuarterlyPayload_empty_payload_is_none():
     df = pd.DataFrame({"TICKER": ["PETR4"], "MARGEM BRUTA 4T2010": [np.nan]})
 
-    result = attachQuarterlyPayload(df)
+    result = scraper.attachQuarterlyPayload(df)
 
-    assert list(result.columns) == ["TICKER", QUARTERLY_COLUMN]
-    assert result[QUARTERLY_COLUMN].iloc[0] is None
+    assert list(result.columns) == ["TICKER", B3Scraper.QUARTERLY_COLUMN]
+    assert result[B3Scraper.QUARTERLY_COLUMN].iloc[0] is None
 
 
 def test_attachQuarterlyPayload_without_quarter_columns_returns_df():
     df = pd.DataFrame({"TICKER": ["PETR4"], "RECEITA LIQUIDA 2024": [500.0]})
 
-    assert attachQuarterlyPayload(df) is df
+    assert scraper.attachQuarterlyPayload(df) is df
 
 
 def test_scraper_has_no_b3_quarterly_sql():
@@ -119,7 +111,7 @@ def test_ensureLongTextColumns_skips_alter_when_already_longtext():
     conn = _QueryConn("longtext")
     df = pd.DataFrame({"TICKER": ["PETR4"], "COTACAO PADRAO": ['{"a": 1}']})
 
-    ensureLongTextColumns(conn, df)
+    scraper.ensureLongTextColumns(conn, df)
 
     assert not any("MODIFY COLUMN" in statement for statement in conn.statements)
     assert any("information_schema.COLUMNS" in statement for statement in conn.statements)
@@ -129,7 +121,7 @@ def test_ensureLongTextColumns_alters_when_type_is_not_longtext():
     conn = _QueryConn("text")
     df = pd.DataFrame({"TICKER": ["PETR4"], "COTACAO PADRAO": ['{"a": 1}']})
 
-    ensureLongTextColumns(conn, df)
+    scraper.ensureLongTextColumns(conn, df)
 
     alters = [statement for statement in conn.statements if "MODIFY COLUMN" in statement]
     assert len(alters) == 1

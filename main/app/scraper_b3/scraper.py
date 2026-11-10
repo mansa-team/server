@@ -22,54 +22,6 @@ from main.app.scraper_b3.xango import calculateInvestingScore
 
 JSON_COLUMNS = ("COTACAO PADRAO", "COTACAO AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS")
 
-quarterColumnPattern = re.compile(r"^(?P<metric>.+) (?P<quarter>[1-4]T)\s*(?P<year>\d{4})$")
-QUARTERLY_COLUMN = "HISTORICO TRIMESTRAL"
-
-
-def normalizeQuarterLabel(label):
-    return re.sub(r"^\s*([1-4]T)\s*(\d{4})\s*$", r"\1 \2", str(label))
-
-
-def attachQuarterlyPayload(df):
-    quarterCols = [col for col in df.columns if quarterColumnPattern.match(str(col))]
-    if not quarterCols:
-        return df
-
-    payloads = []
-    for _, row in df[quarterCols].iterrows():
-        payload = {}
-        for col, value in row.items():
-            if pd.notna(value):
-                match = quarterColumnPattern.match(str(col))
-                payload[f"{match['metric']} {match['quarter']} {match['year']}"] = float(value)
-        payloads.append(json.dumps(payload, ensure_ascii=False) if payload else None)
-
-    payloadDf = df.drop(columns=quarterCols).copy()
-    payloadDf[QUARTERLY_COLUMN] = payloads
-    return payloadDf
-
-
-def ensureLongTextColumns(conn, df):
-    for col in JSON_COLUMNS:
-        if col not in df.columns:
-            continue
-
-        dataType = conn.execute(
-            text(
-                """
-                SELECT DATA_TYPE
-                FROM information_schema.COLUMNS
-                WHERE TABLE_SCHEMA = DATABASE()
-                  AND TABLE_NAME = 'b3_stocks'
-                  AND COLUMN_NAME = :col
-                """
-            ),
-            {"col": col},
-        ).scalar()
-
-        if str(dataType).lower() != "longtext":
-            conn.execute(text(f"ALTER TABLE b3_stocks MODIFY COLUMN `{col}` LONGTEXT NULL"))
-
 
 # cloudscraper's bundled user agents are 2015-2017 browsers, which statusinvest's Cloudflare blocks; keep current.
 BROWSER_USER_AGENT = (
@@ -94,6 +46,9 @@ def getCurrentSelic():
 
 
 class B3Scraper:
+    QUARTERLY_COLUMN = "HISTORICO TRIMESTRAL"
+    QUARTER_COLUMN_PATTERN = re.compile(r"^(?P<metric>.+) (?P<quarter>[1-4]T)\s*(?P<year>\d{4})$")
+
     def __init__(self, engine=None):
         self.engine = engine if engine is not None else stocksEngine
         self.currentYear = datetime.now().year
@@ -300,7 +255,8 @@ class B3Scraper:
             for i in reversed(quarterIndexes):
                 cell = row[i][-1] if isinstance(row[i], list) else row[i]
                 text = str(cell).replace("%", "").strip()
-                newDF[f"{metric} {normalizeQuarterLabel(header[i])}"] = (
+                quarterLabel = re.sub(r"^\s*([1-4]T)\s*(\d{4})\s*$", r"\1 \2", str(header[i]))
+                newDF[f"{metric} {quarterLabel}"] = (
                     float("nan") if text in ("", "-") else float(text.replace(".", "").replace(",", "."))
                 )
 
@@ -600,6 +556,45 @@ class B3Scraper:
 
         return df
 
+    def attachQuarterlyPayload(self, df):
+        quarterCols = [col for col in df.columns if self.QUARTER_COLUMN_PATTERN.match(str(col))]
+        if not quarterCols:
+            return df
+
+        payloads = []
+        for _, row in df[quarterCols].iterrows():
+            payload = {}
+            for col, value in row.items():
+                if pd.notna(value):
+                    match = self.QUARTER_COLUMN_PATTERN.match(str(col))
+                    payload[f"{match['metric']} {match['quarter']} {match['year']}"] = float(value)
+            payloads.append(json.dumps(payload, ensure_ascii=False) if payload else None)
+
+        payloadDf = df.drop(columns=quarterCols).copy()
+        payloadDf[self.QUARTERLY_COLUMN] = payloads
+        return payloadDf
+
+    def ensureLongTextColumns(self, conn, df):
+        for col in JSON_COLUMNS:
+            if col not in df.columns:
+                continue
+
+            dataType = conn.execute(
+                text(
+                    """
+                    SELECT DATA_TYPE
+                    FROM information_schema.COLUMNS
+                    WHERE TABLE_SCHEMA = DATABASE()
+                      AND TABLE_NAME = 'b3_stocks'
+                      AND COLUMN_NAME = :col
+                    """
+                ),
+                {"col": col},
+            ).scalar()
+
+            if str(dataType).lower() != "longtext":
+                conn.execute(text(f"ALTER TABLE b3_stocks MODIFY COLUMN `{col}` LONGTEXT NULL"))
+
     def exportJson(self, df):
         if Config.SCRAPER.JSON and not df.empty:
             df = df.copy()
@@ -613,7 +608,7 @@ class B3Scraper:
             return
 
         try:
-            df = attachQuarterlyPayload(df)
+            df = self.attachQuarterlyPayload(df)
 
             with self.engine.begin() as conn:
                 existingCols = pd.read_sql("SELECT * FROM b3_stocks LIMIT 1", con=conn).columns.tolist()
@@ -631,7 +626,7 @@ class B3Scraper:
                         )
                         conn.execute(text(f"ALTER TABLE b3_stocks ADD COLUMN `{col}` {dtype} NULL"))
 
-                ensureLongTextColumns(conn, df)
+                self.ensureLongTextColumns(conn, df)
 
                 df.to_sql("b3_stocks", con=conn, if_exists="append", index=False, method="multi", chunksize=50)
 
