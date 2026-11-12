@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import sys
@@ -8,7 +9,7 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.feather as feather
 import zstandard as zstd
-from sqlalchemy.engine import Engine
+from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.exc import OperationalError
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
@@ -28,6 +29,39 @@ NESTED_SAMPLE_ROWS = 20
 
 CACHE_FEATHER_PATH = Path("/app/cache/stocks_cache.feather")
 CACHE_NESTED_PATH = Path("/app/cache/stocks_nested.feather")
+
+
+def loadQuarterlyFrame(conn: Connection) -> pd.DataFrame | None:
+    """Expand the latest HISTORICO TRIMESTRAL JSON per ticker into wide `METRIC 1T 2024` columns."""
+    try:
+        rows = conn.exec_driver_sql(
+            "SELECT t.TICKER, t.`HISTORICO TRIMESTRAL` FROM b3_stocks t "
+            "JOIN (SELECT TICKER, MAX(TIME) AS MAX_TIME FROM b3_stocks GROUP BY TICKER) latest "
+            "ON t.TICKER = latest.TICKER AND t.TIME = latest.MAX_TIME "
+            "WHERE t.`HISTORICO TRIMESTRAL` IS NOT NULL"
+        ).fetchall()
+    except Exception as e:
+        logger.warning(f"HISTORICO TRIMESTRAL read failed, cache will carry no quarterly columns: {e}")
+        return None
+    records = []
+    for ticker, payload in rows:
+        if not payload:
+            continue
+        try:
+            values = json.loads(payload)
+        except (TypeError, ValueError):
+            continue
+        if not isinstance(values, dict) or not values:
+            continue
+        records.append({"TICKER": ticker, **values})
+    if not records:
+        return None
+    frame = pd.DataFrame.from_records(records)
+    frame = frame.drop_duplicates(subset="TICKER", keep="last").reset_index(drop=True)
+    for column in frame.columns:
+        if column != "TICKER":
+            frame[column] = pd.to_numeric(frame[column], errors="coerce").astype("float64")
+    return frame
 
 
 @retry(
@@ -52,12 +86,17 @@ def buildFeatherCache(engine: Engine | None = None):
     resolvedEngine = engine if engine is not None else stocksEngine
     try:
         with resolvedEngine.connect() as conn:
+            quarterlyFrame = loadQuarterlyFrame(conn)
             try:
                 typeRows = conn.exec_driver_sql("SHOW COLUMNS FROM b3_stocks").fetchall()
                 colTypes = {r[0]: str(r[1]).lower().split("(")[0].strip() for r in typeRows}
             except Exception as e:
                 logger.warning(f"SHOW COLUMNS failed, continuing without DB types: {e}")
                 colTypes = {}
+            if quarterlyFrame is not None:
+                for name in quarterlyFrame.columns:
+                    if name != "TICKER":
+                        colTypes.setdefault(name, "double")
             stream = conn.execution_options(stream_results=True)
             result = stream.exec_driver_sql("SELECT * FROM b3_stocks ORDER BY TICKER ASC, TIME DESC")
             try:
@@ -67,6 +106,10 @@ def buildFeatherCache(engine: Engine | None = None):
                     if not batch:
                         break
                     chunk = pd.DataFrame.from_records((tuple(r) for r in batch), columns=columns)
+                    if "HISTORICO TRIMESTRAL" in chunk.columns:
+                        chunk = chunk.drop(columns=["HISTORICO TRIMESTRAL"])
+                    if quarterlyFrame is not None:
+                        chunk = chunk.merge(quarterlyFrame, on="TICKER", how="left")
                     if sampleCols is None:
                         sampleCols = [c for c in JSON_COLUMNS if c in chunk.columns]
                     for col in sampleCols or ():

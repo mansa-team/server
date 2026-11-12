@@ -22,6 +22,12 @@ from main.app.scraper_b3.xango import calculateInvestingScore
 
 JSON_COLUMNS = ("COTACAO PADRAO", "COTACAO AJUSTADA", "HISTORICO DIVIDENDOS", "NOTICIAS")
 
+
+# cloudscraper's bundled user agents are 2015-2017 browsers, which statusinvest's Cloudflare blocks; keep current.
+BROWSER_USER_AGENT = (
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+)
+
 logger = logging.getLogger(__name__)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
 
@@ -46,7 +52,7 @@ class B3Scraper:
         self.scraperDate = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.stats = {}
 
-        self.requests = cloudscraper.create_scraper(browser="chrome")
+        self.requests = cloudscraper.create_scraper(browser={"custom": BROWSER_USER_AGENT})
         adapter = cloudscraper.requests.adapters.HTTPAdapter(pool_connections=100, pool_maxsize=100, max_retries=3)
         self.requests.mount("http://", adapter)
         self.requests.mount("https://", adapter)
@@ -246,7 +252,8 @@ class B3Scraper:
             for i in reversed(quarterIndexes):
                 cell = row[i][-1] if isinstance(row[i], list) else row[i]
                 text = str(cell).replace("%", "").strip()
-                newDF[f"{metric} {header[i]}"] = (
+                quarterLabel = re.sub(r"^\s*([1-4]T)\s*(\d{4})\s*$", r"\1 \2", str(header[i]))
+                newDF[f"{metric} {quarterLabel}"] = (
                     float("nan") if text in ("", "-") else float(text.replace(".", "").replace(",", "."))
                 )
 
@@ -501,6 +508,21 @@ class B3Scraper:
         finalDf = self.reorderColumns(finalDf)
         finalDf = self.serializeComplexTypes(finalDf)
 
+        quarterPattern = re.compile(r"^(?P<metric>.+) (?P<quarter>[1-4]T)\s*(?P<year>\d{4})$")
+        quarterCols = [col for col in finalDf.columns if quarterPattern.match(str(col))]
+        if quarterCols:
+            payloads = []
+            for _, row in finalDf[quarterCols].iterrows():
+                payload = {}
+                for col, value in row.items():
+                    if pd.notna(value):
+                        match = quarterPattern.match(str(col))
+                        payload[f"{match['metric']} {match['quarter']} {match['year']}"] = float(value)
+                payloads.append(json.dumps(payload, ensure_ascii=False) if payload else None)
+
+            finalDf = finalDf.drop(columns=quarterCols).copy()
+            finalDf["HISTORICO TRIMESTRAL"] = payloads
+
         self.exportJson(finalDf)
         self.exportMysql(finalDf)
 
@@ -576,7 +598,23 @@ class B3Scraper:
                         conn.execute(text(f"ALTER TABLE b3_stocks ADD COLUMN `{col}` {dtype} NULL"))
 
                 for col in JSON_COLUMNS:
-                    if col in df.columns:
+                    if col not in df.columns:
+                        continue
+
+                    dataType = conn.execute(
+                        text(
+                            """
+                            SELECT DATA_TYPE
+                            FROM information_schema.COLUMNS
+                            WHERE TABLE_SCHEMA = DATABASE()
+                              AND TABLE_NAME = 'b3_stocks'
+                              AND COLUMN_NAME = :col
+                            """
+                        ),
+                        {"col": col},
+                    ).scalar()
+
+                    if str(dataType).lower() != "longtext":
                         conn.execute(text(f"ALTER TABLE b3_stocks MODIFY COLUMN `{col}` LONGTEXT NULL"))
 
                 df.to_sql("b3_stocks", con=conn, if_exists="append", index=False, method="multi", chunksize=50)
