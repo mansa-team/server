@@ -22,9 +22,11 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from config import Config
-from main.app.authentication import mcp_oauth as solo
+from main.app.authentication import mcp as solo
+from main.app.authentication.mcp.provider import revokedJtiTimes
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import createAccessToken, hashPassword
+from main.app.authentication.verifier import REVOKED_ACCESS_JTIS
 from main.app.wallet.entries import EntriesManager, EntryCreate
 from main.app.wallet.wallets import WalletsManager
 from main.controller import wallet_controller as walletController
@@ -41,12 +43,14 @@ CHALLENGE = base64.urlsafe_b64encode(hashlib.sha256(VERIFIER.encode()).digest())
 def _use_test_env(monkeypatch, dbSession):
     monkeypatch.setattr(Config.USER, "MCP_OAUTH_CLIENT_ID", CLIENT_ID)
     monkeypatch.setattr(Config.USER, "MCP_OAUTH_CLIENT_SECRET", CLIENT_SECRET)
-    monkeypatch.setattr(solo, "SessionLocal", lambda: dbSession)
+    monkeypatch.setattr("main.app.authentication.mcp.provider.SessionLocal", lambda: dbSession)
+    monkeypatch.setattr("main.app.authentication.mcp.login.SessionLocal", lambda: dbSession)
     monkeypatch.setattr(walletController, "SessionLocal", lambda: dbSession)
     monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     provider = solo.SoloOAuthProvider()
     walletController.walletProvider.clear()
-    solo.revokedAccessJtis.clear()
+    revokedJtiTimes.clear()
+    REVOKED_ACCESS_JTIS.clear()
     return provider
 
 
@@ -173,6 +177,8 @@ async def test_expired_refresh_rejected(dbSession, monkeypatch):
 
     from mcp.server.auth.provider import RefreshToken, TokenError
 
+    from main.app.authentication.mcp.server import RefreshRecord
+
     provider = _use_test_env(monkeypatch, dbSession)
     client = await provider.get_client(CLIENT_ID)
     expired = RefreshToken(
@@ -183,8 +189,14 @@ async def test_expired_refresh_rejected(dbSession, monkeypatch):
         resource=None,
         subject="1",
     )
-    provider.refreshTokens[expired.token] = expired
-    provider.refreshSessions[expired.token] = "sess"
+    provider.authlibStore.refreshTokens[expired.token] = RefreshRecord(
+        token=expired.token,
+        clientId=CLIENT_ID,
+        scope="wallet",
+        sessionId="sess",
+        userId="1",
+        expiresAt=time.time() - 10,
+    )
     with pytest.raises(TokenError) as exc:
         await provider.exchange_refresh_token(client, expired, [])
     assert exc.value.error == "invalid_grant"
@@ -332,7 +344,7 @@ def test_http_missing_both_client_id_and_basic_401(dbSession, monkeypatch):
                 "code_verifier": VERIFIER,
             },
         )
-        assert missing.status_code == 401 and "Missing client_id" in missing.text
+        assert missing.status_code == 401 and "invalid_client" in missing.text
 
 
 def test_http_body_shape_still_200(dbSession, monkeypatch):
@@ -423,7 +435,7 @@ def test_http_full_flow_token_refresh_revoke(dbSession, monkeypatch):
         assert firstTokens["scope"] == "wallet" and firstTokens["refresh_token"]
 
         reuse = _token_post(httpClient, tokenBody)
-        assert reuse.status_code == 401 and "invalid_grant" in reuse.text
+        assert reuse.status_code == 400 and "invalid_grant" in reuse.text
 
         refreshed = _token_post(
             httpClient,
@@ -447,14 +459,14 @@ def test_http_full_flow_token_refresh_revoke(dbSession, monkeypatch):
                 "client_secret": CLIENT_SECRET,
             },
         )
-        assert staleRefresh.status_code == 401 and "invalid_grant" in staleRefresh.text
+        assert staleRefresh.status_code == 400 and "invalid_grant" in staleRefresh.text
 
         revoke = httpClient.post(
             "/revoke",
             data={"token": secondTokens["access_token"], "client_id": CLIENT_ID, "client_secret": CLIENT_SECRET},
         )
         assert revoke.status_code == 200
-        assert walletController.walletProvider.codes == {}
+        assert walletController.walletProvider.authlibStore.codes == {}
 
 
 def test_http_pkce_mismatch_and_wrong_secret(dbSession, monkeypatch):
@@ -474,9 +486,9 @@ def test_http_pkce_mismatch_and_wrong_secret(dbSession, monkeypatch):
                 "code_verifier": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
             },
         )
-        # FastMCP's OAuth 2.1 token handler surfaces grant failures (bad code,
-        # PKCE mismatch) as 401 invalid_grant and bad secrets as 401 invalid_client.
-        assert bad.status_code == 401 and "invalid_grant" in bad.text
+        # Authlib follows RFC 6749: grant failures (bad code, PKCE mismatch)
+        # are 400 invalid_grant; bad client secrets are 401 invalid_client.
+        assert bad.status_code == 400 and "invalid_grant" in bad.text
 
         requestId = _authorize_request_id(httpClient)
         page = httpClient.get(f"/oauth/login?request_id={requestId}", follow_redirects=False)
@@ -564,7 +576,7 @@ def test_http_bearer_mcp_call_refresh_revoke_cycle(dbSession, monkeypatch):
             "/revoke", data={"token": tokens["access_token"], "client_id": CLIENT_ID, "client_secret": CLIENT_SECRET}
         )
         after = httpClient.post("/", json=call, headers={"Accept": "application/json, text/event-stream", **bearer})
-        assert "401" in after.text
+        assert after.status_code == 401 and "invalid_token" in after.text
 
 
 def test_prm_resource_has_no_trailing_slash(dbSession, monkeypatch):

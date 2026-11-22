@@ -1188,13 +1188,11 @@ class TestVerifyAccessToken:
     """Covers lines 45-51: verifyAccessToken with expired and invalid tokens."""
 
     def test_expired_token(self):
-        """Covers lines 48-49: jwt.ExpiredSignatureError."""
-        import jwt as pyjwt
-        from config import Config
+        """Covers lines 48-49: expired token rejection."""
+        from main.app.authentication.tokens import mintToken
         from main.app.authentication.util import verifyAccessToken
 
-        expired_payload = {"userId": "1", "exp": datetime.now() - timedelta(hours=1)}
-        token = pyjwt.encode(expired_payload, Config.USER.JWT_SECRET_KEY, algorithm="HS256")
+        token = mintToken({"userId": "1"}, expiresDelta=timedelta(hours=-1))
 
         from fastapi import HTTPException
 

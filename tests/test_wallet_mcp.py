@@ -19,7 +19,8 @@ from unittest import mock
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
-import jwt
+from joserfc import jwt
+from joserfc.jwk import OctKey
 import pytest
 from cashews import cache as cashewsCache
 from fastapi import FastAPI, HTTPException
@@ -31,7 +32,7 @@ from fastmcp import Client
 from fastmcp.client.client import StreamableHttpTransport
 
 from config import getSession
-from main.app.authentication.csrf import CsrfProtectMiddleware
+from main.app.authentication.util import CsrfProtectMiddleware
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import createAccessToken
 from main.app.orunmila.agent import Orunmila
@@ -53,6 +54,20 @@ from main.models.wallet import Earning, Holding, Transaction
 from main.service.wallet_service import WalletService
 from main.utils.errors import registerErrorHandlers
 from tests.test_wallet_positions import _live_ok
+
+
+@pytest.fixture(autouse=True)
+def _provider_test_db(dbSession, monkeypatch):
+    """Route the MCP bearer gate's DB lookups to the in-memory test DB.
+
+    The provider's ``load_access_token`` uses ``mcp.provider.SessionLocal`` (the
+    production MySQL factory). Tests override ``getSession`` for the API
+    routes; this points the auth bridge at the same session store.
+    """
+    monkeypatch.setattr("main.app.authentication.mcp.provider.SessionLocal", lambda: dbSession)
+    monkeypatch.setattr("main.app.authentication.mcp.login.SessionLocal", lambda: dbSession)
+    monkeypatch.setattr("main.controller.wallet_controller.SessionLocal", lambda: dbSession)
+
 
 READ_TOOL_NAMES = {
     "wallet_positions",
@@ -669,9 +684,13 @@ class TestWalletMCPAuthBoundary:
     async def test_call_with_forged_jwt_is_rejected(self, dbSession):
         app = _build_auth_app(dbSession)
         forged = jwt.encode(
-            {"userId": "1", "sessionId": "forged-session", "exp": datetime.now(timezone.utc) + timedelta(hours=1)},
-            "wrong-secret-not-the-real-signing-key",
-            algorithm="HS256",
+            {"alg": "HS256", "typ": "JWT"},
+            {
+                "userId": "1",
+                "sessionId": "forged-session",
+                "exp": int((datetime.now(timezone.utc) + timedelta(hours=1)).timestamp()),
+            },
+            key=OctKey.import_key("wrong-secret-not-the-real-signing-key"),
         )
 
         async with _mcp_client(app, _transport_headers(dbSession)) as client:

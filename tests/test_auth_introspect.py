@@ -124,12 +124,12 @@ class TestAuthIntrospectGenericDetail:
     def test_unknown_user_returns_generic_401(self, dbSession):
         from unittest.mock import MagicMock
         from fastapi import HTTPException
-        from main.app.authentication.introspect import introspectToken
+        from main.app.authentication.verifier import introspectToken
 
         _, _, token = makeUserToken(dbSession, username="ghost_user")
         mockDb = MagicMock()
         mockDb.query.return_value.filter.return_value.first.return_value = None
-        with patch("main.app.authentication.introspect.SessionManager.validateSession", return_value=True):
+        with patch("main.app.authentication.verifier.SessionManager.validateSession", return_value=True):
             with pytest.raises(HTTPException) as exc_info:
                 introspectToken(mockDb, token)
         assert exc_info.value.status_code == 401

@@ -12,7 +12,8 @@ import sys
 from datetime import date, datetime, timedelta, timezone
 from types import SimpleNamespace
 
-import jwt
+from joserfc import jwt
+from joserfc.jwk import OctKey
 import pytest
 from cashews import cache as cashewsCache
 from fastmcp import Client
@@ -107,9 +108,13 @@ async def test_mcp_expired_revoked_forged_rejected(dbSession, monkeypatch):
     revokedToken = createAccessToken({"userId": str(revokedUserId), "sessionId": revokedSessionId})
     assert SessionManager.revokeSession(dbSession, revokedSessionId, revokedUserId)
     forged = jwt.encode(
-        {"userId": "1", "sessionId": "forged-session", "exp": datetime.now(timezone.utc) + timedelta(hours=1)},
-        "wrong-secret-not-the-real-signing-key",
-        algorithm="HS256",
+        {"alg": "HS256", "typ": "JWT"},
+        {
+            "userId": "1",
+            "sessionId": "forged-session",
+            "exp": int((datetime.now(timezone.utc) + timedelta(hours=1)).timestamp()),
+        },
+        key=OctKey.import_key("wrong-secret-not-the-real-signing-key"),
     )
     async with Client(walletMcp) as client:
         for bad in (expired, revokedToken, forged):

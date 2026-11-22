@@ -10,7 +10,7 @@ from main.app.authentication.constants import SESSION_EXPIRY_DAYS
 from datetime import timedelta, datetime
 from unittest.mock import MagicMock, patch
 
-import jwt
+from main.app.authentication.tokens import rawClaims
 
 
 class TestAuthUtil:
@@ -44,7 +44,7 @@ class TestAuthUtil:
 
     def test_create_access_token_default_expiry(self):
         token = createAccessToken({"userId": "123"})
-        decoded = jwt.decode(token, options={"verify_signature": False})
+        decoded = rawClaims(token)
 
         assert "exp" in decoded
         assert decoded["userId"] == "123"
@@ -52,7 +52,7 @@ class TestAuthUtil:
     def test_create_access_token_custom_expiry(self):
         customDelta = timedelta(hours=48)
         token = createAccessToken({"userId": "123"}, expiresDelta=customDelta)
-        decoded = jwt.decode(token, options={"verify_signature": False})
+        decoded = rawClaims(token)
 
         expTime = datetime.fromtimestamp(decoded["exp"])
         now = datetime.now()
@@ -63,7 +63,7 @@ class TestAuthUtil:
     def test_create_access_token_contains_data(self):
         data = {"userId": "456", "username": "testuser"}
         token = createAccessToken(data)
-        decoded = jwt.decode(token, options={"verify_signature": False})
+        decoded = rawClaims(token)
 
         assert decoded["userId"] == "456"
 
@@ -79,7 +79,7 @@ class TestSessionExpiryConfig:
 
     def test_default_token_expiry_equals_30_days(self):
         token = createAccessToken({"userId": "123"})
-        decoded = jwt.decode(token, options={"verify_signature": False})
+        decoded = rawClaims(token)
 
         expTime = datetime.fromtimestamp(decoded["exp"])
         now = datetime.now()
@@ -114,13 +114,13 @@ class TestAuthUtilEdgeCases:
 
     def test_create_access_token_with_empty_data(self):
         token = createAccessToken({})
-        decoded = jwt.decode(token, options={"verify_signature": False})
+        decoded = rawClaims(token)
 
         assert "exp" in decoded
 
     def test_create_access_token_with_none_data(self):
         token = createAccessToken(None)
-        decoded = jwt.decode(token, options={"verify_signature": False})
+        decoded = rawClaims(token)
 
         assert "exp" in decoded
 

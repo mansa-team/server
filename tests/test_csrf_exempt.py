@@ -12,7 +12,7 @@ from starlette.requests import Request
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from main.app.authentication.constants import COOKIE_NAME
-from main.app.authentication.csrf import (
+from main.app.authentication.util import (
     CSRF_COOKIE_NAME,
     csrf_exempt,
     isCsrfExemptEndpoint,
