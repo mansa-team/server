@@ -102,6 +102,18 @@ class TestAuthlibGrantEngine:
         assert claims["sessionId"] == session.sessionId
         assert claims["jti"]
 
+    def test_requested_resource_becomes_audience(self, dbSession):
+        user, session = makeUserAndSession(dbSession)
+        requested = "https://resource.example/wallet/mcp"
+        client = StaticClient("opencode", "contract-secret", [resourceUrl()], resource=requested)
+        token = MansaAuthorizationServer(OAuthStore()).generate_token(
+            "authorization_code",
+            client,
+            user=OAuthUser(userId=str(user.userId), sessionId=session.sessionId),
+            scope="wallet",
+        )
+        assert rawClaims(token["access_token"])["aud"] == requested
+
     def test_refresh_grant_accepts_both_client_auth_methods(self):
         from main.app.authentication.mcp.server import MansaRefreshTokenGrant
 
