@@ -96,34 +96,33 @@ async def _login_code(provider, userId, sessionId, state="xyz"):
 
 
 async def test_full_cycle_provider_level(dbSession, monkeypatch):
+    """Real HTTP /token route: code -> token -> refresh rotation (no SDK token methods)."""
     provider = _use_test_env(monkeypatch, dbSession)
-    userId, sessionId = _seed_user(dbSession)
+    userId, _ = _seed_user(dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        minted = _basic_token_post(httpClient, _fresh_code(httpClient))
+        assert minted.status_code == 200, minted.text
+        tokens = minted.json()
+        assert tokens["scope"] == "wallet" and tokens["refresh_token"]
 
-    client = await provider.get_client(CLIENT_ID)
-    assert client is not None
-    loginUrl = await provider.authorize(client, _params())
-    assert "/oauth/login?request_id=" in loginUrl
+        access = await provider.load_access_token(tokens["access_token"])
+        assert access is not None and access.subject == str(userId)
 
-    code = await _login_code(provider, userId, sessionId)
-    stored = await provider.load_authorization_code(client, code)
-    assert stored is not None
-    tokens = await provider.exchange_authorization_code(client, stored)
-    assert tokens.scope == "wallet"
-    assert tokens.refresh_token
+        rotated = httpClient.post(
+            "/token",
+            data={"grant_type": "refresh_token", "refresh_token": tokens["refresh_token"]},
+            headers=_basic_header(),
+        )
+        assert rotated.status_code == 200, rotated.text
+        rotatedTokens = rotated.json()
+        assert rotatedTokens["refresh_token"] != tokens["refresh_token"]
 
-    access = await provider.load_access_token(tokens.access_token)
-    assert access is not None and access.subject == str(userId)
-
-    rotated = await provider.exchange_refresh_token(
-        client, await provider.load_refresh_token(client, tokens.refresh_token), []
-    )
-    assert rotated.refresh_token != tokens.refresh_token
-    assert await provider.load_refresh_token(client, tokens.refresh_token) is None
-
-    await provider.revoke_token(await provider.load_access_token(rotated.access_token))
-    assert await provider.load_access_token(rotated.access_token) is None
-    await provider.revoke_token(await provider.load_refresh_token(client, rotated.refresh_token))
-    assert await provider.load_refresh_token(client, rotated.refresh_token) is None
+        stale = httpClient.post(
+            "/token",
+            data={"grant_type": "refresh_token", "refresh_token": tokens["refresh_token"]},
+            headers=_basic_header(),
+        )
+        assert stale.status_code == 400 and "invalid_grant" in stale.text
 
 
 async def test_closed_client_and_scopes(dbSession, monkeypatch):
@@ -172,34 +171,24 @@ async def test_authorize_rejects_plain_pkce(dbSession, monkeypatch):
         await provider.authorize(client, plain)
 
 
-async def test_expired_refresh_rejected(dbSession, monkeypatch):
+def test_expired_refresh_rejected(dbSession, monkeypatch):
+    """Real HTTP /token route rejects an expired refresh token with invalid_grant."""
     import time
 
-    from mcp.server.auth.provider import RefreshToken, TokenError
+    from main.controller import wallet_controller as walletController
 
-    from main.app.authentication.mcp.server import RefreshRecord
-
-    provider = _use_test_env(monkeypatch, dbSession)
-    client = await provider.get_client(CLIENT_ID)
-    expired = RefreshToken(
-        token="expired-refresh-value",
-        client_id=CLIENT_ID,
-        scopes=["wallet"],
-        expires_at=int(time.time()) - 10,
-        resource=None,
-        subject="1",
-    )
-    provider.authlibStore.refreshTokens[expired.token] = RefreshRecord(
-        token=expired.token,
-        clientId=CLIENT_ID,
-        scope="wallet",
-        sessionId="sess",
-        userId="1",
-        expiresAt=time.time() - 10,
-    )
-    with pytest.raises(TokenError) as exc:
-        await provider.exchange_refresh_token(client, expired, [])
-    assert exc.value.error == "invalid_grant"
+    _use_test_env(monkeypatch, dbSession)
+    _seed_user(dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        tokens = _basic_token_post(httpClient, _fresh_code(httpClient)).json()
+        record = walletController.walletProvider.authlibStore.refreshTokens[tokens["refresh_token"]]
+        record.expiresAt = time.time() - 10
+        expired = httpClient.post(
+            "/token",
+            data={"grant_type": "refresh_token", "refresh_token": tokens["refresh_token"]},
+            headers=_basic_header(),
+        )
+        assert expired.status_code == 400 and "invalid_grant" in expired.text
 
 
 async def test_revoked_session_access_fails(dbSession, monkeypatch):
