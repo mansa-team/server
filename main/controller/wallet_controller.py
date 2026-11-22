@@ -32,7 +32,8 @@ from main.utils.mcp import mcpToolDecorator
 
 router = APIRouter(prefix="/wallet", tags=["Wallet"], dependencies=[Depends(getWalletUser)])
 
-walletProvider = SoloOAuthProvider()
+# authlib HTTP endpoints replace the unimplemented Protocol token methods.
+walletProvider = SoloOAuthProvider()  # type: ignore[abstract]
 walletAuth = SoloAuth(server=walletProvider, required_scopes=[])
 mcp = FastMCP("Mansa Wallet MCP", auth=walletAuth)
 registerLoginRoutes(mcp, walletProvider)
