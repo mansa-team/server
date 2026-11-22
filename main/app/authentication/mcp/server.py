@@ -84,10 +84,17 @@ class RefreshRecord:
 
 
 class StaticClient:
-    def __init__(self, clientId: str, clientSecret: str, redirectUris: list[str] | None = None):
+    def __init__(
+        self,
+        clientId: str,
+        clientSecret: str,
+        redirectUris: list[str] | None = None,
+        resource: str | None = None,
+    ):
         self.clientId = clientId
         self.clientSecret = clientSecret
         self.redirectUris = redirectUris or []
+        self.resource = resource
 
     def get_client_id(self) -> str:
         return self.clientId
@@ -165,7 +172,7 @@ class MansaTokenGenerator(JWTBearerTokenGenerator):
         return OctKey.import_key(Config.AUTH.JWT_SECRET_KEY)
 
     def get_audiences(self, client: StaticClient, user: OAuthUser | None, scope: str) -> str:
-        return resourceUrl()
+        return client.resource or resourceUrl()
 
     def get_extra_claims(
         self, client: StaticClient, grantType: str, user: OAuthUser | None, scope: str
