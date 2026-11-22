@@ -6,16 +6,10 @@ from typing import Any
 from urllib.parse import urlparse
 
 from fastmcp.server.auth import AccessToken, MultiAuth, OAuthProvider
-from mcp.server.auth.provider import (
-    AuthorizationCode,
-    AuthorizationParams,
-    AuthorizeError,
-    RefreshToken,
-    TokenError,
-)
+from mcp.server.auth.provider import AuthorizationParams, AuthorizeError, RefreshToken
 from mcp.server.auth.routes import cors_middleware
 from mcp.server.auth.settings import RevocationOptions
-from mcp.shared.auth import OAuthClientInformationFull, OAuthToken
+from mcp.shared.auth import OAuthClientInformationFull
 from pydantic import AnyHttpUrl, AnyUrl
 from starlette.datastructures import FormData
 from starlette.requests import Request
@@ -23,25 +17,21 @@ from starlette.responses import Response
 from starlette.routing import Route
 
 from config import Config, LOCALHOST_ADDRESSES, SessionLocal
-from main.app.authentication.constants import ACCESS_TTL, CODE_TTL, REFRESH_TTL, WALLET_RESOURCE_PATH, WALLET_SCOPE
+from main.app.authentication.constants import ACCESS_TTL, CODE_TTL, WALLET_RESOURCE_PATH, WALLET_SCOPE
 from main.app.authentication.mcp.server import (
     CodeRecord,
     FastAPIStyleRequest,
     MansaAuthorizationServer,
     OAuthStore,
-    OAuthUser,
-    RefreshRecord,
-    StaticClient,
 )
 from main.app.authentication.mcp.verifier import verifyMcpAccessToken
 from main.app.authentication.session import SessionManager
 from main.app.authentication.tokens import decodeToken
 from main.app.authentication.util import loopbackMiddleware
-from main.app.authentication.verifier import REVOKED_ACCESS_JTIS, resourceUrl
+from main.app.authentication.verifier import REVOKED_ACCESS_JTIS
 
 CODE_TTL_SECONDS = CODE_TTL
 ACCESS_TTL_SECONDS = ACCESS_TTL
-REFRESH_TTL_SECONDS = REFRESH_TTL
 
 revokedJtiTimes: dict[str, float] = {}
 
@@ -207,83 +197,6 @@ class SoloOAuthProvider(OAuthProvider):
         )
         return code
 
-    async def load_authorization_code(
-        self, client: OAuthClientInformationFull, authorization_code: str
-    ) -> AuthorizationCode | None:
-        record = self.authlibStore.codes.get(authorization_code)
-        if (
-            not record
-            or record.clientId != client.client_id
-            or record.expiresAt < time.time()
-            or not record.redirectUri
-        ):
-            return None
-        return AuthorizationCode(
-            code=record.code,
-            scopes=record.scope.split(),
-            expires_at=record.expiresAt,
-            client_id=record.clientId,
-            code_challenge=record.code_challenge or "",
-            redirect_uri=AnyUrl(record.redirectUri),
-            redirect_uri_provided_explicitly=record.redirect_uri_provided_explicitly,
-            resource=record.resource,
-            subject=record.userId,
-        )
-
-    async def exchange_authorization_code(
-        self, client: OAuthClientInformationFull, authorization_code: AuthorizationCode
-    ) -> OAuthToken:
-        record = self.authlibStore.codes.pop(authorization_code.code, None)
-        if not record or record.clientId != client.client_id:
-            raise TokenError("invalid_grant", "authorization code does not exist")
-        if record.expiresAt < time.time():
-            raise TokenError("invalid_grant", "authorization code has expired")
-        return self.mint(
-            client.client_id,
-            str(record.userId or ""),
-            str(record.sessionId or ""),
-            record.scope.split(),
-            record.resource,
-        )
-
-    async def load_refresh_token(self, client: OAuthClientInformationFull, refresh_token: str) -> RefreshToken | None:
-        record = self.authlibStore.refreshTokens.get(refresh_token)
-        if (
-            not record
-            or record.clientId != client.client_id
-            or record.revoked
-            or (record.expiresAt is not None and record.expiresAt < time.time())
-        ):
-            return None
-        return RefreshToken(
-            token=record.token,
-            client_id=record.clientId,
-            scopes=record.scope.split(),
-            expires_at=int(record.expiresAt) if record.expiresAt is not None else None,
-            resource=record.resource,
-            subject=record.userId,
-        )
-
-    async def exchange_refresh_token(
-        self,
-        client: OAuthClientInformationFull,
-        refresh_token: RefreshToken,
-        scopes: list[str],
-    ) -> OAuthToken:
-        record = self.authlibStore.refreshTokens.get(refresh_token.token)
-        if not record or record.clientId != client.client_id:
-            raise TokenError("invalid_grant", "refresh token does not exist")
-        if record.expiresAt is not None and record.expiresAt < time.time():
-            raise TokenError("invalid_grant", "refresh token has expired")
-        record.revoked = True
-        return self.mint(
-            client.client_id,
-            str(record.userId or ""),
-            str(record.sessionId or ""),
-            scopes or record.scope.split(),
-            record.resource,
-        )
-
     async def load_access_token(self, token: str) -> AccessToken | None:
         db = SessionLocal()
         try:
@@ -329,40 +242,6 @@ class SoloOAuthProvider(OAuthProvider):
             pass
         finally:
             db.close()
-
-    def mint(self, clientId: str, userId: str, sessionId: str, scopes: list[str], resource: str | None) -> OAuthToken:
-        useScopes = scopes or [WALLET_SCOPE]
-        client = StaticClient(
-            clientId,
-            Config.USER.MCP_OAUTH_CLIENT_SECRET,
-            [resource or resourceUrl()],
-        )
-        user = OAuthUser(userId=str(userId), sessionId=str(sessionId))
-        issued = self.authlibServer.generate_token(
-            "authorization_code",
-            client,
-            user=user,
-            scope=" ".join(useScopes),
-            expires_in=ACCESS_TTL_SECONDS,
-        )
-        refreshValue = str(issued["refresh_token"])
-        record = self.authlibStore.refreshTokens.get(refreshValue) or RefreshRecord(
-            token=refreshValue,
-            clientId=clientId,
-            scope=" ".join(useScopes),
-            sessionId=str(sessionId),
-            userId=str(userId),
-            expiresAt=time.time() + REFRESH_TTL_SECONDS,
-        )
-        record.resource = resource or resourceUrl()
-        self.authlibStore.refreshTokens[refreshValue] = record
-        return OAuthToken(
-            access_token=str(issued["access_token"]),
-            token_type="Bearer",
-            expires_in=int(issued.get("expires_in", ACCESS_TTL_SECONDS)),
-            scope=str(issued.get("scope", " ".join(useScopes))),
-            refresh_token=refreshValue,
-        )
 
 
 class SoloAuth(MultiAuth):
