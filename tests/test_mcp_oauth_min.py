@@ -458,6 +458,27 @@ def test_http_full_flow_token_refresh_revoke(dbSession, monkeypatch):
         assert walletController.walletProvider.authlibStore.codes == {}
 
 
+def test_revoke_invalidates_db_session(dbSession, monkeypatch):
+    """POST /revoke must run provider.revoke_token -> SessionManager.revokeSession."""
+    from main.app.authentication.tokens import rawClaims
+    from main.app.authentication.verifier import verifyAccessTokenClaims
+
+    _use_test_env(monkeypatch, dbSession)
+    _seed_user(dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        token = _basic_token_post(httpClient, _fresh_code(httpClient)).json()["access_token"]
+        claims = rawClaims(token)
+        sibling = createAccessToken({"userId": str(claims["userId"]), "sessionId": claims["sessionId"]})
+        assert verifyAccessTokenClaims(sibling, dbSession) is not None
+
+        revoke = httpClient.post(
+            "/revoke",
+            data={"token": token, "client_id": CLIENT_ID, "client_secret": CLIENT_SECRET},
+        )
+        assert revoke.status_code == 200
+        assert verifyAccessTokenClaims(sibling, dbSession) is None
+
+
 def test_http_pkce_mismatch_and_wrong_secret(dbSession, monkeypatch):
     _use_test_env(monkeypatch, dbSession)
     _seed_user(dbSession)
