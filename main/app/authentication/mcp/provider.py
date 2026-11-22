@@ -135,7 +135,13 @@ class SoloOAuthProvider(OAuthProvider):
         return self.authlibServer.create_token_response(await self._oauthRequest(request))
 
     async def _revokeEndpoint(self, request: Request) -> Response:
-        return self.authlibServer.create_endpoint_response("revocation", await self._oauthRequest(request))
+        oauthRequest = await self._oauthRequest(request)
+        response = self.authlibServer.create_endpoint_response("revocation", oauthRequest)
+        if response.status_code == 200:
+            tokenValue = str(oauthRequest.form.get("token") or "")
+            if tokenValue:
+                await self.revoke_token(AccessToken(token=tokenValue, client_id="", scopes=[]))
+        return response
 
     async def authorize(self, client: OAuthClientInformationFull, params: AuthorizationParams) -> str:
         if not getattr(params, "code_challenge", None) or getattr(params, "code_challenge_method", "S256") != "S256":
