@@ -8,12 +8,11 @@ from main.utils.logging_config import limiter
 
 from fastapi import APIRouter, Response, HTTPException, Request, Depends, Body
 from fastapi.responses import RedirectResponse
-from fastapi_sso.sso.base import SSOLoginError
 from sqlalchemy.orm import Session
 
 from main.app.authentication.authentication import AuthenticationManager
-from main.app.authentication.csrf import CSRF_COOKIE_NAME, csrf_exempt, issueCsrfToken
-from main.app.authentication.introspect import introspectToken
+from main.app.authentication.util import CSRF_COOKIE_NAME, csrfExempt, issueCsrfToken
+from main.app.authentication.verifier import introspectToken
 from main.app.authentication.service_token import verifyServiceToken
 from main.app.authentication.util import (
     MAX_PASSWORD_BYTES,
@@ -21,6 +20,7 @@ from main.app.authentication.util import (
     passwordExceedsByteLimit,
     verifyAccessToken,
 )
+from fastapi_sso.sso.base import SSOLoginError
 from main.app.authentication.sso import getGoogleSSO
 from main.app.authentication.constants import (
     COOKIE_NAME,
@@ -85,7 +85,7 @@ def health(request: Request):
     return {"status": "ok", "service": "authentication"}
 
 
-@csrf_exempt
+@csrfExempt
 @router.post("/register")
 @limiter.limit("10/minute")
 def register(
@@ -120,7 +120,7 @@ def register(
         raise HTTPException(status_code=500, detail="Registration failed. Internal error.")
 
 
-@csrf_exempt
+@csrfExempt
 @router.post("/login")
 @limiter.limit("10/minute")
 def login(
@@ -206,7 +206,7 @@ def introspect(
         raise HTTPException(status_code=401, detail="Unauthorized")
 
 
-@csrf_exempt
+@csrfExempt
 @router.get("/google")
 @limiter.limit("5/minute")
 async def googleLogin(request: Request):
@@ -223,7 +223,7 @@ async def googleLogin(request: Request):
     return googleRedirect
 
 
-@csrf_exempt
+@csrfExempt
 @router.get("/callback")
 @limiter.limit("5/minute")
 async def googleCallback(request: Request, response: Response, db: Session = Depends(getSession)):
@@ -295,11 +295,11 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
         logger.info("--- Google Callback End ---")
         return {"user": user}
 
-    except HTTPException:
-        raise
     except SSOLoginError:
         logger.warning("SSO state validation failed", exc_info=True)
         raise HTTPException(status_code=401, detail="SSO login failed.")
+    except HTTPException:
+        raise
     except Exception:
         logger.error("Critical error in Google callback", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error during Google login")

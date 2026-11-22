@@ -1,4 +1,4 @@
-from main.app.authentication.csrf import CsrfProtectMiddleware
+from main.app.authentication.util import CsrfProtectMiddleware
 from main.controller.authentication_controller import router as authenticationRouter
 from main.utils.service_manager import getApp
 

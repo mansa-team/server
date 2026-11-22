@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from config import getSession
-from main.app.authentication.introspect import introspectToken
+from main.app.authentication.verifier import introspectToken
 from main.app.authentication.util import extractRawToken
 
 

@@ -1,4 +1,4 @@
-from main.app.authentication.csrf import CsrfProtectMiddleware
+from main.app.authentication.util import CsrfProtectMiddleware
 from main.controller.wallet_controller import router as walletRouter
 from main.controller.wallet_controller import mcp as walletMcp
 from main.utils.service_manager import adoptMcpLifespan, getApp

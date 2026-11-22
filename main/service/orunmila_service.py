@@ -4,7 +4,7 @@ import math
 from datetime import datetime
 
 from sqlalchemy.orm import Session
-from main.app.authentication.csrf import CsrfProtectMiddleware
+from main.app.authentication.util import CsrfProtectMiddleware
 from main.utils.service_manager import getApp
 
 from main.models.memory import OrunmilaMemory
