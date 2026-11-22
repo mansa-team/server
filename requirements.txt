@@ -31,9 +31,9 @@ rapidfuzz
 
 # USER
 slowapi
-fastapi-sso
+authlib>=1.9,<2
 bcrypt
-PyJWT
+fastapi-sso
 
 # TEST
 pytest-asyncio
