@@ -71,7 +71,7 @@ class SoloOAuthProvider(OAuthProvider):
         revokedJtiTimes.clear()
         self.authlibStore.clear()
 
-    def build_client(self) -> OAuthClientInformationFull | None:
+    def buildClient(self) -> OAuthClientInformationFull | None:
         clientId = Config.USER.MCP_OAUTH_CLIENT_ID
         secret = Config.USER.MCP_OAUTH_CLIENT_SECRET
         if not clientId or not secret:
@@ -85,7 +85,7 @@ class SoloOAuthProvider(OAuthProvider):
         )
 
     async def get_client(self, client_id: str) -> OAuthClientInformationFull | None:
-        client = self.build_client()
+        client = self.buildClient()
         if client is not None and client_id == client.client_id:
             return client
         return None
@@ -103,7 +103,7 @@ class SoloOAuthProvider(OAuthProvider):
                 rebuilt.append(
                     Route(
                         "/token",
-                        endpoint=cors_middleware(self._tokenEndpoint, ["POST", "OPTIONS"]),
+                        endpoint=cors_middleware(self.tokenEndpoint, ["POST", "OPTIONS"]),
                         methods=["POST", "OPTIONS"],
                     )
                 )
@@ -111,7 +111,7 @@ class SoloOAuthProvider(OAuthProvider):
                 rebuilt.append(
                     Route(
                         "/revoke",
-                        endpoint=cors_middleware(self._revokeEndpoint, ["POST", "OPTIONS"]),
+                        endpoint=cors_middleware(self.revokeEndpoint, ["POST", "OPTIONS"]),
                         methods=["POST", "OPTIONS"],
                     )
                 )
@@ -120,7 +120,7 @@ class SoloOAuthProvider(OAuthProvider):
         return rebuilt
 
     @staticmethod
-    async def _oauthRequest(request: Request) -> FastAPIStyleRequest:
+    async def oauthRequest(request: Request) -> FastAPIStyleRequest:
         params: dict[str, Any] = dict(request.query_params)
         form = FormData()
         try:
@@ -131,11 +131,11 @@ class SoloOAuthProvider(OAuthProvider):
             params[key] = value
         return FastAPIStyleRequest(request.method, str(request.url), params, request.headers)
 
-    async def _tokenEndpoint(self, request: Request) -> Response:
-        return self.authlibServer.create_token_response(await self._oauthRequest(request))
+    async def tokenEndpoint(self, request: Request) -> Response:
+        return self.authlibServer.create_token_response(await self.oauthRequest(request))
 
-    async def _revokeEndpoint(self, request: Request) -> Response:
-        oauthRequest = await self._oauthRequest(request)
+    async def revokeEndpoint(self, request: Request) -> Response:
+        oauthRequest = await self.oauthRequest(request)
         response = self.authlibServer.create_endpoint_response("revocation", oauthRequest)
         if response.status_code == 200:
             tokenValue = str(oauthRequest.form.get("token") or "")
@@ -163,20 +163,20 @@ class SoloOAuthProvider(OAuthProvider):
         }
         return f"{str(self.base_url).rstrip('/')}/oauth/login?request_id={requestId}"
 
-    def take_pending(self, requestId: str) -> dict | None:
+    def takePending(self, requestId: str) -> dict | None:
         item = self.pending.pop(requestId, None)
         if not item or item["expires_at"] < time.time():
             return None
         return item
 
-    def peek_pending(self, requestId: str) -> dict | None:
+    def peekPending(self, requestId: str) -> dict | None:
         item = self.pending.get(requestId)
         if not item or item["expires_at"] < time.time():
             self.pending.pop(requestId, None)
             return None
         return item
 
-    def issue_code(
+    def issueCode(
         self,
         clientId: str,
         userId: str,

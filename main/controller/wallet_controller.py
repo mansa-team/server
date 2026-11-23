@@ -32,7 +32,6 @@ from main.utils.mcp import mcpToolDecorator
 
 router = APIRouter(prefix="/wallet", tags=["Wallet"], dependencies=[Depends(getWalletUser)])
 
-# authlib HTTP endpoints replace the unimplemented Protocol token methods.
 walletProvider = SoloOAuthProvider()  # type: ignore[abstract]
 walletAuth = SoloAuth(server=walletProvider, required_scopes=[])
 mcp = FastMCP("Mansa Wallet MCP", auth=walletAuth)
@@ -227,7 +226,6 @@ def set_rating_route(
     currentUser: dict = Depends(getWalletUser),
     db: Session = Depends(getSession),
 ):
-    """Single-rating override: PUT sets `Holding.rating` (Xango default, user-overwritable)."""
     wallet = WalletsManager.getMyWallet(db, int(currentUser["userId"]))
     holding = SummaryManager.set_rating(db, wallet, payload)
     return {"ticker": holding.ticker, "rating": holding.rating}
@@ -323,7 +321,6 @@ def get_progression_route(
     return AnalyticsManager.getProgression(db, wallet, startDate, endDate)
 
 
-# Keep EXAMPLES bullets single-line: FastMCP 4.1 drops the whole section on wrapped continuation lines.
 @mcp_tool
 @router.post("/record-entry", operation_id="record_entry")
 def record_entry_route(
@@ -568,15 +565,6 @@ def get_dividends_monthly_route(
 
 
 def resolveMcpIdentity(authorization: str, db: Session) -> dict:
-    """Session JWT from an MCP tool arg -> verified claims with revocation check.
-
-    Falls back to the transport Bearer (OpenCode path) when the tool arg is
-    empty: per-tool `authorization` wins when present, otherwise the FastMCP
-    request token is validated through the identical path below. No transport
-    context (direct unit calls) keeps the existing 401.
-
-    Raises HTTPException 401 on missing, expired, forged, or revoked sessions.
-    """
     if not authorization or not authorization.strip():
         access = get_access_token()
         raw = access.token if (access and access.token) else ""

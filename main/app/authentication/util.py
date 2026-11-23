@@ -120,7 +120,7 @@ def csrfExempt(endpoint):
     return endpoint
 
 
-csrf_exempt = csrfExempt  # legacy name kept for existing importers
+csrf_exempt = csrfExempt
 
 
 def isCsrfExemptEndpoint(request: Request) -> bool:

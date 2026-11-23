@@ -68,7 +68,7 @@ def registerLoginRoutes(mcp, provider) -> None:
         requestId = request.query_params.get("request_id") or (form.get("request_id") if form else None)
         if not isinstance(requestId, str) or not requestId:
             return HTMLResponse("missing request", status_code=400)
-        pending = provider.peek_pending(requestId)
+        pending = provider.peekPending(requestId)
         if not pending:
             return HTMLResponse("expired request", status_code=400)
 
@@ -92,10 +92,10 @@ def registerLoginRoutes(mcp, provider) -> None:
             elif identity is None:
                 return loginPage(requestId, None)
 
-            live = provider.take_pending(requestId)
+            live = provider.takePending(requestId)
             if not live:
                 return HTMLResponse("expired request", status_code=400)
-            code = provider.issue_code(
+            code = provider.issueCode(
                 live["client_id"],
                 identity[0],
                 identity[1],
