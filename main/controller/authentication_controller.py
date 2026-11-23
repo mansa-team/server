@@ -1,5 +1,7 @@
 import hashlib
+import ipaddress
 import logging
+import re
 from config import Config, getSession, LOCALHOST_ADDRESSES
 
 from datetime import datetime, timedelta, timezone
@@ -32,9 +34,21 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
+COOKIE_DOMAIN_RE = re.compile(
+    r"^(?=.{1,253}$)[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$"
+)
+
+
 def resolveCookieDomain(request: Request) -> str | None:
     hostname = request.url.hostname or "localhost"
-    if hostname in ("localhost", "127.0.0.1"):
+    if hostname in LOCALHOST_ADDRESSES:
+        return None
+    try:
+        ipaddress.ip_address(hostname)
+        return None
+    except ValueError:
+        pass
+    if not COOKIE_DOMAIN_RE.fullmatch(hostname):
         return None
     return hostname
 
