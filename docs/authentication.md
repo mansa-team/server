@@ -4,13 +4,13 @@ JWT (HS256) + HttpOnly cookie + DB-tracked sessions for the Mansa ecosystem (`US
 
 ## Token & session lifetime
 
-- Sessions and tokens live **30 days / 720 hours** (`main/app/authentication/constants.py:3-4`: `SESSION_EXPIRY_DAYS = 30`, `TOKEN_EXPIRY_HOURS = 720`).
-- JWT payload: `{"userId", "sessionId", "exp"}`; signed HS256 with `Config.USER.JWT_SECRET_KEY` (`main/app/authentication/util.py:31-41`, verify `:44-51`).
+- Sessions and tokens live **30 days / 720 hours** (`main/app/authentication/constants.py:9-11`: `TOKEN_EXPIRY_HOURS = 720`, `SESSION_EXPIRY_DAYS = 30`, `SESSION_IDLE_TIMEOUT_HOURS = 24`).
+- JWT payload: `{"userId", "sessionId", "exp"}`; signed HS256 with `Config.USER.JWT_SECRET_KEY` (`main/app/authentication/tokens.py:26-49` mint, `:52-60` verify).
 - `SessionManager.createSession` defaults `expiresAt = now + 30d`; `validateSession` lazily deactivates expired rows (`main/app/authentication/session.py:32-64,141-175`).
 
 ## Token extraction order
 
-`extractTokenPayload` (`main/app/authentication/util.py:54-78`) checks in this order:
+`extractTokenPayload` (`main/app/authentication/util.py:65-96`) checks in this order:
 
 1. `X-Access-Token` header
 2. `Authorization: Bearer <token>`
@@ -36,19 +36,12 @@ Missing token → 401 `Session not found`; expired → 401 `Token expired`; bad 
   (`SecurityHeadersMiddleware`).
 - Domain via `resolveCookieDomain`: host-only (no Domain attribute) when host
   is `localhost`/`127.0.0.1`, otherwise the request hostname.
-- Logout deletes both `mansa_token` and `mansa_csrf` with the same flags and
+- Logout deletes `mansa_token` with the same flags and
   revokes the DB session found in the token (best-effort, always 200).
-- CSRF: double-submit cookie `mansa_csrf` (readable by JS, Secure-always,
-  SameSite `lax`) issued automatically alongside the session
-  (login/register/OAuth Set-Cookie). No issuer endpoint — the browser reads
-  the cookie and echoes it in `X-CSRF-Token`.
-  Cookie-authenticated mutating requests must echo it in `X-CSRF-Token`
-  (`CsrfProtectMiddleware`); header-only API calls (no session cookie) are
-  exempt. Login/register/introspect/health are exempt (no session yet).
 - Login/register/Google-callback are **cookie-only**: JSON returns
   `{message?, user}` with no `accessToken`/`tokenType`. Header bearer
   acceptance (`X-Access-Token` > `Authorization: Bearer` > cookie) is kept
-  for non-browser API clients; browsers use the cookie + CSRF header.
+  for non-browser API clients; browsers use the cookie.
 
 ## Session data model (family-only)
 
@@ -88,28 +81,24 @@ Only three permissions exist: `USE_ORUNMILA`, `ORUNMILA_EXTENDED_MEMORIES`, `WAL
 | :--- | :--- |
 | `POST /auth/register` | 10/minute |
 | `POST /auth/login` | 10/minute |
-| `POST /auth/introspect` | 30/minute (requires `X-Service-Token`) |
-
-## Service token (`POST /auth/introspect`)
-
-Opaque session-ID token bound to the `service-loopback` user — no secrets, no
-JWT, no rotation. Single fixed lifetime 30d/720h, hardcoded by design
-(`main/app/authentication/service_token.py:29-35`).
-
-Mint: `createServiceToken(db)` returns the new `session.sessionId`.
-Send as `X-Service-Token: <sessionId>`. Verification (`verifyServiceToken`,
-`:38-59`) checks the session row exists, is active, belongs to
-`service-loopback`, and is unexpired (lazily deactivates on expiry).
 | `GET /auth/google` | 5/minute |
 | `GET /auth/callback` | 5/minute |
 
+## Service token (loopback / MCP)
+
+Opaque session-ID token bound to the `service-loopback` user — no secrets, no
+JWT, no rotation. Single fixed lifetime 30d/720h
+(`main/app/authentication/service_token.py`).
+
+Mint: `createServiceToken(db)` returns the new `session.sessionId`.
+Send as `X-Service-Token: <sessionId>`. Verification (`verifyServiceToken`)
+checks the session row exists, is active, belongs to
+`service-loopback`, and is unexpired (lazily deactivates on expiry). It is
+consumed by the loopback middleware (`ServiceLoopbackBackend` in
+`main/app/authentication/util.py`) and the ORUNMILA MCP bridge; there is no
+HTTP introspection endpoint.
+
 ## API endpoints
-
-### Health Check
-
-```bash
-curl http://localhost:3200/auth/health
-```
 
 ### User Registration
 
@@ -121,7 +110,7 @@ curl -X POST "http://localhost:3200/auth/register" \
      -d '{"username": "user", "email": "user@example.com", "password": "password123"}'
 ```
 
-Returns `{message, user}` (cookie-only, no `accessToken`) and sets `mansa_token` + `mansa_csrf`.
+Returns `{message, user}` (cookie-only, no `accessToken`) and sets `mansa_token`.
 
 ### User Login
 
@@ -131,7 +120,7 @@ curl -X POST "http://localhost:3200/auth/login" \
      -d '{"username": "user", "password": "password123"}'
 ```
 
-Returns `{user}` (cookie-only, no `accessToken`) and sets `mansa_token` + `mansa_csrf`. Creates a new DB session per login (no session reuse).
+Returns `{user}` (cookie-only, no `accessToken`) and sets `mansa_token`. Creates a new DB session per login (no session reuse).
 
 ### Logout
 
@@ -149,15 +138,15 @@ Revokes the token's DB session (best-effort) and deletes the cookie. Always retu
 GET http://localhost:3200/auth/google?redirect_url=http://localhost:5500/main/test/auth.html
 ```
 
-Passes `redirect_url` as the OAuth `state` param (`:166`).
+Passes `redirect_url` as the OAuth `state` param.
 
 ### Google Callback (cookie-only)
 
-Internal endpoint. Flow (`:173-222`):
+Internal endpoint. Flow:
 
-1. Patches the `sso_state` cookie from the `state` query param (`:177-180`) as a SameSite workaround.
+1. Patches the `sso_state` cookie from the `state` query param as a SameSite workaround.
 2. `verify_and_process`, syncs/creates the local user by Google id.
-3. **Cookie-only redirect — no `?token=` in the URL.** If `state` is an `http(s)` URL whose host is in `LOCALHOST_ADDRESSES` or ends with `.localhost` (`:207-213`), returns `303 RedirectResponse` to it with the session cookie set (`:215-218`).
+3. **Cookie-only redirect — no `?token=` in the URL.** If `state` is an `http(s)` URL whose host is in `LOCALHOST_ADDRESSES` or ends with `.localhost`, returns `303 RedirectResponse` to it with the session cookie set.
 4. Otherwise (non-localhost or missing state) returns JSON `{user}` (cookie-only, no `accessToken`) with the cookies set.
 
 ## Security features
@@ -167,8 +156,7 @@ Internal endpoint. Flow (`:173-222`):
 - **Hybrid sessions**: stateless JWT carrying `sessionId`, revocable via DB row (`isActive` flag).
 - **Secure-always cookies** (never downgradable via `X-Forwarded-Proto` spoof) + **HSTS** on https responses.
 - **Cookie-only login JSON** (no `accessToken` in bodies — closes XSS/sniff theft window; header bearer kept for non-browser API clients only).
-- **Opaque service token** for `/auth/introspect`: a `service-loopback` session-ID (`createServiceToken(db)`), fixed 30d/720h, no secrets or rotation (`service_token.py`).
-- **Double-submit CSRF** on cookie-authenticated mutations (`mansa_csrf` cookie + `X-CSRF-Token` header; fresh token issued with every login/register/OAuth Set-Cookie).
+- **Opaque service token** for loopback/MCP calls: a `service-loopback` session-ID (`createServiceToken(db)`), fixed 30d/720h, no secrets or rotation (`service_token.py`).
 - **Auth-gated `/scraper/run`**: requires a valid session (`getCurrentUser`) even in `DEBUG_MODE`.
 - **OAuth state allowlist**: only localhost hosts accepted for redirect; anything else falls back to JSON (open-redirect guard).
 - **CORS**: dynamic origin matching for trusted frontends.
@@ -203,7 +191,7 @@ graph TD
     Hash --> Save["Save to MySQL"]
     Save --> CreateSession
 
-    JWT --> Cookie["Set HttpOnly Secure-always Cookie + CSRF cookie"]
+    JWT --> Cookie["Set HttpOnly Secure-always Cookie"]
     Cookie --> Home["Access Granted"]
 ```
 
