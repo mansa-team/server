@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from main.app.user.user import UserManager
 
-from main.app.authentication.session import SessionManager
+from main.app.authentication.session import SessionManager, redactSessionId
 
 logger = logging.getLogger(__name__)
 
@@ -92,14 +92,14 @@ def revokeSession(
 
     session = SessionManager.getSessionById(db, sessionId, currentUser["userId"])
     if not session:
-        logger.warning(f"Session not found: {sessionId} for user {currentUser['userId']}")
+        logger.warning("Session not found: %s for user %s", redactSessionId(sessionId), currentUser["userId"])
         raise HTTPException(status_code=404, detail="Session not found")
 
     success = SessionManager.revokeSession(db, sessionId, currentUser["userId"])
     if not success:
         raise HTTPException(status_code=500, detail="Failed to revoke session")
 
-    logger.info(f"Session {sessionId} revoked by user {currentUser['userId']}")
+    logger.info("Session %s revoked by user %s", redactSessionId(sessionId), currentUser["userId"])
     return {"message": "Session revoked successfully", "sessionId": sessionId}
 
 

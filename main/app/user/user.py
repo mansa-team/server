@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from main.models.user import User, getRolesList
 
-from main.app.authentication.session import SessionManager
+from main.app.authentication.session import SessionManager, redactSessionId
 from main.app.authentication.util import extractTokenPayload
 from main.utils.roles import Permission, Roles
 
@@ -30,7 +30,7 @@ class UserManager:
 
             isValid = SessionManager.validateSession(db, sessionId, int(userId))
             if not isValid:
-                logger.info(f"Session {sessionId} revoked, logging out user {userId}")
+                logger.info("Session %s revoked, logging out user %s", redactSessionId(sessionId), userId)
                 raise HTTPException(status_code=401, detail="Session revoked")
 
             user = db.query(User).filter(User.userId == userId).first()

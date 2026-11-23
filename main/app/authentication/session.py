@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import secrets
 from datetime import datetime, timedelta, timezone
@@ -10,6 +11,11 @@ from main.app.authentication.constants import SESSION_EXPIRY_DAYS, SESSION_IDLE_
 logger = logging.getLogger(__name__)
 
 SESSION_TOUCH_INTERVAL_MINUTES = 5
+
+
+def redactSessionId(sessionId: str) -> str:
+    digest = hashlib.sha256(str(sessionId).encode("utf-8")).hexdigest()[:12]
+    return f"sid:{digest}"
 
 
 def parseDeviceFields(userAgent: str | None) -> tuple[str | None, str | None, str | None]:
@@ -63,7 +69,7 @@ class SessionManager:
         db.add(session)
         db.commit()
 
-        logger.info(f"Created session {sessionId} for user {userId}")
+        logger.info("Created session %s for user %s", redactSessionId(sessionId), userId)
         return session
 
     @staticmethod
@@ -103,7 +109,7 @@ class SessionManager:
         )
         db.commit()
         if count:
-            logger.info(f"Revoked session {sessionId} for user {userId}")
+            logger.info("Revoked session %s for user %s", redactSessionId(sessionId), userId)
             return True
         return False
 
@@ -128,7 +134,7 @@ class SessionManager:
             UserSession.isActive.is_(True),
         ).update({UserSession.isActive: False}, synchronize_session=False)
         db.commit()
-        logger.info(f"Revoked all sessions for user {user_id} except {keep_session_id}")
+        logger.info("Revoked all sessions for user %s except %s", user_id, redactSessionId(keep_session_id))
 
     @staticmethod
     def updateLastActive(db: Session, sessionId: str) -> bool:
