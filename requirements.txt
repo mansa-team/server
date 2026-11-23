@@ -32,6 +32,7 @@ rapidfuzz
 # USER
 slowapi
 authlib>=1.9,<2
+joserfc>=1.8,<2
 bcrypt
 fastapi-sso
 
