@@ -17,7 +17,7 @@ from starlette.responses import Response
 from starlette.routing import Route
 
 from config import Config, LOCALHOST_ADDRESSES, SessionLocal
-from main.app.authentication.constants import ACCESS_TTL, CODE_TTL, WALLET_RESOURCE_PATH, WALLET_SCOPE
+from main.app.authentication.constants import CODE_TTL, WALLET_RESOURCE_PATH, WALLET_SCOPE
 from main.app.authentication.mcp.server import (
     CodeRecord,
     FastAPIStyleRequest,
@@ -29,12 +29,6 @@ from main.app.authentication.session import SessionManager
 from main.app.authentication.tokens import decodeToken
 from main.app.authentication.util import loopbackMiddleware
 from main.app.authentication.verifier import REVOKED_ACCESS_JTIS
-
-CODE_TTL_SECONDS = CODE_TTL
-ACCESS_TTL_SECONDS = ACCESS_TTL
-
-revokedJtiTimes: dict[str, float] = {}
-
 
 class LoopbackRedirectClient(OAuthClientInformationFull):
     def validate_redirect_uri(self, redirect_uri: AnyUrl | None) -> AnyUrl:
@@ -68,7 +62,6 @@ class SoloOAuthProvider(OAuthProvider):
 
     def clear(self) -> None:
         self.pending.clear()
-        revokedJtiTimes.clear()
         self.authlibStore.clear()
 
     def buildClient(self) -> OAuthClientInformationFull | None:
@@ -159,7 +152,7 @@ class SoloOAuthProvider(OAuthProvider):
             "redirect_provided": params.redirect_uri_provided_explicitly,
             "resource": params.resource,
             "state": params.state,
-            "expires_at": time.time() + CODE_TTL_SECONDS,
+            "expires_at": time.time() + CODE_TTL,
         }
         return f"{str(self.base_url).rstrip('/')}/oauth/login?request_id={requestId}"
 
@@ -225,13 +218,6 @@ class SoloOAuthProvider(OAuthProvider):
             return
         jti = str(payload.get("jti") or "")
         if jti:
-            now = time.time()
-            cutoff = now - ACCESS_TTL_SECONDS
-            for oldJti, seenAt in list(revokedJtiTimes.items()):
-                if seenAt < cutoff:
-                    del revokedJtiTimes[oldJti]
-                    REVOKED_ACCESS_JTIS.discard(oldJti)
-            revokedJtiTimes[jti] = now
             REVOKED_ACCESS_JTIS.add(jti)
 
         userId, sessionId = payload.get("userId"), payload.get("sessionId")

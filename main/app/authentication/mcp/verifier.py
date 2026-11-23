@@ -3,16 +3,13 @@ from __future__ import annotations
 from fastmcp.server.auth import AccessToken
 from sqlalchemy.orm import Session
 
-from config import SessionLocal
 from main.app.authentication.constants import WALLET_SCOPE
 from main.app.authentication.verifier import verifyAccessTokenClaims
 
 
-def verifyMcpAccessToken(token: str, db: Session | None = None) -> AccessToken | None:
-    ownsDb = db is None
-    session = db if db is not None else SessionLocal()
+def verifyMcpAccessToken(token: str, db: Session) -> AccessToken | None:
     try:
-        claims = verifyAccessTokenClaims(token, session)
+        claims = verifyAccessTokenClaims(token, db)
         if claims is None:
             return None
         exp = claims.get("exp")
@@ -30,6 +27,3 @@ def verifyMcpAccessToken(token: str, db: Session | None = None) -> AccessToken |
         )
     except Exception:
         return None
-    finally:
-        if ownsDb:
-            session.close()

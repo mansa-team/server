@@ -23,7 +23,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from config import Config
 from main.app.authentication import mcp as solo
-from main.app.authentication.mcp.provider import revokedJtiTimes
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import createAccessToken, hashPassword
 from main.app.authentication.verifier import REVOKED_ACCESS_JTIS
@@ -49,7 +48,6 @@ def _use_test_env(monkeypatch, dbSession):
     monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     provider = solo.SoloOAuthProvider()
     walletController.walletProvider.clear()
-    revokedJtiTimes.clear()
     REVOKED_ACCESS_JTIS.clear()
     return provider
 
