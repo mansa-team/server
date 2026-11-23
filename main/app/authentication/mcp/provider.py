@@ -30,6 +30,7 @@ from main.app.authentication.tokens import decodeToken
 from main.app.authentication.util import loopbackMiddleware
 from main.app.authentication.verifier import REVOKED_ACCESS_JTIS
 
+
 class LoopbackRedirectClient(OAuthClientInformationFull):
     def validate_redirect_uri(self, redirect_uri: AnyUrl | None) -> AnyUrl:
         if redirect_uri is not None:
