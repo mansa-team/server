@@ -1,5 +1,4 @@
 import hashlib
-import hmac
 import logging
 from config import Config, getSession, LOCALHOST_ADDRESSES
 
@@ -11,7 +10,6 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from main.app.authentication.authentication import AuthenticationManager
-from main.app.authentication.util import CSRF_COOKIE_NAME, csrfExempt, issueCsrfToken
 from main.app.authentication.verifier import introspectToken
 from main.app.authentication.service_token import verifyServiceToken
 from main.app.authentication.util import (
@@ -76,7 +74,6 @@ def issueSessionCookie(response, request, db, user) -> str:
         path=COOKIE_PATH,
         domain=cookieDomain,
     )
-    issueCsrfToken(response, request)
     return str(session.sessionId)
 
 
@@ -85,7 +82,6 @@ def health(request: Request):
     return {"status": "ok", "service": "authentication"}
 
 
-@csrfExempt
 @router.post("/register")
 @limiter.limit("10/minute")
 def register(
@@ -120,7 +116,6 @@ def register(
         raise HTTPException(status_code=500, detail="Registration failed. Internal error.")
 
 
-@csrfExempt
 @router.post("/login")
 @limiter.limit("10/minute")
 def login(
@@ -172,13 +167,6 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
         path=COOKIE_PATH,
         domain=resolveCookieDomain(request),
     )
-    response.delete_cookie(
-        key=CSRF_COOKIE_NAME,
-        secure=True,
-        samesite=COOKIE_SAMESITE,
-        path=COOKIE_PATH,
-        domain=resolveCookieDomain(request),
-    )
     return {"message": "Successfully logged out"}
 
 
@@ -206,7 +194,6 @@ def introspect(
         raise HTTPException(status_code=401, detail="Unauthorized")
 
 
-@csrfExempt
 @router.get("/google")
 @limiter.limit("5/minute")
 async def googleLogin(request: Request):
@@ -223,7 +210,6 @@ async def googleLogin(request: Request):
     return googleRedirect
 
 
-@csrfExempt
 @router.get("/callback")
 @limiter.limit("5/minute")
 async def googleCallback(request: Request, response: Response, db: Session = Depends(getSession)):

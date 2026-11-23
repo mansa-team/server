@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import hmac
 import html
-import secrets
 from urllib.parse import urlencode, urlparse
 
 from starlette.requests import Request
@@ -15,7 +13,6 @@ from main.app.authentication.verifier import resourceUrl
 from main.app.authentication.session import SessionManager
 from main.app.authentication import verifier as appVerifier
 from main.app.authentication.tokens import createAccessToken
-from main.app.authentication.util import CSRF_COOKIE_NAME, CSRF_HEADER_NAME, issueCsrfToken
 
 
 def oauthResumePath(requestId: str) -> str:
@@ -28,21 +25,18 @@ def loginPage(requestId: str, error: str | None) -> HTMLResponse:
     complaint = f"<p>{html.escape(error)}</p>" if error else ""
     googleHref = f"/auth/google?{urlencode({'redirect_url': oauthResumePath(requestId)})}"
     safeGoogle = html.escape(googleHref, quote=True)
-    csrfToken = secrets.token_urlsafe(32)
     response = HTMLResponse(
         "<!doctype html><html><body>"
         "<h1>Mansa Wallet</h1>"
         f"{complaint}"
         '<form method="post">'
         f'<input type="hidden" name="request_id" value="{safeId}">'
-        f'<input type="hidden" name="csrf_token" value="{csrfToken}">'
         '<label>user <input name="username"></label>'
         '<label>password <input type="password" name="password"></label>'
         '<button type="submit">continue</button>'
         "</form>"
         f'<p><a href="{safeGoogle}">Continue with Google</a></p></body></html>'
     )
-    issueCsrfToken(response, token=csrfToken)
     return response
 
 
@@ -60,11 +54,6 @@ def registerLoginRoutes(mcp, provider) -> None:
     @mcp.custom_route("/oauth/login", methods=["GET", "POST"])
     async def oauthLogin(request: Request) -> Response:
         form = await request.form() if request.method == "POST" else {}
-        if request.method == "POST":
-            expected = request.cookies.get(CSRF_COOKIE_NAME, "")
-            provided = form.get("csrf_token") or request.headers.get(CSRF_HEADER_NAME, "")
-            if not expected or not provided or not hmac.compare_digest(str(provided), expected):
-                return HTMLResponse("csrf token missing or invalid", status_code=403)
         requestId = request.query_params.get("request_id") or (form.get("request_id") if form else None)
         if not isinstance(requestId, str) or not requestId:
             return HTMLResponse("missing request", status_code=400)
