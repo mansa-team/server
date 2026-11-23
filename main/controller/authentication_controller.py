@@ -209,6 +209,9 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
         if not userInfo:
             raise HTTPException(status_code=400, detail="No user info received from Google")
 
+        if getattr(userInfo, "email_verified", None) is False:
+            raise HTTPException(status_code=401, detail="SSO email not verified")
+
         googleId = userInfo.id
         email = userInfo.email
 

@@ -245,3 +245,21 @@ class TestSecureFlagNotSpoofable:
                 authDbClient.get(f"/auth/callback?state={secret_state}&code=c", follow_redirects=False)
         assert "logsecret@gmail.com" not in self.appLogs(caplog)
         assert "state-secret-abc" not in self.appLogs(caplog)
+
+
+class TestSSOEmailVerified:
+    def test_unverified_email_rejected(self, authDbClient):
+        sso = mockSSO()
+        sso.verify_and_process.return_value.email_verified = False
+        with patch("main.controller.authentication_controller.getGoogleSSO", return_value=sso):
+            resp = authDbClient.get("/auth/callback?state=x&code=c", follow_redirects=False)
+        assert resp.status_code == 401
+        assert "SSO email not verified" in resp.text
+
+    def test_verified_email_allowed(self, dbSession, authDbClient):
+        sso = mockSSO(userId="google-verified-1", email="verified@gmail.com")
+        sso.verify_and_process.return_value.email_verified = True
+        with patch("main.controller.authentication_controller.getGoogleSSO", return_value=sso):
+            resp = authDbClient.get("/auth/callback?state=x&code=c", follow_redirects=False)
+        assert resp.status_code == 200
+
