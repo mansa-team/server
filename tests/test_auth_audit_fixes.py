@@ -262,4 +262,3 @@ class TestSSOEmailVerified:
         with patch("main.controller.authentication_controller.getGoogleSSO", return_value=sso):
             resp = authDbClient.get("/auth/callback?state=x&code=c", follow_redirects=False)
         assert resp.status_code == 200
-

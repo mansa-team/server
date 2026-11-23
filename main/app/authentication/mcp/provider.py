@@ -208,6 +208,8 @@ class SoloOAuthProvider(OAuthProvider):
         value = getattr(token, "token", "")
         if not value:
             return
+        userId: Any = None
+        sessionId: Any = None
         record = self.authlibStore.refreshTokens.get(value)
         if record is not None:
             record.revoked = True

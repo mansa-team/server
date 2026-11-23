@@ -126,4 +126,3 @@ class TestSessionIdRedaction:
         assert redacted == redactSessionId(raw)
         assert raw not in redacted
         assert redacted != redactSessionId(raw + "x")
-
