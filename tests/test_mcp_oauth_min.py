@@ -82,8 +82,8 @@ async def _login_code(provider, userId, sessionId, state="xyz"):
     client = await provider.get_client(CLIENT_ID)
     loginUrl = await provider.authorize(client, _params(state=state))
     requestId = parse_qs(urlparse(loginUrl).query)["request_id"][0]
-    pending = provider.take_pending(requestId)
-    return provider.issue_code(
+    pending = provider.takePending(requestId)
+    return provider.issueCode(
         pending["client_id"],
         str(userId),
         sessionId,
