@@ -9,8 +9,8 @@ from sqlalchemy.orm import Session
 
 from config import SessionLocal, getSession
 from main.app.authentication.mcp import SoloAuth, SoloOAuthProvider, registerLoginRoutes
-from main.app.authentication.session import SessionManager
-from main.app.authentication.util import verifyAccessToken
+from main.app.authentication.tokens import rawClaims
+from main.app.authentication.verifier import verifyAccessTokenClaims
 from main.app.wallet.auth import getWalletUser
 from main.app.wallet.analytics import AnalyticsManager
 from main.app.wallet.earnings import EarningsManager, serialize_earning
@@ -570,15 +570,14 @@ def resolveMcpIdentity(authorization: str, db: Session) -> dict:
         raw = access.token if (access and access.token) else ""
         authorization = raw
     token = authorization[7:] if authorization.startswith("Bearer ") else authorization
-    currentUser = verifyAccessToken(token)
-    userIdRaw = currentUser.get("userId")
-    if userIdRaw is None:
-        raise HTTPException(status_code=401, detail="Invalid token")
     try:
-        userId = int(userIdRaw)
-    except (TypeError, ValueError):
-        raise HTTPException(status_code=401, detail="Invalid token")
-    sessionId = currentUser.get("sessionId")
-    if not sessionId or not SessionManager.validateSession(db, str(sessionId), userId):
-        raise HTTPException(status_code=401, detail="Session revoked")
-    return currentUser
+        claims = verifyAccessTokenClaims(token, db)
+    except Exception:
+        claims = None
+    if claims is None:
+        try:
+            hasUserId = bool(rawClaims(token).get("userId"))
+        except Exception:
+            hasUserId = False
+        raise HTTPException(status_code=401, detail="Session revoked" if hasUserId else "Invalid token")
+    return claims
