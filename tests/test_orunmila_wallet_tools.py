@@ -22,6 +22,15 @@ from tests.test_wallet_mcp import _build_auth_app, _mcp_client, _seed_session_wa
 from tests.test_wallet_positions import _live_ok
 from cashews import cache as cashewsCache
 
+
+@pytest.fixture(autouse=True)
+def _provider_test_db(dbSession, monkeypatch):
+    """Same in-memory DB seam as test_wallet_mcp for the MCP bearer gate."""
+    monkeypatch.setattr("main.app.authentication.mcp.provider.SessionLocal", lambda: dbSession)
+    monkeypatch.setattr("main.app.authentication.mcp.login.SessionLocal", lambda: dbSession)
+    monkeypatch.setattr("main.controller.wallet_controller.SessionLocal", lambda: dbSession)
+
+
 LOCAL_TOOL_NAMES = {
     "search_memory",
     "save_memory",

@@ -1,11 +1,9 @@
 import logging
 from urllib.parse import urlparse
 
-from fastapi import HTTPException, Request
-from datetime import datetime, timedelta, timezone
+from fastapi import HTTPException, Request, Response
 import bcrypt
-import jwt
-from fastmcp.server.auth import AccessToken, JWTVerifier
+from fastmcp.server.auth import AccessToken
 from mcp.server.auth.middleware.auth_context import AuthContextMiddleware
 from mcp.server.auth.middleware.bearer_auth import AuthenticatedUser, BearerAuthBackend
 from starlette.authentication import AuthCredentials
@@ -14,20 +12,18 @@ from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.requests import HTTPConnection
 from starlette.types import ASGIApp, Receive, Scope, Send
 
-from config import Config, SessionLocal
+from config import SessionLocal
 from main.app.authentication.constants import (
     COOKIE_NAME,
-    TOKEN_EXPIRY_HOURS,
     WALLET_RESOURCE_PATH,
     WALLET_SCOPE,
 )
 from main.app.authentication.service_token import verifyServiceToken
+from main.app.authentication.tokens import createAccessToken, verifyAccessToken
 
 logger = logging.getLogger(__name__)
 
 MAX_PASSWORD_BYTES = 72
-
-JWT_ALGORITHM = "HS256"
 
 
 def passwordExceedsByteLimit(password: str) -> bool:
@@ -53,58 +49,17 @@ def verifyPassword(plainPassword: str | None, hashedPassword: str | None) -> boo
         return False
 
 
-def createAccessToken(data: dict | None, expiresDelta: timedelta | None = None):
-    if data is None:
-        data = {}
-    if expiresDelta is None:
-        expiresDelta = timedelta(hours=TOKEN_EXPIRY_HOURS)
-
-    payload = data.copy()
-    payload["exp"] = datetime.now(timezone.utc) + expiresDelta
-
-    token = jwt.encode(payload, Config.USER.JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
-    return token
-
-
-def verifyAccessToken(token: str) -> dict:
-    try:
-        payload = jwt.decode(
-            token, Config.USER.JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM], options={"verify_aud": False}
-        )
-        return payload
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expired")
-    except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
-
-
 def extractRawToken(request: Request) -> str | None:
     token = request.headers.get("X-Access-Token")
     if not token:
         authHeader = request.headers.get("Authorization")
         if authHeader and authHeader.startswith("Bearer "):
-            token = authHeader.split(" ")[1]
+            token = authHeader.split(" ", 1)[1]
 
     if not token:
         token = request.cookies.get(COOKIE_NAME)
 
     return token
-
-
-def enforceResourceClaims(payload: dict, resourcePath: str, requiredScope: str) -> None:
-    aud = payload.get("aud")
-    if aud is not None:
-        try:
-            path = urlparse(str(aud)).path.rstrip("/")
-        except Exception:
-            raise HTTPException(status_code=401, detail="Invalid audience")
-        if not path.endswith(resourcePath):
-            raise HTTPException(status_code=401, detail="Invalid audience")
-    scope = payload.get("scope") if payload.get("scope") is not None else payload.get("scp")
-    if scope is not None:
-        parts = scope.split() if isinstance(scope, str) else list(scope)
-        if requiredScope not in parts:
-            raise HTTPException(status_code=401, detail="Insufficient scope")
 
 
 def extractTokenPayload(request: Request) -> dict:
@@ -124,9 +79,29 @@ def extractTokenPayload(request: Request) -> dict:
     if payload.get("userId") is None:
         raise HTTPException(status_code=401, detail="Invalid Token")
 
-    enforceResourceClaims(payload, WALLET_RESOURCE_PATH, WALLET_SCOPE)
+    aud = payload.get("aud")
+    if aud is not None:
+        try:
+            path = urlparse(str(aud)).path.rstrip("/")
+        except Exception:
+            raise HTTPException(status_code=401, detail="Invalid audience")
+        if not path.endswith(WALLET_RESOURCE_PATH):
+            raise HTTPException(status_code=401, detail="Invalid audience")
+    scope = payload.get("scope") if payload.get("scope") is not None else payload.get("scp")
+    if scope is not None:
+        parts = scope.split() if isinstance(scope, str) else list(scope)
+        if WALLET_SCOPE not in parts:
+            raise HTTPException(status_code=401, detail="Insufficient scope")
 
     return payload
+
+
+def loopbackMiddleware(receiver) -> list:
+    return [
+        Middleware(ServiceLoopbackHeadersMiddleware),
+        Middleware(AuthenticationMiddleware, backend=ServiceLoopbackBackend(receiver)),  # type: ignore[arg-type]
+        Middleware(AuthContextMiddleware),  # type: ignore[arg-type]
+    ]
 
 
 class ServiceLoopbackBackend(BearerAuthBackend):
@@ -161,16 +136,3 @@ class ServiceLoopbackHeadersMiddleware:
                     (b"authorization", f"Bearer {'service-loopback'}".encode()),
                 ]
         await self.app(scope, receive, send)
-
-
-def loopbackMiddleware(receiver) -> list:
-    return [
-        Middleware(ServiceLoopbackHeadersMiddleware),
-        Middleware(AuthenticationMiddleware, backend=ServiceLoopbackBackend(receiver)),  # type: ignore[arg-type]
-        Middleware(AuthContextMiddleware),  # type: ignore[arg-type]
-    ]
-
-
-class ServiceLoopbackVerifier(JWTVerifier):
-    def get_middleware(self) -> list:
-        return loopbackMiddleware(self)

@@ -1,6 +1,7 @@
 import hashlib
-import hmac
+import ipaddress
 import logging
+import re
 from config import Config, getSession, LOCALHOST_ADDRESSES
 
 from datetime import datetime, timedelta, timezone
@@ -8,19 +9,16 @@ from main.utils.logging_config import limiter
 
 from fastapi import APIRouter, Response, HTTPException, Request, Depends, Body
 from fastapi.responses import RedirectResponse
-from fastapi_sso.sso.base import SSOLoginError
 from sqlalchemy.orm import Session
 
 from main.app.authentication.authentication import AuthenticationManager
-from main.app.authentication.csrf import CSRF_COOKIE_NAME, csrf_exempt, issueCsrfToken
-from main.app.authentication.introspect import introspectToken
-from main.app.authentication.service_token import verifyServiceToken
 from main.app.authentication.util import (
     MAX_PASSWORD_BYTES,
     createAccessToken,
     passwordExceedsByteLimit,
     verifyAccessToken,
 )
+from fastapi_sso.sso.base import SSOLoginError
 from main.app.authentication.sso import getGoogleSSO
 from main.app.authentication.constants import (
     COOKIE_NAME,
@@ -36,9 +34,21 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
+COOKIE_DOMAIN_RE = re.compile(
+    r"^(?=.{1,253}$)[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$"
+)
+
+
 def resolveCookieDomain(request: Request) -> str | None:
     hostname = request.url.hostname or "localhost"
-    if hostname in ("localhost", "127.0.0.1"):
+    if hostname in LOCALHOST_ADDRESSES:
+        return None
+    try:
+        ipaddress.ip_address(hostname)
+        return None
+    except ValueError:
+        pass
+    if not COOKIE_DOMAIN_RE.fullmatch(hostname):
         return None
     return hostname
 
@@ -76,16 +86,9 @@ def issueSessionCookie(response, request, db, user) -> str:
         path=COOKIE_PATH,
         domain=cookieDomain,
     )
-    issueCsrfToken(response, request)
     return str(session.sessionId)
 
 
-@router.get("/health")
-def health(request: Request):
-    return {"status": "ok", "service": "authentication"}
-
-
-@csrf_exempt
 @router.post("/register")
 @limiter.limit("10/minute")
 def register(
@@ -120,7 +123,6 @@ def register(
         raise HTTPException(status_code=500, detail="Registration failed. Internal error.")
 
 
-@csrf_exempt
 @router.post("/login")
 @limiter.limit("10/minute")
 def login(
@@ -172,41 +174,9 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
         path=COOKIE_PATH,
         domain=resolveCookieDomain(request),
     )
-    response.delete_cookie(
-        key=CSRF_COOKIE_NAME,
-        secure=True,
-        samesite=COOKIE_SAMESITE,
-        path=COOKIE_PATH,
-        domain=resolveCookieDomain(request),
-    )
     return {"message": "Successfully logged out"}
 
 
-@router.post("/introspect")
-@limiter.limit("30/minute")
-def introspect(
-    request: Request,
-    db: Session = Depends(getSession),
-    token: str | None = Body(default=None, embed=True),
-):
-    if not verifyServiceToken(db, request.headers.get("X-Service-Token", "")):
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    auth = request.headers.get("Authorization", "")
-    raw = (
-        token
-        or request.headers.get("X-Access-Token")
-        or (auth.split(" ")[1] if auth.startswith("Bearer ") else None)
-        or request.cookies.get(COOKIE_NAME)
-    )
-    if not raw:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    try:
-        return introspectToken(db, raw)
-    except HTTPException:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
-
-@csrf_exempt
 @router.get("/google")
 @limiter.limit("5/minute")
 async def googleLogin(request: Request):
@@ -223,7 +193,6 @@ async def googleLogin(request: Request):
     return googleRedirect
 
 
-@csrf_exempt
 @router.get("/callback")
 @limiter.limit("5/minute")
 async def googleCallback(request: Request, response: Response, db: Session = Depends(getSession)):
@@ -239,6 +208,9 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
 
         if not userInfo:
             raise HTTPException(status_code=400, detail="No user info received from Google")
+
+        if getattr(userInfo, "email_verified", None) is False:
+            raise HTTPException(status_code=401, detail="SSO email not verified")
 
         googleId = userInfo.id
         email = userInfo.email
@@ -295,11 +267,11 @@ async def googleCallback(request: Request, response: Response, db: Session = Dep
         logger.info("--- Google Callback End ---")
         return {"user": user}
 
-    except HTTPException:
-        raise
     except SSOLoginError:
         logger.warning("SSO state validation failed", exc_info=True)
         raise HTTPException(status_code=401, detail="SSO login failed.")
+    except HTTPException:
+        raise
     except Exception:
         logger.error("Critical error in Google callback", exc_info=True)
         raise HTTPException(status_code=500, detail="Internal server error during Google login")

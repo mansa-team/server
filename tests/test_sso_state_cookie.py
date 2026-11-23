@@ -20,8 +20,8 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from config import getSession
 from starlette.responses import RedirectResponse
-from fastapi_sso.sso.base import SSOLoginError
 from urllib.parse import parse_qs, urlencode
+from fastapi_sso.sso.base import SSOLoginError
 from main.app.authentication.sso import getGoogleSSO
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))

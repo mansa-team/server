@@ -1,4 +1,4 @@
-"""F-A audit tests: controller fixes — CSRF patch removal, SSO suffix-unique, generic 400s, login eviction, introspect gate, PII scrub."""
+"""F-A audit tests: controller fixes — SSO suffix-unique, generic 400s, login eviction, PII scrub."""
 
 import os
 import sys
@@ -11,16 +11,11 @@ from fastapi.testclient import TestClient
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from config import getSession
-from main.app.authentication.service_token import createServiceToken
 from main.app.authentication.authentication import AuthenticationManager
 from main.app.authentication.session import SessionManager
 from main.controller.authentication_controller import router as authRouter
 from main.models.user import User
 from main.utils.errors import registerErrorHandlers
-
-
-def serviceHeaders(dbSession):
-    return {"X-Service-Token": createServiceToken(dbSession)}
 
 
 @pytest.fixture
@@ -149,37 +144,6 @@ class TestLoginRevokesOthers:
         assert len([s for s in sessions if s.isActive]) == 2
 
 
-class TestIntrospectGate:
-    def _token(self, dbSession):
-        makeAccount(dbSession, "dave", "dave@example.com")
-        user = AuthenticationManager.authenticateUser(dbSession, "dave", "secret123")
-        session = SessionManager.createSession(dbSession, user["userId"], "pytest")
-        from main.app.authentication.util import createAccessToken
-
-        return createAccessToken({"userId": str(user["userId"]), "sessionId": session.sessionId})
-
-    def test_no_header_401(self, authDbClient):
-        resp = authDbClient.post("/auth/introspect", json={"token": "x"})
-        assert resp.status_code == 401
-
-    def test_wrong_header_401(self, authDbClient):
-        resp = authDbClient.post("/auth/introspect", json={"token": "x"}, headers={"X-Service-Token": "wrong"})
-        assert resp.status_code == 401
-
-    def test_valid_token_with_header_200(self, dbSession, authDbClient):
-        token = self._token(dbSession)
-        resp = authDbClient.post("/auth/introspect", json={"token": token}, headers=serviceHeaders(dbSession))
-        assert resp.status_code == 200
-
-    def test_invalid_token_generic_401(self, dbSession, authDbClient):
-        resp = authDbClient.post("/auth/introspect", json={"token": "bad"}, headers=serviceHeaders(dbSession))
-        body = resp.json()
-        assert resp.status_code == 401
-        assert "Unauthorized" in body.get("error", "")
-        for leaked in ("expired", "Invalid token", "revoked"):
-            assert leaked not in resp.text
-
-
 class TestSSORevokesOthers:
     def _sso(self, googleId, email):
         sso = AsyncMock()
@@ -281,3 +245,20 @@ class TestSecureFlagNotSpoofable:
                 authDbClient.get(f"/auth/callback?state={secret_state}&code=c", follow_redirects=False)
         assert "logsecret@gmail.com" not in self.appLogs(caplog)
         assert "state-secret-abc" not in self.appLogs(caplog)
+
+
+class TestSSOEmailVerified:
+    def test_unverified_email_rejected(self, authDbClient):
+        sso = mockSSO()
+        sso.verify_and_process.return_value.email_verified = False
+        with patch("main.controller.authentication_controller.getGoogleSSO", return_value=sso):
+            resp = authDbClient.get("/auth/callback?state=x&code=c", follow_redirects=False)
+        assert resp.status_code == 401
+        assert "SSO email not verified" in resp.text
+
+    def test_verified_email_allowed(self, dbSession, authDbClient):
+        sso = mockSSO(userId="google-verified-1", email="verified@gmail.com")
+        sso.verify_and_process.return_value.email_verified = True
+        with patch("main.controller.authentication_controller.getGoogleSSO", return_value=sso):
+            resp = authDbClient.get("/auth/callback?state=x&code=c", follow_redirects=False)
+        assert resp.status_code == 200

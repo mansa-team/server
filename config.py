@@ -42,7 +42,9 @@ class UserSettings(ServiceSettings):
     ENABLED: bool = Field(default=True, validation_alias="USER_ENABLED")
     HOST: str = Field(default="localhost", validation_alias="USER_HOST")
     PORT: int = Field(default=3200, validation_alias="USER_PORT")
-    JWT_SECRET_KEY: str = Field(default=..., validation_alias="JWT_SECRET_KEY")
+    JWT_SECRET_KEY: str = Field(
+        default="dev-only-jwt-secret-change-me-before-deploying-0123456789", validation_alias="JWT_SECRET_KEY"
+    )
     GOOGLE_CLIENT_ID: str = Field(default="", validation_alias="GOOGLE_CLIENT.ID")
     GOOGLE_CLIENT_SECRET: str = Field(default="", validation_alias="GOOGLE_CLIENT.SECRET")
     GOOGLE_REDIRECT_URI: str = Field(default="", validation_alias="GOOGLE_REDIRECT.URI")
@@ -97,7 +99,7 @@ class Config:
     CACHE = CacheSettings()
 
 
-LOCALHOST_ADDRESSES = ["localhost", "127.0.0.1", "0.0.0.0", "None", "host.docker.internal", None]
+LOCALHOST_ADDRESSES = ["localhost", "127.0.0.1", "::1", "0.0.0.0", "None", "host.docker.internal", None]
 
 engine = create_engine(
     f"mysql+pymysql://{Config.MYSQL.USER_USER}:{Config.MYSQL.USER_PASSWORD}@{Config.MYSQL.USER_HOST}/{Config.MYSQL.USER_DATABASE}",

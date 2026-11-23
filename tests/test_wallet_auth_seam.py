@@ -1,6 +1,6 @@
 """Wallet auth seam: wallet routes resolve identity in-process.
 
-`getWalletUser` calls `introspectToken(db, raw)` directly — no service-token
+`getWalletUser` calls `verifyWalletUser(db, raw)` directly — no service-token
 mint, no self-HTTP call, no `user_sessions` row per request.
 """
 
@@ -101,7 +101,7 @@ class TestWalletAuthSeam:
         assert "httpx" not in src
         assert "createServiceToken" not in src
         assert "Config.USER" not in src
-        assert "introspectToken" in src
+        assert "verifyWalletUser" in src
 
     def test_no_direct_get_current_user_import(self):
         path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "main", "controller", "wallet_controller.py")

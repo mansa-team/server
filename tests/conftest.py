@@ -16,7 +16,6 @@ fake = Faker()
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret-key-not-for-production")
-os.environ.setdefault("INTROSPECT_SERVICE_SECRET", "test-service-secret-not-for-production")
 
 from config import Config, getSession, getStocksSession  # noqa: E402
 from main.app.stocks_api.key import verifyAPIKey  # noqa: E402
@@ -77,7 +76,6 @@ def pytest_configure(config):
     during collection. This hook runs before collection begins.
     """
     os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret-key-not-for-production")
-    os.environ.setdefault("INTROSPECT_SERVICE_SECRET", "test-service-secret-not-for-production")
 
 
 @pytest.fixture(autouse=True)

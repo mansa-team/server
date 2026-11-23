@@ -103,6 +103,26 @@ class TestLogoutCookieDomain:
         prod_req.url.hostname = "app.example.com"
         assert resolveCookieDomain(prod_req) == "app.example.com"
 
+    def test_resolve_cookie_domain_rejects_invalid_hosts(self):
+        invalid = [
+            "192.168.1.10",
+            "2001:db8::1",
+            "-bad.example.com",
+            "bad_.example.com",
+            "example..com",
+            "example.com ",
+            "example.com\r\nSet-Cookie: evil=1",
+            "",
+        ]
+        for hostname in invalid:
+            req = MagicMock()
+            req.url.hostname = hostname
+            assert resolveCookieDomain(req) is None, f"expected no Domain for {hostname!r}"
+
+        singleLabel = MagicMock()
+        singleLabel.url.hostname = "testserver"
+        assert resolveCookieDomain(singleLabel) == "testserver"
+
     @patch("main.controller.authentication_controller.SessionManager")
     @patch("main.controller.authentication_controller.createAccessToken")
     @patch("main.controller.authentication_controller.AuthenticationManager")

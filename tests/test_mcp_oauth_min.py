@@ -22,9 +22,10 @@ import pytest
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from config import Config
-from main.app.authentication import mcp_oauth as solo
+from main.app.authentication import mcp as solo
 from main.app.authentication.session import SessionManager
 from main.app.authentication.util import createAccessToken, hashPassword
+from main.app.authentication.verifier import REVOKED_ACCESS_JTIS
 from main.app.wallet.entries import EntriesManager, EntryCreate
 from main.app.wallet.wallets import WalletsManager
 from main.controller import wallet_controller as walletController
@@ -41,12 +42,13 @@ CHALLENGE = base64.urlsafe_b64encode(hashlib.sha256(VERIFIER.encode()).digest())
 def _use_test_env(monkeypatch, dbSession):
     monkeypatch.setattr(Config.USER, "MCP_OAUTH_CLIENT_ID", CLIENT_ID)
     monkeypatch.setattr(Config.USER, "MCP_OAUTH_CLIENT_SECRET", CLIENT_SECRET)
-    monkeypatch.setattr(solo, "SessionLocal", lambda: dbSession)
+    monkeypatch.setattr("main.app.authentication.mcp.provider.SessionLocal", lambda: dbSession)
+    monkeypatch.setattr("main.app.authentication.mcp.login.SessionLocal", lambda: dbSession)
     monkeypatch.setattr(walletController, "SessionLocal", lambda: dbSession)
     monkeypatch.setattr("main.app.wallet.positions.getSession", lambda: SimpleNamespace(get=_live_ok))
     provider = solo.SoloOAuthProvider()
     walletController.walletProvider.clear()
-    solo.revokedAccessJtis.clear()
+    REVOKED_ACCESS_JTIS.clear()
     return provider
 
 
@@ -78,8 +80,8 @@ async def _login_code(provider, userId, sessionId, state="xyz"):
     client = await provider.get_client(CLIENT_ID)
     loginUrl = await provider.authorize(client, _params(state=state))
     requestId = parse_qs(urlparse(loginUrl).query)["request_id"][0]
-    pending = provider.take_pending(requestId)
-    return provider.issue_code(
+    pending = provider.takePending(requestId)
+    return provider.issueCode(
         pending["client_id"],
         str(userId),
         sessionId,
@@ -92,34 +94,33 @@ async def _login_code(provider, userId, sessionId, state="xyz"):
 
 
 async def test_full_cycle_provider_level(dbSession, monkeypatch):
+    """Real HTTP /token route: code -> token -> refresh rotation (no SDK token methods)."""
     provider = _use_test_env(monkeypatch, dbSession)
-    userId, sessionId = _seed_user(dbSession)
+    userId, _ = _seed_user(dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        minted = _basic_token_post(httpClient, _fresh_code(httpClient))
+        assert minted.status_code == 200, minted.text
+        tokens = minted.json()
+        assert tokens["scope"] == "wallet" and tokens["refresh_token"]
 
-    client = await provider.get_client(CLIENT_ID)
-    assert client is not None
-    loginUrl = await provider.authorize(client, _params())
-    assert "/oauth/login?request_id=" in loginUrl
+        access = await provider.load_access_token(tokens["access_token"])
+        assert access is not None and access.subject == str(userId)
 
-    code = await _login_code(provider, userId, sessionId)
-    stored = await provider.load_authorization_code(client, code)
-    assert stored is not None
-    tokens = await provider.exchange_authorization_code(client, stored)
-    assert tokens.scope == "wallet"
-    assert tokens.refresh_token
+        rotated = httpClient.post(
+            "/token",
+            data={"grant_type": "refresh_token", "refresh_token": tokens["refresh_token"]},
+            headers=_basic_header(),
+        )
+        assert rotated.status_code == 200, rotated.text
+        rotatedTokens = rotated.json()
+        assert rotatedTokens["refresh_token"] != tokens["refresh_token"]
 
-    access = await provider.load_access_token(tokens.access_token)
-    assert access is not None and access.subject == str(userId)
-
-    rotated = await provider.exchange_refresh_token(
-        client, await provider.load_refresh_token(client, tokens.refresh_token), []
-    )
-    assert rotated.refresh_token != tokens.refresh_token
-    assert await provider.load_refresh_token(client, tokens.refresh_token) is None
-
-    await provider.revoke_token(await provider.load_access_token(rotated.access_token))
-    assert await provider.load_access_token(rotated.access_token) is None
-    await provider.revoke_token(await provider.load_refresh_token(client, rotated.refresh_token))
-    assert await provider.load_refresh_token(client, rotated.refresh_token) is None
+        stale = httpClient.post(
+            "/token",
+            data={"grant_type": "refresh_token", "refresh_token": tokens["refresh_token"]},
+            headers=_basic_header(),
+        )
+        assert stale.status_code == 400 and "invalid_grant" in stale.text
 
 
 async def test_closed_client_and_scopes(dbSession, monkeypatch):
@@ -168,26 +169,24 @@ async def test_authorize_rejects_plain_pkce(dbSession, monkeypatch):
         await provider.authorize(client, plain)
 
 
-async def test_expired_refresh_rejected(dbSession, monkeypatch):
+def test_expired_refresh_rejected(dbSession, monkeypatch):
+    """Real HTTP /token route rejects an expired refresh token with invalid_grant."""
     import time
 
-    from mcp.server.auth.provider import RefreshToken, TokenError
+    from main.controller import wallet_controller as walletController
 
-    provider = _use_test_env(monkeypatch, dbSession)
-    client = await provider.get_client(CLIENT_ID)
-    expired = RefreshToken(
-        token="expired-refresh-value",
-        client_id=CLIENT_ID,
-        scopes=["wallet"],
-        expires_at=int(time.time()) - 10,
-        resource=None,
-        subject="1",
-    )
-    provider.refreshTokens[expired.token] = expired
-    provider.refreshSessions[expired.token] = "sess"
-    with pytest.raises(TokenError) as exc:
-        await provider.exchange_refresh_token(client, expired, [])
-    assert exc.value.error == "invalid_grant"
+    _use_test_env(monkeypatch, dbSession)
+    _seed_user(dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        tokens = _basic_token_post(httpClient, _fresh_code(httpClient)).json()
+        record = walletController.walletProvider.authlibStore.refreshTokens[tokens["refresh_token"]]
+        record.expiresAt = time.time() - 10
+        expired = httpClient.post(
+            "/token",
+            data={"grant_type": "refresh_token", "refresh_token": tokens["refresh_token"]},
+            headers=_basic_header(),
+        )
+        assert expired.status_code == 400 and "invalid_grant" in expired.text
 
 
 async def test_revoked_session_access_fails(dbSession, monkeypatch):
@@ -224,17 +223,13 @@ def _authorize_request_id(client):
 
 
 def _login_post(client, requestId, username="oauthuser", password="correct-horse-9"):
-    page = client.get(f"/oauth/login?request_id={requestId}")
-    csrf = page.text.split('name="csrf_token" value="', 1)[1].split('"', 1)[0]
-    # The csrf + session cookies are Secure (prod parity): httpx's jar drops
-    # Secure cookies on http, so propagate them explicitly like a browser on
-    # localhost.
-    client.cookies.set("mansa_csrf", csrf)
     response = client.post(
         f"/oauth/login?request_id={requestId}",
-        data={"username": username, "password": password, "csrf_token": csrf},
+        data={"username": username, "password": password},
         follow_redirects=False,
     )
+    # The session cookie is Secure (prod parity): httpx's jar drops Secure
+    # cookies on http, so propagate it explicitly like a browser on localhost.
     raw = response.headers.get("set-cookie", "")
     for part in raw.split(";"):
         if part.strip().startswith("mansa_token="):
@@ -332,7 +327,7 @@ def test_http_missing_both_client_id_and_basic_401(dbSession, monkeypatch):
                 "code_verifier": VERIFIER,
             },
         )
-        assert missing.status_code == 401 and "Missing client_id" in missing.text
+        assert missing.status_code == 401 and "invalid_client" in missing.text
 
 
 def test_http_body_shape_still_200(dbSession, monkeypatch):
@@ -375,29 +370,6 @@ def test_http_no_session_shows_login_form(dbSession, monkeypatch):
         page = httpClient.get(f"/oauth/login?request_id={requestId}")
         assert page.status_code == 200
         assert "<form" in page.text and "password" in page.text
-        assert 'name="csrf_token"' in page.text
-        assert "mansa_csrf=" in page.headers.get("set-cookie", "")
-
-
-def test_http_login_post_requires_csrf(dbSession, monkeypatch):
-    _use_test_env(monkeypatch, dbSession)
-    _seed_user(dbSession)
-    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
-        requestId = _authorize_request_id(httpClient)
-        httpClient.get(f"/oauth/login?request_id={requestId}")
-        missing = httpClient.post(
-            f"/oauth/login?request_id={requestId}",
-            data={"username": "oauthuser", "password": "correct-horse-9"},
-            follow_redirects=False,
-        )
-        assert missing.status_code == 403
-        httpClient.cookies.set("mansa_csrf", "attacker-chosen")
-        mismatch = httpClient.post(
-            f"/oauth/login?request_id={requestId}",
-            data={"username": "oauthuser", "password": "correct-horse-9", "csrf_token": "other"},
-            follow_redirects=False,
-        )
-        assert mismatch.status_code == 403
 
 
 def test_http_full_flow_token_refresh_revoke(dbSession, monkeypatch):
@@ -423,7 +395,7 @@ def test_http_full_flow_token_refresh_revoke(dbSession, monkeypatch):
         assert firstTokens["scope"] == "wallet" and firstTokens["refresh_token"]
 
         reuse = _token_post(httpClient, tokenBody)
-        assert reuse.status_code == 401 and "invalid_grant" in reuse.text
+        assert reuse.status_code == 400 and "invalid_grant" in reuse.text
 
         refreshed = _token_post(
             httpClient,
@@ -447,14 +419,56 @@ def test_http_full_flow_token_refresh_revoke(dbSession, monkeypatch):
                 "client_secret": CLIENT_SECRET,
             },
         )
-        assert staleRefresh.status_code == 401 and "invalid_grant" in staleRefresh.text
+        assert staleRefresh.status_code == 400 and "invalid_grant" in staleRefresh.text
 
         revoke = httpClient.post(
             "/revoke",
             data={"token": secondTokens["access_token"], "client_id": CLIENT_ID, "client_secret": CLIENT_SECRET},
         )
         assert revoke.status_code == 200
-        assert walletController.walletProvider.codes == {}
+        assert walletController.walletProvider.authlibStore.codes == {}
+
+
+def test_revoke_invalidates_db_session(dbSession, monkeypatch):
+    """POST /revoke must run provider.revoke_token -> SessionManager.revokeSession."""
+    from main.app.authentication.tokens import rawClaims
+    from main.app.authentication.verifier import verifyAccessTokenClaims
+
+    _use_test_env(monkeypatch, dbSession)
+    _seed_user(dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        token = _basic_token_post(httpClient, _fresh_code(httpClient)).json()["access_token"]
+        claims = rawClaims(token)
+        sibling = createAccessToken({"userId": str(claims["userId"]), "sessionId": claims["sessionId"]})
+        assert verifyAccessTokenClaims(sibling, dbSession) is not None
+
+        revoke = httpClient.post(
+            "/revoke",
+            data={"token": token, "client_id": CLIENT_ID, "client_secret": CLIENT_SECRET},
+        )
+        assert revoke.status_code == 200
+        assert verifyAccessTokenClaims(sibling, dbSession) is None
+
+
+def test_revoke_refresh_token_invalidates_db_session(dbSession, monkeypatch):
+    """Revoking a refresh token must also revoke the backing DB session."""
+    from main.app.authentication.tokens import rawClaims
+    from main.app.authentication.verifier import verifyAccessTokenClaims
+
+    _use_test_env(monkeypatch, dbSession)
+    _seed_user(dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        tokens = _basic_token_post(httpClient, _fresh_code(httpClient)).json()
+        claims = rawClaims(tokens["access_token"])
+        sibling = createAccessToken({"userId": str(claims["userId"]), "sessionId": claims["sessionId"]})
+        assert verifyAccessTokenClaims(sibling, dbSession) is not None
+
+        revoke = httpClient.post(
+            "/revoke",
+            data={"token": tokens["refresh_token"], "client_id": CLIENT_ID, "client_secret": CLIENT_SECRET},
+        )
+        assert revoke.status_code == 200
+        assert verifyAccessTokenClaims(sibling, dbSession) is None
 
 
 def test_http_pkce_mismatch_and_wrong_secret(dbSession, monkeypatch):
@@ -474,9 +488,9 @@ def test_http_pkce_mismatch_and_wrong_secret(dbSession, monkeypatch):
                 "code_verifier": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
             },
         )
-        # FastMCP's OAuth 2.1 token handler surfaces grant failures (bad code,
-        # PKCE mismatch) as 401 invalid_grant and bad secrets as 401 invalid_client.
-        assert bad.status_code == 401 and "invalid_grant" in bad.text
+        # Authlib follows RFC 6749: grant failures (bad code, PKCE mismatch)
+        # are 400 invalid_grant; bad client secrets are 401 invalid_client.
+        assert bad.status_code == 400 and "invalid_grant" in bad.text
 
         requestId = _authorize_request_id(httpClient)
         page = httpClient.get(f"/oauth/login?request_id={requestId}", follow_redirects=False)
@@ -564,7 +578,7 @@ def test_http_bearer_mcp_call_refresh_revoke_cycle(dbSession, monkeypatch):
             "/revoke", data={"token": tokens["access_token"], "client_id": CLIENT_ID, "client_secret": CLIENT_SECRET}
         )
         after = httpClient.post("/", json=call, headers={"Accept": "application/json, text/event-stream", **bearer})
-        assert "401" in after.text
+        assert after.status_code == 401 and "invalid_token" in after.text
 
 
 def test_prm_resource_has_no_trailing_slash(dbSession, monkeypatch):

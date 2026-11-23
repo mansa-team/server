@@ -103,3 +103,26 @@ class TestExpiryIdle:
         assert SessionManager.validateSession(dbSession, session.sessionId, user.userId) is False
         dbSession.refresh(session)
         assert session.isActive is False
+
+
+class TestSessionIdRedaction:
+    def test_session_logs_never_contain_raw_session_id(self, dbSession, caplog):
+        import logging
+
+        from main.app.authentication.session import redactSessionId
+
+        user = makeUser(dbSession, username="redact_user")
+        with caplog.at_level(logging.INFO, logger="main.app.authentication.session"):
+            session = SessionManager.createSession(dbSession, user.userId, "pytest")
+            SessionManager.revokeSession(dbSession, session.sessionId, user.userId)
+        assert session.sessionId not in caplog.text
+        assert redactSessionId(session.sessionId) in caplog.text
+
+    def test_redaction_is_stable_and_non_reversible(self):
+        from main.app.authentication.session import redactSessionId
+
+        raw = "a-long-random-session-token-value"
+        redacted = redactSessionId(raw)
+        assert redacted == redactSessionId(raw)
+        assert raw not in redacted
+        assert redacted != redactSessionId(raw + "x")

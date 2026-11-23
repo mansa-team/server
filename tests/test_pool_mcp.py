@@ -42,22 +42,35 @@ def _asgiFactory(app):
     return asgiFactory
 
 
-async def test_pool_lists_mcp_tools():
+async def test_pool_lists_mcp_tools(dbSession, monkeypatch):
     urls = {server["name"]: server["url"] for server in MCP_SERVERS}
     assert urls["wallet"].endswith("/wallet/mcp")
     assert urls["stocks"].endswith("/stocks/mcp")
 
     from main.controller.wallet_controller import mcp as walletMcp
+    from main.app.authentication.session import SessionManager
+    from main.models.user import User
+
+    # The MCP bearer gate validates the session against the DB (no more
+    # signature-only JWTVerifier). Seed a real user+session and route the
+    # provider's session factory at the in-memory test DB.
+    monkeypatch.setattr("main.app.authentication.mcp.provider.SessionLocal", lambda: dbSession)
+    monkeypatch.setattr("main.app.authentication.mcp.login.SessionLocal", lambda: dbSession)
+    monkeypatch.setattr("main.controller.wallet_controller.SessionLocal", lambda: dbSession)
+    user = User(username="pooluser", email="pool@example.com", passwordHash="hash", roles="USER")
+    dbSession.add(user)
+    dbSession.commit()
+    dbSession.refresh(user)
+    session = SessionManager.createSession(dbSession, user.userId, "pool-probe")
 
     mcpServer = walletMcp
     mcpApp = mcpServer.http_app(path="/", transport="streamable-http", stateless_http=True)
     app = FastAPI()
     app.mount("/wallet/mcp", mcpApp)
 
-    # Transport-level JWTVerifier gate: pool connections carry a Bearer session
-    # JWT as the HTTP Authorization header (per-tool identity still rides the
-    # `authorization` tool arg injected by dispatchToolCall).
-    token = createAccessToken({"userId": "1", "sessionId": "pool-probe"})
+    # Pool connections carry a Bearer session JWT as the HTTP Authorization
+    # header (per-tool identity still rides the `authorization` tool arg).
+    token = createAccessToken({"userId": str(user.userId), "sessionId": session.sessionId})
     server = {
         "name": "wallet",
         "url": "http://apiserver/wallet/mcp",
