@@ -20,7 +20,7 @@ JWT_ALGORITHM = "HS256"
 
 @lru_cache(maxsize=4)
 def signingKey() -> OctKey:
-    return OctKey.import_key(Config.AUTH.JWT_SECRET_KEY)
+    return OctKey.import_key(Config.USER.JWT_SECRET_KEY)
 
 
 def mintToken(

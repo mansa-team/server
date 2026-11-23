@@ -21,20 +21,17 @@ def resourceUrl() -> str:
 
 
 class MansaJWTValidator(JWTBearerTokenValidator):
-    """Validates the RFC 9068 access tokens issued by this server."""
-
     def __init__(self) -> None:
         super().__init__(ISSUER, resourceUrl())
 
     def get_jwks(self):  # type: ignore[no-untyped-def]
-        return OctKey.import_key(Config.AUTH.JWT_SECRET_KEY)
+        return OctKey.import_key(Config.USER.JWT_SECRET_KEY)
 
 
 oauthTokenValidator = MansaJWTValidator()
 
 
 def verifyAccessTokenClaims(token: str, db: Session) -> dict | None:
-    """Verify *token* and return its claims only if the app session is still live."""
     raw = rawClaims(token)
     if str(raw.get("jti") or "") in REVOKED_ACCESS_JTIS:
         return None

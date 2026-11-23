@@ -38,24 +38,13 @@ class MysqlSettings(ServiceSettings):
     STOCKS_PORT: int = Field(default=3306, validation_alias="STOCKS_MYSQL_PORT")
 
 
-# Authlib (joserfc) signs every app token with HS256 using this secret.  A
-# checked-in development fallback keeps `import config` and local setup working
-# with no env vars; production is expected to override JWT_SECRET_KEY (the app
-# logs a warning at startup when it does not).
-DEV_JWT_SECRET = "dev-only-jwt-secret-change-me-before-deploying-0123456789"
-
-
-class AuthSettings(ServiceSettings):
-    """Only the real secret is configurable; every protocol value is a literal in constants.py."""
-
-    JWT_SECRET_KEY: str = Field(default=DEV_JWT_SECRET, validation_alias="JWT_SECRET_KEY")
-
-
 class UserSettings(ServiceSettings):
     ENABLED: bool = Field(default=True, validation_alias="USER_ENABLED")
     HOST: str = Field(default="localhost", validation_alias="USER_HOST")
     PORT: int = Field(default=3200, validation_alias="USER_PORT")
-    JWT_SECRET_KEY: str = Field(default=DEV_JWT_SECRET, validation_alias="JWT_SECRET_KEY")
+    JWT_SECRET_KEY: str = Field(
+        default="dev-only-jwt-secret-change-me-before-deploying-0123456789", validation_alias="JWT_SECRET_KEY"
+    )
     GOOGLE_CLIENT_ID: str = Field(default="", validation_alias="GOOGLE_CLIENT.ID")
     GOOGLE_CLIENT_SECRET: str = Field(default="", validation_alias="GOOGLE_CLIENT.SECRET")
     GOOGLE_REDIRECT_URI: str = Field(default="", validation_alias="GOOGLE_REDIRECT.URI")
@@ -106,7 +95,6 @@ class Config:
     ORUNMILA = OrunmilaSettings()
     SCRAPER = ScraperSettings()
     USER = UserSettings()
-    AUTH = AuthSettings()
     DISCORD = DiscordSettings()
     CACHE = CacheSettings()
 

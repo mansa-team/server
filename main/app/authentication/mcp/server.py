@@ -169,7 +169,7 @@ class MansaTokenGenerator(JWTBearerTokenGenerator):
         )
 
     def get_jwks(self) -> OctKey:
-        return OctKey.import_key(Config.AUTH.JWT_SECRET_KEY)
+        return OctKey.import_key(Config.USER.JWT_SECRET_KEY)
 
     def get_audiences(self, client: StaticClient, user: OAuthUser | None, scope: str) -> str:
         return client.resource or resourceUrl()
