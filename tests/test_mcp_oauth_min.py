@@ -450,6 +450,27 @@ def test_revoke_invalidates_db_session(dbSession, monkeypatch):
         assert verifyAccessTokenClaims(sibling, dbSession) is None
 
 
+def test_revoke_refresh_token_invalidates_db_session(dbSession, monkeypatch):
+    """Revoking a refresh token must also revoke the backing DB session."""
+    from main.app.authentication.tokens import rawClaims
+    from main.app.authentication.verifier import verifyAccessTokenClaims
+
+    _use_test_env(monkeypatch, dbSession)
+    _seed_user(dbSession)
+    with TestClient(_http_app(), raise_server_exceptions=False) as httpClient:
+        tokens = _basic_token_post(httpClient, _fresh_code(httpClient)).json()
+        claims = rawClaims(tokens["access_token"])
+        sibling = createAccessToken({"userId": str(claims["userId"]), "sessionId": claims["sessionId"]})
+        assert verifyAccessTokenClaims(sibling, dbSession) is not None
+
+        revoke = httpClient.post(
+            "/revoke",
+            data={"token": tokens["refresh_token"], "client_id": CLIENT_ID, "client_secret": CLIENT_SECRET},
+        )
+        assert revoke.status_code == 200
+        assert verifyAccessTokenClaims(sibling, dbSession) is None
+
+
 def test_http_pkce_mismatch_and_wrong_secret(dbSession, monkeypatch):
     _use_test_env(monkeypatch, dbSession)
     _seed_user(dbSession)

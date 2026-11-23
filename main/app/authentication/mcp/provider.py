@@ -212,16 +212,16 @@ class SoloOAuthProvider(OAuthProvider):
         if record is not None:
             record.revoked = True
             self.authlibStore.refreshTokens.pop(value, None)
-            return
-        try:
-            payload = decodeToken(value)
-        except Exception:
-            return
-        jti = str(payload.get("jti") or "")
-        if jti:
-            REVOKED_ACCESS_JTIS.add(jti)
-
-        userId, sessionId = payload.get("userId"), payload.get("sessionId")
+            userId, sessionId = record.userId, record.sessionId
+        else:
+            try:
+                payload = decodeToken(value)
+            except Exception:
+                return
+            jti = str(payload.get("jti") or "")
+            if jti:
+                REVOKED_ACCESS_JTIS.add(jti)
+            userId, sessionId = payload.get("userId"), payload.get("sessionId")
         if userId is None or not sessionId:
             return
         try:

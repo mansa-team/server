@@ -274,9 +274,9 @@ class MansaRevocationEndpoint(RevocationEndpoint):
             if token.jti:
                 REVOKED_ACCESS_JTIS.add(token.jti)
             return
+        # Keep the record so the provider can revoke the backing DB session;
+        # revoked=True already blocks refresh-token reuse.
         token.revoked = True
-        if token.token in self.server.store.refreshTokens:
-            self.server.store.refreshTokens.pop(token.token, None)
 
 
 class MansaAuthorizationServer(AuthorizationServer):
