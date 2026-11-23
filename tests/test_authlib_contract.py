@@ -159,6 +159,25 @@ class TestVerificationContracts:
         assert verifyAccessTokenClaims(forged, dbSession) is None
         assert verifyMcpAccessToken(serviceToken, dbSession) is None
 
+    def test_issuer_token_fails_closed_when_oauth_validation_raises(self, dbSession, monkeypatch):
+        user, session = makeUserAndSession(dbSession)
+        issuerToken = createAccessToken(
+            {"userId": str(user.userId), "sessionId": session.sessionId},
+            issuer=ISSUER,
+            audience="https://wrong.example",
+            scope="admin",
+        )
+
+        def reject(token):
+            raise ValueError("oauth validation failed")
+
+        monkeypatch.setattr(oauthTokenValidator, "authenticate_token", reject)
+        assert verifyAccessTokenClaims(issuerToken, dbSession) is None
+        assert verifyMcpAccessToken(issuerToken, dbSession) is None
+
+        appToken = createAccessToken({"userId": str(user.userId), "sessionId": session.sessionId})
+        assert verifyAccessTokenClaims(appToken, dbSession) is not None
+
     def test_wallet_identity_valid_and_invalid(self, dbSession):
         user, session = makeUserAndSession(dbSession)
         token = createAccessToken({"userId": str(user.userId), "sessionId": session.sessionId})

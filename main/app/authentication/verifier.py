@@ -37,19 +37,16 @@ def authenticateAccessToken(db: Session, token: str) -> tuple[dict, User] | None
     if str(raw.get("jti") or "") in REVOKED_ACCESS_JTIS:
         return None
 
-    claims: dict | None = None
     if raw.get("iss"):
         try:
             claims = dict(oauthTokenValidator.authenticate_token(token))
         except Exception:
-            claims = None
-    if claims is None:
+            return None
+    else:
         try:
             claims = decodeToken(token)
         except Exception:
-            claims = None
-    if claims is None:
-        return None
+            return None
 
     userId = claims.get("userId") or claims.get("sub")
     sessionId = claims.get("sessionId")
