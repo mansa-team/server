@@ -59,22 +59,6 @@ class TestIsSecureScheme:
         assert (getRequestScheme(request) == "https") is False
 
 
-class TestHealthEndpoint:
-    """Covers line 28: GET /auth/health."""
-
-    def test_health_returns_ok(self):
-        from main.controller.authentication_controller import router as authRouter
-
-        app = FastAPI()
-        app.include_router(authRouter)
-        client = TestClient(app, raise_server_exceptions=False)
-        response = client.get("/auth/health")
-        assert response.status_code == 200
-        data = response.json()
-        assert data["status"] == "ok"
-        assert data["service"] == "authentication"
-
-
 class TestRegisterEndpoint:
     """Covers lines 44-54, 63, 66-71: register success, ValueError, generic Exception."""
 

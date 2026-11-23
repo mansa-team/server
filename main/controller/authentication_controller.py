@@ -10,8 +10,6 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 
 from main.app.authentication.authentication import AuthenticationManager
-from main.app.authentication.verifier import introspectToken
-from main.app.authentication.service_token import verifyServiceToken
 from main.app.authentication.util import (
     MAX_PASSWORD_BYTES,
     createAccessToken,
@@ -75,11 +73,6 @@ def issueSessionCookie(response, request, db, user) -> str:
         domain=cookieDomain,
     )
     return str(session.sessionId)
-
-
-@router.get("/health")
-def health(request: Request):
-    return {"status": "ok", "service": "authentication"}
 
 
 @router.post("/register")
@@ -168,30 +161,6 @@ def logout(request: Request, response: Response, db: Session = Depends(getSessio
         domain=resolveCookieDomain(request),
     )
     return {"message": "Successfully logged out"}
-
-
-@router.post("/introspect")
-@limiter.limit("30/minute")
-def introspect(
-    request: Request,
-    db: Session = Depends(getSession),
-    token: str | None = Body(default=None, embed=True),
-):
-    if not verifyServiceToken(db, request.headers.get("X-Service-Token", "")):
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    auth = request.headers.get("Authorization", "")
-    raw = (
-        token
-        or request.headers.get("X-Access-Token")
-        or (auth.split(" ")[1] if auth.startswith("Bearer ") else None)
-        or request.cookies.get(COOKIE_NAME)
-    )
-    if not raw:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    try:
-        return introspectToken(db, raw)
-    except HTTPException:
-        raise HTTPException(status_code=401, detail="Unauthorized")
 
 
 @router.get("/google")
