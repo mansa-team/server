@@ -27,7 +27,7 @@ from main.app.authentication.mcp.server import (  # noqa: E402
 from main.app.authentication.mcp.verifier import verifyMcpAccessToken  # noqa: E402
 from main.app.authentication.verifier import (  # noqa: E402
     REVOKED_ACCESS_JTIS,
-    introspectToken,
+    verifyWalletUser,
     oauthTokenValidator,
     resourceUrl,
     verifyAccessTokenClaims,
@@ -159,13 +159,13 @@ class TestVerificationContracts:
         assert verifyAccessTokenClaims(forged, dbSession) is None
         assert verifyMcpAccessToken(serviceToken, dbSession) is None
 
-    def test_introspect_valid_and_invalid(self, dbSession):
+    def test_wallet_identity_valid_and_invalid(self, dbSession):
         user, session = makeUserAndSession(dbSession)
         token = createAccessToken({"userId": str(user.userId), "sessionId": session.sessionId})
-        assert introspectToken(dbSession, token) == {
+        assert verifyWalletUser(dbSession, token) == {
             "userId": user.userId,
             "username": user.username,
             "roles": ["USER"],
         }
         with pytest.raises(HTTPException):
-            introspectToken(dbSession, "bogus")
+            verifyWalletUser(dbSession, "bogus")

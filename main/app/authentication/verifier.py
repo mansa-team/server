@@ -31,7 +31,8 @@ class MansaJWTValidator(JWTBearerTokenValidator):
 oauthTokenValidator = MansaJWTValidator()
 
 
-def verifyAccessTokenClaims(token: str, db: Session) -> dict | None:
+def authenticateAccessToken(db: Session, token: str) -> tuple[dict, User] | None:
+    """Validate an access token once, returning its claims and the loaded user."""
     raw = rawClaims(token)
     if str(raw.get("jti") or "") in REVOKED_ACCESS_JTIS:
         return None
@@ -67,7 +68,12 @@ def verifyAccessTokenClaims(token: str, db: Session) -> dict | None:
         return None
     if not SessionManager.validateSession(db, str(sessionId), userIdInt):
         return None
-    return claims
+    return claims, user
+
+
+def verifyAccessTokenClaims(token: str, db: Session) -> dict | None:
+    result = authenticateAccessToken(db, token)
+    return result[0] if result is not None else None
 
 
 def resolveSessionIdentity(db: Session, token: str) -> tuple[int, str] | None:
@@ -88,23 +94,19 @@ def resolveSessionIdentity(db: Session, token: str) -> tuple[int, str] | None:
     return userId, str(sessionId)
 
 
-def introspectToken(db: Session, token: str | None) -> dict:
+def verifyWalletUser(db: Session, token: str | None) -> dict:
+    """Build the wallet identity from a validated token, without a second User query."""
     try:
         raw = (token or "").strip().removeprefix("Bearer ").strip()
         if not raw:
             raise HTTPException(status_code=401, detail="Unauthorized")
-
-        identity = resolveSessionIdentity(db, raw)
-        if identity is None:
+        result = authenticateAccessToken(db, raw)
+        if result is None:
             raise HTTPException(status_code=401, detail="Unauthorized")
-
-        user = db.query(User).filter(User.userId == identity[0]).first()
-        if not user:
-            raise HTTPException(status_code=401, detail="Unauthorized")
-
+        user = result[1]
         return {"userId": user.userId, "username": user.username, "roles": getRolesList(user)}
     except HTTPException:
         raise HTTPException(status_code=401, detail="Unauthorized")
-    except Exception as e:
-        logger.warning(f"Token introspection failed: {e}")
+    except Exception as exc:
+        logger.warning("Wallet token verification failed: %s", exc)
         raise HTTPException(status_code=401, detail="Unauthorized")
